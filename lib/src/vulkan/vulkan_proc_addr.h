@@ -1,0 +1,22 @@
+#pragma once
+
+#include "vulkan_include.h"
+
+namespace Viry3D
+{
+	void get_instance_proc_addrs(VkInstance instance);
+	void get_device_proc_addrs(VkInstance instance, VkDevice device);
+
+	extern PFN_vkCreateDebugReportCallbackEXT fpCreateDebugReportCallbackEXT;
+	extern PFN_vkDestroyDebugReportCallbackEXT fpDestroyDebugReportCallbackEXT;
+	extern PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
+	extern PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fpGetPhysicalDeviceSurfaceCapabilitiesKHR;
+	extern PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fpGetPhysicalDeviceSurfaceFormatsKHR;
+	extern PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fpGetPhysicalDeviceSurfacePresentModesKHR;
+	extern PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr;
+	extern PFN_vkCreateSwapchainKHR fpCreateSwapchainKHR;
+	extern PFN_vkDestroySwapchainKHR fpDestroySwapchainKHR;
+	extern PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
+	extern PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
+	extern PFN_vkQueuePresentKHR fpQueuePresentKHR;
+}

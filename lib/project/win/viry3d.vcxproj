@@ -1,0 +1,708 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\android\DisplayAndroid.h" />
+    <ClInclude Include="..\..\src\android\jni.h" />
+    <ClInclude Include="..\..\src\animation\Animation.h" />
+    <ClInclude Include="..\..\src\animation\AnimationClip.h" />
+    <ClInclude Include="..\..\src\animation\AnimationCurve.h" />
+    <ClInclude Include="..\..\src\animation\AnimationState.h" />
+    <ClInclude Include="..\..\src\animation\AnimationWrapMode.h" />
+    <ClInclude Include="..\..\src\Any.h" />
+    <ClInclude Include="..\..\src\Application.h" />
+    <ClInclude Include="..\..\src\audio\AudioClip.h" />
+    <ClInclude Include="..\..\src\audio\AudioListener.h" />
+    <ClInclude Include="..\..\src\audio\AudioManager.h" />
+    <ClInclude Include="..\..\src\audio\AudioSource.h" />
+    <ClInclude Include="..\..\src\Component.h" />
+    <ClInclude Include="..\..\src\ComponentClassMap.h" />
+    <ClInclude Include="..\..\src\container\FastList.h" />
+    <ClInclude Include="..\..\src\container\List.h" />
+    <ClInclude Include="..\..\src\container\Map.h" />
+    <ClInclude Include="..\..\src\container\Vector.h" />
+    <ClInclude Include="..\..\src\Debug.h" />
+    <ClInclude Include="..\..\src\freetype\src\base\md5.h" />
+    <ClInclude Include="..\..\src\GameObject.h" />
+    <ClInclude Include="..\..\src\gles\BufferGLES.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\DisplayGLES.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\gles_include.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\MaterialGLES.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\RenderPassGLES.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\ShaderGLES.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\TextureGLES.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\BufferType.h" />
+    <ClInclude Include="..\..\src\graphics\Camera.h" />
+    <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
+    <ClInclude Include="..\..\src\graphics\Color.h" />
+    <ClInclude Include="..\..\src\graphics\DepthBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\Display.h" />
+    <ClInclude Include="..\..\src\graphics\DisplayBase.h" />
+    <ClInclude Include="..\..\src\graphics\FilterMode.h" />
+    <ClInclude Include="..\..\src\graphics\FrameBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\Graphics.h" />
+    <ClInclude Include="..\..\src\graphics\Image.h" />
+    <ClInclude Include="..\..\src\graphics\ImageBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\IndexBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\Light.h" />
+    <ClInclude Include="..\..\src\graphics\LightmapSettings.h" />
+    <ClInclude Include="..\..\src\graphics\Material.h" />
+    <ClInclude Include="..\..\src\graphics\Mesh.h" />
+    <ClInclude Include="..\..\src\graphics\RenderPass.h" />
+    <ClInclude Include="..\..\src\graphics\RenderQueue.h" />
+    <ClInclude Include="..\..\src\graphics\RenderTexture.h" />
+    <ClInclude Include="..\..\src\graphics\RenderTextureBliter.h" />
+    <ClInclude Include="..\..\src\graphics\RenderTextureFormat.h" />
+    <ClInclude Include="..\..\src\graphics\Screen.h" />
+    <ClInclude Include="..\..\src\graphics\Shader.h" />
+    <ClInclude Include="..\..\src\graphics\Texture.h" />
+    <ClInclude Include="..\..\src\graphics\Texture2D.h" />
+    <ClInclude Include="..\..\src\graphics\TextureFormat.h" />
+    <ClInclude Include="..\..\src\graphics\TextureWrapMode.h" />
+    <ClInclude Include="..\..\src\graphics\UniformBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\VertexBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\XMLShader.h" />
+    <ClInclude Include="..\..\src\Input.h" />
+    <ClInclude Include="..\..\src\io\Directory.h" />
+    <ClInclude Include="..\..\src\io\File.h" />
+    <ClInclude Include="..\..\src\io\MemoryStream.h" />
+    <ClInclude Include="..\..\src\io\Stream.h" />
+    <ClInclude Include="..\..\src\json\autolink.h" />
+    <ClInclude Include="..\..\src\json\config.h" />
+    <ClInclude Include="..\..\src\json\features.h" />
+    <ClInclude Include="..\..\src\json\forwards.h" />
+    <ClInclude Include="..\..\src\json\json.h" />
+    <ClInclude Include="..\..\src\json\json_batchallocator.h" />
+    <ClInclude Include="..\..\src\json\reader.h" />
+    <ClInclude Include="..\..\src\json\value.h" />
+    <ClInclude Include="..\..\src\json\writer.h" />
+    <ClInclude Include="..\..\src\KeyCode.h" />
+    <ClInclude Include="..\..\src\Layer.h" />
+    <ClInclude Include="..\..\src\Main.h" />
+    <ClInclude Include="..\..\src\math\Bounds.h" />
+    <ClInclude Include="..\..\src\math\Frustum.h" />
+    <ClInclude Include="..\..\src\math\Mathf.h" />
+    <ClInclude Include="..\..\src\math\Matrix4x4.h" />
+    <ClInclude Include="..\..\src\math\Quaternion.h" />
+    <ClInclude Include="..\..\src\math\Rect.h" />
+    <ClInclude Include="..\..\src\math\Vector2.h" />
+    <ClInclude Include="..\..\src\math\Vector3.h" />
+    <ClInclude Include="..\..\src\math\Vector4.h" />
+    <ClInclude Include="..\..\src\memory\ByteBuffer.h" />
+    <ClInclude Include="..\..\src\memory\Memory.h" />
+    <ClInclude Include="..\..\src\memory\Ref.h" />
+    <ClInclude Include="..\..\src\Object.h" />
+    <ClInclude Include="..\..\src\openal\win\config.h" />
+    <ClInclude Include="..\..\src\postprocess\ImageEffect.h" />
+    <ClInclude Include="..\..\src\postprocess\ImageEffectBlur.h" />
+    <ClInclude Include="..\..\src\Profiler.h" />
+    <ClInclude Include="..\..\src\renderer\MeshRenderer.h" />
+    <ClInclude Include="..\..\src\renderer\ParticleSystem.h" />
+    <ClInclude Include="..\..\src\renderer\ParticleSystemRenderer.h" />
+    <ClInclude Include="..\..\src\renderer\Renderer.h" />
+    <ClInclude Include="..\..\src\renderer\SkinnedMeshRenderer.h" />
+    <ClInclude Include="..\..\src\Resource.h" />
+    <ClInclude Include="..\..\src\RunLoop.h" />
+    <ClInclude Include="..\..\src\string\String.h" />
+    <ClInclude Include="..\..\src\thread\Thread.h" />
+    <ClInclude Include="..\..\src\time\Time.h" />
+    <ClInclude Include="..\..\src\time\Timer.h" />
+    <ClInclude Include="..\..\src\Transform.h" />
+    <ClInclude Include="..\..\src\tweener\Tweener.h" />
+    <ClInclude Include="..\..\src\tweener\TweenPosition.h" />
+    <ClInclude Include="..\..\src\tweener\TweenUIColor.h" />
+    <ClInclude Include="..\..\src\ui\Atlas.h" />
+    <ClInclude Include="..\..\src\ui\Font.h" />
+    <ClInclude Include="..\..\src\ui\Sprite.h" />
+    <ClInclude Include="..\..\src\ui\UICanvasRenderer.h" />
+    <ClInclude Include="..\..\src\ui\UIEventHandler.h" />
+    <ClInclude Include="..\..\src\ui\UILabel.h" />
+    <ClInclude Include="..\..\src\ui\UIRect.h" />
+    <ClInclude Include="..\..\src\ui\UISprite.h" />
+    <ClInclude Include="..\..\src\ui\UIView.h" />
+    <ClInclude Include="..\..\src\vulkan\DisplayVulkan.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\glslang_tab.cpp.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\gl_types.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Initialize.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\localintermediate.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ParseHelper.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\parseVersions.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpContext.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpTokens.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\propagateNoContraction.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\reflection.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\RemoveTree.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Scan.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ScanContext.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\SymbolTable.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Versions.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslGrammar.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslOpMap.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslParseables.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslParseHelper.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslScanContext.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslTokens.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslTokenStream.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\OGLCompilersDLL\InitializeDll.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\disassemble.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\doc.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\GLSL.std.450.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\GlslangToSpv.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\Logger.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\spirv.hpp" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\SpvBuilder.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\spvIR.h" />
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\SPVRemapper.h" />
+    <ClInclude Include="..\..\src\vulkan\BufferVulkan.h" />
+    <ClInclude Include="..\..\src\vulkan\MaterialVulkan.h" />
+    <ClInclude Include="..\..\src\vulkan\RenderPassVulkan.h" />
+    <ClInclude Include="..\..\src\vulkan\ShaderVulkan.h" />
+    <ClInclude Include="..\..\src\vulkan\TextureVulkan.h" />
+    <ClInclude Include="..\..\src\vulkan\vulkan_check.h" />
+    <ClInclude Include="..\..\src\vulkan\vulkan_include.h" />
+    <ClInclude Include="..\..\src\vulkan\vulkan_proc_addr.h" />
+    <ClInclude Include="..\..\src\vulkan\vulkan_shader_compiler.h" />
+    <ClInclude Include="..\..\src\windows\DisplayWindows.h" />
+    <ClInclude Include="..\..\src\World.h" />
+    <ClInclude Include="..\..\src\xml\tinyxml2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\app\project\android\app\src\main\jni\jni.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\android\DisplayAndroid.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\animation\Animation.cpp" />
+    <ClCompile Include="..\..\src\animation\AnimationCurve.cpp" />
+    <ClCompile Include="..\..\src\Application.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioClip.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioListener.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioManager.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioSource.cpp" />
+    <ClCompile Include="..\..\src\Component.cpp" />
+    <ClCompile Include="..\..\src\Debug.cpp" />
+    <ClCompile Include="..\..\src\freetype\src\autofit\autofit.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftbase.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftbbox.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftbitmap.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftdebug.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftfntfmt.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftfstype.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftgasp.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftglyph.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftgxval.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftinit.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftlcdfil.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftmm.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftotval.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftpatent.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftpfr.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftstroke.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftsynth.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftsystem.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\fttype1.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\ftwinfnt.c" />
+    <ClCompile Include="..\..\src\freetype\src\base\md5.c" />
+    <ClCompile Include="..\..\src\freetype\src\bdf\bdf.c" />
+    <ClCompile Include="..\..\src\freetype\src\cache\ftcache.c" />
+    <ClCompile Include="..\..\src\freetype\src\cff\cff.c" />
+    <ClCompile Include="..\..\src\freetype\src\cid\type1cid.c" />
+    <ClCompile Include="..\..\src\freetype\src\gzip\ftgzip.c" />
+    <ClCompile Include="..\..\src\freetype\src\lzw\ftlzw.c" />
+    <ClCompile Include="..\..\src\freetype\src\pcf\pcf.c" />
+    <ClCompile Include="..\..\src\freetype\src\pfr\pfr.c" />
+    <ClCompile Include="..\..\src\freetype\src\psaux\psaux.c" />
+    <ClCompile Include="..\..\src\freetype\src\pshinter\pshinter.c" />
+    <ClCompile Include="..\..\src\freetype\src\psnames\psmodule.c" />
+    <ClCompile Include="..\..\src\freetype\src\raster\raster.c" />
+    <ClCompile Include="..\..\src\freetype\src\sfnt\sfnt.c" />
+    <ClCompile Include="..\..\src\freetype\src\smooth\smooth.c" />
+    <ClCompile Include="..\..\src\freetype\src\truetype\truetype.c" />
+    <ClCompile Include="..\..\src\freetype\src\type1\type1.c" />
+    <ClCompile Include="..\..\src\freetype\src\type42\type42.c" />
+    <ClCompile Include="..\..\src\freetype\src\winfonts\winfnt.c" />
+    <ClCompile Include="..\..\src\GameObject.cpp" />
+    <ClCompile Include="..\..\src\gles\BufferGLES.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\DisplayGLES.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\MaterialGLES.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\RenderPassGLES.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\ShaderGLES.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\TextureGLES.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Camera.cpp" />
+    <ClCompile Include="..\..\src\graphics\Color.cpp" />
+    <ClCompile Include="..\..\src\graphics\DisplayBase.cpp" />
+    <ClCompile Include="..\..\src\graphics\Graphics.cpp" />
+    <ClCompile Include="..\..\src\graphics\Image.cpp" />
+    <ClCompile Include="..\..\src\graphics\ImageBuffer.cpp" />
+    <ClCompile Include="..\..\src\graphics\IndexBuffer.cpp" />
+    <ClCompile Include="..\..\src\graphics\Light.cpp" />
+    <ClCompile Include="..\..\src\graphics\LightmapSettings.cpp" />
+    <ClCompile Include="..\..\src\graphics\Material.cpp" />
+    <ClCompile Include="..\..\src\graphics\Mesh.cpp" />
+    <ClCompile Include="..\..\src\graphics\RenderPass.cpp" />
+    <ClCompile Include="..\..\src\graphics\RenderTexture.cpp" />
+    <ClCompile Include="..\..\src\graphics\RenderTextureBliter.cpp" />
+    <ClCompile Include="..\..\src\graphics\Screen.cpp" />
+    <ClCompile Include="..\..\src\graphics\Shader.cpp" />
+    <ClCompile Include="..\..\src\graphics\Texture2D.cpp" />
+    <ClCompile Include="..\..\src\graphics\UniformBuffer.cpp" />
+    <ClCompile Include="..\..\src\graphics\VertexBuffer.cpp" />
+    <ClCompile Include="..\..\src\graphics\XMLShader.cpp" />
+    <ClCompile Include="..\..\src\Input.cpp" />
+    <ClCompile Include="..\..\src\io\Directory.cpp" />
+    <ClCompile Include="..\..\src\io\File.cpp" />
+    <ClCompile Include="..\..\src\io\MemoryStream.cpp" />
+    <ClCompile Include="..\..\src\io\Stream.cpp" />
+    <ClCompile Include="..\..\src\jpeg\jaricom.c" />
+    <ClCompile Include="..\..\src\jpeg\jcapimin.c" />
+    <ClCompile Include="..\..\src\jpeg\jcapistd.c" />
+    <ClCompile Include="..\..\src\jpeg\jcarith.c" />
+    <ClCompile Include="..\..\src\jpeg\jccoefct.c" />
+    <ClCompile Include="..\..\src\jpeg\jccolor.c" />
+    <ClCompile Include="..\..\src\jpeg\jcdctmgr.c" />
+    <ClCompile Include="..\..\src\jpeg\jchuff.c" />
+    <ClCompile Include="..\..\src\jpeg\jcinit.c" />
+    <ClCompile Include="..\..\src\jpeg\jcmainct.c" />
+    <ClCompile Include="..\..\src\jpeg\jcmarker.c" />
+    <ClCompile Include="..\..\src\jpeg\jcmaster.c" />
+    <ClCompile Include="..\..\src\jpeg\jcomapi.c" />
+    <ClCompile Include="..\..\src\jpeg\jcparam.c" />
+    <ClCompile Include="..\..\src\jpeg\jcprepct.c" />
+    <ClCompile Include="..\..\src\jpeg\jcsample.c" />
+    <ClCompile Include="..\..\src\jpeg\jctrans.c" />
+    <ClCompile Include="..\..\src\jpeg\jdapimin.c" />
+    <ClCompile Include="..\..\src\jpeg\jdapistd.c" />
+    <ClCompile Include="..\..\src\jpeg\jdarith.c" />
+    <ClCompile Include="..\..\src\jpeg\jdatadst.c" />
+    <ClCompile Include="..\..\src\jpeg\jdatasrc.c" />
+    <ClCompile Include="..\..\src\jpeg\jdcoefct.c" />
+    <ClCompile Include="..\..\src\jpeg\jdcolor.c" />
+    <ClCompile Include="..\..\src\jpeg\jddctmgr.c" />
+    <ClCompile Include="..\..\src\jpeg\jdhuff.c" />
+    <ClCompile Include="..\..\src\jpeg\jdinput.c" />
+    <ClCompile Include="..\..\src\jpeg\jdmainct.c" />
+    <ClCompile Include="..\..\src\jpeg\jdmarker.c" />
+    <ClCompile Include="..\..\src\jpeg\jdmaster.c" />
+    <ClCompile Include="..\..\src\jpeg\jdmerge.c" />
+    <ClCompile Include="..\..\src\jpeg\jdpostct.c" />
+    <ClCompile Include="..\..\src\jpeg\jdsample.c" />
+    <ClCompile Include="..\..\src\jpeg\jdtrans.c" />
+    <ClCompile Include="..\..\src\jpeg\jerror.c" />
+    <ClCompile Include="..\..\src\jpeg\jfdctflt.c" />
+    <ClCompile Include="..\..\src\jpeg\jfdctfst.c" />
+    <ClCompile Include="..\..\src\jpeg\jfdctint.c" />
+    <ClCompile Include="..\..\src\jpeg\jidctflt.c" />
+    <ClCompile Include="..\..\src\jpeg\jidctfst.c" />
+    <ClCompile Include="..\..\src\jpeg\jidctint.c" />
+    <ClCompile Include="..\..\src\jpeg\jmemmgr.c" />
+    <ClCompile Include="..\..\src\jpeg\jmemnobs.c" />
+    <ClCompile Include="..\..\src\jpeg\jquant1.c" />
+    <ClCompile Include="..\..\src\jpeg\jquant2.c" />
+    <ClCompile Include="..\..\src\jpeg\jutils.c" />
+    <ClCompile Include="..\..\src\json\json_reader.cpp" />
+    <ClCompile Include="..\..\src\json\json_value.cpp" />
+    <ClCompile Include="..\..\src\json\json_writer.cpp" />
+    <ClCompile Include="..\..\src\math\Bounds.cpp" />
+    <ClCompile Include="..\..\src\math\Frustum.cpp" />
+    <ClCompile Include="..\..\src\math\Mathf.cpp" />
+    <ClCompile Include="..\..\src\math\Matrix4x4.cpp" />
+    <ClCompile Include="..\..\src\math\Quaternion.cpp" />
+    <ClCompile Include="..\..\src\math\Rect.cpp" />
+    <ClCompile Include="..\..\src\math\Vector2.cpp" />
+    <ClCompile Include="..\..\src\math\Vector3.cpp" />
+    <ClCompile Include="..\..\src\memory\ByteBuffer.cpp" />
+    <ClCompile Include="..\..\src\mp3\mad\bit.c" />
+    <ClCompile Include="..\..\src\mp3\mad\decoder.c" />
+    <ClCompile Include="..\..\src\mp3\mad\fixed.c" />
+    <ClCompile Include="..\..\src\mp3\mad\frame.c" />
+    <ClCompile Include="..\..\src\mp3\mad\huffman.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\compat.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\crc.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_debug.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\field.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_file.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\frametype.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\genre.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_frame.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_version.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\latin1.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\parse.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\render.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\tag.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\ucs4.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\utf16.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\utf8.c" />
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\util.c" />
+    <ClCompile Include="..\..\src\mp3\mad\layer12.c" />
+    <ClCompile Include="..\..\src\mp3\mad\layer3.c" />
+    <ClCompile Include="..\..\src\mp3\mad\mad_stream.c" />
+    <ClCompile Include="..\..\src\mp3\mad\synth.c" />
+    <ClCompile Include="..\..\src\mp3\mad\mad_timer.c" />
+    <ClCompile Include="..\..\src\mp3\mad\version.c" />
+    <ClCompile Include="..\..\src\Object.cpp" />
+    <ClCompile Include="..\..\src\openal\Alc\ALc.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcConfig.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcDedicated.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcEcho.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcModulator.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcReverb.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcRing.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcThread.c" />
+    <ClCompile Include="..\..\src\openal\Alc\ALc_cpp11.cpp" />
+    <ClCompile Include="..\..\src\openal\Alc\ALu.c" />
+    <ClCompile Include="..\..\src\openal\Alc\backends\loopback.c" />
+    <ClCompile Include="..\..\src\openal\Alc\backends\null.c" />
+    <ClCompile Include="..\..\src\openal\Alc\backends\thread_msg_queue_cpp11.cpp" />
+    <ClCompile Include="..\..\src\openal\Alc\backends\winmm.c" />
+    <ClCompile Include="..\..\src\openal\Alc\backends\xaudio2.cpp" />
+    <ClCompile Include="..\..\src\openal\Alc\bs2b.c" />
+    <ClCompile Include="..\..\src\openal\Alc\helpers.c" />
+    <ClCompile Include="..\..\src\openal\Alc\hrtf.c" />
+    <ClCompile Include="..\..\src\openal\Alc\mixer.c" />
+    <ClCompile Include="..\..\src\openal\Alc\panning.c" />
+    <ClCompile Include="..\..\src\openal\OpenAL32\alError.c" />
+    <ClCompile Include="..\..\src\openal\OpenAL32\alExtension.c" />
+    <ClCompile Include="..\..\src\openal\OpenAL32\alListener.c" />
+    <ClCompile Include="..\..\src\openal\OpenAL32\alSource.c" />
+    <ClCompile Include="..\..\src\openal\OpenAL32\alThunk.c" />
+    <ClCompile Include="..\..\src\png\png.c" />
+    <ClCompile Include="..\..\src\png\pngerror.c" />
+    <ClCompile Include="..\..\src\png\pngget.c" />
+    <ClCompile Include="..\..\src\png\pngmem.c" />
+    <ClCompile Include="..\..\src\png\pngpread.c" />
+    <ClCompile Include="..\..\src\png\pngread.c" />
+    <ClCompile Include="..\..\src\png\pngrio.c" />
+    <ClCompile Include="..\..\src\png\pngrtran.c" />
+    <ClCompile Include="..\..\src\png\pngrutil.c" />
+    <ClCompile Include="..\..\src\png\pngset.c" />
+    <ClCompile Include="..\..\src\png\pngtrans.c" />
+    <ClCompile Include="..\..\src\png\pngwio.c" />
+    <ClCompile Include="..\..\src\png\pngwrite.c" />
+    <ClCompile Include="..\..\src\png\pngwtran.c" />
+    <ClCompile Include="..\..\src\png\pngwutil.c" />
+    <ClCompile Include="..\..\src\postprocess\ImageEffect.cpp" />
+    <ClCompile Include="..\..\src\postprocess\ImageEffectBlur.cpp" />
+    <ClCompile Include="..\..\src\Profiler.cpp" />
+    <ClCompile Include="..\..\src\renderer\MeshRenderer.cpp" />
+    <ClCompile Include="..\..\src\renderer\ParticleSystem.cpp" />
+    <ClCompile Include="..\..\src\renderer\ParticleSystemRenderer.cpp" />
+    <ClCompile Include="..\..\src\renderer\Renderer.cpp" />
+    <ClCompile Include="..\..\src\renderer\SkinnedMeshRenderer.cpp" />
+    <ClCompile Include="..\..\src\Resource.cpp" />
+    <ClCompile Include="..\..\src\RunLoop.cpp" />
+    <ClCompile Include="..\..\src\string\String.cpp" />
+    <ClCompile Include="..\..\src\thread\Thread.cpp" />
+    <ClCompile Include="..\..\src\time\Time.cpp" />
+    <ClCompile Include="..\..\src\time\Timer.cpp" />
+    <ClCompile Include="..\..\src\Transform.cpp" />
+    <ClCompile Include="..\..\src\tweener\Tweener.cpp" />
+    <ClCompile Include="..\..\src\tweener\TweenPosition.cpp" />
+    <ClCompile Include="..\..\src\tweener\TweenUIColor.cpp" />
+    <ClCompile Include="..\..\src\ui\Atlas.cpp" />
+    <ClCompile Include="..\..\src\ui\Font.cpp" />
+    <ClCompile Include="..\..\src\ui\Sprite.cpp" />
+    <ClCompile Include="..\..\src\ui\UICanvasRenderer.cpp" />
+    <ClCompile Include="..\..\src\ui\UIEventHandler.cpp" />
+    <ClCompile Include="..\..\src\ui\UILabel.cpp" />
+    <ClCompile Include="..\..\src\ui\UIRect.cpp" />
+    <ClCompile Include="..\..\src\ui\UISprite.cpp" />
+    <ClCompile Include="..\..\src\ui\UIView.cpp" />
+    <ClCompile Include="..\..\src\vulkan\BufferVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\DisplayVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Constant.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\glslang_tab.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\InfoSink.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Initialize.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Intermediate.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\intermOut.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\IntermTraverse.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\limits.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\linkValidate.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\parseConst.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ParseHelper.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\PoolAlloc.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\Pp.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpAtom.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpContext.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpMemory.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpScanner.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpSymbols.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpTokens.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\propagateNoContraction.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\reflection.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\RemoveTree.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Scan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ShaderLang.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\SymbolTable.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Versions.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\OSDependent\Windows\ossource.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslGrammar.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslOpMap.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslParseables.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslParseHelper.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslScanContext.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslTokenStream.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\OGLCompilersDLL\InitializeDll.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\disassemble.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\doc.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\GlslangToSpv.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\InReadableOrder.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\Logger.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SpvBuilder.cpp" />
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SPVRemapper.cpp" />
+    <ClCompile Include="..\..\src\vulkan\MaterialVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\RenderPassVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\ShaderVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\TextureVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\vulkan_check.cpp" />
+    <ClCompile Include="..\..\src\vulkan\vulkan_proc_addr.cpp" />
+    <ClCompile Include="..\..\src\vulkan\vulkan_shader_compiler.cpp" />
+    <ClCompile Include="..\..\src\windows\DisplayWindows.cpp" />
+    <ClCompile Include="..\..\src\World.cpp" />
+    <ClCompile Include="..\..\src\xml\tinyxml2.cpp" />
+    <ClCompile Include="..\..\src\zlib\adler32.c" />
+    <ClCompile Include="..\..\src\zlib\compress.c" />
+    <ClCompile Include="..\..\src\zlib\crc32.c" />
+    <ClCompile Include="..\..\src\zlib\deflate.c" />
+    <ClCompile Include="..\..\src\zlib\gzclose.c" />
+    <ClCompile Include="..\..\src\zlib\gzlib.c" />
+    <ClCompile Include="..\..\src\zlib\gzread.c" />
+    <ClCompile Include="..\..\src\zlib\gzwrite.c" />
+    <ClCompile Include="..\..\src\zlib\infback.c" />
+    <ClCompile Include="..\..\src\zlib\inffast.c" />
+    <ClCompile Include="..\..\src\zlib\inflate.c" />
+    <ClCompile Include="..\..\src\zlib\inftrees.c" />
+    <ClCompile Include="..\..\src\zlib\ioapi.c" />
+    <ClCompile Include="..\..\src\zlib\trees.c" />
+    <ClCompile Include="..\..\src\zlib\uncompr.c" />
+    <ClCompile Include="..\..\src\zlib\unzip.c" />
+    <ClCompile Include="..\..\src\zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\json\json_internalarray.inl" />
+    <None Include="..\..\src\json\json_internalmap.inl" />
+    <None Include="..\..\src\json\json_valueiterator.inl" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B1A3401A-A9FA-429D-8021-CF57F3C7F89B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>viry3d</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

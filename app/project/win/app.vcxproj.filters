@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{fb7d14ba-128f-4d3a-aba8-3fc2117c855d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\AppClear.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppMesh.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppWatch.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppAnim.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppBlur.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppScene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\lib\src\gles\glew\prebuilt\glew32.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="..\..\..\lib\src\gles\glfw3\prebuilt\win32\glfw3-2015.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="..\..\..\lib\src\ffmpeg\lib\avcodec.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="..\..\..\lib\src\ffmpeg\lib\avformat.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="..\..\..\lib\src\ffmpeg\lib\avutil.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="..\..\..\lib\src\ffmpeg\lib\swscale.lib">
+      <Filter>lib</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+.vs
+Debug
+Release
+*.db
+*.cache
+*.iobj
+*.ipdb
+*.pdb
+*.tmp
+app.exe
+viry3d.lib
+Assets

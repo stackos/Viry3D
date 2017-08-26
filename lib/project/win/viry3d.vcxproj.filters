@@ -1,0 +1,1541 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{851bd7ff-66cd-42af-8326-55adbfbbd92d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\graphics">
+      <UniqueIdentifier>{59424bcd-52b4-4a20-a112-87bd4bd7f398}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\io">
+      <UniqueIdentifier>{d091f564-0772-45c1-85e8-52c411ce9d1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\math">
+      <UniqueIdentifier>{45355a75-7b77-4981-ac31-395edfd1a26b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\memory">
+      <UniqueIdentifier>{53093763-e0f3-4c07-a639-0886770866a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\string">
+      <UniqueIdentifier>{50a5fbc0-c16b-40de-aa2e-ec3429a5f5f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\time">
+      <UniqueIdentifier>{714c7b79-fdf7-4206-961c-d7e6d6b13c85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\container">
+      <UniqueIdentifier>{8e82f4c9-f169-4af9-86f3-eb71ead2e899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\vulkan">
+      <UniqueIdentifier>{b4fa9166-8416-4190-96be-c29d7df04559}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\windows">
+      <UniqueIdentifier>{f072b776-2312-4da8-b451-fab0dbfb861d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\vulkan\glslang">
+      <UniqueIdentifier>{ef265d5f-b24c-4507-b6a1-a5cfc7661dd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\xml">
+      <UniqueIdentifier>{a8658d49-61f1-42b1-92a8-b2b8ca8750b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crypto">
+      <UniqueIdentifier>{40702858-6d12-4b82-ab77-a3905b20df0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\renderer">
+      <UniqueIdentifier>{30c63898-0723-45dd-b816-4695a80c9381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\png">
+      <UniqueIdentifier>{eb87f07f-4b30-40b8-b204-64989b725ee8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\zlib">
+      <UniqueIdentifier>{207fbee5-1a11-4794-8136-02b09ade4117}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\jpeg">
+      <UniqueIdentifier>{e5fab2f9-e2c8-4e42-9ac7-d7be1b3f3861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\thread">
+      <UniqueIdentifier>{2f63455f-5a4a-4676-9696-273ab4be53a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gles">
+      <UniqueIdentifier>{b2bc5c3f-d8e2-4c1f-b076-4ac300a8f470}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui">
+      <UniqueIdentifier>{8864ab6e-9943-41bf-b50a-b4f26ae928ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\freetype">
+      <UniqueIdentifier>{fe4662c7-b42b-4392-ae29-4c0b6c338642}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\android">
+      <UniqueIdentifier>{62198523-6bef-4952-8f46-bfafb9eded49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\animation">
+      <UniqueIdentifier>{1757b93a-0925-4d2b-b10e-f4ff90852304}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\postprocess">
+      <UniqueIdentifier>{43cb2ffe-36c9-4ca3-ab6e-406571d34493}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\tweener">
+      <UniqueIdentifier>{2556e93d-2090-4018-a7d7-f1b259d4bdda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\json">
+      <UniqueIdentifier>{ff2fae60-6dc5-4b1f-af65-4546ec447eba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\audio">
+      <UniqueIdentifier>{ab8a43ca-bbc8-4722-9312-cdc4be9ad430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\openal">
+      <UniqueIdentifier>{fc29df29-058d-4b86-ab41-d8580185dffd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mp3">
+      <UniqueIdentifier>{22db202f-00c8-483b-b876-ff406c79d730}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mp3\mad">
+      <UniqueIdentifier>{96561910-5ed6-4a35-86a3-0a219fe4ceb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mp3\mad\id3tag">
+      <UniqueIdentifier>{a15f85a3-26df-4545-9ac3-9b690185b1d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\openal\Alc">
+      <UniqueIdentifier>{402cbf63-61bc-49bd-9edc-bcced7153d96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\openal\OpenAL32">
+      <UniqueIdentifier>{3f7e1751-8132-450d-a294-702a27f76c4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\openal\win">
+      <UniqueIdentifier>{5715eed7-1262-4831-8c2b-bd5fc096a1ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\openal\Alc\backends">
+      <UniqueIdentifier>{9530ca7c-8bd2-44fb-b1fd-64743bacd667}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\container\List.h">
+      <Filter>src\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\container\Map.h">
+      <Filter>src\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\container\Vector.h">
+      <Filter>src\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Camera.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\CameraClearFlags.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Color.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\DepthBuffer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Display.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\DisplayBase.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\FilterMode.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\FrameBuffer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Graphics.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\RenderPass.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\RenderTexture.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\RenderTextureFormat.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Texture.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\TextureWrapMode.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\File.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Mathf.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Matrix4x4.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Quaternion.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Rect.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Vector2.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Vector3.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Vector4.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\memory\ByteBuffer.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\memory\Memory.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\memory\Ref.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\string\String.h">
+      <Filter>src\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\time\Time.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\DisplayVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\RenderPassVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\TextureVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\vulkan_check.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\vulkan_proc_addr.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\vulkan_shader_compiler.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\windows\DisplayWindows.h">
+      <Filter>src\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Application.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Component.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ComponentClassMap.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GameObject.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Layer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Main.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Object.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\RunLoop.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Transform.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\World.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Any.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\glslang_tab.cpp.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\gl_types.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Initialize.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\localintermediate.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ParseHelper.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\parseVersions.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpContext.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpTokens.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\propagateNoContraction.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\reflection.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\RemoveTree.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Scan.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ScanContext.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\SymbolTable.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Versions.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslGrammar.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslOpMap.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslParseables.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslParseHelper.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslScanContext.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslTokens.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslTokenStream.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\OGLCompilersDLL\InitializeDll.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\disassemble.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\doc.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\GLSL.std.450.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\GlslangToSpv.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\Logger.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\spirv.hpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\SpvBuilder.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\spvIR.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\SPVRemapper.h">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\xml\tinyxml2.h">
+      <Filter>src\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Shader.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\Directory.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\XMLShader.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\ShaderVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\vulkan_include.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Mesh.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\renderer\Renderer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\renderer\MeshRenderer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Material.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\IndexBuffer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\VertexBuffer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\BufferVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\BufferType.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\UniformBuffer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Texture2D.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\TextureFormat.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Image.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\Stream.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\io\MemoryStream.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\MaterialVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\ImageBuffer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Debug.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\BufferGLES.h">
+      <Filter>src\gles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\DisplayGLES.h">
+      <Filter>src\gles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\gles_include.h">
+      <Filter>src\gles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\MaterialGLES.h">
+      <Filter>src\gles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\RenderPassGLES.h">
+      <Filter>src\gles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\ShaderGLES.h">
+      <Filter>src\gles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\TextureGLES.h">
+      <Filter>src\gles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\UIView.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\Font.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\Sprite.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\UILabel.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\UISprite.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\UICanvasRenderer.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\UIRect.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Resource.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\Atlas.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\android\DisplayAndroid.h">
+      <Filter>src\android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\thread\Thread.h">
+      <Filter>src\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\renderer\SkinnedMeshRenderer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\animation\AnimationClip.h">
+      <Filter>src\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\animation\AnimationCurve.h">
+      <Filter>src\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\animation\AnimationWrapMode.h">
+      <Filter>src\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\animation\Animation.h">
+      <Filter>src\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\animation\AnimationState.h">
+      <Filter>src\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\postprocess\ImageEffect.h">
+      <Filter>src\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\postprocess\ImageEffectBlur.h">
+      <Filter>src\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tweener\Tweener.h">
+      <Filter>src\tweener</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tweener\TweenPosition.h">
+      <Filter>src\tweener</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Input.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\KeyCode.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Screen.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tweener\TweenUIColor.h">
+      <Filter>src\tweener</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\android\jni.h">
+      <Filter>src\android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\time\Timer.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\UIEventHandler.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\autolink.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\config.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\features.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\forwards.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\json.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\json_batchallocator.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\reader.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\value.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\json\writer.h">
+      <Filter>src\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioClip.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioManager.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioListener.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioSource.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\openal\win\config.h">
+      <Filter>src\openal\win</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\LightmapSettings.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Light.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Profiler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\container\FastList.h">
+      <Filter>src\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Frustum.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\Bounds.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\RenderQueue.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\RenderTextureBliter.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\renderer\ParticleSystem.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\renderer\ParticleSystemRenderer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\freetype\src\base\md5.h">
+      <Filter>src\freetype</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\graphics\Camera.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Color.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\DisplayBase.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Graphics.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\RenderPass.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\RenderTexture.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\File.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Mathf.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Matrix4x4.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Quaternion.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Rect.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Vector2.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Vector3.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\ByteBuffer.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\string\String.cpp">
+      <Filter>src\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\time\Time.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\DisplayVulkan.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\RenderPassVulkan.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\TextureVulkan.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\vulkan_check.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\vulkan_proc_addr.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\vulkan_shader_compiler.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\windows\DisplayWindows.cpp">
+      <Filter>src\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Component.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GameObject.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Object.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\RunLoop.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Transform.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\World.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Application.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Constant.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\glslang_tab.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\InfoSink.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Initialize.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Intermediate.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\intermOut.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\IntermTraverse.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\limits.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\linkValidate.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\parseConst.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ParseHelper.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\PoolAlloc.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\Pp.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpAtom.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpContext.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpMemory.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpScanner.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpSymbols.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpTokens.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\propagateNoContraction.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\reflection.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\RemoveTree.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Scan.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ShaderLang.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\SymbolTable.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Versions.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\OSDependent\Windows\ossource.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslGrammar.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslOpMap.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslParseables.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslParseHelper.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslScanContext.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslTokenStream.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\OGLCompilersDLL\InitializeDll.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\disassemble.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\doc.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\GlslangToSpv.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\InReadableOrder.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\Logger.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SpvBuilder.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SPVRemapper.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\xml\tinyxml2.cpp">
+      <Filter>src\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Shader.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\Directory.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\XMLShader.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\ShaderVulkan.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Mesh.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\renderer\Renderer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\renderer\MeshRenderer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Material.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\BufferVulkan.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\VertexBuffer.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\IndexBuffer.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\UniformBuffer.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Texture2D.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\png.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngerror.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngget.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngmem.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngpread.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngread.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngrio.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngrtran.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngrutil.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngset.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngtrans.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngwio.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngwrite.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngwtran.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\png\pngwutil.c">
+      <Filter>src\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\gzread.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\gzwrite.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\infback.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\inffast.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\inflate.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\inftrees.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\trees.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\uncompr.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\zutil.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\adler32.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\compress.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\crc32.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\deflate.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\gzclose.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\gzlib.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jaricom.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcapimin.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcapistd.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcarith.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jccoefct.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jccolor.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcdctmgr.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jchuff.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcinit.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcmainct.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcmarker.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcmaster.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcomapi.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcparam.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcprepct.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jcsample.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jctrans.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdapimin.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdapistd.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdarith.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdatadst.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdatasrc.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdcoefct.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdcolor.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jddctmgr.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdhuff.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdinput.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdmainct.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdmarker.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdmaster.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdmerge.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdpostct.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdsample.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jdtrans.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jerror.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jfdctflt.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jfdctfst.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jfdctint.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jidctflt.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jidctfst.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jidctint.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jmemmgr.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jmemnobs.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jquant1.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jquant2.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jpeg\jutils.c">
+      <Filter>src\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Image.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\Stream.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\io\MemoryStream.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\MaterialVulkan.cpp">
+      <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\ImageBuffer.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Debug.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\BufferGLES.cpp">
+      <Filter>src\gles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\DisplayGLES.cpp">
+      <Filter>src\gles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\MaterialGLES.cpp">
+      <Filter>src\gles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\RenderPassGLES.cpp">
+      <Filter>src\gles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\ShaderGLES.cpp">
+      <Filter>src\gles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\TextureGLES.cpp">
+      <Filter>src\gles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\UIView.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\UICanvasRenderer.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\UIRect.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Resource.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\Sprite.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\UISprite.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\Atlas.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\Font.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\autofit\autofit.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\bdf\bdf.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\cff\cff.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftbase.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftbbox.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftbitmap.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\cache\ftcache.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftdebug.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftfntfmt.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftfstype.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftgasp.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftglyph.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftgxval.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\gzip\ftgzip.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftinit.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftlcdfil.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\lzw\ftlzw.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftmm.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftotval.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftpatent.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftpfr.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftstroke.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftsynth.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftsystem.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\fttype1.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\ftwinfnt.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\pcf\pcf.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\pfr\pfr.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\psaux\psaux.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\pshinter\pshinter.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\psnames\psmodule.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\raster\raster.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\sfnt\sfnt.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\smooth\smooth.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\truetype\truetype.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\type1\type1.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\cid\type1cid.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\type42\type42.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\winfonts\winfnt.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\UILabel.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\android\DisplayAndroid.cpp">
+      <Filter>src\android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\app\project\android\app\src\main\jni\jni.cpp">
+      <Filter>src\android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thread\Thread.cpp">
+      <Filter>src\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\unzip.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zlib\ioapi.c">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\renderer\SkinnedMeshRenderer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\animation\AnimationCurve.cpp">
+      <Filter>src\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\animation\Animation.cpp">
+      <Filter>src\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\postprocess\ImageEffect.cpp">
+      <Filter>src\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\postprocess\ImageEffectBlur.cpp">
+      <Filter>src\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tweener\Tweener.cpp">
+      <Filter>src\tweener</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tweener\TweenPosition.cpp">
+      <Filter>src\tweener</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Input.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Screen.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tweener\TweenUIColor.cpp">
+      <Filter>src\tweener</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\time\Timer.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\UIEventHandler.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\json\json_reader.cpp">
+      <Filter>src\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\json\json_value.cpp">
+      <Filter>src\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\json\json_writer.cpp">
+      <Filter>src\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioClip.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioManager.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioListener.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioSource.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\bit.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\decoder.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\fixed.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\frame.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\huffman.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\layer3.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\layer12.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\synth.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\version.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\crc.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\field.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\frametype.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\genre.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_frame.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_version.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\latin1.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\parse.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\render.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\tag.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\ucs4.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\utf8.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\utf16.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\util.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\compat.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_debug.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\id3tag\id3_file.c">
+      <Filter>src\mp3\mad\id3tag</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\mad_stream.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mp3\mad\mad_timer.c">
+      <Filter>src\mp3\mad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\OpenAL32\alError.c">
+      <Filter>src\openal\OpenAL32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\OpenAL32\alExtension.c">
+      <Filter>src\openal\OpenAL32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\OpenAL32\alListener.c">
+      <Filter>src\openal\OpenAL32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\OpenAL32\alSource.c">
+      <Filter>src\openal\OpenAL32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\OpenAL32\alThunk.c">
+      <Filter>src\openal\OpenAL32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\ALc.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\ALc_cpp11.cpp">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\alcConfig.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\alcDedicated.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\alcEcho.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\alcModulator.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\alcReverb.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\alcRing.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\bs2b.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\helpers.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\hrtf.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\mixer.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\panning.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\ALu.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\backends\loopback.c">
+      <Filter>src\openal\Alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\backends\null.c">
+      <Filter>src\openal\Alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\backends\thread_msg_queue_cpp11.cpp">
+      <Filter>src\openal\Alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\backends\xaudio2.cpp">
+      <Filter>src\openal\Alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\backends\winmm.c">
+      <Filter>src\openal\Alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\alcThread.c">
+      <Filter>src\openal\Alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\LightmapSettings.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Light.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Profiler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Frustum.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Bounds.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\RenderTextureBliter.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\renderer\ParticleSystem.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\renderer\ParticleSystemRenderer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\freetype\src\base\md5.c">
+      <Filter>src\freetype</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\json\json_internalarray.inl">
+      <Filter>src\json</Filter>
+    </None>
+    <None Include="..\..\src\json\json_internalmap.inl">
+      <Filter>src\json</Filter>
+    </None>
+    <None Include="..\..\src\json\json_valueiterator.inl">
+      <Filter>src\json</Filter>
+    </None>
+  </ItemGroup>
+</Project>

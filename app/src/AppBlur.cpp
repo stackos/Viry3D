@@ -1,0 +1,103 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+#include "Main.h"
+#include "Application.h"
+#include "GameObject.h"
+#include "Resource.h"
+#include "Debug.h"
+#include "graphics/Graphics.h"
+#include "graphics/Camera.h"
+#include "animation/Animation.h"
+#include "ui/UILabel.h"
+#include "time/Time.h"
+#include "renderer/MeshRenderer.h"
+#include "graphics/Material.h"
+#include "postprocess/ImageEffectBlur.h"
+
+using namespace Viry3D;
+
+class AppBlur : public Application
+{
+public:
+	AppBlur();
+	virtual void Start();
+};
+
+class CameraPostRender : public Component
+{
+	DECLARE_COM_CLASS(CameraPostRender, Component)
+public:
+	Ref<Texture> m_tex;
+
+	virtual void Start()
+	{
+		m_tex = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");
+	}
+
+	virtual void OnPostRender()
+	{
+		Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
+		Graphics::DrawQuad(&rect, m_tex);
+	}
+};
+
+DEFINE_COM_CLASS(CameraPostRender);
+
+void CameraPostRender::DeepCopy(const Ref<Object>& source)
+{
+}
+
+#if 0
+VR_MAIN(AppBlur);
+#endif
+
+AppBlur::AppBlur()
+{
+	this->SetName("Viry3D::AppBlur");
+	this->SetInitSize(800, 600);
+
+	CameraPostRender::RegisterComponent();
+}
+
+void AppBlur::Start()
+{
+	this->CreateFPSUI(20, 1, 1);
+
+	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+	camera->SetCullingMask(1 << 0);
+	camera->GetTransform()->SetPosition(Vector3(0, 1.5f, -4.0f));
+	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
+
+	camera->GetGameObject()->AddComponent<CameraPostRender>();
+	camera->GetGameObject()->AddComponent<ImageEffectBlur>();
+
+	auto obj = Resource::LoadGameObject("Assets/AppAnim/unity_chan_splited.prefab");
+	auto anim = obj->GetComponent<Animation>();
+	auto state = anim->GetAnimationState("WAIT02");
+	state.wrap_mode = AnimationWrapMode::Loop;
+	anim->UpdateAnimationState("WAIT02", state);
+	anim->Play("WAIT02");
+
+	auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
+	auto mat = Material::Create("Diffuse");
+	mat->SetMainColor(Color(1, 1, 1, 1));
+	ground->SetSharedMaterial(mat);
+	auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
+	mesh->Update();
+	ground->SetSharedMesh(mesh);
+}
