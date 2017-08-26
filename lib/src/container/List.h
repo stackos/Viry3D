@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #pragma once
 
 #include <list>
@@ -139,9 +156,9 @@ namespace Viry3D
 	template<class V>
 	bool List<V>::Remove(const V& v)
 	{
-		for(auto i = m_list.begin(); i != m_list.end(); i++)
+		for (auto i = m_list.begin(); i != m_list.end(); i++)
 		{
-			if(*i == v)
+			if (*i == v)
 			{
 				m_list.erase(i);
 				return true;

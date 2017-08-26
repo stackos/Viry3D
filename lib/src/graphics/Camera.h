@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #pragma once
 
 #include "Component.h"
@@ -13,7 +30,7 @@ namespace Viry3D
 {
 	class RenderPass;
 
-	class Camera : public Component
+	class Camera: public Component
 	{
 		DECLARE_COM_CLASS(Camera, Component);
 
@@ -27,10 +44,10 @@ namespace Viry3D
 		static void OnResize(int width, int height);
 
 		virtual ~Camera();
-		int GetDepth() const { return m_depth; } 
+		int GetDepth() const { return m_depth; }
 		void SetDepth(int depth);
-		CameraClearFlags::Enum GetClearFlags() const { return m_clear_flags; }
-		void SetClearFlags(CameraClearFlags::Enum flags) { m_clear_flags = flags; }
+		CameraClearFlags GetClearFlags() const { return m_clear_flags; }
+		void SetClearFlags(CameraClearFlags flags) { m_clear_flags = flags; }
 		const Color& GetClearColor() const { return m_clear_color; }
 		void SetClearColor(const Color& color) { m_clear_color = color; }
 		bool IsOrthographic() const { return m_orthographic; }
@@ -83,7 +100,7 @@ namespace Viry3D
 		static Ref<FrameBuffer> m_post_target_back;
 
 		int m_depth;
-		CameraClearFlags::Enum m_clear_flags;
+		CameraClearFlags m_clear_flags;
 		Color m_clear_color;
 		bool m_orthographic;
 		float m_orthographic_size;
@@ -93,7 +110,7 @@ namespace Viry3D
 		Rect m_rect;
 		int m_culling_mask;
 		bool m_hdr;
-		
+
 		Ref<FrameBuffer> m_frame_buffer;
 		Ref<FrameBuffer> m_target_rendering;
 		bool m_matrix_dirty;

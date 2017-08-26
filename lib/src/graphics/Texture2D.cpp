@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Texture2D.h"
 #include "Image.h"
 #include "io/File.h"
@@ -11,22 +28,22 @@ namespace Viry3D
 	}
 
 	Ref<Texture2D> Texture2D::LoadFromData(const ByteBuffer& buffer,
-		TextureWrapMode::Enum wrap_mode,
-		FilterMode::Enum filter_mode,
+		TextureWrapMode wrap_mode,
+		FilterMode filter_mode,
 		bool mipmap)
 	{
 		Ref<Texture2D> texture;
 
-		const byte JPG_HEAD[] = {0xff, 0xd8, 0xff};
-		const byte PNG_HEAD[] = {0x89, 0x50, 0x4e, 0x47};
+		const byte JPG_HEAD[] = { 0xff, 0xd8, 0xff };
+		const byte PNG_HEAD[] = { 0x89, 0x50, 0x4e, 0x47 };
 
 		int width = 0, height = 0, bpp = 0;
 		ByteBuffer colors;
-		if(Memory::Compare(buffer.Bytes(), (void*) JPG_HEAD, 3) == 0)
+		if (Memory::Compare(buffer.Bytes(), (void*) JPG_HEAD, 3) == 0)
 		{
 			colors = Image::LoadJPEG(buffer, width, height, bpp);
 		}
-		else if(Memory::Compare(buffer.Bytes(), (void*) PNG_HEAD, 4) == 0)
+		else if (Memory::Compare(buffer.Bytes(), (void*) PNG_HEAD, 4) == 0)
 		{
 			colors = Image::LoadPNG(buffer, width, height, bpp);
 		}
@@ -35,16 +52,16 @@ namespace Viry3D
 			assert(!"invalid image file format");
 		}
 
-		TextureFormat::Enum format;
-		if(bpp == 32)
+		TextureFormat format;
+		if (bpp == 32)
 		{
 			format = TextureFormat::RGBA32;
 		}
-		else if(bpp == 24)
+		else if (bpp == 24)
 		{
 			format = TextureFormat::RGB24;
 		}
-		else if(bpp == 8)
+		else if (bpp == 8)
 		{
 			format = TextureFormat::Alpha8;
 		}
@@ -60,13 +77,13 @@ namespace Viry3D
 	}
 
 	Ref<Texture2D> Texture2D::LoadFromFile(String file,
-		TextureWrapMode::Enum wrap_mode,
-		FilterMode::Enum filter_mode,
+		TextureWrapMode wrap_mode,
+		FilterMode filter_mode,
 		bool mipmap)
 	{
 		Ref<Texture2D> texture;
 
-		if(File::Exist(file))
+		if (File::Exist(file))
 		{
 			auto bytes = File::ReadAllBytes(file);
 
@@ -80,7 +97,7 @@ namespace Viry3D
 	{
 		int bpp;
 		auto format = this->GetFormat();
-		switch(format)
+		switch (format)
 		{
 			case TextureFormat::RGBA32:
 				bpp = 32;
@@ -102,9 +119,9 @@ namespace Viry3D
 	Ref<Texture2D> Texture2D::Create(
 		int width,
 		int height,
-		TextureFormat::Enum format,
-		TextureWrapMode::Enum wrap_mode,
-		FilterMode::Enum filter_mode,
+		TextureFormat format,
+		TextureWrapMode wrap_mode,
+		FilterMode filter_mode,
 		bool mipmap,
 		const ByteBuffer& colors)
 	{

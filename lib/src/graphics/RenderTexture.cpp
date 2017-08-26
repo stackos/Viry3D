@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "RenderTexture.h"
 #include "time/Time.h"
 
@@ -16,29 +33,29 @@ namespace Viry3D
 
 	Ref<RenderTexture> RenderTexture::GetTemporary(int width,
 		int height,
-		RenderTextureFormat::Enum format,
-		DepthBuffer::Enum depth,
-		FilterMode::Enum filter_mode)
+		RenderTextureFormat format,
+		DepthBuffer depth,
+		FilterMode filter_mode)
 	{
 		Ref<RenderTexture> texture;
 
 		long long w = width;
 		long long h = height;
-		long long f = format;
-		long long d = depth;
+		long long f = (long long) format;
+		long long d = (long long) depth;
 		long long key = (w << 0) | (h << 16) | (f << 32) | (d << 48);
 
 		List<Temporary> *list;
-		if(m_temporarys.TryGet(key, &list))
+		if (m_temporarys.TryGet(key, &list))
 		{
-			for(auto& i : *list)
+			for (auto& i : *list)
 			{
-				if(!i.in_use)
+				if (!i.in_use)
 				{
 					texture = i.texture;
 					i.in_use = true;
 
-					if(texture->GetFilterMode() != filter_mode)
+					if (texture->GetFilterMode() != filter_mode)
 					{
 						texture->SetFilterMode(filter_mode);
 						texture->UpdateSampler();
@@ -48,7 +65,7 @@ namespace Viry3D
 			}
 		}
 
-		if(!texture)
+		if (!texture)
 		{
 			texture = Create(width, height, format, depth, filter_mode);
 
@@ -56,7 +73,7 @@ namespace Viry3D
 			t.texture = texture;
 			t.in_use = true;
 
-			if(list != NULL)
+			if (list != NULL)
 			{
 				list->AddLast(t);
 			}
@@ -75,16 +92,16 @@ namespace Viry3D
 	{
 		long long w = texture->GetWidth();
 		long long h = texture->GetHeight();
-		long long f = texture->GetFormat();
-		long long d = texture->GetDepth();
+		long long f = (long long) texture->GetFormat();
+		long long d = (long long) texture->GetDepth();
 		long long key = (w << 0) | (h << 16) | (f << 32) | (d << 48);
 
 		List<Temporary> *list;
-		if(m_temporarys.TryGet(key, &list))
+		if (m_temporarys.TryGet(key, &list))
 		{
-			for(auto& i : *list)
+			for (auto& i : *list)
 			{
-				if(i.texture == texture)
+				if (i.texture == texture)
 				{
 					i.in_use = false;
 					i.used_time = Time::GetRealTimeSinceStartup();
@@ -97,9 +114,9 @@ namespace Viry3D
 	Ref<RenderTexture> RenderTexture::Create(
 		int width,
 		int height,
-		RenderTextureFormat::Enum format,
-		DepthBuffer::Enum depth,
-		FilterMode::Enum filter_mode)
+		RenderTextureFormat format,
+		DepthBuffer depth,
+		FilterMode filter_mode)
 	{
 		Ref<RenderTexture> texture = Ref<RenderTexture>(new RenderTexture());
 		texture->SetWidth(width);
@@ -109,7 +126,7 @@ namespace Viry3D
 		texture->SetWrapMode(TextureWrapMode::Clamp);
 		texture->SetFilterMode(filter_mode);
 
-		if(format == RenderTextureFormat::Depth)
+		if (format == RenderTextureFormat::Depth)
 		{
 			texture->CreateDepthRenderTexture();
 		}

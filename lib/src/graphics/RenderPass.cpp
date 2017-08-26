@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "RenderPass.h"
 #include "Camera.h"
 #include "FrameBuffer.h"
@@ -7,7 +24,7 @@ namespace Viry3D
 {
 	RenderPass* RenderPass::m_render_pass_binding;
 
-	Ref<RenderPass> RenderPass::Create(Ref<RenderTexture> color_texture, Ref<RenderTexture> depth_texture, CameraClearFlags::Enum clear_flag, bool need_depth, Rect rect)
+	Ref<RenderPass> RenderPass::Create(Ref<RenderTexture> color_texture, Ref<RenderTexture> depth_texture, CameraClearFlags clear_flag, bool need_depth, Rect rect)
 	{
 		Ref<RenderPass> pass = Ref<RenderPass>(new RenderPass());
 		pass->m_frame_buffer.color_texture = color_texture;
@@ -64,18 +81,18 @@ namespace Viry3D
 
 	int RenderPass::GetFrameBufferWidth() const
 	{
-		if(!this->HasFrameBuffer())
+		if (!this->HasFrameBuffer())
 		{
 			return Camera::Current()->GetTargetWidth();
 		}
 		else
 		{
-			if(m_frame_buffer.color_texture)
+			if (m_frame_buffer.color_texture)
 			{
 				return m_frame_buffer.color_texture->GetWidth();
 			}
 
-			if(m_frame_buffer.depth_texture)
+			if (m_frame_buffer.depth_texture)
 			{
 				return m_frame_buffer.depth_texture->GetWidth();
 			}
@@ -86,18 +103,18 @@ namespace Viry3D
 
 	int RenderPass::GetFrameBufferHeight() const
 	{
-		if(!this->HasFrameBuffer())
+		if (!this->HasFrameBuffer())
 		{
 			return Camera::Current()->GetTargetHeight();
 		}
 		else
 		{
-			if(m_frame_buffer.color_texture)
+			if (m_frame_buffer.color_texture)
 			{
 				return m_frame_buffer.color_texture->GetHeight();
 			}
 
-			if(m_frame_buffer.depth_texture)
+			if (m_frame_buffer.depth_texture)
 			{
 				return m_frame_buffer.depth_texture->GetHeight();
 			}

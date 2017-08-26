@@ -73,8 +73,8 @@ namespace Viry3D
 			ms.Read<int>();
 			//	height
 			ms.Read<int>();
-			auto wrap_mode = (TextureWrapMode::Enum) ms.Read<int>();
-			auto filter_mode = (FilterMode::Enum) ms.Read<int>();
+			auto wrap_mode = (TextureWrapMode) ms.Read<int>();
+			auto filter_mode = (FilterMode) ms.Read<int>();
 			auto texture_type = read_string(ms);
 
 			if (texture_type == "Texture2D")
@@ -649,7 +649,7 @@ namespace Viry3D
 			clip->SetName(name);
 			clip->frame_rate = ms.Read<float>();
 			clip->length = ms.Read<float>();
-			clip->wrap_mode = (AnimationWrapMode::Enum) ms.Read<int>();
+			clip->wrap_mode = (AnimationWrapMode) ms.Read<int>();
 			auto curve_count = ms.Read<int>();
 
 			for (int i = 0; i < curve_count; i++)
@@ -671,7 +671,7 @@ namespace Viry3D
 					"m_LocalScale.y",
 					"m_LocalScale.z",
 				};
-				for (int j = 0; j < CurveProperty::Count; j++)
+				for (int j = 0; j < (int) CurveProperty::Count; j++)
 				{
 					if (property == property_names[j])
 					{
@@ -691,7 +691,7 @@ namespace Viry3D
 						p_binding = &clip->curves[path];
 
 						p_binding->path = path;
-						p_binding->curves.Resize(CurveProperty::Count);
+						p_binding->curves.Resize((int) CurveProperty::Count);
 					}
 
 					curve = &p_binding->curves[property_index];

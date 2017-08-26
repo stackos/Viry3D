@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Shader.h"
 #include "Application.h"
 #include "Texture2D.h"
@@ -18,13 +35,13 @@ namespace Viry3D
 	{
 		static Map<String, String> s_path_map;
 
-		if(s_path_map.Empty())
+		if (s_path_map.Empty())
 		{
 			auto dir = Application::DataPath() + "/shader";
 			auto files = Directory::GetFiles(dir, true);
-			for(auto& i : files)
+			for (auto& i : files)
 			{
-				if(i.EndsWith(".shader.xml"))
+				if (i.EndsWith(".shader.xml"))
 				{
 					auto shader_name = i.Substring(dir.Size() + 1);
 					shader_name = shader_name.Substring(0, shader_name.IndexOf("."));
@@ -34,7 +51,7 @@ namespace Viry3D
 		}
 
 		String* path;
-		if(s_path_map.TryGet(name, &path))
+		if (s_path_map.TryGet(name, &path))
 		{
 			return *path;
 		}
@@ -63,7 +80,7 @@ namespace Viry3D
 
 	void Shader::ClearAllPipelines()
 	{
-		for(auto& i : m_shaders)
+		for (auto& i : m_shaders)
 		{
 			i.second->ClearPipelines();
 		}
@@ -71,11 +88,11 @@ namespace Viry3D
 
 	const Ref<Texture2D>& Shader::GetDefaultTexture(const String& name)
 	{
-		if(!m_default_textures.Contains(name))
+		if (!m_default_textures.Contains(name))
 		{
 			Ref<Texture2D> texture;
 
-			if(name == "white")
+			if (name == "white")
 			{
 				ByteBuffer colors(4);
 				int i = 0;
@@ -86,7 +103,7 @@ namespace Viry3D
 
 				texture = Texture2D::Create(1, 1, TextureFormat::RGBA32, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
 			}
-			else if(name == "black")
+			else if (name == "black")
 			{
 				ByteBuffer colors(4);
 				int i = 0;
@@ -97,7 +114,7 @@ namespace Viry3D
 
 				texture = Texture2D::Create(1, 1, TextureFormat::RGBA32, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
 			}
-			else if(name == "bump")
+			else if (name == "bump")
 			{
 				ByteBuffer colors(4);
 				int i = 0;
@@ -131,14 +148,14 @@ namespace Viry3D
 		m_mutex.lock();
 
 		Ref<Shader>* find;
-		if(m_shaders.TryGet(name, &find))
+		if (m_shaders.TryGet(name, &find))
 		{
 			shader = *find;
 		}
 		else
 		{
 			String path = get_shader_path(name);
-			if(!path.Empty())
+			if (!path.Empty())
 			{
 				shader = Ref<Shader>(new Shader(name));
 				shader->m_xml.Load(path);

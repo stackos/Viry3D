@@ -19,12 +19,12 @@ namespace Viry3D
 	protected:
 		BufferVulkan();
 		virtual ~BufferVulkan();
-		void CreateInternal(BufferType::Enum type, bool dynamic = false);
+		void CreateInternal(BufferType type, bool dynamic = false);
 
 		int m_size;
 
 	private:
-		BufferType::Enum m_type;
+		BufferType m_type;
 		VkBuffer m_buffer;
 		VkDeviceMemory m_memory;
 	};

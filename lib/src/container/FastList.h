@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #pragma once
 
 namespace Viry3D
@@ -53,7 +70,7 @@ namespace Viry3D
 	{
 		FastListNode<V>* p = m_first;
 		FastListNode<V>* t;
-		while(p != NULL)
+		while (p != NULL)
 		{
 			t = p;
 			p = p->next;
@@ -80,12 +97,12 @@ namespace Viry3D
 		n->value = v;
 		n->prev = m_last->prev;
 		n->next = m_last;
-		if(m_size > 0)
+		if (m_size > 0)
 		{
 			m_last->prev->next = n;
 		}
 		m_last->prev = n;
-		if(m_size == 0)
+		if (m_size == 0)
 		{
 			m_first = n;
 		}
@@ -95,7 +112,7 @@ namespace Viry3D
 	template<class V>
 	void FastList<V>::RemoveFirst()
 	{
-		if(m_size > 0)
+		if (m_size > 0)
 		{
 			FastListNode<V>* t = m_first;
 			m_first->next->prev = NULL;
@@ -108,15 +125,15 @@ namespace Viry3D
 	template<class V>
 	void FastList<V>::RemoveLast()
 	{
-		if(m_size > 0)
+		if (m_size > 0)
 		{
 			FastListNode<V>* t = m_last->prev;
-			if(m_last->prev->prev != NULL)
+			if (m_last->prev->prev != NULL)
 			{
 				m_last->prev->prev->next = m_last;
 			}
 			m_last->prev = m_last->prev->prev;
-			if(m_size == 1)
+			if (m_size == 1)
 			{
 				m_first = m_last;
 			}
@@ -130,7 +147,7 @@ namespace Viry3D
 	{
 		FastListNode<V>* p = m_first;
 		FastListNode<V>* t;
-		while(p->next != NULL)
+		while (p->next != NULL)
 		{
 			t = p;
 			p = p->next;
@@ -143,16 +160,16 @@ namespace Viry3D
 	template<class V>
 	bool FastList<V>::Remove(const V& v)
 	{
-		for(FastListNode<V>* i = m_first; i != m_last; i = i->next)
+		for (FastListNode<V>* i = m_first; i != m_last; i = i->next)
 		{
-			if(i->value == v)
+			if (i->value == v)
 			{
-				if(i->prev != NULL)
+				if (i->prev != NULL)
 				{
 					i->prev->next = i->next;
 				}
 				i->next->prev = i->prev;
-				if(m_first == i)
+				if (m_first == i)
 				{
 					m_first = i->next;
 				}
@@ -169,19 +186,19 @@ namespace Viry3D
 	void FastList<V>::RemoveAll(const V& v)
 	{
 		FastListNode<V>* t;
-		for(FastListNode<V>* i = m_first; i != m_last; )
+		for (FastListNode<V>* i = m_first; i != m_last; )
 		{
 			t = i;
 			i = i->next;
 
-			if(t->value == v)
+			if (t->value == v)
 			{
-				if(t->prev != NULL)
+				if (t->prev != NULL)
 				{
 					t->prev->next = t->next;
 				}
 				t->next->prev = t->prev;
-				if(m_first == t)
+				if (m_first == t)
 				{
 					m_first = t->next;
 				}
@@ -196,12 +213,12 @@ namespace Viry3D
 	{
 		FastListNode<V>* next = n->next;
 
-		if(n->prev != NULL)
+		if (n->prev != NULL)
 		{
 			n->prev->next = n->next;
 		}
 		n->next->prev = n->prev;
-		if(m_first == n)
+		if (m_first == n)
 		{
 			m_first = n->next;
 		}

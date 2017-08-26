@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #pragma once
 
 #include "string/String.h"
@@ -59,23 +76,20 @@ namespace Viry3D
 		}
 	};
 
-	struct VertexAttributeType
+	enum class VertexAttributeType
 	{
-		enum Enum
-		{
-			None = -1,
+		None = -1,
 
-			Vertex = 0,
-			Color,
-			Texcoord,
-			Texcoord2,
-			Normal,
-			Tangent,
-			BlendWeight,
-			BlendIndices,
+		Vertex = 0,
+		Color,
+		Texcoord,
+		Texcoord2,
+		Normal,
+		Tangent,
+		BlendWeight,
+		BlendIndices,
 
-			Count
-		};
+		Count
 	};
 
 	struct Vertex
@@ -90,15 +104,15 @@ namespace Viry3D
 		Vector4 bone_indices;
 	};
 
-	extern const char* VERTEX_ATTR_TYPES[VertexAttributeType::Count];
-	extern const int VERTEX_ATTR_SIZES[VertexAttributeType::Count];
-	extern const int VERTEX_ATTR_OFFSETS[VertexAttributeType::Count];
+	extern const char* VERTEX_ATTR_TYPES[(int) VertexAttributeType::Count];
+	extern const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count];
+	extern const int VERTEX_ATTR_OFFSETS[(int) VertexAttributeType::Count];
 	extern const int VERTEX_STRIDE;
 
 	struct XMLVertexAttribute
 	{
 		String name;
-		VertexAttributeType::Enum type;
+		VertexAttributeType type;
 		int location;
 
 		int size;

@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Camera.h"
 #include "GameObject.h"
 #include "RenderPass.h"
@@ -33,9 +50,9 @@ namespace Viry3D
 	bool Camera::IsValidCamera(Camera* cam)
 	{
 		bool exist = false;
-		for(auto i : m_cameras)
+		for (auto i : m_cameras)
 		{
-			if(i == cam)
+			if (i == cam)
 			{
 				exist = true;
 				break;
@@ -70,7 +87,7 @@ namespace Viry3D
 
 	void Camera::SetCullingMask(int mask)
 	{
-		if(m_culling_mask != mask)
+		if (m_culling_mask != mask)
 		{
 			m_culling_mask = mask;
 
@@ -114,7 +131,7 @@ namespace Viry3D
 
 	void Camera::OnResize(int width, int height)
 	{
-		for(auto i : m_cameras)
+		for (auto i : m_cameras)
 		{
 			i->m_render_pass.reset();
 			i->m_matrix_dirty = true;
@@ -131,9 +148,9 @@ namespace Viry3D
 	{
 		Profiler::SampleBegin("Camera::PrepareAll");
 
-		for(auto i : m_cameras)
+		for (auto i : m_cameras)
 		{
-			if(i->CanRender())
+			if (i->CanRender())
 			{
 				m_current = i;
 				i->Prepare();
@@ -148,9 +165,9 @@ namespace Viry3D
 	{
 		Profiler::SampleBegin("Camera::RenderAll");
 
-		for(auto i : m_cameras)
+		for (auto i : m_cameras)
 		{
-			if(i->CanRender())
+			if (i->CanRender())
 			{
 				m_current = i;
 				i->Render();
@@ -165,9 +182,9 @@ namespace Viry3D
 	{
 		this->DecideTarget();
 
-		if(!m_render_pass)
+		if (!m_render_pass)
 		{
-			if(m_target_rendering)
+			if (m_target_rendering)
 			{
 				m_render_pass = RenderPass::Create(m_target_rendering->color_texture, m_target_rendering->depth_texture, this->GetClearFlags(), true, this->GetRect());
 			}
@@ -181,12 +198,12 @@ namespace Viry3D
 
 		Renderer::PrepareAllPass();
 
-		if(m_always_rebuild_cmd)
+		if (m_always_rebuild_cmd)
 		{
 			m_render_pass->SetCommandDirty();
 		}
 
-		if(!m_render_pass->IsAllCommandDirty())
+		if (!m_render_pass->IsAllCommandDirty())
 		{
 			Renderer::CheckBufferDirty();
 		}
@@ -198,7 +215,7 @@ namespace Viry3D
 	{
 		m_render_pass->Begin(this->GetClearColor());
 
-		if(m_render_pass->IsCommandDirty())
+		if (m_render_pass->IsCommandDirty())
 		{
 			Renderer::RenderAllPass();
 		}
@@ -214,7 +231,7 @@ namespace Viry3D
 
 	Ref<FrameBuffer> Camera::GetPostTargetFront()
 	{
-		if(!m_post_target_front)
+		if (!m_post_target_front)
 		{
 			m_post_target_front = RefMake<FrameBuffer>();
 			m_post_target_front->color_texture = RenderTexture::Create(
@@ -230,7 +247,7 @@ namespace Viry3D
 
 	Ref<FrameBuffer> Camera::GetPostTargetBack()
 	{
-		if(!m_post_target_back)
+		if (!m_post_target_back)
 		{
 			m_post_target_back = RefMake<FrameBuffer>();
 			m_post_target_back->color_texture = RenderTexture::Create(
@@ -246,7 +263,7 @@ namespace Viry3D
 
 	void Camera::SwapPostTargets()
 	{
-		if(m_post_target_front && m_post_target_back)
+		if (m_post_target_front && m_post_target_back)
 		{
 			RefSwap(m_post_target_front, m_post_target_back);
 		}
@@ -256,7 +273,7 @@ namespace Viry3D
 	{
 		auto effects = this->GetGameObject()->GetComponents<ImageEffect>();
 
-		if(effects.Empty())
+		if (effects.Empty())
 		{
 			m_target_rendering = m_frame_buffer;
 		}
@@ -270,16 +287,16 @@ namespace Viry3D
 	{
 		auto effects = this->GetGameObject()->GetComponents<ImageEffect>();
 
-		if(!effects.Empty())
+		if (!effects.Empty())
 		{
-			for(int i = 0; i < effects.Size(); i++)
+			for (int i = 0; i < effects.Size(); i++)
 			{
 				Ref<FrameBuffer> src = this->GetPostTargetFront();
 				Ref<FrameBuffer> dest;
 				Ref<RenderTexture> src_texture;
 				Ref<RenderTexture> dest_texture;
 
-				if(i == effects.Size() - 1)
+				if (i == effects.Size() - 1)
 				{
 					dest = m_frame_buffer;
 				}
@@ -288,11 +305,11 @@ namespace Viry3D
 					dest = this->GetPostTargetBack();
 				}
 
-				if(src)
+				if (src)
 				{
 					src_texture = src->color_texture;
 				}
-				if(dest)
+				if (dest)
 				{
 					dest_texture = dest->color_texture;
 				}
@@ -308,7 +325,7 @@ namespace Viry3D
 	{
 		int width;
 
-		if(m_frame_buffer)
+		if (m_frame_buffer)
 		{
 			width = m_frame_buffer->color_texture->GetWidth();
 		}
@@ -324,7 +341,7 @@ namespace Viry3D
 	{
 		int height;
 
-		if(m_frame_buffer)
+		if (m_frame_buffer)
 		{
 			height = m_frame_buffer->color_texture->GetHeight();
 		}
@@ -350,7 +367,7 @@ namespace Viry3D
 			transform->GetForward(),
 			transform->GetUp());
 
-		if(!this->IsOrthographic())
+		if (!this->IsOrthographic())
 		{
 			m_projection_matrix = Matrix4x4::Perspective(this->GetFieldOfView(), width / (float) height, this->GetClipNear(), this->GetClipFar());
 		}
@@ -371,7 +388,7 @@ namespace Viry3D
 
 	const Matrix4x4& Camera::GetViewMatrix()
 	{
-		if(m_matrix_dirty)
+		if (m_matrix_dirty)
 		{
 			UpdateMatrix();
 		}
@@ -381,7 +398,7 @@ namespace Viry3D
 
 	const Matrix4x4& Camera::GetProjectionMatrix()
 	{
-		if(m_matrix_dirty)
+		if (m_matrix_dirty)
 		{
 			UpdateMatrix();
 		}
@@ -391,7 +408,7 @@ namespace Viry3D
 
 	const Matrix4x4& Camera::GetViewProjectionMatrix()
 	{
-		if(m_matrix_dirty)
+		if (m_matrix_dirty)
 		{
 			UpdateMatrix();
 		}
@@ -401,7 +418,7 @@ namespace Viry3D
 
 	const Frustum& Camera::GetFrustum()
 	{
-		if(m_matrix_dirty)
+		if (m_matrix_dirty)
 		{
 			UpdateMatrix();
 

@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "TextureGLES.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/Texture2D.h"
@@ -23,7 +40,7 @@ namespace Viry3D
 
 		GLenum format = 0;
 		GLenum type = 0;
-		if(texture_format == RenderTextureFormat::RGBA32)
+		if (texture_format == RenderTextureFormat::RGBA32)
 		{
 			m_format = GL_RGBA;
 			format = GL_RGBA;
@@ -44,25 +61,25 @@ namespace Viry3D
 
 		GLenum format = 0;
 		GLenum type = 0;
-		if(depth == DepthBuffer::Depth_16)
+		if (depth == DepthBuffer::Depth_16)
 		{
 			m_format = GL_DEPTH_COMPONENT16;
 			format = GL_DEPTH_COMPONENT;
 			type = GL_UNSIGNED_SHORT;
 		}
-		else if(depth == DepthBuffer::Depth_24)
+		else if (depth == DepthBuffer::Depth_24)
 		{
 			m_format = GL_DEPTH_COMPONENT24;
 			format = GL_DEPTH_COMPONENT;
 			type = GL_UNSIGNED_INT;
 		}
-		else if(depth == DepthBuffer::Depth_24_Stencil_8)
+		else if (depth == DepthBuffer::Depth_24_Stencil_8)
 		{
 			m_format = GL_DEPTH24_STENCIL8;
 			format = GL_DEPTH_STENCIL;
 			type = GL_UNSIGNED_INT_24_8;
 		}
-		else if(depth == DepthBuffer::Depth_32)
+		else if (depth == DepthBuffer::Depth_32)
 		{
 			m_format = GL_DEPTH_COMPONENT32F;
 			format = GL_DEPTH_COMPONENT;
@@ -85,19 +102,19 @@ namespace Viry3D
 
 		GLenum format = 0;
 		GLenum type = 0;
-		if(texture_format == TextureFormat::RGBA32)
+		if (texture_format == TextureFormat::RGBA32)
 		{
 			m_format = GL_RGBA;
 			format = GL_RGBA;
 			type = GL_UNSIGNED_BYTE;
 		}
-		else if(texture_format == TextureFormat::RGB24)
+		else if (texture_format == TextureFormat::RGB24)
 		{
 			m_format = GL_RGB;
 			format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 		}
-		else if(texture_format == TextureFormat::Alpha8)
+		else if (texture_format == TextureFormat::Alpha8)
 		{
 			m_format = GL_LUMINANCE;
 			format = GL_LUMINANCE;
@@ -120,17 +137,17 @@ namespace Viry3D
 
 		GLenum format = 0;
 		GLenum type = 0;
-		if(texture_format == TextureFormat::RGBA32)
+		if (texture_format == TextureFormat::RGBA32)
 		{
 			format = GL_RGBA;
 			type = GL_UNSIGNED_BYTE;
 		}
-		else if(texture_format == TextureFormat::RGB24)
+		else if (texture_format == TextureFormat::RGB24)
 		{
 			format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 		}
-		else if(texture_format == TextureFormat::Alpha8)
+		else if (texture_format == TextureFormat::Alpha8)
 		{
 			format = GL_LUMINANCE;
 			type = GL_UNSIGNED_BYTE;
@@ -162,7 +179,7 @@ namespace Viry3D
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(GL_TEXTURE_2D, 0, m_format, width, height, 0, format, type, pixels);
 
-		if(mipmap)
+		if (mipmap)
 		{
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
@@ -180,17 +197,17 @@ namespace Viry3D
 
 		auto texture_render = dynamic_cast<RenderTexture*>(this);
 		auto texture_2d = dynamic_cast<Texture2D*>(this);
-		if(texture_render)
+		if (texture_render)
 		{
 			mip_count = 1;
 		}
-		else if(texture_2d)
+		else if (texture_2d)
 		{
 			int width = texture_2d->GetWidth();
 			int height = texture_2d->GetHeight();
 			bool mipmap = texture_2d->IsMipmap();
 
-			if(mipmap)
+			if (mipmap)
 			{
 				mip_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
 			}
@@ -215,10 +232,10 @@ namespace Viry3D
 		GLuint filter_min = 0;
 		GLuint filter_mag = 0;
 		auto filter_mode = texture->GetFilterMode();
-		switch(filter_mode)
+		switch (filter_mode)
 		{
 			case FilterMode::Point:
-				if(mipmap)
+				if (mipmap)
 				{
 					filter_min = GL_NEAREST_MIPMAP_LINEAR;
 				}
@@ -231,7 +248,7 @@ namespace Viry3D
 				break;
 			case FilterMode::Bilinear:
 			case FilterMode::Trilinear:
-				if(mipmap)
+				if (mipmap)
 				{
 					filter_min = GL_LINEAR_MIPMAP_LINEAR;
 				}
@@ -246,7 +263,7 @@ namespace Viry3D
 
 		GLuint address_mode = 0;
 		auto wrap_mode = texture->GetWrapMode();
-		switch(wrap_mode)
+		switch (wrap_mode)
 		{
 			case TextureWrapMode::Repeat:
 				address_mode = GL_REPEAT;
@@ -259,7 +276,7 @@ namespace Viry3D
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, address_mode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, address_mode);
 
-		if(m_format == GL_DEPTH_COMPONENT16 ||
+		if (m_format == GL_DEPTH_COMPONENT16 ||
 			m_format == GL_DEPTH_COMPONENT24 ||
 			m_format == GL_DEPTH24_STENCIL8 ||
 			m_format == GL_DEPTH_COMPONENT32F)

@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "AudioManager.h"
 #include "AudioListener.h"
 #include "AudioClip.h"
@@ -38,7 +55,8 @@ namespace Viry3D
 		const ALCchar* next = devicesStr + 1;
 		int len = 0;
 
-		while(device && *device != 0 && next && *next != 0) {
+		while (device && *device != 0 && next && *next != 0)
+		{
 			devices.Add(device);
 
 			len = (int) strlen(device);
@@ -57,12 +75,12 @@ namespace Viry3D
 
 	void AudioManager::OnPause()
 	{
-		for(auto i : g_sources)
+		for (auto i : g_sources)
 		{
 			ALint state;
 			alGetSourcei(i, AL_SOURCE_STATE, &state);
 
-			if(state == AL_PLAYING)
+			if (state == AL_PLAYING)
 			{
 				alSourcePause(i);
 				g_sources_paused.AddLast(i);
@@ -72,7 +90,7 @@ namespace Viry3D
 
 	void AudioManager::OnResume()
 	{
-		for(auto i : g_sources_paused)
+		for (auto i : g_sources_paused)
 		{
 			alSourcePlay(i);
 		}
@@ -83,21 +101,20 @@ namespace Viry3D
 	{
 		auto devices = get_devices();
 
-		auto callback = [=](ALCdevice* device)
-		{
+		auto callback = [=](ALCdevice* device) {
 			MutexLock lock(g_context_mutex);
 
-			if(device != NULL)
+			if (device != NULL)
 			{
 				g_device = device;
 
 				auto context = alcCreateContext(device, NULL);
-				if(context != NULL)
+				if (context != NULL)
 				{
 					g_context = context;
 
 					auto result = alcMakeContextCurrent(context);
-					if(result == ALC_FALSE)
+					if (result == ALC_FALSE)
 					{
 						Log("alcMakeContextCurrent failed");
 					}
@@ -121,7 +138,7 @@ namespace Viry3D
 			callback
 		);
 
-		if(result == ALC_FALSE)
+		if (result == ALC_FALSE)
 		{
 			Log("alcOpenDeviceAsync failed");
 		}
@@ -133,14 +150,14 @@ namespace Viry3D
 
 	void AudioManager::Deinit()
 	{
-		if(g_context)
+		if (g_context)
 		{
 			alcMakeContextCurrent(NULL);
 			alcDestroyContext(g_context);
 			g_context = NULL;
 		}
 
-		if(g_device)
+		if (g_device)
 		{
 			alcCloseDevice(g_device);
 			g_device = NULL;
@@ -177,16 +194,16 @@ namespace Viry3D
 	{
 		ALenum format = 0;
 
-		switch(channel)
+		switch (channel)
 		{
 			case 1:
-				if(bits == 8)
+				if (bits == 8)
 					format = AL_FORMAT_MONO8;
 				else
 					format = AL_FORMAT_MONO16;
 				break;
 			case 2:
-				if(bits == 8)
+				if (bits == 8)
 					format = AL_FORMAT_STEREO8;
 				else
 					format = AL_FORMAT_STEREO16;
@@ -195,7 +212,7 @@ namespace Viry3D
 
 		ALuint buffer = 0;
 		alGenBuffers(1, &buffer);
-		if(buffer > 0)
+		if (buffer > 0)
 		{
 			alBufferData(buffer, format, data, size, frequency);
 		}
@@ -226,7 +243,7 @@ namespace Viry3D
 		SetSourcePosition(source);
 		SetSourceLoop(source);
 		SetSourceVolume(source);
-		if(source->GetClip())
+		if (source->GetClip())
 		{
 			SetSourceBuffer(source);
 		}
@@ -267,11 +284,11 @@ namespace Viry3D
 		ALuint src = (ALuint) source->GetSource();
 		ALuint b = (ALuint) buffer;
 
-		if(source->IsLoop())
+		if (source->IsLoop())
 		{
 			ALint loop;
 			alGetSourcei(src, AL_LOOPING, &loop);
-			if(loop)
+			if (loop)
 			{
 				alSourcei(src, AL_LOOPING, AL_FALSE);
 			}
@@ -296,7 +313,7 @@ namespace Viry3D
 
 		int processed;
 		alGetSourceiv(src, AL_BUFFERS_PROCESSED, &processed);
-		if(processed > 0)
+		if (processed > 0)
 		{
 			Vector<ALuint> buffers(processed);
 			alSourceUnqueueBuffers(src, processed, &buffers[0]);
@@ -310,7 +327,7 @@ namespace Viry3D
 
 		int queued;
 		alGetSourceiv(src, AL_BUFFERS_QUEUED, &queued);
-		if(queued > 0)
+		if (queued > 0)
 		{
 			Vector<ALuint> buffers(queued);
 			alSourceUnqueueBuffers(src, queued, &buffers[0]);

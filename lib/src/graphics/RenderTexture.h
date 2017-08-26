@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #pragma once
 
 #include "Texture.h"
@@ -7,7 +24,7 @@
 
 namespace Viry3D
 {
-	class RenderTexture : public Texture
+	class RenderTexture: public Texture
 	{
 	public:
 		static void Init();
@@ -15,22 +32,22 @@ namespace Viry3D
 		static Ref<RenderTexture> Create(
 			int width,
 			int height,
-			RenderTextureFormat::Enum format,
-			DepthBuffer::Enum depth,
-			FilterMode::Enum filter_mode);
+			RenderTextureFormat format,
+			DepthBuffer depth,
+			FilterMode filter_mode);
 		static Ref<RenderTexture> GetTemporary(int width,
 			int height,
-			RenderTextureFormat::Enum format,
-			DepthBuffer::Enum depth,
-			FilterMode::Enum filter_mode);
+			RenderTextureFormat format,
+			DepthBuffer depth,
+			FilterMode filter_mode);
 		static void ReleaseTemporary(Ref<RenderTexture> texture);
 
-		RenderTextureFormat::Enum GetFormat() const { return m_format; }
-		DepthBuffer::Enum GetDepth() const { return m_depth; }
+		RenderTextureFormat GetFormat() const { return m_format; }
+		DepthBuffer GetDepth() const { return m_depth; }
 
 	protected:
-		void SetFormat(RenderTextureFormat::Enum format) { m_format = format; }
-		void SetDepth(DepthBuffer::Enum depth) { m_depth = depth; }
+		void SetFormat(RenderTextureFormat format) { m_format = format; }
+		void SetDepth(DepthBuffer depth) { m_depth = depth; }
 
 	private:
 		RenderTexture();
@@ -45,7 +62,7 @@ namespace Viry3D
 
 		static Map<long long, List<Temporary>> m_temporarys;
 
-		RenderTextureFormat::Enum m_format;
-		DepthBuffer::Enum m_depth;
+		RenderTextureFormat m_format;
+		DepthBuffer m_depth;
 	};
 }

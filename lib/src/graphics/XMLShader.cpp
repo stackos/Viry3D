@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "XMLShader.h"
 #include "io/File.h"
 #include "xml/tinyxml2.h"
@@ -21,7 +38,7 @@ namespace Viry3D
 		} \
 	}
 
-	const char* VERTEX_ATTR_TYPES[VertexAttributeType::Count] =
+	const char* VERTEX_ATTR_TYPES[(int) VertexAttributeType::Count] =
 	{
 		"Vertex",
 		"Color",
@@ -33,11 +50,11 @@ namespace Viry3D
 		"BlendIndices"
 	};
 
-	const int VERTEX_ATTR_SIZES[VertexAttributeType::Count] = {
+	const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count] = {
 		12, 16, 8, 8, 12, 16, 16, 16
 	};
 
-	const int VERTEX_ATTR_OFFSETS[VertexAttributeType::Count] =
+	const int VERTEX_ATTR_OFFSETS[(int) VertexAttributeType::Count] =
 	{
 		0, 12, 28, 36, 44, 56, 72, 88
 	};
@@ -59,7 +76,7 @@ namespace Viry3D
 		auto bytes = File::ReadAllBytes(path);
 		tinyxml2::XMLDocument doc;
 		auto error = doc.Parse((const char*) bytes.Bytes(), bytes.Size());
-		if(error == tinyxml2::XML_SUCCESS)
+		if (error == tinyxml2::XML_SUCCESS)
 		{
 			auto shader_ele = doc.FirstChildElement();
 			String shader_queue;
@@ -67,35 +84,35 @@ namespace Viry3D
 			try_get_attribute(this->name, shader_ele, "name");
 			try_get_attribute(shader_queue, shader_ele, "queue");
 
-			if(shader_queue == "Background")
+			if (shader_queue == "Background")
 			{
-				this->queue = RenderQueue::Background;
+				this->queue = (int) RenderQueue::Background;
 			}
-			else if(shader_queue == "Geometry")
+			else if (shader_queue == "Geometry")
 			{
-				this->queue = RenderQueue::Geometry;
+				this->queue = (int) RenderQueue::Geometry;
 			}
-			else if(shader_queue == "AlphaTest")
+			else if (shader_queue == "AlphaTest")
 			{
-				this->queue = RenderQueue::AlphaTest;
+				this->queue = (int) RenderQueue::AlphaTest;
 			}
-			else if(shader_queue == "Transparent")
+			else if (shader_queue == "Transparent")
 			{
-				this->queue = RenderQueue::Transparent;
+				this->queue = (int) RenderQueue::Transparent;
 			}
-			else if(shader_queue == "Overlay")
+			else if (shader_queue == "Overlay")
 			{
-				this->queue = RenderQueue::Overlay;
+				this->queue = (int) RenderQueue::Overlay;
 			}
 
-			for(auto node = shader_ele->FirstChildElement(); node; node = node->NextSiblingElement())
+			for (auto node = shader_ele->FirstChildElement(); node; node = node->NextSiblingElement())
 			{
 				String type = node->Name();
 				String name;
 
 				try_get_attribute(name, node, "name");
 
-				if(type == "Pass")
+				if (type == "Pass")
 				{
 					XMLPass pass;
 					pass.name = name;
@@ -106,28 +123,28 @@ namespace Viry3D
 
 					passes.Add(pass);
 				}
-				else if(type == "VertexShader")
+				else if (type == "VertexShader")
 				{
 					XMLVertexShader vs;
 					vs.name = name;
 					vs.uniform_buffer.binding = -1;
 					vs.uniform_buffer.size = 0;
 
-					for(auto vs_node = node->FirstChildElement(); vs_node; vs_node = vs_node->NextSiblingElement())
+					for (auto vs_node = node->FirstChildElement(); vs_node; vs_node = vs_node->NextSiblingElement())
 					{
 						String vs_type = vs_node->Name();
 
-						if(vs_type == "UniformBuffer")
+						if (vs_type == "UniformBuffer")
 						{
 							try_get_attribute(vs.uniform_buffer.name, vs_node, "name");
 							try_get_attribute_to_type(vs.uniform_buffer.binding, vs_node, "binding", int);
 
 							int offset = 0;
-							for(auto ub_node = vs_node->FirstChildElement(); ub_node; ub_node = ub_node->NextSiblingElement())
+							for (auto ub_node = vs_node->FirstChildElement(); ub_node; ub_node = ub_node->NextSiblingElement())
 							{
 								String ub_type = ub_node->Name();
 
-								if(ub_type == "Uniform")
+								if (ub_type == "Uniform")
 								{
 									XMLUniform uniform;
 									try_get_attribute(uniform.name, ub_node, "name");
@@ -142,27 +159,27 @@ namespace Viry3D
 
 							vs.uniform_buffer.size = offset;
 						}
-						else if(vs_type == "Include")
+						else if (vs_type == "Include")
 						{
 							String include;
 							try_get_attribute(include, vs_node, "name");
 							vs.includes.Add(include);
 						}
-						else if(vs_type == "Source")
+						else if (vs_type == "Source")
 						{
 							vs.src = vs_node->GetText();
 						}
-						else if(vs_type == "VertexAttribute")
+						else if (vs_type == "VertexAttribute")
 						{
 							XMLVertexAttribute attr;
 							try_get_attribute(attr.name, vs_node, "name");
 							try_get_attribute_to_type(attr.location, vs_node, "location", int);
 
-							for(int i = 0; i < VertexAttributeType::Count; i++)
+							for (int i = 0; i < (int) VertexAttributeType::Count; i++)
 							{
-								if(attr.name == VERTEX_ATTR_TYPES[i])
+								if (attr.name == VERTEX_ATTR_TYPES[i])
 								{
-									attr.type = (VertexAttributeType::Enum) i;
+									attr.type = (VertexAttributeType) i;
 									attr.size = VERTEX_ATTR_SIZES[i];
 									attr.offset = VERTEX_ATTR_OFFSETS[i];
 									break;
@@ -177,28 +194,28 @@ namespace Viry3D
 
 					vss.Add(vs);
 				}
-				else if(type == "PixelShader")
+				else if (type == "PixelShader")
 				{
 					XMLPixelShader ps;
 					ps.name = name;
 					ps.uniform_buffer.binding = -1;
 					ps.uniform_buffer.size = 0;
 
-					for(auto ps_node = node->FirstChildElement(); ps_node; ps_node = ps_node->NextSiblingElement())
+					for (auto ps_node = node->FirstChildElement(); ps_node; ps_node = ps_node->NextSiblingElement())
 					{
 						String ps_type = ps_node->Name();
 
-						if(ps_type == "UniformBuffer")
+						if (ps_type == "UniformBuffer")
 						{
 							try_get_attribute(ps.uniform_buffer.name, ps_node, "name");
 							try_get_attribute_to_type(ps.uniform_buffer.binding, ps_node, "binding", int);
 
 							int offset = 0;
-							for(auto ub_node = ps_node->FirstChildElement(); ub_node; ub_node = ub_node->NextSiblingElement())
+							for (auto ub_node = ps_node->FirstChildElement(); ub_node; ub_node = ub_node->NextSiblingElement())
 							{
 								String ub_type = ub_node->Name();
 
-								if(ub_type == "Uniform")
+								if (ub_type == "Uniform")
 								{
 									XMLUniform uniform;
 									try_get_attribute(uniform.name, ub_node, "name");
@@ -213,7 +230,7 @@ namespace Viry3D
 
 							ps.uniform_buffer.size = offset;
 						}
-						else if(ps_type == "Sampler")
+						else if (ps_type == "Sampler")
 						{
 							XMLSampler sampler;
 							try_get_attribute(sampler.name, ps_node, "name");
@@ -222,13 +239,13 @@ namespace Viry3D
 
 							ps.samplers.Add(sampler);
 						}
-						else if(ps_type == "Include")
+						else if (ps_type == "Include")
 						{
 							String include;
 							try_get_attribute(include, ps_node, "name");
 							ps.includes.Add(include);
 						}
-						else if(ps_type == "Source")
+						else if (ps_type == "Source")
 						{
 							ps.src = ps_node->GetText();
 						}
@@ -236,68 +253,68 @@ namespace Viry3D
 
 					pss.Add(ps);
 				}
-				else if(type == "RenderState")
+				else if (type == "RenderState")
 				{
 					XMLRenderState rs;
 					rs.name = name;
 
-					for(auto rs_node = node->FirstChildElement(); rs_node; rs_node = rs_node->NextSiblingElement())
+					for (auto rs_node = node->FirstChildElement(); rs_node; rs_node = rs_node->NextSiblingElement())
 					{
 						String rs_type = rs_node->Name();
 
-						if(rs_type == "Cull")
+						if (rs_type == "Cull")
 						{
 							try_get_attribute(rs.Cull, rs_node, "value");
 						}
-						else if(rs_type == "ZTest")
+						else if (rs_type == "ZTest")
 						{
 							try_get_attribute(rs.ZTest, rs_node, "value");
 						}
-						else if(rs_type == "ZWrite")
+						else if (rs_type == "ZWrite")
 						{
 							try_get_attribute(rs.ZWrite, rs_node, "value");
 						}
-						else if(rs_type == "AlphaTest")
+						else if (rs_type == "AlphaTest")
 						{
 							try_get_attribute(rs.AlphaTest, rs_node, "value");
 						}
-						else if(rs_type == "ColorMask")
+						else if (rs_type == "ColorMask")
 						{
 							try_get_attribute(rs.ColorMask, rs_node, "value");
 						}
-						else if(rs_type == "Blend")
+						else if (rs_type == "Blend")
 						{
 							rs.Blend.enable = true;
 							String enable;
 							try_get_attribute(enable, rs_node, "enable");
-							if(enable == "Off")
+							if (enable == "Off")
 							{
 								rs.Blend.enable = false;
 							}
-							if(rs.Blend.enable)
+							if (rs.Blend.enable)
 							{
 								try_get_attribute(rs.Blend.src, rs_node, "src");
 								try_get_attribute(rs.Blend.dst, rs_node, "dst");
 								try_get_attribute(rs.Blend.src_a, rs_node, "src_a");
 								try_get_attribute(rs.Blend.dst_a, rs_node, "dst_a");
 
-								if(rs.Blend.src_a.Empty())
+								if (rs.Blend.src_a.Empty())
 								{
 									rs.Blend.src_a = rs.Blend.src;
 								}
-								if(rs.Blend.dst_a.Empty())
+								if (rs.Blend.dst_a.Empty())
 								{
 									rs.Blend.dst_a = rs.Blend.dst;
 								}
 							}
 						}
-						else if(rs_type == "Offset")
+						else if (rs_type == "Offset")
 						{
 							rs.Offset.enable = true;
 							try_get_attribute_to_type(rs.Offset.factor, rs_node, "factor", float);
 							try_get_attribute_to_type(rs.Offset.units, rs_node, "units", float);
 						}
-						else if(rs_type == "Stencil")
+						else if (rs_type == "Stencil")
 						{
 							rs.Stencil.enable = true;
 							try_get_attribute_to_type(rs.Stencil.RefValue, rs_node, "RefValue", int);

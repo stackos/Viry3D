@@ -24,7 +24,7 @@ namespace Viry3D
 		vkDestroyBuffer(device, m_buffer, NULL);
 	}
 
-	void BufferVulkan::CreateInternal(BufferType::Enum type, bool dynamic)
+	void BufferVulkan::CreateInternal(BufferType type, bool dynamic)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();

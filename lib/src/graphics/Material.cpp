@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Material.h"
 #include "Camera.h"
 
@@ -11,7 +28,7 @@ namespace Viry3D
 		Ref<Material> mat;
 
 		auto shader = Shader::Find(shader_name);
-		if(shader)
+		if (shader)
 		{
 			mat = Ref<Material>(new Material());
 			mat->SetName(shader_name);
@@ -48,7 +65,7 @@ namespace Viry3D
 
 	void Material::SetMatrix(const String& name, const Matrix4x4& v)
 	{
-		if(!m_matrices.Contains(name))
+		if (!m_matrices.Contains(name))
 		{
 			m_matrices.Add(name, v);
 		}
@@ -65,7 +82,7 @@ namespace Viry3D
 
 	void Material::SetVector(const String& name, const Vector4& v)
 	{
-		if(!m_vectors.Contains(name))
+		if (!m_vectors.Contains(name))
 		{
 			m_vectors.Add(name, v);
 		}
@@ -97,7 +114,7 @@ namespace Viry3D
 
 	void Material::SetColor(const String& name, const Color& v)
 	{
-		if(!m_colors.Contains(name))
+		if (!m_colors.Contains(name))
 		{
 			m_colors.Add(name, v);
 		}
@@ -114,7 +131,7 @@ namespace Viry3D
 
 	void Material::SetVectorArray(const String& name, const Vector<Vector4>& v)
 	{
-		if(!m_vector_arrays.Contains(name))
+		if (!m_vector_arrays.Contains(name))
 		{
 			m_vector_arrays.Add(name, v);
 		}
@@ -146,7 +163,7 @@ namespace Viry3D
 
 	void Material::SetTexture(const String& name, const Ref<Texture>& v)
 	{
-		if(!m_textures.Contains(name))
+		if (!m_textures.Contains(name))
 		{
 			m_textures.Add(name, v);
 		}
@@ -194,25 +211,25 @@ namespace Viry3D
 		this->UpdateUniformsBegin(pass_index);
 
 		auto buffer = this->SetUniformBegin(pass_index);
-		for(auto& i : m_matrices)
+		for (auto& i : m_matrices)
 		{
 			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second, sizeof(Matrix4x4));
 		}
-		for(auto& i : m_colors)
+		for (auto& i : m_colors)
 		{
 			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second, sizeof(Color));
 		}
-		for(auto& i : m_vectors)
+		for (auto& i : m_vectors)
 		{
 			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second, sizeof(Vector4));
 		}
-		for(auto& i : m_vector_arrays)
+		for (auto& i : m_vector_arrays)
 		{
 			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second[0], i.second.SizeInBytes());
 		}
 		this->SetUniformEnd(pass_index);
 
-		for(auto& i : m_textures)
+		for (auto& i : m_textures)
 		{
 			this->SetUniformTexture(pass_index, i.first, i.second.get());
 		}
