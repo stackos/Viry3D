@@ -1,31 +1,42 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #pragma once
 
 #include "AnimationClip.h"
 
 namespace Viry3D
 {
-	struct AnimationBlendMode
+	enum class AnimationBlendMode
 	{
-		enum Enum
-		{
-			Blend = 0,
-			Additive = 1,
-		};
+		Blend = 0,
+		Additive = 1,
 	};
 
-	struct AnimationFadeMode
+	enum class AnimationFadeMode
 	{
-		enum Enum
-		{
-			None,
-			In,
-			Out,
-		};
+		None,
+		In,
+		Out,
 	};
 
 	struct AnimationFade
 	{
-		AnimationFadeMode::Enum mode;
+		AnimationFadeMode mode;
 		float length;
 		float weight;
 
@@ -67,7 +78,7 @@ namespace Viry3D
 
 		String name;
 		Ref<AnimationClip> clip;
-		AnimationBlendMode::Enum blend_mode;
+		AnimationBlendMode blend_mode;
 		bool enabled;
 		int layer;
 		float length;
@@ -76,7 +87,7 @@ namespace Viry3D
 		float speed;
 		float time;
 		float weight;
-		AnimationWrapMode::Enum wrap_mode;
+		AnimationWrapMode wrap_mode;
 
 		float time_last;
 		int play_dir;

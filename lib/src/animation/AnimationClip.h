@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #pragma once
 
 #include "Object.h"
@@ -6,23 +23,20 @@
 
 namespace Viry3D
 {
-	struct CurveProperty
+	enum class CurveProperty
 	{
-		enum Enum
-		{
-			LocalPosX,
-			LocalPosY,
-			LocalPosZ,
-			LocalRotX,
-			LocalRotY,
-			LocalRotZ,
-			LocalRotW,
-			LocalScaX,
-			LocalScaY,
-			LocalScaZ,
+		LocalPosX,
+		LocalPosY,
+		LocalPosZ,
+		LocalRotX,
+		LocalRotY,
+		LocalRotZ,
+		LocalRotW,
+		LocalScaX,
+		LocalScaY,
+		LocalScaZ,
 
-			Count
-		};
+		Count
 	};
 
 	struct CurveBinding
@@ -31,12 +45,12 @@ namespace Viry3D
 		Vector<AnimationCurve> curves;
 	};
 
-	class AnimationClip : public Object
+	class AnimationClip: public Object
 	{
 	public:
 		float frame_rate;
 		float length;
-		AnimationWrapMode::Enum wrap_mode;
+		AnimationWrapMode wrap_mode;
 		Map<String, CurveBinding> curves;
 	};
 }

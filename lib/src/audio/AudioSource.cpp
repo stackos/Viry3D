@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "AudioSource.h"
 #include "AudioClip.h"
 #include "AudioManager.h"
@@ -34,7 +51,7 @@ namespace Viry3D
 
 		void WriteSample(byte* bytes, int channel)
 		{
-			if(data_pcm_pos + 2 <= PCM_BUFFER_SIZE)
+			if (data_pcm_pos + 2 <= PCM_BUFFER_SIZE)
 			{
 				data_pcm[data_pcm_pos] = bytes[0];
 				data_pcm[data_pcm_pos + 1] = bytes[1];
@@ -42,7 +59,7 @@ namespace Viry3D
 				data_pcm_pos += 2;
 			}
 
-			if(data_pcm_pos == PCM_BUFFER_SIZE)
+			if (data_pcm_pos == PCM_BUFFER_SIZE)
 			{
 				data_pcm_pos = 0;
 
@@ -53,7 +70,7 @@ namespace Viry3D
 				int queued = AudioManager::GetSourceBufferQueued(source);
 				mutex->unlock();
 
-				while(queued >= QUEUED_BUFFER_MAX && !exit)
+				while (queued >= QUEUED_BUFFER_MAX && !exit)
 				{
 					AudioManager::ProcessSourceBufferQueue(source);
 					std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_MS));
@@ -63,7 +80,7 @@ namespace Viry3D
 					mutex->unlock();
 				}
 
-				if(exit)
+				if (exit)
 				{
 					return;
 				}
@@ -72,7 +89,7 @@ namespace Viry3D
 				mutex->lock();
 				auto buffer = AudioManager::CreateBuffer(channel, frequency, bits, data_pcm, PCM_BUFFER_SIZE);
 				AudioManager::SetSourceQueueBuffer(source, buffer);
-				if(!play)
+				if (!play)
 				{
 					play = true;
 					AudioManager::PlaySource(source);
@@ -98,9 +115,9 @@ namespace Viry3D
 		sample += (1L << (MAD_F_FRACBITS - 16));
 
 		/* clip */
-		if(sample >= MAD_F_ONE)
+		if (sample >= MAD_F_ONE)
 			sample = MAD_F_ONE - 1;
-		else if(sample < -MAD_F_ONE)
+		else if (sample < -MAD_F_ONE)
 			sample = -MAD_F_ONE;
 
 		/* quantize */
@@ -127,17 +144,17 @@ namespace Viry3D
 	{
 		Mp3Buffer* buffer = (Mp3Buffer*) data;
 
-		if(buffer->data_mp3_size <= 0)
+		if (buffer->data_mp3_size <= 0)
 			return MAD_FLOW_STOP;
 
 		mad_stream_buffer(stream, buffer->data_mp3, buffer->data_mp3_size);
 
-		if(!buffer->loop)
+		if (!buffer->loop)
 		{
 			buffer->data_mp3_size = 0;
 		}
 
-		if(buffer->exit)
+		if (buffer->exit)
 		{
 			return MAD_FLOW_STOP;
 		}
@@ -163,7 +180,7 @@ namespace Viry3D
 		left_ch = pcm->samples[0];
 		right_ch = pcm->samples[1];
 
-		while(nsamples--)
+		while (nsamples--)
 		{
 			int sample;
 
@@ -176,7 +193,7 @@ namespace Viry3D
 
 			buffer->WriteSample(bytes, nchannels);
 
-			if(nchannels == 2)
+			if (nchannels == 2)
 			{
 				sample = mp3_scale_sample(*right_ch++);
 				bytes[0] = (sample >> 0) & 0xff;
@@ -186,7 +203,7 @@ namespace Viry3D
 			}
 		}
 
-		if(buffer->exit)
+		if (buffer->exit)
 		{
 			return MAD_FLOW_STOP;
 		}
@@ -197,7 +214,7 @@ namespace Viry3D
 	static void mp3_decode(Mp3Buffer* buffer, String file)
 	{
 		auto bb = File::ReadAllBytes(file);
-		if(bb.Size() > 0)
+		if (bb.Size() > 0)
 		{
 			buffer->data_mp3 = (const byte*) bb.Bytes();
 			buffer->data_mp3_size = bb.Size();
@@ -205,8 +222,8 @@ namespace Viry3D
 
 			mad_decoder decoder;
 			mad_decoder_init(&decoder, buffer,
-			   mp3_input, mp3_header, NULL /* filter */, mp3_output,
-			   mp3_error, NULL /* message */);
+				mp3_input, mp3_header, NULL /* filter */, mp3_output,
+				mp3_error, NULL /* message */);
 
 			mad_decoder_run(&decoder, MAD_DECODER_MODE_SYNC);
 			mad_decoder_finish(&decoder);
@@ -215,17 +232,17 @@ namespace Viry3D
 
 	void AudioSource::PlayMp3File(const String& file)
 	{
-		if(m_clip)
+		if (m_clip)
 		{
 			return;
 		}
 
-		if(m_mp3_buffer != NULL)
+		if (m_mp3_buffer != NULL)
 		{
 			Stop();
 		}
 
-		if(m_mp3_buffer == NULL)
+		if (m_mp3_buffer == NULL)
 		{
 			auto mp3_buffer = new Mp3Buffer();
 			m_mp3_buffer = mp3_buffer;
@@ -264,7 +281,7 @@ namespace Viry3D
 
 	void AudioSource::SetLoop(bool loop)
 	{
-		if(m_loop != loop)
+		if (m_loop != loop)
 		{
 			m_loop = loop;
 
@@ -279,12 +296,12 @@ namespace Viry3D
 
 	void AudioSource::SetClip(const Ref<AudioClip>& clip)
 	{
-		if(!m_mp3_file.Empty())
+		if (!m_mp3_file.Empty())
 		{
 			return;
 		}
 
-		if(m_clip != clip)
+		if (m_clip != clip)
 		{
 			m_clip = clip;
 
@@ -294,7 +311,7 @@ namespace Viry3D
 
 	void AudioSource::SetVolume(float volume)
 	{
-		if(!Mathf::FloatEqual(m_volume, volume))
+		if (!Mathf::FloatEqual(m_volume, volume))
 		{
 			m_volume = volume;
 
@@ -319,11 +336,11 @@ namespace Viry3D
 
 	void AudioSource::Play()
 	{
-		if(m_clip || m_mp3_buffer != NULL)
+		if (m_clip || m_mp3_buffer != NULL)
 		{
 			AudioManager::PlaySource(this);
 		}
-		else if(!m_mp3_file.Empty())
+		else if (!m_mp3_file.Empty())
 		{
 			PlayMp3File(m_mp3_file);
 		}
@@ -338,7 +355,7 @@ namespace Viry3D
 	{
 		AudioManager::StopSource(this);
 
-		if(m_mp3_buffer != NULL)
+		if (m_mp3_buffer != NULL)
 		{
 			auto mp3_buffer = (Mp3Buffer*) m_mp3_buffer;
 			// wait for thread exit

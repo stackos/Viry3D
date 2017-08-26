@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Animation.h"
 #include "GameObject.h"
 #include "time/Time.h"
@@ -22,10 +39,10 @@ namespace Viry3D
 		auto transform = this->GetTransform();
 		auto src_transform = src->GetTransform();
 		auto renderers = GetGameObject()->GetComponentsInChildren<SkinnedMeshRenderer>();
-		for(auto& i : renderers)
+		for (auto& i : renderers)
 		{
 			auto& bones = i->GetBones();
-			for(auto& j : bones)
+			for (auto& j : bones)
 			{
 				auto path = j.lock()->PathInParent(src_transform);
 				j = transform->Find(path);
@@ -38,11 +55,11 @@ namespace Viry3D
 	void Animation::FindBones()
 	{
 		Map<String, WeakRef<Transform>> bones;
-		for(const auto& i : m_states)
+		for (const auto& i : m_states)
 		{
 			auto& curves = i.second.clip->curves;
 
-			for(const auto& j : curves)
+			for (const auto& j : curves)
 			{
 				auto& path = j.first;
 				bones.Add(path, WeakRef<Transform>());
@@ -50,7 +67,7 @@ namespace Viry3D
 		}
 
 		auto transform = GetTransform();
-		for(auto& i : bones)
+		for (auto& i : bones)
 		{
 			auto& path = i.first;
 			i.second = transform->Find(path);
@@ -67,22 +84,21 @@ namespace Viry3D
 		this->ExecuteStateCommands();
 
 		Application::Current()->AddAsyncUpdateTask(
-			{
-				[this] ()
-				{
-					this->UpdateAnimation();
-					return Ref<Any>();
-				},
-				NULL
-			}
+		{
+			[this]() {
+			this->UpdateAnimation();
+			return Ref<Any>();
+		},
+			NULL
+		}
 		);
 	}
 
 	void Animation::ExecuteStateCommands()
 	{
-		for(auto& i : m_state_cmds)
+		for (auto& i : m_state_cmds)
 		{
-			switch(i.type)
+			switch (i.type)
 			{
 				case StateCmdType::Play:
 					PlayCmd(i.clip, i.mode);
@@ -105,12 +121,12 @@ namespace Viry3D
 	{
 		m_blends.Clear();
 
-		for(auto i = m_states.begin(); i != m_states.end(); i++)
+		for (auto i = m_states.begin(); i != m_states.end(); i++)
 		{
 			AnimationState* state = &i->second;
 			AnimationClip* c = state->clip.get();
 
-			if(!state->enabled)
+			if (!state->enabled)
 			{
 				continue;
 			}
@@ -120,33 +136,33 @@ namespace Viry3D
 			state->time += time_delta * state->play_dir;
 			state->time_last = now;
 
-			if(state->fade.mode == AnimationFadeMode::In)
+			if (state->fade.mode == AnimationFadeMode::In)
 			{
 				state->fade.weight += time_delta * (state->weight - 0) / state->fade.length;
-				if(state->fade.weight >= state->weight)
+				if (state->fade.weight >= state->weight)
 				{
 					state->fade.Clear();
 				}
 			}
-			else if(state->fade.mode == AnimationFadeMode::Out)
+			else if (state->fade.mode == AnimationFadeMode::Out)
 			{
 				state->fade.weight += time_delta * (0 - state->weight) / state->fade.length;
-				if(state->fade.weight <= 0)
+				if (state->fade.weight <= 0)
 				{
 					Stop(*state);
 				}
 			}
 
-			if((state->play_dir == 1 && state->time > state->length) ||
+			if ((state->play_dir == 1 && state->time > state->length) ||
 				(state->play_dir == -1 && state->time < 0))
 			{
-				AnimationWrapMode::Enum wrap_mode = state->wrap_mode;
-				if(wrap_mode == AnimationWrapMode::Default)
+				AnimationWrapMode wrap_mode = state->wrap_mode;
+				if (wrap_mode == AnimationWrapMode::Default)
 				{
 					wrap_mode = c->wrap_mode;
 				}
 
-				switch(wrap_mode)
+				switch (wrap_mode)
 				{
 					case AnimationWrapMode::Default:
 					case AnimationWrapMode::Once:
@@ -158,7 +174,7 @@ namespace Viry3D
 						break;
 
 					case AnimationWrapMode::PingPong:
-						if(state->play_dir == 1)
+						if (state->play_dir == 1)
 						{
 							state->play_dir = -1;
 							state->time = state->length;
@@ -176,7 +192,7 @@ namespace Viry3D
 				}
 			}
 
-			if(state->enabled)
+			if (state->enabled)
 			{
 				Blend blend;
 				blend.state = state;
@@ -196,22 +212,22 @@ namespace Viry3D
 
 		//compute weights
 		m_blends.Sort();
-		for(auto i = m_blends.begin(); i != m_blends.end(); i++)
+		for (auto i = m_blends.begin(); i != m_blends.end(); i++)
 		{
-			if(remain_weight <= 0)
+			if (remain_weight <= 0)
 			{
 				i->weight = 0;
 				continue;
 			}
 
-			if(i->state->layer < layer)
+			if (i->state->layer < layer)
 			{
 				full_weight = remain_weight;
 			}
 			layer = i->state->layer;
 
 			float weight;
-			if(i->state->fade.mode != AnimationFadeMode::None)
+			if (i->state->fade.mode != AnimationFadeMode::None)
 			{
 				weight = full_weight * i->state->fade.weight;
 			}
@@ -222,14 +238,14 @@ namespace Viry3D
 
 			{
 				i++;
-				if(i == m_blends.end())
+				if (i == m_blends.end())
 				{
 					weight = remain_weight;
 				}
 				i--;
 			}
 
-			if(remain_weight - weight < 0)
+			if (remain_weight - weight < 0)
 			{
 				weight = remain_weight;
 			}
@@ -241,7 +257,7 @@ namespace Viry3D
 
 	void Animation::UpdateBones()
 	{
-		for(auto i = m_bones.begin(); i != m_bones.end(); i++)
+		for (auto i = m_bones.begin(); i != m_bones.end(); i++)
 		{
 			Vector<Vector3> poss;
 			Vector<Quaternion> rots;
@@ -250,30 +266,30 @@ namespace Viry3D
 			int change_mask = 0;
 			float no_effect_weight = 0;
 
-			for(auto j = m_blends.begin(); j != m_blends.end(); j++)
+			for (auto j = m_blends.begin(); j != m_blends.end(); j++)
 			{
 				auto state = j->state;
 				float weight = j->weight;
 
 				CurveBinding* p_binding;
-				if(state->clip->curves.TryGet(i->first, &p_binding))
+				if (state->clip->curves.TryGet(i->first, &p_binding))
 				{
 					Vector3 pos(0, 0, 0);
 					Quaternion rot(0, 0, 0, 1);
 					Vector3 sca(1, 1, 1);
 					auto &cb = *p_binding;
 
-					for(int k = 0; k < cb.curves.Size(); k++)
+					for (int k = 0; k < cb.curves.Size(); k++)
 					{
 						auto &curve = cb.curves[k];
-						if(!curve.keys.Empty())
+						if (!curve.keys.Empty())
 						{
 							float value = curve.Evaluate(state->time);
 
 							change_mask |= 1 << k;
 
-							auto p = (CurveProperty::Enum) k;
-							switch(p)
+							auto p = (CurveProperty) k;
+							switch (p)
 							{
 								case CurveProperty::LocalPosX:
 									pos.x = value;
@@ -326,7 +342,7 @@ namespace Viry3D
 			}
 
 			int in_effect_count = weights.Size();
-			for(int j = 0; j < in_effect_count; j++)
+			for (int j = 0; j < in_effect_count; j++)
 			{
 				float per_add = no_effect_weight / in_effect_count;
 				weights[j] += per_add;
@@ -335,11 +351,11 @@ namespace Viry3D
 			Vector3 pos_final(0, 0, 0);
 			Quaternion rot_final(0, 0, 0, 0);
 			Vector3 sca_final(0, 0, 0);
-			for(int j = 0; j < in_effect_count; j++)
+			for (int j = 0; j < in_effect_count; j++)
 			{
 				pos_final += poss[j] * weights[j];
 
-				if(j > 0 && rots[j].Dot(rots[0]) < 0)
+				if (j > 0 && rots[j].Dot(rots[0]) < 0)
 				{
 					rots[j] = rots[j] * -1.0f;
 				}
@@ -351,22 +367,22 @@ namespace Viry3D
 				sca_final += scas[j] * weights[j];
 			}
 
-			if(in_effect_count > 0)
+			if (in_effect_count > 0)
 			{
 				auto& bone = i->second;
 
-				if((change_mask & ((1 << 0) | (1 << 1) | (1 << 2))) != 0)
+				if ((change_mask & ((1 << 0) | (1 << 1) | (1 << 2))) != 0)
 				{
 					bone.lock()->SetLocalPositionDirect(pos_final);
 				}
 
-				if((change_mask & ((1 << 3) | (1 << 4) | (1 << 5) | (1 << 6))) != 0)
+				if ((change_mask & ((1 << 3) | (1 << 4) | (1 << 5) | (1 << 6))) != 0)
 				{
 					rot_final.Normalize();
 					bone.lock()->SetLocalRotationDirect(rot_final);
 				}
 
-				if((change_mask & ((1 << 7) | (1 << 8) | (1 << 9))) != 0)
+				if ((change_mask & ((1 << 7) | (1 << 8) | (1 << 9))) != 0)
 				{
 					bone.lock()->SetLocalScaleDirect(sca_final);
 				}
@@ -378,21 +394,21 @@ namespace Viry3D
 
 	AnimationState Animation::GetAnimationState(const String& clip) const
 	{
-		if(!m_state_cmds.Empty())
+		if (!m_state_cmds.Empty())
 		{
 			auto i = m_state_cmds.end();
 			do
 			{
 				i--;
-				if(i->type == StateCmdType::UpdateState)
+				if (i->type == StateCmdType::UpdateState)
 				{
 					return i->state;
 				}
-			} while(i != m_state_cmds.begin());
+			} while (i != m_state_cmds.begin());
 		}
 
 		const AnimationState *p_state;
-		if(m_states.TryGet(clip, &p_state))
+		if (m_states.TryGet(clip, &p_state))
 		{
 			return *p_state;
 		}
@@ -409,7 +425,7 @@ namespace Viry3D
 		m_state_cmds.AddLast(cmd);
 	}
 
-	void Animation::Play(const String &clip, PlayMode::Enum mode)
+	void Animation::Play(const String &clip, PlayMode mode)
 	{
 		StateCmd cmd;
 		cmd.type = StateCmdType::Play;
@@ -418,7 +434,7 @@ namespace Viry3D
 		m_state_cmds.AddLast(cmd);
 	}
 
-	void Animation::CrossFade(const String& clip, float fade_length, PlayMode::Enum mode)
+	void Animation::CrossFade(const String& clip, float fade_length, PlayMode mode)
 	{
 		StateCmd cmd;
 		cmd.type = StateCmdType::CrossFade;
@@ -435,76 +451,76 @@ namespace Viry3D
 		m_state_cmds.AddLast(cmd);
 	}
 
-	void Animation::PlayCmd(const String &clip, PlayMode::Enum mode)
+	void Animation::PlayCmd(const String &clip, PlayMode mode)
 	{
 		AnimationState* state;
-		if(!m_states.TryGet(clip, &state))
+		if (!m_states.TryGet(clip, &state))
 		{
 			return;
 		}
 
-		for(auto i = m_states.begin(); i != m_states.end(); i++)
+		for (auto i = m_states.begin(); i != m_states.end(); i++)
 		{
 			AnimationState* s = &i->second;
 
-			if(mode == PlayMode::StopAll && state != s && s->enabled)
+			if (mode == PlayMode::StopAll && state != s && s->enabled)
 			{
 				Stop(*s);
 			}
-			else if(mode == PlayMode::StopSameLayer && s->layer == state->layer && state != s && s->enabled)
+			else if (mode == PlayMode::StopSameLayer && s->layer == state->layer && state != s && s->enabled)
 			{
 				Stop(*s);
 			}
-			else if(state == s && !s->enabled)
+			else if (state == s && !s->enabled)
 			{
 				Play(*s);
 			}
 		}
 	}
 
-	void Animation::CrossFadeCmd(const String& clip, float fade_length, PlayMode::Enum mode)
+	void Animation::CrossFadeCmd(const String& clip, float fade_length, PlayMode mode)
 	{
 		AnimationState* state;
-		if(!m_states.TryGet(clip, &state))
+		if (!m_states.TryGet(clip, &state))
 		{
 			return;
 		}
 
-		for(auto i = m_states.begin(); i != m_states.end(); i++)
+		for (auto i = m_states.begin(); i != m_states.end(); i++)
 		{
 			AnimationState* s = &i->second;
 
-			if(mode == PlayMode::StopAll && state != s && s->enabled)
+			if (mode == PlayMode::StopAll && state != s && s->enabled)
 			{
-				if(s->fade.mode == AnimationFadeMode::None)
+				if (s->fade.mode == AnimationFadeMode::None)
 				{
 					s->fade.mode = AnimationFadeMode::Out;
 					s->fade.length = fade_length;
 					s->fade.weight = s->weight;
 				}
-				else if(s->fade.mode == AnimationFadeMode::In)
+				else if (s->fade.mode == AnimationFadeMode::In)
 				{
 					s->fade.mode = AnimationFadeMode::Out;
 					s->fade.length = fade_length;
 				}
 			}
-			else if(mode == PlayMode::StopSameLayer && s->layer == state->layer && state != s && s->enabled)
+			else if (mode == PlayMode::StopSameLayer && s->layer == state->layer && state != s && s->enabled)
 			{
-				if(s->fade.mode == AnimationFadeMode::None)
+				if (s->fade.mode == AnimationFadeMode::None)
 				{
 					s->fade.mode = AnimationFadeMode::Out;
 					s->fade.length = fade_length;
 					s->fade.weight = s->weight;
 				}
-				else if(s->fade.mode == AnimationFadeMode::In)
+				else if (s->fade.mode == AnimationFadeMode::In)
 				{
 					s->fade.mode = AnimationFadeMode::Out;
 					s->fade.length = fade_length;
 				}
 			}
-			else if(state == s)
+			else if (state == s)
 			{
-				if(!s->enabled)
+				if (!s->enabled)
 				{
 					Play(*s);
 
@@ -514,7 +530,7 @@ namespace Viry3D
 				}
 				else
 				{
-					if(s->fade.mode == AnimationFadeMode::Out)
+					if (s->fade.mode == AnimationFadeMode::Out)
 					{
 						s->fade.mode = AnimationFadeMode::In;
 						s->fade.length = fade_length;
@@ -526,7 +542,7 @@ namespace Viry3D
 
 	void Animation::StopCmd()
 	{
-		for(auto &i : m_states)
+		for (auto &i : m_states)
 		{
 			Stop(i.second);
 		}

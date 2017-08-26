@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "RenderPassGLES.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/Graphics.h"
@@ -20,7 +37,7 @@ namespace Viry3D
 
 	RenderPassGLES::~RenderPassGLES()
 	{
-		if(m_framebuffer != 0)
+		if (m_framebuffer != 0)
 		{
 			glDeleteFramebuffers(1, &m_framebuffer);
 		}
@@ -34,7 +51,7 @@ namespace Viry3D
 
 		bool is_default = !pass->HasFrameBuffer();
 
-		if(is_default)
+		if (is_default)
 		{
 			m_framebuffer = 0;
 		}
@@ -44,12 +61,12 @@ namespace Viry3D
 
 			GLuint depth_texture;
 			GLenum attachment = 0;
-			if(frame_buffer.depth_texture)
+			if (frame_buffer.depth_texture)
 			{
 				depth_texture = frame_buffer.depth_texture->GetTexture();
 
 				auto depth = frame_buffer.depth_texture->GetDepth();
-				switch(depth)
+				switch (depth)
 				{
 					case DepthBuffer::Depth_16:
 					case DepthBuffer::Depth_24:
@@ -78,13 +95,13 @@ namespace Viry3D
 			glGenFramebuffers(1, &m_framebuffer);
 			glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 
-			if(frame_buffer.color_texture)
+			if (frame_buffer.color_texture)
 			{
 				auto color_texture = frame_buffer.color_texture->GetTexture();
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_texture, 0);
 			}
 
-			if(frame_buffer.depth_texture)
+			if (frame_buffer.depth_texture)
 			{
 				glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, depth_texture, 0);
 			}
@@ -94,7 +111,7 @@ namespace Viry3D
 			}
 
 			auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-			if(status != GL_FRAMEBUFFER_COMPLETE)
+			if (status != GL_FRAMEBUFFER_COMPLETE)
 			{
 				Log("glCheckFramebufferStatus error:%d", status);
 			}
@@ -123,7 +140,7 @@ namespace Viry3D
 
 		glViewport(0, 0, width, height);
 
-		if(m_framebuffer == 0)
+		if (m_framebuffer == 0)
 		{
 #if VR_IOS
 			((DisplayIOS*) Graphics::GetDisplay())->BindDefaultFramebuffer();
@@ -146,15 +163,15 @@ namespace Viry3D
 		{
 			auto frame_buffer = pass->m_frame_buffer;
 
-			if(frame_buffer.color_texture)
+			if (frame_buffer.color_texture)
 			{
 				attachments.Add(GL_COLOR_ATTACHMENT0);
 			}
 
-			if(frame_buffer.depth_texture)
+			if (frame_buffer.depth_texture)
 			{
 				auto depth = frame_buffer.depth_texture->GetDepth();
-				switch(depth)
+				switch (depth)
 				{
 					case DepthBuffer::Depth_16:
 					case DepthBuffer::Depth_24:
@@ -182,7 +199,7 @@ namespace Viry3D
 			glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 		}
 
-		switch(clear_flag)
+		switch (clear_flag)
 		{
 			case CameraClearFlags::Color:
 			{
@@ -190,7 +207,7 @@ namespace Viry3D
 				glDepthMask(GL_TRUE);
 
 				GLbitfield clear_bit = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-				if(has_stencil)
+				if (has_stencil)
 				{
 					clear_bit |= GL_STENCIL_BUFFER_BIT;
 				}
@@ -204,7 +221,7 @@ namespace Viry3D
 				glDepthMask(GL_TRUE);
 
 				GLbitfield clear_bit = GL_DEPTH_BUFFER_BIT;
-				if(has_stencil)
+				if (has_stencil)
 				{
 					clear_bit |= GL_STENCIL_BUFFER_BIT;
 				}
