@@ -18,7 +18,6 @@ set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 add_library(Viry3DDep STATIC
-            ${VIRY3D_LIB_SRC_DIR}/crypto/md5/LibMd5.c
             ${VIRY3D_LIB_SRC_DIR}/freetype/src/autofit/autofit.c
             ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbase.c
             ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbbox.c
@@ -186,10 +185,6 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/openal/android
                            ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include)
 
-add_library(js_static STATIC IMPORTED)
-set_target_properties(js_static PROPERTIES IMPORTED_LOCATION
-                      ${VIRY3D_LIB_SRC_DIR}/spidermonkey/prebuilt/android/${ANDROID_ABI}/libjs_static.a)
-
 add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/android/DisplayAndroid.cpp
             ${VIRY3D_LIB_SRC_DIR}/animation/Animation.cpp
@@ -286,7 +281,6 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppBlur.cpp
             ${VIRY3D_APP_SRC_DIR}/AppClear.cpp
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppJavaScript.cpp
             ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
             ${VIRY3D_APP_SRC_DIR}/AppScene.cpp
             ${VIRY3D_APP_SRC_DIR}/AppWatch.cpp)
@@ -299,4 +293,4 @@ target_include_directories(Viry3DApp PRIVATE
 
 target_link_libraries(Viry3DApp
                       android log EGL GLESv3 z OpenSLES
-                      Viry3D Viry3DDep js_static)
+                      Viry3D Viry3DDep)

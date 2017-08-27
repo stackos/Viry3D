@@ -38,7 +38,7 @@ android {
     exec {
         workingDir '../../../..'
         def cmd = [
-                'xcopy', 'app\\Assets', 'app\\project\\android_native\\app\\src\\main\\assets\\Assets\\', '/E', '/Y'
+                'xcopy', 'app\\bin\\Assets', 'app\\project\\android\\app\\src\\main\\assets\\Assets\\', '/E', '/Y'
         ]
         commandLine cmd
     }
