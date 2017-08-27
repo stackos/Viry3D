@@ -28,6 +28,9 @@
     <ClCompile Include="..\..\src\AppScene.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\AppFlappyBird.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\..\lib\src\gles\glew\prebuilt\glew32.lib">

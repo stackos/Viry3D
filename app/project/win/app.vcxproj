@@ -163,6 +163,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\AppClear.cpp" />
+    <ClCompile Include="..\..\src\AppFlappyBird.cpp" />
     <ClCompile Include="..\..\src\AppMesh.cpp" />
     <ClCompile Include="..\..\src\AppAnim.cpp" />
     <ClCompile Include="..\..\src\AppBlur.cpp" />

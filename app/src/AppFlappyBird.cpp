@@ -1,4 +1,21 @@
-﻿#include "Main.h"
+﻿/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+#include "Main.h"
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
@@ -49,7 +66,7 @@ struct Pipe
 static const int land_move_speed = -120;
 static const int pipe_y_distance = 130;
 
-class AppFlappyBird : public Application
+class AppFlappyBird: public Application
 {
 public:
 	AppFlappyBird();
@@ -60,7 +77,7 @@ public:
 
 	void InitBG();
 	void OnTouchDownBG(UIPointerEvent& e);
-	
+
 	void InitReady();
 
 	void InitLand();
@@ -70,7 +87,7 @@ public:
 	void UpdateBirdAnim();
 	void UpdateBirdMove();
 	void UpdateBirdRot();
-	
+
 	void InitPipe();
 	void GenPipe();
 	void UpdatePipeGen();
@@ -117,7 +134,7 @@ public:
 
 	GameState::Enum m_game_state;
 	float m_play_start_time;
-	
+
 	int m_score;
 	int m_score_best;
 	Vector<WeakRef<UISprite>> m_score_sprites;
@@ -156,7 +173,7 @@ void AppFlappyBird::OnResize(int width, int height)
 
 void AppFlappyBird::OnResize()
 {
-	if(!m_ui_camera.expired())
+	if (!m_ui_camera.expired())
 	{
 		auto scale_w = m_ui_camera.lock()->GetTargetWidth() / 288.0f;
 		auto scale_h = m_ui_camera.lock()->GetTargetHeight() / 512.0f;
@@ -220,7 +237,7 @@ void AppFlappyBird::InitBG()
 
 void AppFlappyBird::OnTouchDownBG(UIPointerEvent& e)
 {
-	if(m_game_state == GameState::Ready)
+	if (m_game_state == GameState::Ready)
 	{
 		m_game_state = GameState::Play;
 		m_play_start_time = Time::GetTime();
@@ -232,15 +249,14 @@ void AppFlappyBird::OnTouchDownBG(UIPointerEvent& e)
 		tc->duration = 0.2f;
 		tc->from = Color(1, 1, 1, 1);
 		tc->to = Color(1, 1, 1, 0);
-		tc->on_finish = [this]()
-		{
+		tc->on_finish = [this]() {
 			m_ui_obj.lock()->GetTransform()->Find("Canvas UI/Ready")->GetGameObject()->SetActive(false);
 		};
 
 		Component::Destroy(m_bird_ready_move.lock());
 	}
 
-	if(m_game_state == GameState::Ready || m_game_state == GameState::Play)
+	if (m_game_state == GameState::Ready || m_game_state == GameState::Play)
 	{
 		const float fly_speed = 400;
 		m_bird_speed = fly_speed;
@@ -254,8 +270,8 @@ void AppFlappyBird::InitReady()
 {
 	auto ready = m_ui_obj.lock()->GetTransform()->Find("Canvas UI/Ready")->GetGameObject();
 	ready->SetActive(true);
-    auto vs = ready->GetComponentsInChildren<Viry3D::UIView>();
-	for(auto& i : vs)
+	auto vs = ready->GetComponentsInChildren<Viry3D::UIView>();
+	for (auto& i : vs)
 	{
 		i->SetColor(Color(1, 1, 1, 1));
 	}
@@ -283,13 +299,13 @@ void AppFlappyBird::InitBird()
 
 void AppFlappyBird::UpdateBirdAnim()
 {
-	if(	m_game_state == GameState::Ready ||
+	if (m_game_state == GameState::Ready ||
 		m_game_state == GameState::Play ||
 		m_game_state == GameState::ReadyIn)
 	{
 		auto bird = m_bird.lock();
 		m_bird_frame += Time::GetDeltaTime() * m_bird_frame_anim_speed;
-		if((int) m_bird_frame >= 3)
+		if ((int) m_bird_frame >= 3)
 		{
 			m_bird_frame = 0;
 		}
@@ -299,7 +315,7 @@ void AppFlappyBird::UpdateBirdAnim()
 
 void AppFlappyBird::UpdateBirdMove()
 {
-	if(	m_game_state == GameState::Play ||
+	if (m_game_state == GameState::Play ||
 		m_game_state == GameState::Over)
 	{
 		const float gravity = -1300;
@@ -312,11 +328,11 @@ void AppFlappyBird::UpdateBirdMove()
 		pos.y += m_bird_speed * Time::GetDeltaTime();
 
 		const float bottom_y = -133;
-		if(pos.y < bottom_y)
+		if (pos.y < bottom_y)
 		{
 			pos.y = bottom_y;
 
-			if(m_game_state == GameState::Play)
+			if (m_game_state == GameState::Play)
 			{
 				GameOver();
 			}
@@ -331,20 +347,20 @@ void AppFlappyBird::UpdateBirdMove()
 
 void AppFlappyBird::UpdateBirdRot()
 {
-	if(	m_game_state == GameState::Play ||
+	if (m_game_state == GameState::Play ||
 		m_game_state == GameState::Over)
 	{
 		auto birt_t = m_bird.lock()->GetTransform();
 
 		const float minus_start_speed = -350;
-		if(m_bird_speed > 0)
+		if (m_bird_speed > 0)
 		{
 			const float rot_add_speed = 600;
 			m_bird_rot += rot_add_speed * Time::GetDeltaTime();
 			const float rot_max = 25;
 			m_bird_rot = Mathf::Min(m_bird_rot, rot_max);
 		}
-		else if(m_bird_speed < minus_start_speed)
+		else if (m_bird_speed < minus_start_speed)
 		{
 			const float rot_minus_speed = -500;
 			m_bird_rot += rot_minus_speed * Time::GetDeltaTime();
@@ -369,7 +385,7 @@ void AppFlappyBird::InitLand()
 
 void AppFlappyBird::UpdateLand()
 {
-	if( m_game_state == GameState::Ready ||
+	if (m_game_state == GameState::Ready ||
 		m_game_state == GameState::Play ||
 		m_game_state == GameState::ReadyIn)
 	{
@@ -377,7 +393,7 @@ void AppFlappyBird::UpdateLand()
 		m_land_move += move;
 
 		const float land_move_min = -336;
-		if(m_land_move <= land_move_min)
+		if (m_land_move <= land_move_min)
 		{
 			m_land_move = 0;
 		}
@@ -393,7 +409,7 @@ void AppFlappyBird::InitPipe()
 	m_pipe_base.up = m_ui_obj.lock()->GetTransform()->Find("Canvas Dynamic/Pipes/Up");
 	m_pipe_base.down = m_ui_obj.lock()->GetTransform()->Find("Canvas Dynamic/Pipes/Down");
 
-	for(auto& i : m_pipes)
+	for (auto& i : m_pipes)
 	{
 		GameObject::Destroy(i.up.lock()->GetGameObject());
 		GameObject::Destroy(i.down.lock()->GetGameObject());
@@ -429,18 +445,18 @@ void AppFlappyBird::GenPipe()
 
 void AppFlappyBird::UpdatePipeGen()
 {
-	if(m_game_state == GameState::Play)
+	if (m_game_state == GameState::Play)
 	{
 		float time = Time::GetTime();
 
 		const float pipe_start_delay = 1;
-		if(time - m_play_start_time < pipe_start_delay)
+		if (time - m_play_start_time < pipe_start_delay)
 		{
 			return;
 		}
 
 		const float pipe_gen_delta = 1.4f;
-		if(m_pipe_gen_time < 0 || time - m_pipe_gen_time > pipe_gen_delta)
+		if (m_pipe_gen_time < 0 || time - m_pipe_gen_time > pipe_gen_delta)
 		{
 			m_pipe_gen_time = time;
 
@@ -451,18 +467,18 @@ void AppFlappyBird::UpdatePipeGen()
 
 void AppFlappyBird::UpdatePipeMove()
 {
-	if(m_game_state == GameState::Play)
+	if (m_game_state == GameState::Play)
 	{
 		float move = Time::GetDeltaTime() * land_move_speed;
 
-		for(int i = 0; i < m_pipes.Size();)
+		for (int i = 0; i < m_pipes.Size();)
 		{
 			auto& pipe = m_pipes[i];
 
 			pipe.move += move;
 
 			const float pipe_move_min = -470;
-			if(pipe.move <= pipe_move_min)
+			if (pipe.move <= pipe_move_min)
 			{
 				GameObject::Destroy(pipe.up.lock()->GetGameObject());
 				GameObject::Destroy(pipe.down.lock()->GetGameObject());
@@ -481,32 +497,31 @@ void AppFlappyBird::UpdatePipeMove()
 
 void AppFlappyBird::DetectCollision()
 {
-	if(m_game_state == GameState::Play)
+	if (m_game_state == GameState::Play)
 	{
 		auto bird_y = m_bird.lock()->GetTransform()->GetLocalPosition().y;
 
-		for(int i = 0; i < m_pipes.Size(); i++)
+		for (int i = 0; i < m_pipes.Size(); i++)
 		{
 			const auto& p = m_pipes[i];
-			
-			if(p.move < -314 && p.move > -400)
+
+			if (p.move < -314 && p.move > -400)
 			{
-				if(bird_y - 12 < p.y - pipe_y_distance / 2 || bird_y + 12 > p.y + pipe_y_distance / 2)
+				if (bird_y - 12 < p.y - pipe_y_distance / 2 || bird_y + 12 > p.y + pipe_y_distance / 2)
 				{
 					GameOver();
 
-					Timer::CreateTimer(0.3f).lock()->on_tick = [this]()
-					{
+					Timer::CreateTimer(0.3f).lock()->on_tick = [this]() {
 						m_audio_source_die.lock()->Play();
 					};
 					return;
 				}
 			}
-			else if(p.move < -400)
+			else if (p.move < -400)
 			{
 				int score = p.index + 1;
 
-				if(score > m_score)
+				if (score > m_score)
 				{
 					m_score = score;
 					UpdateScore(m_score, m_score_sprites, 24, "font_0", 48, false);
@@ -524,7 +539,7 @@ void AppFlappyBird::InitScore()
 	m_score_obj = m_ui_obj.lock()->GetTransform()->Find("Canvas UI/Play/Score")->GetGameObject();
 	m_score_obj.lock()->SetActive(true);
 
-	for(int i = 1; i < m_score_sprites.Size(); i++)
+	for (int i = 1; i < m_score_sprites.Size(); i++)
 	{
 		GameObject::Destroy(m_score_sprites[i].lock()->GetGameObject());
 	}
@@ -543,14 +558,14 @@ void AppFlappyBird::LoadScoreBest()
 	m_score_best = 0;
 
 	auto path = Application::SavePath() + "/AppFlappyBird/save.json";
-	if(File::Exist(path))
+	if (File::Exist(path))
 	{
 		Json::Reader reader;
 		Json::Value root;
 
 		auto buffer = File::ReadAllBytes(path);
 		auto str = String((const char*) buffer.Bytes(), buffer.Size());
-		if(reader.parse(str.CString(), root))
+		if (reader.parse(str.CString(), root))
 		{
 			m_score_best = root["score_best"].asInt();
 		}
@@ -576,7 +591,7 @@ void AppFlappyBird::UpdateScore(int score, Vector<WeakRef<UISprite>>& sprites, i
 {
 	auto score_str = String::ToString(score);
 	int number_count = score_str.Size();
-	for(int i = sprites.Size(); i < number_count; i++)
+	for (int i = sprites.Size(); i < number_count; i++)
 	{
 		auto new_sprite = GameObject::Instantiate(sprites[0].lock()->GetGameObject());
 		new_sprite->GetTransform()->SetParent(sprites[0].lock()->GetTransform()->GetParent());
@@ -584,13 +599,13 @@ void AppFlappyBird::UpdateScore(int score, Vector<WeakRef<UISprite>>& sprites, i
 	}
 
 	int start_x;
-	if(align_right)
+	if (align_right)
 	{
 		start_x = -(number_count - 1) * sprite_width;
 	}
 	else// align center
 	{
-		if(number_count % 2 == 1)
+		if (number_count % 2 == 1)
 		{
 			start_x = -number_count / 2 * sprite_width;
 		}
@@ -600,7 +615,7 @@ void AppFlappyBird::UpdateScore(int score, Vector<WeakRef<UISprite>>& sprites, i
 		}
 	}
 
-	for(int i = 0; i < sprites.Size(); i++)
+	for (int i = 0; i < sprites.Size(); i++)
 	{
 		auto sprite = sprites[i].lock();
 		int x = start_x + i * sprite_width;
@@ -626,8 +641,7 @@ void AppFlappyBird::CoverFlashWhite()
 	tc->duration = 0.2f;
 	tc->from = Color(1, 1, 1, 1);
 	tc->to = Color(1, 1, 1, 0);
-	tc->on_finish = [this]()
-	{
+	tc->on_finish = [this]() {
 		m_cover_sprite.lock()->GetGameObject()->SetActive(false);
 	};
 }
@@ -641,7 +655,7 @@ void AppFlappyBird::InitOver()
 	obj->GetTransform()->Find("Image Panel/New")->GetGameObject()->SetActive(false);
 	obj->GetTransform()->Find("Image Panel/Image Medal")->GetGameObject()->SetActive(false);
 
-	for(int i = 1; i < m_over_score_sprites.Size(); i++)
+	for (int i = 1; i < m_over_score_sprites.Size(); i++)
 	{
 		GameObject::Destroy(m_over_score_sprites[i].lock()->GetGameObject());
 	}
@@ -649,7 +663,7 @@ void AppFlappyBird::InitOver()
 	m_over_score_sprites.Add(obj->GetTransform()->Find("Image Panel/Score/Image Score")->GetGameObject()->GetComponent<UISprite>());
 	UpdateScore(0, m_over_score_sprites, 16, "number_score_0", 0, true);
 
-	for(int i = 1; i < m_over_score_best_sprites.Size(); i++)
+	for (int i = 1; i < m_over_score_best_sprites.Size(); i++)
 	{
 		GameObject::Destroy(m_over_score_best_sprites[i].lock()->GetGameObject());
 	}
@@ -661,16 +675,13 @@ void AppFlappyBird::InitOver()
 
 	WeakRef<UISprite> button_play = obj->GetTransform()->Find("Button/Image Play")->GetGameObject()->GetComponent<UISprite>();
 	button_play.lock()->event_handler.enable = true;
-	button_play.lock()->event_handler.on_pointer_down = [=](UIPointerEvent& e) 
-	{
+	button_play.lock()->event_handler.on_pointer_down = [=](UIPointerEvent& e) {
 		button_play.lock()->GetTransform()->SetLocalPosition(Vector3(-70, -3, 0));
 	};
-	button_play.lock()->event_handler.on_pointer_up = [=](UIPointerEvent& e)
-	{
+	button_play.lock()->event_handler.on_pointer_up = [=](UIPointerEvent& e) {
 		button_play.lock()->GetTransform()->SetLocalPosition(Vector3(-70, 0, 0));
 	};
-	button_play.lock()->event_handler.on_pointer_click = [this](UIPointerEvent& e)
-	{
+	button_play.lock()->event_handler.on_pointer_click = [this](UIPointerEvent& e) {
 		Restart();
 
 		m_audio_source_swooshing.lock()->Play();
@@ -679,10 +690,10 @@ void AppFlappyBird::InitOver()
 
 void AppFlappyBird::Restart()
 {
-	if(m_game_state == GameState::Over)
+	if (m_game_state == GameState::Over)
 	{
 		m_game_state = GameState::OverOut;
-		
+
 		auto sprite = m_cover_sprite.lock();
 		sprite->GetGameObject()->SetActive(true);
 		sprite->SetColor(Color(0, 0, 0, 0));
@@ -691,14 +702,12 @@ void AppFlappyBird::Restart()
 		tc->duration = 0.3f;
 		tc->from = Color(0, 0, 0, 0);
 		tc->to = Color(0, 0, 0, 1);
-		tc->on_finish = [this]()
-		{
+		tc->on_finish = [this]() {
 			auto tc = m_cover_sprite.lock()->GetGameObject()->AddComponent<TweenUIColor>();
 			tc->duration = 0.3f;
 			tc->from = Color(0, 0, 0, 1);
 			tc->to = Color(0, 0, 0, 0);
-			tc->on_finish = [this]()
-			{
+			tc->on_finish = [this]() {
 				m_cover_sprite.lock()->GetGameObject()->SetActive(false);
 				m_game_state = GameState::Ready;
 			};
@@ -713,7 +722,8 @@ void AppFlappyBird::Restart()
 			InitOver();
 			m_game_state = GameState::ReadyIn;
 
-			if(!m_blink_timer.expired()) {
+			if (!m_blink_timer.expired())
+			{
 				m_blink_timer.lock()->Stop();
 				m_blink_timer.reset();
 			}
@@ -729,10 +739,9 @@ void AppFlappyBird::GameOver()
 
 	m_audio_source_hit.lock()->Play();
 
-	Timer::CreateTimer(0.5f).lock()->on_tick = [=]()
-	{
+	Timer::CreateTimer(0.5f).lock()->on_tick = [=]() {
 		m_score_obj.lock()->SetActive(false);
-		
+
 		// show game over
 		{
 			auto over_obj = m_over_obj.lock();
@@ -748,7 +757,7 @@ void AppFlappyBird::GameOver()
 			tp->curve.keys.Add(Keyframe(1, 0, -1, -1));
 
 			auto tc = over_obj->GetTransform()->Find("Image Title")->GetGameObject()->AddComponent<TweenUIColor>();
-            tc->GetGameObject()->GetComponent<Viry3D::UIView>()->SetColor(Color(1, 1, 1, 0));
+			tc->GetGameObject()->GetComponent<Viry3D::UIView>()->SetColor(Color(1, 1, 1, 0));
 			tc->duration = 0.2f;
 			tc->from = Color(1, 1, 1, 0);
 			tc->to = Color(1, 1, 1, 1);
@@ -764,53 +773,49 @@ void AppFlappyBird::GameOver()
 			tp->curve.keys.Add(Keyframe(0, 0, 2, 2));
 			tp->curve.keys.Add(Keyframe(1, 1, 0, 0));
 
-			Timer::CreateTimer(0.7f).lock()->on_tick = [this]()
-			{
+			Timer::CreateTimer(0.7f).lock()->on_tick = [this]() {
 				m_audio_source_swooshing.lock()->Play();
 			};
-			
-			Timer::CreateTimer(1.2f).lock()->on_tick = [=]()
-			{
-				if(m_score > 0)
+
+			Timer::CreateTimer(1.2f).lock()->on_tick = [=]() {
+				if (m_score > 0)
 				{
 					float tick = 1.0f / m_score;
 
 					auto t = Timer::CreateTimer(tick, true);
-					t.lock()->on_tick = [=]()
-					{
+					t.lock()->on_tick = [=]() {
 						int score = t.lock()->tick_count;
 						UpdateScore(score, m_over_score_sprites, 16, "number_score_0", 0, true);
-						
-						if(score == m_score)
+
+						if (score == m_score)
 						{
 							t.lock()->Stop();
 
-							if(m_score > m_score_best)
+							if (m_score > m_score_best)
 							{
 								m_ui_obj.lock()->GetTransform()->Find("Canvas UI/Over/Image Panel/New")->GetGameObject()->SetActive(true);
 								UpdateScore(m_score, m_over_score_best_sprites, 16, "number_score_0", 0, true);
 								SaveScoreBest(m_score);
 							}
 
-							if(m_score >= 10 && m_score < 20)
+							if (m_score >= 10 && m_score < 20)
 							{
 								ShowMedal(3);
 							}
-							else if(m_score >= 20 && m_score < 40)
+							else if (m_score >= 20 && m_score < 40)
 							{
 								ShowMedal(2);
 							}
-							else if(m_score >= 40 && m_score < 80)
+							else if (m_score >= 40 && m_score < 80)
 							{
 								ShowMedal(1);
 							}
-							else if(m_score >= 80)
+							else if (m_score >= 80)
 							{
 								ShowMedal(0);
 							}
 
-							Timer::CreateTimer(0.3f).lock()->on_tick = [=]()
-							{
+							Timer::CreateTimer(0.3f).lock()->on_tick = [=]() {
 								over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 							};
 						}
@@ -818,8 +823,7 @@ void AppFlappyBird::GameOver()
 				}
 				else
 				{
-					Timer::CreateTimer(0.3f).lock()->on_tick = [=]()
-					{
+					Timer::CreateTimer(0.3f).lock()->on_tick = [=]() {
 						over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 					};
 				}
@@ -834,10 +838,9 @@ void AppFlappyBird::ShowMedal(int index)
 	obj.lock()->SetActive(true);
 	obj.lock()->GetComponent<UISprite>()->SetSpriteName(String::Format("medals_%d", index));
 	obj.lock()->GetTransform()->Find("Blink")->GetGameObject()->SetActive(false);
-	
+
 	m_blink_timer = Timer::CreateTimer(0.5f, true);
-	m_blink_timer.lock()->on_tick = [=]()
-	{
+	m_blink_timer.lock()->on_tick = [=]() {
 		WeakRef<GameObject> blink_obj = obj.lock()->GetTransform()->Find("Blink")->GetGameObject();
 		blink_obj.lock()->SetActive(true);
 		WeakRef<UISprite> blink = blink_obj.lock()->GetComponent<UISprite>();
@@ -846,15 +849,14 @@ void AppFlappyBird::ShowMedal(int index)
 		blink_obj.lock()->GetTransform()->SetLocalPosition(Vector3(Mathf::RandomRange(-22.0f, 22.0f), Mathf::RandomRange(-22.0f, 22.0f), 0));
 
 		auto t = Timer::CreateTimer(0.1f, true);
-		t.lock()->on_tick = [=]()
-		{
+		t.lock()->on_tick = [=]() {
 			auto tick_count = t.lock()->tick_count;
-			if(tick_count == 3)
+			if (tick_count == 3)
 			{
 				t.lock()->Stop();
 				blink_obj.lock()->SetActive(false);
 			}
-			else 
+			else
 			{
 				blink.lock()->SetSpriteName(String::Format("blink_0%d", tick_count));
 			}
@@ -865,7 +867,7 @@ void AppFlappyBird::ShowMedal(int index)
 void AppFlappyBird::InitAudio()
 {
 	GameObject::Create("AudioListener")->AddComponent<AudioListener>();
-	
+
 	m_audio_source_point = GameObject::Create("")->AddComponent<AudioSource>();
 	auto clip = AudioClip::LoadFromFile(Application::DataPath() + "/AppFlappyBird/sfx_point.wav");
 	m_audio_source_point.lock()->SetClip(clip);
