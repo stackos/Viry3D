@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Quaternion.h"
 #include "Mathf.h"
 #include <sstream>
@@ -100,7 +117,7 @@ namespace Viry3D
 	{
 		Quaternion to_;
 
-		if(from.Dot(to) < 0)
+		if (from.Dot(to) < 0)
 		{
 			to_ = to * -1.0f;
 		}
@@ -123,7 +140,7 @@ namespace Viry3D
 	{
 		Quaternion to_;
 
-		if(from.Dot(to) < 0)
+		if (from.Dot(to) < 0)
 		{
 			to_ = to * -1.0f;
 		}
@@ -137,7 +154,7 @@ namespace Viry3D
 		float Wa, Wb;
 		float theta = acos(from.x * to_.x + from.y * to_.y + from.z * to_.z + from.w * to_.w);
 		float sn = sin(theta);
-		if(!Mathf::FloatEqual(sn, 0))
+		if (!Mathf::FloatEqual(sn, 0))
 		{
 			float inv_sin = 1 / sn;
 			Wa = sin(t_ * theta);
@@ -162,16 +179,16 @@ namespace Viry3D
 		Vector3 origin = Vector3::Normalize(from_direction);
 		Vector3 fn = Vector3::Normalize(to_direction);
 
-		if(fn != origin)
+		if (fn != origin)
 		{
-			if(!Mathf::FloatEqual(fn.SqrMagnitude(), 0) && !Mathf::FloatEqual(origin.SqrMagnitude(), 0))
+			if (!Mathf::FloatEqual(fn.SqrMagnitude(), 0) && !Mathf::FloatEqual(origin.SqrMagnitude(), 0))
 			{
 				float deg = Vector3::Angle(origin, fn);
 				Vector3 axis = origin * fn;
 
-				if(axis == Vector3(0, 0, 0))
+				if (axis == Vector3(0, 0, 0))
 				{
-					if(!Mathf::FloatEqual(origin.x, 0))
+					if (!Mathf::FloatEqual(origin.x, 0))
 					{
 						float x = -origin.y / origin.x;
 						float y = 1;
@@ -179,7 +196,7 @@ namespace Viry3D
 
 						axis = Vector3(x, y, z);
 					}
-					else if(!Mathf::FloatEqual(origin.y, 0))
+					else if (!Mathf::FloatEqual(origin.y, 0))
 					{
 						float y = -origin.z / origin.y;
 						float x = 0;
@@ -218,7 +235,7 @@ namespace Viry3D
 	void Quaternion::Normalize()
 	{
 		float sqr_magnitude = x*x + y*y + z*z + w*w;
-		if(!Mathf::FloatEqual(sqr_magnitude, 0))
+		if (!Mathf::FloatEqual(sqr_magnitude, 0))
 		{
 			float sq = sqrt(sqr_magnitude);
 

@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Matrix4x4.h"
 #include "Mathf.h"
 #include <sstream>
@@ -321,16 +338,16 @@ namespace Viry3D
 		int is[4];
 		int js[4];
 
-		for(int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			float max = 0.0f;
 
-			for(int j = i; j < 4; j++)
+			for (int j = i; j < 4; j++)
 			{
-				for(int k = i; k < 4; k++)
+				for (int k = i; k < 4; k++)
 				{
 					const float f = fabs(mat[j * 4 + k]);
-					if(f > max)
+					if (f > max)
 					{
 						max = f;
 						is[i] = j;
@@ -339,12 +356,12 @@ namespace Viry3D
 				}
 			}
 
-			if(max < 0.0001f)
+			if (max < 0.0001f)
 			{
 				return ret;
 			}
 
-			if(is[i] != i)
+			if (is[i] != i)
 			{
 				float temp;
 
@@ -354,7 +371,7 @@ namespace Viry3D
 				SWAP(mat[is[i] * 4 + 3], mat[i * 4 + 3], temp);
 			}
 
-			if(js[i] != i)
+			if (js[i] != i)
 			{
 				float temp;
 
@@ -367,21 +384,21 @@ namespace Viry3D
 			float& key = mat[i * 4 + i];
 			key = 1.0f / key;
 
-			for(int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
-				if(j != i)
+				if (j != i)
 				{
 					mat[i * 4 + j] *= key;
 				}
 			}
 
-			for(int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
-				if(j != i)
+				if (j != i)
 				{
-					for(int k = 0; k < 4; k++)
+					for (int k = 0; k < 4; k++)
 					{
-						if(k != i)
+						if (k != i)
 						{
 							mat[j * 4 + k] -= mat[i * 4 + k] * mat[j * 4 + i];
 						}
@@ -389,18 +406,18 @@ namespace Viry3D
 				}
 			}
 
-			for(int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
-				if(j != i)
+				if (j != i)
 				{
 					mat[j * 4 + i] *= -key;
 				}
 			}
 		}
 
-		for(int i = 3; i >= 0; i--)
+		for (int i = 3; i >= 0; i--)
 		{
-			if(js[i] != i)
+			if (js[i] != i)
 			{
 				float temp;
 
@@ -410,7 +427,7 @@ namespace Viry3D
 				SWAP(mat[js[i] * 4 + 3], mat[i * 4 + 3], temp);
 			}
 
-			if(is[i] != i)
+			if (is[i] != i)
 			{
 				float temp;
 

@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "RenderPassVulkan.h"
 #include "DisplayVulkan.h"
 #include "graphics/RenderPass.h"
@@ -21,7 +38,7 @@ namespace Viry3D
 
 		vkDeviceWaitIdle(device);
 
-		for(auto i : m_framebuffers)
+		for (auto i : m_framebuffers)
 		{
 			vkFreeCommandBuffers(device, display->GetCommandPool(), 1, &i.cmd_buffer);
 			vkDestroyFramebuffer(device, i.frame_buffer, NULL);
@@ -44,7 +61,7 @@ namespace Viry3D
 		VkAttachmentLoadOp depth_load;
 		VkImageLayout color_final_layout;
 
-		switch(clear_flag)
+		switch (clear_flag)
 		{
 			case CameraClearFlags::Color:
 			{
@@ -70,7 +87,7 @@ namespace Viry3D
 			}
 		}
 
-		if(is_default)
+		if (is_default)
 		{
 			auto depth_texture = display->GetDepthTexture();
 			color_format = display->GetSurfaceFormat();
@@ -81,7 +98,7 @@ namespace Viry3D
 		{
 			auto frame_buffer = pass->m_frame_buffer;
 
-			if(frame_buffer.color_texture)
+			if (frame_buffer.color_texture)
 			{
 				color_format = frame_buffer.color_texture->GetVkFormat();
 			}
@@ -90,7 +107,7 @@ namespace Viry3D
 				color_format = display->GetSurfaceFormat();
 			}
 
-			if(frame_buffer.depth_texture)
+			if (frame_buffer.depth_texture)
 			{
 				depth_format = frame_buffer.depth_texture->GetVkFormat();
 			}
@@ -115,7 +132,7 @@ namespace Viry3D
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[0].finalLayout = color_final_layout;
 
-		if(need_depth)
+		if (need_depth)
 		{
 			attachments.Add(VkAttachmentDescription());
 			Memory::Zero(&attachments[1], sizeof(VkAttachmentDescription));
@@ -148,7 +165,7 @@ namespace Viry3D
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &color_reference;
 		subpass.pResolveAttachments = NULL;
-		if(need_depth)
+		if (need_depth)
 		{
 			subpass.pDepthStencilAttachment = &depth_reference;
 		}
@@ -194,11 +211,11 @@ namespace Viry3D
 		int width;
 		int height;
 
-		if(is_default)
+		if (is_default)
 		{
 			int buffer_count = display->GetSwapchainBufferCount();
 			auto depth_texture = display->GetDepthTexture();
-			if(need_depth)
+			if (need_depth)
 			{
 				attachments_view.Resize(2);
 				attachments_view[1] = depth_texture->GetImageView();
@@ -207,7 +224,7 @@ namespace Viry3D
 			height = depth_texture->GetHeight();
 			m_framebuffers.Resize(buffer_count);
 			color_views.Resize(buffer_count);
-			for(int i = 0; i < color_views.Size(); i++)
+			for (int i = 0; i < color_views.Size(); i++)
 			{
 				color_views[i] = display->GetSwapchainBufferImageView(i);
 			}
@@ -215,10 +232,10 @@ namespace Viry3D
 		else
 		{
 			auto frame_buffer = pass->m_frame_buffer;
-			if(need_depth)
+			if (need_depth)
 			{
 				attachments_view.Resize(2);
-				if(frame_buffer.depth_texture)
+				if (frame_buffer.depth_texture)
 				{
 					attachments_view[1] = frame_buffer.depth_texture->GetImageView();
 				}
@@ -245,7 +262,7 @@ namespace Viry3D
 		fb_info.height = (uint32_t) height;
 		fb_info.layers = 1;
 
-		for(int i = 0; i < m_framebuffers.Size(); i++)
+		for (int i = 0; i < m_framebuffers.Size(); i++)
 		{
 			attachments_view[0] = color_views[i];
 			err = vkCreateFramebuffer(device, &fb_info, NULL, &m_framebuffers[i].frame_buffer);
@@ -271,7 +288,7 @@ namespace Viry3D
 		auto pass = (RenderPass*) this;
 		bool is_default = !pass->HasFrameBuffer();
 		int swap_index = display->GetSwapBufferIndex();
-		if(!is_default)
+		if (!is_default)
 		{
 			swap_index = 0;
 		}
@@ -284,7 +301,7 @@ namespace Viry3D
 		auto pass = (RenderPass*) this;
 		bool is_default = !pass->HasFrameBuffer();
 		int swap_index = display->GetSwapBufferIndex();
-		if(!is_default)
+		if (!is_default)
 		{
 			swap_index = 0;
 		}
@@ -293,9 +310,9 @@ namespace Viry3D
 
 	bool RenderPassVulkan::IsAllCommandDirty() const
 	{
-		for(auto& i : m_framebuffers)
+		for (auto& i : m_framebuffers)
 		{
-			if(!i.cmd_dirty)
+			if (!i.cmd_dirty)
 			{
 				return false;
 			}
@@ -305,7 +322,7 @@ namespace Viry3D
 
 	void RenderPassVulkan::SetCommandDirty()
 	{
-		for(auto& i : m_framebuffers)
+		for (auto& i : m_framebuffers)
 		{
 			i.cmd_dirty = true;
 		}
@@ -322,18 +339,18 @@ namespace Viry3D
 		auto pass = (RenderPass*) this;
 		bool is_default = !pass->HasFrameBuffer();
 		int swap_index = display->GetSwapBufferIndex();
-		if(!is_default)
+		if (!is_default)
 		{
 			swap_index = 0;
 		}
 		bool need_depth = pass->m_need_depth;
 
-		if(!m_framebuffers[swap_index].cmd_dirty)
+		if (!m_framebuffers[swap_index].cmd_dirty)
 		{
 			return;
 		}
 
-		if(is_default)
+		if (is_default)
 		{
 			image = display->GetSwapchainBufferImage(swap_index);
 			auto depth_texture = display->GetDepthTexture();
@@ -361,7 +378,7 @@ namespace Viry3D
 		Vector<VkClearValue> clear_values(1);
 		clear_values[0].color = *(VkClearColorValue*) &clear_color;
 
-		if(need_depth)
+		if (need_depth)
 		{
 			clear_values.Resize(2);
 
@@ -395,12 +412,12 @@ namespace Viry3D
 		auto pass = (RenderPass*) this;
 		bool is_default = !pass->HasFrameBuffer();
 		int swap_index = display->GetSwapBufferIndex();
-		if(!is_default)
+		if (!is_default)
 		{
 			swap_index = 0;
 		}
 
-		if(!m_framebuffers[swap_index].cmd_dirty)
+		if (!m_framebuffers[swap_index].cmd_dirty)
 		{
 			Graphics::draw_call += m_framebuffers[swap_index].draw_call;
 			return;
@@ -410,7 +427,7 @@ namespace Viry3D
 
 		display->EndPrimaryCommandBuffer();
 
-		if(m_framebuffers[swap_index].cmd_dirty)
+		if (m_framebuffers[swap_index].cmd_dirty)
 		{
 			m_framebuffers[swap_index].cmd_dirty = false;
 		}

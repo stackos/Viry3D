@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "TextureVulkan.h"
 #include "memory/Memory.h"
 #include "graphics/Graphics.h"
@@ -27,7 +44,7 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		if(m_sampler)
+		if (m_sampler)
 		{
 			vkDestroySampler(device, m_sampler, NULL);
 		}
@@ -42,7 +59,7 @@ namespace Viry3D
 		auto format = texture->GetFormat();
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 
-		switch(format)
+		switch (format)
 		{
 			case Viry3D::RenderTextureFormat::RGBA32:
 				m_format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -59,9 +76,9 @@ namespace Viry3D
 			1);
 
 		this->CreateView(VK_IMAGE_ASPECT_COLOR_BIT, {
-				VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
-				VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY
-			},
+			VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
+			VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY
+		},
 			1);
 
 		this->CreateSampler(1);
@@ -74,22 +91,22 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		VkImageAspectFlags view_aspect = 0;
 
-		if(depth == DepthBuffer::Depth_16)
+		if (depth == DepthBuffer::Depth_16)
 		{
 			m_format = VK_FORMAT_D16_UNORM;
 			view_aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
 		}
-		else if(depth == DepthBuffer::Depth_24)
+		else if (depth == DepthBuffer::Depth_24)
 		{
 			m_format = VK_FORMAT_X8_D24_UNORM_PACK32;
 			view_aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
 		}
-		else if(depth == DepthBuffer::Depth_24_Stencil_8)
+		else if (depth == DepthBuffer::Depth_24_Stencil_8)
 		{
 			m_format = VK_FORMAT_D24_UNORM_S8_UINT;
 			view_aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 		}
-		else if(depth == DepthBuffer::Depth_32)
+		else if (depth == DepthBuffer::Depth_32)
 		{
 			m_format = VK_FORMAT_D32_SFLOAT;
 			view_aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -125,19 +142,19 @@ namespace Viry3D
 		int mip_count = GetMipCount();
 		int buffer_size;
 
-		if(format == TextureFormat::RGBA32)
+		if (format == TextureFormat::RGBA32)
 		{
 			m_format = VK_FORMAT_R8G8B8A8_UNORM;
 			buffer_size = width * height * 4;
 		}
-		else if(format == TextureFormat::RGB24)
+		else if (format == TextureFormat::RGB24)
 		{
 			m_format = VK_FORMAT_R8G8B8A8_UNORM;
 			buffer_size = width * height * 4;
 
 			int pixel_count = colors.Size() / 3;
 			ByteBuffer temp(pixel_count * 4);
-			for(int i = 0; i < pixel_count; i++)
+			for (int i = 0; i < pixel_count; i++)
 			{
 				temp[i * 4 + 0] = colors[i * 3 + 0];
 				temp[i * 4 + 1] = colors[i * 3 + 1];
@@ -146,7 +163,7 @@ namespace Viry3D
 			}
 			colors = temp;
 		}
-		else if(format == TextureFormat::Alpha8)
+		else if (format == TextureFormat::Alpha8)
 		{
 			m_format = VK_FORMAT_R8_UNORM;
 			buffer_size = width * height;
@@ -156,7 +173,8 @@ namespace Viry3D
 			assert(!"texture format not implement");
 		}
 
-		if(!m_image_buffer) {
+		if (!m_image_buffer)
+		{
 			m_image_buffer = ImageBuffer::Create(buffer_size);
 			m_image_buffer_size = buffer_size;
 		}
@@ -170,7 +188,7 @@ namespace Viry3D
 
 		this->CopyBufferImage(m_image_buffer, 0, 0, width, height);
 
-		if(mipmap)
+		if (mipmap)
 		{
 			this->GenMipmaps(mip_count);
 		}
@@ -189,19 +207,19 @@ namespace Viry3D
 		auto format = texture->GetFormat();
 		int buffer_size;
 
-		if(format == TextureFormat::RGBA32)
+		if (format == TextureFormat::RGBA32)
 		{
 			m_format = VK_FORMAT_R8G8B8A8_UNORM;
 			buffer_size = w * h * 4;
 		}
-		else if(format == TextureFormat::RGB24)
+		else if (format == TextureFormat::RGB24)
 		{
 			m_format = VK_FORMAT_R8G8B8A8_UNORM;
 			buffer_size = w * h * 4;
 
 			int pixel_count = colors.Size() / 3;
 			ByteBuffer temp(pixel_count * 4);
-			for(int i = 0; i < pixel_count; i++)
+			for (int i = 0; i < pixel_count; i++)
 			{
 				temp[i * 4 + 0] = colors[i * 3 + 0];
 				temp[i * 4 + 1] = colors[i * 3 + 1];
@@ -209,7 +227,7 @@ namespace Viry3D
 				temp[i * 4 + 3] = 255;
 			}
 		}
-		else if(format == TextureFormat::Alpha8)
+		else if (format == TextureFormat::Alpha8)
 		{
 			m_format = VK_FORMAT_R8_UNORM;
 			buffer_size = w * h;
@@ -219,7 +237,8 @@ namespace Viry3D
 			assert(!"texture format not implement");
 		}
 
-		if(!m_image_buffer || m_image_buffer_size < buffer_size) {
+		if (!m_image_buffer || m_image_buffer_size < buffer_size)
+		{
 			m_image_buffer = ImageBuffer::Create(buffer_size);
 			m_image_buffer_size = buffer_size;
 		}
@@ -246,7 +265,7 @@ namespace Viry3D
 		image.pNext = NULL;
 		image.imageType = VK_IMAGE_TYPE_2D;
 		image.format = m_format;
-		image.extent = {width, height, 1};
+		image.extent = { width, height, 1 };
 		image.mipLevels = mip_count;
 		image.arrayLayers = 1;
 		image.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -311,17 +330,17 @@ namespace Viry3D
 
 		auto texture_render = dynamic_cast<RenderTexture*>(this);
 		auto texture_2d = dynamic_cast<Texture2D*>(this);
-		if(texture_render)
+		if (texture_render)
 		{
 			mip_count = 1;
 		}
-		else if(texture_2d)
+		else if (texture_2d)
 		{
 			int width = texture_2d->GetWidth();
 			int height = texture_2d->GetHeight();
 			bool mipmap = texture_2d->IsMipmap();
 
-			if(mipmap)
+			if (mipmap)
 			{
 				mip_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
 			}
@@ -339,14 +358,14 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		if(m_sampler)
+		if (m_sampler)
 		{
 			vkDestroySampler(device, m_sampler, NULL);
 			m_sampler = NULL;
 		}
 
 		int mip_count = GetMipCount();
-		if(mip_count > 0)
+		if (mip_count > 0)
 		{
 			this->CreateSampler(mip_count);
 		}
@@ -363,7 +382,7 @@ namespace Viry3D
 		VkSamplerAddressMode address_mode;
 
 		auto filter_mode = texture->GetFilterMode();
-		switch(filter_mode)
+		switch (filter_mode)
 		{
 			case FilterMode::Point:
 				filter = VK_FILTER_NEAREST;
@@ -375,7 +394,7 @@ namespace Viry3D
 		}
 
 		auto wrap_mode = texture->GetWrapMode();
-		switch(wrap_mode)
+		switch (wrap_mode)
 		{
 			case TextureWrapMode::Repeat:
 				address_mode = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -479,7 +498,7 @@ namespace Viry3D
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 			VK_ACCESS_SHADER_READ_BIT);
 
-		for(int i = 1; i < mip_count; i++)
+		for (int i = 1; i < mip_count; i++)
 		{
 			VkImageBlit blit;
 			Memory::Zero(&blit, sizeof(blit));

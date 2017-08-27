@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "UIRect.h"
 #include "UIView.h"
 #include "UICanvasRenderer.h"
@@ -17,7 +34,7 @@ namespace Viry3D
 
 	void UIRect::SetAnchors(const Vector2& min, const Vector2& max)
 	{
-		if(m_anchor_min != min || m_anchor_max != max)
+		if (m_anchor_min != min || m_anchor_max != max)
 		{
 			m_anchor_min = min;
 			m_anchor_max = max;
@@ -27,7 +44,7 @@ namespace Viry3D
 
 	void UIRect::SetOffsets(const Vector2& min, const Vector2& max)
 	{
-		if(m_offset_min != min || m_offset_max != max)
+		if (m_offset_min != min || m_offset_max != max)
 		{
 			m_offset_min = min;
 			m_offset_max = max;
@@ -37,7 +54,7 @@ namespace Viry3D
 
 	void UIRect::SetPivot(const Vector2& pivot)
 	{
-		if(m_pivot != pivot)
+		if (m_pivot != pivot)
 		{
 			m_pivot = pivot;
 			m_dirty = true;
@@ -46,10 +63,10 @@ namespace Viry3D
 
 	void UIRect::SetSize(const Vector2& size)
 	{
-		if(GetSize() != size)
+		if (GetSize() != size)
 		{
 			auto parent = this->GetParentRect();
-			if(parent)
+			if (parent)
 			{
 				auto c = dynamic_cast<const Component*>(this);
 				auto pos = c->GetTransform()->GetLocalPosition();
@@ -82,7 +99,7 @@ namespace Viry3D
 		Vector2 size;
 
 		auto parent = this->GetParentRect();
-		if(parent)
+		if (parent)
 		{
 			auto parent_size = parent->GetSize();
 			auto min_x = m_anchor_min.x * parent_size.x + m_offset_min.x;
@@ -106,11 +123,11 @@ namespace Viry3D
 
 		auto c = dynamic_cast<const Component*>(this);
 		auto parent = c->GetTransform()->GetParent();
-		if(!parent.expired())
+		if (!parent.expired())
 		{
 			auto r = parent.lock()->GetGameObject()->GetComponent<UIRect>();
 
-			if(r)
+			if (r)
 			{
 				rect = r;
 			}
@@ -122,7 +139,7 @@ namespace Viry3D
 	void UIRect::OnAnchor()
 	{
 		auto parent = this->GetParentRect();
-		if(parent)
+		if (parent)
 		{
 			auto parent_size = parent->GetSize();
 			auto min_x = m_anchor_min.x * parent_size.x + m_offset_min.x;

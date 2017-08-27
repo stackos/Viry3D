@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "vulkan_shader_compiler.h"
 #include "memory/Memory.h"
 
@@ -122,7 +139,7 @@ namespace Viry3D
 
 	static EShLanguage find_shader_type(const VkShaderStageFlagBits shader_type)
 	{
-		switch(shader_type)
+		switch (shader_type)
 		{
 			case VK_SHADER_STAGE_VERTEX_BIT:
 				return EShLangVertex;
@@ -162,7 +179,7 @@ namespace Viry3D
 		TBuiltInResource resources;
 		init_resources(resources);
 		EShMessages messages = (EShMessages) (EShMsgSpvRules | EShMsgVulkanRules);
-		if(!shader.parse(&resources, 100, false, messages))
+		if (!shader.parse(&resources, 100, false, messages))
 		{
 			error = shader.getInfoLog();
 			error += "\n";
@@ -173,7 +190,7 @@ namespace Viry3D
 		glslang::TProgram program;
 		program.addShader(&shader);
 
-		if(!program.link(messages))
+		if (!program.link(messages))
 		{
 			error = shader.getInfoLog();
 			error += "\n";
@@ -189,7 +206,7 @@ namespace Viry3D
 			compiler.CompileGlslToSpv(pshader, strlen(pshader),
 				MapShadercType(shader_type),
 				"shader");
-		if(module.GetCompilationStatus() !=
+		if (module.GetCompilationStatus() !=
 			shaderc_compilation_status_success)
 		{
 			LOGE("Error: Id=%d, Msg=%s",

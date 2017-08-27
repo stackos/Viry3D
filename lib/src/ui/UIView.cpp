@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "UIView.h"
 #include "UICanvasRenderer.h"
 
@@ -5,7 +22,7 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(UIView);
 
-	UIView::UIView() :
+	UIView::UIView():
 		m_color(1, 1, 1, 1)
 	{
 	}
@@ -28,7 +45,7 @@ namespace Viry3D
 	{
 		UIRect::SetAnchors(min, max);
 
-		if(m_dirty)
+		if (m_dirty)
 		{
 			MarkRendererDirty();
 		}
@@ -38,7 +55,7 @@ namespace Viry3D
 	{
 		UIRect::SetOffsets(min, max);
 
-		if(m_dirty)
+		if (m_dirty)
 		{
 			MarkRendererDirty();
 		}
@@ -48,7 +65,7 @@ namespace Viry3D
 	{
 		UIRect::SetPivot(pivot);
 
-		if(m_dirty)
+		if (m_dirty)
 		{
 			MarkRendererDirty();
 		}
@@ -56,7 +73,7 @@ namespace Viry3D
 
 	void UIView::SetColor(const Color& color)
 	{
-		if(m_color != color)
+		if (m_color != color)
 		{
 			m_color = color;
 			m_dirty = true;
@@ -77,7 +94,7 @@ namespace Viry3D
 
 	void UIView::MarkRendererDirty()
 	{
-		if(!m_renderer.expired())
+		if (!m_renderer.expired())
 		{
 			m_renderer.lock()->MarkDirty();
 			m_renderer.reset();
@@ -111,7 +128,7 @@ namespace Viry3D
 		vertices.Add(Vector3(min.x, max.y, 0));
 
 		auto mat = GetVertexMatrix();
-		for(int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			auto v = vertices[i];
 			v.x = floor(v.x);

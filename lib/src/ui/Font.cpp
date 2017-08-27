@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Font.h"
 #include "io/File.h"
 #include "graphics/Texture2D.h"
@@ -31,11 +48,11 @@ namespace Viry3D
 	{
 		Ref<Font> font;
 
-		if(File::Exist(file))
+		if (File::Exist(file))
 		{
 			FT_Face face;
 			auto err = FT_New_Face(g_ft_lib, file.CString(), 0, &face);
-			if(!err)
+			if (!err)
 			{
 				font = Ref<Font>(new Font());
 				font->m_font = (void*) face;
@@ -63,7 +80,7 @@ namespace Viry3D
 
 	Font::~Font()
 	{
-		if(m_font)
+		if (m_font)
 		{
 			FT_Done_Face((FT_Face) m_font);
 		}
@@ -74,7 +91,7 @@ namespace Viry3D
 		int size_key = size | (bold ? (1 << 24) : 0) | (italic ? (1 << 16) : 0);
 
 		Map<int, GlyphInfo>* p_size_glyphs;
-		if(!m_glyphs.TryGet(c, &p_size_glyphs))
+		if (!m_glyphs.TryGet(c, &p_size_glyphs))
 		{
 			Map<int, GlyphInfo> size_glyphs;
 			m_glyphs.Add(c, size_glyphs);
@@ -83,7 +100,7 @@ namespace Viry3D
 		}
 
 		GlyphInfo* p_glyph;
-		if(!p_size_glyphs->TryGet(size_key, &p_glyph))
+		if (!p_size_glyphs->TryGet(size_key, &p_glyph))
 		{
 			GlyphInfo glyph;
 			p_size_glyphs->Add(size_key, glyph);
@@ -107,7 +124,7 @@ namespace Viry3D
 		FT_GlyphSlot slot = face->glyph;
 		auto glyph_index = FT_Get_Char_Index(face, c);
 
-		if(mono)
+		if (mono)
 		{
 			FT_Load_Char(face, c, FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO);
 		}
@@ -116,12 +133,12 @@ namespace Viry3D
 			FT_Load_Char(face, c, FT_LOAD_DEFAULT);
 		}
 
-		if(bold)
+		if (bold)
 		{
 			FT_Outline_Embolden(&face->glyph->outline, 1 << 6);
 		}
 
-		if(italic)
+		if (italic)
 		{
 			float lean = 0.5f;
 			FT_Matrix matrix;
@@ -132,7 +149,7 @@ namespace Viry3D
 			FT_Outline_Transform(&face->glyph->outline, &matrix);
 		}
 
-		if(mono)
+		if (mono)
 		{
 			FT_Render_Glyph(face->glyph, FT_RENDER_MODE_MONO);
 		}
@@ -149,12 +166,12 @@ namespace Viry3D
 		p_glyph->advance_x = (int) (slot->advance.x >> 6);
 		p_glyph->advance_y = (int) (slot->advance.y >> 6);
 
-		if(m_texture_y + p_glyph->uv_pixel_h <= TEXTURE_SIZE_MAX)
+		if (m_texture_y + p_glyph->uv_pixel_h <= TEXTURE_SIZE_MAX)
 		{
 			auto colors = m_texture->GetColors();
 
 			//insert one white pixel for underline
-			if(m_texture_x == 0 && m_texture_y == 0)
+			if (m_texture_x == 0 && m_texture_y == 0)
 			{
 				ByteBuffer buffer(1);
 				buffer[0] = 0xff;
@@ -163,27 +180,27 @@ namespace Viry3D
 				m_texture_x += 1;
 			}
 
-			if(m_texture_x + p_glyph->uv_pixel_w > TEXTURE_SIZE_MAX)
+			if (m_texture_x + p_glyph->uv_pixel_w > TEXTURE_SIZE_MAX)
 			{
 				m_texture_y += m_texture_line_h_max;
 				m_texture_x = 0;
 				m_texture_line_h_max = 0;
 			}
 
-			if(m_texture_line_h_max < p_glyph->uv_pixel_h)
+			if (m_texture_line_h_max < p_glyph->uv_pixel_h)
 			{
 				m_texture_line_h_max = p_glyph->uv_pixel_h;
 			}
 
 			ByteBuffer char_pixels;
 
-			if(mono)
+			if (mono)
 			{
 				char_pixels = ByteBuffer(p_glyph->uv_pixel_w * p_glyph->uv_pixel_h);
 
-				for(int i = 0; i < p_glyph->uv_pixel_h; i++)
+				for (int i = 0; i < p_glyph->uv_pixel_h; i++)
 				{
-					for(int j = 0; j < p_glyph->uv_pixel_w; j++)
+					for (int j = 0; j < p_glyph->uv_pixel_w; j++)
 					{
 						unsigned char bit = slot->bitmap.buffer[i * slot->bitmap.pitch + j / 8] & (0x1 << (7 - j % 8));
 						bit = bit == 0 ? 0 : 255;
@@ -196,12 +213,12 @@ namespace Viry3D
 				char_pixels = ByteBuffer(slot->bitmap.buffer, p_glyph->uv_pixel_w * p_glyph->uv_pixel_h);
 			}
 
-			for(int i = 0; i < p_glyph->uv_pixel_h; i++)
+			for (int i = 0; i < p_glyph->uv_pixel_h; i++)
 			{
 				Memory::Copy(&colors[TEXTURE_SIZE_MAX * (m_texture_y + i) + m_texture_x], &char_pixels[p_glyph->uv_pixel_w * i], p_glyph->uv_pixel_w);
 			}
 
-			if(p_glyph->uv_pixel_w > 0 && p_glyph->uv_pixel_h > 0)
+			if (p_glyph->uv_pixel_w > 0 && p_glyph->uv_pixel_h > 0)
 			{
 				m_texture->UpdateTexture(m_texture_x, m_texture_y, p_glyph->uv_pixel_w, p_glyph->uv_pixel_h, char_pixels);
 			}

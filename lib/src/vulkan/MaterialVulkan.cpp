@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "MaterialVulkan.h"
 #include "DisplayVulkan.h"
 #include "memory/Memory.h"
@@ -19,7 +36,7 @@ namespace Viry3D
 	MaterialVulkan::~MaterialVulkan()
 	{
 	}
-	
+
 	const Vector<VkDescriptorSet>& MaterialVulkan::GetDescriptorSet(int pass_index)
 	{
 		return m_descriptor_sets[pass_index];
@@ -30,7 +47,7 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		if(m_uniform_buffers[pass_index])
+		if (m_uniform_buffers[pass_index])
 		{
 			void* mapped;
 			VkResult err = vkMapMemory(device, m_uniform_buffers[pass_index]->GetMemory(), 0, m_uniform_buffers[pass_index]->GetSize(), 0, &mapped);
@@ -50,20 +67,20 @@ namespace Viry3D
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
 		auto& uniform_xmls = shader->GetUniformXmls(pass_index);
 
-		for(int i = 0; i < writes.Size(); i++)
+		for (int i = 0; i < writes.Size(); i++)
 		{
 			auto& write = writes[i];
 
-			if(write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+			if (write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 			{
 				auto uniform_info = write.pBufferInfo;
 
 				auto offset = uniform_info->offset;
 				auto& uniform_buffer_info = *(XMLUniformBuffer*) uniform_xmls[i];
 
-				for(auto& j : uniform_buffer_info.uniforms)
+				for (auto& j : uniform_buffer_info.uniforms)
 				{
-					if(j.name == name)
+					if (j.name == name)
 					{
 						assert(j.size >= size);
 
@@ -80,7 +97,7 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		if(m_uniform_buffers[pass_index])
+		if (m_uniform_buffers[pass_index])
 		{
 			vkUnmapMemory(device, m_uniform_buffers[pass_index]->GetMemory());
 		}
@@ -93,18 +110,18 @@ namespace Viry3D
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
 		auto& uniform_xmls = shader->GetUniformXmls(pass_index);
 
-		for(int i = 0; i < writes.Size(); i++)
+		for (int i = 0; i < writes.Size(); i++)
 		{
 			auto& write = writes[i];
 
-			if(write.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+			if (write.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 			{
 				auto& sampler_xml_info = *(XMLSampler*) uniform_xmls[i];
 
-				if(sampler_xml_info.name == name)
+				if (sampler_xml_info.name == name)
 				{
 					auto tex = (TextureVulkan*) texture;
-					if(tex)
+					if (tex)
 					{
 						void* p = (void*) write.pImageInfo;
 						VkDescriptorImageInfo* sampler_info = (VkDescriptorImageInfo*) p;
@@ -126,23 +143,23 @@ namespace Viry3D
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
 		auto& uniform_xmls = shader->GetUniformXmls(pass_index);
 
-		if(m_descriptor_sets.Size() < pass_index + 1)
+		if (m_descriptor_sets.Size() < pass_index + 1)
 		{
 			m_descriptor_sets.Resize(pass_index + 1);
 			m_uniform_buffers.Resize(pass_index + 1);
 		}
 
-		if(m_descriptor_sets[pass_index].Empty())
+		if (m_descriptor_sets[pass_index].Empty())
 		{
 			m_descriptor_sets[pass_index] = shader->CreateDescriptorSet(pass_index);
 			m_uniform_buffers[pass_index] = shader->CreateUniformBuffer(pass_index);
 		}
 
-		for(int i = 0; i < writes.Size(); i++)
+		for (int i = 0; i < writes.Size(); i++)
 		{
 			auto& write = writes[i];
 
-			if(write.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+			if (write.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 			{
 				auto& sampler_xml_info = *(XMLSampler*) uniform_xmls[i];
 
@@ -163,15 +180,15 @@ namespace Viry3D
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
 
 		bool write_dirty = false;
-		if(m_writes_old.Size() != writes.Size())
+		if (m_writes_old.Size() != writes.Size())
 		{
 			write_dirty = true;
 		}
 		else
 		{
-			for(int i = 0; i < writes.Size(); i++)
+			for (int i = 0; i < writes.Size(); i++)
 			{
-				if(	m_writes_old[i].sType != writes[i].sType ||
+				if (m_writes_old[i].sType != writes[i].sType ||
 					m_writes_old[i].pNext != writes[i].pNext ||
 					m_writes_old[i].dstBinding != writes[i].dstBinding ||
 					m_writes_old[i].dstArrayElement != writes[i].dstArrayElement ||
@@ -186,9 +203,9 @@ namespace Viry3D
 				}
 				else
 				{
-					if(m_writes_old[i].pImageInfo != NULL)
+					if (m_writes_old[i].pImageInfo != NULL)
 					{
-						if(	m_writes_old[i].pImageInfo->sampler != writes[i].pImageInfo->sampler ||
+						if (m_writes_old[i].pImageInfo->sampler != writes[i].pImageInfo->sampler ||
 							m_writes_old[i].pImageInfo->imageView != writes[i].pImageInfo->imageView ||
 							m_writes_old[i].pImageInfo->imageLayout != writes[i].pImageInfo->imageLayout)
 						{
@@ -197,9 +214,9 @@ namespace Viry3D
 						}
 					}
 
-					if(m_writes_old[i].pBufferInfo != NULL)
+					if (m_writes_old[i].pBufferInfo != NULL)
 					{
-						if(	m_writes_old[i].pBufferInfo->buffer != writes[i].pBufferInfo->buffer ||
+						if (m_writes_old[i].pBufferInfo->buffer != writes[i].pBufferInfo->buffer ||
 							m_writes_old[i].pBufferInfo->offset != writes[i].pBufferInfo->offset ||
 							m_writes_old[i].pBufferInfo->range != writes[i].pBufferInfo->range)
 						{
@@ -222,11 +239,11 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		for(int i = 0; i < writes.Size(); i++)
+		for (int i = 0; i < writes.Size(); i++)
 		{
 			auto& write = writes[i];
 
-			if(write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+			if (write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 			{
 				void* p = (void*) write.pBufferInfo;
 				VkDescriptorBufferInfo* uniform_info = (VkDescriptorBufferInfo*) p;
@@ -234,18 +251,18 @@ namespace Viry3D
 			}
 		}
 
-		if(CheckWritesDirty(pass_index))
+		if (CheckWritesDirty(pass_index))
 		{
 			int lightmap_count = LightmapSettings::GetLightmapCount();
 			auto& descriptor_sets = m_descriptor_sets[pass_index];
-			for(int i = 0; i < descriptor_sets.Size(); i++)
+			for (int i = 0; i < descriptor_sets.Size(); i++)
 			{
-				if(i < lightmap_count)
+				if (i < lightmap_count)
 				{
 					SetUniformTexture(pass_index, "_Lightmap", LightmapSettings::GetLightmap(i));
 				}
 
-				for(int j = 0; j < writes.Size(); j++)
+				for (int j = 0; j < writes.Size(); j++)
 				{
 					auto& write = writes[j];
 					write.dstSet = descriptor_sets[i];

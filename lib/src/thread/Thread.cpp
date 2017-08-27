@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Thread.h"
 #include "Application.h"
 
@@ -18,7 +35,7 @@ namespace Viry3D
 
 	Thread::~Thread()
 	{
-		if(m_thread->joinable())
+		if (m_thread->joinable())
 		{
 			this->Wait();
 
@@ -35,8 +52,7 @@ namespace Viry3D
 		std::unique_lock<std::mutex> lock(m_mutex);
 
 		// wait until all job done
-		m_condition.wait(lock, [this] ()
-		{
+		m_condition.wait(lock, [this]() {
 			return m_job_queue.Empty();
 		});
 	}
@@ -50,24 +66,23 @@ namespace Viry3D
 
 	void Thread::Run()
 	{
-		if(m_info.init)
+		if (m_info.init)
 		{
 			m_info.init();
 		}
 
-		while(true)
+		while (true)
 		{
 			Task task;
 			{
 				std::unique_lock<std::mutex> lock(m_mutex);
 
 				// wait until has a job or close
-				m_condition.wait(lock, [this]
-				{
+				m_condition.wait(lock, [this] {
 					return !m_job_queue.Empty() || m_close;
 				});
 
-				if(m_close)
+				if (m_close)
 				{
 					break;
 				}
@@ -75,18 +90,17 @@ namespace Viry3D
 				task = m_job_queue.First();
 			}
 
-			if(task.job)
+			if (task.job)
 			{
 				auto any = task.job();
 
-				if(task.done)
+				if (task.done)
 				{
 					Application::RunTaskInPreLoop(
 						RunLoop::Task(
-							[any, task] ()
-							{
-								task.done(any);
-							}
+							[any, task]() {
+						task.done(any);
+					}
 						)
 					);
 				}
@@ -99,7 +113,7 @@ namespace Viry3D
 			}
 		}
 
-		if(m_info.deinit)
+		if (m_info.deinit)
 		{
 			m_info.deinit();
 		}
@@ -115,7 +129,7 @@ namespace Viry3D
 	{
 		m_info.Resize(thread_count);
 		m_threads.Resize(m_info.Size());
-		for(int i = 0; i < m_threads.Size(); i++)
+		for (int i = 0; i < m_threads.Size(); i++)
 		{
 			m_threads[i] = RefMake<Thread>(i, m_info[i]);
 		}
@@ -125,7 +139,7 @@ namespace Viry3D
 	{
 		m_info = info;
 		m_threads.Resize(m_info.Size());
-		for(int i = 0; i < m_threads.Size(); i++)
+		for (int i = 0; i < m_threads.Size(); i++)
 		{
 			m_threads[i] = RefMake<Thread>(i, m_info[i]);
 		}
@@ -133,7 +147,7 @@ namespace Viry3D
 
 	void ThreadPool::AddTask(Thread::Task task, int thread_index)
 	{
-		if(thread_index >= 0 && thread_index < m_threads.Size())
+		if (thread_index >= 0 && thread_index < m_threads.Size())
 		{
 			m_threads[thread_index]->AddTask(task);
 		}
@@ -142,15 +156,15 @@ namespace Viry3D
 			int min_len = 0x7fffffff;
 			int min_index = -1;
 
-			for(int i = 0; i < m_threads.Size(); i++)
+			for (int i = 0; i < m_threads.Size(); i++)
 			{
 				int len = m_threads[i]->QueueLength();
-				if(min_len > len)
+				if (min_len > len)
 				{
 					min_len = len;
 					min_index = i;
 
-					if(min_len == 0)
+					if (min_len == 0)
 					{
 						break;
 					}
@@ -163,7 +177,7 @@ namespace Viry3D
 
 	void ThreadPool::Wait()
 	{
-		for(auto& i : m_threads)
+		for (auto& i : m_threads)
 		{
 			i->Wait();
 		}

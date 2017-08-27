@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "UILabel.h"
 #include "graphics/Texture2D.h"
 #include "graphics/Material.h"
@@ -57,7 +74,7 @@ namespace Viry3D
 
 	void UILabel::SetFont(const Ref<Font>& font)
 	{
-		if(m_font != font)
+		if (m_font != font)
 		{
 			m_font = font;
 			m_dirty = true;
@@ -67,7 +84,7 @@ namespace Viry3D
 
 	void UILabel::SetFontStyle(FontStyle::Enum style)
 	{
-		if(m_font_style != style)
+		if (m_font_style != style)
 		{
 			m_font_style = style;
 			m_dirty = true;
@@ -77,7 +94,7 @@ namespace Viry3D
 
 	void UILabel::SetFontSize(int size)
 	{
-		if(m_font_size != size)
+		if (m_font_size != size)
 		{
 			m_font_size = size;
 			m_dirty = true;
@@ -87,7 +104,7 @@ namespace Viry3D
 
 	void UILabel::SetText(const String& text)
 	{
-		if(m_text != text)
+		if (m_text != text)
 		{
 			m_text = text;
 			m_dirty = true;
@@ -97,7 +114,7 @@ namespace Viry3D
 
 	void UILabel::SetLineSpace(int space)
 	{
-		if(m_line_space != space)
+		if (m_line_space != space)
 		{
 			m_line_space = space;
 			m_dirty = true;
@@ -107,7 +124,7 @@ namespace Viry3D
 
 	void UILabel::SetRich(bool rich)
 	{
-		if(m_rich != rich)
+		if (m_rich != rich)
 		{
 			m_rich = rich;
 			m_dirty = true;
@@ -117,7 +134,7 @@ namespace Viry3D
 
 	void UILabel::SetAlignment(TextAlignment::Enum alignment)
 	{
-		if(m_alignment != alignment)
+		if (m_alignment != alignment)
 		{
 			m_alignment = alignment;
 			m_dirty = true;
@@ -130,21 +147,21 @@ namespace Viry3D
 		bool match = true;
 		auto tag_cstr = tag_str.CString();
 
-		for(int i = 0; i < tag_str.Size(); i++)
+		for (int i = 0; i < tag_str.Size(); i++)
 		{
-			if(tag_cstr[i] != str[char_index + i])
+			if (tag_cstr[i] != str[char_index + i])
 			{
 				match = false;
 				break;
 			}
 		}
 
-		if(match)
+		if (match)
 		{
-			if(value_length > 0)
+			if (value_length > 0)
 			{
 				Vector<char32_t> value;
-				for(int i = 0; i < value_length; i++)
+				for (int i = 0; i < value_length; i++)
 				{
 					value.Add(str[char_index + tag_str.Size() + i]);
 				}
@@ -173,24 +190,24 @@ namespace Viry3D
 		bool match = true;
 		auto tag_cstr = tag_str.CString();
 
-		for(int i = 0; i < tag_str.Size(); i++)
+		for (int i = 0; i < tag_str.Size(); i++)
 		{
-			if(tag_cstr[i] != str[char_index + i])
+			if (tag_cstr[i] != str[char_index + i])
 			{
 				match = false;
 				break;
 			}
 		}
 
-		if(match)
+		if (match)
 		{
 			auto tag = tag_str.Substring(2, tag_str.Size() - 3);
 
-			for(int i = tag_find.Size() - 1; i >= 0; i--)
+			for (int i = tag_find.Size() - 1; i >= 0; i--)
 			{
 				auto &t = tag_find[i];
 
-				if(t.tag == tag)
+				if (t.tag == tag)
 				{
 					str.RemoveRange(char_index, tag_str.Size());
 					t.end = char_index--;
@@ -224,68 +241,68 @@ namespace Viry3D
 		Vector<TagInfo> tags;
 		Vector<TagInfo> tag_find;
 
-		for(int i = 0; i < str.Size(); i++)
+		for (int i = 0; i < str.Size(); i++)
 		{
 			TagInfo tag;
 
-			if(check_tag_begin(str, i, TAG_COLOR_BEGIN, 8, tag))
+			if (check_tag_begin(str, i, TAG_COLOR_BEGIN, 8, tag))
 			{
 				tag.type = TagType::Color;
 				tag_find.Add(tag);
 			}
-			else if(check_tag_end(str, i, TAG_COLOR_END, tag_find, tags))
+			else if (check_tag_end(str, i, TAG_COLOR_END, tag_find, tags))
 			{
 			}
-			else if(check_tag_begin(str, i, TAG_SHADOW_BEGIN, 0, tag))
+			else if (check_tag_begin(str, i, TAG_SHADOW_BEGIN, 0, tag))
 			{
 				tag.type = TagType::Shadow;
 				tag.value = "000000ff";
 				tag_find.Add(tag);
 			}
-			else if(check_tag_begin(str, i, TAG_SHADOW_VALUE_BEGIN, 8, tag))
+			else if (check_tag_begin(str, i, TAG_SHADOW_VALUE_BEGIN, 8, tag))
 			{
 				tag.type = TagType::Shadow;
 				tag_find.Add(tag);
 			}
-			else if(check_tag_end(str, i, TAG_SHADOW_END, tag_find, tags))
+			else if (check_tag_end(str, i, TAG_SHADOW_END, tag_find, tags))
 			{
 			}
-			else if(check_tag_begin(str, i, TAG_OUTLINE_BEGIN, 0, tag))
+			else if (check_tag_begin(str, i, TAG_OUTLINE_BEGIN, 0, tag))
 			{
 				tag.type = TagType::Outline;
 				tag.value = "000000ff";
 				tag_find.Add(tag);
 			}
-			else if(check_tag_begin(str, i, TAG_OUTLINE_VALUE_BEGIN, 8, tag))
+			else if (check_tag_begin(str, i, TAG_OUTLINE_VALUE_BEGIN, 8, tag))
 			{
 				tag.type = TagType::Outline;
 				tag_find.Add(tag);
 			}
-			else if(check_tag_end(str, i, TAG_OUTLINE_END, tag_find, tags))
+			else if (check_tag_end(str, i, TAG_OUTLINE_END, tag_find, tags))
 			{
 			}
-			else if(check_tag_begin(str, i, TAG_UNDERLINE_BEGIN, 0, tag))
+			else if (check_tag_begin(str, i, TAG_UNDERLINE_BEGIN, 0, tag))
 			{
 				tag.type = TagType::Underline;
 				tag_find.Add(tag);
 			}
-			else if(check_tag_end(str, i, TAG_UNDERLINE_END, tag_find, tags))
+			else if (check_tag_end(str, i, TAG_UNDERLINE_END, tag_find, tags))
 			{
 			}
-			else if(check_tag_begin(str, i, TAG_BOLD_BEGIN, 0, tag))
+			else if (check_tag_begin(str, i, TAG_BOLD_BEGIN, 0, tag))
 			{
 				tag.type = TagType::Bold;
 				tag_find.Add(tag);
 			}
-			else if(check_tag_end(str, i, TAG_BOLD_END, tag_find, tags))
+			else if (check_tag_end(str, i, TAG_BOLD_END, tag_find, tags))
 			{
 			}
-			else if(check_tag_begin(str, i, TAG_ITALIC_BEGIN, 0, tag))
+			else if (check_tag_begin(str, i, TAG_ITALIC_BEGIN, 0, tag))
 			{
 				tag.type = TagType::Italic;
 				tag_find.Add(tag);
 			}
-			else if(check_tag_end(str, i, TAG_ITALIC_END, tag_find, tags))
+			else if (check_tag_end(str, i, TAG_ITALIC_END, tag_find, tags))
 			{
 			}
 		}
@@ -316,7 +333,7 @@ namespace Viry3D
 		auto chars = m_text.ToUnicode32();
 
 		Vector<TagInfo> tags;
-		if(m_rich)
+		if (m_rich)
 		{
 			tags = parse_rich_tags(chars);
 		}
@@ -337,7 +354,7 @@ namespace Viry3D
 		Vector<LabelLine> lines;
 		static LabelLine line;
 
-		for(int i = 0; i < chars.Size(); i++)
+		for (int i = 0; i < chars.Size(); i++)
 		{
 			char32_t c = chars[i];
 
@@ -350,7 +367,7 @@ namespace Viry3D
 			Ref<Color> color_outline;
 			bool underline = false;
 
-			if(c == '\n')
+			if (c == '\n')
 			{
 				line.width = line_x_max;
 				line.height = pen_y - line_y_min;
@@ -365,13 +382,13 @@ namespace Viry3D
 				continue;
 			}
 
-			if(m_rich)
+			if (m_rich)
 			{
-				for(auto& j : tags)
+				for (auto& j : tags)
 				{
-					if(i >= j.begin && i < j.end)
+					if (i >= j.begin && i < j.end)
 					{
-						switch(j.type)
+						switch (j.type)
 						{
 							case TagType::Color:
 								color = string_to_color(j.value);
@@ -399,7 +416,7 @@ namespace Viry3D
 			GlyphInfo info = m_font->GetGlyph(c, font_size, bold, italic, mono);
 
 			//	limit width
-			if(pen_x + info.bearing_x + info.uv_pixel_w > label_size.x)
+			if (pen_x + info.bearing_x + info.uv_pixel_w > label_size.x)
 			{
 				pen_x = 0;
 				pen_y += -(font_size + m_line_space);
@@ -407,7 +424,7 @@ namespace Viry3D
 			}
 
 			//	kerning
-			if(has_kerning && previous && info.glyph_index)
+			if (has_kerning && previous && info.glyph_index)
 			{
 				FT_Vector delta;
 				FT_Get_Kerning(face, previous, info.glyph_index, FT_KERNING_UNFITTED, &delta);
@@ -424,24 +441,24 @@ namespace Viry3D
 			int x1 = x0 + info.uv_pixel_w;
 			int y1 = y0 - info.uv_pixel_h;
 
-			if(x_max < x1)
+			if (x_max < x1)
 			{
 				x_max = x1;
 			}
-			if(y_min > y1)
+			if (y_min > y1)
 			{
 				y_min = y1;
 			}
-			if(y_max < y0)
+			if (y_max < y0)
 			{
 				y_max = y0;
 			}
 
-			if(line_x_max < x1)
+			if (line_x_max < x1)
 			{
 				line_x_max = x1;
 			}
-			if(line_y_min > y1)
+			if (line_y_min > y1)
 			{
 				line_y_min = y1;
 			}
@@ -454,7 +471,7 @@ namespace Viry3D
 			int uv_x1 = uv_x0 + info.uv_pixel_w;
 			int uv_y1 = uv_y0 + info.uv_pixel_h;
 
-			if(color_shadow)
+			if (color_shadow)
 			{
 				Vector2 offset = Vector2(1, -1);
 
@@ -480,7 +497,7 @@ namespace Viry3D
 				vertex_count += 4;
 			}
 
-			if(color_outline)
+			if (color_outline)
 			{
 				Vector2 offsets[4];
 				offsets[0] = Vector2(-1, 1);
@@ -488,7 +505,7 @@ namespace Viry3D
 				offsets[2] = Vector2(1, -1);
 				offsets[3] = Vector2(1, 1);
 
-				for(int j = 0; j < 4; j++)
+				for (int j = 0; j < 4; j++)
 				{
 					line.vertices.Add(Vector2((float) x0, (float) y0) + offsets[j]);
 					line.vertices.Add(Vector2((float) x0, (float) y1) + offsets[j]);
@@ -535,7 +552,7 @@ namespace Viry3D
 			vertex_count += 4;
 			previous = info.glyph_index;
 
-			if(underline)
+			if (underline)
 			{
 				int ux0 = pen_x - (info.advance_x + char_space);
 				int uy0 = pen_y - baseline - 2;
@@ -566,7 +583,7 @@ namespace Viry3D
 		}
 
 		//	最后一行
-		if(!line.vertices.Empty())
+		if (!line.vertices.Empty())
 		{
 			line.width = line_x_max;
 			line.height = pen_y - line_y_min;
@@ -583,7 +600,7 @@ namespace Viry3D
 
 	void UILabel::FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices)
 	{
-		if(!m_font)
+		if (!m_font)
 		{
 			return;
 		}
@@ -599,15 +616,15 @@ namespace Viry3D
 		auto mat = GetVertexMatrix();
 		int index_begin = vertices.Size();
 
-		for(int i = 0; i < lines.Size(); i++)
+		for (int i = 0; i < lines.Size(); i++)
 		{
 			auto line = lines[i];
 
-			for(int j = 0; j < line.vertices.Size(); j++)
+			for (int j = 0; j < line.vertices.Size(); j++)
 			{
 				auto v = line.vertices[j];
 
-				switch(m_alignment)
+				switch (m_alignment)
 				{
 					case TextAlignment::UpperLeft:
 					case TextAlignment::MiddleLeft:
@@ -626,7 +643,7 @@ namespace Viry3D
 						break;
 				}
 
-				switch(m_alignment)
+				switch (m_alignment)
 				{
 					case TextAlignment::UpperLeft:
 					case TextAlignment::UpperCenter:
@@ -648,13 +665,13 @@ namespace Viry3D
 				vertices.Add(mat.MultiplyPoint3x4(v));
 			}
 
-			if(!line.vertices.Empty())
+			if (!line.vertices.Empty())
 			{
 				uv.AddRange(&line.uv[0], line.uv.Size());
 				colors.AddRange(&line.colors[0], line.colors.Size());
 			}
 
-			for(int j = 0; j < line.indices.Size(); j++)
+			for (int j = 0; j < line.indices.Size(); j++)
 			{
 				indices.Add(line.indices[j] + index_begin);
 			}
@@ -663,7 +680,7 @@ namespace Viry3D
 
 	void UILabel::FillMaterial(Ref<Material>& mat)
 	{
-		if(m_font)
+		if (m_font)
 		{
 			mat->SetMainTexture(m_font->GetTexture());
 		}

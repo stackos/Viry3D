@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "UISprite.h"
 #include "graphics/Material.h"
 
@@ -30,7 +47,7 @@ namespace Viry3D
 
 	void UISprite::SetAtlas(const Ref<Atlas>& atlas)
 	{
-		if(m_atlas != atlas)
+		if (m_atlas != atlas)
 		{
 			m_atlas = atlas;
 			m_dirty = true;
@@ -40,7 +57,7 @@ namespace Viry3D
 
 	void UISprite::SetSpriteName(const String& name)
 	{
-		if(m_sprite_name != name)
+		if (m_sprite_name != name)
 		{
 			m_sprite_name = name;
 			m_dirty = true;
@@ -50,7 +67,7 @@ namespace Viry3D
 
 	void UISprite::SetSpriteType(SpriteType::Enum type)
 	{
-		if(m_sprite_type != type)
+		if (m_sprite_type != type)
 		{
 			m_sprite_type = type;
 			m_dirty = true;
@@ -60,7 +77,7 @@ namespace Viry3D
 
 	void UISprite::SetFillMethod(SpriteFillMethod::Enum fill_method)
 	{
-		if(m_fill_method != fill_method)
+		if (m_fill_method != fill_method)
 		{
 			m_fill_method = fill_method;
 			m_dirty = true;
@@ -70,7 +87,7 @@ namespace Viry3D
 
 	void UISprite::SetFillOrigin(int fill_origin)
 	{
-		if(m_fill_origin != fill_origin)
+		if (m_fill_origin != fill_origin)
 		{
 			m_fill_origin = fill_origin;
 			m_dirty = true;
@@ -80,7 +97,7 @@ namespace Viry3D
 
 	void UISprite::SetFillAmount(float fill_amount)
 	{
-		if(m_fill_amount != fill_amount)
+		if (m_fill_amount != fill_amount)
 		{
 			m_fill_amount = fill_amount;
 			m_dirty = true;
@@ -90,7 +107,7 @@ namespace Viry3D
 
 	void UISprite::SetFillClockWise(bool fill_clock_wise)
 	{
-		if(m_fill_clock_wise != fill_clock_wise)
+		if (m_fill_clock_wise != fill_clock_wise)
 		{
 			m_fill_clock_wise = fill_clock_wise;
 			m_dirty = true;
@@ -104,7 +121,7 @@ namespace Viry3D
 		vertices.AddRange(&vertex_array[0], 4);
 
 		Vector2 uv_array[4];
-		if(m_atlas)
+		if (m_atlas)
 		{
 			auto sprite = m_atlas->GetSprite(m_sprite_name);
 			auto rect = sprite->GetRect();
@@ -140,7 +157,7 @@ namespace Viry3D
 
 	void UISprite::FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices)
 	{
-		switch(m_sprite_type)
+		switch (m_sprite_type)
 		{
 			case SpriteType::Simple:
 				this->FillVerticesSimple(vertices, uv, colors, indices);
@@ -152,7 +169,7 @@ namespace Viry3D
 
 	void UISprite::FillMaterial(Ref<Material>& mat)
 	{
-		if(m_atlas)
+		if (m_atlas)
 		{
 			mat->SetMainTexture(m_atlas->GetTexture());
 		}

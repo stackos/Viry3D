@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "File.h"
 #include "Directory.h"
 #include "zlib/unzip.h"
@@ -11,7 +28,7 @@ namespace Viry3D
 
 		bool exist = !(!is);
 
-		if(exist)
+		if (exist)
 		{
 			is.close();
 		}
@@ -24,7 +41,7 @@ namespace Viry3D
 		ByteBuffer buffer;
 
 		std::ifstream is(path.CString(), std::ios::binary);
-		if(is)
+		if (is)
 		{
 			is.seekg(0, std::ios::end);
 			int size = (int) is.tellg();
@@ -43,7 +60,7 @@ namespace Viry3D
 	{
 		std::ofstream os(path.CString(), std::ios::binary);
 
-		if(os)
+		if (os)
 		{
 			os.write((const char*) buffer.Bytes(), buffer.Size());
 			os.close();
@@ -72,16 +89,16 @@ namespace Viry3D
 
 		std::ofstream os(path.CString(), std::ios::out | std::ios::binary);
 
-		if(os)
+		if (os)
 		{
 			do
 			{
 				result = unzReadCurrentFile(file, buffer.Bytes(), buffer.Size());
-				if(result > 0)
+				if (result > 0)
 				{
 					os.write((const char*) buffer.Bytes(), result);
 				}
-			} while(result > 0);
+			} while (result > 0);
 
 			os.close();
 		}
@@ -92,24 +109,24 @@ namespace Viry3D
 	void File::Unzip(const String& path, const String& source, const String& dest, bool directory)
 	{
 		auto file = unzOpen64(path.CString());
-		if(file)
+		if (file)
 		{
 			unz_file_info64 file_info;
 			char filename_inzip[256];
 
 			auto result = unzGoToFirstFile(file);
-			while(result == UNZ_OK)
+			while (result == UNZ_OK)
 			{
 				result = unzGetCurrentFileInfo64(file, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
-				if(result != UNZ_OK)
+				if (result != UNZ_OK)
 				{
 					break;
 				}
 
-				if(directory)
+				if (directory)
 				{
 					String filename(filename_inzip);
-					if(filename.StartsWith(source))
+					if (filename.StartsWith(source))
 					{
 						String dest_filename = dest + filename.Substring(source.Size());
 						unzip_file(file, dest_filename);
@@ -117,7 +134,7 @@ namespace Viry3D
 				}
 				else
 				{
-					if(source == filename_inzip)
+					if (source == filename_inzip)
 					{
 						unzip_file(file, dest);
 						break;

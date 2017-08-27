@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "DisplayWindows.h"
 #include "Application.h"
 #include "graphics/Graphics.h"
@@ -25,31 +42,31 @@ namespace Viry3D
 	{
 		int key = -1;
 
-		if(wParam >= 48 && wParam < 48 + 10)
+		if (wParam >= 48 && wParam < 48 + 10)
 		{
 			key = (int) KeyCode::Alpha0 + wParam - 48;
 		}
-		else if(wParam >= 96 && wParam < 96 + 10)
+		else if (wParam >= 96 && wParam < 96 + 10)
 		{
 			key = (int) KeyCode::Keypad0 + wParam - 96;
 		}
-		else if(wParam >= 65 && wParam < 65 + 'z' - 'a')
+		else if (wParam >= 65 && wParam < 65 + 'z' - 'a')
 		{
 			key = (int) KeyCode::A + wParam - 65;
 		}
-		else if(wParam == VK_BACK)
+		else if (wParam == VK_BACK)
 		{
 			key = (int) KeyCode::Backspace;
 		}
-		else if(wParam == VK_SPACE)
+		else if (wParam == VK_SPACE)
 		{
 			key = (int) KeyCode::Space;
 		}
-		else if(wParam == VK_ESCAPE)
+		else if (wParam == VK_ESCAPE)
 		{
 			key = (int) KeyCode::Escape;
 		}
-		else if(wParam == VK_RETURN)
+		else if (wParam == VK_RETURN)
 		{
 			key = (int) KeyCode::Return;
 		}
@@ -63,7 +80,7 @@ namespace Viry3D
 		static int old_style = 0;
 		static RECT old_pos;
 
-		if(!full_screen)
+		if (!full_screen)
 		{
 			full_screen = true;
 
@@ -92,14 +109,14 @@ namespace Viry3D
 
 	LRESULT CALLBACK win_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		switch(uMsg)
+		switch (uMsg)
 		{
 			case WM_CLOSE:
 				PostQuitMessage(0);
 				break;
 
 			case WM_SIZE:
-				if(wParam != SIZE_MINIMIZED)
+				if (wParam != SIZE_MINIMIZED)
 				{
 					int width = lParam & 0xffff;
 					int height = (lParam & 0xffff0000) >> 16;
@@ -112,9 +129,9 @@ namespace Viry3D
 			{
 				int key = get_key_code((int) wParam);
 
-				if(key >= 0)
+				if (key >= 0)
 				{
-					if(!g_key_held[key])
+					if (!g_key_held[key])
 					{
 						g_key_down[key] = true;
 						g_key_held[key] = true;
@@ -128,7 +145,7 @@ namespace Viry3D
 			{
 				int key = get_key_code((int) wParam);
 
-				if(key >= 0)
+				if (key >= 0)
 				{
 					g_key_up[key] = true;
 					g_key_held[key] = false;
@@ -138,7 +155,7 @@ namespace Viry3D
 			break;
 
 			case WM_SYSCHAR:
-				if(wParam == VK_RETURN)
+				if (wParam == VK_RETURN)
 				{
 					//Alt + Enter
 					switch_full_screen(hWnd);
@@ -150,7 +167,7 @@ namespace Viry3D
 				int x = GET_X_LPARAM(lParam);
 				int y = GET_Y_LPARAM(lParam);
 
-				if(!g_input_down)
+				if (!g_input_down)
 				{
 					Touch t;
 					t.deltaPosition = Vector2(0, 0);
@@ -161,7 +178,7 @@ namespace Viry3D
 					t.tapCount = 1;
 					t.time = Time::GetRealTimeSinceStartup();
 
-					if(!g_input_touches.Empty())
+					if (!g_input_touches.Empty())
 					{
 						g_input_touch_buffer.AddLast(t);
 					}
@@ -209,7 +226,7 @@ namespace Viry3D
 				int x = GET_X_LPARAM(lParam);
 				int y = GET_Y_LPARAM(lParam);
 
-				if(g_input_down)
+				if (g_input_down)
 				{
 					Touch t;
 					t.deltaPosition = Vector2(0, 0);
@@ -220,15 +237,15 @@ namespace Viry3D
 					t.tapCount = 1;
 					t.time = Time::GetRealTimeSinceStartup();
 
-					if(!g_input_touches.Empty())
+					if (!g_input_touches.Empty())
 					{
-						if(g_input_touch_buffer.Empty())
+						if (g_input_touch_buffer.Empty())
 						{
 							g_input_touch_buffer.AddLast(t);
 						}
 						else
 						{
-							if(g_input_touch_buffer.Last().phase == TouchPhase::Moved)
+							if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
 							{
 								g_input_touch_buffer.Last() = t;
 							}
@@ -254,7 +271,7 @@ namespace Viry3D
 				int x = GET_X_LPARAM(lParam);
 				int y = GET_Y_LPARAM(lParam);
 
-				if(g_input_down)
+				if (g_input_down)
 				{
 					Touch t;
 					t.deltaPosition = Vector2(0, 0);
@@ -265,7 +282,7 @@ namespace Viry3D
 					t.tapCount = 1;
 					t.time = Time::GetRealTimeSinceStartup();
 
-					if(!g_input_touches.Empty())
+					if (!g_input_touches.Empty())
 					{
 						g_input_touch_buffer.AddLast(t);
 					}
@@ -365,7 +382,7 @@ namespace Viry3D
 		win_class.lpszClassName = name;
 		win_class.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
 
-		if(!RegisterClassEx(&win_class))
+		if (!RegisterClassEx(&win_class))
 		{
 			return;
 		}
@@ -373,7 +390,7 @@ namespace Viry3D
 		DWORD style = WS_OVERLAPPEDWINDOW;
 		DWORD style_ex = 0;
 
-		RECT wr = {0, 0, m_width, m_height};
+		RECT wr = { 0, 0, m_width, m_height };
 		AdjustWindowRect(&wr, style, FALSE);
 
 		int x = (GetSystemMetrics(SM_CXSCREEN) - m_width) / 2 + wr.left;
@@ -391,7 +408,7 @@ namespace Viry3D
 			NULL,               // handle to menu
 			inst,				// hInstance
 			NULL);              // no extra parameters
-		if(!hwnd)
+		if (!hwnd)
 		{
 			return;
 		}
@@ -423,7 +440,7 @@ namespace Viry3D
 			0,                     // reserved
 			0, 0, 0                // layer masks ignored
 		};
-   
+
 		int format_index = ChoosePixelFormat(m_hdc, &pfd);
 		SetPixelFormat(m_hdc, format_index, &pfd);
 
@@ -442,9 +459,9 @@ namespace Viry3D
 	void DisplayWindows::ProcessSystemEvents()
 	{
 		MSG msg;
-		while(::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if(WM_QUIT == msg.message)
+			if (WM_QUIT == msg.message)
 			{
 				Application::Quit();
 			}

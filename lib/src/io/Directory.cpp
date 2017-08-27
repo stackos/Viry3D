@@ -1,3 +1,20 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Directory.h"
 
 #if VR_WINDOWS
@@ -22,9 +39,9 @@ namespace Viry3D
 		intptr_t find_handle = _findfirst(find_file.CString(), &find_data);
 		intptr_t find = find_handle;
 
-		if(exist != NULL)
+		if (exist != NULL)
 		{
-			if(find_handle != -1 && (find_data.attrib & _A_SUBDIR) != 0)
+			if (find_handle != -1 && (find_data.attrib & _A_SUBDIR) != 0)
 			{
 				*exist = true;
 			}
@@ -33,25 +50,25 @@ namespace Viry3D
 				*exist = false;
 			}
 
-			if(find_handle != -1)
+			if (find_handle != -1)
 			{
 				_findclose(find_handle);
 			}
 			return files;
 		}
 
-		while(find != -1)
+		while (find != -1)
 		{
 			String name(find_data.name);
-			if(find_data.attrib & _A_SUBDIR)
+			if (find_data.attrib & _A_SUBDIR)
 			{
-				if(name != "." &&
+				if (name != "." &&
 					name != "..")
 				{
 					dirs.Add(name);
 				}
 			}
-			else if(find_data.attrib & _A_ARCH)
+			else if (find_data.attrib & _A_ARCH)
 			{
 				files.Add(name);
 			}
@@ -59,24 +76,24 @@ namespace Viry3D
 			find = _findnext(find_handle, &find_data);
 		}
 
-		if(find_handle != -1)
+		if (find_handle != -1)
 		{
 			_findclose(find_handle);
 		}
 
-		if(get_dirs_only)
+		if (get_dirs_only)
 		{
 			return dirs;
 		}
 
-		if(recursive)
+		if (recursive)
 		{
-			for(auto& i : dirs)
+			for (auto& i : dirs)
 			{
 				auto sub_dir = path + "/" + i;
 				auto sub_files = get_files(sub_dir, true, NULL, false);
 
-				for(auto& j : sub_files)
+				for (auto& j : sub_files)
 				{
 					files.Add(i + "/" + j);
 				}
@@ -93,9 +110,9 @@ namespace Viry3D
 
 		DIR *dir = opendir(path.CString());
 
-		if(exist != NULL)
+		if (exist != NULL)
 		{
-			if(dir != NULL && (readdir(dir)->d_type & DT_DIR) != 0)
+			if (dir != NULL && (readdir(dir)->d_type & DT_DIR) != 0)
 			{
 				*exist = true;
 			}
@@ -104,28 +121,28 @@ namespace Viry3D
 				*exist = false;
 			}
 
-			if(dir != NULL)
+			if (dir != NULL)
 			{
 				closedir(dir);
 			}
 			return files;
 		}
 
-		if(dir != NULL)
+		if (dir != NULL)
 		{
 			dirent* p;
-			while((p = readdir(dir)) != NULL)
+			while ((p = readdir(dir)) != NULL)
 			{
 				String name = p->d_name;
-				if(p->d_type & DT_DIR)
+				if (p->d_type & DT_DIR)
 				{
-					if(name != "." &&
+					if (name != "." &&
 						name != "..")
 					{
 						dirs.Add(name);
 					}
 				}
-				else if(p->d_type & DT_REG)
+				else if (p->d_type & DT_REG)
 				{
 					files.Add(name);
 				}
@@ -134,19 +151,19 @@ namespace Viry3D
 			closedir(dir);
 		}
 
-		if(get_dirs_only)
+		if (get_dirs_only)
 		{
 			return dirs;
 		}
 
-		if(recursive)
+		if (recursive)
 		{
-			for(auto& i : dirs)
+			for (auto& i : dirs)
 			{
 				auto sub_dir = path + "/" + i;
 				auto sub_files = get_files(sub_dir, true, NULL);
 
-				for(auto& j : sub_files)
+				for (auto& j : sub_files)
 				{
 					files.Add(i + "/" + j);
 				}
@@ -168,7 +185,7 @@ namespace Viry3D
 	{
 		auto dirs = get_files(path, false, NULL, true);
 
-		for(auto& i : dirs)
+		for (auto& i : dirs)
 		{
 			i = path + "/" + i;
 		}
@@ -180,7 +197,7 @@ namespace Viry3D
 	{
 		auto files = get_files(path, recursive, NULL);
 
-		for(auto& i : files)
+		for (auto& i : files)
 		{
 			i = path + "/" + i;
 		}
@@ -193,12 +210,12 @@ namespace Viry3D
 		auto splits = path.Split("/", true);
 		String folder = splits[0];
 
-		if(path.StartsWith("/"))
+		if (path.StartsWith("/"))
 		{
 			folder = "/" + folder;
 		}
 
-		for(int i = 1; i < splits.Size(); i++)
+		for (int i = 1; i < splits.Size(); i++)
 		{
 			folder += "/" + splits[i];
 
