@@ -780,7 +780,7 @@ namespace Viry3D
 		vkCmdBindVertexBuffers(cmd, 0, 1, &buf, offsets);
 	}
 
-	void DisplayVulkan::BindIndexBuffer(const IndexBuffer* buffer, IndexType::Enum index_type)
+	void DisplayVulkan::BindIndexBuffer(const IndexBuffer* buffer, IndexType index_type)
 	{
 		VkIndexType type;
 		VkCommandBuffer cmd = GetCurrentDrawCommand();
@@ -797,7 +797,7 @@ namespace Viry3D
 		vkCmdBindIndexBuffer(cmd, buffer->GetBuffer(), 0, type);
 	}
 
-	void DisplayVulkan::DrawIndexed(int start, int count, IndexType::Enum index_type)
+	void DisplayVulkan::DrawIndexed(int start, int count, IndexType index_type)
 	{
 		VkCommandBuffer cmd = GetCurrentDrawCommand();
 

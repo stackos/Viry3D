@@ -22,14 +22,11 @@
 
 namespace Viry3D
 {
-	struct ContainsResult
+	enum class ContainsResult
 	{
-		enum Enum
-		{
-			In,
-			Out,
-			Cross
-		};
+		In,
+		Out,
+		Cross
 	};
 
 	class Frustum
@@ -57,10 +54,10 @@ namespace Viry3D
 		//     ///
 		Frustum(float left, float right, float bottom, float top, float near, float far);
 
-		ContainsResult::Enum ContainsPoint(const Vector3& point) const;
-		ContainsResult::Enum ContainsSphere(const Vector3& center, float radius) const;
-		ContainsResult::Enum ContainsBounds(const Vector3& min, const Vector3& max) const;
-		ContainsResult::Enum ContainsPoints(const Vector<Vector3>& points, const Matrix4x4* matrix) const;
+		ContainsResult ContainsPoint(const Vector3& point) const;
+		ContainsResult ContainsSphere(const Vector3& center, float radius) const;
+		ContainsResult ContainsBounds(const Vector3& min, const Vector3& max) const;
+		ContainsResult ContainsPoints(const Vector<Vector3>& points, const Matrix4x4* matrix) const;
 		float DistanceToPlane(const Vector3& point, int plane_index) const;
 
 	private:

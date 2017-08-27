@@ -40,16 +40,13 @@
 
 using namespace Viry3D;
 
-struct GameState
+enum class GameState
 {
-	enum Enum
-	{
-		Ready,
-		Play,
-		Over,
-		OverOut,
-		ReadyIn,
-	};
+	Ready,
+	Play,
+	Over,
+	OverOut,
+	ReadyIn,
 };
 
 struct Pipe
@@ -132,7 +129,7 @@ public:
 	float m_pipe_gen_time;
 	int m_pipe_count;
 
-	GameState::Enum m_game_state;
+	GameState m_game_state;
 	float m_play_start_time;
 
 	int m_score;

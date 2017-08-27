@@ -27,23 +27,20 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(UILabel);
 
-	struct TagType
+	enum class TagType
 	{
-		enum Enum
-		{
-			Color,
-			Shadow,
-			Outline,
-			Underline,
-			Bold,
-			Italic
-		};
+		Color,
+		Shadow,
+		Outline,
+		Underline,
+		Bold,
+		Italic
 	};
 
 	struct TagInfo
 	{
 		String tag;
-		TagType::Enum type;
+		TagType type;
 		String value;
 		int begin;
 		int end;
@@ -82,7 +79,7 @@ namespace Viry3D
 		}
 	}
 
-	void UILabel::SetFontStyle(FontStyle::Enum style)
+	void UILabel::SetFontStyle(FontStyle style)
 	{
 		if (m_font_style != style)
 		{
@@ -132,7 +129,7 @@ namespace Viry3D
 		}
 	}
 
-	void UILabel::SetAlignment(TextAlignment::Enum alignment)
+	void UILabel::SetAlignment(TextAlignment alignment)
 	{
 		if (m_alignment != alignment)
 		{

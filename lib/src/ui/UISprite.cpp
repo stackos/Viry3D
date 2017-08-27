@@ -25,7 +25,7 @@ namespace Viry3D
 	UISprite::UISprite():
 		m_sprite_type(SpriteType::Simple),
 		m_fill_method(SpriteFillMethod::Horizontal),
-		m_fill_origin(SpriteFillOriginHorizontal::Left),
+		m_fill_origin((int) SpriteFillOriginHorizontal::Left),
 		m_fill_amount(1),
 		m_fill_clock_wise(false)
 	{
@@ -65,7 +65,7 @@ namespace Viry3D
 		}
 	}
 
-	void UISprite::SetSpriteType(SpriteType::Enum type)
+	void UISprite::SetSpriteType(SpriteType type)
 	{
 		if (m_sprite_type != type)
 		{
@@ -75,7 +75,7 @@ namespace Viry3D
 		}
 	}
 
-	void UISprite::SetFillMethod(SpriteFillMethod::Enum fill_method)
+	void UISprite::SetFillMethod(SpriteFillMethod fill_method)
 	{
 		if (m_fill_method != fill_method)
 		{

@@ -22,31 +22,25 @@
 
 namespace Viry3D
 {
-	struct FontStyle
+	enum class FontStyle
 	{
-		enum Enum
-		{
-			Normal,
-			Bold,
-			Italic,
-			BoldAndItalic
-		};
+		Normal,
+		Bold,
+		Italic,
+		BoldAndItalic
 	};
 
-	struct TextAlignment
+	enum class TextAlignment
 	{
-		enum Enum
-		{
-			UpperLeft,
-			UpperCenter,
-			UpperRight,
-			MiddleLeft,
-			MiddleCenter,
-			MiddleRight,
-			LowerLeft,
-			LowerCenter,
-			LowerRight
-		};
+		UpperLeft,
+		UpperCenter,
+		UpperRight,
+		MiddleLeft,
+		MiddleCenter,
+		MiddleRight,
+		LowerLeft,
+		LowerCenter,
+		LowerRight
 	};
 
 	struct LabelLine
@@ -84,12 +78,12 @@ namespace Viry3D
 		DECLARE_COM_CLASS(UILabel, UIView);
 	public:
 		void SetFont(const Ref<Font>& font);
-		void SetFontStyle(FontStyle::Enum style);
+		void SetFontStyle(FontStyle style);
 		void SetFontSize(int size);
 		void SetText(const String& text);
 		void SetLineSpace(int space);
 		void SetRich(bool rich);
-		void SetAlignment(TextAlignment::Enum alignment);
+		void SetAlignment(TextAlignment alignment);
 
 		virtual void FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices);
 		virtual void FillMaterial(Ref<Material>& mat);
@@ -99,11 +93,11 @@ namespace Viry3D
 		Vector<LabelLine> ProcessText(int& actual_width, int& actual_height);
 
 		Ref<Font> m_font;
-		FontStyle::Enum m_font_style;
+		FontStyle m_font_style;
 		int m_font_size;
 		String m_text;
 		int m_line_space;
 		bool m_rich;
-		TextAlignment::Enum m_alignment;
+		TextAlignment m_alignment;
 	};
 }

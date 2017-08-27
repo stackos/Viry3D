@@ -34,14 +34,11 @@ namespace Viry3D
 		friend class UIEventHandler;
 
 	public:
-		struct RenderType
+		enum class RenderType
 		{
-			enum Enum
-			{
-				BaseView,
-				Sprite,
-				Text
-			};
+			BaseView,
+			Sprite,
+			Text
 		};
 
 		static void HandleUIEvent(const List<UICanvasRenderer*>& list);
@@ -62,7 +59,7 @@ namespace Viry3D
 		void FindViews();
 		void UpdateViews();
 
-		RenderType::Enum m_type;
+		RenderType m_type;
 		Ref<Mesh> m_mesh;
 		Vector<Ref<UIView>> m_views;
 	};

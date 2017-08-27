@@ -24,14 +24,11 @@
 
 namespace Viry3D
 {
-	struct TweenerPlayStyle
+	enum class TweenerPlayStyle
 	{
-		enum Enum
-		{
-			Once,
-			Loop,
-			PingPong,
-		};
+		Once,
+		Loop,
+		PingPong,
 	};
 
 	class Tweener: public Component
@@ -46,7 +43,7 @@ namespace Viry3D
 		AnimationCurve curve;
 		float duration;
 		float delay;
-		TweenerPlayStyle::Enum play_style;
+		TweenerPlayStyle play_style;
 		std::function<void()> on_finish;
 
 	protected:

@@ -130,7 +130,7 @@ namespace Viry3D
 		}
 	}
 
-	ContainsResult::Enum Frustum::ContainsPoint(const Vector3& point) const
+	ContainsResult Frustum::ContainsPoint(const Vector3& point) const
 	{
 		for (int i = 0; i < 6; i++)
 		{
@@ -144,7 +144,7 @@ namespace Viry3D
 		return ContainsResult::In;
 	}
 
-	ContainsResult::Enum Frustum::ContainsSphere(const Vector3& center, float radius) const
+	ContainsResult Frustum::ContainsSphere(const Vector3& center, float radius) const
 	{
 		bool all_in = true;
 
@@ -170,7 +170,7 @@ namespace Viry3D
 		return ContainsResult::In;
 	}
 
-	ContainsResult::Enum Frustum::ContainsBounds(const Vector3& min, const Vector3& max) const
+	ContainsResult Frustum::ContainsBounds(const Vector3& min, const Vector3& max) const
 	{
 		Vector<Vector3> corners(8);
 		corners[0] = max;
@@ -185,7 +185,7 @@ namespace Viry3D
 		return ContainsPoints(corners, NULL);
 	}
 
-	ContainsResult::Enum Frustum::ContainsPoints(const Vector<Vector3>& points, const Matrix4x4* matrix) const
+	ContainsResult Frustum::ContainsPoints(const Vector<Vector3>& points, const Matrix4x4* matrix) const
 	{
 		Vector<Vector3> ps(points.Size());
 		for (int i = 0; i < points.Size(); i++)

@@ -148,8 +148,8 @@ namespace Viry3D
 	static void read_image(MemoryStream& ms, Ref<UISprite>& view)
 	{
 		auto color = ms.Read<Color>();
-		auto sprite_type = (SpriteType::Enum) ms.Read<int>();
-		auto fill_method = (SpriteFillMethod::Enum) ms.Read<int>();
+		auto sprite_type = (SpriteType) ms.Read<int>();
+		auto fill_method = (SpriteFillMethod) ms.Read<int>();
 		auto fill_origin = ms.Read<int>();
 		auto fill_amount = ms.Read<float>();
 		auto fill_clock_wise = ms.Read<bool>();
