@@ -29,7 +29,7 @@
 #include "Input.h"
 #include "Profiler.h"
 #include "Debug.h"
-#include <mutex>
+#include "thread/Thread.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -52,7 +52,7 @@ namespace Viry3D
 #if !VR_IOS
 	String Application::DataPath()
 	{
-		static std::mutex s_mutex;
+		static Mutex s_mutex;
 
 		s_mutex.lock();
 		if (m_data_path.Empty())

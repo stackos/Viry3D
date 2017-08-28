@@ -19,14 +19,13 @@
 #include "AudioClip.h"
 #include "AudioManager.h"
 #include "math/Mathf.h"
-#include "Debug.h"
 #include "io/File.h"
 #include "time/Time.h"
 #include "memory/Memory.h"
+#include "thread/Thread.h"
+#include "Debug.h"
 #include "mad.h"
-#include <thread>
 #include <chrono>
-#include <mutex>
 
 namespace Viry3D
 {
@@ -46,7 +45,7 @@ namespace Viry3D
 		bool play;
 		AudioSource* source;
 		std::thread* thread;
-		std::mutex* mutex;
+		Mutex* mutex;
 		bool exit;
 
 		void WriteSample(byte* bytes, int channel)
@@ -251,7 +250,7 @@ namespace Viry3D
 			Memory::Zero(mp3_buffer, sizeof(Mp3Buffer));
 			mp3_buffer->loop = m_loop;
 			mp3_buffer->source = this;
-			mp3_buffer->mutex = new std::mutex();
+			mp3_buffer->mutex = new Mutex();
 			mp3_buffer->thread = new std::thread(mp3_decode, (Mp3Buffer*) mp3_buffer, file);
 		}
 	}

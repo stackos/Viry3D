@@ -27,7 +27,6 @@
 #include "ui/UICanvasRenderer.h"
 #include "io/MemoryStream.h"
 #include "time/Time.h"
-#include "thread/Thread.h"
 #include "MeshRenderer.h"
 #include "GameObject.h"
 #include "World.h"
@@ -41,7 +40,7 @@ namespace Viry3D
 	List<Renderer*> Renderer::m_renderers;
 	Map<Camera*, Renderer::Passes> Renderer::m_passes;
 	bool Renderer::m_renderers_dirty = true;
-	std::mutex Renderer::m_mutex;
+	Mutex Renderer::m_mutex;
 	bool Renderer::m_passes_dirty = true;
 	Ref<VertexBuffer> Renderer::m_static_vertex_buffer;
 	Ref<IndexBuffer> Renderer::m_static_index_buffer;

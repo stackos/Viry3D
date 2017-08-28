@@ -23,7 +23,7 @@
 #include "Debug.h"
 #include "container/Vector.h"
 #include "container/List.h"
-#include <mutex>
+#include "thread/Thread.h"
 
 #ifdef VR_IOS
 #include <OpenAL/al.h>
@@ -37,7 +37,6 @@
 
 namespace Viry3D
 {
-	typedef std::mutex Mutex;
 	typedef std::lock_guard<Mutex> MutexLock;
 
 	static ALCdevice* g_device;

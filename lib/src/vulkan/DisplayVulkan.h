@@ -25,7 +25,7 @@
 #include "container/Vector.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/IndexBuffer.h"
-#include <mutex>
+#include "thread/Thread.h"
 
 namespace Viry3D
 {
@@ -125,7 +125,7 @@ namespace Viry3D
 		VkPhysicalDeviceMemoryProperties m_memory_properties;
 		VkPhysicalDeviceProperties m_device_properties;
 
-		std::mutex m_mutex;
+		Mutex m_mutex;
 		uint32_t m_swap_buffer_index;
 		VkSemaphore m_image_acquired_semaphore;
 		Vector<VkSemaphore> m_draw_complete_semaphores;

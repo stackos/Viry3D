@@ -32,7 +32,7 @@ namespace Viry3D
 {
 	FastList<Ref<GameObject>> World::m_gameobjects;
 	FastList<Ref<GameObject>> World::m_gameobjects_start;
-	std::mutex World::m_mutex;
+	Mutex World::m_mutex;
 
 	void World::AddGameObject(const Ref<GameObject>& obj)
 	{

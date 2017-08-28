@@ -19,7 +19,6 @@
 
 #include "GameObject.h"
 #include "container/FastList.h"
-#include <mutex>
 
 namespace Viry3D
 {
@@ -42,6 +41,6 @@ namespace Viry3D
 	private:
 		static FastList<Ref<GameObject>> m_gameobjects;
 		static FastList<Ref<GameObject>> m_gameobjects_start;
-		static std::mutex m_mutex;
+		static Mutex m_mutex;
 	};
 }

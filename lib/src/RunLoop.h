@@ -17,10 +17,10 @@
 
 #pragma once
 
-#include <functional>
-#include <mutex>
 #include "container/Map.h"
 #include "container/Vector.h"
+#include "thread/Thread.h"
+#include <functional>
 
 namespace Viry3D
 {
@@ -65,6 +65,6 @@ namespace Viry3D
 		Map<FuncId, Task> m_items;
 		Map<FuncId, Task> m_to_add;
 		Vector<FuncId> m_to_remove;
-		std::mutex m_mutex;
+		Mutex m_mutex;
 	};
 }

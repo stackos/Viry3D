@@ -28,7 +28,7 @@
 namespace Viry3D
 {
 	Map<String, Ref<Shader>> Shader::m_shaders;
-	std::mutex Shader::m_mutex;
+	Mutex Shader::m_mutex;
 	Map<String, Ref<Texture2D>> Shader::m_default_textures;
 
 	static String get_shader_path(String name)

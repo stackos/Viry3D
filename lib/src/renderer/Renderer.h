@@ -26,7 +26,7 @@
 #include "math/Vector4.h"
 #include "math/Bounds.h"
 #include "math/Matrix4x4.h"
-#include <mutex>
+#include "thread/Thread.h"
 
 namespace Viry3D
 {
@@ -135,7 +135,7 @@ namespace Viry3D
 		static List<Renderer*> m_renderers;
 		static Map<Camera*, Passes> m_passes;
 		static bool m_renderers_dirty;
-		static std::mutex m_mutex;
+		static Mutex m_mutex;
 		static bool m_passes_dirty;
 		static Ref<VertexBuffer> m_static_vertex_buffer;
 		static Ref<IndexBuffer> m_static_index_buffer;

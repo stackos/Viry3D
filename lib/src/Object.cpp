@@ -20,7 +20,7 @@
 namespace Viry3D
 {
 	Map<String, Ref<Object>> Object::m_cache;
-	std::mutex Object::m_mutex;
+	Mutex Object::m_mutex;
 
 	void Object::Init()
 	{

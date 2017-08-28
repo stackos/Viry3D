@@ -26,7 +26,7 @@
 #include "Object.h"
 #include "XMLShader.h"
 #include "container/Map.h"
-#include <mutex>
+#include "thread/Thread.h"
 
 namespace Viry3D
 {
@@ -54,7 +54,7 @@ namespace Viry3D
 		Shader(String name);
 
 		static Map<String, Ref<Shader>> m_shaders;
-		static std::mutex m_mutex;
+		static Mutex m_mutex;
 		static Map<String, Ref<Texture2D>> m_default_textures;
 		XMLShader m_xml;
 	};

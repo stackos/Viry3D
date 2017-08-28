@@ -20,10 +20,10 @@
 #include "string/String.h"
 #include "memory/Ref.h"
 #include "container/Map.h"
+#include "thread/Thread.h"
 #include "Debug.h"
 #include "Profiler.h"
 #include <assert.h>
-#include <mutex>
 
 namespace Viry3D
 {
@@ -66,6 +66,6 @@ namespace Viry3D
 		Object& operator =(const Object& obj) { return *this; }
 
 		static Map<String, Ref<Object>> m_cache;
-		static std::mutex m_mutex;
+		static Mutex m_mutex;
 	};
 }
