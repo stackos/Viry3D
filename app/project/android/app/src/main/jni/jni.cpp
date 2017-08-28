@@ -29,7 +29,8 @@ using namespace Viry3D;
 struct TouchEvent
 {
 	int act;
-	int index;
+    int index;
+	int id;
 	int count;
 	long long time;
 	float xys[20];
@@ -168,7 +169,7 @@ static void touch_begin(const void *event)
 	touch.deltaPosition = Vector2(0, 0);
 	touch.deltaTime = 0;
 	touch.time = t->time / 1000.0f;
-	touch.fingerId = t->index;
+	touch.fingerId = t->id;
 	touch.phase = TouchPhase::Began;
 	touch.tapCount = t->count;
 	touch.position = Vector2(x, y);
@@ -202,7 +203,7 @@ static void touch_update(const void *event)
 	touch.deltaPosition = Vector2(0, 0);
 	touch.deltaTime = 0;
 	touch.time = t->time / 1000.0f;
-	touch.fingerId = t->index;
+	touch.fingerId = t->id;
 	touch.tapCount = t->count;
 	touch.position = Vector2(x, y);
 
@@ -315,6 +316,7 @@ static int32_t handle_input(struct android_app*, AInputEvent* event)
 		int action = AMotionEvent_getAction(event);
 		int count = (int) AMotionEvent_getPointerCount(event);
 		int index = (action & 0xff00) >> 8;
+        int id = AMotionEvent_getPointerId(event, (size_t) index);
 		long long time = AMotionEvent_getEventTime(event);
 		int act = action & 0xff;
 
@@ -323,6 +325,7 @@ static int32_t handle_input(struct android_app*, AInputEvent* event)
 			TouchEvent touch;
 			touch.act = act;
 			touch.index = index;
+            touch.id = id;
 			touch.count = count;
 			touch.time = time;
 			for (size_t i = 0; i < count; i++)
