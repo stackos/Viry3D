@@ -217,6 +217,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/graphics/RenderPass.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/RenderTexture.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/RenderTextureBliter.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Screen.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Shader.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Texture2D.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/UniformBuffer.cpp
