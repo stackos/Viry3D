@@ -20,22 +20,47 @@
 #include "Application.h"
 #include "Debug.h"
 #include "graphics/Graphics.h"
-#include "time/Time.h"
 #include "io/File.h"
+#include "container/FastList.h"
+#include "Input.h"
 
 using namespace Viry3D;
+
+struct TouchEvent
+{
+	int act;
+	int index;
+	int count;
+	long long time;
+	float xys[20];
+};
+
+typedef std::function<void()> Runnable;
 
 extern Ref<Application> viry3d_android_main();
 static void extract_assets_if_needed(const String& package_path, const String& data_path);
 static int call_activity_method_int(ANativeActivity* activity, const char* name, const char* sig, ...);
 static String call_activity_method_string(ANativeActivity* activity, const char* name, const char* sig, ...);
 
-android_app* _app = NULL;
-bool _displayHasInit = false;
-bool _canDraw = false;
-static Ref<Application> _viry3d_app;
+extern Viry3D::Vector<Viry3D::Touch> g_input_touches;
+extern Viry3D::List<Viry3D::Touch> g_input_touch_buffer;
+extern bool g_key_down[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key_up[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key_held[(int) Viry3D::KeyCode::COUNT];
+extern bool g_mouse_button_down[3];
+extern bool g_mouse_button_up[3];
+extern Viry3D::Vector3 g_mouse_position;
+extern bool g_mouse_button_held[3];
 
-void engine_create()
+static android_app* _app = NULL;
+static bool _displayHasInit = false;
+static bool _canDraw = false;
+static Ref<Application> _viry3d_app;
+static FastList<Runnable> _events;
+static Mutex _mutex;
+
+static void engine_create()
 {
 	Log("engine_create begin");
 
@@ -57,47 +82,258 @@ void engine_create()
 	_canDraw = true;
 }
 
-void engine_pause()
+static void engine_pause()
 {
 	Log("engine_pause");
 	_canDraw = false;
 	_viry3d_app->OnPause();
 }
 
-void engine_resume()
+static void engine_resume()
 {
 	Log("engine_resume");
 	_canDraw = true;
 	_viry3d_app->OnResume();
 }
 
-void engine_destroy()
+static void engine_destroy()
 {
 	Log("engine_destroy");
 	_viry3d_app.reset();
 }
 
-void draw()
+static void draw()
 {
 	_viry3d_app->EnsureFPS();
 	_viry3d_app->OnUpdate();
 	_viry3d_app->OnDraw();
 }
 
-static int32_t handle_input(struct android_app* app, AInputEvent* event)
+static int get_key(int key_code)
+{
+    int key = -1;
+
+    if(key_code == 82)//KEYCODE_MENU
+    {
+        key = (int) KeyCode::Menu;
+    }
+    else if(key_code == 4)//KEYCODE_BACK
+    {
+        key = (int) KeyCode::Backspace;
+    }
+    else if(key_code == 24)//KEYCODE_VOLUME_UP
+    {
+        key = (int) KeyCode::PageUp;
+    }
+    else if(key_code == 25)//KEYCODE_VOLUME_DOWN
+    {
+        key = (int) KeyCode::PageDown;
+    }
+
+    return key;
+}
+
+static void on_key_down(int key_code)
+{
+    int key = get_key(key_code);
+	if (key >= 0)
+	{
+		if (!g_key_held[key])
+		{
+			g_key_down[key] = true;
+			g_key_held[key] = true;
+		}
+	}
+}
+
+static void on_key_up(int key_code)
+{
+	int key = get_key(key_code);
+	if (key >= 0)
+	{
+		g_key_up[key] = true;
+		g_key_held[key] = false;
+		g_key[key] = false;
+	}
+}
+
+static void touch_begin(const void *event)
+{
+	const TouchEvent *t = (const TouchEvent *) event;
+
+	float x = t->xys[t->index * 2];
+	float y = t->xys[t->index * 2 + 1];
+
+	Touch touch;
+	touch.deltaPosition = Vector2(0, 0);
+	touch.deltaTime = 0;
+	touch.time = t->time / 1000.0f;
+	touch.fingerId = t->index;
+	touch.phase = TouchPhase::Began;
+	touch.tapCount = t->count;
+	touch.position = Vector2(x, y);
+
+	if (!g_input_touches.Empty())
+	{
+		g_input_touch_buffer.AddLast(touch);
+	}
+	else
+	{
+		g_input_touches.Add(touch);
+	}
+
+	if (touch.fingerId == 0)
+	{
+		g_mouse_button_down[0] = true;
+		g_mouse_position.x = x;
+		g_mouse_position.y = y;
+		g_mouse_button_held[0] = true;
+	}
+}
+
+static void touch_update(const void *event)
+{
+    const TouchEvent *t = (const TouchEvent *) event;
+
+	float x = t->xys[t->index * 2];
+	float y = t->xys[t->index * 2 + 1];
+
+	Touch touch;
+	touch.deltaPosition = Vector2(0, 0);
+	touch.deltaTime = 0;
+	touch.time = t->time / 1000.0f;
+	touch.fingerId = t->index;
+	touch.tapCount = t->count;
+	touch.position = Vector2(x, y);
+
+	if (t->act == AMOTION_EVENT_ACTION_MOVE)
+	{
+		touch.phase = TouchPhase::Moved;
+	}
+	else
+	{
+		touch.phase = TouchPhase::Ended;
+	}
+
+	if (!g_input_touches.Empty())
+	{
+		g_input_touch_buffer.AddLast(touch);
+	}
+	else
+	{
+		g_input_touches.Add(touch);
+	}
+
+	if (touch.fingerId == 0)
+	{
+		if (touch.phase == TouchPhase::Ended || touch.phase == TouchPhase::Canceled)
+		{
+			g_mouse_button_up[0] = true;
+			g_mouse_position.x = x;
+			g_mouse_position.y = y;
+			g_mouse_button_held[0] = false;
+		}
+		else if (touch.phase == TouchPhase::Moved)
+		{
+			g_mouse_position.x = x;
+			g_mouse_position.y = y;
+		}
+	}
+}
+
+static void on_touch(const TouchEvent& touch)
+{
+	switch (touch.act)
+	{
+		case AMOTION_EVENT_ACTION_DOWN:
+		case AMOTION_EVENT_ACTION_POINTER_DOWN:
+			touch_begin(&touch);
+			break;
+
+		case AMOTION_EVENT_ACTION_MOVE:
+		case AMOTION_EVENT_ACTION_UP:
+		case AMOTION_EVENT_ACTION_POINTER_UP:
+		case AMOTION_EVENT_ACTION_CANCEL:
+			touch_update(&touch);
+			break;
+
+        default:
+            break;
+	}
+}
+
+static void process_events()
+{
+    _mutex.lock();
+
+    for (auto i = _events.Begin(); i != _events.End(); i = i->next)
+    {
+		if (i->value)
+		{
+			i->value();
+		}
+    }
+	_events.Clear();
+
+    _mutex.unlock();
+}
+
+static void queue_event(Runnable event)
+{
+	_mutex.lock();
+
+	_events.AddLast(event);
+
+	_mutex.unlock();
+}
+
+static int32_t handle_input(struct android_app*, AInputEvent* event)
 {
 	auto type = AInputEvent_getType(event);
 	if (type == AINPUT_EVENT_TYPE_KEY)
 	{
 		auto action = AKeyEvent_getAction(event);
-		if (action == AKEY_EVENT_ACTION_UP)
+		auto code = AKeyEvent_getKeyCode(event);
+
+		if (action == AKEY_EVENT_ACTION_DOWN)
 		{
-			auto code = AKeyEvent_getKeyCode(event);
-			if (code == AKEYCODE_BACK)
+			queue_event([=]() {
+				on_key_down(code);
+			});
+		}
+		else if(action == AKEY_EVENT_ACTION_UP)
+		{
+			queue_event([=]() {
+				on_key_up(code);
+			});
+
+			return 1;
+		}
+	}
+	else if (type == AINPUT_EVENT_TYPE_MOTION)
+	{
+		int action = AMotionEvent_getAction(event);
+		int count = (int) AMotionEvent_getPointerCount(event);
+		int index = (action & 0xff00) >> 8;
+		long long time = AMotionEvent_getEventTime(event);
+		int act = action & 0xff;
+
+		if (count <= 10)
+		{
+			TouchEvent touch;
+			touch.act = act;
+			touch.index = index;
+			touch.count = count;
+			touch.time = time;
+			for (size_t i = 0; i < count; i++)
 			{
-				//call_activity_method_int(app->activity, "backToHome", "()I");
-				//return 1;
+				touch.xys[i * 2] = AMotionEvent_getX(event, i);
+				touch.xys[i * 2 + 1] = AMotionEvent_getY(event, i);
 			}
+
+			queue_event([=](){
+				on_touch(touch);
+			});
 		}
 	}
 
@@ -184,6 +420,8 @@ void android_main(android_app* app)
 		{
 			break;
 		}
+
+        process_events();
 
 		if (_canDraw)
 		{

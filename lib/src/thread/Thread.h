@@ -29,6 +29,7 @@ namespace Viry3D
 {
 	typedef std::function<void()> ThreadInit;
 	typedef std::function<void()> ThreadDeinit;
+	typedef std::mutex Mutex;
 
 	struct ThreadInfo
 	{

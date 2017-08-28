@@ -19,14 +19,17 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
+#include "Input.h"
 #include "graphics/Camera.h"
 #include "graphics/LightmapSettings.h"
 #include "graphics/Light.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/RenderTextureBliter.h"
 #include "graphics/Graphics.h"
+#include "graphics/Screen.h"
 #include "renderer/Renderer.h"
 #include "tweener/TweenPosition.h"
+#include "time/Time.h"
 
 using namespace Viry3D;
 
@@ -37,6 +40,8 @@ public:
 	virtual ~AppScene();
 	virtual void Start();
 	virtual void Update();
+
+	WeakRef<Camera> m_camera;
 };
 
 #if 1
@@ -114,8 +119,26 @@ void AppScene::Start()
 	});*/
 
 	//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
+
+	m_camera = camera;
 }
 
 void AppScene::Update()
 {
+	if (Input::GetMouseButton(0))
+	{
+		auto mouse = Input::GetMousePosition();
+		if (mouse.x > Screen::GetWidth() / 2)
+		{
+			auto pos = m_camera.lock()->GetTransform()->GetPosition();
+			pos += m_camera.lock()->GetTransform()->GetForward() * Time::GetDeltaTime() * 5;
+			m_camera.lock()->GetTransform()->SetPosition(pos);
+		}
+		else
+		{
+			auto pos = m_camera.lock()->GetTransform()->GetPosition();
+			pos += -m_camera.lock()->GetTransform()->GetForward() * Time::GetDeltaTime() * 5;
+			m_camera.lock()->GetTransform()->SetPosition(pos);
+		}
+	}
 }

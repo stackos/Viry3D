@@ -5,6 +5,7 @@
 *.pdb
 *.tmp
 *.iml
+local.properties
 app.exe
 viry3d.lib
 build
