@@ -110,15 +110,15 @@ void AppScene::Start()
 	Resource::LoadGameObject("Assets/AppScene/xiao_zhu_lin.prefab", true);
 
 	/*Resource::LoadGameObject("Assets/AppScene/Effect.prefab", false,
-	[=](const Ref<Object>& obj) {
-	auto t = RefCast<GameObject>(obj)->GetTransform();
-	t->SetParent(camera->GetTransform());
-	t->SetLocalPosition(Vector3::Zero());
-	t->SetLocalRotation(Quaternion::Identity());
-	t->SetLocalScale(Vector3::One());
+		[=](const Ref<Object>& obj) {
+		auto t = RefCast<GameObject>(obj)->GetTransform();
+		t->SetParent(camera->GetTransform());
+		t->SetLocalPosition(Vector3::Zero());
+		t->SetLocalRotation(Quaternion::Identity());
+		t->SetLocalScale(Vector3::One());
 	});*/
 
-	Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
+	//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 
 	m_camera = camera;
 }
