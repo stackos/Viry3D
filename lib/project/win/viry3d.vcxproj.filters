@@ -106,6 +106,9 @@
     <Filter Include="src\openal\Alc\backends">
       <UniqueIdentifier>{9530ca7c-8bd2-44fb-b1fd-64743bacd667}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\crypto\md5">
+      <UniqueIdentifier>{a17ae576-818d-4173-b8c7-5b9694bbdcab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -594,8 +597,8 @@
     <ClInclude Include="..\..\src\renderer\ParticleSystemRenderer.h">
       <Filter>src\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\freetype\src\base\md5.h">
-      <Filter>src\freetype</Filter>
+    <ClInclude Include="..\..\src\crypto\md5\md5.h">
+      <Filter>src\crypto\md5</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1523,8 +1526,8 @@
     <ClCompile Include="..\..\src\renderer\ParticleSystemRenderer.cpp">
       <Filter>src\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\freetype\src\base\md5.c">
-      <Filter>src\freetype</Filter>
+    <ClCompile Include="..\..\src\crypto\md5\md5.c">
+      <Filter>src\crypto\md5</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

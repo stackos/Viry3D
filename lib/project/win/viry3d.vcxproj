@@ -38,8 +38,8 @@
     <ClInclude Include="..\..\src\container\List.h" />
     <ClInclude Include="..\..\src\container\Map.h" />
     <ClInclude Include="..\..\src\container\Vector.h" />
+    <ClInclude Include="..\..\src\crypto\md5\md5.h" />
     <ClInclude Include="..\..\src\Debug.h" />
-    <ClInclude Include="..\..\src\freetype\src\base\md5.h" />
     <ClInclude Include="..\..\src\GameObject.h" />
     <ClInclude Include="..\..\src\gles\BufferGLES.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -239,6 +239,7 @@
     <ClCompile Include="..\..\src\audio\AudioManager.cpp" />
     <ClCompile Include="..\..\src\audio\AudioSource.cpp" />
     <ClCompile Include="..\..\src\Component.cpp" />
+    <ClCompile Include="..\..\src\crypto\md5\md5.c" />
     <ClCompile Include="..\..\src\Debug.cpp" />
     <ClCompile Include="..\..\src\freetype\src\autofit\autofit.c" />
     <ClCompile Include="..\..\src\freetype\src\base\ftbase.c" />
@@ -261,7 +262,6 @@
     <ClCompile Include="..\..\src\freetype\src\base\ftsystem.c" />
     <ClCompile Include="..\..\src\freetype\src\base\fttype1.c" />
     <ClCompile Include="..\..\src\freetype\src\base\ftwinfnt.c" />
-    <ClCompile Include="..\..\src\freetype\src\base\md5.c" />
     <ClCompile Include="..\..\src\freetype\src\bdf\bdf.c" />
     <ClCompile Include="..\..\src\freetype\src\cache\ftcache.c" />
     <ClCompile Include="..\..\src\freetype\src\cff\cff.c" />

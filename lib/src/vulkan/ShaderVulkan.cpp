@@ -33,7 +33,7 @@
 
 extern "C"
 {
-#include "freetype/src/base/md5.h"
+#include "crypto/md5/md5.h"
 }
 
 namespace Viry3D
