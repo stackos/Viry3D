@@ -107,7 +107,7 @@ void AppScene::Start()
 	Light::main = light;
 
 	//Resource::LoadGameObject("Assets/AppScene/zhu_cheng.prefab", true);
-	//Resource::LoadGameObject("Assets/AppScene/xiao_zhu_lin.prefab", true);
+	Resource::LoadGameObject("Assets/AppScene/xiao_zhu_lin.prefab", true);
 
 	/*Resource::LoadGameObject("Assets/AppScene/Effect.prefab", false,
 	[=](const Ref<Object>& obj) {

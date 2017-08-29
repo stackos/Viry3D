@@ -36,6 +36,7 @@ extern "C" {
 #include "libavformat/avformat.h"
 #include "libswscale/swscale.h"
 }
+#pragma warning(disable: 4996)
 #endif
 
 #if VR_ANDROID
@@ -59,6 +60,7 @@ namespace Viry3D
 			audio_out_stream = NULL;
 			audio_codec_context = NULL;
 			audio_frame = NULL;
+			audio_samples_count = 0;
 			record_begin_frame = -1;
 #endif
 		}
@@ -74,6 +76,7 @@ namespace Viry3D
 		AVStream* audio_out_stream;
 		AVCodecContext* audio_codec_context;
 		AVFrame* audio_frame;
+		int audio_samples_count;
 		int record_begin_frame;
 #endif
 	};
@@ -417,6 +420,7 @@ namespace Viry3D
 		m_fps = 30;
 
 		m_private->record_begin_frame = Time::GetFrameCount();
+		m_private->audio_samples_count = 0;
 
 		m_private->record_thread = RefMake<Thread>(0, ThreadInfo({
 			[=]() {
@@ -593,14 +597,17 @@ namespace Viry3D
 		m_private->record_thread->AddTask({ [=]() {
 			Ref<Any> empty;
 
-			byte* input = buffer.Bytes();
-
 			auto oc = m_private->video_out_context;
-			auto stream = m_private->video_out_stream;
-			auto c = m_private->video_codec_context;
+			auto vs = m_private->video_out_stream;
+			auto vc = m_private->video_codec_context;
 			auto output_frame = m_private->video_frame;
 			auto input_frame = m_private->input_frame;
 			auto yuv_convert_context = m_private->yuv_convert_context;
+			auto audio_frame = m_private->audio_frame;
+			auto ac = m_private->audio_codec_context;
+			auto as = m_private->audio_out_stream;
+
+			byte* input = buffer.Bytes();
 
 			auto ret = av_frame_make_writable(input_frame);
 
@@ -619,7 +626,7 @@ namespace Viry3D
 			}
 
 			sws_scale(yuv_convert_context, input_frame->data, input_frame->linesize,
-				0, c->height, output_frame->data, output_frame->linesize);
+				0, vc->height, output_frame->data, output_frame->linesize);
 
 			output_frame->pts = frame_index;
 			
@@ -629,32 +636,34 @@ namespace Viry3D
 			av_init_packet(&pkt);
 
 			int got_packet;
-			ret = avcodec_encode_video2(c, &pkt, output_frame, &got_packet);
+			ret = avcodec_encode_video2(vc, &pkt, output_frame, &got_packet);
 
 			if (got_packet)
 			{
-				av_packet_rescale_ts(&pkt, c->time_base, stream->time_base);
-				pkt.stream_index = stream->index;
+				av_packet_rescale_ts(&pkt, vc->time_base, vs->time_base);
+				pkt.stream_index = vs->index;
 				ret = av_interleaved_write_frame(oc, &pkt);
 			}
 
-			/*pkt.data = NULL;
-			pkt.size = 0;
-			av_init_packet(&pkt);
-
-			auto audio_frame = m_private->audio_frame;
-			audio_frame->pts = av_rescale_q(m_private->samples_count, { 1, c->sample_rate }, c->time_base);
-			m_private->samples_count += audio_frame->nb_samples;
-
-			ret = av_frame_make_writable(audio_frame);
-			ret = avcodec_encode_audio2(c, &pkt, audio_frame, &got_packet);
-
-			if (got_packet)
+			if (av_compare_ts(frame_index, vc->time_base, m_private->audio_samples_count, ac->time_base) > 0)
 			{
-				av_packet_rescale_ts(&pkt, c->time_base, stream->time_base);
-				pkt.stream_index = stream->index;
-				ret = av_interleaved_write_frame(oc, &pkt);
-			}*/
+				pkt.data = NULL;
+				pkt.size = 0;
+				av_init_packet(&pkt);
+
+				audio_frame->pts = av_rescale_q(m_private->audio_samples_count, { 1, ac->sample_rate }, ac->time_base);
+				m_private->audio_samples_count += audio_frame->nb_samples;
+
+				ret = av_frame_make_writable(audio_frame);
+				ret = avcodec_encode_audio2(ac, &pkt, audio_frame, &got_packet);
+
+				if (got_packet)
+				{
+					av_packet_rescale_ts(&pkt, ac->time_base, as->time_base);
+					pkt.stream_index = as->index;
+					ret = av_interleaved_write_frame(oc, &pkt);
+				}
+			}
 
 			return empty;
 		}, NULL });
