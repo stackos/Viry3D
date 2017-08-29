@@ -2,9 +2,11 @@
 *.cache
 *.iobj
 *.ipdb
+*.ilk
 *.pdb
 *.tmp
 *.iml
+*.mp4
 local.properties
 app.exe
 viry3d.lib

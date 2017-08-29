@@ -56,6 +56,9 @@ namespace Viry3D
 			video_frame = NULL;
 			input_frame = NULL;
 			yuv_convert_context = NULL;
+			audio_out_stream = NULL;
+			audio_codec_context = NULL;
+			audio_frame = NULL;
 			record_begin_frame = -1;
 #endif
 		}
@@ -68,6 +71,9 @@ namespace Viry3D
 		AVFrame* video_frame;
 		AVFrame* input_frame;
 		SwsContext* yuv_convert_context;
+		AVStream* audio_out_stream;
+		AVCodecContext* audio_codec_context;
+		AVFrame* audio_frame;
 		int record_begin_frame;
 #endif
 	};
@@ -418,62 +424,125 @@ namespace Viry3D
 
 			AVFormatContext* oc;
 			auto ret = avformat_alloc_output_context2(&oc, NULL, NULL, file.CString());
-			auto codec_id = oc->oformat->video_codec;
+			
+			AVPixelFormat pix_fmt = AV_PIX_FMT_YUV420P;
+			AVStream* video_out_stream = NULL;
+			AVCodecContext* video_codec_context = NULL;
+			AVFrame* video_frame = NULL;
+			AVStream* audio_out_stream = NULL;
+			AVCodecContext* audio_codec_context = NULL;
+			AVFrame* audio_frame = NULL;
 
-			auto stream = avformat_new_stream(oc, NULL);
-			stream->id = oc->nb_streams - 1;
-			stream->time_base = { 1, m_fps };
+			// setup video stream
+			{
+				auto codec_id = oc->oformat->video_codec;
+				auto stream = avformat_new_stream(oc, NULL);
+				stream->id = oc->nb_streams - 1;
+				stream->time_base = { 1, m_fps };
 
-			auto c = stream->codec;
-			c->qmin = 1;
-			c->qmax = 50;
-			c->qcompress = 1;
-			c->gop_size = 12; /* emit one intra frame every twelve frames at most */
-			c->bit_rate = 4000 * m_fps / 30 * 1000;
-			c->pix_fmt = AV_PIX_FMT_YUV420P;
-			c->codec_type = AVMEDIA_TYPE_VIDEO;
-			c->codec_id = codec_id;
-			c->width = m_width;
-			c->height = m_height;
-			c->time_base = stream->time_base;
+				auto c = stream->codec;
+				c->qmin = 1;
+				c->qmax = 50;
+				c->qcompress = 1;
+				c->gop_size = 12; /* emit one intra frame every twelve frames at most */
+				c->bit_rate = 4000 * m_fps / 30 * 1000;
+				c->pix_fmt = pix_fmt;
+				c->codec_type = AVMEDIA_TYPE_VIDEO;
+				c->codec_id = codec_id;
+				c->width = m_width;
+				c->height = m_height;
+				c->time_base = stream->time_base;
 
-			auto codec = avcodec_find_encoder(codec_id);
-			ret = avcodec_open2(c, codec, NULL);
+				if (oc->oformat->flags & AVFMT_GLOBALHEADER)
+				{
+					c->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+				}
 
-			auto frame = av_frame_alloc();
-			frame->format = c->pix_fmt;
-			frame->width = c->width;
-			frame->height = c->height;
-			ret = av_frame_get_buffer(frame, 32);
+				auto codec = avcodec_find_encoder(codec_id);
+				ret = avcodec_open2(c, codec, NULL);
+
+				video_frame = av_frame_alloc();
+				video_frame->format = pix_fmt;
+				video_frame->width = m_width;
+				video_frame->height = m_height;
+				ret = av_frame_get_buffer(video_frame, 32);
+
+				video_out_stream = stream;
+				video_codec_context = c;
+			}
+
+			// setup audio stream
+			{
+				auto codec_id = oc->oformat->audio_codec;
+				auto stream = avformat_new_stream(oc, NULL);
+				stream->id = oc->nb_streams - 1;
+				
+				auto codec = avcodec_find_encoder(codec_id);
+
+				auto c = stream->codec;
+				c->sample_fmt = AV_SAMPLE_FMT_FLTP;
+				c->bit_rate = 64000;
+				c->sample_rate = 44100;
+				c->channel_layout = AV_CH_LAYOUT_STEREO;
+				c->channels = av_get_channel_layout_nb_channels(c->channel_layout);
+				c->codec_type = AVMEDIA_TYPE_AUDIO;
+
+				stream->time_base = { 1, c->sample_rate };
+
+				ret = avcodec_open2(c, codec, NULL);
+
+				int nb_samples;
+				if (codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE)
+					nb_samples = 10000;
+				else
+					nb_samples = c->frame_size;
+
+				auto frame = av_frame_alloc();
+				frame->format = c->sample_fmt;
+				frame->channel_layout = c->channel_layout;
+				frame->sample_rate = c->sample_rate;
+				frame->nb_samples = nb_samples;
+				ret = av_frame_get_buffer(frame, 0);
+
+				audio_out_stream = stream;
+				audio_codec_context = c;
+				audio_frame = frame;
+			}
 
 			auto input_frame = av_frame_alloc();
 			input_frame->format = AV_PIX_FMT_RGB24;
-			input_frame->width = c->width;
-			input_frame->height = c->height;
+			input_frame->width = m_width;
+			input_frame->height = m_height;
 			ret = av_frame_get_buffer(input_frame, 32);
 
 			auto yuv_convert_context = sws_getContext(
-				c->width, c->height,
+				m_width, m_height,
 				AV_PIX_FMT_RGB24,
-				c->width, c->height,
-				c->pix_fmt,
-				AV_PIX_FMT_YUV420P, NULL, NULL, NULL);
+				m_width, m_height,
+				pix_fmt,
+				0, NULL, NULL, NULL);
 
 			ret = avio_open(&oc->pb, file.CString(), AVIO_FLAG_WRITE);
 			ret = avformat_write_header(oc, NULL);
 
 			m_private->video_out_context = oc;
-			m_private->video_out_stream = stream;
-			m_private->video_codec_context = c;
-			m_private->video_frame = frame;
+			m_private->video_out_stream = video_out_stream;
+			m_private->video_codec_context = video_codec_context;
+			m_private->video_frame = video_frame;
 			m_private->input_frame = input_frame;
 			m_private->yuv_convert_context = yuv_convert_context;
+
+			m_private->audio_out_stream = audio_out_stream;
+			m_private->audio_codec_context = audio_codec_context;
+			m_private->audio_frame = audio_frame;
 		},
 			[=]() {
 			av_write_trailer(m_private->video_out_context);
 
 			avcodec_close(m_private->video_codec_context);
 			av_frame_free(&m_private->video_frame);
+			avcodec_close(m_private->audio_codec_context);
+			av_frame_free(&m_private->audio_frame);
 			avio_closep(&m_private->video_out_context->pb);
 			avformat_free_context(m_private->video_out_context);
 			av_frame_free(&m_private->input_frame);
@@ -485,6 +554,9 @@ namespace Viry3D
 			m_private->video_frame = NULL;
 			m_private->input_frame = NULL;
 			m_private->yuv_convert_context = NULL;
+			m_private->audio_out_stream = NULL;
+			m_private->audio_codec_context = NULL;
+			m_private->audio_frame = NULL;
 		}
 		}));
 #endif
@@ -550,7 +622,7 @@ namespace Viry3D
 				0, c->height, output_frame->data, output_frame->linesize);
 
 			output_frame->pts = frame_index;
-
+			
 			AVPacket pkt;
 			pkt.data = NULL;
 			pkt.size = 0;
@@ -565,6 +637,24 @@ namespace Viry3D
 				pkt.stream_index = stream->index;
 				ret = av_interleaved_write_frame(oc, &pkt);
 			}
+
+			/*pkt.data = NULL;
+			pkt.size = 0;
+			av_init_packet(&pkt);
+
+			auto audio_frame = m_private->audio_frame;
+			audio_frame->pts = av_rescale_q(m_private->samples_count, { 1, c->sample_rate }, c->time_base);
+			m_private->samples_count += audio_frame->nb_samples;
+
+			ret = av_frame_make_writable(audio_frame);
+			ret = avcodec_encode_audio2(c, &pkt, audio_frame, &got_packet);
+
+			if (got_packet)
+			{
+				av_packet_rescale_ts(&pkt, c->time_base, stream->time_base);
+				pkt.stream_index = stream->index;
+				ret = av_interleaved_write_frame(oc, &pkt);
+			}*/
 
 			return empty;
 		}, NULL });
