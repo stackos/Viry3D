@@ -146,6 +146,11 @@ namespace Viry3D
 
 		m_width = width;
 		m_height = height;
+
+		if (IsRecording())
+		{
+			EndRecord();
+		}
 	}
 
 	void DisplayGLES::OnPause()
