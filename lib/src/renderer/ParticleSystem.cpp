@@ -393,6 +393,33 @@ namespace Viry3D
 				v2.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0.0f, -length * 0.5f);
 				v3.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0.0f, length * 0.5f);
 			}
+			else if (render_mode == ParticleSystemRenderMode::HorizontalBillboard)
+			{
+				auto& v0 = vs[index * 4 + 0];
+				auto& v1 = vs[index * 4 + 1];
+				auto& v2 = vs[index * 4 + 2];
+				auto& v3 = vs[index * 4 + 3];
+				
+				auto rot = Quaternion::Euler(Vector3(0, 0, p.rotation.z) * Mathf::Rad2Deg);
+				v0.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, 0, p.size.y * 0.5f);
+				v1.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, 0, -p.size.y * 0.5f);
+				v2.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0, -p.size.y * 0.5f);
+				v3.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0, p.size.y * 0.5f);
+			}
+			else if (render_mode == ParticleSystemRenderMode::VerticalBillboard)
+			{
+				auto& v0 = vs[index * 4 + 0];
+				auto& v1 = vs[index * 4 + 1];
+				auto& v2 = vs[index * 4 + 2];
+				auto& v3 = vs[index * 4 + 3];
+
+				auto cam_rot = Camera::Current()->GetTransform()->GetRotation().ToEulerAngles();
+				auto rot = Quaternion::Euler(Vector3(0, cam_rot.y, p.rotation.z) * Mathf::Rad2Deg);
+				v0.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, p.size.y * 0.5f, 0);
+				v1.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, -p.size.y * 0.5f, 0);
+				v2.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, -p.size.y * 0.5f, 0);
+				v3.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, p.size.y * 0.5f, 0);
+			}
 			else if (render_mode == ParticleSystemRenderMode::Mesh)
 			{
 				auto rot = Quaternion::Euler(p.rotation * Mathf::Rad2Deg);
@@ -414,10 +441,6 @@ namespace Viry3D
 						v.color = p.color;
 					}
 				}
-			}
-			else
-			{
-				assert(!"no implement");
 			}
 
 			if (render_mode != ParticleSystemRenderMode::Mesh)
