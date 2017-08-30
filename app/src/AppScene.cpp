@@ -109,7 +109,7 @@ void AppScene::Start()
 	Resource::LoadGameObject("Assets/AppScene/zhu_cheng.prefab", true);
 	//Resource::LoadGameObject("Assets/AppScene/xiao_zhu_lin.prefab", true);
 
-	Resource::LoadGameObject("Assets/AppScene/Effect.prefab", false,
+	Resource::LoadGameObject("Assets/AppScene/zhu_cheng_effect.prefab", false,
 		[=](const Ref<Object>& obj) {
 		auto t = RefCast<GameObject>(obj)->GetTransform();
 		t->SetParent(camera->GetTransform());
@@ -118,7 +118,7 @@ void AppScene::Start()
 		t->SetLocalScale(Vector3::One());
 	});
 
-	//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
+	Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 
 	m_camera = camera;
 }
