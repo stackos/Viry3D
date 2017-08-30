@@ -1,0 +1,48 @@
+<Shader name="Error" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="1">
+			<Uniform name ="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<Include name="Base.in"/>
+		<Source>
+UniformPush(push_constant) uniform push {
+	mat4 _World;
+} u_push;
+
+UniformBuffer(std140, binding = 1) uniform buf_vs {
+	mat4 _ViewProjection;
+} u_buf;
+
+layout (location = 0) in vec4 a_pos;
+
+void main() {
+	gl_Position = a_pos * u_push._World * u_buf._ViewProjection;
+
+	vulkan_convert();
+}
+		</Source>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<Source>
+precision mediump float;
+
+layout (location = 0) out vec4 o_frag;
+
+void main() {
+    o_frag = vec4(1, 0.0196, 0.9529, 1);
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

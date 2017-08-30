@@ -1,0 +1,53 @@
+<Shader name="Blit" queue="Geometry">
+	<VertexShader name="vs">
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+
+		<Include name="Base.in"/>
+		<Source>
+UniformPush(push_constant) uniform push {
+	mat4 _World;
+} u_push;
+      
+layout (location = 0) in vec4 a_pos;
+layout (location = 1) in vec2 a_uv;
+
+Varying(location = 0) out vec2 v_uv;
+
+void main() {
+	gl_Position = a_pos * u_push._World;
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+		</Source>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="1"/>
+		<Source>
+precision mediump float;
+      
+UniformTexture(binding = 1) uniform sampler2D _MainTex;
+
+Varying(location = 0) in vec2 v_uv;
+
+layout (location = 0) out vec4 o_frag;
+
+void main() {
+    o_frag = texture(_MainTex, v_uv);
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+		<Cull value="Off"/>
+		<ZTest value="Always"/>
+		<ZWrite value="Off"/>
+	</RenderState>
+
+	<Pass name="pass"
+			vs="vs"
+			ps="ps"
+			rs="rs"/>
+</Shader>

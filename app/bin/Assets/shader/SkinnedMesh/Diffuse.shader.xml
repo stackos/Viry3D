@@ -1,0 +1,28 @@
+<Shader name="SkinnedMesh/Diffuse" queue="Geometry">
+	<VertexShader name="vs">
+        <UniformBuffer name="buf_vs" binding="1">
+            <Uniform name="_ViewProjection" size="64"/>
+            <Uniform name="_Bones" size="3840"/>
+        </UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<VertexAttribute name="BlendWeight" location="2"/>
+		<VertexAttribute name="BlendIndices" location="3"/>
+		<Include name="Base.in"/>
+		<Include name="SkinnedMesh.in"/>
+		<Include name="SkinnedMesh.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<Include name="Texture.ps"/>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

@@ -1,0 +1,93 @@
+<Shader name="Base" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="1">
+			<Uniform name ="_ViewProjection" size="64"/>
+		</UniformBuffer>
+    
+		<!--
+			Vertex
+            Color
+			Texcoord
+			Texcoord2
+			Normal
+			Tangent
+			BlendWeight
+			BlendIndices
+		-->
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+
+		<Include name="Base.in"/>
+		<Include name="Texture.vs"/>
+	</VertexShader>
+	
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<Include name="Texture.ps"/>
+	</PixelShader>
+
+	<!--
+		Cull
+			Back | Front | Off
+		ZTest
+			Less | Greater | LEqual | GEqual | Equal | NotEqual | Always
+		ZWrite
+			On | Off
+		AlphaTest
+			Off / (Less | Greater | LEqual | GEqual | Equal | NotEqual | Always) CutoffValue
+		Blend
+			Off / SourceBlendMode DestBlendMode
+			One Zero SrcColor SrcAlpha DstColor DstAlpha OneMinusSrcColor OneMinusSrcAlpha OneMinusDstColor OneMinusDstAlpha
+		ColorMask
+			RGB | A | 0 | any combination of R, G, B, A
+		Offset
+			Offset OffsetFactor, OffsetUnits
+	-->
+	<RenderState name="rs">
+		<Cull value="Back"/>
+		<ZTest value="LEqual"/>
+		<ZWrite value="On"/>
+		<AlphaTest value="Off"/>
+		<Blend enable="Off"
+			   src="SrcAlpha"
+			   dst="OneMinusSrcAlpha"
+			   src_a="SrcAlpha"
+			   dst_a="OneMinusSrcAlpha"/>
+		<ColorMask value="RGBA"/>
+		<Offset factor="0"
+				units="0"/>
+		
+		<!--Comp
+			Greater		Only render pixels whose reference value is greater than the value in the buffer.
+			GEqual 		Only render pixels whose reference value is greater than or equal to the value in the buffer.
+			Less 		Only render pixels whose reference value is less than the value in the buffer.
+			LEqual 		Only render pixels whose reference value is less than or equal to the value in the buffer.
+			Equal 		Only render pixels whose reference value equals the value in the buffer.
+			NotEqual 	Only render pixels whose reference value differs from the value in the buffer.
+			Always 		Make the stencil test always pass.
+			Never 		Make the stencil test always fail.
+		-->
+		<!--
+			Keep 		Keep the current contents of the buffer.
+			Zero 		Write 0 into the buffer.
+			Replace 	Write the reference value into the buffer.
+			IncrSat 	Increment the current value in the buffer. If the value is 255 already, it stays at 255.
+			DecrSat 	Decrement the current value in the buffer. If the value is 0 already, it stays at 0.
+			Invert 		Negate all the bits.
+			IncrWrap 	Increment the current value in the buffer. If the value is 255 already, it becomes 0.
+			DecrWrap 	Decrement the current value in the buffer. If the value is 0 already, it becomes 255.
+		-->
+		<Stencil RefValue="0"
+				 ReadMask="255"
+				 WriteMask="255"
+				 Comp="Always"
+				 Pass="Keep"
+				 Fail="Keep"
+				 ZFail="Keep"/>
+	</RenderState>
+	
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

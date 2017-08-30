@@ -1,0 +1,43 @@
+<Shader name="UI/Sprite" queue="Transparent">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="1">
+			<Uniform name ="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<VertexAttribute name="Color" location="2"/>
+		<Include name="Base.in"/>
+		<Include name="UI.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<Source>
+precision mediump float;
+      
+UniformTexture(binding = 2) uniform sampler2D _MainTex;
+
+Varying(location = 0) in vec2 v_uv;
+Varying(location = 1) in vec4 v_color;
+
+layout (location = 0) out vec4 o_frag;
+
+void main() {
+    o_frag = texture(_MainTex, v_uv) * v_color;
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+		<Cull value="Off"/>
+		<ZTest value="Always"/>
+		<ZWrite value="Off"/>
+		<Blend src="SrcAlpha"
+			   dst="OneMinusSrcAlpha"/>
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

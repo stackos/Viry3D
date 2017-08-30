@@ -1,0 +1,30 @@
+<Shader name="Particles/Additive" queue="Transparent">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="1">
+			<Uniform name ="_ViewProjection" size="64"/>
+			<Uniform name ="_TintColor" size="16"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Color" location="1"/>
+		<VertexAttribute name="Texcoord" location="2"/>
+		<Include name="Base.in"/>
+		<Include name="Particles.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<Include name="Particles.ps"/>
+	</PixelShader>
+
+	<RenderState name="rs">
+		<Cull value="Off"/>
+		<ZWrite value="Off"/>
+		<Blend src="SrcAlpha"
+			   dst="One"/>
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

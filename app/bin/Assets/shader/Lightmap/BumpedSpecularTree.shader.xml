@@ -1,0 +1,44 @@
+<Shader name="Lightmap/BumpedSpecularTree" queue="AlphaTest">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="1">
+			<Uniform name ="_ViewProjection" size="64"/>
+			<Uniform name ="_Time" size="16"/>
+			<Uniform name ="_Frequency" size="16"/>
+			<Uniform name ="_Wind" size="16"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<VertexAttribute name="Texcoord2" location="2"/>
+		<VertexAttribute name="Normal" location="3"/>
+		<VertexAttribute name="Tangent" location="4"/>
+		<VertexAttribute name="Color" location="5"/>
+		<Include name="Base.in"/>
+		<Include name="BumpedSpecularTree.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<UniformBuffer name="buf_ps" binding="3">
+			<Uniform name ="_Color" size="16"/>
+			<Uniform name ="_Spec" size="16"/>
+			<Uniform name ="_Smoothness" size="16"/>
+			<Uniform name ="_WorldSpaceLightPos" size="16"/>
+			<Uniform name ="_LightColor" size="16"/>
+			<Uniform name ="_WorldSpaceCameraPos" size="16"/>
+			<Uniform name ="_CutAlpha" size="16"/>
+		</UniformBuffer>
+		<Sampler name="_Lightmap" binding="4" default="white"/>
+		<Sampler name="_Normal" binding="5" default="bump"/>
+		<Sampler name="_SpecMap" binding="6" default="white"/>
+		<Sampler name="_NHxRoughness" binding="7" default="black"/>
+		<Include name="BumpedSpecularTree.ps"/>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

@@ -1,0 +1,26 @@
+<Shader name="Lightmap/Diffuse" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="1">
+			<Uniform name ="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<VertexAttribute name="Texcoord2" location="2"/>
+		<Include name="Base.in"/>
+		<Include name="Lightmap.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<Sampler name="_Lightmap" binding="4" default="white"/>
+		<Include name="Lightmap.ps"/>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>
