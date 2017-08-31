@@ -434,19 +434,19 @@ namespace Viry3D
 		vi.vertexAttributeDescriptionCount = vi_attrs.Size();
 		vi.pVertexAttributeDescriptions = &vi_attrs[0];
 
+		Memory::Zero(&dynamic_state, sizeof(dynamic_state));
 		Memory::Zero(shader_pass.dynamic_state_enables, sizeof(shader_pass.dynamic_state_enables));
 		VkDynamicState* dynamic_state_enables = shader_pass.dynamic_state_enables;
+		dynamic_state_enables[dynamic_state.dynamicStateCount++] = VK_DYNAMIC_STATE_VIEWPORT;
+		dynamic_state_enables[dynamic_state.dynamicStateCount++] = VK_DYNAMIC_STATE_SCISSOR;
 
-		Memory::Zero(&dynamic_state, sizeof(dynamic_state));
 		dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynamic_state.pDynamicStates = dynamic_state_enables;
 
 		Memory::Zero(&vp, sizeof(vp));
 		vp.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		vp.viewportCount = 1;
-		dynamic_state_enables[dynamic_state.dynamicStateCount++] = VK_DYNAMIC_STATE_VIEWPORT;
 		vp.scissorCount = 1;
-		dynamic_state_enables[dynamic_state.dynamicStateCount++] = VK_DYNAMIC_STATE_SCISSOR;
 
 		Memory::Zero(&pipeline_info, sizeof(pipeline_info));
 		pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
