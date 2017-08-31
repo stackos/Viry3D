@@ -21,7 +21,7 @@
 #include "gles_include.h"
 #include "graphics/VertexBuffer.h"
 #include "graphics/Shader.h"
-#include "graphics/XMLShader.h"
+#include "graphics/VertexAttribute.h"
 #include "graphics/Graphics.h"
 #include "memory/ByteBuffer.h"
 #include "memory/Memory.h"

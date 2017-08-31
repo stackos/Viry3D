@@ -22,7 +22,7 @@
 #include "io/MemoryStream.h"
 #include "time/Time.h"
 #include "math/Mathf.h"
-#include "graphics/XMLShader.h"
+#include "graphics/VertexAttribute.h"
 #include "graphics/Camera.h"
 
 namespace Viry3D

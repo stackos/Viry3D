@@ -17,7 +17,7 @@
 
 #include "Mesh.h"
 #include "io/MemoryStream.h"
-#include "XMLShader.h"
+#include "VertexAttribute.h"
 
 namespace Viry3D
 {

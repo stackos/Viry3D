@@ -19,10 +19,7 @@
 
 #include "string/String.h"
 #include "container/Vector.h"
-#include "math/Vector3.h"
-#include "math/Vector2.h"
-#include "math/Vector4.h"
-#include "graphics/Color.h"
+#include "VertexAttribute.h"
 
 namespace Viry3D
 {
@@ -75,39 +72,6 @@ namespace Viry3D
 		{
 		}
 	};
-
-	enum class VertexAttributeType
-	{
-		None = -1,
-
-		Vertex = 0,
-		Color,
-		Texcoord,
-		Texcoord2,
-		Normal,
-		Tangent,
-		BlendWeight,
-		BlendIndices,
-
-		Count
-	};
-
-	struct Vertex
-	{
-		Vector3 vertex;
-		Color color;
-		Vector2 uv;
-		Vector2 uv2;
-		Vector3 normal;
-		Vector4 tangent;
-		Vector4 bone_weight;
-		Vector4 bone_indices;
-	};
-
-	extern const char* VERTEX_ATTR_TYPES[(int) VertexAttributeType::Count];
-	extern const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count];
-	extern const int VERTEX_ATTR_OFFSETS[(int) VertexAttributeType::Count];
-	extern const int VERTEX_STRIDE;
 
 	struct XMLVertexAttribute
 	{
