@@ -22,6 +22,7 @@
 #include "Debug.h"
 #include "graphics/Material.h"
 #include "graphics/Mesh.h"
+#include "io/MemoryStream.h"
 
 namespace Viry3D
 {
@@ -170,10 +171,28 @@ namespace Viry3D
 				if (!m_mesh)
 				{
 					m_mesh = Mesh::Create(true);
+					m_mesh->AddVertexAttributeOffset({ VertexAttributeType::Vertex, 0 });
+					m_mesh->AddVertexAttributeOffset({ VertexAttributeType::Color, sizeof(Vector3) });
+					m_mesh->AddVertexAttributeOffset({ VertexAttributeType::Texcoord, sizeof(Vector3) + sizeof(Color) });
 				}
-				m_mesh->vertices = vertices;
-				m_mesh->uv = uv;
-				m_mesh->colors = colors;
+				
+				ByteBuffer buffer = m_mesh->GetVertexBufferData();
+				int buffer_size = (sizeof(Vector3) + sizeof(Color) + sizeof(Vector2)) * vertices.Size();
+				if (buffer.Size() < buffer_size)
+				{
+					buffer = ByteBuffer(buffer_size);
+				}
+				
+				MemoryStream ms(buffer);
+				for (int i = 0; i < vertices.Size(); i++)
+				{
+					ms.Write<Vector3>(vertices[i]);
+					ms.Write<Color>(colors[i]);
+					ms.Write<Vector2>(uv[i]);
+				}
+				m_mesh->SetVertexCount(vertices.Size());
+				m_mesh->SetVertexBufferData(buffer);
+
 				m_mesh->triangles = indices;
 				m_mesh->Update();
 			}
@@ -198,6 +217,11 @@ namespace Viry3D
 		}
 
 		return NULL;
+	}
+
+	const Vector<VertexAttributeOffset>& UICanvasRenderer::GetVertexAttributeOffsets() const
+	{
+		return m_mesh->GetVertexAttributeOffsets();
 	}
 
 	void UICanvasRenderer::GetIndexRange(int material_index, int& start, int& count)

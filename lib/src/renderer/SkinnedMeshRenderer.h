@@ -30,6 +30,7 @@ namespace Viry3D
 	public:
 		virtual const VertexBuffer* GetVertexBuffer();
 		virtual const IndexBuffer* GetIndexBuffer();
+		virtual const Vector<VertexAttributeOffset>& GetVertexAttributeOffsets() const;
 		virtual void GetIndexRange(int material_index, int& start, int& count);
 		virtual bool IsValidPass(int material_index);
 		const Ref<Mesh>& GetSharedMesh() const { return m_mesh; }

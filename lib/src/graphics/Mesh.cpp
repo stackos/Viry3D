@@ -21,7 +21,9 @@
 
 namespace Viry3D
 {
-	Mesh::Mesh()
+	Mesh::Mesh():
+		m_vertex_count(0),
+		m_vertex_stride(0)
 	{
 		SetName("Mesh");
 
@@ -69,7 +71,7 @@ namespace Viry3D
 
 	int Mesh::VertexBufferSize() const
 	{
-		return VERTEX_STRIDE * vertices.Size();
+		return m_vertex_buffer_data.Size();
 	}
 
 	int Mesh::IndexBufferSize() const
@@ -80,78 +82,7 @@ namespace Viry3D
 	void Mesh::FillVertexBuffer(void* param, const ByteBuffer& buffer)
 	{
 		auto mesh = (Mesh*) param;
-		auto ms = MemoryStream(buffer);
-
-		int count = mesh->vertices.Size();
-		for (int i = 0; i < count; i++)
-		{
-			ms.Write<Vector3>(mesh->vertices[i]);
-
-			if (mesh->colors.Empty())
-			{
-				ms.Write<Color>(Color(1, 1, 1, 1));
-			}
-			else
-			{
-				ms.Write<Color>(mesh->colors[i]);
-			}
-
-			if (mesh->uv.Empty())
-			{
-				ms.Write<Vector2>(Vector2(0, 0));
-			}
-			else
-			{
-				ms.Write<Vector2>(mesh->uv[i]);
-			}
-
-			if (mesh->uv2.Empty())
-			{
-				ms.Write<Vector2>(Vector2(0, 0));
-			}
-			else
-			{
-				ms.Write<Vector2>(mesh->uv2[i]);
-			}
-
-			if (mesh->normals.Empty())
-			{
-				ms.Write<Vector3>(Vector3(0, 0, 0));
-			}
-			else
-			{
-				ms.Write<Vector3>(mesh->normals[i]);
-			}
-
-			if (mesh->tangents.Empty())
-			{
-				ms.Write<Vector4>(Vector4(0, 0, 0, 0));
-			}
-			else
-			{
-				ms.Write<Vector4>(mesh->tangents[i]);
-			}
-
-			if (mesh->bone_weights.Empty())
-			{
-				ms.Write<Vector4>(Vector4(0, 0, 0, 0));
-			}
-			else
-			{
-				ms.Write<Vector4>(mesh->bone_weights[i]);
-			}
-
-			if (mesh->bone_indices.Empty())
-			{
-				ms.Write<Vector4>(Vector4(0, 0, 0, 0));
-			}
-			else
-			{
-				ms.Write<Vector4>(mesh->bone_indices[i]);
-			}
-		}
-
-		ms.Close();
+		Memory::Copy(buffer.Bytes(), mesh->m_vertex_buffer_data.Bytes(), mesh->m_vertex_buffer_data.Size());
 	}
 
 	void Mesh::FillIndexBuffer(void* param, const ByteBuffer& buffer)
@@ -174,5 +105,30 @@ namespace Viry3D
 			start = submesh.start;
 			count = submesh.count;
 		}
+	}
+
+	bool Mesh::HasVertexAttribute(VertexAttributeType type) const
+	{
+		for (const auto& i : m_vertex_attribute_offsets)
+		{
+			if (i.type == type)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void Mesh::ClearVertexAttributeOffsets()
+	{
+		m_vertex_attribute_offsets.Clear();
+		m_vertex_stride = 0;
+	}
+
+	void Mesh::AddVertexAttributeOffset(const VertexAttributeOffset& offset)
+	{
+		m_vertex_attribute_offsets.Add(offset);
+		m_vertex_stride += VERTEX_ATTR_SIZES[(int) offset.type];
 	}
 }

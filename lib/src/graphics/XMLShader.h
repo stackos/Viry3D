@@ -23,6 +23,7 @@
 #include "math/Vector2.h"
 #include "math/Vector4.h"
 #include "graphics/Color.h"
+#include "graphics/VertexAttribute.h"
 
 namespace Viry3D
 {
@@ -76,53 +77,20 @@ namespace Viry3D
 		}
 	};
 
-	enum class VertexAttributeType
-	{
-		None = -1,
-
-		Vertex = 0,
-		Color,
-		Texcoord,
-		Texcoord2,
-		Normal,
-		Tangent,
-		BlendWeight,
-		BlendIndices,
-
-		Count
-	};
-
-	struct Vertex
-	{
-		Vector3 vertex;
-		Color color;
-		Vector2 uv;
-		Vector2 uv2;
-		Vector3 normal;
-		Vector4 tangent;
-		Vector4 bone_weight;
-		Vector4 bone_indices;
-	};
-
 	extern const char* VERTEX_ATTR_TYPES[(int) VertexAttributeType::Count];
 	extern const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count];
-	extern const int VERTEX_ATTR_OFFSETS[(int) VertexAttributeType::Count];
-	extern const int VERTEX_STRIDE;
 
 	struct XMLVertexAttribute
 	{
 		String name;
 		VertexAttributeType type;
 		int location;
-
 		int size;
-		int offset;
 
 		XMLVertexAttribute():
 			type(VertexAttributeType::None),
 			location(-1),
-			size(0),
-			offset(0)
+			size(0)
 		{
 		}
 	};
@@ -134,12 +102,6 @@ namespace Viry3D
 		String src;
 		XMLUniformBuffer uniform_buffer;
 		Vector<XMLVertexAttribute> attrs;
-		int stride;
-
-		XMLVertexShader():
-			stride(0)
-		{
-		}
 	};
 
 	struct XMLPixelShader

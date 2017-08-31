@@ -374,15 +374,32 @@ namespace Viry3D
 		LogGLError();
 	}
 
-	void DisplayGLES::BindVertexArray(const Ref<Shader>& shader, int pass_index)
+	void DisplayGLES::BindVertexArray(const Ref<Shader>& shader, int pass_index, const Vector<VertexAttributeOffset>& attrs)
 	{
 		LogGLError();
 
 		auto vs = shader->GetVertexShaderInfo(pass_index);
+		int stride = attrs[attrs.Size() - 1].offset + VERTEX_ATTR_SIZES[(int) attrs[attrs.Size() - 1].type];
+
 		for (const auto& i : vs->attrs)
 		{
-			glEnableVertexAttribArray(i.location);
-			glVertexAttribPointer(i.location, i.size / 4, GL_FLOAT, GL_FALSE, vs->stride, (const GLvoid*) i.offset);
+			bool has_attr = false;
+			for (const auto& j : attrs)
+			{
+				if (i.type == j.type)
+				{
+					has_attr = true;
+
+					glEnableVertexAttribArray(i.location);
+					glVertexAttribPointer(i.location, i.size / 4, GL_FLOAT, GL_FALSE, stride, (const GLvoid*) j.offset);
+					break;
+				}
+			}
+
+			if (has_attr == false)
+			{
+				glDisableVertexAttribArray(i.location);
+			}
 		}
 
 		LogGLError();

@@ -23,6 +23,7 @@
 #include "container/FastList.h"
 #include "graphics/VertexBuffer.h"
 #include "graphics/IndexBuffer.h"
+#include "graphics/VertexAttribute.h"
 #include "math/Vector4.h"
 #include "math/Bounds.h"
 #include "math/Matrix4x4.h"
@@ -56,6 +57,7 @@ namespace Viry3D
 		virtual ~Renderer();
 		virtual const VertexBuffer* GetVertexBuffer() = 0;
 		virtual const IndexBuffer* GetIndexBuffer() = 0;
+		virtual const Vector<VertexAttributeOffset>& GetVertexAttributeOffsets() const = 0;
 		virtual void GetIndexRange(int material_index, int& start, int& count) = 0;
 		virtual bool IsValidPass(int material_index) { return true; }
 		const Vector<Ref<Material>>& GetSharedMaterials() const { return m_shared_materials; }
@@ -139,6 +141,7 @@ namespace Viry3D
 		static bool m_passes_dirty;
 		static Ref<VertexBuffer> m_static_vertex_buffer;
 		static Ref<IndexBuffer> m_static_index_buffer;
+		static Vector<VertexAttributeOffset> m_static_vertex_attribute_offsets;
 		static bool m_static_buffers_binding;
 		static int m_batching_start;
 		static int m_batching_count;

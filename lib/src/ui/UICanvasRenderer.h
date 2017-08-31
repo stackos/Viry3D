@@ -46,6 +46,7 @@ namespace Viry3D
 		virtual ~UICanvasRenderer();
 		virtual const VertexBuffer* GetVertexBuffer();
 		virtual const IndexBuffer* GetIndexBuffer();
+		virtual const Vector<VertexAttributeOffset>& GetVertexAttributeOffsets() const;
 		virtual void GetIndexRange(int material_index, int& start, int& count);
 		void MarkDirty();
 		const Vector<Ref<UIView>>& GetViews() const { return m_views; }

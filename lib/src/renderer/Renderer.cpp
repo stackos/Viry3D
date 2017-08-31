@@ -44,6 +44,7 @@ namespace Viry3D
 	bool Renderer::m_passes_dirty = true;
 	Ref<VertexBuffer> Renderer::m_static_vertex_buffer;
 	Ref<IndexBuffer> Renderer::m_static_index_buffer;
+	Vector<VertexAttributeOffset> Renderer::m_static_vertex_attribute_offsets;
 	bool Renderer::m_static_buffers_binding = false;
 	int Renderer::m_batching_start = -1;
 	int Renderer::m_batching_count = -1;
@@ -185,7 +186,14 @@ namespace Viry3D
 
 			if (!static_batch || !batching)
 			{
-				Graphics::GetDisplay()->BindVertexArray(shader, pass_index);
+				if (static_batch)
+				{
+					Graphics::GetDisplay()->BindVertexArray(shader, pass_index, m_static_vertex_attribute_offsets);
+				}
+				else
+				{
+					Graphics::GetDisplay()->BindVertexArray(shader, pass_index, this->GetVertexAttributeOffsets());
+				}
 			}
 
 			int start, count;
@@ -919,11 +927,27 @@ namespace Viry3D
 			r->m_batch_indices[submesh].index_start = index_count;
 			r->m_batch_indices[submesh].index_count = count;
 
-			vertex_count += mesh->vertices.Size();
+			vertex_count += mesh->GetVertexCount();
 			index_count += count;
 		}
 
-		m_static_vertex_buffer = VertexBuffer::Create(vertex_count * VERTEX_STRIDE, false);
+		m_static_vertex_attribute_offsets.Clear();
+
+		int stride = 0;
+		m_static_vertex_attribute_offsets.Add({ VertexAttributeType::Vertex, stride });
+		stride += sizeof(Vector3);
+		m_static_vertex_attribute_offsets.Add({ VertexAttributeType::Color, stride });
+		stride += sizeof(Color);
+		m_static_vertex_attribute_offsets.Add({ VertexAttributeType::Texcoord, stride });
+		stride += sizeof(Vector2);
+		m_static_vertex_attribute_offsets.Add({ VertexAttributeType::Texcoord2, stride });
+		stride += sizeof(Vector2);
+		m_static_vertex_attribute_offsets.Add({ VertexAttributeType::Normal, stride });
+		stride += sizeof(Vector3);
+		m_static_vertex_attribute_offsets.Add({ VertexAttributeType::Tangent, stride });
+		stride += sizeof(Vector4);
+
+		m_static_vertex_buffer = VertexBuffer::Create(vertex_count * stride, false);
 		m_static_vertex_buffer->Fill(NULL,
 			[&](void* param, const ByteBuffer& buffer) {
 			MemoryStream ms(buffer);
@@ -934,37 +958,37 @@ namespace Viry3D
 				auto& mesh = r->GetSharedMesh();
 				auto& mat = r->GetTransform()->GetLocalToWorldMatrix();
 
-				for (int i = 0; i < mesh->vertices.Size(); i++)
+				for (int i = 0; i < mesh->GetVertexCount(); i++)
 				{
-					auto pos_world = mat.MultiplyPoint3x4(mesh->vertices[i]);
+					auto pos_world = mat.MultiplyPoint3x4(mesh->GetVertex<Vector3>(VertexAttributeType::Vertex, i));
 					ms.Write<Vector3>(pos_world);
 
-					if (mesh->colors.Empty())
+					if (mesh->HasVertexAttribute(VertexAttributeType::Color) == false)
 					{
 						ms.Write<Color>(Color(1, 1, 1, 1));
 					}
 					else
 					{
-						ms.Write<Color>(mesh->colors[i]);
+						ms.Write<Color>(mesh->GetVertex<Color>(VertexAttributeType::Color, i));
 					}
 
-					if (mesh->uv.Empty())
+					if (mesh->HasVertexAttribute(VertexAttributeType::Texcoord) == false)
 					{
 						ms.Write<Vector2>(Vector2(0, 0));
 					}
 					else
 					{
-						ms.Write<Vector2>(mesh->uv[i]);
+						ms.Write<Vector2>(mesh->GetVertex<Vector2>(VertexAttributeType::Texcoord, i));
 					}
 
-					if (mesh->uv2.Empty())
+					if (mesh->HasVertexAttribute(VertexAttributeType::Texcoord2) == false)
 					{
 						ms.Write<Vector2>(Vector2(0, 0));
 					}
 					else
 					{
 						auto& scale_offset = r->GetLightmapScaleOffset();
-						auto uv2 = mesh->uv2[i];
+						auto uv2 = mesh->GetVertex<Vector2>(VertexAttributeType::Texcoord2, i);
 						float x = uv2.x;
 						float y = 1.0f - uv2.y;
 						x = x * scale_offset.x + scale_offset.z;
@@ -973,45 +997,28 @@ namespace Viry3D
 						ms.Write<Vector2>(Vector2(x, y));
 					}
 
-					if (mesh->normals.Empty())
+
+					if (mesh->HasVertexAttribute(VertexAttributeType::Normal) == false)
 					{
 						ms.Write<Vector3>(Vector3(0, 0, 0));
 					}
 					else
 					{
-						auto normal_world = mat.MultiplyDirection(mesh->normals[i]);
+						auto normal_world = mat.MultiplyDirection(mesh->GetVertex<Vector3>(VertexAttributeType::Normal, i));
 						ms.Write<Vector3>(normal_world);
 					}
 
-					if (mesh->tangents.Empty())
+					if (mesh->HasVertexAttribute(VertexAttributeType::Tangent) == false)
 					{
 						ms.Write<Vector4>(Vector4(0, 0, 0, 0));
 					}
 					else
 					{
-						auto tangent = mesh->tangents[i];
+						auto tangent = mesh->GetVertex<Vector4>(VertexAttributeType::Tangent, i);
 						auto tangent_xyz = Vector3(tangent.x, tangent.y, tangent.z);
 						auto tangent_xyz_world = mat.MultiplyDirection(tangent_xyz);
 						auto tangent_world = Vector4(tangent_xyz_world.x, tangent_xyz_world.y, tangent_xyz_world.z, tangent.w);
 						ms.Write<Vector4>(tangent_world);
-					}
-
-					if (mesh->bone_weights.Empty())
-					{
-						ms.Write<Vector4>(Vector4(0, 0, 0, 0));
-					}
-					else
-					{
-						ms.Write<Vector4>(mesh->bone_weights[i]);
-					}
-
-					if (mesh->bone_indices.Empty())
-					{
-						ms.Write<Vector4>(Vector4(0, 0, 0, 0));
-					}
-					else
-					{
-						ms.Write<Vector4>(mesh->bone_indices[i]);
 					}
 				}
 			}
@@ -1042,7 +1049,7 @@ namespace Viry3D
 					ms.Write<unsigned int>(index);
 				}
 
-				mesh_index_offset += mesh->vertices.Size();
+				mesh_index_offset += mesh->GetVertexCount();
 			}
 
 			ms.Close();

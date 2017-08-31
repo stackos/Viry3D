@@ -600,6 +600,9 @@
     <ClInclude Include="..\..\src\crypto\md5\md5.h">
       <Filter>src\crypto\md5</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\VertexAttribute.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">

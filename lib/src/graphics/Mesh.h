@@ -21,6 +21,7 @@
 #include "Color.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexAttribute.h"
 #include "math/Vector2.h"
 #include "math/Vector3.h"
 #include "math/Vector4.h"
@@ -36,19 +37,20 @@ namespace Viry3D
 		static Ref<Mesh> Create(bool dynamic = false);
 
 		void Update();
+		int GetVertexCount() const { return m_vertex_count; }
+		void SetVertexCount(int count) { m_vertex_count = count; }
+		ByteBuffer& GetVertexBufferData() { return m_vertex_buffer_data; }
+		void SetVertexBufferData(const ByteBuffer& buffer) { m_vertex_buffer_data = buffer; }
+		void ClearVertexAttributeOffsets();
+		void AddVertexAttributeOffset(const VertexAttributeOffset& offset);
+		const Vector<VertexAttributeOffset>& GetVertexAttributeOffsets() const { return m_vertex_attribute_offsets; }
+		int GetVertexStride() const { return m_vertex_stride; }
+		bool HasVertexAttribute(VertexAttributeType type) const;
+		template <class T> T GetVertex(VertexAttributeType type, int index);
 		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_vertex_buffer; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_index_buffer; }
 		void GetIndexRange(int submesh_index, int& start, int& count);
 		bool IsDynamic() const { return m_dynamic; }
-
-		Vector<Vector3> vertices;
-		Vector<Vector2> uv;				//Texture
-		Vector<Color> colors;			//UI
-		Vector<Vector2> uv2;			//Lightmap
-		Vector<Vector3> normals;		//Light
-		Vector<Vector4> tangents;		//NormalMap
-		Vector<Vector4> bone_weights;
-		Vector<Vector4> bone_indices;	//Skinned
 
 		struct Submesh
 		{
@@ -71,7 +73,31 @@ namespace Viry3D
 		int IndexBufferSize() const;
 
 		bool m_dynamic;
+		int m_vertex_count;
+		int m_vertex_stride;
+		Vector<VertexAttributeOffset> m_vertex_attribute_offsets;
+		ByteBuffer m_vertex_buffer_data;
 		Ref<VertexBuffer> m_vertex_buffer;
 		Ref<IndexBuffer> m_index_buffer;
 	};
+
+	template <class T>
+	T Mesh::GetVertex(VertexAttributeType type, int index)
+	{
+		T attr;
+
+		if (m_vertex_buffer_data.Size() > 0)
+		{
+			for (const auto& i : m_vertex_attribute_offsets)
+			{
+				if (i.type == type)
+				{
+					attr = *(T*) &m_vertex_buffer_data[m_vertex_stride * index + i.offset];
+					break;
+				}
+			}
+		}
+
+		return attr;
+	}
 }

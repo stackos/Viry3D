@@ -336,60 +336,49 @@ namespace Viry3D
 			mesh->SetName(mesh_name);
 
 			auto vertex_count = ms.Read<int>();
-			if (vertex_count > 0)
+			auto has_vertex = ms.Read<bool>();
+			auto has_color = ms.Read<bool>();
+			auto has_uv = ms.Read<bool>();
+			auto has_uv2 = ms.Read<bool>();
+			auto has_normal = ms.Read<bool>();
+			auto has_tangent = ms.Read<bool>();
+			auto has_bone_weight = ms.Read<bool>();
+
+			if (has_vertex)
 			{
-				mesh->vertices.Resize(vertex_count);
-				ms.Read(&mesh->vertices[0], vertex_count * sizeof(Vector3));
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::Vertex, mesh->GetVertexStride() });
+			}
+			if (has_color)
+			{
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::Color, mesh->GetVertexStride() });
+			}
+			if (has_uv)
+			{
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::Texcoord, mesh->GetVertexStride() });
+			}
+			if (has_uv2)
+			{
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::Texcoord2, mesh->GetVertexStride() });
+			}
+			if (has_normal)
+			{
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::Normal, mesh->GetVertexStride() });
+			}
+			if (has_tangent)
+			{
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::Tangent, mesh->GetVertexStride() });
+			}
+			if (has_bone_weight)
+			{
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::BlendWeight, mesh->GetVertexStride() });
+				mesh->AddVertexAttributeOffset({ VertexAttributeType::BlendIndices, mesh->GetVertexStride() });
 			}
 
-			auto uv_count = ms.Read<int>();
-			if (uv_count > 0)
-			{
-				mesh->uv.Resize(uv_count);
-				ms.Read(&mesh->uv[0], uv_count * sizeof(Vector2));
-			}
+			ByteBuffer buffer(mesh->GetVertexStride() * vertex_count);
+			ms.Read(buffer.Bytes(), buffer.Size());
 
-			auto color_count = ms.Read<int>();
-			if (color_count > 0)
-			{
-				mesh->colors.Resize(color_count);
-				ms.Read(&mesh->colors[0], color_count * sizeof(Color));
-			}
-
-			auto uv2_count = ms.Read<int>();
-			if (uv2_count > 0)
-			{
-				mesh->uv2.Resize(uv2_count);
-				ms.Read(&mesh->uv2[0], uv2_count * sizeof(Vector2));
-			}
-
-			auto normal_count = ms.Read<int>();
-			if (normal_count > 0)
-			{
-				mesh->normals.Resize(normal_count);
-				ms.Read(&mesh->normals[0], normal_count * sizeof(Vector3));
-			}
-
-			auto tangent_count = ms.Read<int>();
-			if (tangent_count > 0)
-			{
-				mesh->tangents.Resize(tangent_count);
-				ms.Read(&mesh->tangents[0], tangent_count * sizeof(Vector4));
-			}
-
-			auto bone_weight_count = ms.Read<int>();
-			if (bone_weight_count > 0)
-			{
-				mesh->bone_weights.Resize(bone_weight_count);
-				ms.Read(&mesh->bone_weights[0], bone_weight_count * sizeof(Vector4));
-			}
-
-			auto bone_index_count = ms.Read<int>();
-			if (bone_index_count > 0)
-			{
-				mesh->bone_indices.Resize(bone_index_count);
-				ms.Read(&mesh->bone_indices[0], bone_index_count * sizeof(Vector4));
-			}
+			mesh->SetVertexCount(vertex_count);
+			mesh->SetVertexBufferData(buffer);
 
 			auto bind_pose_count = ms.Read<int>();
 			if (bind_pose_count > 0)

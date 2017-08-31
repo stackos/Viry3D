@@ -43,6 +43,11 @@ namespace Viry3D
 		return GetSharedMesh()->GetIndexBuffer().get();
 	}
 
+	const Vector<VertexAttributeOffset>& MeshRenderer::GetVertexAttributeOffsets() const
+	{
+		return GetSharedMesh()->GetVertexAttributeOffsets();
+	}
+
 	void MeshRenderer::GetIndexRange(int material_index, int& start, int& count)
 	{
 		GetSharedMesh()->GetIndexRange(material_index, start, count);

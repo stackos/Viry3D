@@ -56,6 +56,7 @@ namespace Viry3D
 	public:
 		virtual const VertexBuffer* GetVertexBuffer();
 		virtual const IndexBuffer* GetIndexBuffer();
+		virtual const Vector<VertexAttributeOffset>& GetVertexAttributeOffsets() const;
 		virtual void GetIndexRange(int material_index, int& start, int& count);
 
 	public:
@@ -82,5 +83,6 @@ namespace Viry3D
 
 	private:
 		WeakRef<ParticleSystem> m_particle_system;
+		Vector<VertexAttributeOffset> m_vertex_attribute_offsets;
 	};
 }

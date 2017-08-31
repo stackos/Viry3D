@@ -23,6 +23,7 @@
 #include "FrameBuffer.h"
 #include "RenderPass.h"
 #include "RenderTexture.h"
+#include "io/MemoryStream.h"
 
 namespace Viry3D
 {
@@ -140,14 +141,22 @@ namespace Viry3D
 		if (!m_blit_mesh)
 		{
 			auto mesh = Mesh::Create();
-			mesh->vertices.Add(Vector3(-1, -1, 0));
-			mesh->vertices.Add(Vector3(1, -1, 0));
-			mesh->vertices.Add(Vector3(1, 1, 0));
-			mesh->vertices.Add(Vector3(-1, 1, 0));
-			mesh->uv.Add(Vector2(0, 1));
-			mesh->uv.Add(Vector2(1, 1));
-			mesh->uv.Add(Vector2(1, 0));
-			mesh->uv.Add(Vector2(0, 0));
+
+			auto buffer = ByteBuffer((sizeof(Vector3) + sizeof(Vector2)) * 4);
+			MemoryStream ms(buffer);
+			ms.Write<Vector3>(Vector3(-1, -1, 0));
+			ms.Write<Vector2>(Vector2(0, 1));
+			ms.Write<Vector3>(Vector3(1, -1, 0));
+			ms.Write<Vector2>(Vector2(1, 1));
+			ms.Write<Vector3>(Vector3(1, 1, 0));
+			ms.Write<Vector2>(Vector2(1, 0));
+			ms.Write<Vector3>(Vector3(-1, 1, 0));
+			ms.Write<Vector2>(Vector2(0, 0));
+			mesh->SetVertexCount(4);
+			mesh->SetVertexBufferData(buffer);
+			mesh->AddVertexAttributeOffset({ VertexAttributeType::Vertex, 0 });
+			mesh->AddVertexAttributeOffset({ VertexAttributeType::Texcoord, sizeof(Vector3) });
+
 			unsigned short triangles[] = {
 				0, 1, 2, 0, 2, 3
 			};
@@ -169,7 +178,7 @@ namespace Viry3D
 
 		Graphics::GetDisplay()->BindVertexBuffer(m_blit_mesh->GetVertexBuffer().get());
 		Graphics::GetDisplay()->BindIndexBuffer(m_blit_mesh->GetIndexBuffer().get(), index_type);
-		Graphics::GetDisplay()->BindVertexArray(shader, pass);
+		Graphics::GetDisplay()->BindVertexArray(shader, pass, m_blit_mesh->GetVertexAttributeOffsets());
 		Graphics::GetDisplay()->DrawIndexed(0, 6, index_type);
 
 		shader->EndPass(0);

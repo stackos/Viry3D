@@ -29,6 +29,13 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(ParticleSystem);
 
+	struct ParticleVertex
+	{
+		Vector3 vertex;
+		Color color;
+		Vector2 uv;
+	};
+
 	ParticleSystem::ParticleSystem():
 		m_time_start(0),
 		m_start_delay(0),
@@ -320,7 +327,7 @@ namespace Viry3D
 	void ParticleSystem::FillVertexBuffer(void* param, const ByteBuffer& buffer)
 	{
 		auto ps = (ParticleSystem*) param;
-		auto vs = (Vertex*) buffer.Bytes();
+		auto vs = (ParticleVertex*) buffer.Bytes();
 
 		auto camera_to_world = Camera::Current()->GetTransform()->GetLocalToWorldMatrix();
 		auto world_to_camera = Camera::Current()->GetTransform()->GetWorldToLocalMatrix();
@@ -425,16 +432,17 @@ namespace Viry3D
 				auto rot = Quaternion::Euler(p.rotation * Mathf::Rad2Deg);
 
 				const auto& mesh = ps->m_renderer->mesh;
-				int vertex_count = mesh->vertices.Size();
+				int vertex_count = mesh->GetVertexCount();
 				for (int j = 0; j < vertex_count; j++)
 				{
 					auto& v = vs[index * vertex_count + j];
 					auto local_to_world = Matrix4x4::TRS(Vector3::Zero(), ps->GetTransform()->GetRotation(), ps->GetTransform()->GetScale()) * Matrix4x4::TRS(Vector3::Zero(), rot, p.size);
-					v.vertex = pos_world + local_to_world.MultiplyPoint3x4(mesh->vertices[j]);
-					v.uv = mesh->uv[j];
-					if (mesh->colors.Size() > 0)
+					v.vertex = pos_world + local_to_world.MultiplyPoint3x4(mesh->GetVertex<Vector3>(VertexAttributeType::Vertex, j));
+					v.uv = mesh->GetVertex<Vector2>(VertexAttributeType::Texcoord, j);
+
+					if (mesh->HasVertexAttribute(VertexAttributeType::Color))
 					{
-						v.color = p.color * mesh->colors[j];
+						v.color = p.color * mesh->GetVertex<Color>(VertexAttributeType::Color, j);
 					}
 					else
 					{
@@ -477,7 +485,7 @@ namespace Viry3D
 				{
 					ms.Write<unsigned short>(index_offset + index);
 				}
-				index_offset += ps->m_renderer->mesh->vertices.Size();
+				index_offset += ps->m_renderer->mesh->GetVertexCount();
 			}
 			else
 			{
@@ -506,13 +514,13 @@ namespace Viry3D
 
 		if (m_renderer->render_mode == ParticleSystemRenderMode::Mesh)
 		{
-			vertex_count_per_particle = m_renderer->mesh->vertices.Size();
+			vertex_count_per_particle = m_renderer->mesh->GetVertexCount();
 			index_count_per_particle = m_renderer->mesh->triangles.Size();
 		}
 
 		int vertex_count = m_partices.Size() * vertex_count_per_particle;
 		assert(vertex_count < 65536);
-		int vertex_buffer_size = vertex_count * VERTEX_STRIDE;
+		int vertex_buffer_size = vertex_count * sizeof(ParticleVertex);
 		if (!m_vertex_buffer || m_vertex_buffer->GetSize() < vertex_buffer_size)
 		{
 			m_vertex_buffer = VertexBuffer::Create(vertex_buffer_size, true);

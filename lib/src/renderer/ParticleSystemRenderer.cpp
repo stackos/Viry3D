@@ -25,6 +25,9 @@ namespace Viry3D
 
 	ParticleSystemRenderer::ParticleSystemRenderer()
 	{
+		m_vertex_attribute_offsets.Add({ VertexAttributeType::Vertex, 0 });
+		m_vertex_attribute_offsets.Add({ VertexAttributeType::Color, sizeof(Vector3) });
+		m_vertex_attribute_offsets.Add({ VertexAttributeType::Texcoord, sizeof(Vector3) + sizeof(Color) });
 	}
 
 	void ParticleSystemRenderer::DeepCopy(const Ref<Object>& source)
@@ -42,6 +45,11 @@ namespace Viry3D
 	const IndexBuffer* ParticleSystemRenderer::GetIndexBuffer()
 	{
 		return m_particle_system.lock()->GetIndexBuffer().get();
+	}
+
+	const Vector<VertexAttributeOffset>& ParticleSystemRenderer::GetVertexAttributeOffsets() const
+	{
+		return m_vertex_attribute_offsets;
 	}
 
 	void ParticleSystemRenderer::GetIndexRange(int material_index, int& start, int& count)

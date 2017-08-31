@@ -112,6 +112,7 @@
     <ClInclude Include="..\..\src\graphics\TextureFormat.h" />
     <ClInclude Include="..\..\src\graphics\TextureWrapMode.h" />
     <ClInclude Include="..\..\src\graphics\UniformBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\VertexAttribute.h" />
     <ClInclude Include="..\..\src\graphics\VertexBuffer.h" />
     <ClInclude Include="..\..\src\graphics\XMLShader.h" />
     <ClInclude Include="..\..\src\Input.h" />

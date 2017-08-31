@@ -54,13 +54,6 @@ namespace Viry3D
 		12, 16, 8, 8, 12, 16, 16, 16
 	};
 
-	const int VERTEX_ATTR_OFFSETS[(int) VertexAttributeType::Count] =
-	{
-		0, 12, 28, 36, 44, 56, 72, 88
-	};
-
-	const int VERTEX_STRIDE = 104;
-
 	void XMLShader::Clear()
 	{
 		passes.Clear();
@@ -181,7 +174,6 @@ namespace Viry3D
 								{
 									attr.type = (VertexAttributeType) i;
 									attr.size = VERTEX_ATTR_SIZES[i];
-									attr.offset = VERTEX_ATTR_OFFSETS[i];
 									break;
 								}
 							}
@@ -189,8 +181,6 @@ namespace Viry3D
 							vs.attrs.Add(attr);
 						}
 					}
-
-					vs.stride = VERTEX_STRIDE;
 
 					vss.Add(vs);
 				}

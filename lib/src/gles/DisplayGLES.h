@@ -27,8 +27,8 @@
 
 #include "memory/Ref.h"
 #include "graphics/IndexBuffer.h"
+#include "graphics/VertexAttribute.h"
 #include "string/String.h"
-#include <mutex>
 
 namespace Viry3D
 {
@@ -61,7 +61,7 @@ namespace Viry3D
 		void EndFrame() { }
 		void BindVertexBuffer(const VertexBuffer* buffer);
 		void BindIndexBuffer(const IndexBuffer* buffer, IndexType index_type);
-		void BindVertexArray(const Ref<Shader>& shader, int pass_index);
+		void BindVertexArray(const Ref<Shader>& shader, int pass_index, const Vector<VertexAttributeOffset>& attrs);
 		void DrawIndexed(int start, int count, IndexType index_type);
 		void SubmitQueue(void* cmd) { }
 		virtual void BeginRecord(const String& file);

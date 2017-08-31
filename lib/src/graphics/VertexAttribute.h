@@ -17,27 +17,27 @@
 
 #pragma once
 
-#include "Renderer.h"
-#include "graphics/Mesh.h"
-
 namespace Viry3D
 {
-	class MeshRenderer: public Renderer
+	enum class VertexAttributeType
 	{
-		DECLARE_COM_CLASS(MeshRenderer, Renderer);
-	public:
-		virtual const VertexBuffer* GetVertexBuffer();
-		virtual const IndexBuffer* GetIndexBuffer();
-		virtual const Vector<VertexAttributeOffset>& GetVertexAttributeOffsets() const;
-		virtual void GetIndexRange(int material_index, int& start, int& count);
-		virtual bool IsValidPass(int material_index);
-		const Ref<Mesh>& GetSharedMesh() const { return m_mesh; }
-		void SetSharedMesh(const Ref<Mesh>& mesh) { m_mesh = mesh; }
+		None = -1,
 
-	private:
-		MeshRenderer();
+		Vertex = 0,
+		Color,
+		Texcoord,
+		Texcoord2,
+		Normal,
+		Tangent,
+		BlendWeight,
+		BlendIndices,
 
-	private:
-		Ref<Mesh> m_mesh;
+		Count
+	};
+
+	struct VertexAttributeOffset
+	{
+		VertexAttributeType type;
+		int offset;
 	};
 }

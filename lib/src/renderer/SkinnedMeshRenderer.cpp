@@ -54,6 +54,11 @@ namespace Viry3D
 		return GetSharedMesh()->GetIndexBuffer().get();
 	}
 
+	const Vector<VertexAttributeOffset>& SkinnedMeshRenderer::GetVertexAttributeOffsets() const
+	{
+		return GetSharedMesh()->GetVertexAttributeOffsets();
+	}
+
 	void SkinnedMeshRenderer::GetIndexRange(int material_index, int& start, int& count)
 	{
 		GetSharedMesh()->GetIndexRange(material_index, start, count);
