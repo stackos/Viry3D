@@ -52,7 +52,6 @@ AppScene::AppScene()
 {
 	this->SetName("Viry3D::AppScene");
 	this->SetInitSize(1280, 720);
-	//this->SetInitFPS(30);
 }
 
 AppScene::~AppScene()
@@ -85,10 +84,10 @@ void AppScene::Start()
 #endif
 
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-	camera->GetTransform()->SetPosition(Vector3(141, 27, 109));
-	camera->GetTransform()->SetRotation(Quaternion::Euler(44, 60, 0));
-	//camera->GetTransform()->SetPosition(Vector3(90, 28, 134));
-	//camera->GetTransform()->SetRotation(Quaternion::Euler(30, -80, 0));
+	//camera->GetTransform()->SetPosition(Vector3(141, 27, 109));
+	//camera->GetTransform()->SetRotation(Quaternion::Euler(44, 60, 0));
+	camera->GetTransform()->SetPosition(Vector3(90, 28, 134));
+	camera->GetTransform()->SetRotation(Quaternion::Euler(30, -80, 0));
 	camera->SetCullingMask(1 << 0);
 	camera->SetFieldOfView(40);
 
@@ -96,27 +95,27 @@ void AppScene::Start()
 	camera->SetFrameBuffer(rt);
 #endif
 
-	Resource::LoadLightmapSettings("Assets/AppScene/zhu_cheng.lightmap");
-	//Resource::LoadLightmapSettings("Assets/AppScene/xiao_zhu_lin.lightmap");
+	//Resource::LoadLightmapSettings("Assets/AppScene/zhu_cheng.lightmap");
+	Resource::LoadLightmapSettings("Assets/AppScene/xiao_zhu_lin.lightmap");
 
 	auto light = GameObject::Create("light")->AddComponent<Light>();
-	light->GetTransform()->SetRotation(Quaternion::Euler(45, 237.57f, 0));
-	light->color = Color(165, 165, 165, 255) / 255.0f;
-	//light->GetTransform()->SetRotation(Quaternion::Euler(45, -30, 0));
-	//light->color = Color(255, 208, 167, 255) / 255.0f;
+	//light->GetTransform()->SetRotation(Quaternion::Euler(45, 237.57f, 0));
+	//light->color = Color(165, 165, 165, 255) / 255.0f;
+	light->GetTransform()->SetRotation(Quaternion::Euler(45, -30, 0));
+	light->color = Color(255, 208, 167, 255) / 255.0f;
 	Light::main = light;
 
-	Resource::LoadGameObject("Assets/AppScene/zhu_cheng.prefab", true);
-	//Resource::LoadGameObject("Assets/AppScene/xiao_zhu_lin.prefab", true);
+	//Resource::LoadGameObject("Assets/AppScene/zhu_cheng.prefab", true);
+	Resource::LoadGameObject("Assets/AppScene/xiao_zhu_lin.prefab", true);
 
-	Resource::LoadGameObject("Assets/AppScene/zhu_cheng_effect.prefab", false,
+	/*Resource::LoadGameObject("Assets/AppScene/zhu_cheng_effect.prefab", false,
 		[=](const Ref<Object>& obj) {
 		auto t = RefCast<GameObject>(obj)->GetTransform();
 		t->SetParent(camera->GetTransform());
 		t->SetLocalPosition(Vector3(0, 0, 0));
 		t->SetLocalRotation(Quaternion::Identity());
 		t->SetLocalScale(Vector3::One());
-	});
+	});*/
 
 	//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 
