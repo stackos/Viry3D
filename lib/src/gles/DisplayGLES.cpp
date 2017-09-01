@@ -412,6 +412,19 @@ namespace Viry3D
 		LogGLError();
 	}
 
+	void DisplayGLES::DisableVertexArray(const Ref<Shader>& shader, int pass_index)
+	{
+		LogGLError();
+
+		auto vs = shader->GetVertexShaderInfo(pass_index);
+		for (const auto& i : vs->attrs)
+		{
+			glDisableVertexAttribArray(i.location);
+		}
+
+		LogGLError();
+	}
+
 	void DisplayGLES::BeginRecord(const String& file)
 	{
 		if (IsRecording())

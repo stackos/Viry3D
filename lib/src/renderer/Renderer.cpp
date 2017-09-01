@@ -211,6 +211,7 @@ namespace Viry3D
 			else
 			{
 				Graphics::GetDisplay()->DrawIndexed(start, count, index_type);
+				Graphics::GetDisplay()->DisableVertexArray(shader, pass_index);
 			}
 
 			if (static_batch)
@@ -303,6 +304,7 @@ namespace Viry3D
 				{
 					// 提交合并绘制
 					Graphics::GetDisplay()->DrawIndexed(m_batching_start, m_batching_count, IndexType::UnsignedInt);
+					Graphics::GetDisplay()->DisableVertexArray(shader, 0);
 
 					m_batching_start = -1;
 					m_batching_count = -1;
@@ -346,6 +348,7 @@ namespace Viry3D
 			if (m_batching_start >= 0 && m_batching_count > 0)
 			{
 				Graphics::GetDisplay()->DrawIndexed(m_batching_start, m_batching_count, IndexType::UnsignedInt);
+				Graphics::GetDisplay()->DisableVertexArray(shader, 0);
 
 				m_batching_start = -1;
 				m_batching_count = -1;

@@ -63,6 +63,7 @@ namespace Viry3D
 		void BindIndexBuffer(const IndexBuffer* buffer, IndexType index_type);
 		void BindVertexArray(const Ref<Shader>& shader, int pass_index);
 		void DrawIndexed(int start, int count, IndexType index_type);
+		void DisableVertexArray(const Ref<Shader>& shader, int pass_index);
 		void SubmitQueue(void* cmd) { }
 		virtual void BeginRecord(const String& file);
 		virtual void EndRecord();
