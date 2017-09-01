@@ -21,7 +21,6 @@
 #include "DisplayVulkan.h"
 #include "MaterialVulkan.h"
 #include "Application.h"
-#include "vulkan_shader_compiler.h"
 #include "graphics/Graphics.h"
 #include "graphics/Shader.h"
 #include "graphics/Camera.h"
@@ -30,6 +29,7 @@
 #include "graphics/LightmapSettings.h"
 #include "io/File.h"
 #include "memory/Memory.h"
+#include "vulkan_shader_compiler.h"
 
 extern "C"
 {
@@ -395,7 +395,7 @@ namespace Viry3D
 					attr.location = j.location;
 					attr.offset = j.offset;
 
-					for (int i = 0; i < VertexAttributeType::Count; i++)
+					for (int i = 0; i < (int) VertexAttributeType::Count; i++)
 					{
 						if (j.name == VERTEX_ATTR_TYPES[i])
 						{

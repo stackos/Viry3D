@@ -188,37 +188,37 @@ namespace Viry3D
 		{
 			for (int i = 0; i < writes.Size(); i++)
 			{
-				if (m_writes_old[i].sType != writes[i].sType ||
-					m_writes_old[i].pNext != writes[i].pNext ||
-					m_writes_old[i].dstBinding != writes[i].dstBinding ||
-					m_writes_old[i].dstArrayElement != writes[i].dstArrayElement ||
-					m_writes_old[i].descriptorCount != writes[i].descriptorCount ||
-					m_writes_old[i].descriptorType != writes[i].descriptorType ||
-					m_writes_old[i].pImageInfo != writes[i].pImageInfo ||
-					m_writes_old[i].pBufferInfo != writes[i].pBufferInfo ||
-					m_writes_old[i].pTexelBufferView != writes[i].pTexelBufferView)
+				if (m_writes_old[i].set.sType != writes[i].sType ||
+					m_writes_old[i].set.pNext != writes[i].pNext ||
+					m_writes_old[i].set.dstBinding != writes[i].dstBinding ||
+					m_writes_old[i].set.dstArrayElement != writes[i].dstArrayElement ||
+					m_writes_old[i].set.descriptorCount != writes[i].descriptorCount ||
+					m_writes_old[i].set.descriptorType != writes[i].descriptorType ||
+					m_writes_old[i].set.pImageInfo != writes[i].pImageInfo ||
+					m_writes_old[i].set.pBufferInfo != writes[i].pBufferInfo ||
+					m_writes_old[i].set.pTexelBufferView != writes[i].pTexelBufferView)
 				{
 					write_dirty = true;
 					break;
 				}
 				else
 				{
-					if (m_writes_old[i].pImageInfo != NULL)
+					if (writes[i].pImageInfo != NULL)
 					{
-						if (m_writes_old[i].pImageInfo->sampler != writes[i].pImageInfo->sampler ||
-							m_writes_old[i].pImageInfo->imageView != writes[i].pImageInfo->imageView ||
-							m_writes_old[i].pImageInfo->imageLayout != writes[i].pImageInfo->imageLayout)
+						if (m_writes_old[i].image.sampler != writes[i].pImageInfo->sampler ||
+							m_writes_old[i].image.imageView != writes[i].pImageInfo->imageView ||
+							m_writes_old[i].image.imageLayout != writes[i].pImageInfo->imageLayout)
 						{
 							write_dirty = true;
 							break;
 						}
 					}
 
-					if (m_writes_old[i].pBufferInfo != NULL)
+					if (writes[i].pBufferInfo != NULL)
 					{
-						if (m_writes_old[i].pBufferInfo->buffer != writes[i].pBufferInfo->buffer ||
-							m_writes_old[i].pBufferInfo->offset != writes[i].pBufferInfo->offset ||
-							m_writes_old[i].pBufferInfo->range != writes[i].pBufferInfo->range)
+						if (m_writes_old[i].buffer.buffer != writes[i].pBufferInfo->buffer ||
+							m_writes_old[i].buffer.offset != writes[i].pBufferInfo->offset ||
+							m_writes_old[i].buffer.range != writes[i].pBufferInfo->range)
 						{
 							write_dirty = true;
 							break;
@@ -271,7 +271,19 @@ namespace Viry3D
 				vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
 			}
 
-			m_writes_old = writes;
+			m_writes_old.Resize(writes.Size());
+			for (int i = 0; i < m_writes_old.Size(); i++)
+			{
+				m_writes_old[i].set = writes[i];
+				if (writes[i].pImageInfo != NULL)
+				{
+					m_writes_old[i].image = *writes[i].pImageInfo;
+				}
+				if (writes[i].pBufferInfo != NULL)
+				{
+					m_writes_old[i].buffer = *writes[i].pBufferInfo;
+				}
+			}
 
 			RenderPass::GetRenderPassBinding()->SetCommandDirty();
 		}

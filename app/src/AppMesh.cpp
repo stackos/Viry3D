@@ -40,7 +40,7 @@ public:
 	float m_rotate_deg;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppMesh);
 #endif
 
@@ -110,5 +110,5 @@ void AppMesh::Start()
 void AppMesh::Update()
 {
 	m_cube.lock()->GetTransform()->SetLocalRotation(Quaternion::Euler(0, m_rotate_deg, 0));
-	m_rotate_deg += 0.1f;
+	m_rotate_deg += 30 * Time::GetDeltaTime();
 }

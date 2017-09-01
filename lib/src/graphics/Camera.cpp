@@ -197,7 +197,7 @@ namespace Viry3D
 		m_render_pass->Bind();
 
 		Renderer::PrepareAllPass();
-
+		
 		if (m_always_rebuild_cmd)
 		{
 			m_render_pass->SetCommandDirty();

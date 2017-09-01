@@ -25,6 +25,13 @@ namespace Viry3D
 {
 	class Texture;
 
+	struct WriteDescriptorSet
+	{
+		VkWriteDescriptorSet set;
+		VkDescriptorImageInfo image;
+		VkDescriptorBufferInfo buffer;
+	};
+
 	class MaterialVulkan: public Object
 	{
 	public:
@@ -46,6 +53,6 @@ namespace Viry3D
 	private:
 		Vector<Vector<VkDescriptorSet>> m_descriptor_sets;
 		Vector<Ref<UniformBuffer>> m_uniform_buffers;
-		Vector<VkWriteDescriptorSet> m_writes_old;
+		Vector<WriteDescriptorSet> m_writes_old;
 	};
 }

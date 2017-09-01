@@ -648,7 +648,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VR_VULKAN=1;VR_GLES=0;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -676,7 +676,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VR_VULKAN=1;VR_GLES=0;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
