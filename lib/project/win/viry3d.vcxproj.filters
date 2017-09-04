@@ -603,6 +603,12 @@
     <ClInclude Include="..\..\src\graphics\VertexAttribute.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\DescriptorSet.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\DescriptorSetVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">
@@ -1531,6 +1537,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\crypto\md5\md5.c">
       <Filter>src\crypto\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\DescriptorSet.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\DescriptorSetVulkan.cpp">
+      <Filter>src\vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -24,6 +24,7 @@
 namespace Viry3D
 {
 	class Texture;
+	class DescriptorSet;
 
 	struct WriteDescriptorSet
 	{
@@ -36,7 +37,7 @@ namespace Viry3D
 	{
 	public:
 		virtual ~MaterialVulkan();
-		const Vector<VkDescriptorSet>& GetDescriptorSet(int pass_index);
+		const Vector<Ref<DescriptorSet>>& GetDescriptorSets(int pass_index);
 
 	protected:
 		MaterialVulkan();
@@ -51,7 +52,7 @@ namespace Viry3D
 		bool CheckWritesDirty(int pass_index) const;
 
 	private:
-		Vector<Vector<VkDescriptorSet>> m_descriptor_sets;
+		Vector<Vector<Ref<DescriptorSet>>> m_descriptor_sets;
 		Vector<Ref<UniformBuffer>> m_uniform_buffers;
 		Vector<WriteDescriptorSet> m_writes_old;
 	};

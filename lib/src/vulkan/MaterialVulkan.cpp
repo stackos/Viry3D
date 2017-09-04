@@ -17,6 +17,7 @@
 
 #include "MaterialVulkan.h"
 #include "DisplayVulkan.h"
+#include "DescriptorSetVulkan.h"
 #include "memory/Memory.h"
 #include "graphics/Graphics.h"
 #include "graphics/Material.h"
@@ -37,7 +38,7 @@ namespace Viry3D
 	{
 	}
 
-	const Vector<VkDescriptorSet>& MaterialVulkan::GetDescriptorSet(int pass_index)
+	const Vector<Ref<DescriptorSet>>& MaterialVulkan::GetDescriptorSets(int pass_index)
 	{
 		return m_descriptor_sets[pass_index];
 	}
@@ -151,7 +152,15 @@ namespace Viry3D
 
 		if (m_descriptor_sets[pass_index].Empty())
 		{
-			m_descriptor_sets[pass_index] = shader->CreateDescriptorSet(pass_index);
+			auto dss = shader->CreateDescriptorSet(pass_index);
+			m_descriptor_sets[pass_index].Resize(dss.Size());
+			for (int i = 0; i < dss.Size(); i++)
+			{
+				auto ds = RefMake<DescriptorSetVulkan>();
+				ds->set = dss[i];
+				m_descriptor_sets[pass_index][i] = ds;
+			}
+
 			m_uniform_buffers[pass_index] = shader->CreateUniformBuffer(pass_index);
 		}
 
@@ -265,7 +274,7 @@ namespace Viry3D
 				for (int j = 0; j < writes.Size(); j++)
 				{
 					auto& write = writes[j];
-					write.dstSet = descriptor_sets[i];
+					write.dstSet = RefCast<DescriptorSetVulkan>(descriptor_sets[i])->set;
 				}
 
 				vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);

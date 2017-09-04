@@ -88,6 +88,7 @@
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
     <ClInclude Include="..\..\src\graphics\Color.h" />
     <ClInclude Include="..\..\src\graphics\DepthBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\DescriptorSet.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\DisplayBase.h" />
     <ClInclude Include="..\..\src\graphics\FilterMode.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="..\..\src\ui\UIRect.h" />
     <ClInclude Include="..\..\src\ui\UISprite.h" />
     <ClInclude Include="..\..\src\ui\UIView.h" />
+    <ClInclude Include="..\..\src\vulkan\DescriptorSetVulkan.h" />
     <ClInclude Include="..\..\src\vulkan\DisplayVulkan.h" />
     <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\glslang_tab.cpp.h" />
     <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\gl_types.h" />
@@ -320,6 +322,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
+    <ClCompile Include="..\..\src\graphics\DescriptorSet.cpp" />
     <ClCompile Include="..\..\src\graphics\DisplayBase.cpp" />
     <ClCompile Include="..\..\src\graphics\Graphics.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
@@ -498,6 +501,7 @@
     <ClCompile Include="..\..\src\ui\UISprite.cpp" />
     <ClCompile Include="..\..\src\ui\UIView.cpp" />
     <ClCompile Include="..\..\src\vulkan\BufferVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\DescriptorSetVulkan.cpp" />
     <ClCompile Include="..\..\src\vulkan\DisplayVulkan.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />
@@ -661,7 +665,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VR_VULKAN=1;VR_GLES=0;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -694,7 +698,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>VR_VULKAN=0;VR_GLES=1;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VR_VULKAN=1;VR_GLES=0;VR_WINDOWS;VK_USE_PLATFORM_WIN32_KHR;FT2_BUILD_LIBRARY;FPM_DEFAULT;AL_LIBTYPE_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_RAND_S;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>

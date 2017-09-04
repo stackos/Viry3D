@@ -20,6 +20,7 @@
 #include "ShaderVulkan.h"
 #include "DisplayVulkan.h"
 #include "MaterialVulkan.h"
+#include "DescriptorSetVulkan.h"
 #include "Application.h"
 #include "graphics/Graphics.h"
 #include "graphics/Shader.h"
@@ -886,13 +887,18 @@ namespace Viry3D
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto& pass = m_passes[index];
-		auto& descriptor_sets = RefCast<MaterialVulkan>(material)->GetDescriptorSet(index);
+		auto& descriptor_sets = RefCast<MaterialVulkan>(material)->GetDescriptorSets(index);
+		Vector<VkDescriptorSet> ds(descriptor_sets.Size());
+		for (int i = 0; i < ds.Size(); i++)
+		{
+			ds[i] = RefCast<DescriptorSetVulkan>(descriptor_sets[i])->set;
+		}
 		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
 
 		lightmap_index = Mathf::Clamp(lightmap_index, 0, LIGHT_MAP_COUNT_MAX - 1);
 
 		vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pass.pipeline_layout, 0, 1, &descriptor_sets[lightmap_index], 0, NULL);
+			pass.pipeline_layout, 0, 1, &ds[lightmap_index], 0, NULL);
 	}
 
 	void ShaderVulkan::PushConstant(int index, void* data, int size)
