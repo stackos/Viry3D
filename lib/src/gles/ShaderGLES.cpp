@@ -29,12 +29,13 @@
 #include "graphics/RenderPass.h"
 #include "graphics/Material.h"
 #include "io/File.h"
+#include "io/MemoryStream.h"
 #include "memory/Memory.h"
 #include "Debug.h"
 
 namespace Viry3D
 {
-	static const int PUSH_BINDING = 0;
+	static const int UNIFORM_BUFFER_OBJ_BINDING = 0;
 
 	static GLuint create_shader(GLenum type, const String& src)
 	{
@@ -111,18 +112,10 @@ namespace Viry3D
 		auto display = (DisplayGLES*) Graphics::GetDisplay();
 		auto program = shader_pass.program;
 
-		auto push_index = glGetUniformBlockIndex(program, "push");
+		auto push_index = glGetUniformBlockIndex(program, "buf_vs_obj");
 		if (push_index != 0xffffffff)
 		{
-			glUniformBlockBinding(program, push_index, PUSH_BINDING);
-
-			GLint size;
-			glGetActiveUniformBlockiv(program, push_index, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
-
-			auto push_buffer = UniformBuffer::Create(size);
-			glBindBufferBase(GL_UNIFORM_BUFFER, PUSH_BINDING, push_buffer->GetBuffer());
-			shader_pass.push_buffer = push_buffer;
-			shader_pass.push_buffer_size = size;
+			glUniformBlockBinding(program, push_index, UNIFORM_BUFFER_OBJ_BINDING);
 		}
 		else
 		{
@@ -196,7 +189,8 @@ namespace Viry3D
 				glGetUniformIndices(program, 1, names, &index);
 				GLint offset;
 				glGetActiveUniformsiv(program, 1, &index, GL_UNIFORM_OFFSET, &offset);
-				Log("%s uniform:%s index:%d offset:%d", xml.name.CString(), name.CString(), index, offset);
+
+				//Log("%s uniform:%s index:%d offset:%d", xml.name.CString(), name.CString(), index, offset);
 			}
 		}
 
@@ -476,10 +470,9 @@ namespace Viry3D
 	const String g_shader_header =
 		"#version 300 es\n"
 		"#define VR_GLES 1\n"
-		"#define UniformPush(exp1) layout(std140)\n"
-		"#define UniformBuffer(exp1, exp2) layout(std140)\n"
-		"#define UniformTexture(exp1)\n"
-		"#define Varying(exp1)\n";
+		"#define UniformBuffer(set_index, binding_index) layout(std140)\n"
+		"#define UniformTexture(set_index, binding_index)\n"
+		"#define Varying(location_index)\n";
 
 	static String combine_shader_src(const Vector<String>& includes, const String& src)
 	{
@@ -631,28 +624,32 @@ namespace Viry3D
 		material->Apply(index);
 	}
 
-	void ShaderGLES::BindLightmap(int index, const Ref<Material>& material, int lightmap_index)
+	void ShaderGLES::UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index)
 	{
-		if (lightmap_index >= 0)
+		if (!descriptor_set_buffer)
 		{
-			material->ApplyLightmap(index, lightmap_index);
+			int buffer_size = sizeof(Matrix4x4) + sizeof(Vector4);
+			descriptor_set_buffer = UniformBuffer::Create(buffer_size);
 		}
+
+		// update buffer
+		descriptor_set_buffer->Fill(NULL, [&](void* param, const ByteBuffer& buffer) {
+			MemoryStream ms(buffer);
+			ms.Write<Matrix4x4>(world_matrix);
+			ms.Write<Vector4>(lightmap_scale_offset);
+			ms.Close();
+		});
 	}
 
-	void ShaderGLES::PushConstant(int index, void* data, int size)
+	void ShaderGLES::BindRendererDescriptorSet(int index, const Ref<Material>& material, Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index)
 	{
 		LogGLError();
 
-		auto& push_buffer = m_passes[index].push_buffer;
-		size = Mathf::Min(size, m_passes[index].push_buffer_size);
+		glBindBufferBase(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_OBJ_BINDING, descriptor_set_buffer->GetBuffer());
 
-		if (push_buffer)
+		if (lightmap_index >= 0)
 		{
-			push_buffer->Fill(NULL, [&](void* param, const ByteBuffer& buffer) {
-				Memory::Copy(buffer.Bytes(), data, size);
-			});
-
-			glBindBufferBase(GL_UNIFORM_BUFFER, PUSH_BINDING, push_buffer->GetBuffer());
+			material->ApplyLightmap(index, lightmap_index);
 		}
 
 		LogGLError();

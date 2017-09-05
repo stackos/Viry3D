@@ -60,8 +60,6 @@ namespace Viry3D
 	{
 		String name;
 		GLuint program;
-		Ref<UniformBuffer> push_buffer;
-		int push_buffer_size;
 		Vector<XMLUniformBuffer*> uniform_buffer_infos;
 		Vector<const XMLSampler*> sampler_infos;
 		Vector<GLint> sampler_locations;
@@ -70,6 +68,7 @@ namespace Viry3D
 	};
 
 	class Material;
+	class DescriptorSet;
 
 	class ShaderGLES: public Object
 	{
@@ -79,10 +78,11 @@ namespace Viry3D
 		int GetPassCount() const { return 1; }
 		void ClearPipelines() { }
 		void PreparePass(int index) { }
+		void UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index);
 		void BeginPass(int index);
 		void BindSharedMaterial(int index, const Ref<Material>& material);
-		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index) { }
-		void BindLightmap(int index, const Ref<Material>& material, int lightmap_index);
+		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set) { }
+		void BindRendererDescriptorSet(int index, const Ref<Material>& material, Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index);
 		void EndPass(int index) { }
 
 		Ref<UniformBuffer> CreateUniformBuffer(int index);

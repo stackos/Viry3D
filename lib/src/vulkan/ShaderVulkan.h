@@ -74,11 +74,11 @@ namespace Viry3D
 		int GetPassCount() const { return m_passes.Size(); }
 		void ClearPipelines();
 		void PreparePass(int index);
+		void UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index);
 		void BeginPass(int index);
 		void BindSharedMaterial(int index, const Ref<Material>& material) { }
-		void UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index);
 		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set);
-		void BindLightmap(int index, const Ref<Material>& material, int lightmap_index) { }
+		void BindRendererDescriptorSet(int index, const Ref<Material>& material, Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index) { }
 		void EndPass(int index);
 
 		Vector<VkDescriptorSet> CreateDescriptorSet(int index);

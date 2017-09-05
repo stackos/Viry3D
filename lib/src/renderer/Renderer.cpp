@@ -326,15 +326,25 @@ namespace Viry3D
 					shader->BindSharedMaterial(0, mat);
 				}
 
-				if (bind_lightmap)
+				Matrix4x4 world_matrix;
+				Vector4 lightmap_sacle_offset;
+
+				if (static_batch)
 				{
-					shader->BindLightmap(0, mat, i.renderer->m_lightmap_index);
+					world_matrix = Matrix4x4::Identity();
+					lightmap_sacle_offset = Vector4(1, 1, 0, 0);
+				}
+				else
+				{
+					world_matrix = i.renderer->GetTransform()->GetLocalToWorldMatrix();
+					lightmap_sacle_offset = i.renderer->GetLightmapScaleOffset();
 				}
 
 				// 非静态或第一批
 				if (!static_batch || !batching)
 				{
 					shader->BindMaterial(0, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
+					shader->BindRendererDescriptorSet(0, mat, i.renderer->m_descriptor_set, i.renderer->m_descriptor_set_buffer, world_matrix, lightmap_sacle_offset, i.renderer->m_lightmap_index);
 				}
 
 				i.renderer->Render(i.material_index, 0);
@@ -359,12 +369,27 @@ namespace Viry3D
 			auto& i = first;
 			for (int j = 0; j < i.shader_pass_count; j++)
 			{
+				Matrix4x4 world_matrix;
+				Vector4 lightmap_sacle_offset;
+
+				bool static_batch = i.renderer->m_batch_indices.Size() > 0;
+				if (static_batch)
+				{
+					world_matrix = Matrix4x4::Identity();
+					lightmap_sacle_offset = Vector4(1, 1, 0, 0);
+				}
+				else
+				{
+					world_matrix = i.renderer->GetTransform()->GetLocalToWorldMatrix();
+					lightmap_sacle_offset = i.renderer->GetLightmapScaleOffset();
+				}
+
 				shader->BeginPass(j);
 
 				auto& mat = i.renderer->GetSharedMaterials()[i.material_index];
 				shader->BindSharedMaterial(j, mat);
 				shader->BindMaterial(j, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
-				shader->BindLightmap(j, mat, i.renderer->m_lightmap_index);
+				shader->BindRendererDescriptorSet(j, mat, i.renderer->m_descriptor_set, i.renderer->m_descriptor_set_buffer, world_matrix, lightmap_sacle_offset, i.renderer->m_lightmap_index);
 
 				i.renderer->Render(i.material_index, j);
 
