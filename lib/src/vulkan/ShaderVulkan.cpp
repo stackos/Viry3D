@@ -413,19 +413,10 @@ namespace Viry3D
 		descriptor_layouts[0] = descriptor_layout;
 		descriptor_layouts[1] = renderer_descriptor_layout;
 
-		const uint32_t push_count = 1;
-		VkPushConstantRange pushs[push_count];
-		pushs[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		pushs[0].offset = 0;
-		pushs[0].size = sizeof(Matrix4x4) + sizeof(Vector4);
-
 		VkPipelineLayoutCreateInfo create_info;
 		Memory::Zero(&create_info, sizeof(create_info));
 		create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		create_info.pNext = NULL;
 		create_info.setLayoutCount = descriptor_layouts.Size();
-		create_info.pushConstantRangeCount = push_count;
-		create_info.pPushConstantRanges = pushs;
 		create_info.pSetLayouts = &descriptor_layouts[0];
 
 		VkPipelineLayout layout;
@@ -869,10 +860,9 @@ namespace Viry3D
 		"#extension GL_ARB_separate_shader_objects : enable\n"
 		"#extension GL_ARB_shading_language_420pack : enable\n"
 		"#define VR_VULKAN 1\n"
-		"#define UniformPush(exp1) layout(exp1)\n"
-		"#define UniformBuffer(exp1, exp2) layout(exp1, exp2)\n"
-		"#define UniformTexture(exp1) layout(exp1)\n"
-		"#define Varying(exp1) layout(exp1)\n";
+		"#define UniformBuffer(set_index, binding_index) layout(std140, set = set_index, binding = binding_index)\n"
+		"#define UniformTexture(set_index, binding_index) layout(set = set_index, binding = binding_index)\n"
+		"#define Varying(location_index) layout(location = location_index)\n";
 
 	static String combine_shader_src(const Vector<String>& includes, const String& src)
 	{
@@ -975,17 +965,20 @@ namespace Viry3D
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
+		bool update = false;
 
 		if (!renderer_descriptor_set)
 		{
 			auto set = RefMake<DescriptorSetVulkan>();
 			set->set = CreateRendererDescriptorSet();
 			renderer_descriptor_set = set;
+			update = true;
 		}
 
 		if (!descriptor_set_buffer)
 		{
 			descriptor_set_buffer = CreateRendererUniformBuffer();
+			update = true;
 		}
 
 		// update buffer
@@ -999,28 +992,31 @@ namespace Viry3D
 			vkUnmapMemory(device, descriptor_set_buffer->GetMemory());
 		}
 
-		Vector<VkWriteDescriptorSet> writes;
+		if (update)
+		{
+			Vector<VkWriteDescriptorSet> writes;
 
-		VkDescriptorBufferInfo buffer = {
-			descriptor_set_buffer->GetBuffer(),
-			0,
-			(VkDeviceSize) descriptor_set_buffer->GetSize()
-		};
-		
-		writes.Add({
-			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			NULL,
-			RefCast<DescriptorSetVulkan>(renderer_descriptor_set)->set,
-			0,
-			0,
-			1,
-			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			NULL,
-			&buffer,
-			NULL
-		});
+			VkDescriptorBufferInfo buffer = {
+				descriptor_set_buffer->GetBuffer(),
+				0,
+				(VkDeviceSize) descriptor_set_buffer->GetSize()
+			};
 
-		vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
+			writes.Add({
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				NULL,
+				RefCast<DescriptorSetVulkan>(renderer_descriptor_set)->set,
+				0,
+				0,
+				1,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				NULL,
+				&buffer,
+				NULL
+			});
+
+			vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
+		}
 	}
 
 	void ShaderVulkan::BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set)
@@ -1039,17 +1035,6 @@ namespace Viry3D
 
 		vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pass.pipeline_layout, 0, 2, &ds[0], 0, NULL);
-	}
-
-	void ShaderVulkan::PushConstant(int index, void* data, int size)
-	{
-		auto display = (DisplayVulkan*) Graphics::GetDisplay();
-		auto& pass = m_passes[index];
-		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
-
-		vkCmdPushConstants(cmd, pass.pipeline_layout,
-			VK_SHADER_STAGE_VERTEX_BIT, 0, size,
-			data);
 	}
 
 	void ShaderVulkan::BeginPass(int index)

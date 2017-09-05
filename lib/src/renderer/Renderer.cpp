@@ -48,12 +48,6 @@ namespace Viry3D
 	int Renderer::m_batching_start = -1;
 	int Renderer::m_batching_count = -1;
 
-	struct PushConstant
-	{
-		Matrix4x4 mat;
-		Vector4 vec;
-	};
-
 	void Renderer::Init()
 	{
 	}
@@ -94,7 +88,24 @@ namespace Viry3D
 
 	void Renderer::PreRenderByRenderer(int material_index)
 	{
+		auto& shader = this->GetSharedMaterials()[material_index]->GetShader();
+		bool static_batch = this->m_batch_indices.Size() > 0;
 
+		Matrix4x4 world_matrix;
+		Vector4 lightmap_sacle_offset;
+
+		if (static_batch)
+		{
+			world_matrix = Matrix4x4::Identity();
+			lightmap_sacle_offset = Vector4(1, 1, 0, 0);
+		}
+		else
+		{
+			world_matrix = this->GetTransform()->GetLocalToWorldMatrix();
+			lightmap_sacle_offset = this->GetLightmapScaleOffset();
+		}
+
+		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, world_matrix, lightmap_sacle_offset, m_lightmap_index);
 	}
 
 	Matrix4x4 Renderer::GetWorldMatrix()
@@ -241,7 +252,6 @@ namespace Viry3D
 	{
 		auto& first = pass.First();
 		auto& shader = first.renderer->GetSharedMaterials()[first.material_index]->GetShader();
-		PushConstant push;
 
 		if (first.shader_pass_count == 1)
 		{
@@ -321,25 +331,10 @@ namespace Viry3D
 					shader->BindLightmap(0, mat, i.renderer->m_lightmap_index);
 				}
 
-				if (static_batch)
-				{
-					// 静态定点已变换的世界空间
-					push.mat = Matrix4x4::Identity();
-					// uv已经过lightmap scale offset变换
-					push.vec = Vector4(1, 1, 0, 0);
-				}
-				else
-				{
-					push.mat = i.renderer->GetWorldMatrix();
-					push.vec = i.renderer->GetLightmapScaleOffset();
-				}
-
 				// 非静态或第一批
 				if (!static_batch || !batching)
 				{
-					shader->UpdateRendererDescriptorSet(i.renderer->m_descriptor_set, i.renderer->m_descriptor_set_buffer, push.mat, push.vec, i.renderer->m_lightmap_index);
 					shader->BindMaterial(0, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
-					shader->PushConstant(0, &push, sizeof(push));
 				}
 
 				i.renderer->Render(i.material_index, 0);
@@ -368,24 +363,8 @@ namespace Viry3D
 
 				auto& mat = i.renderer->GetSharedMaterials()[i.material_index];
 				shader->BindSharedMaterial(j, mat);
-
-				bool static_batch = i.renderer->m_batch_indices.Size() > 0;
-				if (static_batch)
-				{
-					push.mat = Matrix4x4::Identity();
-					push.vec = Vector4(1, 1, 0, 0);
-				}
-				else
-				{
-					push.mat = i.renderer->GetTransform()->GetLocalToWorldMatrix();
-					push.vec = i.renderer->GetLightmapScaleOffset();
-				}
-
-				shader->UpdateRendererDescriptorSet(i.renderer->m_descriptor_set, i.renderer->m_descriptor_set_buffer, push.mat, push.vec, i.renderer->m_lightmap_index);
 				shader->BindMaterial(j, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
 				shader->BindLightmap(j, mat, i.renderer->m_lightmap_index);
-
-				shader->PushConstant(j, &push, sizeof(push));
 
 				i.renderer->Render(i.material_index, j);
 

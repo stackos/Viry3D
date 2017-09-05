@@ -79,7 +79,6 @@ namespace Viry3D
 		void UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index);
 		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set);
 		void BindLightmap(int index, const Ref<Material>& material, int lightmap_index) { }
-		void PushConstant(int index, void* data, int size);
 		void EndPass(int index);
 
 		Vector<VkDescriptorSet> CreateDescriptorSet(int index);

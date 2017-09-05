@@ -214,7 +214,7 @@ namespace Viry3D
 	void Camera::Render()
 	{
 		m_render_pass->Begin(this->GetClearColor());
-
+		
 		if (m_render_pass->IsCommandDirty())
 		{
 			Renderer::RenderAllPass();

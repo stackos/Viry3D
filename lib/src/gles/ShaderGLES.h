@@ -83,7 +83,6 @@ namespace Viry3D
 		void BindSharedMaterial(int index, const Ref<Material>& material);
 		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index) { }
 		void BindLightmap(int index, const Ref<Material>& material, int lightmap_index);
-		void PushConstant(int index, void* data, int size);
 		void EndPass(int index) { }
 
 		Ref<UniformBuffer> CreateUniformBuffer(int index);
