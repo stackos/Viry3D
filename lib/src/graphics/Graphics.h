@@ -31,6 +31,8 @@ namespace Viry3D
 	class RenderTexture;
 	class RenderPass;
 	struct Matrix4x4;
+	class DescriptorSet;
+	class UniformBuffer;
 
 	class Graphics
 	{
@@ -62,5 +64,7 @@ namespace Viry3D
 		static Ref<Mesh> m_blit_mesh;
 		static Vector<Ref<Material>> m_blit_materials;
 		static Vector<Ref<RenderPass>> m_blit_render_passes;
+		static Ref<DescriptorSet> m_blit_descriptor_set;
+		static Ref<UniformBuffer> m_blit_descriptor_set_buffer;
 	};
 }

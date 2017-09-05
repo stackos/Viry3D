@@ -57,7 +57,14 @@ namespace Viry3D
 		Vector<VkWriteDescriptorSet> uniform_writes;
 	};
 
+	struct RendererDescriptor
+	{
+		VkDescriptorSetLayout layout;
+		VkDescriptorPool pool;
+	};
+
 	class Material;
+	class DescriptorSet;
 
 	class ShaderVulkan: public Object
 	{
@@ -69,13 +76,16 @@ namespace Viry3D
 		void PreparePass(int index);
 		void BeginPass(int index);
 		void BindSharedMaterial(int index, const Ref<Material>& material) { }
-		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index);
+		void UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index);
+		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set);
 		void BindLightmap(int index, const Ref<Material>& material, int lightmap_index) { }
 		void PushConstant(int index, void* data, int size);
 		void EndPass(int index);
 
 		Vector<VkDescriptorSet> CreateDescriptorSet(int index);
+		VkDescriptorSet CreateRendererDescriptorSet();
 		Ref<UniformBuffer> CreateUniformBuffer(int index);
+		Ref<UniformBuffer> CreateRendererUniformBuffer();
 		Vector<VkWriteDescriptorSet>& GetDescriptorSetWriteInfo(int index);
 		const Vector<const void*>& GetUniformXmls(int index);
 
@@ -89,5 +99,6 @@ namespace Viry3D
 		Vector<ShaderPass> m_passes;
 		Map<String, VkShaderModule> m_vertex_shaders;
 		Map<String, VkShaderModule> m_pixel_shaders;
+		RendererDescriptor m_renderer_descriptor;
 	};
 }

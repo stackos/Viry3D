@@ -32,6 +32,8 @@ namespace Viry3D
 {
 	class Material;
 	class Camera;
+	class DescriptorSet;
+	class UniformBuffer;
 
 	class Renderer: public Component
 	{
@@ -151,5 +153,7 @@ namespace Viry3D
 		Vector<RenderBuffer> m_buffer_old;
 		Bounds m_bounds;
 		Vector<BatchInfo> m_batch_indices;
+		Ref<DescriptorSet> m_descriptor_set;
+		Ref<UniformBuffer> m_descriptor_set_buffer;
 	};
 }

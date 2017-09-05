@@ -23,6 +23,7 @@
 #include "FrameBuffer.h"
 #include "RenderPass.h"
 #include "RenderTexture.h"
+#include "DescriptorSet.h"
 
 namespace Viry3D
 {
@@ -30,6 +31,8 @@ namespace Viry3D
 	Ref<Mesh> Graphics::m_blit_mesh;
 	Vector<Ref<Material>> Graphics::m_blit_materials;
 	Vector<Ref<RenderPass>> Graphics::m_blit_render_passes;
+	Ref<DescriptorSet> Graphics::m_blit_descriptor_set;
+	Ref<UniformBuffer> Graphics::m_blit_descriptor_set_buffer;
 	int Graphics::draw_call = 0;
 
 	void Graphics::Init(int width, int height, int fps)
@@ -162,7 +165,8 @@ namespace Viry3D
 		shader->PreparePass(pass);
 		shader->BeginPass(pass);
 		shader->BindSharedMaterial(pass, material);
-		shader->BindMaterial(pass, material, 0);
+		shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, world, Vector4(0, 0, 0, 0), 0);
+		shader->BindMaterial(pass, material, 0, m_blit_descriptor_set);
 		shader->PushConstant(pass, &world, sizeof(Matrix4x4));
 
 		auto index_type = IndexType::UnsignedShort;

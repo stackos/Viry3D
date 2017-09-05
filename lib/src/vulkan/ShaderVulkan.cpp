@@ -29,6 +29,7 @@
 #include "graphics/Material.h"
 #include "graphics/LightmapSettings.h"
 #include "io/File.h"
+#include "io/MemoryStream.h"
 #include "memory/Memory.h"
 #include "vulkan_shader_compiler.h"
 
@@ -87,12 +88,12 @@ namespace Viry3D
 		return module;
 	}
 
-	static void create_descriptor_set_info(const XMLPass& pass, const XMLShader& xml, ShaderPass& shader_pass)
+	static void create_descriptor_set_info(const XMLPass& pass, const XMLShader& xml, ShaderPass& shader_pass, RendererDescriptor& renderer_descriptor)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		//	create descriptor set layout
+		// create descriptor set layout
 		Vector<VkDescriptorSetLayoutBinding>& binds = shader_pass.binds;
 
 		for (const auto& i : xml.vss)
@@ -151,49 +152,55 @@ namespace Viry3D
 			}
 		}
 
-		VkDescriptorSetLayoutCreateInfo layout_info = {
-			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-			NULL,
-			0,
-			(uint32_t) binds.Size(),
-			binds.Empty() ? NULL : &binds[0],
-		};
+		VkResult err;
 
-		VkResult err = vkCreateDescriptorSetLayout(device, &layout_info, NULL, &shader_pass.descriptor_layout);
-		assert(!err);
-
-		//	create descriptor pool
-		Vector<VkDescriptorPoolSize> type_counts;
-
-		for (const auto& i : binds)
 		{
-			VkDescriptorPoolSize type_count;
-			type_count.type = i.descriptorType;
-			type_count.descriptorCount = DESCRIPTOR_POOL_SIZE_MAX;
-
-			type_counts.Add(type_count);
-		}
-
-		if (!type_counts.Empty())
-		{
-			VkDescriptorPoolCreateInfo pool_info = {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+			VkDescriptorSetLayoutCreateInfo layout_info = {
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
 				NULL,
 				0,
-				DESCRIPTOR_POOL_SIZE_MAX,
-				(uint32_t) type_counts.Size(),
-				&type_counts[0],
+				(uint32_t) binds.Size(),
+				binds.Empty() ? NULL : &binds[0],
 			};
 
-			err = vkCreateDescriptorPool(device, &pool_info, NULL, &shader_pass.descriptor_pool);
+			err = vkCreateDescriptorSetLayout(device, &layout_info, NULL, &shader_pass.descriptor_layout);
 			assert(!err);
 		}
-		else
+
+		// create descriptor pool
 		{
-			shader_pass.descriptor_pool = NULL;
+			Vector<VkDescriptorPoolSize> type_counts;
+
+			for (const auto& i : binds)
+			{
+				VkDescriptorPoolSize type_count;
+				type_count.type = i.descriptorType;
+				type_count.descriptorCount = DESCRIPTOR_POOL_SIZE_MAX;
+
+				type_counts.Add(type_count);
+			}
+
+			if (!type_counts.Empty())
+			{
+				VkDescriptorPoolCreateInfo pool_info = {
+					VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+					NULL,
+					0,
+					DESCRIPTOR_POOL_SIZE_MAX,
+					(uint32_t) type_counts.Size(),
+					&type_counts[0],
+				};
+
+				err = vkCreateDescriptorPool(device, &pool_info, NULL, &shader_pass.descriptor_pool);
+				assert(!err);
+			}
+			else
+			{
+				shader_pass.descriptor_pool = NULL;
+			}
 		}
 
-		//	create uniform info and sampler info
+		// create uniform info and sampler info
 		{
 			int buffer_size = 0;
 			for (int i = 0; i < binds.Size(); i++)
@@ -256,20 +263,65 @@ namespace Viry3D
 
 			shader_pass.uniform_writes.Add(write);
 		}
+
+		// renderer descriptor
+		{
+			Vector<VkDescriptorPoolSize> pool_sizes;
+			Vector<VkDescriptorSetLayoutBinding> bindings;
+
+			// for world matrix, light map scale offset vector
+			pool_sizes.Add({ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, DESCRIPTOR_POOL_SIZE_MAX });
+			bindings.Add({
+				0, // binding
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, // descriptorType
+				1, // descriptorCount
+				VK_SHADER_STAGE_VERTEX_BIT, //stageFlags
+				NULL // pImmutableSamplers
+			});
+
+			// for light map texture
+			pool_sizes.Add({ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, DESCRIPTOR_POOL_SIZE_MAX });
+			bindings.Add({
+				1, // binding
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, // descriptorType
+				1, // descriptorCount
+				VK_SHADER_STAGE_FRAGMENT_BIT, //stageFlags
+				NULL // pImmutableSamplers
+			});
+
+			VkDescriptorPoolCreateInfo pool_info = {
+				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+				NULL,
+				0,
+				DESCRIPTOR_POOL_SIZE_MAX,
+				(uint32_t) pool_sizes.Size(),
+				&pool_sizes[0],
+			};
+			err = vkCreateDescriptorPool(device, &pool_info, NULL, &renderer_descriptor.pool);
+			assert(!err);
+
+			VkDescriptorSetLayoutCreateInfo layout_info = {
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+				NULL,
+				0,
+				(uint32_t) bindings.Size(),
+				&bindings[0],
+			};
+			err = vkCreateDescriptorSetLayout(device, &layout_info, NULL, &renderer_descriptor.layout);
+			assert(!err);
+		}
 	}
 
 	Vector<VkDescriptorSet> ShaderVulkan::CreateDescriptorSet(int index)
 	{
-		auto display = (DisplayVulkan*) Graphics::GetDisplay();
-		auto device = display->GetDevice();
+		auto device = ((DisplayVulkan*) Graphics::GetDisplay())->GetDevice();
 		auto& pass = m_passes[index];
-		VkResult err;
 
 		Vector<VkDescriptorSet> descriptor_sets(LIGHT_MAP_COUNT_MAX);
 
 		for (int i = 0; i < descriptor_sets.Size(); i++)
 		{
-			VkDescriptorSetAllocateInfo sets_info = {
+			VkDescriptorSetAllocateInfo set_info = {
 				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 				NULL,
 				pass.descriptor_pool,
@@ -277,11 +329,30 @@ namespace Viry3D
 				&pass.descriptor_layout
 			};
 
-			err = vkAllocateDescriptorSets(device, &sets_info, &descriptor_sets[i]);
+			VkResult err = vkAllocateDescriptorSets(device, &set_info, &descriptor_sets[i]);
 			assert(!err);
 		}
 
 		return descriptor_sets;
+	}
+
+	VkDescriptorSet ShaderVulkan::CreateRendererDescriptorSet()
+	{
+		auto device = ((DisplayVulkan*) Graphics::GetDisplay())->GetDevice();
+
+		VkDescriptorSetAllocateInfo set_info = {
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+			NULL,
+			m_renderer_descriptor.pool,
+			1,
+			&m_renderer_descriptor.layout
+		};
+
+		VkDescriptorSet descriptor_set;
+		VkResult err = vkAllocateDescriptorSets(device, &set_info, &descriptor_set);
+		assert(!err);
+
+		return descriptor_set;
 	}
 
 	Ref<UniformBuffer> ShaderVulkan::CreateUniformBuffer(int index)
@@ -311,6 +382,14 @@ namespace Viry3D
 		return uniform_buffer;
 	}
 
+	Ref<UniformBuffer> ShaderVulkan::CreateRendererUniformBuffer()
+	{
+		int buffer_size = sizeof(Matrix4x4) + sizeof(Vector4);
+		Ref<UniformBuffer> uniform_buffer = UniformBuffer::Create(buffer_size);
+
+		return uniform_buffer;
+	}
+
 	Vector<VkWriteDescriptorSet>& ShaderVulkan::GetDescriptorSetWriteInfo(int index)
 	{
 		auto& pass = m_passes[index];
@@ -325,10 +404,14 @@ namespace Viry3D
 		return pass.uniform_xmls;
 	}
 
-	static VkPipelineLayout create_pipeline_layout(VkDescriptorSetLayout& descriptor_layout)
+	static VkPipelineLayout create_pipeline_layout(const VkDescriptorSetLayout& descriptor_layout, const VkDescriptorSetLayout& renderer_descriptor_layout)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
+
+		Vector<VkDescriptorSetLayout> descriptor_layouts(2);
+		descriptor_layouts[0] = descriptor_layout;
+		descriptor_layouts[1] = renderer_descriptor_layout;
 
 		const uint32_t push_count = 1;
 		VkPushConstantRange pushs[push_count];
@@ -340,10 +423,10 @@ namespace Viry3D
 		Memory::Zero(&create_info, sizeof(create_info));
 		create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		create_info.pNext = NULL;
-		create_info.setLayoutCount = 1;
+		create_info.setLayoutCount = descriptor_layouts.Size();
 		create_info.pushConstantRangeCount = push_count;
 		create_info.pPushConstantRanges = pushs;
-		create_info.pSetLayouts = &descriptor_layout;
+		create_info.pSetLayouts = &descriptor_layouts[0];
 
 		VkPipelineLayout layout;
 		VkResult err = vkCreatePipelineLayout(device, &create_info, NULL, &layout);
@@ -735,6 +818,8 @@ namespace Viry3D
 
 	ShaderVulkan::ShaderVulkan()
 	{
+		m_renderer_descriptor.pool = NULL;
+		m_renderer_descriptor.layout = NULL;
 	}
 
 	ShaderVulkan::~ShaderVulkan()
@@ -768,6 +853,9 @@ namespace Viry3D
 			vkDestroyDescriptorSetLayout(device, i.descriptor_layout, NULL);
 		}
 		m_passes.Clear();
+
+		vkDestroyDescriptorPool(device, m_renderer_descriptor.pool, NULL);
+		vkDestroyDescriptorSetLayout(device, m_renderer_descriptor.layout, NULL);
 	}
 
 	void ShaderVulkan::Compile()
@@ -844,8 +932,8 @@ namespace Viry3D
 			auto& pass = m_passes[i];
 
 			pass.name = xml_pass.name;
-			create_descriptor_set_info(xml_pass, xml, pass);
-			pass.pipeline_layout = create_pipeline_layout(pass.descriptor_layout);
+			create_descriptor_set_info(xml_pass, xml, pass, m_renderer_descriptor);
+			pass.pipeline_layout = create_pipeline_layout(pass.descriptor_layout, m_renderer_descriptor.layout);
 			prepare_pipeline(xml_pass, xml, pass, m_vertex_shaders[xml_pass.vs], m_pixel_shaders[xml_pass.ps]);
 		}
 	}
@@ -883,22 +971,74 @@ namespace Viry3D
 		}
 	}
 
-	void ShaderVulkan::BindMaterial(int index, const Ref<Material>& material, int lightmap_index)
+	void ShaderVulkan::UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index)
+	{
+		auto display = (DisplayVulkan*) Graphics::GetDisplay();
+		auto device = display->GetDevice();
+
+		if (!renderer_descriptor_set)
+		{
+			auto set = RefMake<DescriptorSetVulkan>();
+			set->set = CreateRendererDescriptorSet();
+			renderer_descriptor_set = set;
+		}
+
+		if (!descriptor_set_buffer)
+		{
+			descriptor_set_buffer = CreateRendererUniformBuffer();
+		}
+
+		// update buffer
+		{
+			void* mapped;
+			VkResult err = vkMapMemory(device, descriptor_set_buffer->GetMemory(), 0, descriptor_set_buffer->GetSize(), 0, &mapped);
+			MemoryStream ms(ByteBuffer((byte*) mapped, descriptor_set_buffer->GetSize()));
+			ms.Write<Matrix4x4>(world_matrix);
+			ms.Write<Vector4>(lightmap_scale_offset);
+			ms.Close();
+			vkUnmapMemory(device, descriptor_set_buffer->GetMemory());
+		}
+
+		Vector<VkWriteDescriptorSet> writes;
+
+		VkDescriptorBufferInfo buffer = {
+			descriptor_set_buffer->GetBuffer(),
+			0,
+			(VkDeviceSize) descriptor_set_buffer->GetSize()
+		};
+		
+		writes.Add({
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			NULL,
+			RefCast<DescriptorSetVulkan>(renderer_descriptor_set)->set,
+			0,
+			0,
+			1,
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			NULL,
+			&buffer,
+			NULL
+		});
+
+		vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
+	}
+
+	void ShaderVulkan::BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto& pass = m_passes[index];
 		auto& descriptor_sets = RefCast<MaterialVulkan>(material)->GetDescriptorSets(index);
-		Vector<VkDescriptorSet> ds(descriptor_sets.Size());
-		for (int i = 0; i < ds.Size(); i++)
-		{
-			ds[i] = RefCast<DescriptorSetVulkan>(descriptor_sets[i])->set;
-		}
-		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
 
 		lightmap_index = Mathf::Clamp(lightmap_index, 0, LIGHT_MAP_COUNT_MAX - 1);
 
+		Vector<VkDescriptorSet> ds(2);
+		ds[0] = RefCast<DescriptorSetVulkan>(descriptor_sets[lightmap_index])->set;
+		ds[1] = RefCast<DescriptorSetVulkan>(renderer_descriptor_set)->set;
+
+		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
+
 		vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pass.pipeline_layout, 0, 1, &ds[lightmap_index], 0, NULL);
+			pass.pipeline_layout, 0, 2, &ds[0], 0, NULL);
 	}
 
 	void ShaderVulkan::PushConstant(int index, void* data, int size)
