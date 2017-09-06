@@ -85,6 +85,7 @@ namespace Viry3D
 			{
 				if (obj->IsActiveInHierarchy())
 				{
+					obj->Start();
 					obj->Update();
 				}
 			}

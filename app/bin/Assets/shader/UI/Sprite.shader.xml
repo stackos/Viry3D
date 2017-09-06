@@ -15,10 +15,10 @@
 		<Source>
 precision mediump float;
       
-UniformTexture(binding = 2) uniform sampler2D _MainTex;
+UniformTexture(0, 2) uniform sampler2D _MainTex;
 
-Varying(location = 0) in vec2 v_uv;
-Varying(location = 1) in vec4 v_color;
+Varying(0) in vec2 v_uv;
+Varying(1) in vec4 v_color;
 
 layout (location = 0) out vec4 o_frag;
 

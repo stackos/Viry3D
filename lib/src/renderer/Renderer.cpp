@@ -709,7 +709,7 @@ namespace Viry3D
 				}
 				else
 				{
-					return a.renderer->GetSortingOrder() - b.renderer->GetSortingOrder();
+					return a.renderer->GetSortingOrder() < b.renderer->GetSortingOrder();
 				}
 			}
 			else

@@ -15,13 +15,13 @@
 * limitations under the License.
 */
 
-UniformBuffer(0, 1) uniform buf_vs {
-	mat4 _ViewProjection;
-} u_buf;
-
 UniformBuffer(1, 0) uniform buf_vs_obj {
 	mat4 _World;
 } u_buf_obj;
+
+UniformBuffer(0, 1) uniform buf_vs {
+	mat4 _ViewProjection;
+} u_buf;
 
 layout (location = 0) in vec4 a_pos;
 layout (location = 1) in vec2 a_uv;

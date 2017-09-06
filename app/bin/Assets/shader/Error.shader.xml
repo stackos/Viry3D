@@ -7,18 +7,18 @@
 		<VertexAttribute name="Texcoord" location="1"/>
 		<Include name="Base.in"/>
 		<Source>
-UniformPush(push_constant) uniform push {
+UniformBuffer(1, 0) uniform buf_vs_obj {
 	mat4 _World;
-} u_push;
+} u_buf_obj;
 
-UniformBuffer(std140, binding = 1) uniform buf_vs {
+UniformBuffer(0, 0) uniform buf_vs {
 	mat4 _ViewProjection;
 } u_buf;
 
 layout (location = 0) in vec4 a_pos;
 
 void main() {
-	gl_Position = a_pos * u_push._World * u_buf._ViewProjection;
+	gl_Position = a_pos * u_buf_obj._World * u_buf._ViewProjection;
 
 	vulkan_convert();
 }
@@ -26,7 +26,6 @@ void main() {
 	</VertexShader>
 
 	<PixelShader name="ps">
-		<Sampler name="_MainTex" binding="2"/>
 		<Source>
 precision mediump float;
 
