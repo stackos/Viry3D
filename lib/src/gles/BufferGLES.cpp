@@ -94,6 +94,20 @@ namespace Viry3D
 		LogGLError();
 	}
 
+	void BufferGLES::UpdateRange(int offset, int size, const void* data)
+	{
+		LogGLError();
+
+		if (m_usage == GL_DYNAMIC_DRAW)
+		{
+			glBindBuffer(m_type, m_buffer);
+			glBufferSubData(m_type, offset, size, data);
+			glBindBuffer(m_type, 0);
+		}
+
+		LogGLError();
+	}
+
 	void BufferGLES::Fill(void* param, FillFunc fill)
 	{
 		LogGLError();

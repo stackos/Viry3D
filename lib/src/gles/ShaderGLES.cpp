@@ -624,24 +624,18 @@ namespace Viry3D
 		material->Apply(index);
 	}
 
-	void ShaderGLES::UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index)
+	void ShaderGLES::UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const void* data, int size, int lightmap_index)
 	{
 		if (!descriptor_set_buffer)
 		{
-			int buffer_size = sizeof(Matrix4x4) + sizeof(Vector4);
-			descriptor_set_buffer = UniformBuffer::Create(buffer_size);
+			descriptor_set_buffer = UniformBuffer::Create(size);
 		}
 
 		// update buffer
-		descriptor_set_buffer->Fill(NULL, [&](void* param, const ByteBuffer& buffer) {
-			MemoryStream ms(buffer);
-			ms.Write<Matrix4x4>(world_matrix);
-			ms.Write<Vector4>(lightmap_scale_offset);
-			ms.Close();
-		});
+		descriptor_set_buffer->UpdateRange(0, size, data);
 	}
 
-	void ShaderGLES::BindRendererDescriptorSet(int index, const Ref<Material>& material, Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index)
+	void ShaderGLES::BindRendererDescriptorSet(int index, const Ref<Material>& material, Ref<UniformBuffer>& descriptor_set_buffer, int lightmap_index)
 	{
 		LogGLError();
 

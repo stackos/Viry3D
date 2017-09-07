@@ -565,14 +565,6 @@ namespace Viry3D
 		auto mats = renderer->GetSharedMaterials();
 		if (mats.Size() > 0)
 		{
-			for (int i = 0; i < mats.Size(); i++)
-			{
-				auto mat_instance = Material::Create(mats[i]->GetShader()->GetName());
-				mat_instance->DeepCopy(mats[i]);
-				mats[i] = mat_instance;
-			}
-			renderer->SetSharedMaterials(mats);
-
 			auto mesh = renderer->GetSharedMesh();
 			if (mesh)
 			{

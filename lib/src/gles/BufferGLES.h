@@ -34,6 +34,7 @@ namespace Viry3D
 
 		typedef std::function<void(void* param, const ByteBuffer& buffer)> FillFunc;
 		void Fill(void* param, FillFunc fill);
+		void UpdateRange(int offset, int size, const void* data);
 
 	protected:
 		BufferGLES();

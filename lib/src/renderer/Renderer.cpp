@@ -88,24 +88,37 @@ namespace Viry3D
 
 	void Renderer::PreRenderByRenderer(int material_index)
 	{
-		auto& shader = this->GetSharedMaterials()[material_index]->GetShader();
+		struct UniformBufferObject
+		{
+			Matrix4x4 world_matrix;
+			Vector4 lightmap_sacle_offset;
+		};
+		UniformBufferObject buffer;
+		int size;
+
 		bool static_batch = this->m_batch_indices.Size() > 0;
-
-		Matrix4x4 world_matrix;
-		Vector4 lightmap_sacle_offset;
-
 		if (static_batch)
 		{
-			world_matrix = Matrix4x4::Identity();
-			lightmap_sacle_offset = Vector4(1, 1, 0, 0);
+			buffer.world_matrix = Matrix4x4::Identity();
+			buffer.lightmap_sacle_offset = Vector4(1, 1, 0, 0);
+			size = sizeof(Matrix4x4) + sizeof(Vector4);
 		}
 		else
 		{
-			world_matrix = this->GetTransform()->GetLocalToWorldMatrix();
-			lightmap_sacle_offset = this->GetLightmapScaleOffset();
+			buffer.world_matrix = this->GetTransform()->GetLocalToWorldMatrix();
+			if (m_lightmap_index >= 0)
+			{
+				buffer.lightmap_sacle_offset = this->GetLightmapScaleOffset();
+				size = sizeof(Matrix4x4) + sizeof(Vector4);
+			}
+			else
+			{
+				size = sizeof(Matrix4x4);
+			}
 		}
 
-		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, world_matrix, lightmap_sacle_offset, m_lightmap_index);
+		auto& shader = this->GetSharedMaterials()[material_index]->GetShader();
+		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, &buffer, size, m_lightmap_index);
 	}
 
 	Matrix4x4 Renderer::GetWorldMatrix()
@@ -344,7 +357,7 @@ namespace Viry3D
 				if (!static_batch || !batching)
 				{
 					shader->BindMaterial(0, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
-					shader->BindRendererDescriptorSet(0, mat, i.renderer->m_descriptor_set, i.renderer->m_descriptor_set_buffer, world_matrix, lightmap_sacle_offset, i.renderer->m_lightmap_index);
+					shader->BindRendererDescriptorSet(0, mat, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
 				}
 
 				i.renderer->Render(i.material_index, 0);
@@ -389,7 +402,7 @@ namespace Viry3D
 				auto& mat = i.renderer->GetSharedMaterials()[i.material_index];
 				shader->BindSharedMaterial(j, mat);
 				shader->BindMaterial(j, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
-				shader->BindRendererDescriptorSet(j, mat, i.renderer->m_descriptor_set, i.renderer->m_descriptor_set_buffer, world_matrix, lightmap_sacle_offset, i.renderer->m_lightmap_index);
+				shader->BindRendererDescriptorSet(j, mat, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
 
 				i.renderer->Render(i.material_index, j);
 

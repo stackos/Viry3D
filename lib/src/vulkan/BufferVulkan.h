@@ -27,15 +27,17 @@ namespace Viry3D
 	class BufferVulkan
 	{
 	public:
+		virtual ~BufferVulkan();
+		VkBuffer GetBuffer() const { return m_buffer; }
+		int GetSize() const { return m_size; }
+		VkDeviceMemory GetMemory() const { return m_memory; }
+
 		typedef std::function<void(void* param, const ByteBuffer& buffer)> FillFunc;
 		void Fill(void* param, FillFunc fill);
-		VkBuffer GetBuffer() const { return m_buffer; }
-		VkDeviceMemory GetMemory() const { return m_memory; }
-		int GetSize() const { return m_size; }
+		void UpdateRange(int offset, int size, const void* data);
 
 	protected:
 		BufferVulkan();
-		virtual ~BufferVulkan();
 		void CreateInternal(BufferType type, bool dynamic = false);
 
 		int m_size;

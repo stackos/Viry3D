@@ -112,16 +112,27 @@ namespace Viry3D
 
 	void BufferVulkan::Fill(void* param, FillFunc fill)
 	{
-		auto display = (DisplayVulkan*) Graphics::GetDisplay();
-		auto device = display->GetDevice();
-		VkResult err;
+		auto device = ((DisplayVulkan*) Graphics::GetDisplay())->GetDevice();
 
 		void* data;
-		err = vkMapMemory(device, m_memory, 0, m_size, 0, &data);
+		VkResult err = vkMapMemory(device, m_memory, 0, m_size, 0, &data);
 		assert(!err);
 
 		ByteBuffer buffer((byte*) data, m_size);
 		fill(param, buffer);
+
+		vkUnmapMemory(device, m_memory);
+	}
+
+	void BufferVulkan::UpdateRange(int offset, int size, const void* data)
+	{
+		auto device = ((DisplayVulkan*) Graphics::GetDisplay())->GetDevice();
+
+		void* mapped;
+		VkResult err = vkMapMemory(device, m_memory, offset, size, 0, &mapped);
+		assert(!err);
+
+		Memory::Copy(mapped, data, size);
 
 		vkUnmapMemory(device, m_memory);
 	}

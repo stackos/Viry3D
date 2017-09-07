@@ -18,6 +18,7 @@
 	</PixelShader>
 
 	<RenderState name="rs">
+		<Cull value="Off"/>
 	</RenderState>
 
 	<Pass name="pass"

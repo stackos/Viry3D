@@ -166,10 +166,10 @@ namespace Viry3D
 
 		shader->PreparePass(pass);
 		shader->BeginPass(pass);
-		shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, world, Vector4(0, 0, 0, 0), 0);
+		shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, &world, sizeof(Matrix4x4), 0);
 		shader->BindSharedMaterial(pass, material);
 		shader->BindMaterial(pass, material, 0, m_blit_descriptor_set);
-		shader->BindRendererDescriptorSet(pass, material, m_blit_descriptor_set, m_blit_descriptor_set_buffer, world, Vector4(0, 0, 0, 0), 0);
+		shader->BindRendererDescriptorSet(pass, material, m_blit_descriptor_set_buffer, 0);
 
 		auto index_type = IndexType::UnsignedShort;
 

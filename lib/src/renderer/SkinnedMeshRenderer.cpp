@@ -80,14 +80,15 @@ namespace Viry3D
 
 	void SkinnedMeshRenderer::PreRenderByRenderer(int material_index)
 	{
-		Renderer::PreRenderByRenderer(material_index);
-
-		auto& mat = this->GetSharedMaterials()[material_index];
 		const auto& bindposes = this->GetSharedMesh()->bind_poses;
 		const auto& bones = this->GetBones();
+		Vector<Vector4> bone_matrix;
+		const void* buffer;
+		int size;
+
 		if (bones.Size() > 0)
 		{
-			Vector<Vector4> bone_matrix(bones.Size() * 3);
+			bone_matrix.Resize(bones.Size() * 3);
 			for (int i = 0; i < bones.Size(); i++)
 			{
 				auto m = bones[i].lock()->GetLocalToWorldMatrix() * bindposes[i];
@@ -95,7 +96,16 @@ namespace Viry3D
 				bone_matrix[i * 3 + 1] = m.GetRow(1);
 				bone_matrix[i * 3 + 2] = m.GetRow(2);
 			}
-			mat->SetVectorArray("_Bones", bone_matrix);
+			buffer = &bone_matrix[0];
+			size = sizeof(Vector4) * bones.Size() * 3;
 		}
+		else
+		{
+			buffer = &this->GetTransform()->GetLocalToWorldMatrix();
+			size = sizeof(Matrix4x4);
+		}
+		
+		auto& shader = this->GetSharedMaterials()[material_index]->GetShader();
+		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, buffer, size, m_lightmap_index);
 	}
 }

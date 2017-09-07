@@ -382,14 +382,6 @@ namespace Viry3D
 		return uniform_buffer;
 	}
 
-	Ref<UniformBuffer> ShaderVulkan::CreateRendererUniformBuffer()
-	{
-		int buffer_size = sizeof(Matrix4x4) + sizeof(Vector4);
-		Ref<UniformBuffer> uniform_buffer = UniformBuffer::Create(buffer_size);
-
-		return uniform_buffer;
-	}
-
 	Vector<VkWriteDescriptorSet>& ShaderVulkan::GetDescriptorSetWriteInfo(int index)
 	{
 		auto& pass = m_passes[index];
@@ -961,7 +953,7 @@ namespace Viry3D
 		}
 	}
 
-	void ShaderVulkan::UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const Matrix4x4& world_matrix, const Vector4& lightmap_scale_offset, int lightmap_index)
+	void ShaderVulkan::UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const void* data, int size, int lightmap_index)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
@@ -977,20 +969,11 @@ namespace Viry3D
 
 		if (!descriptor_set_buffer)
 		{
-			descriptor_set_buffer = CreateRendererUniformBuffer();
+			descriptor_set_buffer = UniformBuffer::Create(size);
 			update = true;
 		}
 
-		// update buffer
-		{
-			void* mapped;
-			VkResult err = vkMapMemory(device, descriptor_set_buffer->GetMemory(), 0, descriptor_set_buffer->GetSize(), 0, &mapped);
-			MemoryStream ms(ByteBuffer((byte*) mapped, descriptor_set_buffer->GetSize()));
-			ms.Write<Matrix4x4>(world_matrix);
-			ms.Write<Vector4>(lightmap_scale_offset);
-			ms.Close();
-			vkUnmapMemory(device, descriptor_set_buffer->GetMemory());
-		}
+		descriptor_set_buffer->UpdateRange(0, size, data);
 
 		if (update)
 		{
