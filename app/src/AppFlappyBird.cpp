@@ -36,7 +36,7 @@
 #include "audio/AudioSource.h"
 #include "audio/AudioClip.h"
 
-#define OPEN 1
+#define OPEN 0
 
 using namespace Viry3D;
 

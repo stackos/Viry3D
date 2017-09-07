@@ -85,14 +85,17 @@ namespace Viry3D
 		auto& mat = this->GetSharedMaterials()[material_index];
 		const auto& bindposes = this->GetSharedMesh()->bind_poses;
 		const auto& bones = this->GetBones();
-		Vector<Vector4> bone_matrix(bones.Size() * 3);
-		for (int i = 0; i < bones.Size(); i++)
+		if (bones.Size() > 0)
 		{
-			auto m = bones[i].lock()->GetLocalToWorldMatrix() * bindposes[i];
-			bone_matrix[i * 3 + 0] = m.GetRow(0);
-			bone_matrix[i * 3 + 1] = m.GetRow(1);
-			bone_matrix[i * 3 + 2] = m.GetRow(2);
+			Vector<Vector4> bone_matrix(bones.Size() * 3);
+			for (int i = 0; i < bones.Size(); i++)
+			{
+				auto m = bones[i].lock()->GetLocalToWorldMatrix() * bindposes[i];
+				bone_matrix[i * 3 + 0] = m.GetRow(0);
+				bone_matrix[i * 3 + 1] = m.GetRow(1);
+				bone_matrix[i * 3 + 2] = m.GetRow(2);
+			}
+			mat->SetVectorArray("_Bones", bone_matrix);
 		}
-		mat->SetVectorArray("_Bones", bone_matrix);
 	}
 }

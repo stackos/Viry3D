@@ -63,6 +63,8 @@ namespace Viry3D
 
 	void Graphics::Deinit()
 	{
+		m_blit_descriptor_set.reset();
+		m_blit_descriptor_set_buffer.reset();
 		m_blit_render_passes.Clear();
 		m_blit_materials.Clear();
 		if (m_blit_mesh)
@@ -167,6 +169,7 @@ namespace Viry3D
 		shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, world, Vector4(0, 0, 0, 0), 0);
 		shader->BindSharedMaterial(pass, material);
 		shader->BindMaterial(pass, material, 0, m_blit_descriptor_set);
+		shader->BindRendererDescriptorSet(pass, material, m_blit_descriptor_set, m_blit_descriptor_set_buffer, world, Vector4(0, 0, 0, 0), 0);
 
 		auto index_type = IndexType::UnsignedShort;
 

@@ -28,7 +28,7 @@ void main() {
 		<Source>
 precision mediump float;
       
-UniformTexture(0, 0) uniform sampler2D _MainTex;
+UniformTexture(0, 1) uniform sampler2D _MainTex;
 
 Varying(0) in vec2 v_uv;
 

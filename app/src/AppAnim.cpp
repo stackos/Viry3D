@@ -39,7 +39,7 @@ public:
 	virtual void Start();
 };
 
-#if 0
+#if 1
 VR_MAIN(AppAnim);
 #endif
 
@@ -52,7 +52,7 @@ AppAnim::AppAnim()
 void AppAnim::Start()
 {
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-	camera->SetClearColor(Color(0, 0, 1, 1));
+	camera->SetClearColor(Color(0, 0, 0, 1));
 	camera->SetCullingMask(1 << 0);
 	camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
 	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
@@ -71,12 +71,13 @@ void AppAnim::Start()
 
 	this->CreateFPSUI(20, 1, 1, rt);
 
-	auto obj = Resource::LoadGameObject("Assets/AppAnim/unity_chan_splited.prefab");
+	auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+	obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
 	auto anim = obj->GetComponent<Animation>();
-	auto state = anim->GetAnimationState("WAIT02");
+	auto state = anim->GetAnimationState("WAIT03");
 	state.wrap_mode = AnimationWrapMode::Loop;
-	anim->UpdateAnimationState("WAIT02", state);
-	anim->Play("WAIT02");
+	anim->UpdateAnimationState("WAIT03", state);
+	anim->Play("WAIT03");
 
 #if true // blit
 	auto camera2 = GameObject::Create("camera2")->AddComponent<Camera>();
@@ -95,8 +96,8 @@ void AppAnim::Start()
 	camera2->SetDepth(2);
 	camera2->SetOrthographic(true);
 	camera2->SetOrthographicSize(camera2->GetTargetHeight() / 2.0f);
-	camera2->SetNearClip(-1);
-	camera2->SetFarClip(1);
+	camera2->SetClipNear(-1);
+	camera2->SetClipFar(1);
 
 	auto canvas = GameObject::Create("canvas")->AddComponent<UICanvasRenderer>();
 	canvas->GetTransform()->SetParent(camera2->GetTransform());
@@ -108,6 +109,9 @@ void AppAnim::Start()
 
 	auto sprite = GameObject::Create("sprite")->AddComponent<UISprite>();
 	sprite->GetTransform()->SetParent(canvas->GetTransform());
+#if VR_GLES
+	sprite->GetTransform()->SetLocalScale(Vector3(1, -1, 1));
+#endif
 	sprite->SetAtlas(atlas);
 	sprite->SetSpriteName("sprite");
 	sprite->SetAnchors(Vector2(0, 0), Vector2(1, 1));

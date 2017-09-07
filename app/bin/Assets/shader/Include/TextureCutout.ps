@@ -15,27 +15,23 @@
 * limitations under the License.
 */
 
-UniformBuffer(1, 0) uniform buf_vs_obj {
-	mat4 _World;
-} u_buf_obj;
+precision mediump float;
 
-UniformBuffer(0, 1) uniform buf_vs {
-	mat4 _ViewProjection;
-	vec4 _Bones[BONE_VEC_MAX];
+UniformTexture(0, 2) uniform sampler2D _MainTex;
+
+UniformBuffer(0, 3) uniform buf_ps {
+	vec4 _CutAlpha;
 } u_buf;
 
-layout (location = 0) in vec4 a_pos;
-layout (location = 1) in vec2 a_uv;
-layout (location = 2) in vec4 a_blend_weight;
-layout (location = 3) in vec4 a_blend_indices;
+Varying(0) in vec2 v_uv;
 
-Varying(0) out vec2 v_uv;
+layout (location = 0) out vec4 o_frag;
 
 void main() {
-    vec4 skinned_pos_world;
-    skinned_mesh(skinned_pos_world, a_pos, a_blend_weight, a_blend_indices, u_buf._Bones);
-    gl_Position = skinned_pos_world * u_buf._ViewProjection;
-	v_uv = a_uv;
-
-	vulkan_convert();
+	vec4 c = texture(_MainTex, v_uv);
+	if(c.a < u_buf._CutAlpha.x)
+	{
+		discard;
+	}
+    o_frag = c;
 }

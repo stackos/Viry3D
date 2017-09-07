@@ -1,0 +1,27 @@
+<Shader name="Cutout" queue="AlphaTest">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="1">
+			<Uniform name ="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<Include name="Base.in"/>
+		<Include name="Texture.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="2"/>
+		<UniformBuffer name="buf_ps" binding="3">
+			<Uniform name ="_CutAlpha" size="16"/>
+		</UniformBuffer>
+		<Include name="TextureCutout.ps"/>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>
