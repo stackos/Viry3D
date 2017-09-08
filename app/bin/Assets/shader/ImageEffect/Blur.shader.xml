@@ -9,24 +9,24 @@
 
 		<Include name="Base.in"/>
 		<Source>
-UniformPush(push_constant) uniform push {
+UniformBuffer(1, 0) uniform buf_vs_obj {
 	mat4 _World;
-} u_push;
+} u_buf_obj;
 
-UniformBuffer(std140, binding = 2) uniform buf_vs {
+UniformBuffer(0, 2) uniform buf_vs {
     vec4 _MainTex_TexelSize;
 } u_buf;
 
 layout (location = 0) in vec4 a_pos;
 layout (location = 1) in vec2 a_uv;
 
-Varying(location = 0) out vec2 v_uv20;
-Varying(location = 1) out vec2 v_uv21;
-Varying(location = 2) out vec2 v_uv22;
-Varying(location = 3) out vec2 v_uv23;
+Varying(0) out vec2 v_uv20;
+Varying(1) out vec2 v_uv21;
+Varying(2) out vec2 v_uv22;
+Varying(3) out vec2 v_uv23;
 
 void main() {
-	gl_Position = a_pos * u_push._World;
+	gl_Position = a_pos * u_buf_obj._World;
 	v_uv20 = a_uv + u_buf._MainTex_TexelSize.xy;
     v_uv21 = a_uv + u_buf._MainTex_TexelSize.xy * vec2(-0.5, -0.5);
     v_uv22 = a_uv + u_buf._MainTex_TexelSize.xy * vec2(0.5, -0.5);
@@ -42,12 +42,12 @@ void main() {
 		<Source>
 precision mediump float;
       
-UniformTexture(binding = 1) uniform sampler2D _MainTex;
+UniformTexture(0, 1) uniform sampler2D _MainTex;
 
-Varying(location = 0) in vec2 v_uv20;
-Varying(location = 1) in vec2 v_uv21;
-Varying(location = 2) in vec2 v_uv22;
-Varying(location = 3) in vec2 v_uv23;
+Varying(0) in vec2 v_uv20;
+Varying(1) in vec2 v_uv21;
+Varying(2) in vec2 v_uv22;
+Varying(3) in vec2 v_uv23;
 
 layout (location = 0) out vec4 o_frag;
 
@@ -73,11 +73,11 @@ void main() {
         
         <Include name="Base.in"/>
         <Source>
-UniformPush(push_constant) uniform push {
-    mat4 _World;
-} u_push;
+UniformBuffer(1, 0) uniform buf_vs_obj {
+	mat4 _World;
+} u_buf_obj;
 
-UniformBuffer(std140, binding = 2) uniform buf_vs {
+UniformBuffer(0, 2) uniform buf_vs {
     vec4 _MainTex_TexelSize;
     vec4 _Parameter;
 } u_buf;
@@ -85,11 +85,11 @@ UniformBuffer(std140, binding = 2) uniform buf_vs {
 layout (location = 0) in vec4 a_pos;
 layout (location = 1) in vec2 a_uv;
 
-Varying(location = 0) out vec2 v_uv;
-Varying(location = 1) out vec2 v_offset;
+Varying(0) out vec2 v_uv;
+Varying(1) out vec2 v_offset;
 
 void main() {
-    gl_Position = a_pos * u_push._World;
+    gl_Position = a_pos * u_buf_obj._World;
     v_uv = a_uv;
     v_offset = u_buf._MainTex_TexelSize.xy * vec2(1.0, 0.0) * u_buf._Parameter.x;
 
@@ -109,11 +109,11 @@ void main() {
         
         <Include name="Base.in"/>
         <Source>
-UniformPush(push_constant) uniform push {
-    mat4 _World;
-} u_push;
+UniformBuffer(1, 0) uniform buf_vs_obj {
+	mat4 _World;
+} u_buf_obj;
 
-UniformBuffer(std140, binding = 2) uniform buf_vs {
+UniformBuffer(0, 2) uniform buf_vs {
     vec4 _MainTex_TexelSize;
     vec4 _Parameter;
 } u_buf;
@@ -121,11 +121,11 @@ UniformBuffer(std140, binding = 2) uniform buf_vs {
 layout (location = 0) in vec4 a_pos;
 layout (location = 1) in vec2 a_uv;
 
-Varying(location = 0) out vec2 v_uv;
-Varying(location = 1) out vec2 v_offset;
+Varying(0) out vec2 v_uv;
+Varying(1) out vec2 v_offset;
 
 void main() {
-    gl_Position = a_pos * u_push._World;
+    gl_Position = a_pos * u_buf_obj._World;
     v_uv = a_uv;
     v_offset = u_buf._MainTex_TexelSize.xy * vec2(0.0, 1.0) * u_buf._Parameter.x;
 
@@ -139,10 +139,10 @@ void main() {
         <Source>
 precision mediump float;
 
-UniformTexture(binding = 1) uniform sampler2D _MainTex;
+UniformTexture(0, 1) uniform sampler2D _MainTex;
 
-Varying(location = 0) in vec2 v_uv;
-Varying(location = 1) in vec2 v_offset;
+Varying(0) in vec2 v_uv;
+Varying(1) in vec2 v_offset;
 
 layout (location = 0) out vec4 o_frag;
 

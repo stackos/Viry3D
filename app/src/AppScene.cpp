@@ -44,7 +44,7 @@ public:
 	WeakRef<Camera> m_camera;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppScene);
 #endif
 

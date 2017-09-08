@@ -115,10 +115,6 @@ namespace Viry3D
 			{
 				Log("glCheckFramebufferStatus error:%d", status);
 			}
-			else
-			{
-				Log("frame buffer ready");
-			}
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}

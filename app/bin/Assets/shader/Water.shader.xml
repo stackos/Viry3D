@@ -9,21 +9,21 @@
 
 		<Include name="Base.in"/>
 		<Source>
-UniformPush(push_constant) uniform push {
+UniformBuffer(1, 0) uniform buf_vs_obj {
 	mat4 _World;
-} u_push;
+} u_buf_obj;
 
-UniformBuffer(std140, binding = 1) uniform buf_vs {
+UniformBuffer(0, 1) uniform buf_vs {
 	mat4 _ViewProjection;
 } u_buf;
 
 layout (location = 0) in vec4 a_pos;
 layout (location = 1) in vec2 a_uv;
 
-Varying(location = 0) out vec2 v_uv;
+Varying(0) out vec2 v_uv;
 
 void main() {
-	gl_Position = a_pos * u_push._World * u_buf._ViewProjection;
+	gl_Position = a_pos * u_buf_obj._World * u_buf._ViewProjection;
 	v_uv = a_uv;
 
 	vulkan_convert();
@@ -47,9 +47,9 @@ void main() {
 		<Source>
 precision mediump float;
       
-UniformTexture(binding = 2) uniform sampler2D _MainTex;
+UniformTexture(0, 2) uniform sampler2D _MainTex;
 
-UniformBuffer(std140, binding = 3) uniform buf_ps {
+UniformBuffer(0, 3) uniform buf_ps {
 	vec4 _Color;
 	vec4 _MainTex_ST;
 	vec4 _Time;
@@ -59,7 +59,7 @@ UniformBuffer(std140, binding = 3) uniform buf_ps {
 	vec4 _Alpha;
 } u_buf;
 
-Varying(location = 0) in vec2 v_uv;
+Varying(0) in vec2 v_uv;
 
 layout (location = 0) out vec4 o_frag;
 

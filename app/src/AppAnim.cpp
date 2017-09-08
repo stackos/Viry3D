@@ -39,7 +39,7 @@ public:
 	virtual void Start();
 };
 
-#if 1
+#if 0
 VR_MAIN(AppAnim);
 #endif
 
@@ -52,7 +52,6 @@ AppAnim::AppAnim()
 void AppAnim::Start()
 {
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-	camera->SetClearColor(Color(0, 0, 0, 1));
 	camera->SetCullingMask(1 << 0);
 	camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
 	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));

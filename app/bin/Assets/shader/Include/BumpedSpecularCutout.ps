@@ -1,13 +1,30 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 precision mediump float;
 
-UniformTexture(binding = 2) uniform sampler2D _MainTex;
-UniformTexture(binding = 4) uniform sampler2D _Lightmap;
-UniformTexture(binding = 5) uniform sampler2D _Normal;
-UniformTexture(binding = 6) uniform sampler2D _SpecMap;
-UniformTexture(binding = 7) uniform sampler2D _Emissive;
-UniformTexture(binding = 8) uniform sampler2D _NHxRoughness;
+UniformTexture(0, 2) uniform sampler2D _MainTex;
+UniformTexture(0, 4) uniform sampler2D _Lightmap;
+UniformTexture(0, 5) uniform sampler2D _Normal;
+UniformTexture(0, 6) uniform sampler2D _SpecMap;
+UniformTexture(0, 7) uniform sampler2D _Emissive;
+UniformTexture(0, 8) uniform sampler2D _NHxRoughness;
 
-UniformBuffer(std140, binding = 3) uniform buf_ps {
+UniformBuffer(0, 3) uniform buf_ps {
 	vec4 _Color;
 	vec4 _Spec;
 	vec4 _Smoothness;
@@ -18,11 +35,11 @@ UniformBuffer(std140, binding = 3) uniform buf_ps {
 	vec4 _CutAlpha;
 } u_buf;
 
-Varying(location = 0) in vec2 v_uv;
-Varying(location = 1) in vec2 v_uv2;
-Varying(location = 2) in vec4 v_t2w0;
-Varying(location = 3) in vec4 v_t2w1;
-Varying(location = 4) in vec4 v_t2w2;
+Varying(0) in vec2 v_uv;
+Varying(1) in vec2 v_uv2;
+Varying(2) in vec4 v_t2w0;
+Varying(3) in vec4 v_t2w1;
+Varying(4) in vec4 v_t2w2;
 
 layout (location = 0) out vec4 o_frag;
 

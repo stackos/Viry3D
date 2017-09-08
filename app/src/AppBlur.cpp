@@ -80,18 +80,19 @@ void AppBlur::Start()
 
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 	camera->SetCullingMask(1 << 0);
-	camera->GetTransform()->SetPosition(Vector3(0, 1.5f, -4.0f));
+	camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
 	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
 
 	camera->GetGameObject()->AddComponent<CameraPostRender>();
 	camera->GetGameObject()->AddComponent<ImageEffectBlur>();
 
-	auto obj = Resource::LoadGameObject("Assets/AppAnim/unity_chan_splited.prefab");
+	auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+	obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
 	auto anim = obj->GetComponent<Animation>();
-	auto state = anim->GetAnimationState("WAIT02");
+	auto state = anim->GetAnimationState("WAIT03");
 	state.wrap_mode = AnimationWrapMode::Loop;
-	anim->UpdateAnimationState("WAIT02", state);
-	anim->Play("WAIT02");
+	anim->UpdateAnimationState("WAIT03", state);
+	anim->Play("WAIT03");
 
 	auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
 	auto mat = Material::Create("Diffuse");
