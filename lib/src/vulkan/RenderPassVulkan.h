@@ -32,9 +32,6 @@ namespace Viry3D
 		void End();
 		VkRenderPass GetVkRenderPass() const { return m_render_pass; }
 		VkCommandBuffer GetCommandBuffer() const;
-		bool IsCommandDirty() const;
-		bool IsAllCommandDirty() const;
-		void SetCommandDirty();
 
 	protected:
 		RenderPassVulkan();
@@ -45,7 +42,6 @@ namespace Viry3D
 		{
 			VkFramebuffer frame_buffer;
 			VkCommandBuffer cmd_buffer;
-			bool cmd_dirty;
 			int draw_call;
 		};
 

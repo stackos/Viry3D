@@ -277,8 +277,6 @@ namespace Viry3D
 			};
 			err = vkAllocateCommandBuffers(device, &cmd_info, &m_framebuffers[i].cmd_buffer);
 			assert(!err);
-
-			m_framebuffers[i].cmd_dirty = true;
 		}
 	}
 
@@ -293,39 +291,6 @@ namespace Viry3D
 			swap_index = 0;
 		}
 		return m_framebuffers[swap_index].cmd_buffer;
-	}
-
-	bool RenderPassVulkan::IsCommandDirty() const
-	{
-		auto display = Graphics::GetDisplay();
-		auto pass = (RenderPass*) this;
-		bool is_default = !pass->HasFrameBuffer();
-		int swap_index = display->GetSwapBufferIndex();
-		if (!is_default)
-		{
-			swap_index = 0;
-		}
-		return m_framebuffers[swap_index].cmd_dirty;
-	}
-
-	bool RenderPassVulkan::IsAllCommandDirty() const
-	{
-		for (auto& i : m_framebuffers)
-		{
-			if (!i.cmd_dirty)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	void RenderPassVulkan::SetCommandDirty()
-	{
-		for (auto& i : m_framebuffers)
-		{
-			i.cmd_dirty = true;
-		}
 	}
 
 	void RenderPassVulkan::Begin(const Color& clear_color)
@@ -344,11 +309,6 @@ namespace Viry3D
 			swap_index = 0;
 		}
 		bool need_depth = pass->m_need_depth;
-
-		if (!m_framebuffers[swap_index].cmd_dirty)
-		{
-			return;
-		}
 
 		if (is_default)
 		{
@@ -417,20 +377,9 @@ namespace Viry3D
 			swap_index = 0;
 		}
 
-		if (!m_framebuffers[swap_index].cmd_dirty)
-		{
-			Graphics::draw_call += m_framebuffers[swap_index].draw_call;
-			return;
-		}
-
 		vkCmdEndRenderPass(GetCommandBuffer());
 
 		display->EndPrimaryCommandBuffer();
-
-		if (m_framebuffers[swap_index].cmd_dirty)
-		{
-			m_framebuffers[swap_index].cmd_dirty = false;
-		}
 
 		m_framebuffers[swap_index].draw_call = Graphics::draw_call - m_framebuffers[swap_index].draw_call;
 	}

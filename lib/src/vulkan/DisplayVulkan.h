@@ -48,6 +48,7 @@ namespace Viry3D
 		void OnResume() { }
 		void BeginFrame();
 		void EndFrame();
+		void WaitQueueIdle();
 		void BeginPrimaryCommandBuffer(VkCommandBuffer cmd);
 		void EndPrimaryCommandBuffer();
 		void BindVertexBuffer(const VertexBuffer* buffer);

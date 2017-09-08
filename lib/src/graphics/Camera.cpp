@@ -197,16 +197,6 @@ namespace Viry3D
 		m_render_pass->Bind();
 
 		Renderer::PrepareAllPass();
-		
-		if (m_always_rebuild_cmd)
-		{
-			m_render_pass->SetCommandDirty();
-		}
-
-		if (!m_render_pass->IsAllCommandDirty())
-		{
-			Renderer::CheckBufferDirty();
-		}
 
 		m_render_pass->Unbind();
 	}
@@ -215,10 +205,7 @@ namespace Viry3D
 	{
 		m_render_pass->Begin(this->GetClearColor());
 		
-		if (m_render_pass->IsCommandDirty())
-		{
-			Renderer::RenderAllPass();
-		}
+		Renderer::RenderAllPass();
 
 		this->GetGameObject()->OnPostRender();
 

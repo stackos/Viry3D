@@ -62,7 +62,7 @@ void CameraPostRender::DeepCopy(const Ref<Object>& source)
 {
 }
 
-#if 0
+#if 1
 VR_MAIN(AppBlur);
 #endif
 

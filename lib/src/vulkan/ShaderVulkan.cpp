@@ -88,7 +88,57 @@ namespace Viry3D
 		return module;
 	}
 
-	static void create_descriptor_set_info(const XMLPass& pass, const XMLShader& xml, ShaderPass& shader_pass, RendererDescriptor& renderer_descriptor)
+	static void create_renderer_descriptor_set_info(RendererDescriptor& renderer_descriptor)
+	{
+		auto display = (DisplayVulkan*) Graphics::GetDisplay();
+		auto device = display->GetDevice();
+
+		Vector<VkDescriptorPoolSize> pool_sizes;
+		Vector<VkDescriptorSetLayoutBinding> bindings;
+
+		// for world matrix, light map scale offset vector
+		pool_sizes.Add({ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, DESCRIPTOR_POOL_SIZE_MAX });
+		bindings.Add({
+			0, // binding
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, // descriptorType
+			1, // descriptorCount
+			VK_SHADER_STAGE_VERTEX_BIT, //stageFlags
+			NULL // pImmutableSamplers
+		});
+
+		// for light map texture
+		pool_sizes.Add({ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, DESCRIPTOR_POOL_SIZE_MAX });
+		bindings.Add({
+			1, // binding
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, // descriptorType
+			1, // descriptorCount
+			VK_SHADER_STAGE_FRAGMENT_BIT, //stageFlags
+			NULL // pImmutableSamplers
+		});
+
+		VkDescriptorPoolCreateInfo pool_info = {
+			VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+			NULL,
+			0,
+			DESCRIPTOR_POOL_SIZE_MAX,
+			(uint32_t) pool_sizes.Size(),
+			&pool_sizes[0],
+		};
+		VkResult err = vkCreateDescriptorPool(device, &pool_info, NULL, &renderer_descriptor.pool);
+		assert(!err);
+
+		VkDescriptorSetLayoutCreateInfo layout_info = {
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+			NULL,
+			0,
+			(uint32_t) bindings.Size(),
+			&bindings[0],
+		};
+		err = vkCreateDescriptorSetLayout(device, &layout_info, NULL, &renderer_descriptor.layout);
+		assert(!err);
+	}
+
+	static void create_descriptor_set_info(const XMLPass& pass, const XMLShader& xml, ShaderPass& shader_pass)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
@@ -262,53 +312,6 @@ namespace Viry3D
 			}
 
 			shader_pass.uniform_writes.Add(write);
-		}
-
-		// renderer descriptor
-		{
-			Vector<VkDescriptorPoolSize> pool_sizes;
-			Vector<VkDescriptorSetLayoutBinding> bindings;
-
-			// for world matrix, light map scale offset vector
-			pool_sizes.Add({ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, DESCRIPTOR_POOL_SIZE_MAX });
-			bindings.Add({
-				0, // binding
-				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, // descriptorType
-				1, // descriptorCount
-				VK_SHADER_STAGE_VERTEX_BIT, //stageFlags
-				NULL // pImmutableSamplers
-			});
-
-			// for light map texture
-			pool_sizes.Add({ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, DESCRIPTOR_POOL_SIZE_MAX });
-			bindings.Add({
-				1, // binding
-				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, // descriptorType
-				1, // descriptorCount
-				VK_SHADER_STAGE_FRAGMENT_BIT, //stageFlags
-				NULL // pImmutableSamplers
-			});
-
-			VkDescriptorPoolCreateInfo pool_info = {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-				NULL,
-				0,
-				DESCRIPTOR_POOL_SIZE_MAX,
-				(uint32_t) pool_sizes.Size(),
-				&pool_sizes[0],
-			};
-			err = vkCreateDescriptorPool(device, &pool_info, NULL, &renderer_descriptor.pool);
-			assert(!err);
-
-			VkDescriptorSetLayoutCreateInfo layout_info = {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-				NULL,
-				0,
-				(uint32_t) bindings.Size(),
-				&bindings[0],
-			};
-			err = vkCreateDescriptorSetLayout(device, &layout_info, NULL, &renderer_descriptor.layout);
-			assert(!err);
 		}
 	}
 
@@ -907,6 +910,8 @@ namespace Viry3D
 	{
 		const auto& xml = ((Shader*) this)->m_xml;
 
+		create_renderer_descriptor_set_info(m_renderer_descriptor);
+
 		m_passes.Resize(xml.passes.Size());
 		for (int i = 0; i < xml.passes.Size(); i++)
 		{
@@ -914,7 +919,7 @@ namespace Viry3D
 			auto& pass = m_passes[i];
 
 			pass.name = xml_pass.name;
-			create_descriptor_set_info(xml_pass, xml, pass, m_renderer_descriptor);
+			create_descriptor_set_info(xml_pass, xml, pass);
 			pass.pipeline_layout = create_pipeline_layout(pass.descriptor_layout, m_renderer_descriptor.layout);
 			prepare_pipeline(xml_pass, xml, pass, m_vertex_shaders[xml_pass.vs], m_pixel_shaders[xml_pass.ps]);
 		}

@@ -45,7 +45,7 @@ public:
 	WeakRef<Viry3D::UILabel> day_week;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppWatch);
 #endif
 

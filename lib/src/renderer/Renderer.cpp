@@ -773,8 +773,6 @@ namespace Viry3D
 			m_passes[cam].passes_dirty = false;
 
 			BuildPasses(m_passes[cam].culled_renderers, m_passes[cam].list);
-
-			RenderPass::GetRenderPassBinding()->SetCommandDirty();
 		}
 	}
 
@@ -788,22 +786,6 @@ namespace Viry3D
 		for (auto& i : passes)
 		{
 			Renderer::PreparePass(i);
-		}
-	}
-
-	void Renderer::CheckBufferDirty()
-	{
-		auto cam = Camera::Current();
-		auto& passes = m_passes[cam].list;
-
-		for (auto& i : passes)
-		{
-			bool dirty = Renderer::CheckPass(i);
-			if (dirty)
-			{
-				RenderPass::GetRenderPassBinding()->SetCommandDirty();
-				break;
-			}
 		}
 	}
 

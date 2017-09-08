@@ -705,6 +705,11 @@ namespace Viry3D
 		Profiler::SampleEnd();
 	}
 
+	void DisplayVulkan::WaitQueueIdle()
+	{
+		vkQueueWaitIdle(m_queue);
+	}
+
 	void DisplayVulkan::BeginPrimaryCommandBuffer(VkCommandBuffer cmd)
 	{
 		m_current_draw_cmd = cmd;

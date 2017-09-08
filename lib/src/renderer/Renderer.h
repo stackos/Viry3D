@@ -48,7 +48,6 @@ namespace Viry3D
 		static void SetCullingDirty(Camera* cam);
 		static List<Renderer*>& GetRenderers();
 		static void PrepareAllPass();
-		static void CheckBufferDirty();
 		static void RenderAllPass();
 		static void HandleUIEvent();
 		static void BuildStaticBatch(const Ref<GameObject>& obj);

@@ -293,8 +293,6 @@ namespace Viry3D
 					m_writes_old[i].buffer = *writes[i].pBufferInfo;
 				}
 			}
-
-			RenderPass::GetRenderPassBinding()->SetCommandDirty();
 		}
 	}
 }

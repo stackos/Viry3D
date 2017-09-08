@@ -47,6 +47,7 @@ namespace Viry3D
 
 	void Graphics::OnResize(int width, int height)
 	{
+		m_blit_render_passes.Clear();
 		Camera::OnResize(width, height);
 		m_display->OnResize(width, height);
 	}
@@ -259,5 +260,8 @@ namespace Viry3D
 		}
 
 		render_pass->End();
+
+		GetDisplay()->SubmitQueue(render_pass->GetCommandBuffer());
+		GetDisplay()->WaitQueueIdle();
 	}
 }
