@@ -105,7 +105,7 @@ namespace Viry3D
 		}
 		else
 		{
-			buffer.world_matrix = this->GetTransform()->GetLocalToWorldMatrix();
+			buffer.world_matrix = this->GetWorldMatrix();
 			if (m_lightmap_index >= 0)
 			{
 				buffer.lightmap_sacle_offset = this->GetLightmapScaleOffset();

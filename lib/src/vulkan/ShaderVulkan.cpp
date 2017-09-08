@@ -1007,14 +1007,13 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto& pass = m_passes[index];
 		auto& descriptor_sets = RefCast<MaterialVulkan>(material)->GetDescriptorSets(index);
+		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
 
 		lightmap_index = Mathf::Clamp(lightmap_index, 0, LIGHT_MAP_COUNT_MAX - 1);
 
 		Vector<VkDescriptorSet> ds(2);
 		ds[0] = RefCast<DescriptorSetVulkan>(descriptor_sets[lightmap_index])->set;
 		ds[1] = RefCast<DescriptorSetVulkan>(renderer_descriptor_set)->set;
-
-		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
 
 		vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pass.pipeline_layout, 0, 2, &ds[0], 0, NULL);
@@ -1027,7 +1026,6 @@ namespace Viry3D
 		auto& pass = m_passes[index];
 		auto render_pass = RenderPass::GetRenderPassBinding();
 		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
-
 		VkPipeline pipeline = pass.pipelines[render_pass->GetVkRenderPass()];
 
 		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
