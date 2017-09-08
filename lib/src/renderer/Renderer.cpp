@@ -669,60 +669,58 @@ namespace Viry3D
 
 		mat_passes.Sort(
 			[](const MaterialPass& a, const MaterialPass& b)->bool {
+			if (dynamic_cast<UICanvasRenderer*>(a.renderer) || dynamic_cast<UICanvasRenderer*>(b.renderer))
+			{
+				return false;
+			}
+
 			if (a.queue == b.queue)
 			{
-				if (a.renderer->GetSortingOrder() == b.renderer->GetSortingOrder())
-				{
-					int static_a = a.renderer->GetGameObject()->IsStatic() ? 0 : 1;
-					int static_b = b.renderer->GetGameObject()->IsStatic() ? 0 : 1;
+				int static_a = a.renderer->GetGameObject()->IsStatic() ? 0 : 1;
+				int static_b = b.renderer->GetGameObject()->IsStatic() ? 0 : 1;
 
-					if (static_a == static_b)
+				if (static_a == static_b)
+				{
+					if (a.shader_pass_count == 1 && b.shader_pass_count == 1)
 					{
-						if (a.shader_pass_count == 1 && b.shader_pass_count == 1)
+						if (a.shader_id == b.shader_id)
 						{
-							if (a.shader_id == b.shader_id)
+							if (a.material_id == b.material_id)
 							{
-								if (a.material_id == b.material_id)
+								if (a.renderer->m_lightmap_index == b.renderer->m_lightmap_index)
 								{
-									if (a.renderer->m_lightmap_index == b.renderer->m_lightmap_index)
+									if (a.renderer->GetId() == b.renderer->GetId())
 									{
-										if (a.renderer->GetId() == b.renderer->GetId())
-										{
-											return a.material_index < b.material_index;
-										}
-										else
-										{
-											return a.renderer->GetId() < b.renderer->GetId();
-										}
+										return a.material_index < b.material_index;
 									}
 									else
 									{
-										return a.renderer->m_lightmap_index < b.renderer->m_lightmap_index;
+										return a.renderer->GetId() < b.renderer->GetId();
 									}
 								}
 								else
 								{
-									return a.material_id < b.material_id;
+									return a.renderer->m_lightmap_index < b.renderer->m_lightmap_index;
 								}
 							}
 							else
 							{
-								return a.shader_id < b.shader_id;
+								return a.material_id < b.material_id;
 							}
 						}
 						else
 						{
-							return a.shader_pass_count < b.shader_pass_count;
+							return a.shader_id < b.shader_id;
 						}
 					}
 					else
 					{
-						return static_a < static_b;
+						return a.shader_pass_count < b.shader_pass_count;
 					}
 				}
 				else
 				{
-					return a.renderer->GetSortingOrder() < b.renderer->GetSortingOrder();
+					return static_a < static_b;
 				}
 			}
 			else
@@ -743,7 +741,8 @@ namespace Viry3D
 			else
 			{
 				const auto& last = pass.Last();
-				if (i.queue == last.queue &&
+				if (dynamic_cast<UICanvasRenderer*>(i.renderer) == NULL &&
+					i.queue == last.queue &&
 					i.shader_pass_count == 1 && last.shader_pass_count == 1 &&
 					i.shader_id == last.shader_id)
 				{
@@ -826,11 +825,49 @@ namespace Viry3D
 
 		auto cam = Camera::Current();
 		auto& passes = m_passes[cam].list;
+		List<List<MaterialPass>> passes_transparent;
+		List<List<MaterialPass>> passes_ui;
+
 		for (auto& i : passes)
+		{
+			if (i.First().queue < (int) RenderQueue::Transparent)
+			{
+				Renderer::CommitPass(i);
+			}
+			else
+			{
+				auto ui = dynamic_cast<UICanvasRenderer*>(i.First().renderer);
+				if (ui)
+				{
+					passes_ui.AddLast(i);
+				}
+				else
+				{
+					passes_transparent.AddLast(i);
+				}
+			}
+		}
+
+		for (auto& i : passes_transparent)
 		{
 			Renderer::CommitPass(i);
 		}
 
+		passes_ui.Sort([](const List<MaterialPass>& a, const List<MaterialPass>& b) {
+			if (a.First().queue == b.First().queue)
+			{
+				return a.First().renderer->GetSortingOrder() < b.First().renderer->GetSortingOrder();
+			}
+			else
+			{
+				return a.First().queue < b.First().queue;
+			}
+		});
+
+		for (auto& i : passes_ui)
+		{
+			Renderer::CommitPass(i);
+		}
 	}
 
 	Renderer::Renderer():
