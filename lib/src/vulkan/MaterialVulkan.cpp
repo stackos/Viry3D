@@ -38,7 +38,7 @@ namespace Viry3D
 	{
 	}
 
-	const Vector<Ref<DescriptorSet>>& MaterialVulkan::GetDescriptorSets(int pass_index)
+	const Ref<DescriptorSet>& MaterialVulkan::GetDescriptorSet(int pass_index)
 	{
 		return m_descriptor_sets[pass_index];
 	}
@@ -150,16 +150,11 @@ namespace Viry3D
 			m_uniform_buffers.Resize(pass_index + 1);
 		}
 
-		if (m_descriptor_sets[pass_index].Empty())
+		if (!m_descriptor_sets[pass_index])
 		{
-			auto dss = shader->CreateDescriptorSet(pass_index);
-			m_descriptor_sets[pass_index].Resize(dss.Size());
-			for (int i = 0; i < dss.Size(); i++)
-			{
-				auto ds = RefMake<DescriptorSetVulkan>();
-				ds->set = dss[i];
-				m_descriptor_sets[pass_index][i] = ds;
-			}
+			auto ds = RefMake<DescriptorSetVulkan>();
+			ds->set = shader->CreateDescriptorSet(pass_index);
+			m_descriptor_sets[pass_index] = ds;
 
 			m_uniform_buffers[pass_index] = shader->CreateUniformBuffer(pass_index);
 		}
@@ -187,6 +182,7 @@ namespace Viry3D
 		auto mat = (Material*) this;
 		auto& shader = mat->GetShader();
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
+		auto& descriptor_set = m_descriptor_sets[pass_index];
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
@@ -200,25 +196,11 @@ namespace Viry3D
 				VkDescriptorBufferInfo* uniform_info = (VkDescriptorBufferInfo*) p;
 				uniform_info->buffer = m_uniform_buffers[pass_index]->GetBuffer();
 			}
+
+			write.dstSet = RefCast<DescriptorSetVulkan>(descriptor_set)->set;
 		}
 
-		int lightmap_count = LightmapSettings::GetLightmapCount();
-		auto& descriptor_sets = m_descriptor_sets[pass_index];
-		for (int i = 0; i < descriptor_sets.Size(); i++)
-		{
-			if (i < lightmap_count)
-			{
-				SetUniformTexture(pass_index, "_Lightmap", LightmapSettings::GetLightmap(i));
-			}
-
-			for (int j = 0; j < writes.Size(); j++)
-			{
-				auto& write = writes[j];
-				write.dstSet = RefCast<DescriptorSetVulkan>(descriptor_sets[i])->set;
-			}
-
-			vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
-		}
+		vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
 	}
 }
 

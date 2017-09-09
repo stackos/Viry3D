@@ -77,11 +77,11 @@ namespace Viry3D
 		void UpdateRendererDescriptorSet(Ref<DescriptorSet>& renderer_descriptor_set, Ref<UniformBuffer>& descriptor_set_buffer, const void* data, int size, int lightmap_index);
 		void BeginPass(int index);
 		void BindSharedMaterial(int index, const Ref<Material>& material) { }
-		void BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set);
-		void BindRendererDescriptorSet(int index, const Ref<Material>& material, Ref<UniformBuffer>& descriptor_set_buffer, int lightmap_index) { }
+		void BindMaterial(int index, const Ref<Material>& material, const Ref<DescriptorSet>& renderer_descriptor_set);
+		void BindRendererDescriptorSet(int index, Ref<UniformBuffer>& descriptor_set_buffer, int lightmap_index) { }
 		void EndPass(int index);
 
-		Vector<VkDescriptorSet> CreateDescriptorSet(int index);
+		VkDescriptorSet CreateDescriptorSet(int index);
 		VkDescriptorSet CreateRendererDescriptorSet();
 		Ref<UniformBuffer> CreateUniformBuffer(int index);
 		Vector<VkWriteDescriptorSet>& GetDescriptorSetWriteInfo(int index);

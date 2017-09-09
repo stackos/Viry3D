@@ -315,28 +315,24 @@ namespace Viry3D
 		}
 	}
 
-	Vector<VkDescriptorSet> ShaderVulkan::CreateDescriptorSet(int index)
+	VkDescriptorSet ShaderVulkan::CreateDescriptorSet(int index)
 	{
 		auto device = ((DisplayVulkan*) Graphics::GetDisplay())->GetDevice();
 		auto& pass = m_passes[index];
 
-		Vector<VkDescriptorSet> descriptor_sets(LIGHT_MAP_COUNT_MAX);
+		VkDescriptorSetAllocateInfo set_info = {
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+			NULL,
+			pass.descriptor_pool,
+			1,
+			&pass.descriptor_layout
+		};
 
-		for (int i = 0; i < descriptor_sets.Size(); i++)
-		{
-			VkDescriptorSetAllocateInfo set_info = {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-				NULL,
-				pass.descriptor_pool,
-				1,
-				&pass.descriptor_layout
-			};
+		VkDescriptorSet descriptor_set;
+		VkResult err = vkAllocateDescriptorSets(device, &set_info, &descriptor_set);
+		assert(!err);
 
-			VkResult err = vkAllocateDescriptorSets(device, &set_info, &descriptor_sets[i]);
-			assert(!err);
-		}
-
-		return descriptor_sets;
+		return descriptor_set;
 	}
 
 	VkDescriptorSet ShaderVulkan::CreateRendererDescriptorSet()
@@ -1003,21 +999,43 @@ namespace Viry3D
 				NULL
 			});
 
+			VkDescriptorImageInfo image;
+
+			if (lightmap_index >= 0)
+			{
+				auto tex = (TextureVulkan*) LightmapSettings::GetLightmap(lightmap_index);
+				image = {
+					tex->GetSampler(),
+					tex->GetImageView(),
+					VK_IMAGE_LAYOUT_GENERAL
+				};
+				writes.Add({
+					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+					NULL,
+					RefCast<DescriptorSetVulkan>(renderer_descriptor_set)->set,
+					1,
+					0,
+					1,
+					VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+					&image,
+					NULL,
+					NULL
+				});
+			}
+
 			vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
 		}
 	}
 
-	void ShaderVulkan::BindMaterial(int index, const Ref<Material>& material, int lightmap_index, const Ref<DescriptorSet>& renderer_descriptor_set)
+	void ShaderVulkan::BindMaterial(int index, const Ref<Material>& material, const Ref<DescriptorSet>& renderer_descriptor_set)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto& pass = m_passes[index];
-		auto& descriptor_sets = RefCast<MaterialVulkan>(material)->GetDescriptorSets(index);
+		auto& descriptor_set = RefCast<MaterialVulkan>(material)->GetDescriptorSet(index);
 		VkCommandBuffer cmd = display->GetCurrentDrawCommand();
 
-		lightmap_index = Mathf::Clamp(lightmap_index, 0, LIGHT_MAP_COUNT_MAX - 1);
-
 		Vector<VkDescriptorSet> ds(2);
-		ds[0] = RefCast<DescriptorSetVulkan>(descriptor_sets[lightmap_index])->set;
+		ds[0] = RefCast<DescriptorSetVulkan>(descriptor_set)->set;
 		ds[1] = RefCast<DescriptorSetVulkan>(renderer_descriptor_set)->set;
 
 		vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,

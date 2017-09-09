@@ -1,6 +1,6 @@
 <Shader name="Water" queue="Transparent">
 	<VertexShader name="vs">
-		<UniformBuffer name="buf_vs" binding="1">
+		<UniformBuffer name="buf_vs" binding="2">
 			<Uniform name ="_ViewProjection" size="64"/>
 		</UniformBuffer>
 		
@@ -13,7 +13,7 @@ UniformBuffer(1, 0) uniform buf_vs_obj {
 	mat4 _World;
 } u_buf_obj;
 
-UniformBuffer(0, 1) uniform buf_vs {
+UniformBuffer(0, 2) uniform buf_vs {
 	mat4 _ViewProjection;
 } u_buf;
 
@@ -32,9 +32,9 @@ void main() {
 	</VertexShader>
 
 	<PixelShader name="ps">
-		<Sampler name="_MainTex" binding="2"/>
+		<Sampler name="_MainTex" binding="3"/>
 		
-		<UniformBuffer name="buf_ps" binding="3">
+		<UniformBuffer name="buf_ps" binding="4">
 			<Uniform name ="_Color" size="16"/>
 			<Uniform name ="_MainTex_ST" size="16"/>
 			<Uniform name ="_Time" size="16"/>
@@ -47,9 +47,9 @@ void main() {
 		<Source>
 precision mediump float;
       
-UniformTexture(0, 2) uniform sampler2D _MainTex;
+UniformTexture(0, 3) uniform sampler2D _MainTex;
 
-UniformBuffer(0, 3) uniform buf_ps {
+UniformBuffer(0, 4) uniform buf_ps {
 	vec4 _Color;
 	vec4 _MainTex_ST;
 	vec4 _Time;

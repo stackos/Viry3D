@@ -21,15 +21,12 @@
 #include "graphics/Material.h"
 #include "graphics/Texture2D.h"
 #include "graphics/UniformBuffer.h"
-#include "graphics/LightmapSettings.h"
 #include "memory/Memory.h"
 
 #if VR_GLES
 
 namespace Viry3D
 {
-	static const String LIGHTMAP_NAME = "_Lightmap";
-
 	void MaterialGLES::UpdateUniformsBegin(int pass_index)
 	{
 		auto mat = (Material*) this;
@@ -111,30 +108,6 @@ namespace Viry3D
 		}
 	}
 
-	void MaterialGLES::ApplyLightmap(int pass_index, int lightmap_index)
-	{
-		auto mat = (Material*) this;
-		auto& shader = mat->GetShader();
-		auto& sampler_infos = shader->GetSamplerInfos(pass_index);
-		auto& sampler_locations = shader->GetSamplerLocations(pass_index);
-
-		for (int i = 0; i < sampler_locations.Size(); i++)
-		{
-			if (sampler_infos[i]->name == LIGHTMAP_NAME)
-			{
-				auto location = sampler_locations[i];
-
-				glActiveTexture(GL_TEXTURE0 + i);
-
-				auto texture = LightmapSettings::GetLightmap(lightmap_index)->GetTexture();
-				glBindTexture(GL_TEXTURE_2D, texture);
-
-				glUniform1i(location, i);
-				break;
-			}
-		}
-	}
-
 	void MaterialGLES::Apply(int pass_index)
 	{
 		LogGLError();
@@ -149,7 +122,7 @@ namespace Viry3D
 		{
 			auto location = sampler_locations[i];
 
-			glActiveTexture(GL_TEXTURE0 + i);
+			glActiveTexture(GL_TEXTURE0 + i + 1);
 
 			auto& name = sampler_infos[i]->name;
 			const Ref<Texture>* tex;
@@ -164,7 +137,7 @@ namespace Viry3D
 				glBindTexture(GL_TEXTURE_2D, default_texture);
 			}
 
-			glUniform1i(location, i);
+			glUniform1i(location, i + 1);
 		}
 
 		auto& uniform_buffer_infos = shader->GetUniformBufferInfos(pass_index);

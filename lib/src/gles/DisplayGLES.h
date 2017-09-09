@@ -59,6 +59,7 @@ namespace Viry3D
 		void OnResume();
 		void BeginFrame() { }
 		void EndFrame() { }
+		void WaitQueueIdle() { }
 		void BindVertexBuffer(const VertexBuffer* buffer);
 		void BindIndexBuffer(const IndexBuffer* buffer, IndexType index_type);
 		void BindVertexArray(const Ref<Shader>& shader, int pass_index);

@@ -17,8 +17,8 @@
 
 precision mediump float;
 
-UniformTexture(0, 2) uniform sampler2D _Control;
-UniformTexture(0, 4) uniform sampler2D _Lightmap;
+UniformTexture(1, 1) uniform sampler2D _Lightmap;
+UniformTexture(0, 3) uniform sampler2D _Control;
 UniformTexture(0, 5) uniform sampler2D _NHxRoughness;
 UniformTexture(0, 6) uniform sampler2D _Splat0;
 UniformTexture(0, 7) uniform sampler2D _Splat1;
@@ -27,7 +27,7 @@ UniformTexture(0, 9) uniform sampler2D _Normal0;
 UniformTexture(0, 10) uniform sampler2D _Normal1;
 UniformTexture(0, 11) uniform sampler2D _Normal2;
 
-UniformBuffer(0, 3) uniform buf_ps {
+UniformBuffer(0, 4) uniform buf_ps {
 	vec4 _WorldSpaceLightPos;
 	vec4 _LightColor;
 	vec4 _WorldSpaceCameraPos;

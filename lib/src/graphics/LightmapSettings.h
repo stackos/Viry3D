@@ -20,8 +20,6 @@
 #include "string/String.h"
 #include "Texture2D.h"
 
-#define LIGHT_MAP_COUNT_MAX 8
-
 namespace Viry3D
 {
 	class LightmapSettings

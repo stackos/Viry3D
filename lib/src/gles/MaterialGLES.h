@@ -28,7 +28,6 @@ namespace Viry3D
 	{
 	public:
 		void Apply(int pass_index);
-		void ApplyLightmap(int pass_index, int lightmap_index);
 
 	protected:
 		void UpdateUniformsBegin(int pass_index);

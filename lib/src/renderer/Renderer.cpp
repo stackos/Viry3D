@@ -356,8 +356,8 @@ namespace Viry3D
 				// 非静态或第一批
 				if (!static_batch || !batching)
 				{
-					shader->BindMaterial(0, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
-					shader->BindRendererDescriptorSet(0, mat, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
+					shader->BindMaterial(0, mat, i.renderer->m_descriptor_set);
+					shader->BindRendererDescriptorSet(0, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
 				}
 
 				i.renderer->Render(i.material_index, 0);
@@ -401,8 +401,8 @@ namespace Viry3D
 
 				auto& mat = i.renderer->GetSharedMaterials()[i.material_index];
 				shader->BindSharedMaterial(j, mat);
-				shader->BindMaterial(j, mat, i.renderer->m_lightmap_index, i.renderer->m_descriptor_set);
-				shader->BindRendererDescriptorSet(j, mat, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
+				shader->BindMaterial(j, mat, i.renderer->m_descriptor_set);
+				shader->BindRendererDescriptorSet(j, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
 
 				i.renderer->Render(i.material_index, j);
 

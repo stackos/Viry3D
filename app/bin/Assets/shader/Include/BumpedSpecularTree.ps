@@ -17,13 +17,13 @@
 
 precision mediump float;
 
-UniformTexture(0, 2) uniform sampler2D _MainTex;
-UniformTexture(0, 4) uniform sampler2D _Lightmap;
+UniformTexture(1, 1) uniform sampler2D _Lightmap;
+UniformTexture(0, 3) uniform sampler2D _MainTex;
 UniformTexture(0, 5) uniform sampler2D _Normal;
 UniformTexture(0, 6) uniform sampler2D _SpecMap;
 UniformTexture(0, 7) uniform sampler2D _NHxRoughness;
 
-UniformBuffer(0, 3) uniform buf_ps {
+UniformBuffer(0, 4) uniform buf_ps {
 	vec4 _Color;
 	vec4 _Spec;
 	vec4 _Smoothness;

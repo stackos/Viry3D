@@ -37,7 +37,7 @@ namespace Viry3D
 	{
 	public:
 		virtual ~MaterialVulkan();
-		const Vector<Ref<DescriptorSet>>& GetDescriptorSets(int pass_index);
+		const Ref<DescriptorSet>& GetDescriptorSet(int pass_index);
 
 	protected:
 		MaterialVulkan();
@@ -49,7 +49,7 @@ namespace Viry3D
 		void SetUniformTexture(int pass_index, const String& name, const Texture* texture);
 
 	private:
-		Vector<Vector<Ref<DescriptorSet>>> m_descriptor_sets;
+		Vector<Ref<DescriptorSet>> m_descriptor_sets;
 		Vector<Ref<UniformBuffer>> m_uniform_buffers;
 	};
 }

@@ -28,6 +28,7 @@
 #include "graphics/Graphics.h"
 #include "graphics/RenderPass.h"
 #include "graphics/Material.h"
+#include "graphics/LightmapSettings.h"
 #include "io/File.h"
 #include "io/MemoryStream.h"
 #include "memory/Memory.h"
@@ -36,6 +37,7 @@
 namespace Viry3D
 {
 	static const int UNIFORM_BUFFER_OBJ_BINDING = 0;
+	static const String LIGHTMAP_NAME = "_Lightmap";
 
 	static GLuint create_shader(GLenum type, const String& src)
 	{
@@ -112,14 +114,11 @@ namespace Viry3D
 		auto display = (DisplayGLES*) Graphics::GetDisplay();
 		auto program = shader_pass.program;
 
-		auto push_index = glGetUniformBlockIndex(program, "buf_vs_obj");
-		if (push_index != 0xffffffff)
+		shader_pass.lightmap_location = glGetUniformLocation(program, LIGHTMAP_NAME.CString());
+		shader_pass.buf_obj_index = glGetUniformBlockIndex(program, "buf_vs_obj");
+		if (shader_pass.buf_obj_index != 0xffffffff)
 		{
-			glUniformBlockBinding(program, push_index, UNIFORM_BUFFER_OBJ_BINDING);
-		}
-		else
-		{
-			Log("no world uniform in shader:%s", xml.name.CString());
+			glUniformBlockBinding(program, shader_pass.buf_obj_index, UNIFORM_BUFFER_OBJ_BINDING);
 		}
 
 		auto& uniform_buffer_infos = shader_pass.uniform_buffer_infos;
@@ -197,7 +196,7 @@ namespace Viry3D
 		for (auto& i : sampler_infos)
 		{
 			auto location = glGetUniformLocation(program, i->name.CString());
-
+			
 			shader_pass.sampler_locations.Add(location);
 		}
 
@@ -635,15 +634,24 @@ namespace Viry3D
 		descriptor_set_buffer->UpdateRange(0, size, data);
 	}
 
-	void ShaderGLES::BindRendererDescriptorSet(int index, const Ref<Material>& material, Ref<UniformBuffer>& descriptor_set_buffer, int lightmap_index)
+	void ShaderGLES::BindRendererDescriptorSet(int index, Ref<UniformBuffer>& descriptor_set_buffer, int lightmap_index)
 	{
 		LogGLError();
 
-		glBindBufferBase(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_OBJ_BINDING, descriptor_set_buffer->GetBuffer());
-
-		if (lightmap_index >= 0)
+		auto& pass = m_passes[index];
+		if (pass.buf_obj_index != 0xffffffff)
 		{
-			material->ApplyLightmap(index, lightmap_index);
+			glBindBufferBase(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_OBJ_BINDING, descriptor_set_buffer->GetBuffer());
+		}
+
+		if (lightmap_index >= 0 && pass.lightmap_location != 0xffffffff)
+		{
+			glActiveTexture(GL_TEXTURE0 + 0);
+
+			auto texture = LightmapSettings::GetLightmap(lightmap_index)->GetTexture();
+			glBindTexture(GL_TEXTURE_2D, texture);
+
+			glUniform1i(pass.lightmap_location, 0);
 		}
 
 		LogGLError();
