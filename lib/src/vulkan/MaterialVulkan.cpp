@@ -182,64 +182,6 @@ namespace Viry3D
 		}
 	}
 
-	bool MaterialVulkan::CheckWritesDirty(int pass_index) const
-	{
-		auto mat = (Material*) this;
-		auto& shader = mat->GetShader();
-		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
-
-		bool write_dirty = false;
-		if (m_writes_old.Size() != writes.Size())
-		{
-			write_dirty = true;
-		}
-		else
-		{
-			for (int i = 0; i < writes.Size(); i++)
-			{
-				if (m_writes_old[i].set.sType != writes[i].sType ||
-					m_writes_old[i].set.pNext != writes[i].pNext ||
-					m_writes_old[i].set.dstBinding != writes[i].dstBinding ||
-					m_writes_old[i].set.dstArrayElement != writes[i].dstArrayElement ||
-					m_writes_old[i].set.descriptorCount != writes[i].descriptorCount ||
-					m_writes_old[i].set.descriptorType != writes[i].descriptorType ||
-					m_writes_old[i].set.pImageInfo != writes[i].pImageInfo ||
-					m_writes_old[i].set.pBufferInfo != writes[i].pBufferInfo ||
-					m_writes_old[i].set.pTexelBufferView != writes[i].pTexelBufferView)
-				{
-					write_dirty = true;
-					break;
-				}
-				else
-				{
-					if (writes[i].pImageInfo != NULL)
-					{
-						if (m_writes_old[i].image.sampler != writes[i].pImageInfo->sampler ||
-							m_writes_old[i].image.imageView != writes[i].pImageInfo->imageView ||
-							m_writes_old[i].image.imageLayout != writes[i].pImageInfo->imageLayout)
-						{
-							write_dirty = true;
-							break;
-						}
-					}
-
-					if (writes[i].pBufferInfo != NULL)
-					{
-						if (m_writes_old[i].buffer.buffer != writes[i].pBufferInfo->buffer ||
-							m_writes_old[i].buffer.offset != writes[i].pBufferInfo->offset ||
-							m_writes_old[i].buffer.range != writes[i].pBufferInfo->range)
-						{
-							write_dirty = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		return write_dirty;
-	}
-
 	void MaterialVulkan::UpdateUniformsEnd(int pass_index)
 	{
 		auto mat = (Material*) this;
@@ -260,39 +202,22 @@ namespace Viry3D
 			}
 		}
 
-		if (CheckWritesDirty(pass_index))
+		int lightmap_count = LightmapSettings::GetLightmapCount();
+		auto& descriptor_sets = m_descriptor_sets[pass_index];
+		for (int i = 0; i < descriptor_sets.Size(); i++)
 		{
-			int lightmap_count = LightmapSettings::GetLightmapCount();
-			auto& descriptor_sets = m_descriptor_sets[pass_index];
-			for (int i = 0; i < descriptor_sets.Size(); i++)
+			if (i < lightmap_count)
 			{
-				if (i < lightmap_count)
-				{
-					SetUniformTexture(pass_index, "_Lightmap", LightmapSettings::GetLightmap(i));
-				}
-
-				for (int j = 0; j < writes.Size(); j++)
-				{
-					auto& write = writes[j];
-					write.dstSet = RefCast<DescriptorSetVulkan>(descriptor_sets[i])->set;
-				}
-
-				vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
+				SetUniformTexture(pass_index, "_Lightmap", LightmapSettings::GetLightmap(i));
 			}
 
-			m_writes_old.Resize(writes.Size());
-			for (int i = 0; i < m_writes_old.Size(); i++)
+			for (int j = 0; j < writes.Size(); j++)
 			{
-				m_writes_old[i].set = writes[i];
-				if (writes[i].pImageInfo != NULL)
-				{
-					m_writes_old[i].image = *writes[i].pImageInfo;
-				}
-				if (writes[i].pBufferInfo != NULL)
-				{
-					m_writes_old[i].buffer = *writes[i].pBufferInfo;
-				}
+				auto& write = writes[j];
+				write.dstSet = RefCast<DescriptorSetVulkan>(descriptor_sets[i])->set;
 			}
+
+			vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);
 		}
 	}
 }

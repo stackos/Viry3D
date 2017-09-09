@@ -49,11 +49,7 @@ namespace Viry3D
 		void SetUniformTexture(int pass_index, const String& name, const Texture* texture);
 
 	private:
-		bool CheckWritesDirty(int pass_index) const;
-
-	private:
 		Vector<Vector<Ref<DescriptorSet>>> m_descriptor_sets;
 		Vector<Ref<UniformBuffer>> m_uniform_buffers;
-		Vector<WriteDescriptorSet> m_writes_old;
 	};
 }
