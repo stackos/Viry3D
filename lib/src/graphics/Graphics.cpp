@@ -166,6 +166,8 @@ namespace Viry3D
 		auto shader = material->GetShader();
 
 		shader->PreparePass(pass);
+		material->UpdateUniforms(pass);
+
 		shader->BeginPass(pass);
 		shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, &world, sizeof(Matrix4x4), 0);
 		shader->BindSharedMaterial(pass, material);
@@ -174,16 +176,19 @@ namespace Viry3D
 
 		auto index_type = IndexType::UnsignedShort;
 
-		Graphics::GetDisplay()->BindVertexBuffer(m_blit_mesh->GetVertexBuffer().get());
-		Graphics::GetDisplay()->BindIndexBuffer(m_blit_mesh->GetIndexBuffer().get(), index_type);
-		Graphics::GetDisplay()->BindVertexArray(shader, pass);
-		Graphics::GetDisplay()->DrawIndexed(0, 6, index_type);
+		GetDisplay()->BindVertexBuffer(m_blit_mesh->GetVertexBuffer().get());
+		GetDisplay()->BindIndexBuffer(m_blit_mesh->GetIndexBuffer().get(), index_type);
+		GetDisplay()->BindVertexArray(shader, pass);
+		GetDisplay()->DrawIndexed(0, 6, index_type);
+		GetDisplay()->DisableVertexArray(shader, pass);
 
 		shader->EndPass(0);
 	}
 
 	void Graphics::Blit(const Ref<RenderTexture>& src, const Ref<RenderTexture>& dest, const Ref<Material>& material, int pass, const Rect* rect)
 	{
+		GetDisplay()->WaitQueueIdle();
+
 		Ref<RenderPass> render_pass;
 
 		for (auto& i : m_blit_render_passes)
@@ -262,6 +267,5 @@ namespace Viry3D
 		render_pass->End();
 
 		GetDisplay()->SubmitQueue(render_pass->GetCommandBuffer());
-		GetDisplay()->WaitQueueIdle();
 	}
 }
