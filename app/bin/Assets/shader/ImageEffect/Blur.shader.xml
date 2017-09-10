@@ -38,11 +38,11 @@ void main() {
 	</VertexShader>
 
 	<PixelShader name="ps_downsample">
-		<Sampler name="_MainTex" binding="1"/>
+		<Sampler name="_MainTex" binding="3"/>
 		<Source>
 precision mediump float;
       
-UniformTexture(0, 1) uniform sampler2D _MainTex;
+UniformTexture(0, 3) uniform sampler2D _MainTex;
 
 Varying(0) in vec2 v_uv20;
 Varying(1) in vec2 v_uv21;
@@ -135,11 +135,11 @@ void main() {
     </VertexShader>
     
     <PixelShader name="ps_blur">
-        <Sampler name="_MainTex" binding="1"/>
+        <Sampler name="_MainTex" binding="3"/>
         <Source>
 precision mediump float;
 
-UniformTexture(0, 1) uniform sampler2D _MainTex;
+UniformTexture(0, 3) uniform sampler2D _MainTex;
 
 Varying(0) in vec2 v_uv;
 Varying(1) in vec2 v_offset;

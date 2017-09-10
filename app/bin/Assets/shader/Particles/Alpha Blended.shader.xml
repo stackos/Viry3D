@@ -1,6 +1,6 @@
 <Shader name="Particles/Alpha Blended" queue="Transparent">
 	<VertexShader name="vs">
-		<UniformBuffer name="buf_vs" binding="1">
+		<UniformBuffer name="buf_vs" binding="2">
 			<Uniform name ="_ViewProjection" size="64"/>
 			<Uniform name ="_TintColor" size="16"/>
 		</UniformBuffer>
@@ -12,7 +12,7 @@
 	</VertexShader>
 
 	<PixelShader name="ps">
-		<Sampler name="_MainTex" binding="2"/>
+		<Sampler name="_MainTex" binding="3"/>
 		<Include name="Particles.ps"/>
 	</PixelShader>
 

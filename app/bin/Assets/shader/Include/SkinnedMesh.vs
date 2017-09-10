@@ -19,7 +19,7 @@ UniformBuffer(1, 0) uniform buf_vs_obj {
 	vec4 _Bones[BONE_VEC_MAX];
 } u_buf_obj;
 
-UniformBuffer(0, 1) uniform buf_vs {
+UniformBuffer(0, 2) uniform buf_vs {
 	mat4 _ViewProjection;
 } u_buf;
 

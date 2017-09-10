@@ -15,7 +15,7 @@
 * limitations under the License.
 */
 
-UniformBuffer(0, 1) uniform buf_vs {
+UniformBuffer(0, 2) uniform buf_vs {
 	mat4 _ViewProjection;
 	vec4 _TintColor;
 } u_buf;
