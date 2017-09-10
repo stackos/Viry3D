@@ -109,6 +109,15 @@
     <Filter Include="src\crypto\md5">
       <UniqueIdentifier>{a17ae576-818d-4173-b8c7-5b9694bbdcab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\noise">
+      <UniqueIdentifier>{cbda32b1-f167-4cd6-973f-84b7ef6fcbc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\noise\module">
+      <UniqueIdentifier>{f2e2b3aa-5dee-47f0-9ca7-0b2319f8a5ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\noise\model">
+      <UniqueIdentifier>{092c6f7e-68f1-43eb-a4d8-9bce890d5dc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -1543,6 +1552,111 @@
     </ClCompile>
     <ClCompile Include="..\..\src\vulkan\DescriptorSetVulkan.cpp">
       <Filter>src\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\scalebias.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\scalepoint.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\select.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\spheres.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\terrace.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\translatepoint.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\turbulence.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\voronoi.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\abs.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\add.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\billow.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\blend.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\cache.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\checkerboard.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\clamp.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\const.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\curve.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\cylinders.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\displace.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\exponent.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\invert.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\max.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\min.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\modulebase.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\multiply.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\perlin.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\power.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\ridgedmulti.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\module\rotatepoint.cpp">
+      <Filter>src\noise\module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\model\line.cpp">
+      <Filter>src\noise\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\model\plane.cpp">
+      <Filter>src\noise\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\model\sphere.cpp">
+      <Filter>src\noise\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\model\cylinder.cpp">
+      <Filter>src\noise\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\latlon.cpp">
+      <Filter>src\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\noise\noisegen.cpp">
+      <Filter>src\noise</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -19,28 +19,33 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "graphics/Camera.h"
+#include "noise/noise.h"
 
 using namespace Viry3D;
 
-class AppClear : public Application
+class AppTerrain: public Application
 {
 public:
-	AppClear();
+	AppTerrain();
 	virtual void Start();
 };
 
-#if 0
-VR_MAIN(AppClear);
+#if 1
+VR_MAIN(AppTerrain);
 #endif
 
-AppClear::AppClear()
+AppTerrain::AppTerrain()
 {
 	this->SetName("Viry3D::AppClear");
-	this->SetInitSize(800, 600);
+	this->SetInitSize(1280, 720);
 }
 
-void AppClear::Start()
+void AppTerrain::Start()
 {
-	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-	camera->SetClearColor(Color(1, 0, 0, 1));
+	GameObject::Create("camera")->AddComponent<Camera>();
+
+	noise::module::Perlin module;
+	double value = module.GetValue(0.1, 0.2, 0.3);
+
+	Log("%f", (float) value);
 }
