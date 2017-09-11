@@ -467,6 +467,7 @@
     <ClCompile Include="..\..\src\noise\module\turbulence.cpp" />
     <ClCompile Include="..\..\src\noise\module\voronoi.cpp" />
     <ClCompile Include="..\..\src\noise\noisegen.cpp" />
+    <ClCompile Include="..\..\src\noise\noiseutils.cpp" />
     <ClCompile Include="..\..\src\Object.cpp" />
     <ClCompile Include="..\..\src\openal\Alc\ALc.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcConfig.c" />

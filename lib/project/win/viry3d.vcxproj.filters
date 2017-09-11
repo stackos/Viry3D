@@ -1658,6 +1658,9 @@
     <ClCompile Include="..\..\src\noise\noisegen.cpp">
       <Filter>src\noise</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\noise\noiseutils.cpp">
+      <Filter>src\noise</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\json\json_internalarray.inl">
