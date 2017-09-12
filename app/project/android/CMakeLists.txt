@@ -134,6 +134,42 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/mp3/mad/mad_timer.c
             ${VIRY3D_LIB_SRC_DIR}/mp3/mad/synth.c
             ${VIRY3D_LIB_SRC_DIR}/mp3/mad/version.c
+            ${VIRY3D_LIB_SRC_DIR}/noise/model/cylinder.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/model/line.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/model/plane.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/model/sphere.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/abs.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/add.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/billow.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/blend.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/cache.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/checkerboard.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/clamp.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/const.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/curve.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/cylinders.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/displace.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/exponent.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/invert.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/max.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/min.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/modulebase.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/multiply.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/perlin.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/power.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/ridgedmulti.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/rotatepoint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/scalebias.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/scalepoint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/select.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/spheres.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/terrace.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/translatepoint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/turbulence.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/module/voronoi.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/latlon.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/noisegen.cpp
+            ${VIRY3D_LIB_SRC_DIR}/noise/noiseutils.cpp
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/loopback.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/null.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/opensl.c
@@ -284,6 +320,7 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
             ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
             ${VIRY3D_APP_SRC_DIR}/AppScene.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppTerrain.cpp
             ${VIRY3D_APP_SRC_DIR}/AppWatch.cpp)
 
 target_include_directories(Viry3DApp PRIVATE
