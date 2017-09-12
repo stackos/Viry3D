@@ -1213,7 +1213,7 @@ namespace noise
         /// Constructor.
         WriterTER ():
           m_pSourceNoiseMap (NULL),
-          m_metersPerPoint (DEFAULT_METERS_PER_POINT)
+          m_metersPerPoint ((float)DEFAULT_METERS_PER_POINT)
         {
         }
 
