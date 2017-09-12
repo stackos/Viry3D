@@ -322,7 +322,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
-    <ClCompile Include="..\..\src\graphics\DescriptorSet.cpp" />
     <ClCompile Include="..\..\src\graphics\DisplayBase.cpp" />
     <ClCompile Include="..\..\src\graphics\Graphics.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
@@ -537,7 +536,6 @@
     <ClCompile Include="..\..\src\ui\UISprite.cpp" />
     <ClCompile Include="..\..\src\ui\UIView.cpp" />
     <ClCompile Include="..\..\src\vulkan\BufferVulkan.cpp" />
-    <ClCompile Include="..\..\src\vulkan\DescriptorSetVulkan.cpp" />
     <ClCompile Include="..\..\src\vulkan\DisplayVulkan.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />

@@ -1547,12 +1547,6 @@
     <ClCompile Include="..\..\src\crypto\md5\md5.c">
       <Filter>src\crypto\md5</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\graphics\DescriptorSet.cpp">
-      <Filter>src\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\DescriptorSetVulkan.cpp">
-      <Filter>src\vulkan</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\noise\module\scalebias.cpp">
       <Filter>src\noise\module</Filter>
     </ClCompile>
