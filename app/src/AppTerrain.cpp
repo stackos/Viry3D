@@ -31,7 +31,7 @@ public:
 	virtual void Start();
 };
 
-#if 1
+#if 0
 VR_MAIN(AppTerrain);
 #endif
 
