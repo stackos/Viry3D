@@ -63,8 +63,7 @@ namespace Viry3D
 
 	Camera::Camera():
 		m_culling_mask(-1),
-		m_matrix_dirty(true),
-		m_always_rebuild_cmd(false)
+		m_matrix_dirty(true)
 	{
 		m_cameras.AddLast(this);
 
@@ -208,6 +207,10 @@ namespace Viry3D
 		Renderer::RenderAllPass();
 
 		this->GetGameObject()->OnPostRender();
+		if (m_post_render_func)
+		{
+			m_post_render_func();
+		}
 
 		m_render_pass->End();
 

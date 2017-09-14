@@ -618,6 +618,9 @@
     <ClInclude Include="..\..\src\vulkan\DescriptorSetVulkan.h">
       <Filter>src\vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Action.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">

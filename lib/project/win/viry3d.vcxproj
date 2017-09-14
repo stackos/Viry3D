@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\Action.h" />
     <ClInclude Include="..\..\src\android\DisplayAndroid.h" />
     <ClInclude Include="..\..\src\android\jni.h" />
     <ClInclude Include="..\..\src\animation\Animation.h" />

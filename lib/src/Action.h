@@ -15,33 +15,11 @@
 * limitations under the License.
 */
 
-#include "RenderTextureBliter.h"
-#include "Graphics.h"
-#include "GameObject.h"
-#include "Camera.h"
-#include "RenderTexture.h"
+#pragma once
+
+#include <functional>
 
 namespace Viry3D
 {
-	DEFINE_COM_CLASS(RenderTextureBliter);
-
-	void RenderTextureBliter::DeepCopy(const Ref<Object>& source)
-	{
-	}
-
-	void RenderTextureBliter::Start()
-	{
-	}
-
-	void RenderTextureBliter::OnPostRender()
-	{
-#if VR_GLES
-		bool reverse = true;
-#else
-		bool reverse = false;
-#endif
-
-		Rect rect(0, 0, 1, 1);
-		Graphics::DrawQuad(&rect, rt->color_texture, reverse);
-	}
+	typedef std::function<void()> Action;
 }

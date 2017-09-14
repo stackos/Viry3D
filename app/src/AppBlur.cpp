@@ -36,31 +36,9 @@ class AppBlur : public Application
 public:
 	AppBlur();
 	virtual void Start();
+
+	Ref<Texture> m_image;
 };
-
-class CameraPostRender : public Component
-{
-	DECLARE_COM_CLASS(CameraPostRender, Component)
-public:
-	Ref<Texture> m_tex;
-
-	virtual void Start()
-	{
-		m_tex = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");
-	}
-
-	virtual void OnPostRender()
-	{
-		Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
-		Graphics::DrawQuad(&rect, m_tex);
-	}
-};
-
-DEFINE_COM_CLASS(CameraPostRender);
-
-void CameraPostRender::DeepCopy(const Ref<Object>& source)
-{
-}
 
 #if 0
 VR_MAIN(AppBlur);
@@ -70,8 +48,6 @@ AppBlur::AppBlur()
 {
 	this->SetName("Viry3D::AppBlur");
 	this->SetInitSize(800, 600);
-
-	CameraPostRender::RegisterComponent();
 }
 
 void AppBlur::Start()
@@ -83,7 +59,6 @@ void AppBlur::Start()
 	camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
 	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
 
-	camera->GetGameObject()->AddComponent<CameraPostRender>();
 	camera->GetGameObject()->AddComponent<ImageEffectBlur>();
 
 	auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
@@ -101,4 +76,10 @@ void AppBlur::Start()
 	auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
 	mesh->Update();
 	ground->SetSharedMesh(mesh);
+
+	m_image = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");
+	camera->SetPostRenderFunc([=]() {
+		Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
+		Graphics::DrawQuad(&rect, m_image);
+	});
 }

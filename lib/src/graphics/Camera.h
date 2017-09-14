@@ -25,6 +25,7 @@
 #include "Color.h"
 #include "container/List.h"
 #include "FrameBuffer.h"
+#include "Action.h"
 
 namespace Viry3D
 {
@@ -75,7 +76,7 @@ namespace Viry3D
 		void SetFrameBuffer(const Ref<FrameBuffer>& frame_buffer);
 		int GetTargetWidth() const;
 		int GetTargetHeight() const;
-		void SetAlwaysRebuildCmd() { m_always_rebuild_cmd = true; }
+		void SetPostRenderFunc(Action func) { m_post_render_func = func; }
 
 	protected:
 		virtual void OnTranformChanged();
@@ -119,6 +120,6 @@ namespace Viry3D
 		Matrix4x4 m_view_projection_matrix;
 		Frustum m_frustum;
 		Ref<RenderPass> m_render_pass;
-		bool m_always_rebuild_cmd;
+		Action m_post_render_func;
 	};
 }

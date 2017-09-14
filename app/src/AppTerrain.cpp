@@ -19,6 +19,8 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "graphics/Camera.h"
+#include "graphics/Texture2D.h"
+#include "graphics/Graphics.h"
 #include "noise/noise.h"
 #include "noise/noiseutils.h"
 
@@ -28,22 +30,30 @@ class AppTerrain: public Application
 {
 public:
 	AppTerrain();
+	virtual ~AppTerrain();
 	virtual void Start();
+
+	Ref<Texture2D> m_image;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppTerrain);
 #endif
 
 AppTerrain::AppTerrain()
 {
-	this->SetName("Viry3D::AppClear");
+	this->SetName("Viry3D::AppTerrain");
 	this->SetInitSize(1280, 720);
+}
+
+AppTerrain::~AppTerrain()
+{
+	m_image.reset();
 }
 
 void AppTerrain::Start()
 {
-	GameObject::Create("camera")->AddComponent<Camera>();
+	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 
 	module::RidgedMulti mountainTerrain;
 
@@ -75,26 +85,30 @@ void AppTerrain::Start()
 	utils::NoiseMapBuilderPlane heightMapBuilder;
 	heightMapBuilder.SetSourceModule(finalTerrain);
 	heightMapBuilder.SetDestNoiseMap(heightMap);
-	heightMapBuilder.SetDestSize(2048, 2048);
+	heightMapBuilder.SetDestSize(513, 513);
 	heightMapBuilder.SetBounds(0, 4, 0, 4);
 	heightMapBuilder.Build();
 
-	utils::RendererImage renderer;
-	utils::Image image;
-	renderer.SetSourceNoiseMap(heightMap);
-	renderer.SetDestImage(image);
-	renderer.ClearGradient();
-	renderer.AddGradientPoint(-1.00, utils::Color(32, 160, 0, 255)); // grass
-	renderer.AddGradientPoint(-0.25, utils::Color(224, 224, 0, 255)); // dirt
-	renderer.AddGradientPoint(0.25, utils::Color(128, 128, 128, 255)); // rock
-	renderer.AddGradientPoint(1.00, utils::Color(255, 255, 255, 255)); // snow
-	renderer.EnableLight();
-	renderer.SetLightContrast(3.0);
-	renderer.SetLightBrightness(2.0);
-	renderer.Render();
+	auto stride = heightMap.GetStride();
+	auto height_buffer = ByteBuffer(513 * 513);
+	for (int i = 0; i < 513; i++)
+	{
+		auto row = heightMap.GetSlabPtr(i);
+		for (int j = 0; j < 513; j++)
+		{
+			byte a = (byte) Mathf::Min((int) ((row[j] + 1) * 0.5f * 255), 255);
+			height_buffer[i * 513 + j] = a;
+		}
+	}
+	m_image = Texture2D::Create(513, 513, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, height_buffer);
 
-	utils::WriterBMP writer;
-	writer.SetSourceImage(image);
-	writer.SetDestFilename((Application::SavePath() + "/tutorial.bmp").CString());
-	writer.WriteDestFile();
+	camera->SetPostRenderFunc([=]() {
+#if VR_GLES
+		bool reverse = true;
+#else
+		bool reverse = false;
+#endif
+		Viry3D::Rect rect(0, 0, 1.0f * 9 / 16, 1);
+		Graphics::DrawQuad(&rect, m_image, reverse);
+	});
 }
