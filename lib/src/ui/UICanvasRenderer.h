@@ -44,9 +44,9 @@ namespace Viry3D
 		static void HandleUIEvent(const List<UICanvasRenderer*>& list);
 
 		virtual ~UICanvasRenderer();
-		virtual const VertexBuffer* GetVertexBuffer();
-		virtual const IndexBuffer* GetIndexBuffer();
-		virtual void GetIndexRange(int material_index, int& start, int& count);
+		virtual const VertexBuffer* GetVertexBuffer() const;
+		virtual const IndexBuffer* GetIndexBuffer() const;
+		virtual void GetIndexRange(int material_index, int& start, int& count) const;
 		void MarkDirty();
 		const Vector<Ref<UIView>>& GetViews() const { return m_views; }
 

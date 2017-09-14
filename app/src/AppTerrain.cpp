@@ -54,6 +54,8 @@ AppTerrain::~AppTerrain()
 
 void AppTerrain::Start()
 {
+	this->CreateFPSUI(20, 1, 1);
+
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 
 	module::RidgedMulti mountainTerrain;
@@ -109,7 +111,7 @@ void AppTerrain::Start()
 #else
 		bool reverse = false;
 #endif
-		Viry3D::Rect rect(0, 0, 1.0f * 9 / 16, 1);
+		Viry3D::Rect rect(1.0f - 1.0f * 9 / 16, 0, 1.0f * 9 / 16, 1);
 		Graphics::DrawQuad(&rect, m_image, reverse);
 	});
 }

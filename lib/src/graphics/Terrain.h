@@ -17,10 +17,27 @@
 
 #pragma once
 
+#include "renderer/Renderer.h"
+
 namespace Viry3D
 {
-	class Terrain
+	class TerrainTile
 	{
-	
+		
+	};
+
+	class Terrain : public Renderer
+	{
+		DECLARE_COM_CLASS(Terrain, Renderer);
+	public:
+		virtual ~Terrain();
+		virtual const VertexBuffer* GetVertexBuffer() const;
+		virtual const IndexBuffer* GetIndexBuffer() const;
+		virtual void GetIndexRange(int material_index, int& start, int& count) const;
+		virtual bool IsValidPass(int material_index) const;
+		virtual IndexType GetIndexType() const { return IndexType::UnsignedInt; }
+
+	private:
+		Terrain();
 	};
 }

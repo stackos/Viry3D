@@ -28,10 +28,10 @@ namespace Viry3D
 	{
 		DECLARE_COM_CLASS(SkinnedMeshRenderer, Renderer);
 	public:
-		virtual const VertexBuffer* GetVertexBuffer();
-		virtual const IndexBuffer* GetIndexBuffer();
-		virtual void GetIndexRange(int material_index, int& start, int& count);
-		virtual bool IsValidPass(int material_index);
+		virtual const VertexBuffer* GetVertexBuffer() const;
+		virtual const IndexBuffer* GetIndexBuffer() const;
+		virtual void GetIndexRange(int material_index, int& start, int& count) const;
+		virtual bool IsValidPass(int material_index) const;
 		const Ref<Mesh>& GetSharedMesh() const { return m_mesh; }
 		void SetSharedMesh(const Ref<Mesh>& mesh) { m_mesh = mesh; }
 		const Vector<WeakRef<Transform>>& GetBones() const { return m_bones; }

@@ -54,9 +54,9 @@ namespace Viry3D
 	{
 		DECLARE_COM_CLASS(ParticleSystemRenderer, Renderer);
 	public:
-		virtual const VertexBuffer* GetVertexBuffer();
-		virtual const IndexBuffer* GetIndexBuffer();
-		virtual void GetIndexRange(int material_index, int& start, int& count);
+		virtual const VertexBuffer* GetVertexBuffer() const;
+		virtual const IndexBuffer* GetIndexBuffer() const;
+		virtual void GetIndexRange(int material_index, int& start, int& count) const;
 
 	public:
 		ParticleSystemRenderMode render_mode;

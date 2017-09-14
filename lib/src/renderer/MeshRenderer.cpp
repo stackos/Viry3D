@@ -33,22 +33,22 @@ namespace Viry3D
 		this->SetSharedMesh(src->GetSharedMesh());
 	}
 
-	const VertexBuffer* MeshRenderer::GetVertexBuffer()
+	const VertexBuffer* MeshRenderer::GetVertexBuffer() const
 	{
 		return GetSharedMesh()->GetVertexBuffer().get();
 	}
 
-	const IndexBuffer* MeshRenderer::GetIndexBuffer()
+	const IndexBuffer* MeshRenderer::GetIndexBuffer() const
 	{
 		return GetSharedMesh()->GetIndexBuffer().get();
 	}
 
-	void MeshRenderer::GetIndexRange(int material_index, int& start, int& count)
+	void MeshRenderer::GetIndexRange(int material_index, int& start, int& count) const
 	{
 		GetSharedMesh()->GetIndexRange(material_index, start, count);
 	}
 
-	bool MeshRenderer::IsValidPass(int material_index)
+	bool MeshRenderer::IsValidPass(int material_index) const
 	{
 		if (m_mesh)
 		{

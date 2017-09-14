@@ -44,22 +44,22 @@ namespace Viry3D
 		this->SetBones(src->GetBones());
 	}
 
-	const VertexBuffer* SkinnedMeshRenderer::GetVertexBuffer()
+	const VertexBuffer* SkinnedMeshRenderer::GetVertexBuffer() const
 	{
 		return GetSharedMesh()->GetVertexBuffer().get();
 	}
 
-	const IndexBuffer* SkinnedMeshRenderer::GetIndexBuffer()
+	const IndexBuffer* SkinnedMeshRenderer::GetIndexBuffer() const
 	{
 		return GetSharedMesh()->GetIndexBuffer().get();
 	}
 
-	void SkinnedMeshRenderer::GetIndexRange(int material_index, int& start, int& count)
+	void SkinnedMeshRenderer::GetIndexRange(int material_index, int& start, int& count) const
 	{
 		GetSharedMesh()->GetIndexRange(material_index, start, count);
 	}
 
-	bool SkinnedMeshRenderer::IsValidPass(int material_index)
+	bool SkinnedMeshRenderer::IsValidPass(int material_index) const
 	{
 		if (m_mesh)
 		{

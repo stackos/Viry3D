@@ -126,52 +126,6 @@ namespace Viry3D
 		return GetTransform()->GetLocalToWorldMatrix();
 	}
 
-	bool Renderer::CheckBuffer(int material_index)
-	{
-		if (material_index >= m_buffer_old.Size())
-		{
-			return true;
-		}
-
-		bool static_batch = this->m_batch_indices.Size() > 0;
-
-		if (this->GetVertexBuffer() || static_batch)
-		{
-			int start, count;
-			if (static_batch)
-			{
-				start = m_batch_indices[material_index].index_start;
-				count = m_batch_indices[material_index].index_count;
-			}
-			else
-			{
-				this->GetIndexRange(material_index, start, count);
-			}
-
-			if (static_batch)
-			{
-				return m_buffer_old[material_index].vb != NULL ||
-					m_buffer_old[material_index].ib != NULL ||
-					m_buffer_old[material_index].start != start ||
-					m_buffer_old[material_index].count != count;
-			}
-			else
-			{
-				return m_buffer_old[material_index].vb != this->GetVertexBuffer() ||
-					m_buffer_old[material_index].ib != this->GetIndexBuffer() ||
-					m_buffer_old[material_index].start != start ||
-					m_buffer_old[material_index].count != count;
-			}
-		}
-		else
-		{
-			return m_buffer_old[material_index].vb != NULL ||
-				m_buffer_old[material_index].ib != NULL ||
-				m_buffer_old[material_index].start != 0 ||
-				m_buffer_old[material_index].count != 0;
-		}
-	}
-
 	void Renderer::Render(int material_index, int pass_index)
 	{
 		auto& mat = this->GetSharedMaterials()[material_index];
@@ -179,15 +133,10 @@ namespace Viry3D
 		bool static_batch = this->m_batch_indices.Size() > 0;
 		bool batching = m_batching_start >= 0 && m_batching_count > 0;
 
-		auto index_type = IndexType::UnsignedShort;
+		auto index_type = GetIndexType();
 		if (static_batch)
 		{
 			index_type = IndexType::UnsignedInt;
-		}
-
-		if (m_buffer_old.Size() <= material_index)
-		{
-			m_buffer_old.Resize(material_index + 1);
 		}
 
 		if (this->GetVertexBuffer() || static_batch)
@@ -237,27 +186,6 @@ namespace Viry3D
 				Graphics::GetDisplay()->DrawIndexed(start, count, index_type);
 				Graphics::GetDisplay()->DisableVertexArray(shader, pass_index);
 			}
-
-			if (static_batch)
-			{
-				m_buffer_old[material_index].vb = NULL;
-				m_buffer_old[material_index].ib = NULL;
-			}
-			else
-			{
-				m_buffer_old[material_index].vb = this->GetVertexBuffer();
-				m_buffer_old[material_index].ib = this->GetIndexBuffer();
-			}
-
-			m_buffer_old[material_index].start = start;
-			m_buffer_old[material_index].count = count;
-		}
-		else
-		{
-			m_buffer_old[material_index].vb = NULL;
-			m_buffer_old[material_index].ib = NULL;
-			m_buffer_old[material_index].start = 0;
-			m_buffer_old[material_index].count = 0;
 		}
 	}
 
@@ -449,37 +377,6 @@ namespace Viry3D
 				mat->UpdateUniforms(i);
 			}
 		}
-	}
-
-	bool Renderer::CheckPass(List<MaterialPass>& pass)
-	{
-		auto& first = pass.First();
-
-		bool dirty = false;
-		if (first.shader_pass_count == 1)
-		{
-			for (auto& i : pass)
-			{
-				if (i.renderer->CheckBuffer(i.material_index))
-				{
-					dirty = true;
-					break;
-				}
-			}
-		}
-		else
-		{
-			for (int i = 0; i < first.shader_pass_count; i++)
-			{
-				if (first.renderer->CheckBuffer(first.material_index))
-				{
-					dirty = true;
-					break;
-				}
-			}
-		}
-
-		return dirty;
 	}
 
 	bool Renderer::IsRenderersDirty()

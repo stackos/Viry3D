@@ -180,7 +180,7 @@ namespace Viry3D
 		}
 	}
 
-	const VertexBuffer* UICanvasRenderer::GetVertexBuffer()
+	const VertexBuffer* UICanvasRenderer::GetVertexBuffer() const
 	{
 		if (m_mesh)
 		{
@@ -190,7 +190,7 @@ namespace Viry3D
 		return NULL;
 	}
 
-	const IndexBuffer* UICanvasRenderer::GetIndexBuffer()
+	const IndexBuffer* UICanvasRenderer::GetIndexBuffer() const
 	{
 		if (m_mesh)
 		{
@@ -200,7 +200,7 @@ namespace Viry3D
 		return NULL;
 	}
 
-	void UICanvasRenderer::GetIndexRange(int material_index, int& start, int& count)
+	void UICanvasRenderer::GetIndexRange(int material_index, int& start, int& count) const
 	{
 		if (m_mesh)
 		{

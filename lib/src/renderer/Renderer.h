@@ -55,10 +55,11 @@ namespace Viry3D
 		Ref<Material> GetSharedMaterial() const;
 		void SetSharedMaterial(const Ref<Material>& mat);
 		virtual ~Renderer();
-		virtual const VertexBuffer* GetVertexBuffer() = 0;
-		virtual const IndexBuffer* GetIndexBuffer() = 0;
-		virtual void GetIndexRange(int material_index, int& start, int& count) = 0;
-		virtual bool IsValidPass(int material_index) { return true; }
+		virtual const VertexBuffer* GetVertexBuffer() const = 0;
+		virtual const IndexBuffer* GetIndexBuffer() const = 0;
+		virtual void GetIndexRange(int material_index, int& start, int& count) const = 0;
+		virtual bool IsValidPass(int material_index) const { return true; }
+		virtual IndexType GetIndexType() const { return IndexType::UnsignedShort; }
 		const Vector<Ref<Material>>& GetSharedMaterials() const { return m_shared_materials; }
 		void SetSharedMaterials(const Vector<Ref<Material>>& mats) { m_shared_materials = mats; }
 		int GetSortingOrder() const { return m_sorting_order; }
@@ -78,7 +79,6 @@ namespace Viry3D
 		virtual void PreRenderByMaterial(int material_index);
 		virtual void PreRenderByRenderer(int material_index);
 		virtual Matrix4x4 GetWorldMatrix();
-		bool CheckBuffer(int material_index);
 		void Render(int material_index, int pass_index);
 
 	private:
@@ -129,7 +129,6 @@ namespace Viry3D
 		static void BuildPasses(const List<Renderer*>& renderers, List<List<MaterialPass>>& passes);
 		static void BuildPasses();
 		static void PreparePass(List<MaterialPass>& pass);
-		static bool CheckPass(List<MaterialPass>& pass);
 		static void CommitPass(List<MaterialPass>& pass);
 		static void BindStaticBuffers();
 
@@ -149,7 +148,6 @@ namespace Viry3D
 		int m_sorting_order;
 		int m_lightmap_index;
 		Vector4 m_lightmap_scale_offset;
-		Vector<RenderBuffer> m_buffer_old;
 		Bounds m_bounds;
 		Vector<BatchInfo> m_batch_indices;
 		Ref<DescriptorSet> m_descriptor_set;

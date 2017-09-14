@@ -19,5 +19,29 @@
 
 namespace Viry3D
 {
+	Terrain::~Terrain()
+	{
+		
+	}
+
+	const VertexBuffer* Terrain::GetVertexBuffer() const
+	{
+		return NULL;
+	}
+
+	const IndexBuffer* Terrain::GetIndexBuffer() const
+	{
+		return NULL;
+	}
+
+	void Terrain::GetIndexRange(int material_index, int& start, int& count) const
+	{
+
+	}
+
+	bool Terrain::IsValidPass(int material_index) const
+	{
+		return false;
+	}
 
 }

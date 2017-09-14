@@ -34,17 +34,17 @@ namespace Viry3D
 		auto src = RefCast<ParticleSystemRenderer>(source);
 	}
 
-	const VertexBuffer* ParticleSystemRenderer::GetVertexBuffer()
+	const VertexBuffer* ParticleSystemRenderer::GetVertexBuffer() const
 	{
 		return m_particle_system.lock()->GetVertexBuffer().get();
 	}
 
-	const IndexBuffer* ParticleSystemRenderer::GetIndexBuffer()
+	const IndexBuffer* ParticleSystemRenderer::GetIndexBuffer() const
 	{
 		return m_particle_system.lock()->GetIndexBuffer().get();
 	}
 
-	void ParticleSystemRenderer::GetIndexRange(int material_index, int& start, int& count)
+	void ParticleSystemRenderer::GetIndexRange(int material_index, int& start, int& count) const
 	{
 		m_particle_system.lock()->GetIndexRange(material_index, start, count);
 	}
