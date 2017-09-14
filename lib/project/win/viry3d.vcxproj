@@ -109,6 +109,7 @@
     <ClInclude Include="..\..\src\graphics\RenderTextureFormat.h" />
     <ClInclude Include="..\..\src\graphics\Screen.h" />
     <ClInclude Include="..\..\src\graphics\Shader.h" />
+    <ClInclude Include="..\..\src\graphics\Terrain.h" />
     <ClInclude Include="..\..\src\graphics\Texture.h" />
     <ClInclude Include="..\..\src\graphics\Texture2D.h" />
     <ClInclude Include="..\..\src\graphics\TextureFormat.h" />
@@ -337,6 +338,7 @@
     <ClCompile Include="..\..\src\graphics\RenderTextureBliter.cpp" />
     <ClCompile Include="..\..\src\graphics\Screen.cpp" />
     <ClCompile Include="..\..\src\graphics\Shader.cpp" />
+    <ClCompile Include="..\..\src\graphics\Terrain.cpp" />
     <ClCompile Include="..\..\src\graphics\Texture2D.cpp" />
     <ClCompile Include="..\..\src\graphics\UniformBuffer.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexBuffer.cpp" />

@@ -621,6 +621,9 @@
     <ClInclude Include="..\..\src\Action.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Terrain.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">
@@ -1657,6 +1660,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\noise\noiseutils.cpp">
       <Filter>src\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Terrain.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

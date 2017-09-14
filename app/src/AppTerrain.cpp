@@ -21,6 +21,7 @@
 #include "graphics/Camera.h"
 #include "graphics/Texture2D.h"
 #include "graphics/Graphics.h"
+#include "graphics/Terrain.h"
 #include "noise/noise.h"
 #include "noise/noiseutils.h"
 
