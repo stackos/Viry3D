@@ -621,8 +621,8 @@
     <ClInclude Include="..\..\src\Action.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\graphics\Terrain.h">
-      <Filter>src\graphics</Filter>
+    <ClInclude Include="..\..\src\renderer\Terrain.h">
+      <Filter>src\renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1661,8 +1661,8 @@
     <ClCompile Include="..\..\src\noise\noiseutils.cpp">
       <Filter>src\noise</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\graphics\Terrain.cpp">
-      <Filter>src\graphics</Filter>
+    <ClCompile Include="..\..\src\renderer\Terrain.cpp">
+      <Filter>src\renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

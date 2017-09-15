@@ -19,9 +19,26 @@
 
 namespace Viry3D
 {
+	DEFINE_COM_CLASS(Terrain);
+
+	Terrain::Terrain():
+		m_tile_map_size(513),
+		m_tile_noise_size(4),
+		m_noise_center(0, 0)
+	{
+	
+	}
+
 	Terrain::~Terrain()
 	{
 		
+	}
+
+	void Terrain::DeepCopy(const Ref<Object>& source)
+	{
+		Renderer::DeepCopy(source);
+
+		auto src = RefCast<Terrain>(source);
 	}
 
 	const VertexBuffer* Terrain::GetVertexBuffer() const
@@ -44,4 +61,8 @@ namespace Viry3D
 		return false;
 	}
 
+	void Terrain::GenerateTile(int x, int z)
+	{
+		
+	}
 }

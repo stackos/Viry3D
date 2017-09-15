@@ -25,6 +25,7 @@
 #include "renderer/SkinnedMeshRenderer.h"
 #include "renderer/ParticleSystemRenderer.h"
 #include "renderer/ParticleSystem.h"
+#include "renderer/Terrain.h"
 #include "animation/Animation.h"
 #include "ui/UICanvasRenderer.h"
 #include "ui/UISprite.h"
@@ -49,6 +50,7 @@ namespace Viry3D
 		SkinnedMeshRenderer::RegisterComponent();
 		ParticleSystemRenderer::RegisterComponent();
 		ParticleSystem::RegisterComponent();
+		Terrain::RegisterComponent();
 		Animation::RegisterComponent();
 		UICanvasRenderer::RegisterComponent();
 		UIView::RegisterComponent();

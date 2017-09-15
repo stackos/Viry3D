@@ -21,7 +21,7 @@
 #include "graphics/Camera.h"
 #include "graphics/Texture2D.h"
 #include "graphics/Graphics.h"
-#include "graphics/Terrain.h"
+#include "renderer/Terrain.h"
 #include "noise/noise.h"
 #include "noise/noiseutils.h"
 
@@ -35,6 +35,7 @@ public:
 	virtual void Start();
 
 	Ref<Texture2D> m_image;
+	Ref<Texture2D> m_image2;
 };
 
 #if 1
@@ -50,6 +51,7 @@ AppTerrain::AppTerrain()
 AppTerrain::~AppTerrain()
 {
 	m_image.reset();
+	m_image2.reset();
 }
 
 void AppTerrain::Start()
@@ -57,6 +59,7 @@ void AppTerrain::Start()
 	this->CreateFPSUI(20, 1, 1);
 
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+	auto terrain = GameObject::Create("Terrain")->AddComponent<Terrain>();
 
 	module::RidgedMulti mountainTerrain;
 
@@ -84,34 +87,62 @@ void AppTerrain::Start()
 	finalTerrain.SetFrequency(4.0);
 	finalTerrain.SetPower(0.125);
 
-	utils::NoiseMap heightMap;
-	utils::NoiseMapBuilderPlane heightMapBuilder;
-	heightMapBuilder.SetSourceModule(finalTerrain);
-	heightMapBuilder.SetDestNoiseMap(heightMap);
-	heightMapBuilder.SetDestSize(513, 513);
-	heightMapBuilder.SetBounds(0, 4, 0, 4);
-	heightMapBuilder.Build();
-
-	auto stride = heightMap.GetStride();
-	auto height_buffer = ByteBuffer(513 * 513);
-	for (int i = 0; i < 513; i++)
 	{
-		auto row = heightMap.GetSlabPtr(i);
-		for (int j = 0; j < 513; j++)
-		{
-			byte a = (byte) Mathf::Min((int) ((row[j] + 1) * 0.5f * 255), 255);
-			height_buffer[i * 513 + j] = a;
-		}
-	}
-	m_image = Texture2D::Create(513, 513, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, height_buffer);
+		utils::NoiseMap heightMap;
+		utils::NoiseMapBuilderPlane heightMapBuilder;
+		heightMapBuilder.SetSourceModule(finalTerrain);
+		heightMapBuilder.SetDestNoiseMap(heightMap);
+		heightMapBuilder.SetDestSize(513, 513);
+		heightMapBuilder.SetBounds(0, 4, 0, 4);
+		heightMapBuilder.Build();
 
+		auto stride = heightMap.GetStride();
+		auto height_buffer = ByteBuffer(513 * 513);
+		for (int i = 0; i < 513; i++)
+		{
+			auto row = heightMap.GetSlabPtr(i);
+			for (int j = 0; j < 513; j++)
+			{
+				byte a = (byte) Mathf::Min((int) ((row[j] + 1) * 0.5f * 255), 255);
+				height_buffer[i * 513 + j] = a;
+			}
+		}
+		m_image = Texture2D::Create(513, 513, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, height_buffer);
+	}
+
+	{
+		utils::NoiseMap heightMap;
+		utils::NoiseMapBuilderPlane heightMapBuilder;
+		heightMapBuilder.SetSourceModule(finalTerrain);
+		heightMapBuilder.SetDestNoiseMap(heightMap);
+		heightMapBuilder.SetDestSize(513, 513);
+		heightMapBuilder.SetBounds(-4, 0, 0, 4);
+		heightMapBuilder.Build();
+
+		auto stride = heightMap.GetStride();
+		auto height_buffer = ByteBuffer(513 * 513);
+		for (int i = 0; i < 513; i++)
+		{
+			auto row = heightMap.GetSlabPtr(i);
+			for (int j = 0; j < 513; j++)
+			{
+				byte a = (byte) Mathf::Min((int) ((row[j] + 1) * 0.5f * 255), 255);
+				height_buffer[i * 513 + j] = a;
+			}
+		}
+		m_image2 = Texture2D::Create(513, 513, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, height_buffer);
+	}
+	
 	camera->SetPostRenderFunc([=]() {
 #if VR_GLES
 		bool reverse = true;
 #else
 		bool reverse = false;
 #endif
-		Viry3D::Rect rect(1.0f - 1.0f * 9 / 16, 0, 1.0f * 9 / 16, 1);
+		Rect rect(0.5f, 0, 0.5f, 1);
 		Graphics::DrawQuad(&rect, m_image, reverse);
+
+		rect = Rect(0, 0, 0.5f, 1);
+		Graphics::DrawQuad(&rect, m_image2, reverse);
 	});
 }

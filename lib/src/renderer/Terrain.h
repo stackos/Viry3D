@@ -18,12 +18,15 @@
 #pragma once
 
 #include "renderer/Renderer.h"
+#include "container/Vector.h"
+#include "math/Vector2.h"
 
 namespace Viry3D
 {
-	class TerrainTile
+	struct TerrainTile
 	{
-		
+		int x;
+		int z;
 	};
 
 	class Terrain : public Renderer
@@ -37,7 +40,19 @@ namespace Viry3D
 		virtual bool IsValidPass(int material_index) const;
 		virtual IndexType GetIndexType() const { return IndexType::UnsignedInt; }
 
+		void SetTileMapSize(int tile_map_size) { m_tile_map_size = tile_map_size; }
+		void SetTileNoiseSize(float tile_noise_size) { m_tile_noise_size = tile_noise_size; }
+		// noise pos in world pos (0, 0, 0)
+		void SetNoiseCenter(const Vector2& noise_center) { m_noise_center = noise_center; }
+		void GenerateTile(int x, int z);
+
 	private:
 		Terrain();
+
+	private:
+		int m_tile_map_size;
+		float m_tile_noise_size;
+		Vector2 m_noise_center;
+		Vector<TerrainTile> m_tiles;
 	};
 }
