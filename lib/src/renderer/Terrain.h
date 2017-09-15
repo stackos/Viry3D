@@ -18,15 +18,19 @@
 #pragma once
 
 #include "renderer/Renderer.h"
-#include "container/Vector.h"
+#include "container/FastList.h"
 #include "math/Vector2.h"
+#include "graphics/Texture2D.h"
 
 namespace Viry3D
 {
 	struct TerrainTile
 	{
 		int x;
-		int z;
+		int y;
+		Vector2 noise_pos;
+		Vector3 world_pos;
+		Ref<Texture2D> debug_image;
 	};
 
 	class Terrain : public Renderer
@@ -40,11 +44,12 @@ namespace Viry3D
 		virtual bool IsValidPass(int material_index) const;
 		virtual IndexType GetIndexType() const { return IndexType::UnsignedInt; }
 
-		void SetTileMapSize(int tile_map_size) { m_tile_map_size = tile_map_size; }
-		void SetTileNoiseSize(float tile_noise_size) { m_tile_noise_size = tile_noise_size; }
+		void SetTileMapSize(int size) { m_tile_map_size = size; }
+		void SetTileNoiseSize(float size) { m_tile_noise_size = size; }
+		void SetTileWorldUnit(float unit) { m_tile_world_unit = unit; }
 		// noise pos in world pos (0, 0, 0)
 		void SetNoiseCenter(const Vector2& noise_center) { m_noise_center = noise_center; }
-		void GenerateTile(int x, int z);
+		TerrainTile* GenerateTile(int x, int y);
 
 	private:
 		Terrain();
@@ -52,7 +57,8 @@ namespace Viry3D
 	private:
 		int m_tile_map_size;
 		float m_tile_noise_size;
+		float m_tile_world_unit;
 		Vector2 m_noise_center;
-		Vector<TerrainTile> m_tiles;
+		FastList<TerrainTile> m_tiles;
 	};
 }

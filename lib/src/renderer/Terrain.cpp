@@ -16,6 +16,8 @@
 */
 
 #include "Terrain.h"
+#include "noise/noise.h"
+#include "noise/noiseutils.h"
 
 namespace Viry3D
 {
@@ -24,6 +26,7 @@ namespace Viry3D
 	Terrain::Terrain():
 		m_tile_map_size(513),
 		m_tile_noise_size(4),
+		m_tile_world_unit(513),
 		m_noise_center(0, 0)
 	{
 	
@@ -61,8 +64,69 @@ namespace Viry3D
 		return false;
 	}
 
-	void Terrain::GenerateTile(int x, int z)
+	TerrainTile* Terrain::GenerateTile(int x, int y)
 	{
-		
+		TerrainTile tile;
+		tile.x = x;
+		tile.y = y;
+		tile.noise_pos.x = m_noise_center.x + x * m_tile_noise_size;
+		tile.noise_pos.y = m_noise_center.y + y * m_tile_noise_size;
+		tile.world_pos.x = x * m_tile_world_unit;
+		tile.world_pos.y = 0;
+		tile.world_pos.z = y * m_tile_world_unit;
+
+		module::RidgedMulti mountain;
+
+		module::Billow base;
+		base.SetFrequency(2.0);
+
+		module::ScaleBias flat;
+		flat.SetSourceModule(0, base);
+		flat.SetScale(0.125);
+		flat.SetBias(-0.75);
+
+		module::Perlin type;
+		type.SetFrequency(0.5);
+		type.SetPersistence(0.25);
+
+		module::Select selector;
+		selector.SetSourceModule(0, flat);
+		selector.SetSourceModule(1, mountain);
+		selector.SetControlModule(type);
+		selector.SetBounds(0.0, 1000.0);
+		selector.SetEdgeFalloff(0.125);
+
+		module::Turbulence final;
+		final.SetSourceModule(0, selector);
+		final.SetFrequency(4.0);
+		final.SetPower(0.125);
+
+		utils::NoiseMap map;
+		utils::NoiseMapBuilderPlane builder;
+		builder.SetSourceModule(final);
+		builder.SetDestNoiseMap(map);
+		builder.SetDestSize(m_tile_map_size, m_tile_map_size);
+		float noise_x_min = tile.noise_pos.x - m_tile_noise_size / 2;
+		float noise_x_max = tile.noise_pos.x + m_tile_noise_size / 2;
+		float noise_z_min = tile.noise_pos.y - m_tile_noise_size / 2;
+		float noise_z_max = tile.noise_pos.y + m_tile_noise_size / 2;
+		builder.SetBounds(noise_x_min, noise_x_max, noise_z_min, noise_z_max);
+		builder.Build();
+
+		auto colors = ByteBuffer(m_tile_map_size * m_tile_map_size);
+		for (int i = 0; i < m_tile_map_size; i++)
+		{
+			float* row = map.GetSlabPtr(i);
+			for (int j = 0; j < m_tile_map_size; j++)
+			{
+				byte a = (byte) Mathf::Min((int) ((row[j] + 1) * 0.5f * 255), 255);
+				colors[i * m_tile_map_size + j] = a;
+			}
+		}
+		tile.debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
+
+		m_tiles.AddLast(tile);
+
+		return &m_tiles.End()->prev->value;
 	}
 }
