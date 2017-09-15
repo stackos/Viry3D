@@ -19,11 +19,8 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "graphics/Camera.h"
-#include "graphics/Texture2D.h"
 #include "graphics/Graphics.h"
 #include "renderer/Terrain.h"
-#include "noise/noise.h"
-#include "noise/noiseutils.h"
 
 using namespace Viry3D;
 
