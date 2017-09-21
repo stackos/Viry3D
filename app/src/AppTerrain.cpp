@@ -38,7 +38,7 @@ public:
 		this->CreateFPSUI(20, 1, 1);
 
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		auto terrain = GameObject::Create("Terrain")->AddComponent<Terrain>();
+		auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
 		auto tile = terrain->GenerateTile(0, 0);
 
 		camera->SetPostRenderFunc([=]() {

@@ -53,6 +53,7 @@ namespace Viry3D
 
 	private:
 		Terrain();
+		void GenerateTileHeightMap(TerrainTile& tile, ByteBuffer& buffer);
 
 	private:
 		int m_tile_map_size;

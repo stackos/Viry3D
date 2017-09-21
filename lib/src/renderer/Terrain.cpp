@@ -75,6 +75,27 @@ namespace Viry3D
 		tile.world_pos.y = 0;
 		tile.world_pos.z = y * m_tile_world_unit;
 
+		auto buffer = ByteBuffer(m_tile_map_size * m_tile_map_size * 2);
+		GenerateTileHeightMap(tile, buffer);
+
+		auto colors = ByteBuffer(m_tile_map_size * m_tile_map_size);
+		for (int i = 0; i < m_tile_map_size; i++)
+		{
+			for (int j = 0; j < m_tile_map_size; j++)
+			{
+				int us = *((unsigned short*) &buffer[i * m_tile_map_size * 2 + j * 2]);
+				colors[i * m_tile_map_size + j] = us >> 8;
+			}
+		}
+		tile.debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
+
+		m_tiles.AddLast(tile);
+
+		return &m_tiles.End()->prev->value;
+	}
+
+	void Terrain::GenerateTileHeightMap(TerrainTile& tile, ByteBuffer& buffer)
+	{
 		module::RidgedMulti mountain;
 
 		module::Billow base;
@@ -113,20 +134,15 @@ namespace Viry3D
 		builder.SetBounds(noise_x_min, noise_x_max, noise_z_min, noise_z_max);
 		builder.Build();
 
-		auto colors = ByteBuffer(m_tile_map_size * m_tile_map_size);
 		for (int i = 0; i < m_tile_map_size; i++)
 		{
 			float* row = map.GetSlabPtr(i);
 			for (int j = 0; j < m_tile_map_size; j++)
 			{
-				byte a = (byte) Mathf::Min((int) ((row[j] + 1) * 0.5f * 255), 255);
-				colors[i * m_tile_map_size + j] = a;
+				unsigned short us = (unsigned short) (Mathf::Clamp01((row[j] + 1.0f) * 0.5f) * 65535);
+				unsigned short* p = (unsigned short*) &buffer[i * m_tile_map_size * 2 + j * 2];
+				*p = us;
 			}
 		}
-		tile.debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
-
-		m_tiles.AddLast(tile);
-
-		return &m_tiles.End()->prev->value;
 	}
 }

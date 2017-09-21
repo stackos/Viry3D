@@ -467,7 +467,11 @@ namespace Viry3D
 	}
 
 	const String g_shader_header =
+#if VR_WINDOWS
+		"#version 330\n"
+#else
 		"#version 300 es\n"
+#endif
 		"#define VR_GLES 1\n"
 		"#define UniformBuffer(set_index, binding_index) layout(std140)\n"
 		"#define UniformTexture(set_index, binding_index)\n"
