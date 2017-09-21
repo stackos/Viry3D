@@ -17,3 +17,5 @@ build
 Debug
 Release
 AppScene
+unity/Library
+unity/Temp
