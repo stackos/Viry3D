@@ -108,7 +108,11 @@ namespace Viry3D
 		glewInit();
 #endif
 
+#if VR_WINDOWS
 		glClearDepth(1.0f);
+#else
+		glClearDepthf(1.0f);
+#endif
 		glClearStencil(0);
 		glFrontFace(GL_CCW);
 		glEnable(GL_DEPTH_TEST);
