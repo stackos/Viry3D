@@ -282,6 +282,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/renderer/ParticleSystemRenderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/renderer/Renderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/renderer/SkinnedMeshRenderer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/renderer/Terrain.cpp
             ${VIRY3D_LIB_SRC_DIR}/Resource.cpp
             ${VIRY3D_LIB_SRC_DIR}/RunLoop.cpp
             ${VIRY3D_LIB_SRC_DIR}/string/String.cpp
