@@ -87,6 +87,7 @@ namespace Viry3D
 		void SwapBuffers();
 
 		const String& GetDeviceName() const { return m_device_name; }
+		int GetVersion(int index) const { return m_version[index]; }
 
 	private:
 		void RecordBuffer();
@@ -108,5 +109,6 @@ namespace Viry3D
 		int m_uniform_buffer_offset_alignment;
 		String m_extensions;
 		String m_device_name;
+		int m_version[3];
 	};
 }
