@@ -87,7 +87,7 @@ namespace Viry3D
 		void SwapBuffers();
 
 		const String& GetDeviceName() const { return m_device_name; }
-		int GetVersion(int index) const { return m_version[index]; }
+		bool IsVersionCompatible(int major, int minor) { return m_version[0] >= major && m_version[1] >= minor; }
 
 	private:
 		void RecordBuffer();

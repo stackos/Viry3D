@@ -199,10 +199,7 @@ namespace Viry3D
 		// glInvalidateFramebuffer support start with 4.3
 		if (clear_flag == CameraClearFlags::Invalidate)
 		{
-			auto major = Graphics::GetDisplay()->GetVersion(0);
-			auto minor = Graphics::GetDisplay()->GetVersion(1);
-
-			if (major < 4 || minor < 3)
+			if (!Graphics::GetDisplay()->IsVersionCompatible(4, 3))
 			{
 				clear_flag = CameraClearFlags::Color;
 			}
