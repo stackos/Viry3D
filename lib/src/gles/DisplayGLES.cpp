@@ -247,6 +247,7 @@ namespace Viry3D
 
 	void DisplayGLES::EGLPause()
 	{
+		eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 		eglDestroySurface(m_display, m_surface);
 		m_surface = EGL_NO_SURFACE;
 	}
