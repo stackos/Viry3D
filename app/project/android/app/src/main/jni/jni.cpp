@@ -358,6 +358,14 @@ static void handle_cmd(android_app* app, int32_t cmd)
 			else
 			{
 				engine_resume();
+
+                int w = ANativeWindow_getWidth(app->window);
+                int h = ANativeWindow_getHeight(app->window);
+                if (Graphics::GetDisplay()->GetWidth() == h &&
+                    Graphics::GetDisplay()->GetHeight() == w)
+                {
+                    handle_cmd(app, APP_CMD_CONFIG_CHANGED);
+                }
 			}
 			break;
 		case APP_CMD_TERM_WINDOW:
@@ -366,28 +374,31 @@ static void handle_cmd(android_app* app, int32_t cmd)
 			break;
 		case APP_CMD_CONFIG_CHANGED:
 		{
-			int w = ANativeWindow_getWidth(app->window);
-			int h = ANativeWindow_getHeight(app->window);
-			int screen_orientation = AConfiguration_getOrientation(app->config);
-			if (screen_orientation == ACONFIGURATION_ORIENTATION_PORT)
-			{
-				if (w > h)
-				{
-					int temp = w;
-					w = h;
-					h = temp;
-				}
-			}
-			else if (screen_orientation == ACONFIGURATION_ORIENTATION_LAND)
-			{
-				if (w < h)
-				{
-					int temp = w;
-					w = h;
-					h = temp;
-				}
-			}
-			_viry3d_app->OnResize(w, h);
+            if (app->window)
+            {
+                int w = ANativeWindow_getWidth(app->window);
+                int h = ANativeWindow_getHeight(app->window);
+                int screen_orientation = AConfiguration_getOrientation(app->config);
+                if (screen_orientation == ACONFIGURATION_ORIENTATION_PORT)
+                {
+                    if (w > h)
+                    {
+                        int temp = w;
+                        w = h;
+                        h = temp;
+                    }
+                }
+                else if (screen_orientation == ACONFIGURATION_ORIENTATION_LAND)
+                {
+                    if (w < h)
+                    {
+                        int temp = w;
+                        w = h;
+                        h = temp;
+                    }
+                }
+                _viry3d_app->OnResize(w, h);
+            }
 		}
 		break;
 		default:
