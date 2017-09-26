@@ -23,6 +23,7 @@
 #include "graphics/Camera.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/RenderTextureBliter.h"
+#include "graphics/Graphics.h"
 #include "animation/Animation.h"
 #include "ui/UILabel.h"
 #include "ui/UISprite.h"
@@ -37,6 +38,10 @@ class AppAnim : public Application
 public:
 	AppAnim();
 	virtual void Start();
+	~AppAnim()
+	{
+		Graphics::GetDisplay()->EndRecord();
+	}
 };
 
 #if 1
@@ -119,4 +124,6 @@ void AppAnim::Start()
 
 	canvas->GetGameObject()->SetLayerRecursively(2);
 #endif
+
+	//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 }
