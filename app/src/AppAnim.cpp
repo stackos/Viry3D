@@ -44,7 +44,7 @@ public:
 	}
 };
 
-#if 1
+#if 0
 VR_MAIN(AppAnim);
 #endif
 
@@ -61,6 +61,8 @@ void AppAnim::Start()
 	camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
 	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
 
+#define USE_RT 0
+#if USE_RT
 #if VR_WINDOWS
 	int w = 1920;
 	int h = 1080;
@@ -74,14 +76,6 @@ void AppAnim::Start()
 	camera->SetFrameBuffer(rt);
 
 	this->CreateFPSUI(20, 1, 1, rt);
-
-	auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
-	obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
-	auto anim = obj->GetComponent<Animation>();
-	auto state = anim->GetAnimationState("WAIT03");
-	state.wrap_mode = AnimationWrapMode::Loop;
-	anim->UpdateAnimationState("WAIT03", state);
-	anim->Play("WAIT03");
 
 #if true // blit
 	auto camera2 = GameObject::Create("camera2")->AddComponent<Camera>();
@@ -124,6 +118,17 @@ void AppAnim::Start()
 
 	canvas->GetGameObject()->SetLayerRecursively(2);
 #endif
+#else
+	this->CreateFPSUI(20, 1, 1);
+#endif
+
+	auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+	obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+	auto anim = obj->GetComponent<Animation>();
+	auto state = anim->GetAnimationState("WAIT03");
+	state.wrap_mode = AnimationWrapMode::Loop;
+	anim->UpdateAnimationState("WAIT03", state);
+	anim->Play("WAIT03");
 
 	//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 }
