@@ -39,7 +39,7 @@ public:
 
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 		auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
-		auto tile = terrain->GenerateTile(0, 0);
+		terrain->GenerateTile(0, 0);
 
 		camera->SetPostRenderFunc([=]() {
 #if VR_GLES
@@ -48,7 +48,7 @@ public:
 			bool reverse = false;
 #endif
 			Rect rect(0.5f, 0, 0.5f, 1);
-			Graphics::DrawQuad(&rect, tile->debug_image, reverse);
+			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
 		});
 	}
 };

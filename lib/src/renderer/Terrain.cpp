@@ -46,11 +46,21 @@ namespace Viry3D
 
 	const VertexBuffer* Terrain::GetVertexBuffer() const
 	{
+		if (m_vertex_buffer)
+		{
+			return m_vertex_buffer.get();
+		}
+
 		return NULL;
 	}
 
 	const IndexBuffer* Terrain::GetIndexBuffer() const
 	{
+		if (m_index_buffer)
+		{
+			return m_index_buffer.get();
+		}
+
 		return NULL;
 	}
 
@@ -64,38 +74,36 @@ namespace Viry3D
 		return false;
 	}
 
-	TerrainTile* Terrain::GenerateTile(int x, int y)
+	void Terrain::GenerateTile(int x, int y)
 	{
-		TerrainTile tile;
-		tile.x = x;
-		tile.y = y;
-		tile.noise_pos.x = m_noise_center.x + x * m_tile_noise_size;
-		tile.noise_pos.y = m_noise_center.y + y * m_tile_noise_size;
-		tile.world_pos.x = x * m_tile_world_unit;
-		tile.world_pos.y = 0;
-		tile.world_pos.z = y * m_tile_world_unit;
+		m_tile = RefMake<TerrainTile>();
+		m_tile->x = x;
+		m_tile->y = y;
+		m_tile->noise_pos.x = m_noise_center.x + x * m_tile_noise_size;
+		m_tile->noise_pos.y = m_noise_center.y + y * m_tile_noise_size;
+		m_tile->world_pos.x = x * m_tile_world_unit;
+		m_tile->world_pos.y = 0;
+		m_tile->world_pos.z = y * m_tile_world_unit;
+		m_tile->height_map = ByteBuffer(m_tile_map_size * m_tile_map_size * 2);
 
-		auto buffer = ByteBuffer(m_tile_map_size * m_tile_map_size * 2);
-		GenerateTileHeightMap(tile, buffer);
+		GenerateTileHeightMap();
 
 		auto colors = ByteBuffer(m_tile_map_size * m_tile_map_size);
 		for (int i = 0; i < m_tile_map_size; i++)
 		{
 			for (int j = 0; j < m_tile_map_size; j++)
 			{
-				int us = *((unsigned short*) &buffer[i * m_tile_map_size * 2 + j * 2]);
+				int us = *((unsigned short*) &m_tile->height_map[i * m_tile_map_size * 2 + j * 2]);
 				colors[i * m_tile_map_size + j] = us >> 8;
 			}
 		}
-		tile.debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
-
-		m_tiles.AddLast(tile);
-
-		return &m_tiles.End()->prev->value;
+		m_tile->debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
 	}
 
-	void Terrain::GenerateTileHeightMap(TerrainTile& tile, ByteBuffer& buffer)
+	void Terrain::GenerateTileHeightMap()
 	{
+		ByteBuffer& buffer = m_tile->height_map;
+
 		module::RidgedMulti mountain;
 
 		module::Billow base;
@@ -127,10 +135,10 @@ namespace Viry3D
 		builder.SetSourceModule(final);
 		builder.SetDestNoiseMap(map);
 		builder.SetDestSize(m_tile_map_size, m_tile_map_size);
-		float noise_x_min = tile.noise_pos.x - m_tile_noise_size / 2;
-		float noise_x_max = tile.noise_pos.x + m_tile_noise_size / 2;
-		float noise_z_min = tile.noise_pos.y - m_tile_noise_size / 2;
-		float noise_z_max = tile.noise_pos.y + m_tile_noise_size / 2;
+		float noise_x_min = m_tile->noise_pos.x - m_tile_noise_size / 2;
+		float noise_x_max = m_tile->noise_pos.x + m_tile_noise_size / 2;
+		float noise_z_min = m_tile->noise_pos.y - m_tile_noise_size / 2;
+		float noise_z_max = m_tile->noise_pos.y + m_tile_noise_size / 2;
 		builder.SetBounds(noise_x_min, noise_x_max, noise_z_min, noise_z_max);
 		builder.Build();
 

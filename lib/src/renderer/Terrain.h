@@ -30,6 +30,7 @@ namespace Viry3D
 		int y;
 		Vector2 noise_pos;
 		Vector3 world_pos;
+		ByteBuffer height_map;
 		Ref<Texture2D> debug_image;
 	};
 
@@ -49,17 +50,20 @@ namespace Viry3D
 		void SetTileWorldUnit(float unit) { m_tile_world_unit = unit; }
 		// noise pos in world pos (0, 0, 0)
 		void SetNoiseCenter(const Vector2& noise_center) { m_noise_center = noise_center; }
-		TerrainTile* GenerateTile(int x, int y);
+		void GenerateTile(int x, int y);
+		const Ref<TerrainTile>& GetTile() const { return m_tile; }
 
 	private:
 		Terrain();
-		void GenerateTileHeightMap(TerrainTile& tile, ByteBuffer& buffer);
+		void GenerateTileHeightMap();
 
 	private:
 		int m_tile_map_size;
 		float m_tile_noise_size;
 		float m_tile_world_unit;
 		Vector2 m_noise_center;
-		FastList<TerrainTile> m_tiles;
+		Ref<TerrainTile> m_tile;
+		Ref<VertexBuffer> m_vertex_buffer;
+		Ref<IndexBuffer> m_index_buffer;
 	};
 }
