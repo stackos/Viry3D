@@ -134,7 +134,7 @@ public partial class Exporter {
 		} else if(module.shapeType == ParticleSystemShapeType.Box ||
 			module.shapeType == ParticleSystemShapeType.BoxShell ||
 			module.shapeType == ParticleSystemShapeType.BoxEdge) {
-			WriteVector3(module.box);
+			WriteVector3(module.scale);
 		} else if(module.shapeType == ParticleSystemShapeType.Circle ||
 			module.shapeType == ParticleSystemShapeType.CircleEdge) {
 			m_writer.Write(module.radius);
