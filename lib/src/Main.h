@@ -43,6 +43,23 @@ int main(int argc, char * argv[]) \
 }
 #endif
 
+#if VR_MAC
+#import <Cocoa/Cocoa.h>
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
+@end
+#define VR_MAIN(app_class) \
+int main(int argc, char * argv[]) \
+{ \
+    Ref<app_class> app = RefMake<app_class>(); \
+    NSApplication* _app = [NSApplication sharedApplication]; \
+    AppDelegate* appDelegate = [[AppDelegate alloc] init]; \
+    _app.delegate = appDelegate; \
+    [_app run]; \
+    return 0; \
+} \
+}
+#endif
+
 #if VR_ANDROID
 #define VR_MAIN(app_class) \
 Ref<Application> viry3d_android_main() \

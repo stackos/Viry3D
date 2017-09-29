@@ -14,7 +14,25 @@
 		D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D1B6AD351F7E9E5D00082097 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0A3C48C9CE12835F5C48CC6A;
+			remoteInfo = viry3d;
+		};
+		D1B6AD371F7E9FB000082097 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = EA2E22CBD00D6755C821EA4F;
+			remoteInfo = viry3d;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/mac/viry3d.xcodeproj; sourceTree = "<group>"; };
 		D1EA4E401F2DEABD0034D59B /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D1EA4E4C1F2DEABD0034D59B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -38,9 +56,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D1B6AD2F1F7E9C1F00082097 /* src */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		D1B6AD321F7E9E5C00082097 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D1B6AD361F7E9E5D00082097 /* libviry3d.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D1EA4E371F2DEABD0034D59B = {
 			isa = PBXGroup;
 			children = (
+				D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */,
+				D1B6AD2F1F7E9C1F00082097 /* src */,
 				D1EA4E491F2DEABD0034D59B /* app */,
 				D1EA4E421F2DEABD0034D59B /* Frameworks */,
 				D1EA4E411F2DEABD0034D59B /* Products */,
@@ -66,23 +101,15 @@
 		D1EA4E491F2DEABD0034D59B /* app */ = {
 			isa = PBXGroup;
 			children = (
-				D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */,
+				D1EA4E501F2DEABD0034D59B /* main.m */,
 				D1EA4E4C1F2DEABD0034D59B /* AppDelegate.h */,
 				D1EA4E4D1F2DEABD0034D59B /* AppDelegate.m */,
 				D1EA4E551F2DEABD0034D59B /* ViewController.h */,
 				D1EA4E561F2DEABD0034D59B /* ViewController.m */,
+				D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */,
 				D1EA4E5E1F2DEABD0034D59B /* Info.plist */,
-				D1EA4E4F1F2DEABD0034D59B /* Supporting Files */,
 			);
 			path = app;
-			sourceTree = "<group>";
-		};
-		D1EA4E4F1F2DEABD0034D59B /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				D1EA4E501F2DEABD0034D59B /* main.m */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -99,6 +126,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D1B6AD381F7E9FB000082097 /* PBXTargetDependency */,
 			);
 			name = app;
 			productName = app;
@@ -131,12 +159,28 @@
 			mainGroup = D1EA4E371F2DEABD0034D59B;
 			productRefGroup = D1EA4E411F2DEABD0034D59B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D1B6AD321F7E9E5C00082097 /* Products */;
+					ProjectRef = D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D1EA4E3F1F2DEABD0034D59B /* app */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		D1B6AD361F7E9E5D00082097 /* libviry3d.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libviry3d.a;
+			remoteRef = D1B6AD351F7E9E5D00082097 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D1EA4E3E1F2DEABD0034D59B /* Resources */ = {
@@ -161,6 +205,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D1B6AD381F7E9FB000082097 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = viry3d;
+			targetProxy = D1B6AD371F7E9FB000082097 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D1EA4E5F1F2DEABD0034D59B /* Debug */ = {
@@ -259,7 +311,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -271,7 +323,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

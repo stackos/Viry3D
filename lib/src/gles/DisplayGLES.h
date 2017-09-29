@@ -19,6 +19,8 @@
 
 #if VR_IOS
 #include "ios/DisplayIOS.h"
+#elif VR_MAC
+#include "mac/DisplayMac.h"
 #elif VR_ANDROID
 #include "android/DisplayAndroid.h"
 #elif VR_WINDOWS
@@ -40,14 +42,14 @@ namespace Viry3D
 
 #if VR_IOS
 	class DisplayGLES: public DisplayIOS
-	{
+#elif VR_MAC
+    class DisplayGLES: public DisplayMac
 #elif VR_ANDROID
 	class DisplayGLES: public DisplayAndroid
-	{
 #elif VR_WINDOWS
 	class DisplayGLES: public DisplayWindows
-	{
 #endif
+    {
 		friend class DisplayGLESPrivate;
 
 	public:

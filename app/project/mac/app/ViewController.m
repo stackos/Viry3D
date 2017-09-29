@@ -17,7 +17,7 @@
 @implementation OpenGLView;
 
 - (void)prepareOpenGL {
-    GLint swapInt = 1;
+    GLint swapInt = 0;
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLContextParameterSwapInterval];
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
     CVDisplayLinkSetOutputCallback(displayLink, &outputFrame, (__bridge void * _Nullable)(self));

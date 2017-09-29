@@ -88,8 +88,8 @@
 				BA2800E61F69A71100215483 /* Assets */,
 				BA59247F1D90587200173EDC /* src */,
 				BA4A33421D7C161A00DEEE5A /* app */,
-				BA4A324A1D7B34D400DEEE5A /* Products */,
 				BABF7B931E97E7A2000C2116 /* Frameworks */,
+				BA4A324A1D7B34D400DEEE5A /* Products */,
 			);
 			sourceTree = "<group>";
 		};

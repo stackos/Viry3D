@@ -20,7 +20,12 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
-    _window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1024, 768) styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:TRUE];
+    _window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1280, 720) styleMask:
+               NSWindowStyleMaskTitled |
+               NSWindowStyleMaskClosable |
+               NSWindowStyleMaskMiniaturizable |
+               NSWindowStyleMaskResizable
+        backing:NSBackingStoreBuffered defer:TRUE];
     _window.title = @"Viry3D";
     [_window center];
     [_window makeKeyAndOrderFront:_window];

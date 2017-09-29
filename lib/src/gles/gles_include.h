@@ -19,6 +19,8 @@
 
 #if VR_IOS
 #include <OpenGLES/ES3/gl.h>
+#elif VR_MAC
+#include <OpenGL/gl3.h>
 #elif VR_ANDROID
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
