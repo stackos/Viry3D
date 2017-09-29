@@ -47,7 +47,7 @@ public:
 #else
 			bool reverse = false;
 #endif
-			Rect rect(0.5f, 0, 0.5f, 1);
+            Viry3D::Rect rect(0.5f, 0, 0.5f, 1);
 			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
 		});
 	}

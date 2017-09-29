@@ -215,6 +215,7 @@
 		CFCD5F777AC76E2BE2CCFBA0 /* DisplayIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248FB8258EE52065B1A40E3A /* DisplayIOS.mm */; };
 		D054A53CAD44041A2F4677FC /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = 627396E34AEE1FCF0F3387B5 /* frame.c */; };
 		D0D5A7E328FD51AD5ECF967E /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1254F029BB1F666BE86B1052 /* Color.cpp */; };
+		D1B6AD2D1F7E03BF00082097 /* Terrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD2B1F7E03BF00082097 /* Terrain.cpp */; };
 		D8933E9E381E1DAC3A9823E3 /* jquant1.c in Sources */ = {isa = PBXBuildFile; fileRef = C84E7F3ACE7EBA1DC1FBDC49 /* jquant1.c */; };
 		D90DA02E9DD9F51F8233693C /* ftgasp.c in Sources */ = {isa = PBXBuildFile; fileRef = 4C26DE7235C38CE8FBE368B2 /* ftgasp.c */; };
 		D952565A8CB94067412D653F /* jcmaster.c in Sources */ = {isa = PBXBuildFile; fileRef = F6D14061D159F5DFA7EA8F75 /* jcmaster.c */; };
@@ -564,6 +565,8 @@
 		CF77BB5B28AA83340C5F3DC4 /* compat.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = compat.c; sourceTree = "<group>"; };
 		D00B3047ECAF341162434A11 /* jcarith.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcarith.c; sourceTree = "<group>"; };
 		D102BB0C76447D2EF5452F38 /* ftbzip2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ftbzip2.c; sourceTree = "<group>"; };
+		D1B6AD2B1F7E03BF00082097 /* Terrain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Terrain.cpp; sourceTree = "<group>"; };
+		D1B6AD2C1F7E03BF00082097 /* Terrain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Terrain.h; sourceTree = "<group>"; };
 		D4300A7E8717DDEBE7D33A8C /* parse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
 		D4487E10771293F15C54FBD2 /* mad_timer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mad_timer.c; sourceTree = "<group>"; };
 		D516C97C4BA1074828F35521 /* jfdctfst.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jfdctfst.c; sourceTree = "<group>"; };
@@ -760,6 +763,8 @@
 				69F4F34FDFE0D825CF9F91CA /* Renderer.h */,
 				E0E56786C52AE13DBBF10960 /* SkinnedMeshRenderer.cpp */,
 				8F71ABF587ED356C2147E115 /* SkinnedMeshRenderer.h */,
+				D1B6AD2B1F7E03BF00082097 /* Terrain.cpp */,
+				D1B6AD2C1F7E03BF00082097 /* Terrain.h */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -1604,6 +1609,7 @@
 				5AC98A403C55683058EDD8E5 /* render.c in Sources */,
 				5B66E1A914BC5D30A88B6AFE /* tag.c in Sources */,
 				C8D3D80DDCFDEFE5E72BA2C8 /* ucs4.c in Sources */,
+				D1B6AD2D1F7E03BF00082097 /* Terrain.cpp in Sources */,
 				738B3AE9BDE8EB6EEE27CF36 /* utf8.c in Sources */,
 				CBC4159CB68EA3B9DB94CF2F /* utf16.c in Sources */,
 				CBAF96F7A796377BDF40042C /* util.c in Sources */,
