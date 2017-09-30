@@ -884,8 +884,8 @@
 		3B24766ED0A46A39C7CEAEE7 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				2675ABCE0231D295624388FE /* DisplayIOS.h */,
 				248FB8258EE52065B1A40E3A /* DisplayIOS.mm */,
+				2675ABCE0231D295624388FE /* DisplayIOS.h */,
 			);
 			path = ios;
 			sourceTree = "<group>";

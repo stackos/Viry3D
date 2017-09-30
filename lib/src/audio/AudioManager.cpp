@@ -28,6 +28,9 @@
 #ifdef VR_IOS
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
+#elif VR_MAC
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
 #else
 #include "AL/al.h"
 #include "AL/alc.h"
