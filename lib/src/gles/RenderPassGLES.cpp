@@ -239,7 +239,9 @@ namespace Viry3D
 			case CameraClearFlags::Nothing:
 				break;
 			case CameraClearFlags::Invalidate:
+#if !VR_MAC
 				glInvalidateFramebuffer(GL_FRAMEBUFFER, attachments.Size(), &attachments[0]);
+#endif
 				break;
 		}
 

@@ -212,7 +212,6 @@
 		CBC4159CB68EA3B9DB94CF2F /* utf16.c in Sources */ = {isa = PBXBuildFile; fileRef = CE486EB38211E33C2E1D2BEF /* utf16.c */; };
 		CD0C4489A674F1C6A432E2E4 /* jidctint.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F9944524889F2271EED8E6E /* jidctint.c */; };
 		CEE669B262B3B3C10392AC5D /* AudioListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DC8E7FAB6CE574F654DEA333 /* AudioListener.cpp */; };
-		CFCD5F777AC76E2BE2CCFBA0 /* DisplayIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248FB8258EE52065B1A40E3A /* DisplayIOS.mm */; };
 		D054A53CAD44041A2F4677FC /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = 627396E34AEE1FCF0F3387B5 /* frame.c */; };
 		D0D5A7E328FD51AD5ECF967E /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1254F029BB1F666BE86B1052 /* Color.cpp */; };
 		D1B6AD2D1F7E03BF00082097 /* Terrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD2B1F7E03BF00082097 /* Terrain.cpp */; };
@@ -318,10 +317,8 @@
 		2326169E1E2F40E5EDF61768 /* XMLShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XMLShader.h; sourceTree = "<group>"; };
 		239144A082D86BF98E36057B /* AnimationCurve.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimationCurve.h; sourceTree = "<group>"; };
 		23F6907253BD0CDD7D92404B /* json_reader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json_reader.cpp; sourceTree = "<group>"; };
-		248FB8258EE52065B1A40E3A /* DisplayIOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DisplayIOS.mm; sourceTree = "<group>"; };
 		24D01E4B95A03176FA14295C /* ftsystem.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ftsystem.c; sourceTree = "<group>"; };
 		25B28A3EAFA2D4ACC9025790 /* World.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = World.h; sourceTree = "<group>"; };
-		2675ABCE0231D295624388FE /* DisplayIOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DisplayIOS.h; sourceTree = "<group>"; };
 		26F0BC2427C3A0F2188F2FF1 /* latin1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = latin1.c; sourceTree = "<group>"; };
 		2832468F4D7047E90A45E0FB /* UIEventHandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIEventHandler.cpp; sourceTree = "<group>"; };
 		289A8173AAFAF327A04585BB /* genre.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = genre.c; sourceTree = "<group>"; };
@@ -794,7 +791,6 @@
 				35DBD7C1E0FD06D95ED2CF67 /* gles */,
 				0DA4C2F8E6F069DDBD908726 /* graphics */,
 				920D14E025F9291B533D1EBA /* io */,
-				3B24766ED0A46A39C7CEAEE7 /* ios */,
 				E0C982B89BBB7A3BE1140E0B /* jpeg */,
 				906E4A46A91AC6ED34766165 /* json */,
 				D1B6AD391F7EA1AB00082097 /* mac */,
@@ -879,15 +875,6 @@
 				C7DA7DAE50BE428910DAB10F /* gles_include.h */,
 			);
 			path = gles;
-			sourceTree = "<group>";
-		};
-		3B24766ED0A46A39C7CEAEE7 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				248FB8258EE52065B1A40E3A /* DisplayIOS.mm */,
-				2675ABCE0231D295624388FE /* DisplayIOS.h */,
-			);
-			path = ios;
 			sourceTree = "<group>";
 		};
 		3F8D4A1A474392B554EBEEDD /* freetype/src */ = {
@@ -1701,7 +1688,6 @@
 				BA2800D61F69A59F00215483 /* rotatepoint.cpp in Sources */,
 				0D38EBCA88D24954CEEB572C /* MemoryStream.cpp in Sources */,
 				85A658023394956AF5509779 /* Stream.cpp in Sources */,
-				CFCD5F777AC76E2BE2CCFBA0 /* DisplayIOS.mm in Sources */,
 				6CBD6A39EEB891E55EEA5621 /* Bounds.cpp in Sources */,
 				2D8542F10D05732046E7A302 /* Frustum.cpp in Sources */,
 				271E9700952128F29E6D7E6D /* Mathf.cpp in Sources */,

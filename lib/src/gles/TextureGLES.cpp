@@ -116,8 +116,13 @@ namespace Viry3D
 		}
 		else if (texture_format == TextureFormat::Alpha8)
 		{
-			m_format = GL_LUMINANCE;
-			format = GL_LUMINANCE;
+#if VR_MAC
+			m_format = GL_RED;
+			format = GL_RED;
+#else
+            m_format = GL_LUMINANCE;
+            format = GL_LUMINANCE;
+#endif
 			type = GL_UNSIGNED_BYTE;
 		}
 		else
@@ -149,7 +154,11 @@ namespace Viry3D
 		}
 		else if (texture_format == TextureFormat::Alpha8)
 		{
-			format = GL_LUMINANCE;
+#if VR_MAC
+            format = GL_RED;
+#else
+            format = GL_LUMINANCE;
+#endif
 			type = GL_UNSIGNED_BYTE;
 		}
 		else
