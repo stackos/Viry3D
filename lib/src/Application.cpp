@@ -49,7 +49,7 @@ namespace Viry3D
 		return m_instance;
 	}
 
-#if !VR_IOS
+#if VR_WINDOWS || VR_ANDROID
 	String Application::DataPath()
 	{
 		static Mutex s_mutex;

@@ -215,7 +215,7 @@
 		D054A53CAD44041A2F4677FC /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = 627396E34AEE1FCF0F3387B5 /* frame.c */; };
 		D0D5A7E328FD51AD5ECF967E /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1254F029BB1F666BE86B1052 /* Color.cpp */; };
 		D1B6AD2D1F7E03BF00082097 /* Terrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD2B1F7E03BF00082097 /* Terrain.cpp */; };
-		D1B6AD3C1F7EA1C100082097 /* DisplayMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD3A1F7EA1C100082097 /* DisplayMac.cpp */; };
+		D1B6AD3C1F7EA1C100082097 /* DisplayMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD3A1F7EA1C100082097 /* DisplayMac.mm */; };
 		D8933E9E381E1DAC3A9823E3 /* jquant1.c in Sources */ = {isa = PBXBuildFile; fileRef = C84E7F3ACE7EBA1DC1FBDC49 /* jquant1.c */; };
 		D90DA02E9DD9F51F8233693C /* ftgasp.c in Sources */ = {isa = PBXBuildFile; fileRef = 4C26DE7235C38CE8FBE368B2 /* ftgasp.c */; };
 		D952565A8CB94067412D653F /* jcmaster.c in Sources */ = {isa = PBXBuildFile; fileRef = F6D14061D159F5DFA7EA8F75 /* jcmaster.c */; };
@@ -565,7 +565,7 @@
 		D102BB0C76447D2EF5452F38 /* ftbzip2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ftbzip2.c; sourceTree = "<group>"; };
 		D1B6AD2B1F7E03BF00082097 /* Terrain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Terrain.cpp; sourceTree = "<group>"; };
 		D1B6AD2C1F7E03BF00082097 /* Terrain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Terrain.h; sourceTree = "<group>"; };
-		D1B6AD3A1F7EA1C100082097 /* DisplayMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DisplayMac.cpp; path = mac/DisplayMac.cpp; sourceTree = "<group>"; };
+		D1B6AD3A1F7EA1C100082097 /* DisplayMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DisplayMac.mm; path = mac/DisplayMac.mm; sourceTree = "<group>"; };
 		D1B6AD3B1F7EA1C100082097 /* DisplayMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisplayMac.h; path = mac/DisplayMac.h; sourceTree = "<group>"; };
 		D4300A7E8717DDEBE7D33A8C /* parse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
 		D4487E10771293F15C54FBD2 /* mad_timer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mad_timer.c; sourceTree = "<group>"; };
@@ -1329,7 +1329,7 @@
 		D1B6AD391F7EA1AB00082097 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				D1B6AD3A1F7EA1C100082097 /* DisplayMac.cpp */,
+				D1B6AD3A1F7EA1C100082097 /* DisplayMac.mm */,
 				D1B6AD3B1F7EA1C100082097 /* DisplayMac.h */,
 			);
 			name = mac;
@@ -1684,7 +1684,7 @@
 				B1616970FEBF0F9923B60417 /* XMLShader.cpp in Sources */,
 				9745315FEE70823AA02CB4B1 /* Directory.cpp in Sources */,
 				AF1ADEB9AA1BDE0C54F8E9D4 /* File.cpp in Sources */,
-				D1B6AD3C1F7EA1C100082097 /* DisplayMac.cpp in Sources */,
+				D1B6AD3C1F7EA1C100082097 /* DisplayMac.mm in Sources */,
 				BA2800D61F69A59F00215483 /* rotatepoint.cpp in Sources */,
 				0D38EBCA88D24954CEEB572C /* MemoryStream.cpp in Sources */,
 				85A658023394956AF5509779 /* Stream.cpp in Sources */,

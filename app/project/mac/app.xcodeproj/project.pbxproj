@@ -7,9 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D1B6AD4A1F83E4CD00082097 /* AppAnim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD421F83E4CD00082097 /* AppAnim.cpp */; };
+		D1B6AD4B1F83E4CD00082097 /* AppBlur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD431F83E4CD00082097 /* AppBlur.cpp */; };
+		D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD441F83E4CD00082097 /* AppClear.cpp */; };
+		D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */; };
+		D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD461F83E4CD00082097 /* AppMesh.cpp */; };
+		D1B6AD4F1F83E4CD00082097 /* AppScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD471F83E4CD00082097 /* AppScene.cpp */; };
+		D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */; };
+		D1B6AD511F83E4CD00082097 /* AppWatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD491F83E4CD00082097 /* AppWatch.cpp */; };
+		D1B6AD521F83E82B00082097 /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B6AD361F7E9E5D00082097 /* libviry3d.a */; };
+		D1B6AD551F83E87000082097 /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B6AD541F83E87000082097 /* libz.1.2.5.tbd */; };
+		D1B6AD571F83E88700082097 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B6AD561F83E88700082097 /* OpenAL.framework */; };
 		D1EA4E4B1F2DEABD0034D59B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */; };
-		D1EA4E4E1F2DEABD0034D59B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D1EA4E4D1F2DEABD0034D59B /* AppDelegate.m */; };
-		D1EA4E511F2DEABD0034D59B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D1EA4E501F2DEABD0034D59B /* main.m */; };
+		D1EA4E4E1F2DEABD0034D59B /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */; };
 		D1EA4E571F2DEABD0034D59B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D1EA4E561F2DEABD0034D59B /* ViewController.m */; };
 		D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */; };
 /* End PBXBuildFile section */
@@ -22,22 +32,23 @@
 			remoteGlobalIDString = 0A3C48C9CE12835F5C48CC6A;
 			remoteInfo = viry3d;
 		};
-		D1B6AD371F7E9FB000082097 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = EA2E22CBD00D6755C821EA4F;
-			remoteInfo = viry3d;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/mac/viry3d.xcodeproj; sourceTree = "<group>"; };
+		D1B6AD421F83E4CD00082097 /* AppAnim.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppAnim.cpp; path = ../../src/AppAnim.cpp; sourceTree = "<group>"; };
+		D1B6AD431F83E4CD00082097 /* AppBlur.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppBlur.cpp; path = ../../src/AppBlur.cpp; sourceTree = "<group>"; };
+		D1B6AD441F83E4CD00082097 /* AppClear.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppClear.cpp; path = ../../src/AppClear.cpp; sourceTree = "<group>"; };
+		D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppFlappyBird.cpp; path = ../../src/AppFlappyBird.cpp; sourceTree = "<group>"; };
+		D1B6AD461F83E4CD00082097 /* AppMesh.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppMesh.cpp; path = ../../src/AppMesh.cpp; sourceTree = "<group>"; };
+		D1B6AD471F83E4CD00082097 /* AppScene.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppScene.cpp; path = ../../src/AppScene.cpp; sourceTree = "<group>"; };
+		D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppTerrain.cpp; path = ../../src/AppTerrain.cpp; sourceTree = "<group>"; };
+		D1B6AD491F83E4CD00082097 /* AppWatch.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppWatch.cpp; path = ../../src/AppWatch.cpp; sourceTree = "<group>"; };
+		D1B6AD541F83E87000082097 /* libz.1.2.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.5.tbd; path = usr/lib/libz.1.2.5.tbd; sourceTree = SDKROOT; };
+		D1B6AD561F83E88700082097 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		D1EA4E401F2DEABD0034D59B /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D1EA4E4C1F2DEABD0034D59B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		D1EA4E4D1F2DEABD0034D59B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		D1EA4E501F2DEABD0034D59B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		D1EA4E551F2DEABD0034D59B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		D1EA4E561F2DEABD0034D59B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		D1EA4E5E1F2DEABD0034D59B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -49,6 +60,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1B6AD571F83E88700082097 /* OpenAL.framework in Frameworks */,
+				D1B6AD551F83E87000082097 /* libz.1.2.5.tbd in Frameworks */,
+				D1B6AD521F83E82B00082097 /* libviry3d.a in Frameworks */,
 				D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -59,6 +73,14 @@
 		D1B6AD2F1F7E9C1F00082097 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D1B6AD421F83E4CD00082097 /* AppAnim.cpp */,
+				D1B6AD431F83E4CD00082097 /* AppBlur.cpp */,
+				D1B6AD441F83E4CD00082097 /* AppClear.cpp */,
+				D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */,
+				D1B6AD461F83E4CD00082097 /* AppMesh.cpp */,
+				D1B6AD471F83E4CD00082097 /* AppScene.cpp */,
+				D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */,
+				D1B6AD491F83E4CD00082097 /* AppWatch.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -93,6 +115,8 @@
 		D1EA4E421F2DEABD0034D59B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D1B6AD561F83E88700082097 /* OpenAL.framework */,
+				D1B6AD541F83E87000082097 /* libz.1.2.5.tbd */,
 				D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */,
 			);
 			name = Frameworks;
@@ -101,9 +125,7 @@
 		D1EA4E491F2DEABD0034D59B /* app */ = {
 			isa = PBXGroup;
 			children = (
-				D1EA4E501F2DEABD0034D59B /* main.m */,
-				D1EA4E4C1F2DEABD0034D59B /* AppDelegate.h */,
-				D1EA4E4D1F2DEABD0034D59B /* AppDelegate.m */,
+				D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */,
 				D1EA4E551F2DEABD0034D59B /* ViewController.h */,
 				D1EA4E561F2DEABD0034D59B /* ViewController.m */,
 				D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */,
@@ -126,7 +148,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D1B6AD381F7E9FB000082097 /* PBXTargetDependency */,
 			);
 			name = app;
 			productName = app;
@@ -198,21 +219,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
+				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
+				D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */,
 				D1EA4E571F2DEABD0034D59B /* ViewController.m in Sources */,
-				D1EA4E511F2DEABD0034D59B /* main.m in Sources */,
-				D1EA4E4E1F2DEABD0034D59B /* AppDelegate.m in Sources */,
+				D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */,
+				D1B6AD4F1F83E4CD00082097 /* AppScene.cpp in Sources */,
+				D1EA4E4E1F2DEABD0034D59B /* AppDelegate.mm in Sources */,
+				D1B6AD4B1F83E4CD00082097 /* AppBlur.cpp in Sources */,
+				D1B6AD4A1F83E4CD00082097 /* AppAnim.cpp in Sources */,
+				D1B6AD511F83E4CD00082097 /* AppWatch.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		D1B6AD381F7E9FB000082097 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = viry3d;
-			targetProxy = D1B6AD371F7E9FB000082097 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D1EA4E5F1F2DEABD0034D59B /* Debug */ = {
@@ -309,6 +329,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					VR_GLES,
+					VR_MAC,
+				);
+				HEADER_SEARCH_PATHS = ../../../lib/src;
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
@@ -321,6 +346,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					VR_GLES,
+					VR_MAC,
+				);
+				HEADER_SEARCH_PATHS = ../../../lib/src;
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;

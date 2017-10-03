@@ -6,34 +6,46 @@
 //  Copyright © 2017年 stack. All rights reserved.
 //
 
-#import "AppDelegate.h"
 #import "ViewController.h"
+#import <Cocoa/Cocoa.h>
+#include "Application.h"
+#include "graphics/Graphics.h"
+#include "mac/DisplayMac.h"
 
-@interface AppDelegate ()
+using namespace Viry3D;
+
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
+
+@property (strong, nonatomic) NSWindow *window;
 
 @end
 
-@implementation AppDelegate {
-    NSWindow* _window;
-}
+@implementation AppDelegate;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+    Application::Current()->OnInit();
     
-    _window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1280, 720) styleMask:
+    self.window = (__bridge_transfer NSWindow*) ((DisplayMac*) Graphics::GetDisplay())->GetWindowBridge();
+    
+    /*
+    NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1280, 720) styleMask:
                NSWindowStyleMaskTitled |
                NSWindowStyleMaskClosable |
                NSWindowStyleMaskMiniaturizable |
                NSWindowStyleMaskResizable
         backing:NSBackingStoreBuffered defer:TRUE];
-    _window.title = @"Viry3D";
-    [_window center];
-    [_window makeKeyAndOrderFront:_window];
-    _window.delegate = self;
+    window.title = @"Viry3D";
+    [window center];
+    [_window makeKeyAndOrderFront:window];
+    window.delegate = self;
     
     ViewController* viewController = [[ViewController alloc] init];
-    viewController._window = _window;
-    _window.contentViewController = viewController;
+    viewController._window = window;
+    window.contentViewController = viewController;
+    
+    self.window = window;
+     */
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

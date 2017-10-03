@@ -56,7 +56,6 @@ int main(int argc, char * argv[]) \
     _app.delegate = appDelegate; \
     [_app run]; \
     return 0; \
-} \
 }
 #endif
 

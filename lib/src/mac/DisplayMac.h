@@ -28,7 +28,7 @@ public:
     void* GetWindowBridge();
     void BindDefaultFramebuffer();
     int GetDefualtDepthRenderBuffer();
-    void KeepScreenOn(bool enable);
+    void KeepScreenOn(bool enable) { }
     
     void CreateSharedContext();
     void DestroySharedContext();

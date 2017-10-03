@@ -250,7 +250,7 @@ void AppFlappyBird::OnTouchDownBG(UIPointerEvent& e)
 			m_ui_obj.lock()->GetTransform()->Find("Canvas UI/Ready")->GetGameObject()->SetActive(false);
 		};
 
-		Component::Destroy(m_bird_ready_move.lock());
+        Viry3D::Component::Destroy(m_bird_ready_move.lock());
 	}
 
 	if (m_game_state == GameState::Ready || m_game_state == GameState::Play)
