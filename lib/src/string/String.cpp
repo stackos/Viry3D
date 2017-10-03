@@ -207,7 +207,7 @@ namespace Viry3D
 	{
 		if (this->Size() == right.Size())
 		{
-			return Memory::Compare(this->m_string.data(), right.m_string.data(), m_string.size()) == 0;
+			return Memory::Compare(this->m_string.data(), right.m_string.data(), (int) m_string.size()) == 0;
 		}
 
 		return false;

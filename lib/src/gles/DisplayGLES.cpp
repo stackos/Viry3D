@@ -390,7 +390,7 @@ namespace Viry3D
 		for (const auto& i : vs->attrs)
 		{
 			glEnableVertexAttribArray(i.location);
-			glVertexAttribPointer(i.location, i.size / 4, GL_FLOAT, GL_FALSE, vs->stride, (const GLvoid*) i.offset);
+			glVertexAttribPointer(i.location, i.size / 4, GL_FLOAT, GL_FALSE, vs->stride, (const GLvoid*) (size_t) i.offset);
 		}
 
 		LogGLError();
@@ -413,7 +413,7 @@ namespace Viry3D
 			type_size = 4;
 		}
 
-		glDrawElements(GL_TRIANGLES, count, type, (const GLvoid*) (start * type_size));
+		glDrawElements(GL_TRIANGLES, count, type, (const GLvoid*) (size_t) (start * type_size));
 
 		Graphics::draw_call++;
 

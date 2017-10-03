@@ -886,6 +886,8 @@ namespace Viry3D
 			case ParticleSystemShapeType::HemisphereShell:
 				radius = shape.radius;
 				break;
+            default:
+                break;
 		}
 		position = dir * radius;
 		velocity = dir;
@@ -940,6 +942,8 @@ namespace Viry3D
 				radius = tanf(angle * Mathf::Deg2Rad) / (fabsf(origin.z) + z);
 				break;
 			}
+            default:
+                break;
 		}
 
 		float x = radius * cosf(arc * Mathf::Deg2Rad);
@@ -1088,6 +1092,8 @@ namespace Viry3D
 				}
 				break;
 			}
+            default:
+                break;
 		}
 
 		if (shape.random_direction_amount > 0)
@@ -1130,6 +1136,8 @@ namespace Viry3D
 				radius = shape.radius;
 				break;
 			}
+            default:
+                break;
 		}
 
 		float x = radius * cosf(arc * Mathf::Deg2Rad);

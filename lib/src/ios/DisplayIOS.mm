@@ -40,7 +40,7 @@ void touch_begin(void *touches, void *view)
     NSSet *set = (__bridge NSSet *) touches;
     UIView *v = (__bridge UIView *) view;
     NSArray *allTouches = [set allObjects];
-    int count = [allTouches count];
+    int count = (int) [allTouches count];
     int height = [[UIScreen mainScreen] bounds].size.height;
     float scale = [UIScreen mainScreen].scale;
     
@@ -54,9 +54,9 @@ void touch_begin(void *touches, void *view)
         touch.deltaPosition = Viry3D::Vector2(0, 0);
         touch.deltaTime = 0;
         touch.time = t.timestamp;
-        touch.fingerId = t.hash;
+        touch.fingerId = (int) t.hash;
         touch.phase = (Viry3D::TouchPhase) t.phase;
-        touch.tapCount = t.tapCount;
+        touch.tapCount = (int) t.tapCount;
         touch.position = Viry3D::Vector2(p.x, p.y) * scale;
         
         if(!g_input_touches.Empty())
@@ -84,7 +84,7 @@ void touch_update(void *touches, void *view)
     NSSet *set = (__bridge NSSet *) touches;
     UIView *v = (__bridge UIView *) view;
     NSArray *allTouches = [set allObjects];
-    int count = [allTouches count];
+    int count = (int) [allTouches count];
     int height = [[UIScreen mainScreen] bounds].size.height;
     float scale = [UIScreen mainScreen].scale;
     
@@ -99,9 +99,9 @@ void touch_update(void *touches, void *view)
         touch.deltaPosition = Viry3D::Vector2(0, 0);
         touch.deltaTime = 0;
         touch.time = t.timestamp;
-        touch.fingerId = t.hash;
+        touch.fingerId = (int) t.hash;
         touch.phase = (Viry3D::TouchPhase) t.phase;
-        touch.tapCount = t.tapCount;
+        touch.tapCount = (int) t.tapCount;
         touch.position = Viry3D::Vector2(p.x, p.y) * scale;
         
         if(!g_input_touches.Empty())

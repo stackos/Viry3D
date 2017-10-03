@@ -363,14 +363,11 @@
 					VR_GLES,
 					VR_IOS,
 				);
-				HEADER_SEARCH_PATHS = (
-					../../../lib/src,
-					../../../lib/src/spidermonkey/include/ios,
-				);
+				HEADER_SEARCH_PATHS = ../../../lib/src;
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = ../../../lib/src/spidermonkey/prebuilt/ios;
+				LIBRARY_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -388,14 +385,11 @@
 					VR_GLES,
 					VR_IOS,
 				);
-				HEADER_SEARCH_PATHS = (
-					../../../lib/src,
-					../../../lib/src/spidermonkey/include/ios,
-				);
+				HEADER_SEARCH_PATHS = ../../../lib/src;
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = ../../../lib/src/spidermonkey/prebuilt/ios;
+				LIBRARY_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
