@@ -24,7 +24,7 @@ using namespace Viry3D;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
 
-@property (strong, nonatomic) NSWindow *window;
+@property (strong, nonatomic) NSWindow* window;
 
 @end
 
@@ -35,25 +35,7 @@ using namespace Viry3D;
     Application::Current()->OnInit();
     
     self.window = (__bridge_transfer NSWindow*) ((DisplayMac*) Graphics::GetDisplay())->GetWindowBridge();
-    
-    /*
-    NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1280, 720) styleMask:
-               NSWindowStyleMaskTitled |
-               NSWindowStyleMaskClosable |
-               NSWindowStyleMaskMiniaturizable |
-               NSWindowStyleMaskResizable
-        backing:NSBackingStoreBuffered defer:TRUE];
-    window.title = @"Viry3D";
-    [window center];
-    [_window makeKeyAndOrderFront:window];
-    window.delegate = self;
-    
-    ViewController* viewController = [[ViewController alloc] init];
-    viewController._window = window;
-    window.contentViewController = viewController;
-    
-    self.window = window;
-     */
+    self.window.delegate = self;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

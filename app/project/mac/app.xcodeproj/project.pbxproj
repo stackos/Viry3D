@@ -20,8 +20,9 @@
 		D1B6AD571F83E88700082097 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B6AD561F83E88700082097 /* OpenAL.framework */; };
 		D1EA4E4B1F2DEABD0034D59B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */; };
 		D1EA4E4E1F2DEABD0034D59B /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */; };
-		D1EA4E571F2DEABD0034D59B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D1EA4E561F2DEABD0034D59B /* ViewController.m */; };
 		D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */; };
+		D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F3BBBF1F86903800B738FA /* AppKit.framework */; };
+		D1F3BBC21F86905F00B738FA /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F3BBC11F86905F00B738FA /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,10 +50,11 @@
 		D1EA4E401F2DEABD0034D59B /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
-		D1EA4E551F2DEABD0034D59B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		D1EA4E561F2DEABD0034D59B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		D1EA4E5E1F2DEABD0034D59B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		D1F3BBBD1F868D4200B738FA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		D1F3BBBF1F86903800B738FA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		D1F3BBC11F86905F00B738FA /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1F3BBC21F86905F00B738FA /* CoreVideo.framework in Frameworks */,
+				D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */,
 				D1B6AD571F83E88700082097 /* OpenAL.framework in Frameworks */,
 				D1B6AD551F83E87000082097 /* libz.1.2.5.tbd in Frameworks */,
 				D1B6AD521F83E82B00082097 /* libviry3d.a in Frameworks */,
@@ -115,6 +119,9 @@
 		D1EA4E421F2DEABD0034D59B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D1F3BBC11F86905F00B738FA /* CoreVideo.framework */,
+				D1F3BBBF1F86903800B738FA /* AppKit.framework */,
+				D1F3BBBD1F868D4200B738FA /* GLKit.framework */,
 				D1B6AD561F83E88700082097 /* OpenAL.framework */,
 				D1B6AD541F83E87000082097 /* libz.1.2.5.tbd */,
 				D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */,
@@ -126,8 +133,6 @@
 			isa = PBXGroup;
 			children = (
 				D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */,
-				D1EA4E551F2DEABD0034D59B /* ViewController.h */,
-				D1EA4E561F2DEABD0034D59B /* ViewController.m */,
 				D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */,
 				D1EA4E5E1F2DEABD0034D59B /* Info.plist */,
 			);
@@ -222,7 +227,6 @@
 				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
 				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
 				D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */,
-				D1EA4E571F2DEABD0034D59B /* ViewController.m in Sources */,
 				D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */,
 				D1B6AD4F1F83E4CD00082097 /* AppScene.cpp in Sources */,
 				D1EA4E4E1F2DEABD0034D59B /* AppDelegate.mm in Sources */,

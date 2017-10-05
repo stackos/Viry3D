@@ -144,11 +144,9 @@ void touch_update(void *touches, void *view)
 
 #if VR_GLES
 @interface ViewController : GLKViewController
-
 @property (strong, nonatomic) EAGLContext* context;
-#endif
-
 @end
+#endif
 
 @implementation ViewController
 

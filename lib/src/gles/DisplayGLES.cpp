@@ -106,9 +106,11 @@ namespace Viry3D
 		m_default_depth_render_buffer = 0;
 
 		glewInit();
+#elif VR_MAC
+        DisplayMac::Init(width, height, fps);
 #endif
 
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_MAC
 		glClearDepth(1.0f);
 #else
 		glClearDepthf(1.0f);
