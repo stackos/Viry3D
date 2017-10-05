@@ -16,3 +16,28 @@
 */
 
 #include "DisplayMac.h"
+
+namespace Viry3D
+{
+    
+void DisplayMac::Init(int width, int height, int fps)
+{
+    CGRect bounds = [UIScreen mainScreen].bounds;
+    float scale = [UIScreen mainScreen].nativeScale;
+    
+    DisplayBase::Init(bounds.size.width * scale, bounds.size.height * scale, fps);
+    
+    g_view_controller = [[ViewController alloc] init];
+    if(fps <= 0) {
+        fps = 60;
+    }
+    g_view_controller.preferredFramesPerSecond = fps;
+    
+    UIWindow* window = [[UIWindow alloc] initWithFrame:bounds];
+    window.rootViewController = g_view_controller;
+    [window makeKeyAndVisible];
+    
+    m_window = (void*) CFBridgingRetain(window);
+}
+    
+}

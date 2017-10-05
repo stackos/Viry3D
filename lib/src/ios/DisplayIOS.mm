@@ -152,7 +152,8 @@ void touch_update(void *touches, void *view)
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
@@ -171,7 +172,8 @@ void touch_update(void *touches, void *view)
     self.view.multipleTouchEnabled = true;
 }
 
-- (void)orientationDidChange:(NSNotification*)notification {
+- (void)orientationDidChange:(NSNotification*)notification
+{
     auto bounds = [UIScreen mainScreen].bounds;
     auto scale = [UIScreen mainScreen].nativeScale;
     auto width = bounds.size.width * scale;
@@ -179,17 +181,23 @@ void touch_update(void *touches, void *view)
     auto orientation = [UIDevice currentDevice].orientation;
     auto swap = false;
     
-    if(orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown) {
-        if(width > height) {
+    if(orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+    {
+        if(width > height)
+        {
             swap = true;
         }
-    } else if(orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight) {
-        if(height > width) {
+    }
+    else if(orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+    {
+        if(height > width)
+        {
             swap = true;
         }
     }
     
-    if(swap) {
+    if(swap)
+    {
         auto temp = height;
         height = width;
         width = temp;
@@ -198,9 +206,11 @@ void touch_update(void *touches, void *view)
     Viry3D::Application::Current()->OnResize(width, height);
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
 #if VR_GLES
-    if([EAGLContext currentContext] == self.context) {
+    if([EAGLContext currentContext] == self.context)
+    {
         [EAGLContext setCurrentContext:nil];
     }
 #endif
@@ -208,12 +218,14 @@ void touch_update(void *touches, void *view)
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (BOOL)prefersStatusBarHidden {
+- (BOOL)prefersStatusBarHidden
+{
     return YES;
 }
 
 #if VR_GLES
-- (void)glkView:(GLKView*)view drawInRect:(CGRect)rect {
+- (void)glkView:(GLKView*)view drawInRect:(CGRect)rect
+{
     Viry3D::Application::Current()->OnUpdate();
     Viry3D::Application::Current()->OnDraw();
 }
@@ -241,19 +253,22 @@ void touch_update(void *touches, void *view)
 
 @end
 
-namespace Viry3D {
+namespace Viry3D
+{
     
 static ViewController* g_view_controller;
 static EAGLContext* g_shared_context;
     
-void DisplayIOS::Init(int width, int height, int fps) {
+void DisplayIOS::Init(int width, int height, int fps)
+{
     CGRect bounds = [UIScreen mainScreen].bounds;
     float scale = [UIScreen mainScreen].nativeScale;
     
     DisplayBase::Init(bounds.size.width * scale, bounds.size.height * scale, fps);
     
     g_view_controller = [[ViewController alloc] init];
-    if(fps <= 0) {
+    if(fps <= 0)
+    {
         fps = 60;
     }
     g_view_controller.preferredFramesPerSecond = fps;
@@ -265,20 +280,24 @@ void DisplayIOS::Init(int width, int height, int fps) {
     m_window = (void*) CFBridgingRetain(window);
 }
     
-void DisplayIOS::Deinit() {
+void DisplayIOS::Deinit()
+{
     g_view_controller = nil;
 }
     
-void* DisplayIOS::GetWindowBridge() {
+void* DisplayIOS::GetWindowBridge()
+{
     return m_window;
 }
     
-void DisplayIOS::BindDefaultFramebuffer() {
+void DisplayIOS::BindDefaultFramebuffer()
+{
     auto view = (GLKView*) g_view_controller.view;
     [view bindDrawable];
 }
 
-int DisplayIOS::GetDefualtDepthRenderBuffer() {
+int DisplayIOS::GetDefualtDepthRenderBuffer()
+{
     this->BindDefaultFramebuffer();
     
     GLint type;
@@ -298,11 +317,13 @@ int DisplayIOS::GetDefualtDepthRenderBuffer() {
     return depth_texture;
 }
     
-void DisplayIOS::KeepScreenOn(bool enable) {
+void DisplayIOS::KeepScreenOn(bool enable)
+{
     [[UIApplication sharedApplication] setIdleTimerDisabled:enable];
 }
     
-void DisplayIOS::CreateSharedContext() {
+void DisplayIOS::CreateSharedContext()
+{
     g_shared_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:g_view_controller.context.sharegroup];
     auto success = [EAGLContext setCurrentContext:g_shared_context];
     
@@ -310,7 +331,8 @@ void DisplayIOS::CreateSharedContext() {
     Log("setCurrentContext: %d", success);
 }
 
-void DisplayIOS::DestroySharedContext() {
+void DisplayIOS::DestroySharedContext()
+{
     Log("DisplayIOS::DestroySharedContext: %lld", (long long) g_shared_context);
     
     g_shared_context = nil;
