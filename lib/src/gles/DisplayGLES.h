@@ -111,6 +111,6 @@ namespace Viry3D
 		int m_uniform_buffer_offset_alignment;
 		String m_extensions;
 		String m_device_name;
-		int m_version[3];
+		int m_version[2];
 	};
 }

@@ -25,7 +25,7 @@
 
 namespace Viry3D
 {
-#if !VR_IOS
+#if VR_ANDROID || VR_WINDOWS
 	void Debug::LogString(const String& str)
 	{
 #if VR_ANDROID

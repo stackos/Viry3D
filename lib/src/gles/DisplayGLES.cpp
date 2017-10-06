@@ -125,8 +125,8 @@ namespace Viry3D
 		m_device_name = String::Format("%s/%s/%s", vender, renderer, version.CString());
 		m_version[0] = version.Substring(0, 1).To<int>();
 		m_version[1] = version.Substring(2, 1).To<int>();
-		m_version[2] = version.Substring(4, 1).To<int>();
-		m_extensions = (char *) glGetString(GL_EXTENSIONS);
+        const char* ext = (const char*) glGetString(GL_EXTENSIONS);
+        //m_extensions = ext;
 
 		GLint max_vertex_uniform_vectors;
 		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &max_vertex_uniform_vectors);

@@ -17,6 +17,7 @@
 
 #include "DisplayMac.h"
 #include "Application.h"
+#include "Debug.h"
 #import <Cocoa/Cocoa.h>
 
 #if VR_GLES
@@ -89,6 +90,9 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
     NSOpenGLView* view = [[OpenGLView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height) pixelFormat:format];
     
+    auto context = [view openGLContext];
+    [context makeCurrentContext];
+    
     self.view = view;
 }
 
@@ -149,6 +153,11 @@ void DisplayMac::CreateSharedContext()
 void DisplayMac::DestroySharedContext()
 {
     
+}
+    
+void Debug::LogString(const String& str)
+{
+    NSLog(@"\n%s", str.CString());
 }
     
 String Application::DataPath()
