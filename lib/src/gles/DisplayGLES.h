@@ -89,7 +89,6 @@ namespace Viry3D
 		void SwapBuffers();
 
 		const String& GetDeviceName() const { return m_device_name; }
-		bool IsVersionCompatible(int major, int minor) { return m_version[0] >= major && m_version[1] >= minor; }
 
 	private:
 		void RecordBuffer();
@@ -111,6 +110,5 @@ namespace Viry3D
 		int m_uniform_buffer_offset_alignment;
 		String m_extensions;
 		String m_device_name;
-		int m_version[2];
 	};
 }

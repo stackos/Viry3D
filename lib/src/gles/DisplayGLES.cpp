@@ -123,9 +123,7 @@ namespace Viry3D
 		auto renderer = (char *) glGetString(GL_RENDERER);
 		String version = (char *) glGetString(GL_VERSION);
 		m_device_name = String::Format("%s/%s/%s", vender, renderer, version.CString());
-		m_version[0] = version.Substring(0, 1).To<int>();
-		m_version[1] = version.Substring(2, 1).To<int>();
-        
+
 #if VR_MAC
         int ext_count = 0;
         glGetIntegerv(GL_NUM_EXTENSIONS, &ext_count);
