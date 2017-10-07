@@ -125,9 +125,20 @@ namespace Viry3D
 		m_device_name = String::Format("%s/%s/%s", vender, renderer, version.CString());
 		m_version[0] = version.Substring(0, 1).To<int>();
 		m_version[1] = version.Substring(2, 1).To<int>();
-        const char* ext = (const char*) glGetString(GL_EXTENSIONS);
-        //m_extensions = ext;
-
+        
+#if VR_MAC
+        int ext_count = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &ext_count);
+        m_extensions = "";
+        for (int i = 0; i < ext_count; i++)
+        {
+            m_extensions += "\n";
+            m_extensions += (const char*) glGetStringi(GL_EXTENSIONS, i);
+        }
+#else
+        m_extensions = (const char*) glGetString(GL_EXTENSIONS);
+#endif
+        
 		GLint max_vertex_uniform_vectors;
 		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &max_vertex_uniform_vectors);
 		GLint max_uniform_block_size;
@@ -391,7 +402,7 @@ namespace Viry3D
 		auto vs = shader->GetVertexShaderInfo(pass_index);
 		for (const auto& i : vs->attrs)
 		{
-			glEnableVertexAttribArray(i.location);
+            glEnableVertexAttribArray(i.location); // to do: use vao to fix mac error
 			glVertexAttribPointer(i.location, i.size / 4, GL_FLOAT, GL_FALSE, vs->stride, (const GLvoid*) (size_t) i.offset);
 		}
 

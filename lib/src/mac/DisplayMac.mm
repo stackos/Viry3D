@@ -52,12 +52,8 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
 - (CVReturn)drawFrame:(const CVTimeStamp*)outputTime {
     [[self openGLContext] makeCurrentContext];
     
-    float r = rand() / (float)RAND_MAX;
-    float g = rand() / (float)RAND_MAX;
-    float b = rand() / (float)RAND_MAX;
-    
-    glClearColor(r, g, b, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    Viry3D::Application::Current()->OnUpdate();
+    Viry3D::Application::Current()->OnDraw();
     
     [[self openGLContext] flushBuffer];
     
@@ -167,7 +163,7 @@ String Application::DataPath()
     s_mutex.lock();
     if(m_data_path.Empty())
     {
-        String path = [[[NSBundle mainBundle] bundlePath] UTF8String];
+        String path = [[[NSBundle mainBundle] resourcePath] UTF8String];
         path += "/Assets";
         m_data_path = path;
     }

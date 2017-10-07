@@ -467,7 +467,7 @@ namespace Viry3D
 	}
 
 	const String g_shader_header =
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_MAC
 		"#version 330\n"
 #else
 		"#version 300 es\n"

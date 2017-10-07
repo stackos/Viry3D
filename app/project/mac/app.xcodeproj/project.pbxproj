@@ -23,6 +23,7 @@
 		D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */; };
 		D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F3BBBF1F86903800B738FA /* AppKit.framework */; };
 		D1F3BBC21F86905F00B738FA /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F3BBC11F86905F00B738FA /* CoreVideo.framework */; };
+		D1F3BBC61F87F6C200B738FA /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = D1F3BBC51F87F5FC00B738FA /* Assets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		D1F3BBBD1F868D4200B738FA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D1F3BBBF1F86903800B738FA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		D1F3BBC11F86905F00B738FA /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		D1F3BBC51F87F5FC00B738FA /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */,
+				D1F3BBC51F87F5FC00B738FA /* Assets */,
 				D1B6AD2F1F7E9C1F00082097 /* src */,
 				D1EA4E491F2DEABD0034D59B /* app */,
 				D1EA4E421F2DEABD0034D59B /* Frameworks */,
@@ -213,6 +216,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1F3BBC61F87F6C200B738FA /* Assets in Resources */,
 				D1EA4E4B1F2DEABD0034D59B /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
