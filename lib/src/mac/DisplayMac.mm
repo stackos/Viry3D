@@ -18,21 +18,29 @@
 #include "DisplayMac.h"
 #include "Application.h"
 #include "Debug.h"
+#include "thread/Thread.h"
 #import <Cocoa/Cocoa.h>
 
 #if VR_GLES
 #import <OpenGL/gl3.h>
 #endif
 
+using namespace Viry3D;
+
 #if VR_GLES
-@interface OpenGLView : NSOpenGLView {
+@interface OpenGLView : NSOpenGLView
+{
     CVDisplayLinkRef displayLink;
+    bool stop;
 }
 @end
 
 @implementation OpenGLView;
 
-- (void)prepareOpenGL {
+- (void)prepareOpenGL
+{
+    stop = false;
+    
     GLint swapInt = 0;
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLContextParameterSwapInterval];
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
@@ -44,23 +52,29 @@
 }
 
 static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime,
-                            CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext) {
+                            CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
+{
     CVReturn result = [(__bridge OpenGLView*)displayLinkContext drawFrame:outputTime];
     return result;
 }
 
-- (CVReturn)drawFrame:(const CVTimeStamp*)outputTime {
-    [[self openGLContext] makeCurrentContext];
-    
-    Viry3D::Application::Current()->OnUpdate();
-    Viry3D::Application::Current()->OnDraw();
-    
-    [[self openGLContext] flushBuffer];
+- (CVReturn)drawFrame:(const CVTimeStamp*)outputTime
+{
+    if (stop == false)
+    {
+        [[self openGLContext] makeCurrentContext];
+        Viry3D::Application::Current()->OnUpdate();
+        Viry3D::Application::Current()->OnDraw();
+        [[self openGLContext] flushBuffer];
+    }
     
     return kCVReturnSuccess;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
+    stop = true;
+    
     CVDisplayLinkStop(displayLink);
     CVDisplayLinkRelease(displayLink);
 }
@@ -73,10 +87,12 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
 
 @implementation ViewController;
 
-- (void)loadView {
+- (void)loadView
+{
     CGSize size = self._window.contentLayoutRect.size;
     
-    const uint32_t attrs[] = {
+    const uint32_t attrs[] =
+    {
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion4_1Core,
         NSOpenGLPFADoubleBuffer,
         NSOpenGLPFAColorSize, 24,
@@ -92,7 +108,8 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     self.view = view;
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
 }
 
@@ -107,7 +124,7 @@ static NSOpenGLContext* g_shared_context;
     
 void DisplayMac::Init(int width, int height, int fps)
 {
-    DisplayBase::Init(width, width, fps);
+    DisplayBase::Init(width, height, fps);
     
     NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:TRUE];
     window.title = [NSString stringWithUTF8String:Application::Current()->GetName().CString()];

@@ -379,6 +379,8 @@ namespace Viry3D
 		DisplayAndroid::Deinit();
 #elif VR_WINDOWS
 		DisplayWindows::Deinit();
+#elif VR_MAC
+        DisplayMac::Deinit();
 #endif
 	}
 
