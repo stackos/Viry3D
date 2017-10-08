@@ -59,7 +59,7 @@ namespace Viry3D
 		{
 			auto frame_buffer = pass->m_frame_buffer;
 
-			GLuint depth_texture;
+			GLuint depth_texture = 0;
 			GLenum attachment = 0;
 			if (frame_buffer.depth_texture)
 			{
@@ -83,13 +83,12 @@ namespace Viry3D
 			}
 			else
 			{
-#if VR_IOS
-				depth_texture = (GLuint) ((DisplayIOS*) Graphics::GetDisplay())->GetDefualtDepthRenderBuffer();
-#else
-				depth_texture = (GLuint) ((DisplayGLES*) Graphics::GetDisplay())->GetDefualtDepthRenderBuffer();
-#endif
-
-				attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+                if (frame_buffer.color_texture->GetWidth() == Graphics::GetDisplay()->GetWidth() &&
+                    frame_buffer.color_texture->GetHeight() == Graphics::GetDisplay()->GetHeight())
+                {
+                    depth_texture = (GLuint) ((DisplayGLES*) Graphics::GetDisplay())->GetDefualtDepthRenderBuffer();
+                    attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+                }
 			}
 
 			glGenFramebuffers(1, &m_framebuffer);
@@ -105,7 +104,7 @@ namespace Viry3D
 			{
 				glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, depth_texture, 0);
 			}
-			else
+			else if (depth_texture)
 			{
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, depth_texture);
 			}

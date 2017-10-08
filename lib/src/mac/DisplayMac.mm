@@ -25,6 +25,8 @@
 #import <OpenGL/gl3.h>
 #endif
 
+extern Ref<Viry3D::Application> _app;
+
 #if VR_GLES
 @interface OpenGLView : NSOpenGLView
 {
@@ -84,7 +86,7 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     return kCVReturnSuccess;
 }
 
-- (void)dealloc
+- (void)stopRender
 {
     stop = true;
     
@@ -95,15 +97,16 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
 @end
 
 @interface ViewController : NSViewController
-@property (weak, nonatomic) NSWindow* _window;
+@property (weak, nonatomic) NSWindow* window;
+@property (strong, nonatomic) NSOpenGLPixelFormat* pixelFormat;
 @end
 
 @implementation ViewController;
 
 - (void)loadView
 {
-    CGSize size = self._window.contentLayoutRect.size;
-    size = [self._window contentRectForFrameRect:self._window.contentLayoutRect].size;
+    CGSize size = self.window.contentLayoutRect.size;
+    size = [self.window contentRectForFrameRect:self.window.contentLayoutRect].size;
     
     const uint32_t attrs[] =
     {
@@ -113,18 +116,13 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
         NSOpenGLPFADepthSize, 24,
         0
     };
-    NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-    NSOpenGLView* view = [[OpenGLView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height) pixelFormat:format];
+    self.pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+    NSOpenGLView* view = [[OpenGLView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height) pixelFormat:self.pixelFormat];
     
     auto context = [view openGLContext];
     [context makeCurrentContext];
     
     self.view = view;
-}
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
 }
 
 @end
@@ -152,7 +150,7 @@ void DisplayMac::Init(int width, int height, int fps)
     [window makeKeyAndOrderFront:window];
 
     g_view_controller = [[ViewController alloc] init];
-    g_view_controller._window = window;
+    g_view_controller.window = window;
     window.contentViewController = g_view_controller;
     
     m_window = (void*) CFBridgingRetain(window);
@@ -161,6 +159,12 @@ void DisplayMac::Init(int width, int height, int fps)
 void DisplayMac::Deinit()
 {
     g_view_controller = nil;
+}
+    
+void DisplayMac::StopRender()
+{
+    auto view = (OpenGLView*) g_view_controller.view;
+    [view stopRender];
 }
     
 void* DisplayMac::GetWindowBridge()
@@ -173,26 +177,23 @@ void DisplayMac::BindDefaultFramebuffer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
     
-int DisplayMac::GetDefualtDepthRenderBuffer()
-{
-    return 0;
-}
-    
 void DisplayMac::CreateSharedContext()
 {
-    
+    auto view = (OpenGLView*) g_view_controller.view;
+    g_shared_context = [[NSOpenGLContext alloc] initWithFormat:g_view_controller.pixelFormat shareContext:[view openGLContext]];
+    [g_shared_context makeCurrentContext];
 }
 
 void DisplayMac::DestroySharedContext()
 {
-    
+    g_shared_context = nil;
 }
     
 void DisplayMac::OnWillResize(int width, int height)
 {
     m_mutex.lock();
     
-    auto size = [g_view_controller._window contentRectForFrameRect:NSMakeRect(0, 0, width, height)].size;
+    auto size = [g_view_controller.window contentRectForFrameRect:NSMakeRect(0, 0, width, height)].size;
     m_target_width = size.width;
     m_target_height = size.height;
     

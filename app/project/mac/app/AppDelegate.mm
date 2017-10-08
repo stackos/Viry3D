@@ -17,6 +17,7 @@
 
 #import <Cocoa/Cocoa.h>
 #include "Application.h"
+#include "Debug.h"
 #include "graphics/Graphics.h"
 #include "mac/DisplayMac.h"
 
@@ -34,6 +35,7 @@ Ref<Viry3D::Application> _app;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+    
     _app->OnInit();
     
     self.window = (__bridge_transfer NSWindow*) ((DisplayMac*) Graphics::GetDisplay())->GetWindowBridge();
@@ -42,8 +44,6 @@ Ref<Viry3D::Application> _app;
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
-    ((DisplayMac*) Graphics::GetDisplay())->Deinit(); // release opengl view to stop display link thread
-    _app.reset();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -53,6 +53,12 @@ Ref<Viry3D::Application> _app;
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
     ((DisplayMac*) Graphics::GetDisplay())->OnWillResize((int) frameSize.width, (int) frameSize.height);
     return frameSize;
+}
+
+- (BOOL)windowShouldClose:(NSWindow *)sender {
+    ((DisplayMac*) Graphics::GetDisplay())->StopRender();
+    _app.reset();
+    return YES;
 }
 
 @end

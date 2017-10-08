@@ -47,7 +47,7 @@ VR_MAIN(AppBlur);
 AppBlur::AppBlur()
 {
 	this->SetName("Viry3D::AppBlur");
-	this->SetInitSize(800, 600);
+	this->SetInitSize(1280, 720);
 }
 
 void AppBlur::Start()

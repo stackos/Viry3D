@@ -322,7 +322,7 @@ namespace Viry3D
 	}
 #endif
 
-#if VR_ANDROID || VR_WINDOWS
+#if VR_ANDROID || VR_WINDOWS || VR_MAC
 	int DisplayGLES::GetDefualtDepthRenderBuffer()
 	{
 		if (m_default_depth_render_buffer == 0)

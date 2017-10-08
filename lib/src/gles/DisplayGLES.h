@@ -84,8 +84,12 @@ namespace Viry3D
 #if VR_ANDROID || VR_WINDOWS
 		void CreateSharedContext();
 		void DestroySharedContext();
+#endif
+        
+#if VR_ANDROID || VR_WINDOWS || VR_MAC
 		int GetDefualtDepthRenderBuffer();
 #endif
+        
 		void FlushContext();
 		void SwapBuffers();
 
@@ -104,7 +108,7 @@ namespace Viry3D
 		EGLConfig m_config;
 #endif
 
-#if VR_ANDROID || VR_WINDOWS
+#if VR_ANDROID || VR_WINDOWS || VR_MAC
 		GLuint m_default_depth_render_buffer;
 #endif
 

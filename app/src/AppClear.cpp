@@ -36,7 +36,7 @@ VR_MAIN(AppClear);
 AppClear::AppClear()
 {
 	this->SetName("Viry3D::AppClear");
-	this->SetInitSize(800, 600);
+	this->SetInitSize(1280, 720);
 }
 
 void AppClear::Start()

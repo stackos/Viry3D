@@ -47,7 +47,7 @@ VR_MAIN(AppMesh);
 AppMesh::AppMesh()
 {
 	this->SetName("Viry3D::AppMesh");
-	this->SetInitSize(800, 600);
+	this->SetInitSize(1280, 720);
 }
 
 void AppMesh::Start()

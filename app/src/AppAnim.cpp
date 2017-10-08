@@ -63,7 +63,7 @@ void AppAnim::Start()
 
 #define USE_RT 0
 #if USE_RT
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_MAC
 	int w = 1920;
 	int h = 1080;
 #else

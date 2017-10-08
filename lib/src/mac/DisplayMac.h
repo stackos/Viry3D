@@ -28,13 +28,13 @@ public:
     void Deinit();
     void* GetWindowBridge();
     void BindDefaultFramebuffer();
-    int GetDefualtDepthRenderBuffer();
     void KeepScreenOn(bool enable) { }
     void OnWillResize(int width, int height);
     void DisplayLock() { m_mutex.lock(); }
     void DisplayUnlock() { m_mutex.unlock(); }
     int GetTargetWidth() const { return m_target_width; }
     int GetTargetHeight() const { return m_target_height; }
+    void StopRender();
     
     void CreateSharedContext();
     void DestroySharedContext();
