@@ -1216,10 +1216,6 @@ namespace Viry3D
 
 	Color Gradient::Evaluate(float time)
 	{
-		const auto& keys_r = r.keys;
-		const auto& keys_g = g.keys;
-		const auto& keys_b = b.keys;
-		const auto& keys_a = a.keys;
 		Color c;
 
 		if (time <= r.keys[0].time)

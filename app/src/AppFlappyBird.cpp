@@ -31,6 +31,7 @@
 #include "tweener/TweenPosition.h"
 #include "tweener/TweenUIColor.h"
 #include "io/File.h"
+#include "io/Directory.h"
 #include "json/json.h"
 #include "audio/AudioListener.h"
 #include "audio/AudioSource.h"
@@ -572,7 +573,13 @@ void AppFlappyBird::LoadScoreBest()
 void AppFlappyBird::SaveScoreBest(int score)
 {
 	m_score_best = score;
-	auto path = Application::SavePath() + "/AppFlappyBird/save.json";
+    auto dir = Application::SavePath() + "/AppFlappyBird";
+    if (!Directory::Exist(dir))
+    {
+        Directory::Create(dir);
+    }
+    
+	auto path = dir + "/save.json";
 
 	Json::FastWriter writer;
 	Json::Value root;

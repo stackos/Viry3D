@@ -221,7 +221,7 @@ namespace Viry3D
 
 #if VR_WINDOWS
 			CreateDirectoryA(folder.CString(), NULL);
-#elif VR_ANDROID || VR_IOS
+#else
 			mkdir(folder.CString(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
 		}

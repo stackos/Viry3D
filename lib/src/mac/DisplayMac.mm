@@ -18,14 +18,31 @@
 #include "DisplayMac.h"
 #include "Application.h"
 #include "Debug.h"
+#include "Input.h"
 #include "graphics/Graphics.h"
+#include "time/Time.h"
 #import <Cocoa/Cocoa.h>
 
 #if VR_GLES
 #import <OpenGL/gl3.h>
 #endif
 
+using namespace Viry3D;
+
 extern Ref<Viry3D::Application> _app;
+
+extern Viry3D::Vector<Viry3D::Touch> g_input_touches;
+extern Viry3D::List<Viry3D::Touch> g_input_touch_buffer;
+extern bool g_key_down[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key_up[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key_held[(int) Viry3D::KeyCode::COUNT];
+extern bool g_mouse_button_down[3];
+extern bool g_mouse_button_up[3];
+extern Viry3D::Vector3 g_mouse_position;
+extern bool g_mouse_button_held[3];
+
+static bool g_input_down = false;
 
 #if VR_GLES
 @interface OpenGLView : NSOpenGLView
@@ -36,6 +53,17 @@ extern Ref<Viry3D::Application> _app;
 @end
 
 @implementation OpenGLView;
+
+- (instancetype)initWithFrame:(NSRect)frameRect pixelFormat:(NSOpenGLPixelFormat *)format
+{
+    self = [super initWithFrame:frameRect pixelFormat:format];
+    NSTrackingArea* area = [[NSTrackingArea alloc] initWithRect:self.bounds
+                                                        options:NSTrackingMouseMoved | NSTrackingActiveInKeyWindow
+                                                          owner:self
+                                                       userInfo:nil];
+    [self addTrackingArea:area];
+    return self;
+}
 
 - (void)prepareOpenGL
 {
@@ -64,7 +92,6 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     {
         auto app = Viry3D::Application::Current();
         auto display = ((Viry3D::DisplayMac*) Viry3D::Graphics::GetDisplay());
-        
         display->DisplayLock();
         
         int width = display->GetTargetWidth();
@@ -94,6 +121,138 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     CVDisplayLinkRelease(displayLink);
 }
 
+- (void)mouseDown:(NSEvent *)event
+{
+    auto display = ((Viry3D::DisplayMac*) Viry3D::Graphics::GetDisplay());
+    display->DisplayLock();
+    
+    int x = [event locationInWindow].x;
+    int y = [event locationInWindow].y;
+    
+    if (!g_input_down)
+    {
+        Touch t;
+        t.deltaPosition = Vector2(0, 0);
+        t.deltaTime = 0;
+        t.fingerId = 0;
+        t.phase = TouchPhase::Began;
+        t.position = Vector2((float) x, (float) y);
+        t.tapCount = 1;
+        t.time = Time::GetRealTimeSinceStartup();
+        
+        if (!g_input_touches.Empty())
+        {
+            g_input_touch_buffer.AddLast(t);
+        }
+        else
+        {
+            g_input_touches.Add(t);
+        }
+        
+        g_input_down = true;
+    }
+    
+    g_mouse_button_down[0] = true;
+    g_mouse_position.x = (float) x;
+    g_mouse_position.y = (float) y;
+    g_mouse_button_held[0] = true;
+    
+    display->DisplayUnlock();
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+    auto display = ((Viry3D::DisplayMac*) Viry3D::Graphics::GetDisplay());
+    display->DisplayLock();
+    
+    int x = [event locationInWindow].x;
+    int y = [event locationInWindow].y;
+    
+    if (g_input_down)
+    {
+        Touch t;
+        t.deltaPosition = Vector2(0, 0);
+        t.deltaTime = 0;
+        t.fingerId = 0;
+        t.phase = TouchPhase::Ended;
+        t.position = Vector2((float) x, (float) y);
+        t.tapCount = 1;
+        t.time = Time::GetRealTimeSinceStartup();
+        
+        if (!g_input_touches.Empty())
+        {
+            g_input_touch_buffer.AddLast(t);
+        }
+        else
+        {
+            g_input_touches.Add(t);
+        }
+        
+        g_input_down = false;
+    }
+    
+    g_mouse_button_up[0] = true;
+    g_mouse_position.x = (float) x;
+    g_mouse_position.y = (float) y;
+    g_mouse_button_held[0] = false;
+    
+    display->DisplayUnlock();
+}
+
+- (void)mouseMoved:(NSEvent *)event
+{
+    auto display = ((Viry3D::DisplayMac*) Viry3D::Graphics::GetDisplay());
+    display->DisplayLock();
+    
+    int x = [event locationInWindow].x;
+    int y = [event locationInWindow].y;
+    
+    if (g_input_down)
+    {
+        Touch t;
+        t.deltaPosition = Vector2(0, 0);
+        t.deltaTime = 0;
+        t.fingerId = 0;
+        t.phase = TouchPhase::Moved;
+        t.position = Vector2((float) x, (float) y);
+        t.tapCount = 1;
+        t.time = Time::GetRealTimeSinceStartup();
+        
+        if (!g_input_touches.Empty())
+        {
+            if (g_input_touch_buffer.Empty())
+            {
+                g_input_touch_buffer.AddLast(t);
+            }
+            else
+            {
+                if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
+                {
+                    g_input_touch_buffer.Last() = t;
+                }
+                else
+                {
+                    g_input_touch_buffer.AddLast(t);
+                }
+            }
+        }
+        else
+        {
+            g_input_touches.Add(t);
+        }
+    }
+    
+    g_mouse_position.x = (float) x;
+    g_mouse_position.y = (float) y;
+    
+    display->DisplayUnlock();
+}
+
+- (void)mouseDragged:(NSEvent *)event
+{
+    
+}
+
 @end
 
 @interface ViewController : NSViewController
@@ -118,7 +277,7 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     };
     self.pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
     NSOpenGLView* view = [[OpenGLView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height) pixelFormat:self.pixelFormat];
-    
+
     auto context = [view openGLContext];
     [context makeCurrentContext];
     

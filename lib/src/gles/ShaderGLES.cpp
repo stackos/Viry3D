@@ -540,10 +540,9 @@ namespace Viry3D
 		auto& uniform_buffer_infos = pass.uniform_buffer_infos;
 
 		int buffer_size = 0;
-		for (int i = uniform_buffer_infos.Size() - 1; i >= 0; i--)
+		if (uniform_buffer_infos.Size() > 0)
 		{
-			buffer_size = uniform_buffer_infos[i]->offset + uniform_buffer_infos[i]->size;
-			break;
+			buffer_size = uniform_buffer_infos[0]->offset + uniform_buffer_infos[0]->size;
 		}
 
 		if (buffer_size > 0)
