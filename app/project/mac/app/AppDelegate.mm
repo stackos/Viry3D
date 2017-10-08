@@ -22,6 +22,8 @@
 
 using namespace Viry3D;
 
+Ref<Viry3D::Application> _app;
+
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
 
 @property (strong, nonatomic) NSWindow* window;
@@ -32,7 +34,7 @@ using namespace Viry3D;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
-    Application::Current()->OnInit();
+    _app->OnInit();
     
     self.window = (__bridge_transfer NSWindow*) ((DisplayMac*) Graphics::GetDisplay())->GetWindowBridge();
     self.window.delegate = self;
@@ -40,6 +42,8 @@ using namespace Viry3D;
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
+    ((DisplayMac*) Graphics::GetDisplay())->Deinit(); // release opengl view to stop display link thread
+    _app.reset();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {

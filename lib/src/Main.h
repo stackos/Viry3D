@@ -47,14 +47,15 @@ int main(int argc, char * argv[]) \
 #import <Cocoa/Cocoa.h>
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
 @end
+extern Ref<Viry3D::Application> _app;
 #define VR_MAIN(app_class) \
 int main(int argc, char * argv[]) \
 { \
-    Ref<app_class> app = RefMake<app_class>(); \
-    NSApplication* _app = [NSApplication sharedApplication]; \
-    AppDelegate* appDelegate = [[AppDelegate alloc] init]; \
-    _app.delegate = appDelegate; \
-    [_app run]; \
+    _app = RefMake<app_class>(); \
+    NSApplication* app = [NSApplication sharedApplication]; \
+    AppDelegate* delegate = [[AppDelegate alloc] init]; \
+    app.delegate = delegate; \
+    [app run]; \
     return 0; \
 }
 #endif

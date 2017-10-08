@@ -110,7 +110,7 @@ void DisplayMac::Init(int width, int height, int fps)
     DisplayBase::Init(width, width, fps);
     
     NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:TRUE];
-    window.title = @"Viry3D";
+    window.title = [NSString stringWithUTF8String:Application::Current()->GetName().CString()];
     [window center];
     [window makeKeyAndOrderFront:window];
 
