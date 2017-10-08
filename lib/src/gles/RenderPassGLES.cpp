@@ -195,14 +195,10 @@ namespace Viry3D
 			glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 		}
 
-#if VR_WINDOWS
-		// glInvalidateFramebuffer support start with 4.3
+#if VR_WINDOWS || VR_MAC
 		if (clear_flag == CameraClearFlags::Invalidate)
 		{
-			if (!Graphics::GetDisplay()->IsVersionCompatible(4, 3))
-			{
-				clear_flag = CameraClearFlags::Color;
-			}
+			clear_flag = CameraClearFlags::Color;
 		}
 #endif
 

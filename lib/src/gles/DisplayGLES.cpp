@@ -81,9 +81,11 @@ namespace Viry3D
 #endif
 	};
 
-	DisplayGLES::DisplayGLES()
+	DisplayGLES::DisplayGLES():
+		m_private(RefMake<DisplayGLESPrivate>()),
+		m_uniform_buffer_offset_alignment(0),
+		m_default_vao(0)
 	{
-		m_private = RefMake<DisplayGLESPrivate>();
 	}
 
 	void DisplayGLES::Init(int width, int height, int fps)
@@ -358,8 +360,13 @@ namespace Viry3D
 
 	void DisplayGLES::Deinit()
 	{
+		if (m_default_vao != 0)
+		{
+			glDeleteVertexArrays(1, &m_default_vao);
+		}
+
 #if VR_ANDROID || VR_WINDOWS
-		if (m_default_depth_render_buffer == 0)
+		if (m_default_depth_render_buffer != 0)
 		{
 			glDeleteRenderbuffers(1, &m_default_depth_render_buffer);
 		}
@@ -373,6 +380,19 @@ namespace Viry3D
 #elif VR_WINDOWS
 		DisplayWindows::Deinit();
 #endif
+	}
+
+	void DisplayGLES::BindVertexArray()
+	{
+		LogGLError();
+
+		if (m_default_vao == 0)
+		{
+			glGenVertexArrays(1, &m_default_vao);
+		}
+		glBindVertexArray(m_default_vao);
+
+		LogGLError();
 	}
 
 	void DisplayGLES::BindVertexBuffer(const VertexBuffer* buffer)
@@ -393,14 +413,14 @@ namespace Viry3D
 		LogGLError();
 	}
 
-	void DisplayGLES::BindVertexArray(const Ref<Shader>& shader, int pass_index)
+	void DisplayGLES::BindVertexAttribArray(const Ref<Shader>& shader, int pass_index)
 	{
 		LogGLError();
 
 		auto vs = shader->GetVertexShaderInfo(pass_index);
 		for (const auto& i : vs->attrs)
 		{
-            glEnableVertexAttribArray(i.location); // to do: use vao to fix mac error
+			glEnableVertexAttribArray(i.location);
 			glVertexAttribPointer(i.location, i.size / 4, GL_FLOAT, GL_FALSE, vs->stride, (const GLvoid*) (size_t) i.offset);
 		}
 

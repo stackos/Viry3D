@@ -62,9 +62,10 @@ namespace Viry3D
 		void BeginFrame() { }
 		void EndFrame() { }
 		void WaitQueueIdle() { }
+		void BindVertexArray();
 		void BindVertexBuffer(const VertexBuffer* buffer);
 		void BindIndexBuffer(const IndexBuffer* buffer, IndexType index_type);
-		void BindVertexArray(const Ref<Shader>& shader, int pass_index);
+		void BindVertexAttribArray(const Ref<Shader>& shader, int pass_index);
 		void DrawIndexed(int start, int count, IndexType index_type);
 		void DisableVertexArray(const Ref<Shader>& shader, int pass_index);
 		void SubmitQueue(void* cmd) { }
@@ -110,5 +111,6 @@ namespace Viry3D
 		int m_uniform_buffer_offset_alignment;
 		String m_extensions;
 		String m_device_name;
+		GLuint m_default_vao;
 	};
 }

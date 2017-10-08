@@ -144,6 +144,7 @@ namespace Viry3D
 			if (!static_batch)
 			{
 				m_static_buffers_binding = false;
+				Graphics::GetDisplay()->BindVertexArray();
 				Graphics::GetDisplay()->BindVertexBuffer(this->GetVertexBuffer());
 				Graphics::GetDisplay()->BindIndexBuffer(this->GetIndexBuffer(), index_type);
 			}
@@ -158,7 +159,7 @@ namespace Viry3D
 
 			if (!static_batch || !batching)
 			{
-				Graphics::GetDisplay()->BindVertexArray(shader, pass_index);
+				Graphics::GetDisplay()->BindVertexAttribArray(shader, pass_index);
 			}
 
 			int start, count;

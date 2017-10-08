@@ -51,9 +51,10 @@ namespace Viry3D
 		void WaitQueueIdle();
 		void BeginPrimaryCommandBuffer(VkCommandBuffer cmd);
 		void EndPrimaryCommandBuffer();
+		void BindVertexArray() { }
 		void BindVertexBuffer(const VertexBuffer* buffer);
 		void BindIndexBuffer(const IndexBuffer* buffer, IndexType index_type);
-		void BindVertexArray(const Ref<Shader>& shader, int pass_index) { }
+		void BindVertexAttribArray(const Ref<Shader>& shader, int pass_index) { }
 		void DrawIndexed(int start, int count, IndexType index_type);
 		void DisableVertexArray(const Ref<Shader>& shader, int pass_index) { }
 		void SubmitQueue(VkCommandBuffer cmd);

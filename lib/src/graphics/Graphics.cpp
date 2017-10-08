@@ -176,9 +176,10 @@ namespace Viry3D
 
 		auto index_type = IndexType::UnsignedShort;
 
+		GetDisplay()->BindVertexArray();
 		GetDisplay()->BindVertexBuffer(m_blit_mesh->GetVertexBuffer().get());
 		GetDisplay()->BindIndexBuffer(m_blit_mesh->GetIndexBuffer().get(), index_type);
-		GetDisplay()->BindVertexArray(shader, pass);
+		GetDisplay()->BindVertexAttribArray(shader, pass);
 		GetDisplay()->DrawIndexed(0, 6, index_type);
 		GetDisplay()->DisableVertexArray(shader, pass);
 
