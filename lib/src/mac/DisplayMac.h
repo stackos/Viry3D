@@ -18,6 +18,7 @@
 #pragma once
 
 #include "graphics/DisplayBase.h"
+#include "thread/Thread.h"
 
 namespace Viry3D {
     
@@ -29,12 +30,20 @@ public:
     void BindDefaultFramebuffer();
     int GetDefualtDepthRenderBuffer();
     void KeepScreenOn(bool enable) { }
+    void OnWillResize(int width, int height);
+    void DisplayLock() { m_mutex.lock(); }
+    void DisplayUnlock() { m_mutex.unlock(); }
+    int GetTargetWidth() const { return m_target_width; }
+    int GetTargetHeight() const { return m_target_height; }
     
     void CreateSharedContext();
     void DestroySharedContext();
     
 private:
     void* m_window;
+    Mutex m_mutex;
+    int m_target_width;
+    int m_target_height;
 };
 
 }

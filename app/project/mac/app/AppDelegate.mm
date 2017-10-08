@@ -50,4 +50,9 @@ Ref<Viry3D::Application> _app;
     return YES;
 }
 
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
+    ((DisplayMac*) Graphics::GetDisplay())->OnWillResize((int) frameSize.width, (int) frameSize.height);
+    return frameSize;
+}
+
 @end

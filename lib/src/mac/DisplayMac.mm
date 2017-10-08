@@ -18,14 +18,12 @@
 #include "DisplayMac.h"
 #include "Application.h"
 #include "Debug.h"
-#include "thread/Thread.h"
+#include "graphics/Graphics.h"
 #import <Cocoa/Cocoa.h>
 
 #if VR_GLES
 #import <OpenGL/gl3.h>
 #endif
-
-using namespace Viry3D;
 
 #if VR_GLES
 @interface OpenGLView : NSOpenGLView
@@ -62,10 +60,25 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
 {
     if (stop == false)
     {
+        auto app = Viry3D::Application::Current();
+        auto display = ((Viry3D::DisplayMac*) Viry3D::Graphics::GetDisplay());
+        
+        display->DisplayLock();
+        
+        int width = display->GetTargetWidth();
+        int height = display->GetTargetHeight();
+        if (width != display->GetWidth() ||
+            height != display->GetHeight())
+        {
+            app->OnResize(width, height);
+        }
+        
         [[self openGLContext] makeCurrentContext];
-        Viry3D::Application::Current()->OnUpdate();
-        Viry3D::Application::Current()->OnDraw();
+        app->OnUpdate();
+        app->OnDraw();
         [[self openGLContext] flushBuffer];
+        
+        display->DisplayUnlock();
     }
     
     return kCVReturnSuccess;
@@ -90,6 +103,7 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
 - (void)loadView
 {
     CGSize size = self._window.contentLayoutRect.size;
+    size = [self._window contentRectForFrameRect:self._window.contentLayoutRect].size;
     
     const uint32_t attrs[] =
     {
@@ -124,9 +138,15 @@ static NSOpenGLContext* g_shared_context;
     
 void DisplayMac::Init(int width, int height, int fps)
 {
+    m_target_width = width;
+    m_target_height = height;
+    
     DisplayBase::Init(width, height, fps);
     
-    NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:TRUE];
+    auto style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+    auto frame = [NSWindow frameRectForContentRect:NSMakeRect(0, 0, width, height) styleMask:style];
+    
+    NSWindow* window = [[NSWindow alloc] initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:TRUE];
     window.title = [NSString stringWithUTF8String:Application::Current()->GetName().CString()];
     [window center];
     [window makeKeyAndOrderFront:window];
@@ -166,6 +186,17 @@ void DisplayMac::CreateSharedContext()
 void DisplayMac::DestroySharedContext()
 {
     
+}
+    
+void DisplayMac::OnWillResize(int width, int height)
+{
+    m_mutex.lock();
+    
+    auto size = [g_view_controller._window contentRectForFrameRect:NSMakeRect(0, 0, width, height)].size;
+    m_target_width = size.width;
+    m_target_height = size.height;
+    
+    m_mutex.unlock();
 }
     
 void Debug::LogString(const String& str)
