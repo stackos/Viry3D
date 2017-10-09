@@ -280,7 +280,6 @@
 		07F66C913648E09B7CECED5D /* XMLShader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = XMLShader.cpp; sourceTree = "<group>"; };
 		086159FC305ACB204FF6EDEA /* frametype.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = frametype.c; sourceTree = "<group>"; };
 		08802EFAB090BE609D453453 /* util.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = util.c; sourceTree = "<group>"; };
-		0926394D92688941B38B9FC4 /* viry3d.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = viry3d.gypi; sourceTree = "<group>"; };
 		093CA61C5310ABA6A3A6B39B /* Debug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
 		0971C26220CE5379C4B4BD3D /* pngget.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngget.c; sourceTree = "<group>"; };
 		09FCC722FE398E4046D7257B /* ftotval.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ftotval.c; sourceTree = "<group>"; };
@@ -428,7 +427,6 @@
 		7D462D81955E673E343E92B8 /* Component.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Component.h; sourceTree = "<group>"; };
 		7DF489B9972AD35F36E37CF8 /* jidctflt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jidctflt.c; sourceTree = "<group>"; };
 		80D3C05005CA1385F0A077C4 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
-		813BF85BB07966E4827E7896 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
 		81518ABAE60FAFA7BBE2A22D /* RenderTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderTexture.h; sourceTree = "<group>"; };
 		83766301A3455992F64D56DB /* UIRect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIRect.h; sourceTree = "<group>"; };
 		83B92434E00FB749B409EE8C /* decoder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = decoder.c; sourceTree = "<group>"; };
@@ -436,7 +434,6 @@
 		850281252EC1DE5DA78E099D /* ImageEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ImageEffect.cpp; sourceTree = "<group>"; };
 		872C30AD04A638178F5E5C78 /* smooth.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = smooth.c; sourceTree = "<group>"; };
 		87403B0DF4329B6ECD34F2CD /* Bounds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bounds.h; sourceTree = "<group>"; };
-		88626DD246D90EF5487E4748 /* viry3d.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = viry3d.gyp; sourceTree = "<group>"; };
 		88854AD7780C8DBE5C0F6C49 /* DisplayGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DisplayGLES.cpp; sourceTree = "<group>"; };
 		88F2EFFBF4C8861311D92087 /* Main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Main.h; sourceTree = "<group>"; };
 		894F81A8AFAC5D60B7F76214 /* Tweener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tweener.h; sourceTree = "<group>"; };
@@ -657,16 +654,6 @@
 				CADF9530C1C585100BB80796 /* Ref.h */,
 			);
 			path = memory;
-			sourceTree = "<group>";
-		};
-		0AEC77C33245D9D84E41F37C /* Build */ = {
-			isa = PBXGroup;
-			children = (
-				813BF85BB07966E4827E7896 /* common.gypi */,
-				88626DD246D90EF5487E4748 /* viry3d.gyp */,
-				0926394D92688941B38B9FC4 /* viry3d.gypi */,
-			);
-			name = Build;
 			sourceTree = "<group>";
 		};
 		0DA4C2F8E6F069DDBD908726 /* graphics */ = {
@@ -1043,7 +1030,6 @@
 			children = (
 				1B0EEB9E6B981ACB2432F745 /* src */,
 				D62F4E3E3A4AF24FFDBDDEC0 /* Products */,
-				0AEC77C33245D9D84E41F37C /* Build */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1771,6 +1757,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
 			};
 			name = Release;
@@ -1803,6 +1790,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
 			};
