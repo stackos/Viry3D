@@ -28,7 +28,7 @@
 
 using namespace Viry3D;
 
-class AppWatch : public Application
+class AppWatch: public Application
 {
 public:
 	AppWatch();
@@ -60,7 +60,7 @@ void AppWatch::OnResize(int width, int height)
 {
 	Application::OnResize(width, height);
 
-	if(!ui_camera.expired())
+	if (!ui_camera.expired())
 	{
 		auto scale_w = ui_camera.lock()->GetTargetWidth() / 720.0f;
 		auto scale_h = ui_camera.lock()->GetTargetHeight() / 772.0f;
@@ -103,7 +103,7 @@ void AppWatch::Update()
 {
 	auto date = Time::GetDate();
 
-	if(!fps.expired() && fps.lock()->IsEnable())
+	if (!fps.expired() && fps.lock()->IsEnable())
 	{
 		fps.lock()->SetText(String::Format("fps:%d\n"
 			"%04d.%02d.%02d "
@@ -120,10 +120,19 @@ void AppWatch::Update()
 	minute.lock()->SetLocalRotation(Quaternion::Euler(0, 0, -minute_degree));
 	second.lock()->SetLocalRotation(Quaternion::Euler(0, 0, -second_degree));
 
-	const String week_days[] = {U"日", U"一", U"二", U"三", U"四", U"五", U"六"};
+	const char32_t ww[] = { 0x5468, 0 };
+	const char32_t w0[] = { 0x65E5, 0 };
+	const char32_t w1[] = { 0x4E00, 0 };
+	const char32_t w2[] = { 0x4E8C, 0 };
+	const char32_t w3[] = { 0x4E09, 0 };
+	const char32_t w4[] = { 0x56DB, 0 };
+	const char32_t w5[] = { 0x4E94, 0 };
+	const char32_t w6[] = { 0x516D, 0 };
+	String week_days[] = { String(w0), String(w1), String(w2), String(w3), String(w4), String(w5), String(w6) };
+
 	String day_week_str = String::Format("<bold><color=#ff0000ff>%d</color></bold>  %s%s",
 		date.day,
-		String(U"周").CString(),
+		String(ww).CString(),
 		week_days[date.week_day].CString());
 	day_week.lock()->SetText(day_week_str);
 }
