@@ -35,20 +35,20 @@ namespace Viry3D
 {
 	DisplayVulkan::DisplayVulkan():
 		m_instance(NULL),
-		m_debug_callback(NULL),
+		m_debug_callback(VK_NULL_HANDLE),
 		m_gpu(NULL),
-		m_surface(NULL),
+		m_surface(VK_NULL_HANDLE),
 		m_graphics_queue_index(-1),
 		m_device(NULL),
 		m_queue(NULL),
-		m_swapchain(NULL),
-		m_cmd_pool(NULL),
-		m_image_cmd_pool(NULL),
-		m_image_cmd_buffer(NULL),
+		m_swapchain(VK_NULL_HANDLE),
+		m_cmd_pool(VK_NULL_HANDLE),
+		m_image_cmd_pool(VK_NULL_HANDLE),
 		m_current_draw_cmd(NULL),
-		m_pipeline_cache(NULL),
 		m_swap_buffer_index(0),
-		m_image_acquired_semaphore(NULL)
+		m_image_acquired_semaphore(VK_NULL_HANDLE),
+        m_image_cmd_buffer(NULL),
+        m_pipeline_cache(VK_NULL_HANDLE)
 	{
 		Memory::Zero(&m_surface_format, sizeof(m_surface_format));
 		Memory::Zero(&m_memory_properties, sizeof(m_memory_properties));
@@ -58,7 +58,7 @@ namespace Viry3D
 	{
 		DestroySizeDependentResources();
 
-		if (m_image_acquired_semaphore != NULL)
+		if (m_image_acquired_semaphore != VK_NULL_HANDLE)
 		{
 			vkDestroySemaphore(m_device, m_image_acquired_semaphore, NULL);
 		}
@@ -153,7 +153,7 @@ namespace Viry3D
 		uint32_t extension_count = check_instance_extensions(extension_names);
 
 		uint32_t instance_layer_count = 1;
-		char* instance_validation_layers[] = { "VK_LAYER_LUNARG_standard_validation" };
+		const char* instance_validation_layers[] = { "VK_LAYER_LUNARG_standard_validation" };
 
 		VkInstanceCreateInfo inst = {
 			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -190,14 +190,11 @@ namespace Viry3D
 			return false;
 		}
 
-		if (msgCode == 5)
-		{
-			Log(message.CString());
-		}
-		else
-		{
-			MessageBox(NULL, message.CString(), "Alert", MB_OK);
-		}
+#if VR_WINDOWS
+		MessageBox(NULL, message.CString(), "Alert", MB_OK);
+#else
+		Log(message.CString());
+#endif
 
 		return false;
 	}
@@ -261,7 +258,7 @@ namespace Viry3D
 		};
 
 		uint32_t extension_count = 1;
-		char* extension_names[] = { "VK_KHR_swapchain" };
+		const char* extension_names[] = { "VK_KHR_swapchain" };
 
 		VkDeviceCreateInfo device = {
 			VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -642,7 +639,7 @@ namespace Viry3D
 		err = vkDeviceWaitIdle(m_device);
 		assert(!err);
 
-		if (m_image_acquired_semaphore != NULL)
+		if (m_image_acquired_semaphore != VK_NULL_HANDLE)
 		{
 			vkDestroySemaphore(m_device, m_image_acquired_semaphore, NULL);
 		}

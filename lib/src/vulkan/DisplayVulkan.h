@@ -19,6 +19,8 @@
 
 #if VR_WINDOWS
 #include "windows/DisplayWindows.h"
+#elif VR_ANDROID
+#include "android/DisplayAndroid.h"
 #endif
 
 #include "vulkan_include.h"
@@ -36,8 +38,10 @@ namespace Viry3D
 
 #if VR_WINDOWS
 	class DisplayVulkan: public DisplayWindows
-	{
+#elif VR_ANDROID
+	class DisplayVulkan: public DisplayAndroid
 #endif
+	{
 
 	public:
 		DisplayVulkan();
@@ -121,7 +125,7 @@ namespace Viry3D
 		VkDebugReportCallbackEXT m_debug_callback;
 		VkPhysicalDevice m_gpu;
 		VkSurfaceKHR m_surface;
-		uint32_t m_graphics_queue_index;
+		int m_graphics_queue_index;
 		VkDevice m_device;
 		VkQueue m_queue;
 		VkSurfaceFormatKHR m_surface_format;
