@@ -319,6 +319,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_check.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_proc_addr.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_shader_compiler.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_wrapper/vulkan_wrapper.cpp # for android libvulkan.so load
             ${VIRY3D_LIB_SRC_DIR}/World.cpp)
 
 target_include_directories(Viry3D PRIVATE
@@ -328,6 +329,7 @@ target_include_directories(Viry3D PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/openal/include
                            ${VIRY3D_LIB_SRC_DIR}/openal/android
                            ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
+                           ${ANDROID_NDK}/sources/third_party/shaderc/include
                            ${SHADERC_SRC}/third_party/spirv-tools/include
                            ${SHADERC_SRC}/third_party/spirv-tools/include/spirv-tools)
 
@@ -345,10 +347,9 @@ add_library(Viry3DApp SHARED
 
 target_include_directories(Viry3DApp PRIVATE
                            ${ANDROID_NDK}/sources/android/native_app_glue
-                           ${ANDROID_NDK}/sources/third_party/shaderc/include
-                           ${VIRY3D_LIB_SRC_DIR}
-                           ${VIRY3D_LIB_SRC_DIR}/spidermonkey/include/android)
+                           ${VIRY3D_LIB_SRC_DIR})
 
 target_link_libraries(Viry3DApp
                       android log EGL GLESv3 z OpenSLES
-                      shaderc_lib Viry3D Viry3DDep)
+                      Viry3D Viry3DDep
+                      shaderc_lib)

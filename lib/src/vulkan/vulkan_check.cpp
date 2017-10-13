@@ -22,7 +22,7 @@
 
 namespace Viry3D
 {
-	uint32_t check_instance_extensions(char** extension_names)
+	uint32_t check_instance_extensions(const char** extension_names)
 	{
 		uint32_t extension_count = 0;
 

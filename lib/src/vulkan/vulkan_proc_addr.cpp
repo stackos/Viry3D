@@ -47,6 +47,10 @@ namespace Viry3D
 	PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 	PFN_vkQueuePresentKHR fpQueuePresentKHR;
 
+#if VR_ANDROID
+	PFN_vkCreateAndroidSurfaceKHR fpCreateAndroidSurfaceKHR;
+#endif
+
 	void get_instance_proc_addrs(VkInstance instance)
 	{
 		GET_INSTANCE_PROC_ADDR(instance, CreateDebugReportCallbackEXT);
@@ -57,6 +61,10 @@ namespace Viry3D
 		GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceFormatsKHR);
 		GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfacePresentModesKHR);
 		GET_INSTANCE_PROC_ADDR(instance, GetSwapchainImagesKHR);
+
+#if VR_ANDROID
+		GET_INSTANCE_PROC_ADDR(instance, CreateAndroidSurfaceKHR);
+#endif
 	}
 
 	void get_device_proc_addrs(VkInstance instance, VkDevice device)

@@ -29,6 +29,10 @@
 
 #if VR_VULKAN
 
+#if VR_ANDROID
+#include "android/jni.h"
+#endif
+
 #define VSYNC 0
 
 namespace Viry3D
@@ -38,15 +42,15 @@ namespace Viry3D
 		m_debug_callback(VK_NULL_HANDLE),
 		m_gpu(NULL),
 		m_surface(VK_NULL_HANDLE),
-		m_graphics_queue_index(-1),
+		m_graphics_queue_index(0),
 		m_device(NULL),
 		m_queue(NULL),
-		m_swapchain(VK_NULL_HANDLE),
-		m_cmd_pool(VK_NULL_HANDLE),
-		m_image_cmd_pool(VK_NULL_HANDLE),
-		m_current_draw_cmd(NULL),
 		m_swap_buffer_index(0),
-		m_image_acquired_semaphore(VK_NULL_HANDLE),
+        m_image_acquired_semaphore(VK_NULL_HANDLE),
+        m_current_draw_cmd(NULL),
+        m_swapchain(VK_NULL_HANDLE),
+        m_cmd_pool(VK_NULL_HANDLE),
+        m_image_cmd_pool(VK_NULL_HANDLE),
         m_image_cmd_buffer(NULL),
         m_pipeline_cache(VK_NULL_HANDLE)
 	{
@@ -149,7 +153,7 @@ namespace Viry3D
 			VK_API_VERSION_1_0,
 		};
 
-		char* extension_names[64] = { 0 };
+		const char* extension_names[64] = { 0 };
 		uint32_t extension_count = check_instance_extensions(extension_names);
 
 		uint32_t instance_layer_count = 1;
@@ -232,6 +236,7 @@ namespace Viry3D
 	{
 		VkResult err;
 
+#if VR_WINDOWS
 		VkWin32SurfaceCreateInfoKHR create;
 		create.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		create.pNext = NULL;
@@ -241,6 +246,15 @@ namespace Viry3D
 
 		err = vkCreateWin32SurfaceKHR(m_instance, &create, NULL, &m_surface);
 		assert(!err);
+#elif VR_ANDROID
+        VkAndroidSurfaceCreateInfoKHR create;
+        create.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+        create.pNext = NULL;
+        create.flags = 0;
+        create.window = (ANativeWindow*) get_native_window();
+        err = fpCreateAndroidSurfaceKHR(m_instance, &create, NULL, &m_surface);
+        assert(!err);
+#endif
 	}
 
 	void DisplayVulkan::CreateDevice()

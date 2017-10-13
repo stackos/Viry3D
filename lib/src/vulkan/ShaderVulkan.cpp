@@ -246,7 +246,7 @@ namespace Viry3D
 			}
 			else
 			{
-				shader_pass.descriptor_pool = NULL;
+				shader_pass.descriptor_pool = VK_NULL_HANDLE;
 			}
 		}
 
@@ -269,9 +269,9 @@ namespace Viry3D
 					}
 
 					VkDescriptorBufferInfo info;
-					info.buffer = NULL;
-					info.offset = offset;
-					info.range = uniform_buffer_info.size;
+					info.buffer = VK_NULL_HANDLE;
+					info.offset = (uint32_t) offset;
+					info.range = (uint32_t) uniform_buffer_info.size;
 					shader_pass.uniform_infos.Add(info);
 
 					buffer_size += uniform_buffer_info.size;
@@ -279,8 +279,8 @@ namespace Viry3D
 				else if (binds[i].descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 				{
 					VkDescriptorImageInfo sampler_info;
-					sampler_info.sampler = NULL;
-					sampler_info.imageView = NULL;
+					sampler_info.sampler = VK_NULL_HANDLE;
+					sampler_info.imageView = VK_NULL_HANDLE;
 					sampler_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 					shader_pass.sampler_infos.Add(sampler_info);
@@ -298,7 +298,7 @@ namespace Viry3D
 			write.dstBinding = i.binding;
 			write.descriptorCount = 1;
 			write.descriptorType = i.descriptorType;
-			write.dstSet = NULL;
+			write.dstSet = VK_NULL_HANDLE;
 
 			if (i.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 			{
@@ -357,9 +357,7 @@ namespace Viry3D
 	Ref<UniformBuffer> ShaderVulkan::CreateUniformBuffer(int index)
 	{
 		Ref<UniformBuffer> uniform_buffer;
-
 		auto& pass = m_passes[index];
-		Vector<VkDescriptorSetLayoutBinding>& binds = pass.binds;
 
 		int buffer_size = 0;
 		auto writes = this->GetDescriptorSetWriteInfo(index);
@@ -787,7 +785,7 @@ namespace Viry3D
 
 		pipeline_info.stageCount = 2;
 		pipeline_info.pStages = shader_stages;
-		pipeline_info.renderPass = NULL;
+		pipeline_info.renderPass = VK_NULL_HANDLE;
 		pipeline_info.pVertexInputState = &vi;
 		pipeline_info.pInputAssemblyState = &ia;
 		pipeline_info.pDepthStencilState = &ds;
@@ -800,8 +798,8 @@ namespace Viry3D
 
 	ShaderVulkan::ShaderVulkan()
 	{
-		m_renderer_descriptor.pool = NULL;
-		m_renderer_descriptor.layout = NULL;
+		m_renderer_descriptor.pool = VK_NULL_HANDLE;
+		m_renderer_descriptor.layout = VK_NULL_HANDLE;
 	}
 
 	ShaderVulkan::~ShaderVulkan()
@@ -1045,7 +1043,6 @@ namespace Viry3D
 	void ShaderVulkan::BeginPass(int index)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
-		auto device = display->GetDevice();
 		auto& pass = m_passes[index];
 		auto render_pass = RenderPass::GetRenderPassBinding();
 		VkCommandBuffer cmd = display->GetCurrentDrawCommand();

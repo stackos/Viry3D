@@ -125,7 +125,7 @@ namespace Viry3D
 		VkDebugReportCallbackEXT m_debug_callback;
 		VkPhysicalDevice m_gpu;
 		VkSurfaceKHR m_surface;
-		int m_graphics_queue_index;
+		uint32_t m_graphics_queue_index;
 		VkDevice m_device;
 		VkQueue m_queue;
 		VkSurfaceFormatKHR m_surface_format;

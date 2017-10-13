@@ -23,10 +23,10 @@
 namespace Viry3D
 {
 	BufferVulkan::BufferVulkan():
-		m_type(BufferType::None),
 		m_size(0),
-		m_buffer(NULL),
-		m_memory(NULL)
+		m_type(BufferType::None),
+		m_buffer(VK_NULL_HANDLE),
+		m_memory(VK_NULL_HANDLE)
 	{
 	}
 
@@ -47,13 +47,13 @@ namespace Viry3D
 		auto device = display->GetDevice();
 		VkResult err;
 
-		if (m_buffer == NULL)
+		if (m_buffer == VK_NULL_HANDLE)
 		{
 			VkBufferCreateInfo buf_info;
 			Memory::Zero(&buf_info, sizeof(buf_info));
 			buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 			buf_info.pNext = NULL;
-			buf_info.size = m_size;
+			buf_info.size = (uint32_t) m_size;
 			buf_info.flags = 0;
 
 			m_type = type;
@@ -79,6 +79,8 @@ namespace Viry3D
 					buf_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 					break;
 				}
+				case BufferType::None:
+					break;
 			}
 
 			err = vkCreateBuffer(device, &buf_info, NULL, &m_buffer);
@@ -115,7 +117,7 @@ namespace Viry3D
 		auto device = ((DisplayVulkan*) Graphics::GetDisplay())->GetDevice();
 
 		void* data;
-		VkResult err = vkMapMemory(device, m_memory, 0, m_size, 0, &data);
+		VkResult err = vkMapMemory(device, m_memory, 0, (uint32_t) m_size, 0, &data);
 		assert(!err);
 
 		ByteBuffer buffer((byte*) data, m_size);
@@ -129,7 +131,7 @@ namespace Viry3D
 		auto device = ((DisplayVulkan*) Graphics::GetDisplay())->GetDevice();
 
 		void* mapped;
-		VkResult err = vkMapMemory(device, m_memory, offset, size, 0, &mapped);
+		VkResult err = vkMapMemory(device, m_memory, (uint32_t) offset, (uint32_t) size, 0, &mapped);
 		assert(!err);
 
 		Memory::Copy(mapped, data, size);

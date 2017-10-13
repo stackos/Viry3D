@@ -27,7 +27,7 @@
 namespace Viry3D
 {
 	RenderPassVulkan::RenderPassVulkan():
-		m_render_pass(NULL)
+		m_render_pass(VK_NULL_HANDLE)
 	{
 	}
 

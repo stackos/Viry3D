@@ -36,4 +36,8 @@ namespace Viry3D
 	extern PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
 	extern PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 	extern PFN_vkQueuePresentKHR fpQueuePresentKHR;
+
+#if VR_ANDROID
+	extern PFN_vkCreateAndroidSurfaceKHR fpCreateAndroidSurfaceKHR;
+#endif
 }

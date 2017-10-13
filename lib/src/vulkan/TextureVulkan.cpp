@@ -29,10 +29,10 @@ namespace Viry3D
 {
 	TextureVulkan::TextureVulkan():
 		m_format(VK_FORMAT_UNDEFINED),
-		m_image(NULL),
-		m_memory(NULL),
-		m_image_view(NULL),
-		m_sampler(NULL),
+		m_image(VK_NULL_HANDLE),
+		m_memory(VK_NULL_HANDLE),
+		m_image_view(VK_NULL_HANDLE),
+		m_sampler(VK_NULL_HANDLE),
 		m_image_buffer_size(0)
 	{
 		SetName("TextureVulkan");
@@ -57,7 +57,6 @@ namespace Viry3D
 	{
 		auto texture = (RenderTexture*) this;
 		auto format = texture->GetFormat();
-		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 
 		switch (format)
 		{
@@ -88,7 +87,6 @@ namespace Viry3D
 	{
 		auto texture = (RenderTexture*) this;
 		auto depth = texture->GetDepth();
-		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		VkImageAspectFlags view_aspect = 0;
 
 		if (depth == DepthBuffer::Depth_16)
@@ -361,7 +359,7 @@ namespace Viry3D
 		if (m_sampler)
 		{
 			vkDestroySampler(device, m_sampler, NULL);
-			m_sampler = NULL;
+			m_sampler = VK_NULL_HANDLE;
 		}
 
 		int mip_count = GetMipCount();
@@ -441,7 +439,6 @@ namespace Viry3D
 
 	void TextureVulkan::CopyBufferImage(const Ref<ImageBuffer>& image_buffer, int x, int y, int w, int h)
 	{
-		auto texture = (Texture2D*) this;
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 
 		display->BeginImageCommandBuffer();

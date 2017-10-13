@@ -17,11 +17,40 @@
 
 #include "vulkan_shader_compiler.h"
 #include "memory/Memory.h"
+#include "Debug.h"
 
-#if VR_WINDOWS
-#include "glslang/SPIRV/GlslangToSpv.h"
-#else
+#if VR_ANDROID
 #include "shaderc/shaderc.hpp"
+
+struct shader_type_mapping
+{
+    VkShaderStageFlagBits vkshader_type;
+    shaderc_shader_kind shaderc_type;
+};
+
+static const shader_type_mapping shader_map_table[] =
+{
+    {VK_SHADER_STAGE_VERTEX_BIT, shaderc_glsl_vertex_shader},
+    {VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, shaderc_glsl_tess_control_shader},
+    {VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT, shaderc_glsl_tess_evaluation_shader},
+    {VK_SHADER_STAGE_GEOMETRY_BIT, shaderc_glsl_geometry_shader},
+    {VK_SHADER_STAGE_FRAGMENT_BIT, shaderc_glsl_fragment_shader},
+    {VK_SHADER_STAGE_COMPUTE_BIT, shaderc_glsl_compute_shader},
+};
+
+shaderc_shader_kind MapShadercType(VkShaderStageFlagBits vkShader)
+{
+    for (auto shader : shader_map_table)
+    {
+        if (shader.vkshader_type == vkShader)
+        {
+            return shader.shaderc_type;
+        }
+    }
+    return shaderc_glsl_infer_from_source;
+}
+#else
+#include "glslang/SPIRV/GlslangToSpv.h"
 #endif
 
 namespace Viry3D
@@ -167,8 +196,6 @@ namespace Viry3D
 
 	bool glsl_to_spv(const VkShaderStageFlagBits shader_type, const char* src, Vector<unsigned int>& spirv, String& error)
 	{
-		std::vector<unsigned int> spirv_out;
-
 #if VR_WINDOWS
 		EShLanguage type = find_shader_type(shader_type);
 		glslang::TShader shader(type);
@@ -199,26 +226,26 @@ namespace Viry3D
 		}
 
 		const glslang::TIntermediate* intermediate = program.getIntermediate(type);
+		std::vector<unsigned int> spirv_out;
 		glslang::GlslangToSpv(*intermediate, spirv_out);
+
+        spirv.Resize((int) spirv_out.size());
+		Memory::Copy(&spirv[0], &spirv_out[0], spirv.SizeInBytes());
 #else
 		shaderc::Compiler compiler;
-		shaderc::SpvCompilationResult module =
-			compiler.CompileGlslToSpv(pshader, strlen(pshader),
-				MapShadercType(shader_type),
-				"shader");
-		if (module.GetCompilationStatus() !=
-			shaderc_compilation_status_success)
+		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(src, strlen(src), MapShadercType(shader_type), "shader");
+		if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
-			LOGE("Error: Id=%d, Msg=%s",
-				module.GetCompilationStatus(),
-				module.GetErrorMessage().c_str());
+			Log("Error: Id=%d, Msg=%s", module.GetCompilationStatus(), module.GetErrorMessage().c_str());
 			return false;
 		}
-		spirv.assign(module.cbegin(), module.cend());
-#endif
 
-		spirv.Resize((int) spirv_out.size());
-		Memory::Copy(&spirv[0], &spirv_out[0], spirv.SizeInBytes());
+        spirv.Clear();
+        for (auto i : module)
+        {
+            spirv.Add(i);
+        }
+#endif
 
 		return true;
 	}
