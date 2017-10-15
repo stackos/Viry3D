@@ -74,8 +74,11 @@ namespace Viry3D
 
 		fpDestroySwapchainKHR(m_device, m_swapchain, NULL);
 		vkDestroyDevice(m_device, NULL);
+
 		vkDestroySurfaceKHR(m_instance, m_surface, NULL);
+#if VR_WINDOWS
 		fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, NULL);
+#endif
 		vkDestroyInstance(m_instance, NULL);
 	}
 
@@ -145,6 +148,61 @@ namespace Viry3D
 		this->DestroySizeDependentResources();
 		this->CreateSizeDependentResources();
 	}
+
+    void DisplayVulkan::OnPause()
+    {
+        Log("DisplayVulkan::OnPause");
+
+		/*vkDeviceWaitIdle(m_device);
+
+		DestroySizeDependentResources();
+
+		if (m_image_acquired_semaphore != VK_NULL_HANDLE)
+		{
+			vkDestroySemaphore(m_device, m_image_acquired_semaphore, NULL);
+			m_image_acquired_semaphore = VK_NULL_HANDLE;
+		}
+		for (auto i : m_draw_complete_semaphores)
+		{
+			vkDestroySemaphore(m_device, i, NULL);
+		}
+		m_draw_complete_semaphores.Clear();
+
+		fpDestroySwapchainKHR(m_device, m_swapchain, NULL);
+		m_swapchain = VK_NULL_HANDLE;
+		vkDestroyDevice(m_device, NULL);
+		m_device = VK_NULL_HANDLE;
+
+		vkDestroySurfaceKHR(m_instance, m_surface, NULL);
+		m_surface = VK_NULL_HANDLE;
+		vkDestroyInstance(m_instance, NULL);
+		m_instance = VK_NULL_HANDLE;*/
+    }
+
+    void DisplayVulkan::OnResume()
+    {
+        Log("DisplayVulkan::OnResume");
+
+		/*this->CreateInstance();
+		get_instance_proc_addrs(m_instance);
+
+		this->GetGPU();
+		this->CreateSurface();
+
+		m_graphics_queue_index = check_queue(m_gpu, m_surface);
+		m_surface_format = check_surface_format(m_gpu, m_surface);
+
+		this->CreateDevice();
+		get_device_proc_addrs(m_instance, m_device);
+
+		vkGetDeviceQueue(m_device, m_graphics_queue_index, 0, &m_queue);
+		vkGetPhysicalDeviceMemoryProperties(m_gpu, &m_memory_properties);
+		vkGetPhysicalDeviceProperties(m_gpu, &m_device_properties);
+
+		m_device_name = m_device_properties.deviceName;
+
+		this->CreateSizeDependentResources();*/
+    }
 
 	void DisplayVulkan::CreateInstance()
 	{

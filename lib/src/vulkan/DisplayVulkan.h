@@ -48,8 +48,8 @@ namespace Viry3D
 		void Init(int width, int height, int fps);
 		void Deinit();
 		void OnResize(int width, int height);
-		void OnPause() { }
-		void OnResume() { }
+		void OnPause();
+		void OnResume();
 		void BeginFrame();
 		void EndFrame();
 		void WaitQueueIdle();
