@@ -48,18 +48,24 @@ namespace Viry3D
 					extension_names[extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 				}
 
-#if VK_USE_PLATFORM_WIN32_KHR
+#if VR_WINDOWS
 				if (!strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName))
 				{
 					platform_surface_ext_found = true;
 					extension_names[extension_count++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 				}
-#endif
 
 				if (!strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName))
 				{
 					extension_names[extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
 				}
+#elif VR_ANDROID
+				if (!strcmp(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName))
+				{
+					platform_surface_ext_found = true;
+					extension_names[extension_count++] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
+				}
+#endif
 
 				assert(extension_count < 64);
 			}

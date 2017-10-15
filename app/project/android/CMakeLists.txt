@@ -26,6 +26,7 @@ set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 add_library(Viry3DDep STATIC
+            ${VIRY3D_LIB_SRC_DIR}/crypto/md5/md5.c
             ${VIRY3D_LIB_SRC_DIR}/freetype/src/autofit/autofit.c
             ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbase.c
             ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbbox.c

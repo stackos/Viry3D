@@ -97,11 +97,18 @@ namespace Viry3D
 	{
 #if VR_WINDOWS
 		DisplayWindows::Init(width, height, fps);
+#elif VR_ANDROID
+		DisplayAndroid::Init(width, height, fps);
+		int success = InitVulkan();
+		Log("android vulkan so load success: %s", success ? "true" : "false");
 #endif
 
 		this->CreateInstance();
 		get_instance_proc_addrs(m_instance);
+
+#if VR_WINDOWS
 		this->CreateDebugReportCallback();
+#endif
 
 		this->GetGPU();
 		this->CreateSurface();
@@ -119,6 +126,8 @@ namespace Viry3D
 		m_device_name = m_device_properties.deviceName;
 
 		this->CreateSizeDependentResources();
+
+		Log("display vulkan init success");
 	}
 
 	void DisplayVulkan::OnResize(int width, int height)
@@ -156,6 +165,7 @@ namespace Viry3D
 		const char* extension_names[64] = { 0 };
 		uint32_t extension_count = check_instance_extensions(extension_names);
 
+#if VR_WINDOWS
 		uint32_t instance_layer_count = 1;
 		const char* instance_validation_layers[] = { "VK_LAYER_LUNARG_standard_validation" };
 
@@ -169,6 +179,18 @@ namespace Viry3D
 			extension_count,
 			(const char* const*) extension_names,
 		};
+#elif VR_ANDROID
+		VkInstanceCreateInfo inst = {
+			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+			NULL,
+			0,
+			&app,
+			0,
+			NULL,
+			extension_count,
+			(const char* const*) extension_names,
+	};
+#endif
 
 		err = vkCreateInstance(&inst, NULL, &m_instance);
 		assert(!err);
@@ -336,6 +358,9 @@ namespace Viry3D
 			image_count = surf_capabilities.maxImageCount;
 		}
 
+        m_swapchain_buffers.Resize(image_count);
+		Memory::Zero(&m_swapchain_buffers[0], m_swapchain_buffers.SizeInBytes());
+
 		VkSurfaceTransformFlagsKHR transform;
 		if (surf_capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
 		{
@@ -354,12 +379,11 @@ namespace Viry3D
 		err = fpGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, m_surface, &present_mode_count, present_modes);
 		assert(!err);
 
-#if VSYNC
+#if VSYNC || VR_ANDROID
 		VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
 #else
 		VkPresentModeKHR present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
-#endif
-		for (int i = 0; i < present_mode; i++)
+        for (int i = 0; i < present_mode; i++)
 		{
 			if (present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
@@ -371,6 +395,7 @@ namespace Viry3D
 				present_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
 			}
 		}
+#endif
 
 		Memory::Free(present_modes);
 
@@ -411,15 +436,13 @@ namespace Viry3D
 		uint32_t image_count;
 		err = fpGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, NULL);
 		assert(!err);
-
-		m_swapchain_buffers.Resize(image_count);
-		Memory::Zero(&m_swapchain_buffers[0], m_swapchain_buffers.SizeInBytes());
-
+        assert(image_count >= (uint32_t) m_swapchain_buffers.Size());
+		
 		VkImage *images = Memory::Alloc<VkImage>(sizeof(VkImage) * image_count);
 		err = fpGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, images);
 		assert(!err);
 
-		for (uint32_t i = 0; i < image_count; i++)
+		for (int i = 0; i < m_swapchain_buffers.Size(); i++)
 		{
 			m_swapchain_buffers[i].image = images[i];
 

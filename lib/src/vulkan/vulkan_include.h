@@ -17,4 +17,8 @@
 
 #pragma once
 
+#if VR_WINDOWS
 #include <vulkan/vulkan.h>
+#elif VR_ANDROID
+#include "vulkan/vulkan_wrapper/vulkan_wrapper.h"
+#endif
