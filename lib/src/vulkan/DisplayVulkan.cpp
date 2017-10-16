@@ -76,9 +76,7 @@ namespace Viry3D
 		vkDestroyDevice(m_device, NULL);
 
 		vkDestroySurfaceKHR(m_instance, m_surface, NULL);
-#if VR_WINDOWS
 		fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, NULL);
-#endif
 		vkDestroyInstance(m_instance, NULL);
 	}
 
@@ -109,9 +107,7 @@ namespace Viry3D
 		this->CreateInstance();
 		get_instance_proc_addrs(m_instance);
 
-#if VR_WINDOWS
 		this->CreateDebugReportCallback();
-#endif
 
 		this->GetGPU();
 		this->CreateSurface();
@@ -212,13 +208,24 @@ namespace Viry3D
 			(const char* const*) extension_names,
 		};
 #elif VR_ANDROID
+		uint32_t instance_layer_count = 7;
+		const char* instance_validation_layers[] = {
+			"VK_LAYER_GOOGLE_threading",
+			"VK_LAYER_LUNARG_parameter_validation",
+			"VK_LAYER_LUNARG_object_tracker",
+			"VK_LAYER_LUNARG_core_validation",
+			"VK_LAYER_LUNARG_image",
+			"VK_LAYER_LUNARG_swapchain",
+			"VK_LAYER_GOOGLE_unique_objects"
+		};
+
 		VkInstanceCreateInfo inst = {
 			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 			NULL,
 			0,
 			&app,
-			0,
-			NULL,
+			instance_layer_count,
+			instance_validation_layers,
 			extension_count,
 			(const char* const*) extension_names,
 	};
@@ -233,6 +240,8 @@ namespace Viry3D
 			uint64_t srcObject, size_t location, int32_t msgCode,
 			const char *pLayerPrefix, const char *pMsg, void *pUserData)
 	{
+		Log("[%s] %d : %s", pLayerPrefix, msgCode, pMsg);
+
 		String message;
 
 		if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
@@ -250,8 +259,6 @@ namespace Viry3D
 
 #if VR_WINDOWS
 		MessageBox(NULL, message.CString(), "Alert", MB_OK);
-#else
-		Log(message.CString());
 #endif
 
 		return false;
@@ -447,7 +454,11 @@ namespace Viry3D
 			0,
 			NULL,
 			(VkSurfaceTransformFlagBitsKHR) transform,
+#if VR_WINDOWS
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+#else
+			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+#endif
 			present_mode,
 			true,
 			old_swapchain
