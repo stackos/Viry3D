@@ -76,7 +76,7 @@ namespace Viry3D
 		return texture;
 	}
 
-	Ref<Texture2D> Texture2D::LoadFromFile(String file,
+	Ref<Texture2D> Texture2D::LoadFromFile(const String& file,
 		TextureWrapMode wrap_mode,
 		FilterMode filter_mode,
 		bool mipmap)
@@ -93,7 +93,7 @@ namespace Viry3D
 		return texture;
 	}
 
-	void Texture2D::EncodeToPNG(String file)
+	void Texture2D::EncodeToPNG(const String& file)
 	{
 		int bpp;
 		auto format = this->GetFormat();

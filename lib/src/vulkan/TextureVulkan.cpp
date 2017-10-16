@@ -502,15 +502,15 @@ namespace Viry3D
 			blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			blit.srcSubresource.layerCount = 1;
 			blit.srcSubresource.mipLevel = i - 1;
-			blit.srcOffsets[1].x = int32_t(width >> (i - 1));
-			blit.srcOffsets[1].y = int32_t(height >> (i - 1));
+			blit.srcOffsets[1].x = Mathf::Max(1, width >> (i - 1));
+			blit.srcOffsets[1].y = Mathf::Max(1, height >> (i - 1));
 			blit.srcOffsets[1].z = 1;
 
 			blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			blit.dstSubresource.layerCount = 1;
 			blit.dstSubresource.mipLevel = i;
-			blit.dstOffsets[1].x = int32_t(width >> i);
-			blit.dstOffsets[1].y = int32_t(height >> i);
+			blit.dstOffsets[1].x = Mathf::Max(1, width >> i);
+			blit.dstOffsets[1].y = Mathf::Max(1, height >> i);
 			blit.dstOffsets[1].z = 1;
 
 			VkImageSubresourceRange range;

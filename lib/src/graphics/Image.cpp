@@ -204,7 +204,7 @@ namespace Viry3D
 		return colors;
 	}
 
-	void Image::EncodeToPNG(Texture2D *tex, int bpp, String file)
+	void Image::EncodeToPNG(Texture2D *tex, int bpp, const String& file)
 	{
 		int color_type = -1;
 		switch (bpp)

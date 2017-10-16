@@ -28,7 +28,7 @@ namespace Viry3D
 		//
 		//	线程安全, 可在子线程中异步加载
 		//
-		static Ref<Texture2D> LoadFromFile(String file,
+		static Ref<Texture2D> LoadFromFile(const String& file,
 			TextureWrapMode wrap_mode = TextureWrapMode::Clamp,
 			FilterMode filter_mode = FilterMode::Bilinear,
 			bool mipmap = false);
@@ -53,7 +53,7 @@ namespace Viry3D
 
 		ByteBuffer GetColors() const { return m_colors; }
 		void UpdateTexture(int x, int y, int w, int h, const ByteBuffer& colors);
-		void EncodeToPNG(String file);
+		void EncodeToPNG(const String& file);
 		TextureFormat GetFormat() const { return m_format; }
 		bool IsMipmap() const { return m_mipmap; }
 
