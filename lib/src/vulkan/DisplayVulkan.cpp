@@ -138,10 +138,24 @@ namespace Viry3D
 
 		vkDeviceWaitIdle(m_device);
 
-		m_width = width;
-		m_height = height;
+        m_width = width;
+        m_height = height;
 
-		this->DestroySizeDependentResources();
+		DestroySizeDependentResources();
+
+		fpDestroySwapchainKHR(m_device, m_swapchain, NULL);
+		m_swapchain = VK_NULL_HANDLE;
+
+		vkDestroySurfaceKHR(m_instance, m_surface, NULL);
+		m_surface = VK_NULL_HANDLE;
+
+		this->CreateSurface();
+
+		m_graphics_queue_index = check_queue(m_gpu, m_surface);
+		m_surface_format = check_surface_format(m_gpu, m_surface);
+
+		vkGetDeviceQueue(m_device, m_graphics_queue_index, 0, &m_queue);
+
 		this->CreateSizeDependentResources();
 	}
 

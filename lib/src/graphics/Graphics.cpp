@@ -54,6 +54,7 @@ namespace Viry3D
 
 	void Graphics::OnPause()
 	{
+		m_blit_render_passes.Clear();
 		Camera::OnPause();
 		m_display->OnPause();
 	}

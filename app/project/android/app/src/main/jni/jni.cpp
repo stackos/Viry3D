@@ -57,6 +57,7 @@ extern bool g_mouse_button_held[3];
 static android_app* _app = NULL;
 static bool _displayHasInit = false;
 static bool _canDraw = false;
+static bool _configChanged = false;
 static Ref<Application> _viry3d_app;
 static FastList<Runnable> _events;
 static Mutex _mutex;
@@ -85,9 +86,9 @@ static void engine_create()
 
 static void engine_pause()
 {
-	Log("engine_pause");
-	_canDraw = false;
-	_viry3d_app->OnPause();
+    Log("engine_pause");
+    _canDraw = false;
+    _viry3d_app->OnPause();
 }
 
 static void engine_resume()
@@ -343,64 +344,67 @@ static int32_t handle_input(struct android_app*, AInputEvent* event)
 	return 0;
 }
 
-static void handle_cmd(android_app* app, int32_t cmd)
+enum class APP_CMD {
+    APP_CMD_INPUT_CHANGED,
+    APP_CMD_INIT_WINDOW,
+    APP_CMD_TERM_WINDOW,
+    APP_CMD_WINDOW_RESIZED,
+    APP_CMD_WINDOW_REDRAW_NEEDED,
+    APP_CMD_CONTENT_RECT_CHANGED,
+    APP_CMD_GAINED_FOCUS,
+    APP_CMD_LOST_FOCUS,
+    APP_CMD_CONFIG_CHANGED,
+    APP_CMD_LOW_MEMORY,
+    APP_CMD_START,
+    APP_CMD_RESUME,
+    APP_CMD_SAVE_STATE,
+    APP_CMD_PAUSE,
+    APP_CMD_STOP,
+    APP_CMD_DESTROY,
+};
+
+static void handle_cmd(android_app* app, int32_t cmdi)
 {
+    APP_CMD cmd = (APP_CMD) cmdi;
+
 	switch (cmd)
 	{
-		case APP_CMD_INIT_WINDOW:
-			// The window is being shown, get it ready.
-			if (!_displayHasInit)
-			{
-				_displayHasInit = true;
+        case APP_CMD::APP_CMD_GAINED_FOCUS:
+            if (!_displayHasInit)
+            {
+                _displayHasInit = true;
 
-				engine_create();
-			}
-			else
-			{
-				engine_resume();
+                engine_create();
+            }
+            else
+            {
+                engine_resume();
 
-                int w = ANativeWindow_getWidth(app->window);
-                int h = ANativeWindow_getHeight(app->window);
-                if (Graphics::GetDisplay()->GetWidth() == h &&
-                    Graphics::GetDisplay()->GetHeight() == w)
+                if (_configChanged)
                 {
+                    _configChanged = false;
                     handle_cmd(app, APP_CMD_CONFIG_CHANGED);
                 }
-			}
-			break;
-		case APP_CMD_TERM_WINDOW:
-			// The window is being hidden or closed, clean it up.
-			engine_pause();
-			break;
-		case APP_CMD_CONFIG_CHANGED:
-		{
-            if (app->window)
+            }
+            break;
+
+        case APP_CMD::APP_CMD_LOST_FOCUS:
+            engine_pause();
+            break;
+
+		case APP_CMD::APP_CMD_CONFIG_CHANGED:
+            if (_canDraw && app->window)
             {
                 int w = ANativeWindow_getWidth(app->window);
                 int h = ANativeWindow_getHeight(app->window);
-                int screen_orientation = AConfiguration_getOrientation(app->config);
-                if (screen_orientation == ACONFIGURATION_ORIENTATION_PORT)
-                {
-                    if (w > h)
-                    {
-                        int temp = w;
-                        w = h;
-                        h = temp;
-                    }
-                }
-                else if (screen_orientation == ACONFIGURATION_ORIENTATION_LAND)
-                {
-                    if (w < h)
-                    {
-                        int temp = w;
-                        w = h;
-                        h = temp;
-                    }
-                }
                 _viry3d_app->OnResize(w, h);
             }
-		}
-		break;
+            else
+            {
+                _configChanged = true;
+            }
+		    break;
+
 		default:
 			break;
 	}
