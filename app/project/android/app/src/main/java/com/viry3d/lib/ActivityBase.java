@@ -32,12 +32,17 @@ public class ActivityBase extends NativeActivity {
         return files_dir.getAbsolutePath();
     }
 
-    int keepScreenOn(boolean enable) {
-        if(enable) {
-            this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else {
-            this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
+    int keepScreenOn(final boolean enable) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(enable) {
+                    ActivityBase.this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                } else {
+                    ActivityBase.this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+            }
+        });
         return 0;
     }
 
