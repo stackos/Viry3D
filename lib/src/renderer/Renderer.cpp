@@ -70,6 +70,11 @@ namespace Viry3D
 		Shader::ClearAllPipelines();
 	}
 
+	void Renderer::OnPause()
+	{
+		Shader::ClearAllPipelines();
+	}
+
 	void Renderer::PreRenderByMaterial(int material_index)
 	{
 		auto& vp = Camera::Current()->GetViewProjectionMatrix();

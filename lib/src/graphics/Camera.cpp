@@ -143,6 +143,21 @@ namespace Viry3D
 		Renderer::OnResize(width, height);
 	}
 
+	void Camera::OnPause()
+	{
+		for (auto i : m_cameras)
+		{
+			i->m_render_pass.reset();
+			i->m_matrix_dirty = true;
+
+			Renderer::SetCullingDirty(i);
+		}
+		m_post_target_front.reset();
+		m_post_target_back.reset();
+
+		Renderer::OnPause();
+	}
+
 	void Camera::PrepareAll()
 	{
 		Profiler::SampleBegin("Camera::PrepareAll");

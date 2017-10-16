@@ -42,6 +42,7 @@ namespace Viry3D
 		static void Init();
 		static void Deinit();
 		static void OnResize(int width, int height);
+		static void OnPause();
 		static bool IsRenderersDirty();
 		static void SetRenderersDirty(bool dirty);
 		static void ClearPasses();

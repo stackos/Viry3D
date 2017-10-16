@@ -43,6 +43,7 @@ namespace Viry3D
 		static Camera* Current() { return m_current; }
 		static bool IsValidCamera(Camera* cam);
 		static void OnResize(int width, int height);
+		static void OnPause();
 
 		virtual ~Camera();
 		int GetDepth() const { return m_depth; }

@@ -54,6 +54,7 @@ namespace Viry3D
 
 	void Graphics::OnPause()
 	{
+		Camera::OnPause();
 		m_display->OnPause();
 	}
 
