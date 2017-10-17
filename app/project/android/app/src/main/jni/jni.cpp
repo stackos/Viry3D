@@ -57,7 +57,6 @@ extern bool g_mouse_button_held[3];
 static android_app* _app = NULL;
 static bool _displayHasInit = false;
 static bool _canDraw = false;
-static bool _configChanged = false;
 static Ref<Application> _viry3d_app;
 static FastList<Runnable> _events;
 static Mutex _mutex;
@@ -332,7 +331,7 @@ static int32_t handle_input(struct android_app*, AInputEvent* event)
 			for (size_t i = 0; i < count; i++)
 			{
 				touch.xys[i * 2] = AMotionEvent_getX(event, i);
-				touch.xys[i * 2 + 1] = AMotionEvent_getY(event, i);
+				touch.xys[i * 2 + 1] = (float) Graphics::GetDisplay()->GetHeight() - AMotionEvent_getY(event, i) - 1;
 			}
 
 			queue_event([=](){
@@ -379,12 +378,6 @@ static void handle_cmd(android_app* app, int32_t cmdi)
             else
             {
                 engine_resume();
-
-                if (_configChanged)
-                {
-                    _configChanged = false;
-                    handle_cmd(app, APP_CMD_CONFIG_CHANGED);
-                }
             }
             break;
 
@@ -398,10 +391,6 @@ static void handle_cmd(android_app* app, int32_t cmdi)
                 int w = ANativeWindow_getWidth(app->window);
                 int h = ANativeWindow_getHeight(app->window);
                 _viry3d_app->OnResize(w, h);
-            }
-            else
-            {
-                _configChanged = true;
             }
 		    break;
 

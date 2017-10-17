@@ -60,7 +60,7 @@ android {
     sourceSets {
         main {
             jniLibs {
-                srcDir "${ndkDir}/sources/third_party/vulkan/src/build-android/jniLibs"
+                //srcDir "${ndkDir}/sources/third_party/vulkan/src/build-android/jniLibs"
             }
         }
     }

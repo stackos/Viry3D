@@ -46,13 +46,13 @@ namespace Viry3D
 		m_device(NULL),
 		m_queue(NULL),
 		m_swap_buffer_index(0),
-        m_image_acquired_semaphore(VK_NULL_HANDLE),
-        m_current_draw_cmd(NULL),
-        m_swapchain(VK_NULL_HANDLE),
-        m_cmd_pool(VK_NULL_HANDLE),
-        m_image_cmd_pool(VK_NULL_HANDLE),
-        m_image_cmd_buffer(NULL),
-        m_pipeline_cache(VK_NULL_HANDLE)
+		m_image_acquired_semaphore(VK_NULL_HANDLE),
+		m_current_draw_cmd(NULL),
+		m_swapchain(VK_NULL_HANDLE),
+		m_cmd_pool(VK_NULL_HANDLE),
+		m_image_cmd_pool(VK_NULL_HANDLE),
+		m_image_cmd_buffer(NULL),
+		m_pipeline_cache(VK_NULL_HANDLE)
 	{
 		Memory::Zero(&m_surface_format, sizeof(m_surface_format));
 		Memory::Zero(&m_memory_properties, sizeof(m_memory_properties));
@@ -138,8 +138,8 @@ namespace Viry3D
 
 		vkDeviceWaitIdle(m_device);
 
-        m_width = width;
-        m_height = height;
+		m_width = width;
+		m_height = height;
 
 		DestroySizeDependentResources();
 
@@ -159,9 +159,9 @@ namespace Viry3D
 		this->CreateSizeDependentResources();
 	}
 
-    void DisplayVulkan::OnPause()
-    {
-        Log("DisplayVulkan::OnPause");
+	void DisplayVulkan::OnPause()
+	{
+		Log("DisplayVulkan::OnPause");
 
 		vkDeviceWaitIdle(m_device);
 
@@ -172,21 +172,21 @@ namespace Viry3D
 
 		vkDestroySurfaceKHR(m_instance, m_surface, NULL);
 		m_surface = VK_NULL_HANDLE;
-    }
+	}
 
-    void DisplayVulkan::OnResume()
-    {
-        Log("DisplayVulkan::OnResume");
+	void DisplayVulkan::OnResume()
+	{
+		Log("DisplayVulkan::OnResume");
 
 		this->CreateSurface();
 
 		m_graphics_queue_index = check_queue(m_gpu, m_surface);
 		m_surface_format = check_surface_format(m_gpu, m_surface);
-		
+
 		vkGetDeviceQueue(m_device, m_graphics_queue_index, 0, &m_queue);
 
 		this->CreateSizeDependentResources();
-    }
+	}
 
 	void DisplayVulkan::CreateInstance()
 	{
@@ -242,7 +242,7 @@ namespace Viry3D
 			instance_validation_layers,
 			extension_count,
 			(const char* const*) extension_names,
-	};
+		};
 #endif
 
 		err = vkCreateInstance(&inst, NULL, &m_instance);
@@ -322,13 +322,13 @@ namespace Viry3D
 		err = vkCreateWin32SurfaceKHR(m_instance, &create, NULL, &m_surface);
 		assert(!err);
 #elif VR_ANDROID
-        VkAndroidSurfaceCreateInfoKHR create;
-        create.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-        create.pNext = NULL;
-        create.flags = 0;
-        create.window = (ANativeWindow*) get_native_window();
-        err = fpCreateAndroidSurfaceKHR(m_instance, &create, NULL, &m_surface);
-        assert(!err);
+		VkAndroidSurfaceCreateInfoKHR create;
+		create.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+		create.pNext = NULL;
+		create.flags = 0;
+		create.window = (ANativeWindow*) get_native_window();
+		err = fpCreateAndroidSurfaceKHR(m_instance, &create, NULL, &m_surface);
+		assert(!err);
 #endif
 	}
 
@@ -411,7 +411,7 @@ namespace Viry3D
 			image_count = surf_capabilities.maxImageCount;
 		}
 
-        m_swapchain_buffers.Resize(image_count);
+		m_swapchain_buffers.Resize(image_count);
 		Memory::Zero(&m_swapchain_buffers[0], m_swapchain_buffers.SizeInBytes());
 
 		VkSurfaceTransformFlagsKHR transform;
@@ -436,18 +436,6 @@ namespace Viry3D
 		VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
 #else
 		VkPresentModeKHR present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
-        for (int i = 0; i < present_mode; i++)
-		{
-			if (present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
-			{
-				present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
-				break;
-			}
-			if ((present_mode != VK_PRESENT_MODE_MAILBOX_KHR) && (present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR))
-			{
-				present_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-			}
-		}
 #endif
 
 		Memory::Free(present_modes);
@@ -460,10 +448,10 @@ namespace Viry3D
 			m_surface,
 			image_count,
 			m_surface_format.format,
-			m_surface_format.colorSpace,
+            m_surface_format.colorSpace,//VK_COLORSPACE_SRGB_NONLINEAR_KHR,//
 			extent,
 			1,
-			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
 			VK_SHARING_MODE_EXCLUSIVE,
 			0,
 			NULL,
@@ -474,7 +462,11 @@ namespace Viry3D
 			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
 #endif
 			present_mode,
+#if VR_WINDOWS
 			true,
+#else
+            false,
+#endif
 			old_swapchain
 		};
 		err = fpCreateSwapchainKHR(m_device, &swapchain_info, NULL, &m_swapchain);
@@ -493,8 +485,8 @@ namespace Viry3D
 		uint32_t image_count;
 		err = fpGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, NULL);
 		assert(!err);
-        assert(image_count >= (uint32_t) m_swapchain_buffers.Size());
-		
+		assert(image_count >= (uint32_t) m_swapchain_buffers.Size());
+
 		VkImage *images = Memory::Alloc<VkImage>(sizeof(VkImage) * image_count);
 		err = fpGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, images);
 		assert(!err);
@@ -772,6 +764,12 @@ namespace Viry3D
 
 		m_mutex.lock();
 
+		err = vkQueueWaitIdle(m_queue);
+		assert(!err);
+
+		err = vkDeviceWaitIdle(m_device);
+		assert(!err);
+
 		VkPresentInfoKHR present;
 		Memory::Zero(&present, sizeof(present));
 		present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -783,6 +781,12 @@ namespace Viry3D
 		present.pWaitSemaphores = &m_draw_complete_semaphores[m_draw_complete_semaphores.Size() - 1];
 
 		err = fpQueuePresentKHR(m_queue, &present);
+		assert(!err);
+
+		err = vkQueueWaitIdle(m_queue);
+		assert(!err);
+
+		err = vkDeviceWaitIdle(m_device);
 		assert(!err);
 
 		m_swap_buffer_index++;
@@ -860,6 +864,12 @@ namespace Viry3D
 		submit_info.pSignalSemaphores = &draw_complete_semaphore;
 
 		err = vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
+		assert(!err);
+
+		err = vkQueueWaitIdle(m_queue);
+		assert(!err);
+
+		err = vkDeviceWaitIdle(m_device);
 		assert(!err);
 
 		m_draw_complete_semaphores.Add(draw_complete_semaphore);
