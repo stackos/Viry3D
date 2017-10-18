@@ -336,7 +336,7 @@ namespace Viry3D
 	{
 		VkResult err;
 
-		float queue_priorities[1] = { 0.0f };
+		float queue_priorities[1] = { 1.0f };
 		VkDeviceQueueCreateInfo queue = {
 			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 			NULL,
@@ -405,12 +405,7 @@ namespace Viry3D
 			m_height = extent.height;
 		}
 
-		uint32_t image_count = surf_capabilities.minImageCount + 1;
-		if ((surf_capabilities.maxImageCount > 0) && (image_count > surf_capabilities.maxImageCount))
-		{
-			image_count = surf_capabilities.maxImageCount;
-		}
-
+		uint32_t image_count = surf_capabilities.minImageCount;
 		m_swapchain_buffers.Resize(image_count);
 		Memory::Zero(&m_swapchain_buffers[0], m_swapchain_buffers.SizeInBytes());
 
@@ -448,7 +443,7 @@ namespace Viry3D
 			m_surface,
 			image_count,
 			m_surface_format.format,
-            m_surface_format.colorSpace,//VK_COLORSPACE_SRGB_NONLINEAR_KHR,//
+            m_surface_format.colorSpace,
 			extent,
 			1,
 			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
@@ -462,11 +457,7 @@ namespace Viry3D
 			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
 #endif
 			present_mode,
-#if VR_WINDOWS
-			true,
-#else
             false,
-#endif
 			old_swapchain
 		};
 		err = fpCreateSwapchainKHR(m_device, &swapchain_info, NULL, &m_swapchain);
