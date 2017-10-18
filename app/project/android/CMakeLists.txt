@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-#get_filename_component(SHADERC_SRC
-#                       ${ANDROID_NDK}/sources/third_party/shaderc
-#                       ABSOLUTE)
-#set(GLSLANG_SPIRV_INCLUDE_DIR ${SHADERC_SRC}/third_party/glslang)
-#add_library(shaderc_lib STATIC IMPORTED)
-#set_target_properties(shaderc_lib PROPERTIES IMPORTED_LOCATION
-#                      ${SHADERC_SRC}/libs/${ANDROID_STL}/${ANDROID_ABI}/libshaderc.a)
+get_filename_component(SHADERC_SRC
+                       ${ANDROID_NDK}/sources/third_party/shaderc
+                       ABSOLUTE)
+set(GLSLANG_SPIRV_INCLUDE_DIR ${SHADERC_SRC}/third_party/glslang)
+add_library(shaderc_lib STATIC IMPORTED)
+set_target_properties(shaderc_lib PROPERTIES IMPORTED_LOCATION
+                      ${SHADERC_SRC}/libs/${ANDROID_STL}/${ANDROID_ABI}/libshaderc.a)
 
 get_filename_component(VIRY3D_LIB_SRC_DIR
                        ${CMAKE_SOURCE_DIR}/../../../lib/src
@@ -17,10 +17,10 @@ get_filename_component(VIRY3D_APP_SRC_DIR
                        ABSOLUTE)
 
 set(CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} -Wall -DVR_ANDROID -DVR_GLES=1 -DVR_VULKAN=0 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
+    "${CMAKE_C_FLAGS} -Wall -DVR_ANDROID -DVR_GLES=0 -DVR_VULKAN=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
 
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -frtti -Wall -DVR_ANDROID -DVR_GLES=1 -DVR_VULKAN=0 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
+    "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -frtti -Wall -DVR_ANDROID -DVR_GLES=0 -DVR_VULKAN=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
 
 set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
@@ -320,7 +320,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_check.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_proc_addr.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_shader_compiler.cpp
-#            ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_wrapper/vulkan_wrapper.cpp # for android libvulkan.so load
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_wrapper/vulkan_wrapper.cpp      # for libvulkan.so load
             ${VIRY3D_LIB_SRC_DIR}/World.cpp)
 
 target_include_directories(Viry3D PRIVATE
@@ -353,5 +353,5 @@ target_include_directories(Viry3DApp PRIVATE
 target_link_libraries(Viry3DApp
                       android log EGL GLESv3 z OpenSLES
                       Viry3D Viry3DDep
-#                      shaderc_lib
+                      shaderc_lib       # for vulkan shader compile
                       )
