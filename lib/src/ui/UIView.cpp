@@ -101,7 +101,7 @@ namespace Viry3D
 		}
 	}
 
-	Matrix4x4 UIView::GetVertexMatrix()
+	void UIView::GetVertexMatrix(Matrix4x4& matrix)
 	{
 		auto local_position = this->GetTransform()->GetLocalPosition();
 		auto local_rotation = this->GetTransform()->GetLocalRotation();
@@ -110,15 +110,11 @@ namespace Viry3D
 		auto mat_local = Matrix4x4::TRS(local_position, local_rotation, local_scale);
 		auto mat_parent_to_world = this->GetTransform()->GetParent().lock()->GetLocalToWorldMatrix();
 		auto mat_world_to_canvas = m_renderer.lock()->GetTransform()->GetWorldToLocalMatrix();
-		auto mat = mat_world_to_canvas * mat_parent_to_world * mat_local;
-
-		return mat;
+		matrix = mat_world_to_canvas * mat_parent_to_world * mat_local;
 	}
 
-	Vector<Vector3> UIView::GetBoundsVertices()
+	void UIView::GetBoundsVertices(Vector<Vector3>& vertices)
 	{
-		Vector<Vector3> vertices;
-
 		Vector2 size = this->GetSize();
 		Vector2 min = Vector2(-m_pivot.x * size.x, -m_pivot.y * size.y);
 		Vector2 max = Vector2((1 - m_pivot.x) * size.x, (1 - m_pivot.y) * size.y);
@@ -127,8 +123,9 @@ namespace Viry3D
 		vertices.Add(Vector3(max.x, max.y, 0));
 		vertices.Add(Vector3(min.x, max.y, 0));
 
-		auto mat = GetVertexMatrix();
-		for (int i = 0; i < 4; i++)
+		Matrix4x4 mat;
+		GetVertexMatrix(mat);
+		for (int i = vertices.Size() - 4; i < vertices.Size(); i++)
 		{
 			auto v = vertices[i];
 			v.x = floor(v.x);
@@ -136,14 +133,11 @@ namespace Viry3D
 
 			vertices[i] = mat.MultiplyPoint3x4(v);
 		}
-
-		return vertices;
 	}
 
 	void UIView::FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices)
 	{
-		auto vertex_array = GetBoundsVertices();
-		vertices.AddRange(&vertex_array[0], 4);
+		GetBoundsVertices(vertices);
 
 		uv.Add(Vector2(0, 1));
 		uv.Add(Vector2(1, 1));

@@ -44,12 +44,12 @@ namespace Viry3D
 		const Color& GetColor() const { return m_color; }
 		void SetRenderer(const Ref<UICanvasRenderer>& renderer);
 		const WeakRef<UICanvasRenderer>& GetRenderer() const { return m_renderer; }
-		Vector<Vector3> GetBoundsVertices();
+		void GetBoundsVertices(Vector<Vector3>& vertices);
 
 	protected:
 		UIView();
 		void MarkRendererDirty();
-		Matrix4x4 GetVertexMatrix();
+		void GetVertexMatrix(Matrix4x4& matrix);
 		virtual void OnTranformChanged();
 
 	public:

@@ -610,7 +610,8 @@ namespace Viry3D
 		int actual_height;
 		auto lines = this->ProcessText(actual_width, actual_height);
 
-		auto mat = GetVertexMatrix();
+		Matrix4x4 mat;
+		GetVertexMatrix(mat);
 		int index_begin = vertices.Size();
 
 		for (int i = 0; i < lines.Size(); i++)

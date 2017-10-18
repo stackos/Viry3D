@@ -116,22 +116,23 @@ namespace Viry3D
 
 		if (m_usage == GL_DYNAMIC_DRAW)
 		{
-			/*
-			void* mapped = glMapBufferRange(m_type, 0, m_size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			//GLbitfield access = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT;
+			////GLbitfield access = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT;
+			//void* mapped = glMapBufferRange(m_type, 0, m_size, access);
 
-			ByteBuffer buffer((byte*) mapped, m_size);
-			fill(param, buffer);
+			//ByteBuffer buffer((byte*) mapped, m_size);
+			//fill(param, buffer);
 
-			auto unmap_result = glUnmapBuffer(m_type);
-			if(unmap_result == GL_FALSE)
-			{
-			Log("glUnmapBuffer failed type:", m_type);
-			}
-			*/
+			//auto unmap_result = glUnmapBuffer(m_type);
+			//if(unmap_result == GL_FALSE)
+			//{
+			//	Log("glUnmapBuffer failed type:", m_type);
+			//}
 
 			auto& buffer = *this->GetLocalBuffer().get();
 			fill(param, buffer);
 			glBufferSubData(m_type, 0, m_size, buffer.Bytes());
+			//glBufferData(m_type, m_size, buffer.Bytes(), m_usage);
 		}
 		else
 		{

@@ -159,7 +159,7 @@ VR_MAIN(AppFlappyBird);
 AppFlappyBird::AppFlappyBird()
 {
 	this->SetName("Viry3D::AppFlappyBird");
-	this->SetInitSize(512 * 9 / 16, 512);
+	this->SetInitSize(960 * 9 / 16, 960);
 }
 
 void AppFlappyBird::OnResize(int width, int height)
@@ -184,6 +184,8 @@ void AppFlappyBird::OnResize()
 
 void AppFlappyBird::Start()
 {
+	this->CreateFPSUI(20, 1, 1);
+
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 	camera->SetOrthographic(true);
 	camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);

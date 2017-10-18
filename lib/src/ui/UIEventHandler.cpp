@@ -36,7 +36,8 @@ namespace Viry3D
 		for (auto& i : views)
 		{
 			auto mat = i->GetRenderer().lock()->GetTransform()->GetLocalToWorldMatrix();
-			auto vertices = i->GetBoundsVertices();
+			Vector<Vector3> vertices;
+			i->GetBoundsVertices(vertices);
 			for (int j = 0; j < vertices.Size(); j++)
 			{
 				// from canvas space to world space

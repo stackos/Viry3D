@@ -117,8 +117,7 @@ namespace Viry3D
 
 	void UISprite::FillVerticesSimple(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices)
 	{
-		auto vertex_array = GetBoundsVertices();
-		vertices.AddRange(&vertex_array[0], 4);
+		GetBoundsVertices(vertices);
 
 		Vector2 uv_array[4];
 		if (m_atlas)
