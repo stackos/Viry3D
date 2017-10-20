@@ -69,7 +69,7 @@ namespace Viry3D
 		rss.Clear();
 	}
 
-	void XMLShader::Load(String path)
+	void XMLShader::Load(const String& path)
 	{
 		Clear();
 

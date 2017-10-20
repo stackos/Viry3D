@@ -28,17 +28,17 @@ namespace Viry3D
 	{
 	}
 
-	void Atlas::AddSprite(String name, const Ref<Sprite>& sprite)
+	void Atlas::AddSprite(const String& name, const Ref<Sprite>& sprite)
 	{
 		m_sprites.Add(name, sprite);
 	}
 
-	void Atlas::RemoveSprite(String name)
+	void Atlas::RemoveSprite(const String& name)
 	{
 		m_sprites.Remove(name);
 	}
 
-	Ref<Sprite> Atlas::GetSprite(String name)
+	Ref<Sprite> Atlas::GetSprite(const String& name)
 	{
 		return m_sprites[name];
 	}

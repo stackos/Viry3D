@@ -38,15 +38,15 @@ namespace Viry3D
 		//	普通情况下, 对象在创建时自动加入World,
 		//	在子线程中创建对象时, 可以暂时不把对象添加到World, 待子对象和组件都创建完成后, 统一手动添加
 		//
-		static Ref<GameObject> Create(String name, bool add_to_world = true);
+		static Ref<GameObject> Create(const String& name, bool add_to_world = true);
 		static void Destroy(Ref<GameObject> obj);
 		static Ref<GameObject> Instantiate(const Ref<GameObject>& source);
 
 		virtual ~GameObject();
 		void DeepCopy(const Ref<Object>& source);
-		Ref<Component> AddComponent(String name);
-		Ref<Component> GetComponent(String name) const;
-		Vector<Ref<Component>> GetComponentsInChildren(String name) const;
+		Ref<Component> AddComponent(const String& name);
+		Ref<Component> GetComponent(const String& name) const;
+		Vector<Ref<Component>> GetComponentsInChildren(const String& name) const;
 		template<class T> Ref<T> AddComponent();
 		template<class T> Ref<T> GetComponent() const;
 		template<class T> Vector<Ref<T>> GetComponents() const;
@@ -65,7 +65,7 @@ namespace Viry3D
 		int GetLayer() const { return m_layer; }
 
 	private:
-		GameObject(String name);
+		GameObject(const String& name);
 		void Delete();
 		void Start();
 		void Update();

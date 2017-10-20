@@ -307,12 +307,12 @@ namespace Viry3D
 		return tags;
 	}
 
-	static Color string_to_color(String str)
+	static Color string_to_color(const String& str)
 	{
-		str = str.ToLower();
+		auto str_lower = str.ToLower();
 
 		std::stringstream ss;
-		ss << std::hex << str.CString();
+		ss << std::hex << str_lower.CString();
 		unsigned int color_i = 0;
 		ss >> color_i;
 

@@ -89,7 +89,7 @@ namespace Viry3D
 	}
 #endif
 
-	void Application::SetDataPath(String path)
+	void Application::SetDataPath(const String& path)
 	{
 #if VR_ANDROID
 		m_data_path = path;
@@ -129,7 +129,7 @@ namespace Viry3D
 		m_init_fps = fps;
 	}
 
-	void Application::SetName(String name)
+	void Application::SetName(const String& name)
 	{
 		m_name = name;
 	}

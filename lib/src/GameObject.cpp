@@ -22,7 +22,7 @@
 
 namespace Viry3D
 {
-	Ref<GameObject> GameObject::Create(String name, bool add_to_world)
+	Ref<GameObject> GameObject::Create(const String& name, bool add_to_world)
 	{
 		auto obj = Ref<GameObject>(new GameObject(name));
 
@@ -120,7 +120,7 @@ namespace Viry3D
 		return clone;
 	}
 
-	GameObject::GameObject(String name):
+	GameObject::GameObject(const String& name):
 		m_layer((int) Layer::Default),
 		m_active_in_hierarchy(true),
 		m_active_self(true),
@@ -237,7 +237,7 @@ namespace Viry3D
 		}
 	}
 
-	Ref<Component> GameObject::AddComponent(String name)
+	Ref<Component> GameObject::AddComponent(const String& name)
 	{
 		if (m_deleted)
 		{
@@ -250,7 +250,7 @@ namespace Viry3D
 		return t;
 	}
 
-	Ref<Component> GameObject::GetComponent(String name) const
+	Ref<Component> GameObject::GetComponent(const String& name) const
 	{
 		for (auto i : m_components)
 		{
@@ -271,7 +271,7 @@ namespace Viry3D
 		return Ref<Component>();
 	}
 
-	Vector<Ref<Component>> GameObject::GetComponentsInChildren(String name) const
+	Vector<Ref<Component>> GameObject::GetComponentsInChildren(const String& name) const
 	{
 		Vector<Ref<Component>> coms;
 

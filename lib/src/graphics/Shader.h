@@ -45,13 +45,13 @@ namespace Viry3D
 		static void Init();
 		static void Deinit();
 		static void ClearAllPipelines();
-		static Ref<Shader> Find(String name);
+		static Ref<Shader> Find(const String& name);
 		static const Ref<Texture2D>& GetDefaultTexture(const String& name);
 
 		int GetQueue() const;
 
 	private:
-		Shader(String name);
+		Shader(const String& name);
 
 		static Map<String, Ref<Shader>> m_shaders;
 		static Mutex m_mutex;

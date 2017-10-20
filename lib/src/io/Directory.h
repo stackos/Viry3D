@@ -25,9 +25,9 @@ namespace Viry3D
 	class Directory
 	{
 	public:
-		static bool Exist(String path);
-		static Vector<String> GetDirectorys(String path);
-		static Vector<String> GetFiles(String path, bool recursive);
-		static void Create(String path);
+		static bool Exist(const String& path);
+		static Vector<String> GetDirectorys(const String& path);
+		static Vector<String> GetFiles(const String& path, bool recursive);
+		static void Create(const String& path);
 	};
 }

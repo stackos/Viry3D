@@ -33,7 +33,7 @@ namespace Viry3D
 		m_mutex.unlock();
 	}
 
-	Ref<Object> Object::GetCache(String path)
+	Ref<Object> Object::GetCache(const String& path)
 	{
 		Ref<Object> obj;
 
@@ -50,7 +50,7 @@ namespace Viry3D
 		return obj;
 	}
 
-	void Object::AddCache(String path, const Ref<Object>& obj)
+	void Object::AddCache(const String& path, const Ref<Object>& obj)
 	{
 		m_mutex.lock();
 		m_cache.Add(path, obj);

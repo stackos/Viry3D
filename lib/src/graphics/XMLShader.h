@@ -199,7 +199,7 @@ namespace Viry3D
 		Vector<XMLPixelShader> pss;
 		Vector<XMLRenderState> rss;
 
-		void Load(String path);
+		void Load(const String& path);
 		void Clear();
 	};
 }

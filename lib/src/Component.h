@@ -46,7 +46,7 @@ namespace Viry3D
 		void Enable(bool enable);
 		bool IsEnable() const { return m_enable; }
 		bool IsStarted() const { return m_started; }
-		bool IsComponent(String type) const;
+		bool IsComponent(const String& type) const;
 
 		void SetName(const String& name);
 

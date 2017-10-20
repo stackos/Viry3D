@@ -44,11 +44,11 @@ namespace Viry3D
 		//
 		//	基于路径的资源对象缓存, 线程安全
 		//	
-		static Ref<Object> GetCache(String path);
+		static Ref<Object> GetCache(const String& path);
 		//
 		//	线程安全
 		//
-		static void AddCache(String path, const Ref<Object>& obj);
+		static void AddCache(const String& path, const Ref<Object>& obj);
 
 		Object();
 		virtual ~Object();

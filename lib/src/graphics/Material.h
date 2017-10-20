@@ -50,7 +50,7 @@ namespace Viry3D
 		const Matrix4x4& GetMatrix(const String& name) const;
 		void SetVector(const String& name, const Vector4& v);
 		bool HasVector(const String& name) const;
-		const Vector4& GetVector(String name) const;
+		const Vector4& GetVector(const String& name) const;
 		void SetMainColor(const Color& v);
 		const Color& GetMainColor() const;
 		void SetColor(const String& name, const Color& v);

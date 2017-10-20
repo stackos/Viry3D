@@ -48,7 +48,7 @@ namespace Viry3D
 	public:
 		static void Init();
 		static void Deinit();
-		static Ref<Font> LoadFromFile(String file);
+		static Ref<Font> LoadFromFile(const String& file);
 		~Font();
 		void* GetFont() const { return m_font; }
 		GlyphInfo GetGlyph(char32_t c, int size, bool bold, bool italic, bool mono);

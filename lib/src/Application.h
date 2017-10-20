@@ -39,13 +39,13 @@ namespace Viry3D
 		static void RunTaskInPostLoop(RunLoop::Task task);
 		static String DataPath();
 		static String SavePath();
-		static void SetDataPath(String path);
+		static void SetDataPath(const String& path);
 
 		virtual ~Application();
 
 		void SetInitSize(int width, int height);
 		void SetInitFPS(int fps);
-		void SetName(String name);
+		void SetName(const String& name);
 		String GetName();
 
 		void Run();

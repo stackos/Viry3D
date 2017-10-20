@@ -25,7 +25,7 @@
 #define DECLARE_COM_BASE(CBase) \
     public: \
         typedef void* (*ClassGen)(); \
-        static CBase* Create(String class_name) \
+        static CBase* Create(const String& class_name) \
 		{ \
             return (CBase*) GetClassMap()[class_name](); \
         } \
@@ -40,7 +40,7 @@
 		virtual const Vector<String>& GetClassNames() const { return CBase::ClassNames(); } \
 		virtual void DeepCopy(const Ref<Object>& source); \
 	protected: \
-		static void Register(String class_name, ClassGen class_gen) \
+		static void Register(const String& class_name, ClassGen class_gen) \
 		{ \
 			GetClassMap().Add(class_name, class_gen); \
 		} \

@@ -38,7 +38,7 @@ namespace Viry3D
 		return false;
 	}
 
-	Ref<AudioClip> AudioClip::LoadFromFile(String file)
+	Ref<AudioClip> AudioClip::LoadFromFile(const String& file)
 	{
 		Ref<AudioClip> clip;
 

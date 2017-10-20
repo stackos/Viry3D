@@ -31,7 +31,7 @@ namespace Viry3D
 	Mutex Shader::m_mutex;
 	Map<String, Ref<Texture2D>> Shader::m_default_textures;
 
-	static String get_shader_path(String name)
+	static String get_shader_path(const String& name)
 	{
 		static Map<String, String> s_path_map;
 
@@ -136,12 +136,12 @@ namespace Viry3D
 		return m_default_textures[name];
 	}
 
-	Shader::Shader(String name)
+	Shader::Shader(const String& name)
 	{
 		SetName(name);
 	}
 
-	Ref<Shader> Shader::Find(String name)
+	Ref<Shader> Shader::Find(const String& name)
 	{
 		Ref<Shader> shader;
 

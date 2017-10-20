@@ -97,7 +97,7 @@ namespace Viry3D
 		return m_vectors.Contains(name);
 	}
 
-	const Vector4& Material::GetVector(String name) const
+	const Vector4& Material::GetVector(const String& name) const
 	{
 		return m_vectors[name];
 	}

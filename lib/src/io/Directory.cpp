@@ -29,7 +29,7 @@
 namespace Viry3D
 {
 #if VR_WINDOWS
-	static Vector<String> get_files(String path, bool recursive, bool* exist, bool get_dirs_only = false)
+	static Vector<String> get_files(const String& path, bool recursive, bool* exist, bool get_dirs_only = false)
 	{
 		Vector<String> files;
 		Vector<String> dirs;
@@ -103,7 +103,7 @@ namespace Viry3D
 		return files;
 	}
 #else
-	static Vector<String> get_files(String path, bool recursive, bool* exist, bool get_dirs_only = false)
+	static Vector<String> get_files(const String& path, bool recursive, bool* exist, bool get_dirs_only = false)
 	{
 		Vector<String> files;
 		Vector<String> dirs;
@@ -174,14 +174,14 @@ namespace Viry3D
 	}
 #endif
 
-	bool Directory::Exist(String path)
+	bool Directory::Exist(const String& path)
 	{
 		bool exist;
 		get_files(path, false, &exist);
 		return exist;
 	}
 
-	Vector<String> Directory::GetDirectorys(String path)
+	Vector<String> Directory::GetDirectorys(const String& path)
 	{
 		auto dirs = get_files(path, false, NULL, true);
 
@@ -193,7 +193,7 @@ namespace Viry3D
 		return dirs;
 	}
 
-	Vector<String> Directory::GetFiles(String path, bool recursive)
+	Vector<String> Directory::GetFiles(const String& path, bool recursive)
 	{
 		auto files = get_files(path, recursive, NULL);
 
@@ -205,7 +205,7 @@ namespace Viry3D
 		return files;
 	}
 
-	void Directory::Create(String path)
+	void Directory::Create(const String& path)
 	{
 		auto splits = path.Split("/", true);
 		String folder = splits[0];

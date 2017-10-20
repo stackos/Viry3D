@@ -44,7 +44,7 @@ namespace Viry3D
 		FT_Done_FreeType(g_ft_lib);
 	}
 
-	Ref<Font> Font::LoadFromFile(String file)
+	Ref<Font> Font::LoadFromFile(const String& file)
 	{
 		Ref<Font> font;
 

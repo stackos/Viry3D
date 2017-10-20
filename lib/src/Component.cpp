@@ -146,7 +146,7 @@ namespace Viry3D
 		return GetGameObject()->GetComponentRef(this);
 	}
 
-	bool Component::IsComponent(String type) const
+	bool Component::IsComponent(const String& type) const
 	{
 		auto& names = GetClassNames();
 

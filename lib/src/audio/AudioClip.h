@@ -25,7 +25,7 @@ namespace Viry3D
 	class AudioClip: public Object
 	{
 	public:
-		static Ref<AudioClip> LoadFromFile(String file);
+		static Ref<AudioClip> LoadFromFile(const String& file);
 
 		virtual ~AudioClip();
 		int GetChannels() const { return m_channels; }

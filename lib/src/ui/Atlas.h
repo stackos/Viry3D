@@ -26,9 +26,9 @@ namespace Viry3D
 	public:
 		static Ref<Atlas> Create();
 
-		void AddSprite(String name, const Ref<Sprite>& sprite);
-		void RemoveSprite(String name);
-		Ref<Sprite> GetSprite(String name);
+		void AddSprite(const String& name, const Ref<Sprite>& sprite);
+		void RemoveSprite(const String& name);
+		Ref<Sprite> GetSprite(const String& name);
 		void SetTexture(const Ref<Texture>& texture) { m_texture = texture; }
 		const Ref<Texture>& GetTexture() const { return m_texture; }
 
