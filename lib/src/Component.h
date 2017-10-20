@@ -37,7 +37,7 @@ namespace Viry3D
 		//	在这个函数里面注册所有的组件类
 		//
 		static void RegisterComponents();
-		static void Destroy(Ref<Component> com);
+		static void Destroy(const Ref<Component>& com);
 
 		virtual ~Component() { }
 		Ref<GameObject> GetGameObject() const;

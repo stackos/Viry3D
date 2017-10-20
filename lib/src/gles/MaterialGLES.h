@@ -34,8 +34,8 @@ namespace Viry3D
 		void UpdateUniformsEnd(int pass_index) { }
 		void* SetUniformBegin(int pass_index);
 		void SetUniformEnd(int pass_index);
-		void SetUniform(int pass_index, void* uniform_buffer, String name, void* data, int size);
-		void SetUniformTexture(int pass_index, String name, const Texture* texture) { }
+		void SetUniform(int pass_index, void* uniform_buffer, const String& name, void* data, int size);
+		void SetUniformTexture(int pass_index, const String& name, const Texture* texture) { }
 
 	private:
 		Vector<Ref<UniformBuffer>> m_uniform_buffers;

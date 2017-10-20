@@ -210,7 +210,7 @@ namespace Viry3D
 		return MAD_FLOW_CONTINUE;
 	}
 
-	static void mp3_decode(Mp3Buffer* buffer, String file)
+	static void mp3_decode(Mp3Buffer* buffer, const String& file)
 	{
 		auto bb = File::ReadAllBytes(file);
 		if (bb.Size() > 0)

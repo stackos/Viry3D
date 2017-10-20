@@ -84,7 +84,7 @@ namespace Viry3D
 		return m_transform.lock();
 	}
 
-	void Component::Destroy(Ref<Component> com)
+	void Component::Destroy(const Ref<Component>& com)
 	{
 		if (com)
 		{

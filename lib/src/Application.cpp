@@ -161,7 +161,7 @@ namespace Viry3D
 		this->Start();
 	}
 
-	void Application::AddAsyncUpdateTask(Thread::Task task)
+	void Application::AddAsyncUpdateTask(const Thread::Task& task)
 	{
 		m_thread_pool_update->AddTask(task);
 	}
@@ -245,17 +245,17 @@ namespace Viry3D
 #endif
 	}
 
-	void Application::RunTaskInPreLoop(RunLoop::Task task)
+	void Application::RunTaskInPreLoop(const RunLoop::Task& task)
 	{
 		m_instance->m_pre_runloop->Add(task);
 	}
 
-	void Application::RunTaskInPostLoop(RunLoop::Task task)
+	void Application::RunTaskInPostLoop(const RunLoop::Task& task)
 	{
 		m_instance->m_post_runloop->Add(task);
 	}
 
-	void Application::CreateFPSUI(int font_size, int camera_depth, int layer, Ref<FrameBuffer> render_target)
+	void Application::CreateFPSUI(int font_size, int camera_depth, int layer, const Ref<FrameBuffer>& render_target)
 	{
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 		camera->SetClipNear(-1);
