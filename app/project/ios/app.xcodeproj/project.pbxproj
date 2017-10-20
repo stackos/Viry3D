@@ -12,6 +12,8 @@
 		BA0F43B51E92747500C9009C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA0F43B41E92747500C9009C /* OpenAL.framework */; };
 		BA2800661F69A41C00215483 /* AppTerrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800651F69A41C00215483 /* AppTerrain.cpp */; };
 		BA2800E71F69A71100215483 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = BA2800E61F69A71100215483 /* Assets */; };
+		BA29655A1F9A6F6300C3FB87 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2965581F9A6F6300C3FB87 /* AppAR.cpp */; };
+		BA29655D1F9A6FFF00C3FB87 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA29655C1F9A6FFF00C3FB87 /* ARKit.framework */; };
 		BA4101DF1DC6021E003B50D6 /* AppBlur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */; };
 		BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */; };
 		BA4A32601D7B34D400DEEE5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */; };
@@ -43,6 +45,8 @@
 		BA0F43B41E92747500C9009C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		BA2800651F69A41C00215483 /* AppTerrain.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppTerrain.cpp; path = ../../src/AppTerrain.cpp; sourceTree = "<group>"; };
 		BA2800E61F69A71100215483 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
+		BA2965581F9A6F6300C3FB87 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
+		BA29655C1F9A6FFF00C3FB87 /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
 		BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppBlur.cpp; path = ../../src/AppBlur.cpp; sourceTree = "<group>"; };
 		BA4A32491D7B34D400DEEE5A /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = app/Assets.xcassets; sourceTree = "<group>"; };
@@ -68,11 +72,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				D1EA4E081F2DD91D0034D59B /* libviry3d.a in Frameworks */,
-				BA0F43B51E92747500C9009C /* OpenAL.framework in Frameworks */,
 				BA94EEAD1D9E9C1200254ABF /* libz.1.2.5.tbd in Frameworks */,
-				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
-				BA5924A21D92F29400173EDC /* GLKit.framework in Frameworks */,
+				BA0F43B51E92747500C9009C /* OpenAL.framework in Frameworks */,
 				BA5924A01D92F26700173EDC /* OpenGLES.framework in Frameworks */,
+				BA5924A21D92F29400173EDC /* GLKit.framework in Frameworks */,
+				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
+				BA29655D1F9A6FFF00C3FB87 /* ARKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				BA0913C81DAFCF9500CA11BF /* AppAnim.cpp */,
+				BA2965581F9A6F6300C3FB87 /* AppAR.cpp */,
 				BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */,
 				BA5924801D90588800173EDC /* AppClear.cpp */,
 				BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */,
@@ -128,6 +134,7 @@
 		BABF7B931E97E7A2000C2116 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BA29655C1F9A6FFF00C3FB87 /* ARKit.framework */,
 				BAF6E2041E9E8229007C28BF /* libjs_static.a */,
 				BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */,
 				BA5924A11D92F29400173EDC /* GLKit.framework */,
@@ -243,6 +250,7 @@
 				BA5924811D90588800173EDC /* AppClear.cpp in Sources */,
 				BA0913C91DAFCF9500CA11BF /* AppAnim.cpp in Sources */,
 				BA0913B81DAA85C500CA11BF /* AppWatch.cpp in Sources */,
+				BA29655A1F9A6F6300C3FB87 /* AppAR.cpp in Sources */,
 				BAD39DF01E926D220021B013 /* AppFlappyBird.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

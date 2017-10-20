@@ -217,24 +217,24 @@ namespace Viry3D
 		Profiler::SampleEnd();
 	}
 
-	void Application::OnPause()
-	{
-		Graphics::OnPause();
-		World::OnPause();
-	}
-
-	void Application::OnResume()
-	{
-		Graphics::OnResume();
-		World::OnResume();
-	}
-
 	void Application::OnResize(int width, int height)
 	{
 		Graphics::OnResize(width, height);
 
 		this->OnResizeFPSUI(width, height);
 	}
+    
+    void Application::OnPause()
+    {
+        Graphics::OnPause();
+        World::OnPause();
+    }
+    
+    void Application::OnResume()
+    {
+        Graphics::OnResume();
+        World::OnResume();
+    }
 
 	void Application::Quit()
 	{

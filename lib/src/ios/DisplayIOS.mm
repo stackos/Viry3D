@@ -44,7 +44,7 @@ void touch_begin(void *touches, void *view)
     int height = [[UIScreen mainScreen] bounds].size.height;
     float scale = [UIScreen mainScreen].scale;
     
-    for(int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
         UITouch *t = [allTouches objectAtIndex:i];
         CGPoint p = [t locationInView:v];
@@ -59,7 +59,7 @@ void touch_begin(void *touches, void *view)
         touch.tapCount = (int) t.tapCount;
         touch.position = Viry3D::Vector2(p.x, p.y) * scale;
         
-        if(!g_input_touches.Empty())
+        if (!g_input_touches.Empty())
         {
             g_input_touch_buffer.AddLast(touch);
         }
@@ -69,7 +69,7 @@ void touch_begin(void *touches, void *view)
         }
         
         g_touches.Add(touch);
-        if(g_touches.Size() == 1)
+        if (g_touches.Size() == 1)
         {
             g_mouse_button_down[0] = true;
             g_mouse_position.x = touch.position.x;
@@ -88,7 +88,7 @@ void touch_update(void *touches, void *view)
     int height = [[UIScreen mainScreen] bounds].size.height;
     float scale = [UIScreen mainScreen].scale;
     
-    for(int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
         UITouch *t = [allTouches objectAtIndex:i];
         
@@ -104,7 +104,7 @@ void touch_update(void *touches, void *view)
         touch.tapCount = (int) t.tapCount;
         touch.position = Viry3D::Vector2(p.x, p.y) * scale;
         
-        if(!g_input_touches.Empty())
+        if (!g_input_touches.Empty())
         {
             g_input_touch_buffer.AddLast(touch);
         }
@@ -113,13 +113,13 @@ void touch_update(void *touches, void *view)
             g_input_touches.Add(touch);
         }
       
-        for(int j = 0; j < g_touches.Size(); j++)
+        for (int j = 0; j < g_touches.Size(); j++)
         {
-            if(touch.fingerId == g_touches[j].fingerId)
+            if (touch.fingerId == g_touches[j].fingerId)
             {
-                if(touch.phase == Viry3D::TouchPhase::Ended || touch.phase == Viry3D::TouchPhase::Canceled)
+                if (touch.phase == Viry3D::TouchPhase::Ended || touch.phase == Viry3D::TouchPhase::Canceled)
                 {
-                    if(g_touches.Size() == 1)
+                    if (g_touches.Size() == 1)
                     {
                         g_mouse_button_up[0] = true;
                         g_mouse_position.x = touch.position.x;
@@ -128,9 +128,9 @@ void touch_update(void *touches, void *view)
                     }
                     g_touches.Remove(j);
                 }
-                else if(touch.phase == Viry3D::TouchPhase::Moved)
+                else if (touch.phase == Viry3D::TouchPhase::Moved)
                 {
-                    if(g_touches.Size() == 1)
+                    if (g_touches.Size() == 1)
                     {
                         g_mouse_position.x = touch.position.x;
                         g_mouse_position.y = touch.position.y;
@@ -179,22 +179,22 @@ void touch_update(void *touches, void *view)
     auto orientation = [UIDevice currentDevice].orientation;
     auto swap = false;
     
-    if(orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+    if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
     {
-        if(width > height)
+        if (width > height)
         {
             swap = true;
         }
     }
-    else if(orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+    else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
     {
-        if(height > width)
+        if (height > width)
         {
             swap = true;
         }
     }
     
-    if(swap)
+    if (swap)
     {
         auto temp = height;
         height = width;
@@ -207,7 +207,7 @@ void touch_update(void *touches, void *view)
 - (void)dealloc
 {
 #if VR_GLES
-    if([EAGLContext currentContext] == self.context)
+    if ([EAGLContext currentContext] == self.context)
     {
         [EAGLContext setCurrentContext:nil];
     }
@@ -265,7 +265,7 @@ void DisplayIOS::Init(int width, int height, int fps)
     DisplayBase::Init(bounds.size.width * scale, bounds.size.height * scale, fps);
     
     g_view_controller = [[ViewController alloc] init];
-    if(fps <= 0)
+    if (fps <= 0)
     {
         fps = 60;
     }
@@ -346,7 +346,7 @@ String Application::DataPath()
     static std::mutex s_mutex;
     
     s_mutex.lock();
-    if(m_data_path.Empty())
+    if (m_data_path.Empty())
     {
         String path = [[[NSBundle mainBundle] bundlePath] UTF8String];
         path += "/Assets";
@@ -361,7 +361,7 @@ String Application::SavePath()
 {
     static String s_path;
     
-    if(s_path.Empty())
+    if (s_path.Empty())
     {
         NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString* doc_path = [paths objectAtIndex:0];

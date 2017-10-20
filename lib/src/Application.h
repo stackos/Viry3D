@@ -52,15 +52,15 @@ namespace Viry3D
 		void OnInit();
 		void OnUpdate();
 		void OnDraw();
-		void OnPause();
-		void OnResume();
 		void AddAsyncUpdateTask(const Thread::Task& task);
 		void EnsureFPS();
 
 		virtual void Start() { }
 		virtual void Update() { }
 		virtual void OnResize(int width, int height);
-
+        virtual void OnPause();
+        virtual void OnResume();
+        
 	protected:
 		Application();
 		void CreateFPSUI(int font_size, int camera_depth, int layer, const Ref<FrameBuffer>& render_target = Ref<FrameBuffer>());
