@@ -42,7 +42,7 @@ namespace Viry3D
 		long long t = GetTimeMS();
 		date.milli_second = t % 1000;
 
-		time_t ts = t / 1000;
+		time_t ts = (time_t) (t / 1000);
 		auto tm = localtime(&ts);
 
 		date.year = tm->tm_year + 1900;
@@ -89,7 +89,7 @@ namespace Viry3D
 	{
 		long long t = GetTimeMS();
 		int ms = t % 1000;
-		time_t ts = t / 1000;
+		time_t ts = (time_t) (t / 1000);
 		auto tm = gmtime(&ts);
 		t = mktime(tm) * (long long) 1000 + ms;
 
