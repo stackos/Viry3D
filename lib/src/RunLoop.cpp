@@ -28,7 +28,7 @@ namespace Viry3D
 	{
 	}
 
-	RunLoop::FuncId RunLoop::Add(Task task)
+	RunLoop::FuncId RunLoop::Add(const Task& task)
 	{
 		m_mutex.lock();
 

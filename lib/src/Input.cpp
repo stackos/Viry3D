@@ -59,7 +59,7 @@ namespace Viry3D
 			0);
 	}
 
-	void Input::SetMousePositionScaleOffset(const Vector3 &scale, const Vector3 &offset)
+	void Input::SetMousePositionScaleOffset(const Vector3& scale, const Vector3& offset)
 	{
 		g_mouse_position_scale = scale;
 		g_mouse_position_offset = offset;

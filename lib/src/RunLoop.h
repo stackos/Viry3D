@@ -49,7 +49,7 @@ namespace Viry3D
 		void Run();
 
 		/// add a func to the run loop
-		FuncId Add(Task task);
+		FuncId Add(const Task& task);
 
 	private:
 		/// remove a func

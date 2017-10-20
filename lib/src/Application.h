@@ -35,8 +35,8 @@ namespace Viry3D
 	public:
 		static Application* Current();
 		static void Quit();
-		static void RunTaskInPreLoop(RunLoop::Task task);
-		static void RunTaskInPostLoop(RunLoop::Task task);
+		static void RunTaskInPreLoop(const RunLoop::Task& task);
+		static void RunTaskInPostLoop(const RunLoop::Task& task);
 		static String DataPath();
 		static String SavePath();
 		static void SetDataPath(const String& path);
@@ -54,7 +54,7 @@ namespace Viry3D
 		void OnDraw();
 		void OnPause();
 		void OnResume();
-		void AddAsyncUpdateTask(Thread::Task task);
+		void AddAsyncUpdateTask(const Thread::Task& task);
 		void EnsureFPS();
 
 		virtual void Start() { }
@@ -63,7 +63,7 @@ namespace Viry3D
 
 	protected:
 		Application();
-		void CreateFPSUI(int font_size, int camera_depth, int layer, Ref<FrameBuffer> render_target = Ref<FrameBuffer>());
+		void CreateFPSUI(int font_size, int camera_depth, int layer, const Ref<FrameBuffer>& render_target = Ref<FrameBuffer>());
 
 	private:
 		void UpdateFPSUI();

@@ -39,7 +39,7 @@ namespace Viry3D
 		//	在子线程中创建对象时, 可以暂时不把对象添加到World, 待子对象和组件都创建完成后, 统一手动添加
 		//
 		static Ref<GameObject> Create(const String& name, bool add_to_world = true);
-		static void Destroy(Ref<GameObject> obj);
+		static void Destroy(const Ref<GameObject>& obj);
 		static Ref<GameObject> Instantiate(const Ref<GameObject>& source);
 
 		virtual ~GameObject();
@@ -75,7 +75,7 @@ namespace Viry3D
 		void CopyComponent(const Ref<Component>& com);
 		void OnTranformChanged();
 		void OnTranformHierarchyChanged();
-		void OnPostRender();//仅带摄像机的对象
+		void OnPostRender(); // 仅带摄像机的对象
 
 		int m_layer;
 		List<Ref<Component>> m_components;

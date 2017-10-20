@@ -40,7 +40,7 @@ namespace Viry3D
 		return obj;
 	}
 
-	void GameObject::Destroy(Ref<GameObject> obj)
+	void GameObject::Destroy(const Ref<GameObject>& obj)
 	{
 		if (obj)
 		{

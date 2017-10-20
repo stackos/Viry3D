@@ -86,7 +86,7 @@ namespace Viry3D
 		LogGLError();
 	}
 
-	void MaterialGLES::SetUniform(int pass_index, void* uniform_buffer, String name, void* data, int size)
+	void MaterialGLES::SetUniform(int pass_index, void* uniform_buffer, const String& name, void* data, int size)
 	{
 		auto buffer = (char*) uniform_buffer;
 		auto mat = (Material*) this;
