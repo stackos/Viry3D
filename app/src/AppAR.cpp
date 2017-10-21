@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "graphics/Camera.h"
 #include "graphics/Graphics.h"
+#include "graphics/Texture2D.h"
 #include "ios/ARScene.h"
 
 using namespace Viry3D;
@@ -43,6 +44,20 @@ public:
         {
             m_ar = RefMake<ARScene>();
             m_ar->RunSession();
+            
+            camera->SetPostRenderFunc([this]() {
+                this->DrawBackground();
+            });
+        }
+    }
+    
+    void DrawBackground()
+    {
+        auto texture_y = m_ar->GetBackgroundTextureY();
+        if (texture_y)
+        {
+            Viry3D::Rect rect(0, 0, 1, 1);
+            Graphics::DrawQuad(&rect, texture_y, false);
         }
     }
     

@@ -50,6 +50,8 @@ namespace Viry3D
 			FilterMode filter_mode,
 			bool mipmap,
 			const ByteBuffer& colors);
+        static Ref<Texture2D> CreateExternalTexture(int width, int height, TextureFormat format, bool mipmap, void* external_texture);
+        void UpdateExternalTexture(void* external_texture);
 
 		ByteBuffer GetColors() const { return m_colors; }
 		void UpdateTexture(int x, int y, int w, int h, const ByteBuffer& colors);

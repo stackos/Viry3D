@@ -23,6 +23,7 @@ namespace Viry3D
 	{
 		Alpha8,
 		ARGB4444,
+        RG16,
 		RGB24,
 		RGBA32,
 		ARGB32,

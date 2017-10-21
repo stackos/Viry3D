@@ -17,8 +17,12 @@
 
 #pragma once
 
+#include "memory/Ref.h"
+
 namespace Viry3D
 {
+    class Texture2D;
+    
     class ARScene
     {
     public:
@@ -28,5 +32,11 @@ namespace Viry3D
         void RunSession();
         void PauseSession();
         void UpdateSession();
+        const Ref<Texture2D>& GetBackgroundTextureY() { return m_background_texture_y; }
+        const Ref<Texture2D>& GetBackgroundTextureUV() { return m_background_texture_uv; }
+        
+    private:
+        Ref<Texture2D> m_background_texture_y;
+        Ref<Texture2D> m_background_texture_uv;
     };
 }

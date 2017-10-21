@@ -24,13 +24,17 @@
 namespace Viry3D
 {
 	TextureGLES::TextureGLES():
-		m_texture(0)
+		m_texture(0),
+        m_external(false)
 	{
 	}
 
 	TextureGLES::~TextureGLES()
 	{
-		glDeleteTextures(1, &m_texture);
+        if (m_external == false)
+        {
+            glDeleteTextures(1, &m_texture);
+        }
 	}
 
 	void TextureGLES::CreateColorRenderTexture()
@@ -200,6 +204,12 @@ namespace Viry3D
 		LogGLError();
 	}
 
+    void TextureGLES::SetExternalTexture2D(GLuint texture)
+    {
+        m_texture = texture;
+        m_external = true;
+    }
+    
 	int TextureGLES::GetMipCount()
 	{
 		int mip_count = 0;
@@ -300,5 +310,7 @@ namespace Viry3D
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+        
+        LogGLError();
 	}
 }

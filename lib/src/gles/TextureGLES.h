@@ -35,6 +35,7 @@ namespace Viry3D
 		void CreateDepthRenderTexture();
 		void CreateTexture2D();
 		void UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors);
+        void SetExternalTexture2D(GLuint texture);
 
 	private:
 		void Create(GLenum format, GLenum type, void* pixels, bool mipmap);
@@ -42,5 +43,6 @@ namespace Viry3D
 
 		GLuint m_texture;
 		GLint m_format;
+        bool m_external;
 	};
 }

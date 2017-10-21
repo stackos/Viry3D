@@ -138,6 +138,24 @@ namespace Viry3D
 
 		return texture;
 	}
+    
+    Ref<Texture2D> Texture2D::CreateExternalTexture(int width, int height, TextureFormat format, bool mipmap, void* external_texture)
+    {
+        Ref<Texture2D> texture = Ref<Texture2D>(new Texture2D());
+        texture->SetWidth(width);
+        texture->SetHeight(height);
+        texture->SetFormat(format);
+        texture->SetMipmap(mipmap);
+        
+        texture->SetExternalTexture2D((GLuint) (size_t) external_texture);
+        
+        return texture;
+    }
+    
+    void Texture2D::UpdateExternalTexture(void* external_texture)
+    {
+        this->SetExternalTexture2D((GLuint) (size_t) external_texture);
+    }
 
 	void Texture2D::UpdateTexture(int x, int y, int w, int h, const ByteBuffer& colors)
 	{
