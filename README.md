@@ -1,7 +1,8 @@
+![http://www.viry3d.com/files/logo.png]
 # Viry3D
 C++跨平台3D游戏引擎。
 
-支持Windows、Android和iOS。
+支持Windows、Android、iOS、macOS。
 
 使用Unity3D类似的编程API。
 
@@ -17,7 +18,7 @@ stackos@qq.com
 平台 & 3D API支持
 
     Vulkan, OpenGL ES 3.0
-    Windows, Android, iOS
+    Windows, Android, iOS, macOS
 
 材质和Shader
 
