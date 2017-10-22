@@ -72,7 +72,7 @@ namespace Viry3D
 		this->SetDepth(0);
 		this->SetOrthographic(false);
 		this->SetOrthographicSize(1);
-		this->SetFieldOfView(60);
+		this->SetFieldOfView(45);
 		this->SetClipNear(0.3f);
 		this->SetClipFar(1000);
 		this->SetRect(Rect(0, 0, 1, 1));

@@ -1,0 +1,61 @@
+<Shader name="ARBackgroundYUV" queue="Background">
+	<VertexShader name="vs">
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+
+		<Include name="Base.in"/>
+		<Source>
+layout (location = 0) in vec4 a_pos;
+layout (location = 1) in vec2 a_uv;
+
+Varying(0) out vec2 v_uv;
+
+void main() {
+	gl_Position = a_pos;
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+		</Source>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTexY" binding="2"/>
+        <Sampler name="_MainTexUV" binding="3"/>
+		<Source>
+precision mediump float;
+      
+UniformTexture(0, 2) uniform sampler2D _MainTexY;
+UniformTexture(0, 3) uniform sampler2D _MainTexUV;
+
+Varying(0) in vec2 v_uv;
+
+layout (location = 0) out vec4 o_frag;
+
+void main() {
+    vec4 y = texture(_MainTexY, v_uv);
+    vec4 uv = texture(_MainTexUV, v_uv);
+    vec4 yuv = vec4(y.r, uv.rg, 1.0);
+    
+    mat4 yuvToRGB = mat4(
+        vec4(+1.0000f, +1.0000f, +1.0000f, +0.0000f),
+        vec4(+0.0000f, -0.3441f, +1.7720f, +0.0000f),
+        vec4(+1.4020f, -0.7141f, +0.0000f, +0.0000f),
+        vec4(-0.7010f, +0.5291f, -0.8860f, +1.0000f)
+    );
+    o_frag = yuvToRGB * yuv;
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+		<Cull value="Off"/>
+		<ZTest value="Always"/>
+		<ZWrite value="Off"/>
+	</RenderState>
+
+	<Pass name="pass"
+			vs="vs"
+			ps="ps"
+			rs="rs"/>
+</Shader>

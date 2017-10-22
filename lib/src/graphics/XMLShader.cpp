@@ -19,6 +19,7 @@
 #include "io/File.h"
 #include "xml/tinyxml2.h"
 #include "RenderQueue.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
@@ -331,5 +332,9 @@ namespace Viry3D
 				}
 			}
 		}
+        else
+        {
+            Log("shader xml parse error, xml path:%s", path.CString());
+        }
 	}
 }

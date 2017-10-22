@@ -129,9 +129,9 @@ namespace Viry3D
 		texture->SetWidth(width);
 		texture->SetHeight(height);
 		texture->SetFormat(format);
+        texture->SetMipmap(mipmap);
 		texture->SetWrapMode(wrap_mode);
 		texture->SetFilterMode(filter_mode);
-		texture->SetMipmap(mipmap);
 		texture->m_colors = colors;
 
 		texture->CreateTexture2D();
@@ -146,8 +146,11 @@ namespace Viry3D
         texture->SetHeight(height);
         texture->SetFormat(format);
         texture->SetMipmap(mipmap);
+        texture->SetWrapMode(TextureWrapMode::Clamp);
+        texture->SetFilterMode(FilterMode::Bilinear);
         
         texture->SetExternalTexture2D((GLuint) (size_t) external_texture);
+        texture->UpdateSampler();
         
         return texture;
     }

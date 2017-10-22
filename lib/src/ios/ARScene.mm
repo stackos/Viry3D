@@ -94,6 +94,12 @@ API_AVAILABLE(ios(11.0))
         return;
     }
     
+    [self _updateCapturedTexture:pixel_buffer texture:texture];
+    [self _updateAnchors:frame.anchors];
+}
+
+- (void)_updateCapturedTexture:(CVPixelBufferRef)pixel_buffer texture:(CapturedTexture*)texture
+{
     int width_y;
     int height_y;
     int width_uv;
@@ -114,8 +120,6 @@ API_AVAILABLE(ios(11.0))
         texture->width_uv = width_uv;
         texture->height_uv = height_uv;
     }
-    
-    Log("get ar frame!!!");
 }
 
 - (CVOpenGLESTextureRef)_createTextureFromPixelBuffer:(CVPixelBufferRef)pixel_buffer internalFormat:(GLint)internal_format format:(GLint)format type:(GLenum)type planeIndex:(NSInteger)plane_index width:(int*)width height:(int*)height {
@@ -131,6 +135,21 @@ API_AVAILABLE(ios(11.0))
     }
     
     return texture;
+}
+
+- (void)_updateAnchors:(NSArray<ARAnchor*>*)anchors
+{
+    Log("anchor count:%d", [anchors count]);
+    
+    for (int i = 0; i < anchors.count; i++)
+    {
+        ARAnchor* anchor = [anchors objectAtIndex:i];
+        if ([anchor isKindOfClass:[ARPlaneAnchor class]])
+        {
+            ARPlaneAnchor* plane = (ARPlaneAnchor*) anchor;
+            Log("%f %f %f, %f %f %f", plane.center.x, plane.center.y, plane.center.z, plane.extent.x, plane.extent.y, plane.extent.z);
+        }
+    }
 }
 
 - (void)session:(ARSession *)session didFailWithError:(NSError *)error
