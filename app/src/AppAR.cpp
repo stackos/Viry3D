@@ -42,6 +42,8 @@ public:
         this->CreateFPSUI(20, 1, 1);
         
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+
+#if VR_IOS
         camera->GetTransform()->SetPosition(Vector3(0, 6, -10));
         camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
         camera->SetCullingMask(1 << 0);
@@ -78,8 +80,10 @@ public:
             m_ar = RefMake<ARScene>();
             m_ar->RunSession();
         }
+#endif
     }
     
+#if VR_IOS
     virtual void Update()
     {
         if (m_ar)
@@ -135,6 +139,7 @@ public:
     Ref<ARScene> m_ar;
     WeakRef<Material> m_background_mat;
     WeakRef<GameObject> m_background_obj;
+#endif
 };
 
 #if 1

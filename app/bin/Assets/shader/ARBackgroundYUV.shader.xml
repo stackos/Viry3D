@@ -10,7 +10,8 @@ layout (location = 1) in vec2 a_uv;
 
 Varying(0) out vec2 v_uv;
 
-void main() {
+void main()
+{
 	gl_Position = a_pos;
 	v_uv = a_uv;
 
@@ -32,7 +33,8 @@ Varying(0) in vec2 v_uv;
 
 layout (location = 0) out vec4 o_frag;
 
-void main() {
+void main()
+{
     vec4 y = texture(_MainTexY, v_uv);
     vec4 uv = texture(_MainTexUV, v_uv);
     vec4 yuv = vec4(y.r, uv.rg, 1.0);
