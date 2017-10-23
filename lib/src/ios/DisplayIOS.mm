@@ -19,6 +19,7 @@
 #include "Application.h"
 #include "Debug.h"
 #include "graphics/Graphics.h"
+#include "graphics/Screen.h"
 #include "Input.h"
 #import <UIKit/UIKit.h>
 
@@ -177,31 +178,29 @@ void touch_update(void *touches, void *view)
     auto width = bounds.size.width * scale;
     auto height = bounds.size.height * scale;
     auto orientation = [UIDevice currentDevice].orientation;
-    auto swap = false;
+    bool not_resize = false;
     
-    if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+    if (orientation == UIDeviceOrientationPortrait)
     {
-        if (width > height)
-        {
-            swap = true;
-        }
+        Viry3D::Screen::SetOrientation(Viry3D::Screen::Orientation::HomeBottom);
     }
-    else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+    else if(orientation == UIDeviceOrientationLandscapeLeft)
     {
-        if (height > width)
-        {
-            swap = true;
-        }
+        Viry3D::Screen::SetOrientation(Viry3D::Screen::Orientation::HomeRight);
     }
-    
-    if (swap)
+    else if(orientation == UIDeviceOrientationLandscapeRight)
     {
-        auto temp = height;
-        height = width;
-        width = temp;
+        Viry3D::Screen::SetOrientation(Viry3D::Screen::Orientation::HomeLeft);
+    }
+    else if(orientation == UIDeviceOrientationPortraitUpsideDown)
+    {
+        not_resize = true;
     }
     
-    Viry3D::Application::Current()->OnResize(width, height);
+    if (not_resize == false)
+    {
+        Viry3D::Application::Current()->OnResize(width, height);
+    }
 }
 
 - (void)dealloc

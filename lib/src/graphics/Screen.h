@@ -22,7 +22,20 @@ namespace Viry3D
 	class Screen
 	{
 	public:
+        enum class Orientation
+        {
+            HomeBottom,
+            HomeTop,
+            HomeRight,
+            HomeLeft,
+        };
+        
 		static int GetWidth();
 		static int GetHeight();
+        static Orientation GetOrientation() { return m_orientation; }
+        static void SetOrientation(Orientation ori) { m_orientation = ori; }
+        
+    private:
+        static Orientation m_orientation;
 	};
 }

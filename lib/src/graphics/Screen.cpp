@@ -20,6 +20,8 @@
 
 namespace Viry3D
 {
+    Screen::Orientation Screen::m_orientation;
+    
 	int Screen::GetWidth()
 	{
 		return Graphics::GetDisplay()->GetWidth();
