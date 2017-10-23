@@ -24,6 +24,7 @@
 #include "graphics/Mesh.h"
 #include "graphics/Material.h"
 #include "renderer/MeshRenderer.h"
+#include "graphics/Screen.h"
 #include "ios/ARScene.h"
 
 using namespace Viry3D;
@@ -42,12 +43,9 @@ public:
         this->CreateFPSUI(20, 1, 1);
         
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-
-#if VR_IOS
-        camera->GetTransform()->SetPosition(Vector3(0, 6, -10));
-        camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
         camera->SetCullingMask(1 << 0);
         
+#if VR_IOS
         auto mesh = Mesh::Create();
         mesh->vertices.Add(Vector3(-1, 1, 0));
         mesh->vertices.Add(Vector3(-1, -1, 0));
@@ -74,6 +72,7 @@ public:
         
         m_background_mat = mat;
         m_background_obj = obj;
+        m_background_mesh = mesh;
         
         if (ARScene::IsSupported())
         {
@@ -101,19 +100,60 @@ public:
                     {
                         m_background_obj.lock()->SetActive(true);
                         
-                        this->OnBackgroundRenderStart();
+                        this->OnSceneRenderStart();
                     }
                     
                     m_background_mat.lock()->SetTexture("_MainTexY", texture_y);
                     m_background_mat.lock()->SetTexture("_MainTexUV", texture_uv);
                 };
             }
+            
+            auto anchors = m_ar->GetAnchors();
+            if (anchors.Size() > 0)
+            {
+                Log("anchor count:%d", anchors.Size());
+            }
         }
     }
     
-    void OnBackgroundRenderStart()
+    void OnSceneRenderStart()
     {
         
+    }
+    
+    virtual void OnResize(int width, int height)
+    {
+        Application::OnResize(width, height);
+        
+        if (m_background_mesh.expired() == false)
+        {
+            auto ori = Screen::GetOrientation();
+            
+            auto mesh = m_background_mesh.lock();
+            mesh->uv.Clear();
+            if (ori == Screen::Orientation::HomeRight || ori == Screen::Orientation::HomeTop)
+            {
+                mesh->uv.Add(Vector2(0, 0));
+                mesh->uv.Add(Vector2(0, 1));
+                mesh->uv.Add(Vector2(1, 1));
+                mesh->uv.Add(Vector2(1, 0));
+            }
+            else if(ori == Screen::Orientation::HomeLeft)
+            {
+                mesh->uv.Add(Vector2(1, 1));
+                mesh->uv.Add(Vector2(1, 0));
+                mesh->uv.Add(Vector2(0, 0));
+                mesh->uv.Add(Vector2(0, 1));
+            }
+            else
+            {
+                mesh->uv.Add(Vector2(0, 1));
+                mesh->uv.Add(Vector2(1, 1));
+                mesh->uv.Add(Vector2(1, 0));
+                mesh->uv.Add(Vector2(0, 0));
+            }
+            mesh->Update();
+        }
     }
     
     virtual void OnPause()
@@ -139,6 +179,7 @@ public:
     Ref<ARScene> m_ar;
     WeakRef<Material> m_background_mat;
     WeakRef<GameObject> m_background_obj;
+    WeakRef<Mesh> m_background_mesh;
 #endif
 };
 

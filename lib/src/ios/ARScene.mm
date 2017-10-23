@@ -77,7 +77,7 @@ API_AVAILABLE(ios(11.0))
     [m_session pause];
 }
 
-- (void)update:(CapturedTexture*)texture
+- (void)update:(CapturedTexture*)texture anchors:(Viry3D::Vector<Viry3D::ARAnchor>&)anchors
 {
     ARFrame* frame = m_session.currentFrame;
     memset(texture, 0, sizeof(CapturedTexture));
@@ -95,7 +95,7 @@ API_AVAILABLE(ios(11.0))
     }
     
     [self _updateCapturedTexture:pixel_buffer texture:texture];
-    [self _updateAnchors:frame.anchors];
+    [self _updateAnchors:frame anchors:anchors];
 }
 
 - (void)_updateCapturedTexture:(CVPixelBufferRef)pixel_buffer texture:(CapturedTexture*)texture
@@ -137,17 +137,31 @@ API_AVAILABLE(ios(11.0))
     return texture;
 }
 
-- (void)_updateAnchors:(NSArray<ARAnchor*>*)anchors
+- (void)_updateAnchors:(ARFrame*)frame anchors:(Viry3D::Vector<Viry3D::ARAnchor>&)anchors
 {
-    Log("anchor count:%d", [anchors count]);
+    NSArray<ARAnchor*>* frame_anchors = frame.anchors;
+    int anchor_count = (int) [frame_anchors count];
     
-    for (int i = 0; i < anchors.count; i++)
+    anchors.Clear();
+    
+    for (int i = 0; i < anchor_count; i++)
     {
-        ARAnchor* anchor = [anchors objectAtIndex:i];
+        ARAnchor* anchor = [frame_anchors objectAtIndex:i];
         if ([anchor isKindOfClass:[ARPlaneAnchor class]])
         {
             ARPlaneAnchor* plane = (ARPlaneAnchor*) anchor;
-            Log("%f %f %f, %f %f %f", plane.center.x, plane.center.y, plane.center.z, plane.extent.x, plane.extent.y, plane.extent.z);
+
+            Viry3D::ARAnchor a;
+            a.id = plane.identifier.UUIDString.UTF8String;
+            a.transform = Viry3D::Matrix4x4(
+                plane.transform.columns[0].x, plane.transform.columns[0].y, plane.transform.columns[0].z, plane.transform.columns[0].w,
+                plane.transform.columns[1].x, plane.transform.columns[1].y, plane.transform.columns[1].z, plane.transform.columns[1].w,
+                plane.transform.columns[2].x, plane.transform.columns[2].y, plane.transform.columns[2].z, plane.transform.columns[2].w,
+                plane.transform.columns[3].x, plane.transform.columns[3].y, plane.transform.columns[3].z, plane.transform.columns[3].w);
+            a.center = Viry3D::Vector3(plane.center.x, plane.center.y, plane.center.z);
+            a.extent = Viry3D::Vector3(plane.extent.x, plane.extent.y, plane.extent.z);
+            
+            anchors.Add(a);
         }
     }
 }
@@ -212,7 +226,7 @@ namespace Viry3D
         {
             CapturedTexture background;
             
-            [g_session update:&background];
+            [g_session update:&background anchors:m_anchors];
             
             if (background.texture_y > 0 &&
                 background.texture_uv > 0)
