@@ -16,9 +16,14 @@
  */
 
 #include "ARScene.h"
+#include "GameObject.h"
 #include "Debug.h"
 #include "gles/gles_include.h"
 #include "graphics/Texture2D.h"
+#include "graphics/Mesh.h"
+#include "graphics/Material.h"
+#include "graphics/Screen.h"
+#include "renderer/MeshRenderer.h"
 #import <ARKit/ARKit.h>
 
 struct CapturedTexture
@@ -31,14 +36,22 @@ struct CapturedTexture
     int height_uv;
 };
 
+static const float kImagePlaneVertexData[16] = {
+    -1.0, -1.0,  0.0, 1.0,
+    1.0, -1.0,  1.0, 1.0,
+    -1.0,  1.0,  0.0, 0.0,
+    1.0,  1.0,  1.0, 0.0,
+};
+
 API_AVAILABLE(ios(11.0))
 @interface SessionDelegate : NSObject <ARSessionDelegate>
+
+@property (strong, nonatomic) ARSession* session;
 
 @end
 
 @implementation SessionDelegate
 {
-    ARSession* m_session;
     CVOpenGLESTextureRef m_captured_texture_y;
     CVOpenGLESTextureRef m_captured_texture_uv;
     CVOpenGLESTextureCacheRef m_captured_texture_cache;
@@ -49,8 +62,8 @@ API_AVAILABLE(ios(11.0))
     self = [super init];
     if (self)
     {
-        m_session = [ARSession new];
-        m_session.delegate = self;
+        self.session = [ARSession new];
+        self.session.delegate = self;
         
         auto context = [EAGLContext currentContext];
         CVOpenGLESTextureCacheCreate(NULL, NULL, context, NULL, &m_captured_texture_cache);
@@ -69,17 +82,17 @@ API_AVAILABLE(ios(11.0))
     ARWorldTrackingConfiguration* configuration = [ARWorldTrackingConfiguration new];
     configuration.planeDetection = ARPlaneDetectionHorizontal;
     
-    [m_session runWithConfiguration:configuration];
+    [self.session runWithConfiguration:configuration];
 }
 
 - (void)pause
 {
-    [m_session pause];
+    [self.session pause];
 }
 
 - (void)update:(CapturedTexture*)texture anchors:(Viry3D::Vector<Viry3D::ARAnchor>&)anchors
 {
-    ARFrame* frame = m_session.currentFrame;
+    ARFrame* frame = self.session.currentFrame;
     memset(texture, 0, sizeof(CapturedTexture));
     
     if (frame == nil)
@@ -194,9 +207,35 @@ namespace Viry3D
         return ARConfiguration.isSupported;
     }
     
-    ARScene::ARScene()
+    ARScene::ARScene():
+        m_resized(true)
     {
         g_session = [[SessionDelegate alloc] init];
+        
+        auto mesh = Mesh::Create();
+        for (int i = 0; i < 4; i++)
+        {
+            mesh->vertices.Add(Vector3(kImagePlaneVertexData[i * 4], kImagePlaneVertexData[i * 4 + 1], 0));
+            mesh->uv.Add(Vector2(kImagePlaneVertexData[i * 4 + 2], kImagePlaneVertexData[i * 4 + 3]));
+        }
+        unsigned short triangles[] = {
+            0, 1, 2, 2, 1, 3
+        };
+        mesh->triangles.AddRange(triangles, 6);
+        mesh->Update();
+        
+        auto mat = Material::Create("ARBackgroundYUV");
+        
+        auto obj = GameObject::Create("mesh");
+        obj->SetActive(false);
+        
+        auto renderer = obj->AddComponent<MeshRenderer>();
+        renderer->SetSharedMesh(mesh);
+        renderer->SetSharedMaterial(mat);
+        
+        m_background_mat = mat;
+        m_background_obj = obj;
+        m_background_mesh = mesh;
     }
     
     ARScene::~ARScene()
@@ -248,7 +287,49 @@ namespace Viry3D
                 {
                      m_background_texture_uv = Texture2D::CreateExternalTexture(background.width_uv, background.height_uv, TextureFormat::RG16, false, (void*) (size_t) background.texture_uv);
                 }
+                
+                auto texture_y = GetBackgroundTextureY();
+                auto texture_uv = GetBackgroundTextureUV();
+                if (texture_y && texture_uv)
+                {
+                    if (m_background_mat && m_background_obj)
+                    {
+                        if (m_background_obj->IsActiveSelf() == false)
+                        {
+                            m_background_obj->SetActive(true);
+                        }
+                        
+                        m_background_mat->SetTexture("_MainTexY", texture_y);
+                        m_background_mat->SetTexture("_MainTexUV", texture_uv);
+                    };
+                }
+                
+                if (m_resized)
+                {
+                    m_resized = false;
+                    
+                    ARFrame* frame = g_session.session.currentFrame;
+                    CGSize screen_size = CGSizeMake(Screen::GetWidth(), Screen::GetHeight());
+                    CGAffineTransform uv_transform = CGAffineTransformInvert([frame displayTransformForOrientation:(UIInterfaceOrientation) Screen::GetOrientation() viewportSize:screen_size]);
+                    
+                    auto mesh = m_background_mesh;
+                    mesh->vertices.Clear();
+                    mesh->uv.Clear();
+                    for (int i = 0; i < 4; i++)
+                    {
+                        mesh->vertices.Add(Vector3(kImagePlaneVertexData[i * 4], kImagePlaneVertexData[i * 4 + 1], 0));
+                        CGPoint uv = CGPointMake(kImagePlaneVertexData[i * 4 + 2], kImagePlaneVertexData[i * 4 + 3]);
+                        CGPoint uv_transformed = CGPointApplyAffineTransform(uv, uv_transform);
+                        mesh->uv.Add(Vector2(uv_transformed.x, uv_transformed.y));
+                    }
+                    mesh->Update();
+                }
             }
         }
+    }
+    
+    void ARScene::OnResize(int width, int height)
+    {
+        m_resized = true;
     }
 }

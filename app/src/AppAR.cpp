@@ -19,12 +19,6 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "graphics/Camera.h"
-#include "graphics/Graphics.h"
-#include "graphics/Texture2D.h"
-#include "graphics/Mesh.h"
-#include "graphics/Material.h"
-#include "renderer/MeshRenderer.h"
-#include "graphics/Screen.h"
 #include "ios/ARScene.h"
 
 using namespace Viry3D;
@@ -46,34 +40,6 @@ public:
         camera->SetCullingMask(1 << 0);
         
 #if VR_IOS
-        auto mesh = Mesh::Create();
-        mesh->vertices.Add(Vector3(-1, 1, 0));
-        mesh->vertices.Add(Vector3(-1, -1, 0));
-        mesh->vertices.Add(Vector3(1, -1, 0));
-        mesh->vertices.Add(Vector3(1, 1, 0));
-        mesh->uv.Add(Vector2(0, 1));
-        mesh->uv.Add(Vector2(1, 1));
-        mesh->uv.Add(Vector2(1, 0));
-        mesh->uv.Add(Vector2(0, 0));
-        unsigned short triangles[] = {
-            0, 1, 2, 0, 2, 3
-        };
-        mesh->triangles.AddRange(triangles, 6);
-        mesh->Update();
-        
-        auto mat = Material::Create("ARBackgroundYUV");
-        
-        auto obj = GameObject::Create("mesh");
-        obj->SetActive(false);
-        
-        auto renderer = obj->AddComponent<MeshRenderer>();
-        renderer->SetSharedMesh(mesh);
-        renderer->SetSharedMaterial(mat);
-        
-        m_background_mat = mat;
-        m_background_obj = obj;
-        m_background_mesh = mesh;
-        
         if (ARScene::IsSupported())
         {
             m_ar = RefMake<ARScene>();
@@ -89,25 +55,6 @@ public:
         {
             m_ar->UpdateSession();
             
-            auto texture_y = m_ar->GetBackgroundTextureY();
-            auto texture_uv = m_ar->GetBackgroundTextureUV();
-            if (texture_y && texture_uv)
-            {
-                if (m_background_mat.expired() == false &&
-                    m_background_obj.expired() == false)
-                {
-                    if (m_background_obj.lock()->IsActiveSelf() == false)
-                    {
-                        m_background_obj.lock()->SetActive(true);
-                        
-                        this->OnSceneRenderStart();
-                    }
-                    
-                    m_background_mat.lock()->SetTexture("_MainTexY", texture_y);
-                    m_background_mat.lock()->SetTexture("_MainTexUV", texture_uv);
-                };
-            }
-            
             auto anchors = m_ar->GetAnchors();
             if (anchors.Size() > 0)
             {
@@ -116,43 +63,13 @@ public:
         }
     }
     
-    void OnSceneRenderStart()
-    {
-        
-    }
-    
     virtual void OnResize(int width, int height)
     {
         Application::OnResize(width, height);
         
-        if (m_background_mesh.expired() == false)
+        if (m_ar)
         {
-            auto ori = Screen::GetOrientation();
-            
-            auto mesh = m_background_mesh.lock();
-            mesh->uv.Clear();
-            if (ori == Screen::Orientation::HomeRight || ori == Screen::Orientation::HomeTop)
-            {
-                mesh->uv.Add(Vector2(0, 0));
-                mesh->uv.Add(Vector2(0, 1));
-                mesh->uv.Add(Vector2(1, 1));
-                mesh->uv.Add(Vector2(1, 0));
-            }
-            else if(ori == Screen::Orientation::HomeLeft)
-            {
-                mesh->uv.Add(Vector2(1, 1));
-                mesh->uv.Add(Vector2(1, 0));
-                mesh->uv.Add(Vector2(0, 0));
-                mesh->uv.Add(Vector2(0, 1));
-            }
-            else
-            {
-                mesh->uv.Add(Vector2(0, 1));
-                mesh->uv.Add(Vector2(1, 1));
-                mesh->uv.Add(Vector2(1, 0));
-                mesh->uv.Add(Vector2(0, 0));
-            }
-            mesh->Update();
+            m_ar->OnResize(width, height);
         }
     }
     
@@ -177,9 +94,6 @@ public:
     }
     
     Ref<ARScene> m_ar;
-    WeakRef<Material> m_background_mat;
-    WeakRef<GameObject> m_background_obj;
-    WeakRef<Mesh> m_background_mesh;
 #endif
 };
 

@@ -178,27 +178,10 @@ void touch_update(void *touches, void *view)
     auto width = bounds.size.width * scale;
     auto height = bounds.size.height * scale;
     auto orientation = [UIDevice currentDevice].orientation;
-    bool not_resize = false;
-    
-    if (orientation == UIDeviceOrientationPortrait)
+
+    if (orientation != UIDeviceOrientationPortraitUpsideDown)
     {
-        Viry3D::Screen::SetOrientation(Viry3D::Screen::Orientation::HomeBottom);
-    }
-    else if(orientation == UIDeviceOrientationLandscapeLeft)
-    {
-        Viry3D::Screen::SetOrientation(Viry3D::Screen::Orientation::HomeRight);
-    }
-    else if(orientation == UIDeviceOrientationLandscapeRight)
-    {
-        Viry3D::Screen::SetOrientation(Viry3D::Screen::Orientation::HomeLeft);
-    }
-    else if(orientation == UIDeviceOrientationPortraitUpsideDown)
-    {
-        not_resize = true;
-    }
-    
-    if (not_resize == false)
-    {
+        Viry3D::Screen::SetOrientation((Viry3D::Screen::Orientation) orientation);
         Viry3D::Application::Current()->OnResize(width, height);
     }
 }

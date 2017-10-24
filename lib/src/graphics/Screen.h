@@ -24,10 +24,13 @@ namespace Viry3D
 	public:
         enum class Orientation
         {
+            Unknown,
             HomeBottom,
             HomeTop,
             HomeRight,
             HomeLeft,
+            FaceUp,
+            FaceDown,
         };
         
 		static int GetWidth();

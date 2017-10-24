@@ -25,6 +25,9 @@
 namespace Viry3D
 {
     class Texture2D;
+    class Material;
+    class GameObject;
+    class Mesh;
     
     struct ARAnchor
     {
@@ -43,6 +46,7 @@ namespace Viry3D
         void RunSession();
         void PauseSession();
         void UpdateSession();
+        void OnResize(int width, int height);
         const Ref<Texture2D>& GetBackgroundTextureY() const { return m_background_texture_y; }
         const Ref<Texture2D>& GetBackgroundTextureUV() const { return m_background_texture_uv; }
         const Vector<ARAnchor>& GetAnchors() const { return m_anchors; }
@@ -50,6 +54,10 @@ namespace Viry3D
     private:
         Ref<Texture2D> m_background_texture_y;
         Ref<Texture2D> m_background_texture_uv;
+        Ref<Material> m_background_mat;
+        Ref<GameObject> m_background_obj;
+        Ref<Mesh> m_background_mesh;
+        bool m_resized;
         Vector<ARAnchor> m_anchors;
     };
 }
