@@ -25,6 +25,7 @@
 #include "graphics/Texture2D.h"
 #include "graphics/LightmapSettings.h"
 #include "graphics/RenderPass.h"
+#include "graphics/Camera.h"
 
 #if VR_VULKAN
 
@@ -40,6 +41,11 @@ namespace Viry3D
 
 	const Ref<DescriptorSet>& MaterialVulkan::GetDescriptorSet(int pass_index)
 	{
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			return m_descriptor_sets_shadowmap[pass_index];
+		}
+		
 		return m_descriptor_sets[pass_index];
 	}
 
@@ -48,13 +54,27 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		if (m_uniform_buffers[pass_index])
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
 		{
-			void* mapped;
-			VkResult err = vkMapMemory(device, m_uniform_buffers[pass_index]->GetMemory(), 0, m_uniform_buffers[pass_index]->GetSize(), 0, &mapped);
-			assert(!err);
+			if (m_uniform_buffers_shadowmap[pass_index])
+			{
+				void* mapped;
+				VkResult err = vkMapMemory(device, m_uniform_buffers_shadowmap[pass_index]->GetMemory(), 0, m_uniform_buffers_shadowmap[pass_index]->GetSize(), 0, &mapped);
+				assert(!err);
 
-			return mapped;
+				return mapped;
+			}
+		}
+		else
+		{
+			if (m_uniform_buffers[pass_index])
+			{
+				void* mapped;
+				VkResult err = vkMapMemory(device, m_uniform_buffers[pass_index]->GetMemory(), 0, m_uniform_buffers[pass_index]->GetSize(), 0, &mapped);
+				assert(!err);
+
+				return mapped;
+			}
 		}
 
 		return NULL;
@@ -64,7 +84,12 @@ namespace Viry3D
 	{
 		auto buffer = (char*) uniform_buffer;
 		auto mat = (Material*) this;
-		auto& shader = mat->GetShader();
+		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
+
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
 		auto& uniform_xmls = shader->GetUniformXmls(pass_index);
 
@@ -98,16 +123,31 @@ namespace Viry3D
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
-		if (m_uniform_buffers[pass_index])
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
 		{
-			vkUnmapMemory(device, m_uniform_buffers[pass_index]->GetMemory());
+			if (m_uniform_buffers_shadowmap[pass_index])
+			{
+				vkUnmapMemory(device, m_uniform_buffers_shadowmap[pass_index]->GetMemory());
+			}
+		}
+		else
+		{
+			if (m_uniform_buffers[pass_index])
+			{
+				vkUnmapMemory(device, m_uniform_buffers[pass_index]->GetMemory());
+			}
 		}
 	}
 
 	void MaterialVulkan::SetUniformTexture(int pass_index, const String& name, const Texture* texture)
 	{
 		auto mat = (Material*) this;
-		auto& shader = mat->GetShader();
+		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
+
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
 		auto& uniform_xmls = shader->GetUniformXmls(pass_index);
 
@@ -140,23 +180,48 @@ namespace Viry3D
 	void MaterialVulkan::UpdateUniformsBegin(int pass_index)
 	{
 		auto mat = (Material*) this;
-		auto& shader = mat->GetShader();
+		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
+
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
 		auto& uniform_xmls = shader->GetUniformXmls(pass_index);
 
-		if (m_descriptor_sets.Size() < pass_index + 1)
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
 		{
-			m_descriptor_sets.Resize(pass_index + 1);
-			m_uniform_buffers.Resize(pass_index + 1);
+			if (m_descriptor_sets_shadowmap.Size() < pass_index + 1)
+			{
+				m_descriptor_sets_shadowmap.Resize(pass_index + 1);
+				m_uniform_buffers_shadowmap.Resize(pass_index + 1);
+			}
+
+			if (!m_descriptor_sets_shadowmap[pass_index])
+			{
+				auto ds = RefMake<DescriptorSetVulkan>();
+				ds->set = shader->CreateDescriptorSet(pass_index);
+				m_descriptor_sets_shadowmap[pass_index] = ds;
+
+				m_uniform_buffers_shadowmap[pass_index] = shader->CreateUniformBuffer(pass_index);
+			}
 		}
-
-		if (!m_descriptor_sets[pass_index])
+		else
 		{
-			auto ds = RefMake<DescriptorSetVulkan>();
-			ds->set = shader->CreateDescriptorSet(pass_index);
-			m_descriptor_sets[pass_index] = ds;
+			if (m_descriptor_sets.Size() < pass_index + 1)
+			{
+				m_descriptor_sets.Resize(pass_index + 1);
+				m_uniform_buffers.Resize(pass_index + 1);
+			}
 
-			m_uniform_buffers[pass_index] = shader->CreateUniformBuffer(pass_index);
+			if (!m_descriptor_sets[pass_index])
+			{
+				auto ds = RefMake<DescriptorSetVulkan>();
+				ds->set = shader->CreateDescriptorSet(pass_index);
+				m_descriptor_sets[pass_index] = ds;
+
+				m_uniform_buffers[pass_index] = shader->CreateUniformBuffer(pass_index);
+			}
 		}
 
 		for (int i = 0; i < writes.Size(); i++)
@@ -180,9 +245,13 @@ namespace Viry3D
 	void MaterialVulkan::UpdateUniformsEnd(int pass_index)
 	{
 		auto mat = (Material*) this;
-		auto& shader = mat->GetShader();
+		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
+
 		auto& writes = shader->GetDescriptorSetWriteInfo(pass_index);
-		auto& descriptor_set = m_descriptor_sets[pass_index];
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 
@@ -190,14 +259,28 @@ namespace Viry3D
 		{
 			auto& write = writes[i];
 
-			if (write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+			if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
 			{
-				void* p = (void*) write.pBufferInfo;
-				VkDescriptorBufferInfo* uniform_info = (VkDescriptorBufferInfo*) p;
-				uniform_info->buffer = m_uniform_buffers[pass_index]->GetBuffer();
-			}
+				if (write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+				{
+					void* p = (void*) write.pBufferInfo;
+					VkDescriptorBufferInfo* uniform_info = (VkDescriptorBufferInfo*) p;
+					uniform_info->buffer = m_uniform_buffers_shadowmap[pass_index]->GetBuffer();
+				}
 
-			write.dstSet = RefCast<DescriptorSetVulkan>(descriptor_set)->set;
+				write.dstSet = RefCast<DescriptorSetVulkan>(m_descriptor_sets_shadowmap[pass_index])->set;
+			}
+			else
+			{
+				if (write.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+				{
+					void* p = (void*) write.pBufferInfo;
+					VkDescriptorBufferInfo* uniform_info = (VkDescriptorBufferInfo*) p;
+					uniform_info->buffer = m_uniform_buffers[pass_index]->GetBuffer();
+				}
+
+				write.dstSet = RefCast<DescriptorSetVulkan>(m_descriptor_sets[pass_index])->set;
+			}
 		}
 
 		vkUpdateDescriptorSets(device, writes.Size(), &writes[0], 0, NULL);

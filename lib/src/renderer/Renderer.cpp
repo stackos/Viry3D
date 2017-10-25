@@ -122,7 +122,11 @@ namespace Viry3D
 			}
 		}
 
-		auto& shader = this->GetSharedMaterials()[material_index]->GetShader();
+		auto shader = this->GetSharedMaterials()[material_index]->GetShader();
+		if(Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
 		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, &buffer, size, m_lightmap_index);
 	}
 
@@ -134,7 +138,11 @@ namespace Viry3D
 	void Renderer::Render(int material_index, int pass_index)
 	{
 		auto& mat = this->GetSharedMaterials()[material_index];
-		auto& shader = mat->GetShader();
+		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
 		bool static_batch = this->m_batch_indices.Size() > 0;
 		bool batching = m_batching_start >= 0 && m_batching_count > 0;
 
@@ -198,7 +206,11 @@ namespace Viry3D
 	void Renderer::CommitPass(List<MaterialPass>& pass)
 	{
 		auto& first = pass.First();
-		auto& shader = first.renderer->GetSharedMaterials()[first.material_index]->GetShader();
+		auto shader = first.renderer->GetSharedMaterials()[first.material_index]->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
 
 		if (first.shader_pass_count == 1)
 		{
@@ -331,16 +343,22 @@ namespace Viry3D
 					lightmap_sacle_offset = i.renderer->GetLightmapScaleOffset();
 				}
 
-				shader->BeginPass(j);
+				int pass_index = j;
+				if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+				{
+					pass_index = 0;
+				}
+
+				shader->BeginPass(pass_index);
 
 				auto& mat = i.renderer->GetSharedMaterials()[i.material_index];
-				shader->BindSharedMaterial(j, mat);
-				shader->BindMaterial(j, mat, i.renderer->m_descriptor_set);
-				shader->BindRendererDescriptorSet(j, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
+				shader->BindSharedMaterial(pass_index, mat);
+				shader->BindMaterial(pass_index, mat, i.renderer->m_descriptor_set);
+				shader->BindRendererDescriptorSet(pass_index, i.renderer->m_descriptor_set_buffer, i.renderer->m_lightmap_index);
 
-				i.renderer->Render(i.material_index, j);
+				i.renderer->Render(i.material_index, pass_index);
 
-				shader->EndPass(j);
+				shader->EndPass(pass_index);
 			}
 		}
 	}
@@ -348,7 +366,11 @@ namespace Viry3D
 	void Renderer::PreparePass(List<MaterialPass>& pass)
 	{
 		auto& first = pass.First();
-		auto& shader = first.renderer->GetSharedMaterials()[first.material_index]->GetShader();
+		auto shader = first.renderer->GetSharedMaterials()[first.material_index]->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
 
 		if (first.shader_pass_count == 1)
 		{
@@ -379,8 +401,14 @@ namespace Viry3D
 
 			for (int i = 0; i < first.shader_pass_count; i++)
 			{
-				shader->PreparePass(i);
-				mat->UpdateUniforms(i);
+				int pass_index = i;
+				if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+				{
+					pass_index = 0;
+				}
+
+				shader->PreparePass(pass_index);
+				mat->UpdateUniforms(pass_index);
 			}
 		}
 	}

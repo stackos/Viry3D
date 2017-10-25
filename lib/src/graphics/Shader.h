@@ -46,6 +46,7 @@ namespace Viry3D
 		static void Deinit();
 		static void ClearAllPipelines();
 		static Ref<Shader> Find(const String& name);
+		static Ref<Shader> ReplaceToShadowMapShader(const Ref<Shader>& shader);
 		static const Ref<Texture2D>& GetDefaultTexture(const String& name);
 
 		int GetQueue() const;

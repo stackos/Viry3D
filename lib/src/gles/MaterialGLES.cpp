@@ -18,10 +18,11 @@
 #include "MaterialGLES.h"
 #include "gles_include.h"
 #include "Debug.h"
+#include "memory/Memory.h"
 #include "graphics/Material.h"
 #include "graphics/Texture2D.h"
 #include "graphics/UniformBuffer.h"
-#include "memory/Memory.h"
+#include "graphics/Camera.h"
 
 #if VR_GLES
 
@@ -31,6 +32,10 @@ namespace Viry3D
 	{
 		auto mat = (Material*) this;
 		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
 
 		if (m_uniform_buffers.Size() < pass_index + 1)
 		{
@@ -90,7 +95,12 @@ namespace Viry3D
 	{
 		auto buffer = (char*) uniform_buffer;
 		auto mat = (Material*) this;
-		const auto& shader = mat->GetShader();
+		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
+
 		const auto& uniform_buffer_infos = shader->GetUniformBufferInfos(pass_index);
 
 		for (auto i : uniform_buffer_infos)
@@ -113,7 +123,12 @@ namespace Viry3D
 		LogGLError();
 
 		auto mat = (Material*) this;
-		auto& shader = mat->GetShader();
+		auto shader = mat->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
+
 		auto& sampler_infos = shader->GetSamplerInfos(pass_index);
 		auto& sampler_locations = shader->GetSamplerLocations(pass_index);
 		auto& textures = mat->GetTextures();

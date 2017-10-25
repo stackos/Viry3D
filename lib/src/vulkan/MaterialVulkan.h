@@ -51,5 +51,7 @@ namespace Viry3D
 	private:
 		Vector<Ref<DescriptorSet>> m_descriptor_sets;
 		Vector<Ref<UniformBuffer>> m_uniform_buffers;
+		Vector<Ref<DescriptorSet>> m_descriptor_sets_shadowmap;
+		Vector<Ref<UniformBuffer>> m_uniform_buffers_shadowmap;
 	};
 }

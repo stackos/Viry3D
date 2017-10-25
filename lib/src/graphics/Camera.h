@@ -31,6 +31,12 @@ namespace Viry3D
 {
 	class RenderPass;
 
+	enum class CameraRenderMode
+	{
+		Normal,
+		ShadowMap,
+	};
+
 	class Camera: public Component
 	{
 		DECLARE_COM_CLASS(Camera, Component);
@@ -77,6 +83,8 @@ namespace Viry3D
 		int GetTargetWidth() const;
 		int GetTargetHeight() const;
 		void SetPostRenderFunc(Action func) { m_post_render_func = func; }
+		void SetRenderMode(CameraRenderMode mode) { m_render_mode = mode; }
+		CameraRenderMode GetRenderMode() { return m_render_mode; }
 
 	protected:
 		virtual void OnTranformChanged();
@@ -121,5 +129,6 @@ namespace Viry3D
 		Frustum m_frustum;
 		Ref<RenderPass> m_render_pass;
 		Action m_post_render_func;
+		CameraRenderMode m_render_mode;
 	};
 }

@@ -174,6 +174,18 @@ namespace Viry3D
 		return shader;
 	}
 
+	Ref<Shader> Shader::ReplaceToShadowMapShader(const Ref<Shader>& shader)
+	{
+		if (shader->GetName().StartsWith("SkinnedMesh"))
+		{
+			return Shader::Find("SkinnedMesh/ShadowMap");
+		}
+		else
+		{
+			return Shader::Find("ShadowMap");
+		}
+	}
+
 	int Shader::GetQueue() const
 	{
 		return m_xml.queue;

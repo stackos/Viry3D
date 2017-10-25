@@ -18,6 +18,7 @@
 #include "SkinnedMeshRenderer.h"
 #include "GameObject.h"
 #include "graphics/Material.h"
+#include "graphics/Camera.h"
 
 namespace Viry3D
 {
@@ -105,7 +106,11 @@ namespace Viry3D
 			size = sizeof(Matrix4x4);
 		}
 		
-		auto& shader = this->GetSharedMaterials()[material_index]->GetShader();
+		auto shader = this->GetSharedMaterials()[material_index]->GetShader();
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			shader = Shader::ReplaceToShadowMapShader(shader);
+		}
 		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, buffer, size, m_lightmap_index);
 	}
 }

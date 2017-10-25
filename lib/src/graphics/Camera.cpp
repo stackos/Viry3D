@@ -63,7 +63,8 @@ namespace Viry3D
 
 	Camera::Camera():
 		m_culling_mask(-1),
-		m_matrix_dirty(true)
+		m_matrix_dirty(true),
+		m_render_mode(CameraRenderMode::Normal)
 	{
 		m_cameras.AddLast(this);
 
