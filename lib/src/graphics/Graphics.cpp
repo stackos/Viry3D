@@ -90,7 +90,6 @@ namespace Viry3D
 
 		m_display->BeginFrame();
 
-		Camera::PrepareAll();
 		Camera::RenderAll();
 
 		m_display->EndFrame();

@@ -158,23 +158,6 @@ namespace Viry3D
 		Renderer::OnPause();
 	}
 
-	void Camera::PrepareAll()
-	{
-		Profiler::SampleBegin("Camera::PrepareAll");
-
-		for (auto i : m_cameras)
-		{
-			if (i->CanRender())
-			{
-				m_current = i;
-				i->Prepare();
-			}
-		}
-		m_current = NULL;
-
-		Profiler::SampleEnd();
-	}
-
 	void Camera::RenderAll()
 	{
 		Profiler::SampleBegin("Camera::RenderAll");
@@ -184,6 +167,7 @@ namespace Viry3D
 			if (i->CanRender())
 			{
 				m_current = i;
+				i->Prepare();
 				i->Render();
 			}
 		}

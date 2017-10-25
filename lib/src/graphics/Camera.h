@@ -38,7 +38,6 @@ namespace Viry3D
 	public:
 		static void Init();
 		static void Deinit();
-		static void PrepareAll();
 		static void RenderAll();
 		static Camera* Current() { return m_current; }
 		static bool IsValidCamera(Camera* cam);
