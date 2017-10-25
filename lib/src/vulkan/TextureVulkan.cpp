@@ -60,8 +60,11 @@ namespace Viry3D
 
 		switch (format)
 		{
-			case Viry3D::RenderTextureFormat::RGBA32:
+			case RenderTextureFormat::RGBA32:
 				m_format = VK_FORMAT_R8G8B8A8_UNORM;
+				break;
+			case RenderTextureFormat::R8:
+				m_format = VK_FORMAT_R8_UNORM;
 				break;
 			default:
 				assert(!"color format not invalid");

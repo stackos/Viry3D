@@ -50,7 +50,7 @@ public:
 		int w = 1024;
 		int h = 1024;
 		auto rt = RefMake<FrameBuffer>();
-		rt->color_texture = RenderTexture::Create(w, h, RenderTextureFormat::RGBA32, DepthBuffer::Depth_0, FilterMode::Bilinear);
+		rt->color_texture = RenderTexture::Create(w, h, RenderTextureFormat::R8, DepthBuffer::Depth_0, FilterMode::Bilinear);
 		rt->depth_texture = RenderTexture::Create(w, h, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
 		
 		auto camera_shadow = GameObject::Create("camera")->AddComponent<Camera>();
@@ -80,7 +80,7 @@ public:
 
 		camera->SetPostRenderFunc([=]() {
 			Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
-			Graphics::DrawQuad(&rect, rt->color_texture, true);
+			Graphics::DrawQuad(&rect, rt->depth_texture, true);
 		});
 	}
 };

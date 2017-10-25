@@ -34,7 +34,7 @@ namespace Viry3D
 		RGHalf = 13,
 		RFloat = 14,		//Scalar (R) render texture format, 32 bit floating point
 //		RHalf = 15,
-//		R8 = 16,			//Scalar (R) render texture format, 8 bit fixed point
+		R8 = 16,			//Scalar (R) render texture format, 8 bit fixed point
 //		ARGBInt = 17,		//Four channel (ARGB) render texture format, 32 bit signed integer per channel
 //		RGInt = 18,
 //		RInt = 19,

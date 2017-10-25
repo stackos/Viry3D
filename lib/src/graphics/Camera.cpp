@@ -316,7 +316,7 @@ namespace Viry3D
 
 		if (m_frame_buffer)
 		{
-			width = m_frame_buffer->color_texture->GetWidth();
+			width = m_frame_buffer->color_texture ? m_frame_buffer->color_texture->GetWidth() : m_frame_buffer->depth_texture->GetWidth();
 		}
 		else
 		{
@@ -332,7 +332,7 @@ namespace Viry3D
 
 		if (m_frame_buffer)
 		{
-			height = m_frame_buffer->color_texture->GetHeight();
+			height = m_frame_buffer->color_texture ? m_frame_buffer->color_texture->GetHeight() : m_frame_buffer->depth_texture->GetHeight();
 		}
 		else
 		{

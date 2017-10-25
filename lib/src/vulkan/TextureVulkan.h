@@ -41,6 +41,7 @@ namespace Viry3D
 		void CreateDepthRenderTexture();
 		void CreateTexture2D();
 		void UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors);
+		void SetExternalTexture2D(void* texture) { }
 
 	private:
 		void Create(VkImageTiling tiling,

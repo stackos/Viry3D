@@ -149,7 +149,7 @@ namespace Viry3D
         texture->SetWrapMode(TextureWrapMode::Clamp);
         texture->SetFilterMode(FilterMode::Bilinear);
         
-        texture->SetExternalTexture2D((GLuint) (size_t) external_texture);
+        texture->SetExternalTexture2D(external_texture);
         texture->UpdateSampler();
         
         return texture;
@@ -157,7 +157,7 @@ namespace Viry3D
     
     void Texture2D::UpdateExternalTexture(void* external_texture)
     {
-        this->SetExternalTexture2D((GLuint) (size_t) external_texture);
+        this->SetExternalTexture2D(external_texture);
     }
 
 	void Texture2D::UpdateTexture(int x, int y, int w, int h, const ByteBuffer& colors)

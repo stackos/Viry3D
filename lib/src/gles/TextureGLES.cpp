@@ -50,6 +50,12 @@ namespace Viry3D
 			format = GL_RGBA;
 			type = GL_UNSIGNED_BYTE;
 		}
+		else if (texture_format == RenderTextureFormat::R8)
+		{
+			m_format = GL_RED;
+			format = GL_RED;
+			type = GL_UNSIGNED_BYTE;
+		}
 		else
 		{
 			assert(!"color format not invalid");
@@ -120,13 +126,8 @@ namespace Viry3D
 		}
 		else if (texture_format == TextureFormat::Alpha8)
 		{
-#if VR_MAC
 			m_format = GL_RED;
 			format = GL_RED;
-#else
-            m_format = GL_LUMINANCE;
-            format = GL_LUMINANCE;
-#endif
 			type = GL_UNSIGNED_BYTE;
 		}
 		else
@@ -158,11 +159,7 @@ namespace Viry3D
 		}
 		else if (texture_format == TextureFormat::Alpha8)
 		{
-#if VR_MAC
             format = GL_RED;
-#else
-            format = GL_LUMINANCE;
-#endif
 			type = GL_UNSIGNED_BYTE;
 		}
 		else
@@ -204,9 +201,9 @@ namespace Viry3D
 		LogGLError();
 	}
 
-    void TextureGLES::SetExternalTexture2D(GLuint texture)
+    void TextureGLES::SetExternalTexture2D(void* texture)
     {
-        m_texture = texture;
+        m_texture = (GLuint) (size_t) texture;
         m_external = true;
     }
     
