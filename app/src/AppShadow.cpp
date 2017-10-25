@@ -62,6 +62,7 @@ public:
 		camera_shadow->SetCullingMask(1 << 0);
 		camera_shadow->GetTransform()->SetRotation(Quaternion::Euler(45, 145, 0));
 		camera_shadow->SetFrameBuffer(rt);
+		camera_shadow->SetRenderMode(CameraRenderMode::ShadowMap);
 
 		auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
 		obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));

@@ -1,0 +1,46 @@
+<Shader name="ShadowMap" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="2">
+			<Uniform name="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<Include name="Base.in"/>
+		<Source>
+UniformBuffer(1, 0) uniform buf_vs_obj {
+	mat4 _World;
+} u_buf_obj;
+
+UniformBuffer(0, 2) uniform buf_vs {
+	mat4 _ViewProjection;
+} u_buf;
+
+layout (location = 0) in vec4 a_pos;
+
+void main() {
+	gl_Position = a_pos * u_buf_obj._World * u_buf._ViewProjection;
+
+	vulkan_convert();
+}
+		</Source>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Source>
+precision mediump float;
+
+layout (location = 0) out vec4 o_frag;
+
+void main() {
+    o_frag = vec4(1.0, 1.0, 1.0, 1.0);
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>
