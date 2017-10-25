@@ -69,12 +69,11 @@ void AppBlur::Start()
 	anim->UpdateAnimationState("WAIT03", state);
 	anim->Play("WAIT03");
 
-	auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
-	auto mat = Material::Create("Diffuse");
-	mat->SetMainColor(Color(1, 1, 1, 1));
-	ground->SetSharedMaterial(mat);
 	auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
 	mesh->Update();
+
+	auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
+	ground->SetSharedMaterial(Material::Create("Diffuse"));
 	ground->SetSharedMesh(mesh);
 
 	m_image = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");

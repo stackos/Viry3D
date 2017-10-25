@@ -18,8 +18,11 @@
 #include "Main.h"
 #include "Application.h"
 #include "GameObject.h"
-#include "graphics/Camera.h"
+#include "Resource.h"
 #include "ios/ARScene.h"
+#include "graphics/Camera.h"
+#include "graphics/Material.h"
+#include "renderer/MeshRenderer.h"
 
 using namespace Viry3D;
 
@@ -39,6 +42,20 @@ public:
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
         camera->SetCullingMask(1 << 0);
         
+		// plane test
+		{
+			camera->GetTransform()->SetPosition(Vector3(0, 1, -1));
+			camera->GetTransform()->SetRotation(Quaternion::Euler(45, 0, 0));
+
+			auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
+			mesh->Update();
+
+			auto plane = GameObject::Create("ground")->AddComponent<MeshRenderer>();
+			plane->GetTransform()->SetScale(Vector3(0.1f, 0.1f, 0.1f));
+			plane->SetSharedMaterial(Material::Create("Diffuse"));
+			plane->SetSharedMesh(mesh);
+		}
+
 #if VR_IOS
         if (ARScene::IsSupported())
         {
