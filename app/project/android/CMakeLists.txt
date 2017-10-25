@@ -338,6 +338,7 @@ add_library(Viry3DApp SHARED
             ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
             ${CMAKE_SOURCE_DIR}/app/src/main/jni/jni.cpp
             ${VIRY3D_APP_SRC_DIR}/AppAnim.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppAR.cpp
             ${VIRY3D_APP_SRC_DIR}/AppBlur.cpp
             ${VIRY3D_APP_SRC_DIR}/AppClear.cpp
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
