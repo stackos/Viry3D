@@ -1,11 +1,11 @@
 <Shader name="Lightmap/BumpedSpecularTerrain" queue="Geometry">
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
-			<Uniform name ="_ViewProjection" size="64"/>
-			<Uniform name ="_Splat0_ST" size="16"/>
-			<Uniform name ="_Splat1_ST" size="16"/>
-			<Uniform name ="_Splat2_ST" size="16"/>
-			<Uniform name ="_Control_ST" size="16"/>
+			<Uniform name="_ViewProjection" size="64"/>
+			<Uniform name="_Splat0_ST" size="16"/>
+			<Uniform name="_Splat1_ST" size="16"/>
+			<Uniform name="_Splat2_ST" size="16"/>
+			<Uniform name="_Control_ST" size="16"/>
 		</UniformBuffer>
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>
@@ -19,14 +19,14 @@
 	<PixelShader name="ps">
 		<Sampler name="_Control" binding="3"/>
 		<UniformBuffer name="buf_ps" binding="4">
-			<Uniform name ="_WorldSpaceLightPos" size="16"/>
-			<Uniform name ="_LightColor" size="16"/>
-			<Uniform name ="_WorldSpaceCameraPos" size="16"/>
-			<Uniform name ="_Spec0" size="16"/>
-			<Uniform name ="_Spec1" size="16"/>
-			<Uniform name ="_Spec2" size="16"/>
-			<Uniform name ="_Smoothness" size="16"/>
-			<Uniform name ="_Color" size="16"/>
+			<Uniform name="_WorldSpaceLightPos" size="16"/>
+			<Uniform name="_LightColor" size="16"/>
+			<Uniform name="_WorldSpaceCameraPos" size="16"/>
+			<Uniform name="_Spec0" size="16"/>
+			<Uniform name="_Spec1" size="16"/>
+			<Uniform name="_Spec2" size="16"/>
+			<Uniform name="_Smoothness" size="16"/>
+			<Uniform name="_Color" size="16"/>
 		</UniformBuffer>
 		<Sampler name="_NHxRoughness" binding="5" default="black"/>
 		<Sampler name="_Splat0" binding="6"/>

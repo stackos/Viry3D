@@ -1,8 +1,8 @@
 <Shader name="Particles/Alpha Blended" queue="Transparent">
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
-			<Uniform name ="_ViewProjection" size="64"/>
-			<Uniform name ="_TintColor" size="16"/>
+			<Uniform name="_ViewProjection" size="64"/>
+			<Uniform name="_TintColor" size="16"/>
 		</UniformBuffer>
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Color" location="1"/>

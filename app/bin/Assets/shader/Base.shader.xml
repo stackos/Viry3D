@@ -1,7 +1,7 @@
 <Shader name="Base" queue="Geometry">
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
-			<Uniform name ="_ViewProjection" size="64"/>
+			<Uniform name="_ViewProjection" size="64"/>
 		</UniformBuffer>
     
 		<!--

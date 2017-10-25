@@ -1,7 +1,7 @@
 <Shader name="Water" queue="Transparent">
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
-			<Uniform name ="_ViewProjection" size="64"/>
+			<Uniform name="_ViewProjection" size="64"/>
 		</UniformBuffer>
 		
 		<VertexAttribute name="Vertex" location="0"/>
@@ -35,13 +35,13 @@ void main() {
 		<Sampler name="_MainTex" binding="3"/>
 		
 		<UniformBuffer name="buf_ps" binding="4">
-			<Uniform name ="_Color" size="16"/>
-			<Uniform name ="_MainTex_ST" size="16"/>
-			<Uniform name ="_Time" size="16"/>
-			<Uniform name ="_Speed" size="16"/>
-			<Uniform name ="_Distort" size="16"/>
-			<Uniform name ="_Intensity" size="16"/>
-			<Uniform name ="_Alpha" size="16"/>
+			<Uniform name="_Color" size="16"/>
+			<Uniform name="_MainTex_ST" size="16"/>
+			<Uniform name="_Time" size="16"/>
+			<Uniform name="_Speed" size="16"/>
+			<Uniform name="_Distort" size="16"/>
+			<Uniform name="_Intensity" size="16"/>
+			<Uniform name="_Alpha" size="16"/>
 		</UniformBuffer>
 		
 		<Source>

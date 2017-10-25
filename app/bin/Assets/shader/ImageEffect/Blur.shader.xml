@@ -1,7 +1,7 @@
 <Shader name="ImageEffect/Blur" queue="Geometry">
 	<VertexShader name="vs_downsample">
         <UniformBuffer name="buf_vs" binding="2">
-            <Uniform name ="_MainTex_TexelSize" size="16"/>
+            <Uniform name="_MainTex_TexelSize" size="16"/>
         </UniformBuffer>
 
         <VertexAttribute name="Vertex" location="0"/>
@@ -64,8 +64,8 @@ void main() {
     
     <VertexShader name="vs_blur_horizontal">
         <UniformBuffer name="buf_vs" binding="2">
-            <Uniform name ="_MainTex_TexelSize" size="16"/>
-            <Uniform name ="_Parameter" size="16"/>
+            <Uniform name="_MainTex_TexelSize" size="16"/>
+            <Uniform name="_Parameter" size="16"/>
         </UniformBuffer>
         
         <VertexAttribute name="Vertex" location="0"/>
@@ -100,8 +100,8 @@ void main() {
     
     <VertexShader name="vs_blur_vertical">
         <UniformBuffer name="buf_vs" binding="2">
-            <Uniform name ="_MainTex_TexelSize" size="16"/>
-            <Uniform name ="_Parameter" size="16"/>
+            <Uniform name="_MainTex_TexelSize" size="16"/>
+            <Uniform name="_Parameter" size="16"/>
         </UniformBuffer>
         
         <VertexAttribute name="Vertex" location="0"/>

@@ -1,7 +1,7 @@
 <Shader name="Lightmap/Cutout" queue="AlphaTest">
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
-			<Uniform name ="_ViewProjection" size="64"/>
+			<Uniform name="_ViewProjection" size="64"/>
 		</UniformBuffer>
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>
@@ -13,7 +13,7 @@
 	<PixelShader name="ps">
 		<Sampler name="_MainTex" binding="3"/>
 		<UniformBuffer name="buf_ps" binding="4">
-			<Uniform name ="_CutAlpha" size="16"/>
+			<Uniform name="_CutAlpha" size="16"/>
 		</UniformBuffer>
 		<Include name="LightmapCutout.ps"/>
 	</PixelShader>

@@ -1,7 +1,7 @@
 <Shader name="Lightmap/BumpedSpecularCutout" queue="AlphaTest">
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
-			<Uniform name ="_ViewProjection" size="64"/>
+			<Uniform name="_ViewProjection" size="64"/>
 		</UniformBuffer>
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>
@@ -15,14 +15,14 @@
 	<PixelShader name="ps">
 		<Sampler name="_MainTex" binding="3"/>
 		<UniformBuffer name="buf_ps" binding="4">
-			<Uniform name ="_Color" size="16"/>
-			<Uniform name ="_Spec" size="16"/>
-			<Uniform name ="_Smoothness" size="16"/>
-			<Uniform name ="_EmissiveColor" size="16"/>
-			<Uniform name ="_WorldSpaceLightPos" size="16"/>
-			<Uniform name ="_LightColor" size="16"/>
-			<Uniform name ="_WorldSpaceCameraPos" size="16"/>
-			<Uniform name ="_CutAlpha" size="16"/>
+			<Uniform name="_Color" size="16"/>
+			<Uniform name="_Spec" size="16"/>
+			<Uniform name="_Smoothness" size="16"/>
+			<Uniform name="_EmissiveColor" size="16"/>
+			<Uniform name="_WorldSpaceLightPos" size="16"/>
+			<Uniform name="_LightColor" size="16"/>
+			<Uniform name="_WorldSpaceCameraPos" size="16"/>
+			<Uniform name="_CutAlpha" size="16"/>
 		</UniformBuffer>
 		<Sampler name="_Normal" binding="5" default="bump"/>
 		<Sampler name="_SpecMap" binding="6" default="white"/>
