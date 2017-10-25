@@ -169,6 +169,7 @@
     <ClCompile Include="..\..\src\AppAnim.cpp" />
     <ClCompile Include="..\..\src\AppBlur.cpp" />
     <ClCompile Include="..\..\src\AppScene.cpp" />
+    <ClCompile Include="..\..\src\AppShadow.cpp" />
     <ClCompile Include="..\..\src\AppTerrain.cpp" />
     <ClCompile Include="..\..\src\AppWatch.cpp" />
   </ItemGroup>
