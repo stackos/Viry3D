@@ -38,6 +38,11 @@ public:
 		this->SetInitSize(1280, 720);
 	}
 
+	virtual ~AppShadow()
+	{
+		//Graphics::GetDisplay()->EndRecord();
+	}
+
 	virtual void Start()
 	{
 		this->CreateFPSUI(20, 1, 1);
@@ -47,11 +52,11 @@ public:
 		camera->GetTransform()->SetPosition(Vector3(0, 3, -5.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
-		int w = 1024;
-		int h = 1024;
+		int shadowmap_size = 1024;
+
 		auto rt = RefMake<FrameBuffer>();
-		rt->color_texture = RenderTexture::Create(w, h, RenderTextureFormat::R8, DepthBuffer::Depth_0, FilterMode::Bilinear);
-		rt->depth_texture = RenderTexture::Create(w, h, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
+		rt->color_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::R8, DepthBuffer::Depth_0, FilterMode::Bilinear);
+		rt->depth_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
 		
 		auto camera_shadow = GameObject::Create("camera")->AddComponent<Camera>();
 		camera_shadow->SetOrthographic(true);
@@ -75,9 +80,14 @@ public:
 		auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
 		mesh->Update();
 
+		float shadow_bias = 0.005f;
+		float shadow_strength = 0.7f;
+
 		auto mat = Material::Create("Shadow/Diffuse");
 		mat->SetTexture("_ShadowMap", rt->depth_texture);
 		mat->SetMatrix("_ViewProjectionLight", camera_shadow->GetViewProjectionMatrix());
+		mat->SetVector("_ShadowMapTexel", Vector4(1.0f / shadowmap_size, 1.0f / shadowmap_size));
+		mat->SetVector("_ShadowParam", Vector4(shadow_bias, shadow_strength));
 
 		auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
 		ground->SetSharedMaterial(mat);
@@ -87,6 +97,8 @@ public:
 			Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
 			Graphics::DrawQuad(&rect, rt->depth_texture, true);
 		});
+
+		//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 	}
 };
 

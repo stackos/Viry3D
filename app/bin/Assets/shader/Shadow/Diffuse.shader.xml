@@ -39,6 +39,8 @@ void main() {
 		<Sampler name="_ShadowMap" binding="4"/>
 		<UniformBuffer name="buf_ps" binding="5">
 			<Uniform name="_ViewProjectionLight" size="64"/>
+			<Uniform name="_ShadowMapTexel" size="16"/>
+			<Uniform name="_ShadowParam" size="16"/>
 		</UniformBuffer>
 		<Source>
 precision mediump float;
@@ -48,6 +50,8 @@ UniformTexture(0, 4) uniform sampler2D _ShadowMap;
 
 UniformBuffer(0, 5) uniform buf_ps {
 	mat4 _ViewProjectionLight;
+	vec4 _ShadowMapTexel;
+	vec4 _ShadowParam;
 } u_buf;
 
 Varying(0) in vec2 v_uv;
@@ -55,6 +59,40 @@ Varying(1) in vec4 v_pos_proj;
 Varying(2) in vec4 v_pos_world;
 
 layout (location = 0) out vec4 o_frag;
+
+float texture_compare(vec2 uv, float compare)
+{
+	return step(compare * 0.5 + 0.5, texture(_ShadowMap, uv).r);
+}
+
+float PCF(vec2 uv, vec2 size, float z)
+{
+	float bias = u_buf._ShadowParam.x;
+	float strength = u_buf._ShadowParam.y;
+	float shadow_weak = clamp(1.0 - strength, 0.0, 1.0);
+	float shadow = 0.0;
+	const int pcf_size = 1;
+
+	for (int i = -pcf_size; i &lt;= pcf_size; i++)
+	{
+		for (int j = -pcf_size; j &lt;= pcf_size; j++)
+		{
+			vec2 off = vec2(float(i), float(j)) * size;
+			float compare = texture_compare(uv + off, z - bias);
+
+			if (compare &lt; 1.0)
+			{
+				shadow += shadow_weak;
+			}
+			else
+			{
+				shadow += 1.0;
+			}
+		}
+	}
+	
+	return shadow / float((pcf_size * 2 + 1) * (pcf_size * 2 + 1));
+}
 
 float sample_shadow(float depth)
 {
@@ -73,13 +111,14 @@ float sample_shadow(float depth)
 		uv_shadow.y > 0.0 &amp;&amp;
 		uv_shadow.y &lt; 1.0)
 	{
-		shadow = 0.0;//PCF(uv_shadow, ShadowMapTexel.xy, pos_light.z);
+		shadow = PCF(uv_shadow, u_buf._ShadowMapTexel.xy, pos_light.z);
 	}
 
 	return shadow;
 }
 
-void main() {
+void main()
+{
 	vec4 c = texture(_MainTex, v_uv);
 
 	float depth = v_pos_proj.z / v_pos_proj.w;
