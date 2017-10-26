@@ -1,0 +1,64 @@
+#define shadow_map_vs(pos_world)		\
+{										\
+	v_pos_world = pos_world;			\
+}
+
+#define shadow_map_texture(compare, offset_uv, bias_z)									\
+{																						\
+	compare = step(bias_z * 0.5 + 0.5, texture(_ShadowMap, offset_uv).r);				\
+}
+
+#define shadow_map_pcf(shadow_out, uv, size, z)											\
+{																						\
+	float bias = u_buf._ShadowParam.x;													\
+	float strength = u_buf._ShadowParam.y;												\
+	float shadow_weak = clamp(1.0 - strength, 0.0, 1.0);								\
+	float shadow_add = 0.0;																\
+	const int pcf_size = 1;																\
+																						\
+	for (int i = -pcf_size; i <= pcf_size; i++)											\
+	{																					\
+		for (int j = -pcf_size; j <= pcf_size; j++)										\
+		{																				\
+			vec2 off = vec2(float(i), float(j)) * size;									\
+			float compare;																\
+			vec2 offset_uv = uv + off;													\
+			float bias_z = z - bias;													\
+			shadow_map_texture(compare, offset_uv, bias_z);								\
+																						\
+			if (compare < 1.0)															\
+			{																			\
+				shadow_add += shadow_weak;												\
+			}																			\
+			else																		\
+			{																			\
+				shadow_add += 1.0;														\
+			}																			\
+		}																				\
+	}																					\
+																						\
+	shadow_out = shadow_add / float((pcf_size * 2 + 1) * (pcf_size * 2 + 1));			\
+}
+
+#define shadow_map_ps(shadow)															\
+{																						\
+	shadow = 1.0;																		\
+																						\
+	vec4 pos_light_4 = v_pos_world * u_buf._ViewProjectionLight;						\
+	vec3 pos_light = pos_light_4.xyz / pos_light_4.w;									\
+	pos_light.z = min(1.0, pos_light.z);												\
+																						\
+	vec2 uv_shadow = vec2(0.0, 0.0);													\
+	uv_shadow.x = 0.5 + pos_light.x * 0.5;												\
+	uv_shadow.y = 0.5 + pos_light.y * 0.5;												\
+																						\
+	if (uv_shadow.x > 0.0 &&															\
+		uv_shadow.x < 1.0 &&															\
+		uv_shadow.y > 0.0 &&															\
+		uv_shadow.y < 1.0)																\
+	{																					\
+		vec2 size = u_buf._ShadowMapTexel.xy;											\
+		float z = pos_light.z;															\
+		shadow_map_pcf(shadow, uv_shadow, size, z);										\
+	}																					\
+}
