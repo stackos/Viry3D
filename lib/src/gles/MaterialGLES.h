@@ -39,5 +39,6 @@ namespace Viry3D
 
 	private:
 		Vector<Ref<UniformBuffer>> m_uniform_buffers;
+		Vector<Ref<UniformBuffer>> m_uniform_buffers_shadowmap;
 	};
 }

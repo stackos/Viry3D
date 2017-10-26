@@ -75,10 +75,9 @@ public:
 		auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
 		mesh->Update();
 
-		auto mat = Material::Create("Diffuse");
-		//auto mat = Material::Create("Shadow/Diffuse");
-		//mat->SetTexture("_ShadowMap", rt->depth_texture);
-		//mat->SetMatrix("_ViewProjectionLight", camera_shadow->GetViewProjectionMatrix());
+		auto mat = Material::Create("Shadow/Diffuse");
+		mat->SetTexture("_ShadowMap", rt->depth_texture);
+		mat->SetMatrix("_ViewProjectionLight", camera_shadow->GetViewProjectionMatrix());
 
 		auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
 		ground->SetSharedMaterial(mat);

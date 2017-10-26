@@ -37,14 +37,29 @@ namespace Viry3D
 			shader = Shader::ReplaceToShadowMapShader(shader);
 		}
 
-		if (m_uniform_buffers.Size() < pass_index + 1)
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
 		{
-			m_uniform_buffers.Resize(pass_index + 1);
-		}
+			if (m_uniform_buffers_shadowmap.Size() < pass_index + 1)
+			{
+				m_uniform_buffers_shadowmap.Resize(pass_index + 1);
+			}
 
-		if (!m_uniform_buffers[pass_index])
+			if (!m_uniform_buffers_shadowmap[pass_index])
+			{
+				m_uniform_buffers_shadowmap[pass_index] = shader->CreateUniformBuffer(pass_index);
+			}
+		}
+		else
 		{
-			m_uniform_buffers[pass_index] = shader->CreateUniformBuffer(pass_index);
+			if (m_uniform_buffers.Size() < pass_index + 1)
+			{
+				m_uniform_buffers.Resize(pass_index + 1);
+			}
+
+			if (!m_uniform_buffers[pass_index])
+			{
+				m_uniform_buffers[pass_index] = shader->CreateUniformBuffer(pass_index);
+			}
 		}
 	}
 
@@ -54,7 +69,16 @@ namespace Viry3D
 
 		void* mapped = NULL;
 
-		auto uniform_buffer = m_uniform_buffers[pass_index];
+		Ref<UniformBuffer> uniform_buffer;
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			uniform_buffer = m_uniform_buffers_shadowmap[pass_index];
+		}
+		else
+		{
+			uniform_buffer = m_uniform_buffers[pass_index];
+		}
+		
 		if (uniform_buffer)
 		{
 			glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer->GetBuffer());
@@ -72,7 +96,16 @@ namespace Viry3D
 	{
 		LogGLError();
 
-		auto uniform_buffer = m_uniform_buffers[pass_index];
+		Ref<UniformBuffer> uniform_buffer;
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			uniform_buffer = m_uniform_buffers_shadowmap[pass_index];
+		}
+		else
+		{
+			uniform_buffer = m_uniform_buffers[pass_index];
+		}
+
 		if (uniform_buffer)
 		{
 			/*
@@ -155,9 +188,17 @@ namespace Viry3D
 			glUniform1i(location, i + 1);
 		}
 
-		auto& uniform_buffer_infos = shader->GetUniformBufferInfos(pass_index);
-		auto& uniform_buffer = m_uniform_buffers[pass_index];
+		Ref<UniformBuffer> uniform_buffer;
+		if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
+		{
+			uniform_buffer = m_uniform_buffers_shadowmap[pass_index];
+		}
+		else
+		{
+			uniform_buffer = m_uniform_buffers[pass_index];
+		}
 
+		auto& uniform_buffer_infos = shader->GetUniformBufferInfos(pass_index);
 		for (auto i : uniform_buffer_infos)
 		{
 			glBindBufferRange(GL_UNIFORM_BUFFER, i->binding, uniform_buffer->GetBuffer(), i->offset, i->size);
