@@ -6,7 +6,6 @@
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>
 		<Include name="Base.in"/>
-		<Include name="ShadowMap.in"/>
 		<Source>
 UniformBuffer(1, 0) uniform buf_vs_obj {
 	mat4 _World;
@@ -27,7 +26,7 @@ void main() {
 	gl_Position = pos_world * u_buf._ViewProjection;
 	v_uv = a_uv;
 	
-	shadow_map_vs(pos_world);
+	v_pos_world = pos_world;
 	
 	vulkan_convert();
 }
