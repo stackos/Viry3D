@@ -1,0 +1,102 @@
+<Shader name="Shadow/Diffuse" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="2">
+			<Uniform name="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<Include name="Base.in"/>
+		<Source>
+UniformBuffer(1, 0) uniform buf_vs_obj {
+	mat4 _World;
+} u_buf_obj;
+
+UniformBuffer(0, 2) uniform buf_vs {
+	mat4 _ViewProjection;
+} u_buf;
+
+layout (location = 0) in vec4 a_pos;
+layout (location = 1) in vec2 a_uv;
+
+Varying(0) out vec2 v_uv;
+Varying(1) out vec4 v_pos_proj;
+Varying(2) out vec4 v_pos_world;
+		
+void main() {
+	vec4 pos_world = a_pos * u_buf_obj._World;
+	gl_Position = pos_world * u_buf._ViewProjection;
+	v_uv = a_uv;
+	v_pos_proj = gl_Position;
+	v_pos_world = pos_world;
+	
+	vulkan_convert();
+}
+		</Source>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_MainTex" binding="3"/>
+		<Sampler name="_ShadowMap" binding="4"/>
+		<UniformBuffer name="buf_ps" binding="5">
+			<Uniform name="_ViewProjectionLight" size="64"/>
+		</UniformBuffer>
+		<Source>
+precision mediump float;
+
+UniformTexture(0, 3) uniform sampler2D _MainTex;
+UniformTexture(0, 4) uniform sampler2D _ShadowMap;
+
+UniformBuffer(0, 5) uniform buf_ps {
+	mat4 _ViewProjectionLight;
+} u_buf;
+
+Varying(0) in vec2 v_uv;
+Varying(1) in vec4 v_pos_proj;
+Varying(2) in vec4 v_pos_world;
+
+layout (location = 0) out vec4 o_frag;
+
+float sample_shadow(float depth)
+{
+	float shadow = 1.0;
+
+	vec4 pos_light_4 = v_pos_world * u_buf._ViewProjectionLight;
+	vec3 pos_light = pos_light_4.xyz / pos_light_4.w;
+	pos_light.z = min(1.0, pos_light.z);
+
+	vec2 uv_shadow = vec2(0.0, 0.0);
+	uv_shadow.x = 0.5 + pos_light.x * 0.5;
+	uv_shadow.y = 0.5 + pos_light.y * 0.5;
+
+	if (uv_shadow.x > 0.0 &amp;&amp;
+		uv_shadow.x &lt; 1.0 &amp;&amp;
+		uv_shadow.y > 0.0 &amp;&amp;
+		uv_shadow.y &lt; 1.0)
+	{
+		shadow = 0.0;//PCF(uv_shadow, ShadowMapTexel.xy, pos_light.z);
+	}
+
+	return shadow;
+}
+
+void main() {
+	vec4 c = texture(_MainTex, v_uv);
+
+	float depth = v_pos_proj.z / v_pos_proj.w;
+	depth = depth * 0.5 + 0.5;
+	float shadow = sample_shadow(depth);
+	c = c * shadow;
+	
+	o_frag = c;
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>
