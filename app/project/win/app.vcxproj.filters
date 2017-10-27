@@ -25,9 +25,6 @@
     <ClCompile Include="..\..\src\AppBlur.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\AppScene.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\AppFlappyBird.cpp">
       <Filter>src</Filter>
     </ClCompile>
