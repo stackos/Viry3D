@@ -87,7 +87,7 @@ namespace Viry3D
 			assert(!err);
 		}
 
-		if (m_memory == NULL)
+		if (m_memory == VK_NULL_HANDLE)
 		{
 			VkMemoryRequirements mem_reqs;
 			vkGetBufferMemoryRequirements(device, m_buffer, &mem_reqs);
