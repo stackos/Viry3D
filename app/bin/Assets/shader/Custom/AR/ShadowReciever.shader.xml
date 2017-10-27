@@ -34,9 +34,8 @@ void main() {
 	</VertexShader>
 
 	<PixelShader name="ps">
-		<Sampler name="_MainTex" binding="3"/>
-		<Sampler name="_ShadowMap" binding="4"/>
-		<UniformBuffer name="buf_ps" binding="5">
+		<Sampler name="_ShadowMap" binding="3"/>
+		<UniformBuffer name="buf_ps" binding="4">
 			<Uniform name="_ViewProjectionLight" size="64"/>
 			<Uniform name="_ShadowMapTexel" size="16"/>
 			<Uniform name="_ShadowParam" size="16"/>
@@ -45,10 +44,9 @@ void main() {
 		<Source>
 precision mediump float;
 
-UniformTexture(0, 3) uniform sampler2D _MainTex;
-UniformTexture(0, 4) uniform sampler2D _ShadowMap;
+UniformTexture(0, 3) uniform sampler2D _ShadowMap;
 
-UniformBuffer(0, 5) uniform buf_ps {
+UniformBuffer(0, 4) uniform buf_ps {
 	mat4 _ViewProjectionLight;
 	vec4 _ShadowMapTexel;
 	vec4 _ShadowParam;
@@ -61,12 +59,12 @@ layout (location = 0) out vec4 o_frag;
 
 void main()
 {
-	vec4 c = texture(_MainTex, v_uv);
+	vec4 c = vec4(0.0);
 
 	float shadow;
 	shadow_map_ps(shadow);
 	
-	c = c * shadow;
+	c.a = 1.0 - shadow;
 	
 	o_frag = c;
 }
@@ -74,6 +72,8 @@ void main()
 	</PixelShader>
 
 	<RenderState name="rs">
+		<Blend src="SrcAlpha"
+			   dst="OneMinusSrcAlpha"/>
 	</RenderState>
 
 	<Pass name="pass"
