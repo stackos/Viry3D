@@ -23,6 +23,7 @@
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "renderer/MeshRenderer.h"
+#include "container/Map.h"
 
 using namespace Viry3D;
 
@@ -39,22 +40,13 @@ public:
     {
         this->CreateFPSUI(20, 1, 1);
         
-        auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-        camera->SetCullingMask(1 << 0);
+        m_camera = GameObject::Create("camera")->AddComponent<Camera>();
+        m_camera->SetCullingMask(1 << 0);
+        m_camera->SetFrustumCulling(false);
         
-		// plane test
-		{
-			camera->GetTransform()->SetPosition(Vector3(0, 1, -1));
-			camera->GetTransform()->SetRotation(Quaternion::Euler(45, 0, 0));
-
-			auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
-			mesh->Update();
-
-			auto plane = GameObject::Create("ground")->AddComponent<MeshRenderer>();
-			plane->GetTransform()->SetScale(Vector3(0.1f, 0.1f, 0.1f));
-			plane->SetSharedMaterial(Material::Create("Diffuse"));
-			plane->SetSharedMesh(mesh);
-		}
+        //m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
+        m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
+        m_plane_mesh->Update();
 
 #if VR_IOS
         if (ARScene::IsSupported())
@@ -72,10 +64,56 @@ public:
         {
             m_ar->UpdateSession();
             
-            auto anchors = m_ar->GetAnchors();
+            const auto& anchors = m_ar->GetAnchors();
             if (anchors.Size() > 0)
             {
-                Log("anchor count:%d", anchors.Size());
+                m_camera->SetViewMatrixExternal(m_ar->GetCameraViewMatrix());
+                m_camera->SetProjectionMatrixExternal(m_ar->GetCameraProjectionMatrix());
+                
+                for (const auto& i : anchors)
+                {
+                    Ref<MeshRenderer> plane;
+                    
+                    if (m_planes.Contains(i.id) == false)
+                    {
+                        plane = GameObject::Create("ground")->AddComponent<MeshRenderer>();
+                        plane->SetSharedMaterial(Material::Create("Diffuse"));
+                        plane->SetSharedMesh(m_plane_mesh);
+                        m_planes.Add(i.id, plane);
+                    }
+                    else
+                    {
+                        plane = m_planes[i.id];
+                    }
+
+                    plane->GetTransform()->SetLocalToWorldMatrixExternal(i.transform * Matrix4x4::Translation(i.center) * Matrix4x4::Scaling(i.extent));
+                }
+                
+                Vector<String> removes;
+                for (const auto& i : m_planes)
+                {
+                    bool exist = false;
+                    
+                    for (const auto& j : anchors)
+                    {
+                        if (i.first == j.id)
+                        {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    
+                    if (exist == false)
+                    {
+                        GameObject::Destroy(i.second->GetGameObject());
+                        removes.Add(i.first);
+                    }
+                }
+                for (const auto& i : removes)
+                {
+                    m_planes.Remove(i);
+                }
+                removes.Clear();
             }
         }
     }
@@ -111,9 +149,13 @@ public:
     }
     
     Ref<ARScene> m_ar;
+    Ref<Mesh> m_plane_mesh;
+    Map<String, Ref<MeshRenderer>> m_planes;
 #endif
+    
+    Ref<Camera> m_camera;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppAR);
 #endif
