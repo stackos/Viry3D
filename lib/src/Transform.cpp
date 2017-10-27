@@ -30,6 +30,7 @@ namespace Viry3D
 		m_position(m_local_position),
 		m_rotation(m_local_rotation),
 		m_scale(m_local_scale),
+        m_matrix_external(false),
 		m_change_notifying(false)
 	{
 	}
@@ -395,6 +396,11 @@ namespace Viry3D
 
 	const Matrix4x4& Transform::GetLocalToWorldMatrix()
 	{
+        if (m_matrix_external)
+        {
+            return m_local_to_world_matrix_external;
+        }
+        
 		ApplyChange();
 
 		return m_local_to_world_matrix;

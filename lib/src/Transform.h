@@ -60,6 +60,7 @@ namespace Viry3D
 		Vector3 InverseTransformDirection(const Vector3& dir);
 		const Matrix4x4& GetLocalToWorldMatrix();
 		const Matrix4x4& GetWorldToLocalMatrix();
+        void SetLocalToWorldMatrixExternal(const Matrix4x4& mat) { m_local_to_world_matrix_external = mat; m_matrix_external = true; }
 		Vector3 GetRight();
 		Vector3 GetUp();
 		Vector3 GetForward();
@@ -87,6 +88,8 @@ namespace Viry3D
 		Vector3 m_scale;
 		Matrix4x4 m_local_to_world_matrix;
 		Matrix4x4 m_world_to_local_matrix;
+        Matrix4x4 m_local_to_world_matrix_external;
+        bool m_matrix_external;
 		bool m_change_notifying;
 	};
 }
