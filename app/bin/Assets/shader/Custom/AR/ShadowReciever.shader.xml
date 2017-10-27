@@ -1,4 +1,4 @@
-<Shader name="ARPlane" queue="Geometry">
+<Shader name="Custom/AR/ShadowReciever" queue="Geometry">
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
 			<Uniform name="_ViewProjection" size="64"/>

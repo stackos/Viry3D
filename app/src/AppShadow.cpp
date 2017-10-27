@@ -83,7 +83,7 @@ public:
 		float shadow_bias = 0.005f;
 		float shadow_strength = 0.7f;
 
-		auto ground_mat = Material::Create("ARPlane");
+		auto ground_mat = Material::Create("Custom/AR/ShadowReciever");
 		ground_mat->SetTexture("_ShadowMap", rt_shadow->depth_texture);
 		ground_mat->SetMatrix("_ViewProjectionLight", camera_shadow->GetViewProjectionMatrix());
 		ground_mat->SetVector("_ShadowMapTexel", Vector4(1.0f / shadowmap_size, 1.0f / shadowmap_size));
