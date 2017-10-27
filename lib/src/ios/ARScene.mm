@@ -43,6 +43,15 @@ static const float kImagePlaneVertexData[16] = {
     1.0,  1.0,  1.0, 0.0,
 };
 
+Viry3D::Matrix4x4 matrix_float4x4_matrix(const matrix_float4x4& mat)
+{
+    return Viry3D::Matrix4x4(
+        mat.columns[0].x, mat.columns[1].x, mat.columns[2].x, mat.columns[3].x,
+        mat.columns[0].y, mat.columns[1].y, mat.columns[2].y, mat.columns[3].y,
+        mat.columns[0].z, mat.columns[1].z, mat.columns[2].z, mat.columns[3].z,
+        mat.columns[0].w, mat.columns[1].w, mat.columns[2].w, mat.columns[3].w);
+}
+
 API_AVAILABLE(ios(11.0))
 @interface SessionDelegate : NSObject <ARSessionDelegate>
 
@@ -166,11 +175,7 @@ API_AVAILABLE(ios(11.0))
 
             Viry3D::ARAnchor a;
             a.id = plane.identifier.UUIDString.UTF8String;
-            a.transform = Viry3D::Matrix4x4(
-                plane.transform.columns[0].x, plane.transform.columns[0].y, plane.transform.columns[0].z, plane.transform.columns[0].w,
-                plane.transform.columns[1].x, plane.transform.columns[1].y, plane.transform.columns[1].z, plane.transform.columns[1].w,
-                plane.transform.columns[2].x, plane.transform.columns[2].y, plane.transform.columns[2].z, plane.transform.columns[2].w,
-                plane.transform.columns[3].x, plane.transform.columns[3].y, plane.transform.columns[3].z, plane.transform.columns[3].w);
+            a.transform = matrix_float4x4_matrix(plane.transform);
             a.center = Viry3D::Vector3(plane.center.x, plane.center.y, plane.center.z);
             a.extent = Viry3D::Vector3(plane.extent.x, plane.extent.y, plane.extent.z);
             
@@ -224,7 +229,7 @@ namespace Viry3D
         mesh->triangles.AddRange(triangles, 6);
         mesh->Update();
         
-        auto mat = Material::Create("ARBackgroundYUV");
+        auto mat = Material::Create("YUVToRGB");
         
         auto obj = GameObject::Create("mesh");
         obj->SetActive(false);
@@ -304,13 +309,15 @@ namespace Viry3D
                     };
                 }
                 
+                auto frame = g_session.session.currentFrame;
+                auto screen_size = CGSizeMake(Screen::GetWidth(), Screen::GetHeight());
+                auto orientation = (UIInterfaceOrientation) Screen::GetOrientation();
+                
                 if (m_resized)
                 {
                     m_resized = false;
                     
-                    ARFrame* frame = g_session.session.currentFrame;
-                    CGSize screen_size = CGSizeMake(Screen::GetWidth(), Screen::GetHeight());
-                    CGAffineTransform uv_transform = CGAffineTransformInvert([frame displayTransformForOrientation:(UIInterfaceOrientation) Screen::GetOrientation() viewportSize:screen_size]);
+                    CGAffineTransform uv_transform = CGAffineTransformInvert([frame displayTransformForOrientation:orientation viewportSize:screen_size]);
                     
                     auto mesh = m_background_mesh;
                     mesh->vertices.Clear();
@@ -324,6 +331,9 @@ namespace Viry3D
                     }
                     mesh->Update();
                 }
+                
+                m_camera_view_matrix = matrix_float4x4_matrix([frame.camera viewMatrixForOrientation:orientation]);
+                m_camera_projection_matrix = matrix_float4x4_matrix([frame.camera projectionMatrixForOrientation:orientation viewportSize:screen_size zNear:0.03f zFar:1000.0f]);
             }
         }
     }

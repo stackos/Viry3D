@@ -50,6 +50,8 @@ namespace Viry3D
         const Ref<Texture2D>& GetBackgroundTextureY() const { return m_background_texture_y; }
         const Ref<Texture2D>& GetBackgroundTextureUV() const { return m_background_texture_uv; }
         const Vector<ARAnchor>& GetAnchors() const { return m_anchors; }
+        const Matrix4x4& GetCameraViewMatrix() const { return m_camera_view_matrix; }
+        const Matrix4x4& GetCameraProjectionMatrix() const { return m_camera_projection_matrix; }
         
     private:
         Ref<Texture2D> m_background_texture_y;
@@ -59,5 +61,7 @@ namespace Viry3D
         Ref<Mesh> m_background_mesh;
         bool m_resized;
         Vector<ARAnchor> m_anchors;
+        Matrix4x4 m_camera_view_matrix;
+        Matrix4x4 m_camera_projection_matrix;
     };
 }
