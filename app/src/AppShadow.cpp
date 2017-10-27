@@ -86,7 +86,7 @@ public:
 
 		auto plane_mat = Material::Create("Custom/AR/ShadowReciever");
 		plane_mat->SetTexture("_ShadowMap", shadow_rt->depth_texture);
-		plane_mat->SetMatrix("_ViewProjectionLight", shadow_camera->GetViewProjectionMatrix());
+		plane_mat->SetMatrix("_ViewProjectionLight", shadow_camera->GetProjectionMatrix() * shadow_camera->GetViewMatrix());
 		plane_mat->SetVector("_ShadowMapTexel", Vector4(1.0f / shadowmap_size, 1.0f / shadowmap_size));
 		plane_mat->SetVector("_ShadowParam", Vector4(shadow_bias, shadow_strength));
 
@@ -103,6 +103,6 @@ public:
 	}
 };
 
-#if 1
+#if 0
 VR_MAIN(AppShadow);
 #endif
