@@ -52,7 +52,7 @@ namespace Viry3D
 		}
 		else if (texture_format == RenderTextureFormat::R8)
 		{
-			m_format = GL_RED;
+			m_format = GL_R8;
 			format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
 		}
@@ -126,7 +126,7 @@ namespace Viry3D
 		}
 		else if (texture_format == TextureFormat::Alpha8)
 		{
-			m_format = GL_RED;
+			m_format = GL_R8;
 			format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
 		}
