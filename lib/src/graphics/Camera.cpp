@@ -64,6 +64,8 @@ namespace Viry3D
 	Camera::Camera():
 		m_culling_mask(-1),
 		m_matrix_dirty(true),
+        m_matrix_external(false),
+        m_frustum_culling(true),
 		m_render_mode(CameraRenderMode::Normal)
 	{
 		m_cameras.AddLast(this);
@@ -378,6 +380,11 @@ namespace Viry3D
 
 	const Matrix4x4& Camera::GetViewMatrix()
 	{
+        if (m_matrix_external)
+        {
+            return m_view_matrix_external;
+        }
+        
 		if (m_matrix_dirty)
 		{
 			UpdateMatrix();
@@ -388,22 +395,17 @@ namespace Viry3D
 
 	const Matrix4x4& Camera::GetProjectionMatrix()
 	{
+        if (m_matrix_external)
+        {
+            return m_projection_matrix_external;
+        }
+        
 		if (m_matrix_dirty)
 		{
 			UpdateMatrix();
 		}
 
 		return m_projection_matrix;
-	}
-
-	const Matrix4x4& Camera::GetViewProjectionMatrix()
-	{
-		if (m_matrix_dirty)
-		{
-			UpdateMatrix();
-		}
-
-		return m_view_projection_matrix;
 	}
 
 	const Frustum& Camera::GetFrustum()

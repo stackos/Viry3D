@@ -77,8 +77,11 @@ namespace Viry3D
 		bool IsCulling(const Ref<GameObject>& obj) const;
 		const Matrix4x4& GetViewMatrix();
 		const Matrix4x4& GetProjectionMatrix();
-		const Matrix4x4& GetViewProjectionMatrix();
+        void SetViewMatrixExternal(const Matrix4x4& mat) { m_view_matrix_external = mat; m_matrix_external = true; }
+        void SetProjectionMatrixExternal(const Matrix4x4& mat) { m_projection_matrix_external = mat; m_matrix_external = true; }
 		const Frustum& GetFrustum();
+        void SetFrustumCulling(bool enable) { m_frustum_culling = enable; }
+        bool IsFrustumCulling() const { return m_frustum_culling; }
 		void SetFrameBuffer(const Ref<FrameBuffer>& frame_buffer);
 		int GetTargetWidth() const;
 		int GetTargetHeight() const;
@@ -126,7 +129,11 @@ namespace Viry3D
 		Matrix4x4 m_view_matrix;
 		Matrix4x4 m_projection_matrix;
 		Matrix4x4 m_view_projection_matrix;
+        Matrix4x4 m_view_matrix_external;
+        Matrix4x4 m_projection_matrix_external;
+        bool m_matrix_external;
 		Frustum m_frustum;
+        bool m_frustum_culling;
 		Ref<RenderPass> m_render_pass;
 		Action m_post_render_func;
 		CameraRenderMode m_render_mode;
