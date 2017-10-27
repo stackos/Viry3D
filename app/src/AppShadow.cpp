@@ -48,6 +48,7 @@ public:
 		this->CreateFPSUI(20, 1, 1);
 
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+		camera->SetClearColor(Color(1, 0, 0, 1));
 		camera->SetCullingMask(1 << 0);
 		camera->GetTransform()->SetPosition(Vector3(0, 3, -5.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
