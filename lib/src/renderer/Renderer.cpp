@@ -77,7 +77,7 @@ namespace Viry3D
 
 	void Renderer::PreRenderByMaterial(int material_index)
 	{
-		auto& vp = Camera::Current()->GetViewProjectionMatrix();
+		auto vp = Camera::Current()->GetProjectionMatrix() * Camera::Current()->GetViewMatrix();
 		auto& mat = this->GetSharedMaterials()[material_index];
 		mat->SetMatrix("_ViewProjection", vp);
 		mat->SetVector("_WorldSpaceCameraPos", Camera::Current()->GetTransform()->GetPosition());
@@ -285,20 +285,6 @@ namespace Viry3D
 					shader->BindSharedMaterial(0, mat);
 				}
 
-				Matrix4x4 world_matrix;
-				Vector4 lightmap_sacle_offset;
-
-				if (static_batch)
-				{
-					world_matrix = Matrix4x4::Identity();
-					lightmap_sacle_offset = Vector4(1, 1, 0, 0);
-				}
-				else
-				{
-					world_matrix = i.renderer->GetTransform()->GetLocalToWorldMatrix();
-					lightmap_sacle_offset = i.renderer->GetLightmapScaleOffset();
-				}
-
 				// 非静态或第一批
 				if (!static_batch || !batching)
 				{
@@ -328,21 +314,6 @@ namespace Viry3D
 			auto& i = first;
 			for (int j = 0; j < i.shader_pass_count; j++)
 			{
-				Matrix4x4 world_matrix;
-				Vector4 lightmap_sacle_offset;
-
-				bool static_batch = i.renderer->m_batch_indices.Size() > 0;
-				if (static_batch)
-				{
-					world_matrix = Matrix4x4::Identity();
-					lightmap_sacle_offset = Vector4(1, 1, 0, 0);
-				}
-				else
-				{
-					world_matrix = i.renderer->GetTransform()->GetLocalToWorldMatrix();
-					lightmap_sacle_offset = i.renderer->GetLightmapScaleOffset();
-				}
-
 				int pass_index = j;
 				if (Camera::Current()->GetRenderMode() == CameraRenderMode::ShadowMap)
 				{
@@ -517,7 +488,7 @@ namespace Viry3D
 					continue;
 				}
 
-				if (cam->IsOrthographic())
+				if (cam->IsOrthographic() || cam->IsFrustumCulling() == false)
 				{
 					renderers.AddLast(i);
 				}
