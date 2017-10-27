@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "ios/ARScene.h"
+#include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "renderer/MeshRenderer.h"
@@ -38,6 +39,8 @@ public:
     
     virtual void Start()
     {
+        Graphics::GetDisplay()->KeepScreenOn(true);
+        
         this->CreateFPSUI(20, 1, 1);
         
         m_camera = GameObject::Create("camera")->AddComponent<Camera>();
