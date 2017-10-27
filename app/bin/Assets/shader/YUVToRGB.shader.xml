@@ -1,4 +1,4 @@
-<Shader name="ARBackgroundYUV" queue="Background">
+<Shader name="YUVToRGB" queue="Background">
 	<VertexShader name="vs">
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>
