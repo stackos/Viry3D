@@ -47,11 +47,10 @@ public:
         m_camera->SetCullingMask(1 << 0);
         m_camera->SetFrustumCulling(false);
         
-        //m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
-        m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
-        m_plane_mesh->Update();
-
 #if VR_IOS
+		m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
+		m_plane_mesh->Update();
+
         if (ARScene::IsSupported())
         {
             m_ar = RefMake<ARScene>();
