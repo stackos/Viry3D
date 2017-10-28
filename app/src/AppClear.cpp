@@ -25,22 +25,19 @@ using namespace Viry3D;
 class AppClear : public Application
 {
 public:
-	AppClear();
-	virtual void Start();
+	AppClear()
+    {
+        this->SetName("Viry3D::AppClear");
+        this->SetInitSize(1280, 720);
+    }
+    
+	virtual void Start()
+    {
+        auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+        camera->SetClearColor(Color(1, 0, 0, 1));
+    }
 };
 
-#if 0
+#if 1
 VR_MAIN(AppClear);
 #endif
-
-AppClear::AppClear()
-{
-	this->SetName("Viry3D::AppClear");
-	this->SetInitSize(1280, 720);
-}
-
-void AppClear::Start()
-{
-	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-	camera->SetClearColor(Color(1, 0, 0, 1));
-}
