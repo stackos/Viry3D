@@ -36,34 +36,31 @@ using namespace Viry3D;
 class AppAnim : public Application
 {
 public:
-	AppAnim();
-	virtual void Start();
+	AppAnim()
+    {
+        this->SetName("Viry3D::AppAnim");
+        this->SetInitSize(1280, 720);
+    }
+    
+	virtual void Start()
+    {
+        this->CreateFPSUI(20, 1, 1);
+        
+        auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+        camera->SetCullingMask(1 << 0);
+        camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
+        camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
+        
+        auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+        obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+        auto anim = obj->GetComponent<Animation>();
+        auto state = anim->GetAnimationState("WAIT03");
+        state.wrap_mode = AnimationWrapMode::Loop;
+        anim->UpdateAnimationState("WAIT03", state);
+        anim->Play("WAIT03");
+    }
 };
 
 #if 1
 VR_MAIN(AppAnim);
 #endif
-
-AppAnim::AppAnim()
-{
-	this->SetName("Viry3D::AppAnim");
-	this->SetInitSize(1280, 720);
-}
-
-void AppAnim::Start()
-{
-    this->CreateFPSUI(20, 1, 1);
-    
-	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-	camera->SetCullingMask(1 << 0);
-	camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
-	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
-
-	auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
-	obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
-	auto anim = obj->GetComponent<Animation>();
-	auto state = anim->GetAnimationState("WAIT03");
-	state.wrap_mode = AnimationWrapMode::Loop;
-	anim->UpdateAnimationState("WAIT03", state);
-	anim->Play("WAIT03");
-}
