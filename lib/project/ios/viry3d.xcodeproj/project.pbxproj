@@ -160,6 +160,7 @@
 		B45C9216530B87E4D2EBE2DB /* jcmarker.c in Sources */ = {isa = PBXBuildFile; fileRef = 17355765131A2C89A896DD6D /* jcmarker.c */; };
 		B554282B918DE0C13A2333AE /* UniformBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6F10C3EAF05D4CC718E5D3E2 /* UniformBuffer.cpp */; };
 		B7F992C9053E2A6FE7964ECC /* jcdctmgr.c in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC43939CFE8BAAA7FC308C /* jcdctmgr.c */; };
+		BA087BB11FA4D6B1001706EF /* Ray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA087BB01FA4D6B1001706EF /* Ray.cpp */; };
 		BA2800BF1F69A56500215483 /* latlon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA28006F1F69A53400215483 /* latlon.cpp */; };
 		BA2800C01F69A56500215483 /* noisegen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800BA1F69A53400215483 /* noisegen.cpp */; };
 		BA2800C11F69A56500215483 /* noiseutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800BC1F69A53400215483 /* noiseutils.cpp */; };
@@ -496,6 +497,8 @@
 		B97E96A203610FDA26FA077B /* pngwutil.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngwutil.c; sourceTree = "<group>"; };
 		B99E7BA9BF67EE3FC2BCA4E5 /* Frustum.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Frustum.h; sourceTree = "<group>"; };
 		B9C2ACCAF949BA93EC18A243 /* UICanvasRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UICanvasRenderer.cpp; sourceTree = "<group>"; };
+		BA087BAF1FA4D6B1001706EF /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
+		BA087BB01FA4D6B1001706EF /* Ray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Ray.cpp; sourceTree = "<group>"; };
 		BA2800691F69A48500215483 /* md5.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = md5.c; sourceTree = "<group>"; };
 		BA28006A1F69A48500215483 /* md5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = md5.h; sourceTree = "<group>"; };
 		BA28006F1F69A53400215483 /* latlon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = latlon.cpp; sourceTree = "<group>"; };
@@ -989,6 +992,8 @@
 				A57DE7CE1B456B85EF1EC14C /* Matrix4x4.h */,
 				794F94B7CF7A0F2E8AEB17B4 /* Quaternion.cpp */,
 				2E58E02EA9B2EBC24958939A /* Quaternion.h */,
+				BA087BB01FA4D6B1001706EF /* Ray.cpp */,
+				BA087BAF1FA4D6B1001706EF /* Ray.h */,
 				37113ABC4156F116A25A6142 /* Rect.cpp */,
 				1E98447EAC892B64EA5EBB35 /* Rect.h */,
 				6BAC33F9E00F690022A81BF4 /* Vector2.cpp */,
@@ -1727,6 +1732,7 @@
 				8AACF3B36DDC84252A216EC8 /* Sprite.cpp in Sources */,
 				E9DD16C9CA68926C4A456CF7 /* UICanvasRenderer.cpp in Sources */,
 				618EB7EA81066B20EB864885 /* UIEventHandler.cpp in Sources */,
+				BA087BB11FA4D6B1001706EF /* Ray.cpp in Sources */,
 				60A5B993A50A674F8E8215DD /* UILabel.cpp in Sources */,
 				F874F47AD898BEDA63C4832E /* UIRect.cpp in Sources */,
 				E61CAE7293D13EE18E598CDF /* UISprite.cpp in Sources */,
