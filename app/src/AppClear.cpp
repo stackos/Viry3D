@@ -38,6 +38,6 @@ public:
     }
 };
 
-#if 1
+#if 0
 VR_MAIN(AppClear);
 #endif
