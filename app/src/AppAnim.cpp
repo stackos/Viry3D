@@ -38,10 +38,6 @@ class AppAnim : public Application
 public:
 	AppAnim();
 	virtual void Start();
-	~AppAnim()
-	{
-		Graphics::GetDisplay()->EndRecord();
-	}
 };
 
 #if 1
@@ -70,6 +66,4 @@ void AppAnim::Start()
 	state.wrap_mode = AnimationWrapMode::Loop;
 	anim->UpdateAnimationState("WAIT03", state);
 	anim->Play("WAIT03");
-
-	//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 }
