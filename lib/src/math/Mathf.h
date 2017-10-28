@@ -19,6 +19,9 @@
 
 #include <math.h>
 #include "Vector3.h"
+#include "Ray.h"
+#include "Bounds.h"
+#include "container/Vector.h"
 
 namespace Viry3D
 {
@@ -35,11 +38,11 @@ namespace Viry3D
 		template<class T>
 		static T Max(T a, T b) { return a > b ? a : b; }
 		template<class T>
-		inline static T Max(const std::vector<T>& a);
+		inline static T Max(const Vector<T>& a);
 		template<class T>
 		static T Min(T a, T b) { return a < b ? a : b; }
 		template<class T>
-		inline static T Min(const std::vector<T>& a);
+		inline static T Min(const Vector<T>& a);
 		static float Clamp01(float value) { return Min<float>(Max<float>(value, 0), 1); }
 		template<class T>
 		static T Clamp(T value, T min, T max) { return Min(Max(value, min), max); }
@@ -54,14 +57,16 @@ namespace Viry3D
 		static int RandomRange(int min, int max);
 		static float Log2(float x) { return logf(x) / logf(2); }
 		static int Abs(int v) { return (int) fabsf((float) v); }
+        static bool RayPlaneIntersection(const Ray& ray, const Vector3& plane_normal, const Vector3& plane_point, float& t);
+        static bool RayBoundsIntersection(const Ray& ray, const Bounds& box, float& t);
 	};
 
 	template<class T>
-	T Mathf::Max(const std::vector<T>& a)
+	T Mathf::Max(const Vector<T>& a)
 	{
 		T max = a[0];
 
-		for (size_t i = 1; i < a.size(); i++)
+		for (int i = 1; i < a.Size(); i++)
 		{
 			if (a[i] > max)
 			{
@@ -73,11 +78,11 @@ namespace Viry3D
 	}
 
 	template<class T>
-	T Mathf::Min(const std::vector<T>& a)
+	T Mathf::Min(const Vector<T>& a)
 	{
 		T min = a[0];
 
-		for (size_t i = 1; i < a.size(); i++)
+		for (int i = 1; i < a.Size(); i++)
 		{
 			if (a[i] < min)
 			{

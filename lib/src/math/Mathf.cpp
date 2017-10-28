@@ -73,4 +73,127 @@ namespace Viry3D
 	{
 		return (int) (min + RandomRange(0.0f, 1.0f) * (max - min));
 	}
+    
+    bool Mathf::RayPlaneIntersection(const Ray& ray, const Vector3& plane_normal, const Vector3& plane_point, float& t)
+    {
+        float n_dot_d = ray.GetDirection().Dot(plane_normal);
+        
+        if (FloatEqual(n_dot_d, 0))
+        {
+            return false;
+        }
+        
+        t = (plane_point - ray.GetOrigin()).Dot(plane_normal) / n_dot_d;
+        
+        return true;
+    }
+    
+	bool Mathf::RayBoundsIntersection(const Ray& ray, const Bounds& box, float& t)
+    {
+        const Vector3& dir = ray.GetDirection();
+        
+        float t_x_min;
+        float t_x_max;
+        float t_y_min;
+        float t_y_max;
+        float t_z_min;
+        float t_z_max;
+        
+        if (FloatEqual(dir.x, 0))
+        {
+            t_x_min = MinFloatValue;
+            t_x_max = MaxFloatValue;
+        }
+        else
+        {
+            float inv_x = 1 / dir.x;
+            const Vector3& box_min = box.Min();
+            const Vector3& box_max = box.Max();
+            
+            if (inv_x > 0)
+            {
+                t_x_min = (box_min.x - ray.GetOrigin().x) * inv_x;
+                t_x_max = (box_max.x - ray.GetOrigin().x) * inv_x;
+            }
+            else
+            {
+                t_x_min = (box_max.x - ray.GetOrigin().x) * inv_x;
+                t_x_max = (box_min.x - ray.GetOrigin().x) * inv_x;
+            }
+        }
+        
+        if (FloatEqual(dir.y, 0))
+        {
+            t_y_min = MinFloatValue;
+            t_y_max = MaxFloatValue;
+        }
+        else
+        {
+            float inv_y = 1 / dir.y;
+            const Vector3& box_min = box.Min();
+            const Vector3& box_max = box.Max();
+            
+            if (inv_y > 0)
+            {
+                t_y_min = (box_min.y - ray.GetOrigin().y) * inv_y;
+                t_y_max = (box_max.y - ray.GetOrigin().y) * inv_y;
+            }
+            else
+            {
+                t_y_min = (box_max.y - ray.GetOrigin().y) * inv_y;
+                t_y_max = (box_min.y - ray.GetOrigin().y) * inv_y;
+            }
+        }
+        
+        if (FloatEqual(dir.z, 0))
+        {
+            t_z_min = MinFloatValue;
+            t_z_max = MaxFloatValue;
+        }
+        else
+        {
+            float inv_z = 1 / dir.z;
+            const Vector3& box_min = box.Min();
+            const Vector3& box_max = box.Max();
+            
+            if (inv_z > 0)
+            {
+                t_z_min = (box_min.z - ray.GetOrigin().z) * inv_z;
+                t_z_max = (box_max.z - ray.GetOrigin().z) * inv_z;
+            }
+            else
+            {
+                t_z_min = (box_max.z - ray.GetOrigin().z) * inv_z;
+                t_z_max = (box_min.z - ray.GetOrigin().z) * inv_z;
+            }
+        }
+        
+        Vector<float> mins;
+        mins.Add(t_x_min);
+        mins.Add(t_y_min);
+        mins.Add(t_z_min);
+        
+        float min = Max<float>(mins);
+        
+        Vector<float> maxs;
+        maxs.Add(t_x_max);
+        maxs.Add(t_y_max);
+        maxs.Add(t_z_max);
+        
+        float max = Min<float>(maxs);
+        
+        if (min > max)
+        {
+            return false;
+        }
+        
+        if (!box.Contains(ray.GetPoint(min)))
+        {
+            return false;
+        }
+        
+        t = min;
+        
+        return true;
+    }
 }
