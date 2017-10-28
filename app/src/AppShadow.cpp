@@ -19,7 +19,6 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
-#include "Debug.h"
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "animation/Animation.h"
@@ -36,11 +35,6 @@ public:
 	{
 		this->SetName("Viry3D::AppShadow");
 		this->SetInitSize(1280, 720);
-	}
-
-	virtual ~AppShadow()
-	{
-		//Graphics::GetDisplay()->EndRecord();
 	}
 
 	virtual void Start()
@@ -98,11 +92,9 @@ public:
 			Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
 			Graphics::DrawQuad(&rect, shadow_rt->depth_texture, true);
 		});
-
-		//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 	}
 };
 
-#if 0
+#if 1
 VR_MAIN(AppShadow);
 #endif

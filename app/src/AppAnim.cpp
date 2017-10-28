@@ -19,17 +19,8 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
-#include "Debug.h"
 #include "graphics/Camera.h"
-#include "graphics/RenderTexture.h"
-#include "graphics/RenderTextureBliter.h"
-#include "graphics/Graphics.h"
 #include "animation/Animation.h"
-#include "ui/UILabel.h"
-#include "ui/UISprite.h"
-#include "ui/UICanvasRenderer.h"
-#include "time/Time.h"
-#include "renderer/SkinnedMeshRenderer.h"
 
 using namespace Viry3D;
 
@@ -53,6 +44,7 @@ public:
         
         auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
         obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+        
         auto anim = obj->GetComponent<Animation>();
         auto state = anim->GetAnimationState("WAIT03");
         state.wrap_mode = AnimationWrapMode::Loop;
@@ -61,6 +53,6 @@ public:
     }
 };
 
-#if 1
+#if 0
 VR_MAIN(AppAnim);
 #endif
