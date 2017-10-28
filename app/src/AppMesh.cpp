@@ -104,6 +104,6 @@ public:
 	float m_rotate_deg;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppMesh);
 #endif
