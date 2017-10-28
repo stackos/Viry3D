@@ -19,12 +19,8 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
-#include "Debug.h"
-#include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "animation/Animation.h"
-#include "ui/UILabel.h"
-#include "time/Time.h"
 #include "renderer/MeshRenderer.h"
 #include "graphics/Material.h"
 #include "postprocess/ImageEffectBlur.h"
@@ -34,51 +30,41 @@ using namespace Viry3D;
 class AppBlur : public Application
 {
 public:
-	AppBlur();
-	virtual void Start();
-
-	Ref<Texture> m_image;
+	AppBlur()
+    {
+        this->SetName("Viry3D::AppBlur");
+        this->SetInitSize(1280, 720);
+    }
+    
+	virtual void Start()
+    {
+        this->CreateFPSUI(20, 1, 1);
+        
+        auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+        camera->SetCullingMask(1 << 0);
+        camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
+        camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
+        
+        camera->GetGameObject()->AddComponent<ImageEffectBlur>();
+        
+        auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+        obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+        
+        auto anim = obj->GetComponent<Animation>();
+        auto state = anim->GetAnimationState("WAIT03");
+        state.wrap_mode = AnimationWrapMode::Loop;
+        anim->UpdateAnimationState("WAIT03", state);
+        anim->Play("WAIT03");
+        
+        auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
+        mesh->Update();
+        
+        auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
+        ground->SetSharedMaterial(Material::Create("Diffuse"));
+        ground->SetSharedMesh(mesh);
+    }
 };
 
-#if 0
+#if 1
 VR_MAIN(AppBlur);
 #endif
-
-AppBlur::AppBlur()
-{
-	this->SetName("Viry3D::AppBlur");
-	this->SetInitSize(1280, 720);
-}
-
-void AppBlur::Start()
-{
-	this->CreateFPSUI(20, 1, 1);
-
-	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-	camera->SetCullingMask(1 << 0);
-	camera->GetTransform()->SetPosition(Vector3(0, 1.2f, -2.0f));
-	camera->GetTransform()->SetRotation(Quaternion::Euler(10, 0, 0));
-
-	camera->GetGameObject()->AddComponent<ImageEffectBlur>();
-
-	auto obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
-	obj->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
-	auto anim = obj->GetComponent<Animation>();
-	auto state = anim->GetAnimationState("WAIT03");
-	state.wrap_mode = AnimationWrapMode::Loop;
-	anim->UpdateAnimationState("WAIT03", state);
-	anim->Play("WAIT03");
-
-	auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
-	mesh->Update();
-
-	auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
-	ground->SetSharedMaterial(Material::Create("Diffuse"));
-	ground->SetSharedMesh(mesh);
-
-	m_image = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");
-	camera->SetPostRenderFunc([=]() {
-		Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
-		Graphics::DrawQuad(&rect, m_image);
-	});
-}
