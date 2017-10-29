@@ -1,5 +1,3 @@
-![](https://github.com/stackos/Viry3D/blob/master/app/src/AppFlappyBird.png?raw=true)
-
 # Viry3D
 C++跨平台3D游戏引擎。
 
@@ -90,3 +88,9 @@ UI
     文件IO
     UTF8、UTF32字符串编码
     数学库
+
+## 游戏截图
+
+---
+
+![](https://github.com/stackos/Viry3D/blob/master/app/src/AppFlappyBird.png?raw=true)
