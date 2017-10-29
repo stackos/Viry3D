@@ -37,7 +37,7 @@
 #include "audio/AudioSource.h"
 #include "audio/AudioClip.h"
 
-#define OPEN 0
+#define OPEN 1
 
 using namespace Viry3D;
 
@@ -143,7 +143,7 @@ public:
 	WeakRef<GameObject> m_over_obj;
 	Vector<WeakRef<UISprite>> m_over_score_sprites;
 	Vector<WeakRef<UISprite>> m_over_score_best_sprites;
-	WeakRef<Timer> m_blink_timer;
+	Ref<Timer> m_blink_timer;
 
 	WeakRef<AudioSource> m_audio_source_point;
 	WeakRef<AudioSource> m_audio_source_wing;
@@ -511,7 +511,7 @@ void AppFlappyBird::DetectCollision()
 				{
 					GameOver();
 
-					Timer::Create(0.3f)->on_tick = [this]() {
+					Timer::Start(0.3f)->on_tick = [this]() {
 						m_audio_source_die.lock()->Play();
 					};
 					return;
@@ -728,9 +728,9 @@ void AppFlappyBird::Restart()
 			InitOver();
 			m_game_state = GameState::ReadyIn;
 
-			if (!m_blink_timer.expired())
+			if (m_blink_timer)
 			{
-				m_blink_timer.lock()->Stop();
+				Timer::Stop(m_blink_timer);
 				m_blink_timer.reset();
 			}
 		};
@@ -745,7 +745,7 @@ void AppFlappyBird::GameOver()
 
 	m_audio_source_hit.lock()->Play();
 
-	Timer::Create(0.5f)->on_tick = [=]() {
+	Timer::Start(0.5f)->on_tick = [=]() {
 		m_score_obj.lock()->SetActive(false);
 
 		// show game over
@@ -779,23 +779,23 @@ void AppFlappyBird::GameOver()
 			tp->curve.keys.Add(Keyframe(0, 0, 2, 2));
 			tp->curve.keys.Add(Keyframe(1, 1, 0, 0));
 
-			Timer::Create(0.7f)->on_tick = [this]() {
+			Timer::Start(0.7f)->on_tick = [this]() {
 				m_audio_source_swooshing.lock()->Play();
 			};
 
-			Timer::Create(1.2f)->on_tick = [=]() {
+			Timer::Start(1.2f)->on_tick = [=]() {
 				if (m_score > 0)
 				{
 					float tick = 1.0f / m_score;
 
-					auto t = Timer::Create(tick, true);
+					auto t = Timer::Start(tick, true);
 					t->on_tick = [=]() {
 						int score = t->tick_count;
 						UpdateScore(score, m_over_score_sprites, 16, "number_score_0", 0, true);
 
 						if (score == m_score)
 						{
-							t->Stop();
+							Timer::Stop(t);
 
 							if (m_score > m_score_best)
 							{
@@ -821,7 +821,7 @@ void AppFlappyBird::GameOver()
 								ShowMedal(0);
 							}
 
-							Timer::Create(0.3f)->on_tick = [=]() {
+							Timer::Start(0.3f)->on_tick = [=]() {
 								over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 							};
 						}
@@ -829,7 +829,7 @@ void AppFlappyBird::GameOver()
 				}
 				else
 				{
-					Timer::Create(0.3f)->on_tick = [=]() {
+					Timer::Start(0.3f)->on_tick = [=]() {
 						over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 					};
 				}
@@ -845,8 +845,8 @@ void AppFlappyBird::ShowMedal(int index)
 	obj.lock()->GetComponent<UISprite>()->SetSpriteName(String::Format("medals_%d", index));
 	obj.lock()->GetTransform()->Find("Blink")->GetGameObject()->SetActive(false);
 
-	m_blink_timer = Timer::Create(0.5f, true);
-	m_blink_timer.lock()->on_tick = [=]() {
+	m_blink_timer = Timer::Start(0.5f, true);
+	m_blink_timer->on_tick = [=]() {
 		WeakRef<GameObject> blink_obj = obj.lock()->GetTransform()->Find("Blink")->GetGameObject();
 		blink_obj.lock()->SetActive(true);
 		WeakRef<UISprite> blink = blink_obj.lock()->GetComponent<UISprite>();
@@ -854,12 +854,12 @@ void AppFlappyBird::ShowMedal(int index)
 
 		blink_obj.lock()->GetTransform()->SetLocalPosition(Vector3(Mathf::RandomRange(-22.0f, 22.0f), Mathf::RandomRange(-22.0f, 22.0f), 0));
 
-		auto t = Timer::Create(0.1f, true);
+		auto t = Timer::Start(0.1f, true);
 		t->on_tick = [=]() {
 			auto tick_count = t->tick_count;
 			if (tick_count == 3)
 			{
-				t->Stop();
+				Timer::Stop(t);
 				blink_obj.lock()->SetActive(false);
 			}
 			else

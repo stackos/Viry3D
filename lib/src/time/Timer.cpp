@@ -23,7 +23,7 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(Timer);
 
-	Ref<Timer> Timer::Create(float duration, bool loop)
+	Ref<Timer> Timer::Start(float duration, bool loop)
 	{
 		auto timer = GameObject::Create("Timer")->AddComponent<Timer>();
 		timer->m_duration = duration;
@@ -32,9 +32,10 @@ namespace Viry3D
 		return timer;
 	}
 
-	void Timer::Stop()
+	void Timer::Stop(const Ref<Timer>& timer)
 	{
-		GameObject::Destroy(this->GetGameObject());
+		timer->on_tick = NULL;
+		GameObject::Destroy(timer->GetGameObject());
 	}
 
 	Timer::Timer():
@@ -68,7 +69,7 @@ namespace Viry3D
 			}
 			else
 			{
-				Stop();
+				Timer::Stop(RefCast<Timer>(this->GetRef()));
 			}
 		}
 	}

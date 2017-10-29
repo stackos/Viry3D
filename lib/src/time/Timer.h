@@ -27,8 +27,8 @@ namespace Viry3D
 		DECLARE_COM_CLASS(Timer, Component);
 
 	public:
-		static Ref<Timer> Create(float duration, bool loop = false);
-		void Stop();
+		static Ref<Timer> Start(float duration, bool loop = false);
+		static void Stop(const Ref<Timer>& timer);
 
 	protected:
 		Timer();
