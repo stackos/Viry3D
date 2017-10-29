@@ -90,6 +90,3 @@ UI
     数学库
 
 ## 游戏截图
-
-![](https://github.com/stackos/Viry3D/blob/master/app/src/AppFlappyBird.png?raw=true)
-![](https://github.com/stackos/Viry3D/blob/master/app/src/AppFlappyBird.png?raw=true)
