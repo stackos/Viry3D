@@ -23,7 +23,7 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(Timer);
 
-	WeakRef<Timer> Timer::Create(float duration, bool loop)
+	Ref<Timer> Timer::Create(float duration, bool loop)
 	{
 		auto timer = GameObject::Create("Timer")->AddComponent<Timer>();
 		timer->m_duration = duration;

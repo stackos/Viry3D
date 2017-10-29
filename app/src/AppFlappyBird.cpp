@@ -511,7 +511,7 @@ void AppFlappyBird::DetectCollision()
 				{
 					GameOver();
 
-					Timer::Create(0.3f).lock()->on_tick = [this]() {
+					Timer::Create(0.3f)->on_tick = [this]() {
 						m_audio_source_die.lock()->Play();
 					};
 					return;
@@ -745,7 +745,7 @@ void AppFlappyBird::GameOver()
 
 	m_audio_source_hit.lock()->Play();
 
-	Timer::Create(0.5f).lock()->on_tick = [=]() {
+	Timer::Create(0.5f)->on_tick = [=]() {
 		m_score_obj.lock()->SetActive(false);
 
 		// show game over
@@ -779,23 +779,23 @@ void AppFlappyBird::GameOver()
 			tp->curve.keys.Add(Keyframe(0, 0, 2, 2));
 			tp->curve.keys.Add(Keyframe(1, 1, 0, 0));
 
-			Timer::Create(0.7f).lock()->on_tick = [this]() {
+			Timer::Create(0.7f)->on_tick = [this]() {
 				m_audio_source_swooshing.lock()->Play();
 			};
 
-			Timer::Create(1.2f).lock()->on_tick = [=]() {
+			Timer::Create(1.2f)->on_tick = [=]() {
 				if (m_score > 0)
 				{
 					float tick = 1.0f / m_score;
 
 					auto t = Timer::Create(tick, true);
-					t.lock()->on_tick = [=]() {
-						int score = t.lock()->tick_count;
+					t->on_tick = [=]() {
+						int score = t->tick_count;
 						UpdateScore(score, m_over_score_sprites, 16, "number_score_0", 0, true);
 
 						if (score == m_score)
 						{
-							t.lock()->Stop();
+							t->Stop();
 
 							if (m_score > m_score_best)
 							{
@@ -821,7 +821,7 @@ void AppFlappyBird::GameOver()
 								ShowMedal(0);
 							}
 
-							Timer::Create(0.3f).lock()->on_tick = [=]() {
+							Timer::Create(0.3f)->on_tick = [=]() {
 								over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 							};
 						}
@@ -829,7 +829,7 @@ void AppFlappyBird::GameOver()
 				}
 				else
 				{
-					Timer::Create(0.3f).lock()->on_tick = [=]() {
+					Timer::Create(0.3f)->on_tick = [=]() {
 						over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 					};
 				}
@@ -855,11 +855,11 @@ void AppFlappyBird::ShowMedal(int index)
 		blink_obj.lock()->GetTransform()->SetLocalPosition(Vector3(Mathf::RandomRange(-22.0f, 22.0f), Mathf::RandomRange(-22.0f, 22.0f), 0));
 
 		auto t = Timer::Create(0.1f, true);
-		t.lock()->on_tick = [=]() {
-			auto tick_count = t.lock()->tick_count;
+		t->on_tick = [=]() {
+			auto tick_count = t->tick_count;
 			if (tick_count == 3)
 			{
-				t.lock()->Stop();
+				t->Stop();
 				blink_obj.lock()->SetActive(false);
 			}
 			else
