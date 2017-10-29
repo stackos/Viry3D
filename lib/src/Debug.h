@@ -29,12 +29,12 @@ namespace Viry3D
 
 #define Log(...) Viry3D::Debug::LogString(Viry3D::String::Format(__VA_ARGS__) + Viry3D::String::Format("\n<=[%s:%d]", __FILE__, __LINE__))
 
-#define LogGLError() \
-    { \
-        int err = glGetError(); \
-		if(err != 0) \
-		{ \
-            Log("glGetError: %d", err); \
-        } \
+#define LogGLError()						\
+    {										\
+        int err = glGetError();				\
+		if(err != 0)						\
+		{									\
+            Log("glGetError: %d", err);		\
+        }									\
     }
 }
