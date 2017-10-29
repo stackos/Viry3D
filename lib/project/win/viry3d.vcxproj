@@ -139,6 +139,7 @@
     <ClInclude Include="..\..\src\math\Mathf.h" />
     <ClInclude Include="..\..\src\math\Matrix4x4.h" />
     <ClInclude Include="..\..\src\math\Quaternion.h" />
+    <ClInclude Include="..\..\src\math\Ray.h" />
     <ClInclude Include="..\..\src\math\Rect.h" />
     <ClInclude Include="..\..\src\math\Vector2.h" />
     <ClInclude Include="..\..\src\math\Vector3.h" />
@@ -401,6 +402,7 @@
     <ClCompile Include="..\..\src\math\Mathf.cpp" />
     <ClCompile Include="..\..\src\math\Matrix4x4.cpp" />
     <ClCompile Include="..\..\src\math\Quaternion.cpp" />
+    <ClCompile Include="..\..\src\math\Ray.cpp" />
     <ClCompile Include="..\..\src\math\Rect.cpp" />
     <ClCompile Include="..\..\src\math\Vector2.cpp" />
     <ClCompile Include="..\..\src\math\Vector3.cpp" />

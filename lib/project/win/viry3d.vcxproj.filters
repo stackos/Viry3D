@@ -624,6 +624,9 @@
     <ClInclude Include="..\..\src\renderer\Terrain.h">
       <Filter>src\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\math\Ray.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">
@@ -1663,6 +1666,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\renderer\Terrain.cpp">
       <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\Ray.cpp">
+      <Filter>src\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
