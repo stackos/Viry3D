@@ -21,25 +21,25 @@
 
 #if VR_WINDOWS
 #include <Windows.h>
-#define VR_MAIN(app_class) \
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) \
-{ \
-	Ref<app_class> app = RefMake<app_class>(); \
-	app->Run(); \
-    return 0; \
+#define VR_MAIN(app_class)																			\
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)		\
+{																									\
+	Ref<app_class> app = RefMake<app_class>();														\
+	app->Run();																						\
+    return 0;																						\
 }
 #endif
 
 #if VR_IOS
 #import <UIKit/UIKit.h>
-#define VR_MAIN(app_class) \
-int main(int argc, char * argv[]) \
-{ \
-    @autoreleasepool { \
-        Ref<app_class> app = RefMake<app_class>(); \
-        int result = UIApplicationMain(argc, argv, nil, @"AppDelegate"); \
-        return result; \
-    } \
+#define VR_MAIN(app_class)																			\
+int main(int argc, char * argv[])																	\
+{																									\
+    @autoreleasepool {																				\
+        Ref<app_class> app = RefMake<app_class>();													\
+        int result = UIApplicationMain(argc, argv, nil, @"AppDelegate");							\
+        return result;																				\
+    }																								\
 }
 #endif
 
@@ -48,22 +48,22 @@ int main(int argc, char * argv[]) \
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
 @end
 extern Ref<Viry3D::Application> _app;
-#define VR_MAIN(app_class) \
-int main(int argc, char * argv[]) \
-{ \
-    _app = RefMake<app_class>(); \
-    NSApplication* app = [NSApplication sharedApplication]; \
-    AppDelegate* delegate = [[AppDelegate alloc] init]; \
-    app.delegate = delegate; \
-    [app run]; \
-    return 0; \
+#define VR_MAIN(app_class)																			\
+int main(int argc, char * argv[])																	\
+{																									\
+    _app = RefMake<app_class>();																	\
+    NSApplication* app = [NSApplication sharedApplication];											\
+    AppDelegate* delegate = [[AppDelegate alloc] init];												\
+    app.delegate = delegate;																		\
+    [app run];																						\
+    return 0;																						\
 }
 #endif
 
 #if VR_ANDROID
-#define VR_MAIN(app_class) \
-Ref<Application> viry3d_android_main() \
-{ \
-	return RefMake<app_class>(); \
+#define VR_MAIN(app_class)																			\
+Ref<Application> viry3d_android_main()																\
+{																									\
+	return RefMake<app_class>();																	\
 }
 #endif
