@@ -159,7 +159,7 @@ VR_MAIN(AppFlappyBird);
 AppFlappyBird::AppFlappyBird()
 {
 	this->SetName("Viry3D::AppFlappyBird");
-	this->SetInitSize(960 * 9 / 16, 960);
+	this->SetInitSize(1280 * 9 / 16, 1280);
 }
 
 void AppFlappyBird::OnResize(int width, int height)
