@@ -278,6 +278,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/math/Mathf.cpp
             ${VIRY3D_LIB_SRC_DIR}/math/Matrix4x4.cpp
             ${VIRY3D_LIB_SRC_DIR}/math/Quaternion.cpp
+            ${VIRY3D_LIB_SRC_DIR}/math/Ray.cpp
             ${VIRY3D_LIB_SRC_DIR}/math/Rect.cpp
             ${VIRY3D_LIB_SRC_DIR}/math/Vector2.cpp
             ${VIRY3D_LIB_SRC_DIR}/math/Vector3.cpp
