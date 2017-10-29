@@ -1,4 +1,4 @@
-![](http://www.viry3d.com/files/logo.png)
+![](https://github.com/stackos/Viry3D/blob/master/app/src/AppFlappyBird.png?raw=true)
 
 # Viry3D
 C++跨平台3D游戏引擎。
