@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Component.h"
+#include "Action.h"
 
 namespace Viry3D
 {
@@ -34,7 +35,7 @@ namespace Viry3D
 		virtual void Update();
 
 	public:
-		std::function<void()> on_tick;
+		Action on_tick;
 		int tick_count;
 
 	protected:

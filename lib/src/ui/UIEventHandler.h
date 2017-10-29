@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "Action.h"
 #include "math/Vector2.h"
 #include "container/List.h"
 #include <functional>
@@ -43,8 +44,8 @@ namespace Viry3D
 		std::function<void(UIPointerEvent& e)> on_pointer_click;
 		//std::function<void(PointerEventData& e)> on_pointer_enter;
 		//std::function<void(PointerEventData& e)> on_pointer_exit;
-		//std::function<void()> on_drag_begin;
-		//std::function<void()> on_drag;
-		//std::function<void()> on_drag_end;
+		//Action on_drag_begin;
+		//Action on_drag;
+		//Action on_drag_end;
 	};
 }

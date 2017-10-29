@@ -17,24 +17,23 @@
 
 #pragma once
 
+#include "Any.h"
+#include "Action.h"
 #include "container/Vector.h"
 #include "container/List.h"
 #include "memory/Ref.h"
-#include "Any.h"
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 
 namespace Viry3D
 {
-	typedef std::function<void()> ThreadInit;
-	typedef std::function<void()> ThreadDeinit;
 	typedef std::mutex Mutex;
 
 	struct ThreadInfo
 	{
-		ThreadInit init;
-		ThreadDeinit deinit;
+		Action init;
+		Action deinit;
 	};
 
 	class Thread

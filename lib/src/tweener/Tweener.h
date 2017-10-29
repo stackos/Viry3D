@@ -19,8 +19,8 @@
 
 #include "Component.h"
 #include "GameObject.h"
+#include "Action.h"
 #include "animation/AnimationCurve.h"
-#include <functional>
 
 namespace Viry3D
 {
@@ -44,7 +44,7 @@ namespace Viry3D
 		float duration;
 		float delay;
 		TweenerPlayStyle play_style;
-		std::function<void()> on_finish;
+		Action on_finish;
 
 	protected:
 		float m_time_start;

@@ -18,11 +18,11 @@
 #include <android_native_app_glue.h>
 
 #include "Application.h"
-#include "Debug.h"
-#include "graphics/Graphics.h"
-#include "io/File.h"
-#include "container/FastList.h"
 #include "Input.h"
+#include "Debug.h"
+#include "io/File.h"
+#include "graphics/Graphics.h"
+#include "container/FastList.h"
 
 using namespace Viry3D;
 
@@ -35,8 +35,6 @@ struct TouchEvent
 	long long time;
 	float xys[20];
 };
-
-typedef std::function<void()> Runnable;
 
 extern Ref<Application> viry3d_android_main();
 static void extract_assets_if_needed(const String& package_path, const String& data_path);
@@ -58,7 +56,7 @@ static android_app* _app = NULL;
 static bool _displayHasInit = false;
 static bool _canDraw = false;
 static Ref<Application> _viry3d_app;
-static FastList<Runnable> _events;
+static FastList<Action> _events;
 static Mutex _mutex;
 
 static void engine_create()
@@ -279,7 +277,7 @@ static void process_events()
     _mutex.unlock();
 }
 
-static void queue_event(Runnable event)
+static void queue_event(Action event)
 {
 	_mutex.lock();
 

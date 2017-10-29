@@ -20,7 +20,7 @@
 #include "container/Map.h"
 #include "container/Vector.h"
 #include "thread/Thread.h"
-#include <functional>
+#include "Action.h"
 
 namespace Viry3D
 {
@@ -29,13 +29,12 @@ namespace Viry3D
 	public:
 		typedef int FuncId;
 		static const FuncId InvalidFuncId = 0;
-		typedef std::function<void()> Func;
 		struct Task
 		{
-			Func func;
+			Action func;
 			bool once;
 
-			Task(Func func, bool once = true):
+			Task(Action func, bool once = true):
 				func(func),
 				once(once)
 			{
