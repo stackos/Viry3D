@@ -112,6 +112,11 @@ namespace Viry3D
 
 	Application::~Application()
 	{
+		m_pre_runloop.reset();
+		m_post_runloop.reset();
+		m_thread_pool_update.reset();
+		m_fps.reset();
+
 		World::Deinit();
 		Graphics::Deinit();
 
@@ -293,7 +298,7 @@ namespace Viry3D
 
 	void Application::UpdateFPSUI()
 	{
-		if (!m_fps.expired())
+		if (m_fps)
 		{
 			auto text = String::Format("%s %dx%d\nfps:%d dc:%d",
 				Graphics::GetDisplay()->GetDeviceName().CString(),
@@ -306,24 +311,22 @@ namespace Viry3D
 				text += String::Format("\n%s: t:%.3f c:%d", i.first.CString(), i.second.time * 1000, i.second.call_count);
 			}
 
-			m_fps.lock()->SetText(text);
+			m_fps->SetText(text);
 		}
 	}
 
 	void Application::OnResizeFPSUI(int width, int height)
 	{
-		if (!m_fps.expired())
+		if (m_fps)
 		{
-			auto fps = m_fps.lock();
-
-			auto camera = fps->GetTransform()->GetParent().lock()->GetParent().lock()->GetGameObject()->GetComponent<Camera>();
+			auto camera = m_fps->GetTransform()->GetParent().lock()->GetParent().lock()->GetGameObject()->GetComponent<Camera>();
 			camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
 
-			auto canvas = m_fps.lock()->GetTransform()->GetParent().lock()->GetGameObject()->GetComponent<UICanvasRenderer>();
+			auto canvas = m_fps->GetTransform()->GetParent().lock()->GetGameObject()->GetComponent<UICanvasRenderer>();
 			canvas->SetSize(Vector2((float) camera->GetTargetWidth(), (float) camera->GetTargetHeight()));
 
-			fps->SetOffsets(Vector2(0, (float) -camera->GetTargetHeight()), Vector2((float) camera->GetTargetWidth(), 0));
-			fps->OnAnchor();
+			m_fps->SetOffsets(Vector2(0, (float) -camera->GetTargetHeight()), Vector2((float) camera->GetTargetWidth(), 0));
+			m_fps->OnAnchor();
 		}
 	}
 }

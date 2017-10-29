@@ -81,6 +81,6 @@ namespace Viry3D
 		Ref<RunLoop> m_pre_runloop;
 		Ref<RunLoop> m_post_runloop;
 		Ref<ThreadPool> m_thread_pool_update;
-		WeakRef<UILabel> m_fps;
+		Ref<UILabel> m_fps;
 	};
 }
