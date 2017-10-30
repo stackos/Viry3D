@@ -1,3 +1,5 @@
+![](http://www.viry3d.com/files/logo.png)
+
 # Viry3D
 C++跨平台3D游戏引擎。
 
