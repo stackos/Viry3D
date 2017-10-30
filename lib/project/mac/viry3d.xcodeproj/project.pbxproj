@@ -197,6 +197,7 @@
 		BA2800E11F69A5AA00215483 /* plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800791F69A53400215483 /* plane.cpp */; };
 		BA2800E21F69A5AA00215483 /* sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA28007B1F69A53400215483 /* sphere.cpp */; };
 		BA2800E51F69A5E200215483 /* Screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800E31F69A5E200215483 /* Screen.cpp */; };
+		BA2AC2761FA7938D0052BBB6 /* Ray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2AC2751FA7938D0052BBB6 /* Ray.cpp */; };
 		BB393E15187A98506C06C966 /* jcmainct.c in Sources */ = {isa = PBXBuildFile; fileRef = BC003CC8AB58FC7D8985EEED /* jcmainct.c */; };
 		BE23953337BFCC13007C42B8 /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4906D5BC63457FF760B44 /* type1cid.c */; };
 		C22DF12CCC26CE22FCC7C86C /* pngread.c in Sources */ = {isa = PBXBuildFile; fileRef = 0BBF6630E36DDBFC3236E770 /* pngread.c */; };
@@ -530,6 +531,8 @@
 		BA2800BC1F69A53400215483 /* noiseutils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = noiseutils.cpp; sourceTree = "<group>"; };
 		BA2800E31F69A5E200215483 /* Screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Screen.cpp; sourceTree = "<group>"; };
 		BA2800E41F69A5E200215483 /* Screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Screen.h; sourceTree = "<group>"; };
+		BA2AC2741FA7938D0052BBB6 /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
+		BA2AC2751FA7938D0052BBB6 /* Ray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Ray.cpp; sourceTree = "<group>"; };
 		BBF3E277255739195AB32F6C /* UISprite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UISprite.h; sourceTree = "<group>"; };
 		BC003CC8AB58FC7D8985EEED /* jcmainct.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcmainct.c; sourceTree = "<group>"; };
 		BD6590FCB01711D4A7A154E8 /* jcparam.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcparam.c; sourceTree = "<group>"; };
@@ -962,6 +965,8 @@
 				A57DE7CE1B456B85EF1EC14C /* Matrix4x4.h */,
 				794F94B7CF7A0F2E8AEB17B4 /* Quaternion.cpp */,
 				2E58E02EA9B2EBC24958939A /* Quaternion.h */,
+				BA2AC2751FA7938D0052BBB6 /* Ray.cpp */,
+				BA2AC2741FA7938D0052BBB6 /* Ray.h */,
 				37113ABC4156F116A25A6142 /* Rect.cpp */,
 				1E98447EAC892B64EA5EBB35 /* Rect.h */,
 				6BAC33F9E00F690022A81BF4 /* Vector2.cpp */,
@@ -1603,6 +1608,7 @@
 				02D2A909C5F238F26F43F42A /* bit.c in Sources */,
 				477C92801299C2893C4C8367 /* decoder.c in Sources */,
 				BA2800DF1F69A5AA00215483 /* cylinder.cpp in Sources */,
+				BA2AC2761FA7938D0052BBB6 /* Ray.cpp in Sources */,
 				6CA8AD102752F0CD7900EE5E /* fixed.c in Sources */,
 				D054A53CAD44041A2F4677FC /* frame.c in Sources */,
 				BA2800DC1F69A59F00215483 /* translatepoint.cpp in Sources */,
