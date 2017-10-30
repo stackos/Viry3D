@@ -375,12 +375,12 @@ namespace Viry3D
 		win_class.cbClsExtra = 0;
 		win_class.cbWndExtra = 0;
 		win_class.hInstance = inst;
-		win_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-		win_class.hCursor = LoadCursor(NULL, IDC_ARROW);
 		win_class.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
 		win_class.lpszMenuName = NULL;
 		win_class.lpszClassName = name;
-		win_class.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
+		win_class.hCursor = LoadCursor(NULL, IDC_ARROW);
+		win_class.hIcon = (HICON) LoadImage(NULL, "icon.ico", IMAGE_ICON, SM_CXICON, SM_CYICON, LR_LOADFROMFILE);
+		win_class.hIconSm = win_class.hIcon;
 
 		if (!RegisterClassEx(&win_class))
 		{
