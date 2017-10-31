@@ -630,6 +630,9 @@
     <ClInclude Include="..\..\src\graphics\Cubemap.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\container\Array.h">
+      <Filter>src\container</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">

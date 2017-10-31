@@ -35,6 +35,7 @@
     <ClInclude Include="..\..\src\audio\AudioSource.h" />
     <ClInclude Include="..\..\src\Component.h" />
     <ClInclude Include="..\..\src\ComponentClassMap.h" />
+    <ClInclude Include="..\..\src\container\Array.h" />
     <ClInclude Include="..\..\src\container\FastList.h" />
     <ClInclude Include="..\..\src\container\List.h" />
     <ClInclude Include="..\..\src\container\Map.h" />
