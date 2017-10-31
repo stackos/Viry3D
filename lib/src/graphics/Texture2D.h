@@ -58,11 +58,11 @@ namespace Viry3D
 		void EncodeToPNG(const String& file);
 		TextureFormat GetFormat() const { return m_format; }
 		bool IsMipmap() const { return m_mipmap; }
+		void SetPixels(const ByteBuffer& colors, int miplevel = 0);
+		void Apply(bool update_mipmaps = true, bool make_no_longer_readable = false);
 
 	private:
 		Texture2D();
-		void SetFormat(TextureFormat format) { m_format = format; }
-		void SetMipmap(bool mipmap) { m_mipmap = mipmap; }
 
 	private:
 		TextureFormat m_format;

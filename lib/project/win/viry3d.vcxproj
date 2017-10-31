@@ -88,6 +88,7 @@
     <ClInclude Include="..\..\src\graphics\Camera.h" />
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
     <ClInclude Include="..\..\src\graphics\Color.h" />
+    <ClInclude Include="..\..\src\graphics\Cubemap.h" />
     <ClInclude Include="..\..\src\graphics\DepthBuffer.h" />
     <ClInclude Include="..\..\src\graphics\DescriptorSet.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
@@ -325,6 +326,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
+    <ClCompile Include="..\..\src\graphics\Cubemap.cpp" />
     <ClCompile Include="..\..\src\graphics\DisplayBase.cpp" />
     <ClCompile Include="..\..\src\graphics\Graphics.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
