@@ -88,6 +88,14 @@ public:
 		plane->SetSharedMaterial(plane_mat);
 		plane->SetSharedMesh(plane_mesh);
 
+		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
+		sphere_mesh->Update();
+
+		auto sphere = GameObject::Create("sphere")->AddComponent<MeshRenderer>();
+		sphere->GetTransform()->SetPosition(Vector3(-1.5f, 1, 0));
+		sphere->SetSharedMaterial(Material::Create("Diffuse"));
+		sphere->SetSharedMesh(sphere_mesh);
+
 		camera->SetPostRenderFunc([=]() {
 			Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
 			Graphics::DrawQuad(&rect, shadow_rt->depth_texture, true);
