@@ -57,6 +57,30 @@ namespace Viry3D
 
 	void Cubemap::Apply(bool update_mipmaps, bool make_no_longer_readable)
 	{
-		
+		for (int i = 0; i < m_colors.Size(); i++)
+		{
+			const auto& level = m_colors[i];
+
+			for (int j = 0; j < level.Size(); j++)
+			{
+				this->UpdateCubemapFace(j, i, level[j]);
+			}
+
+			if (update_mipmaps)
+			{
+				// only update level 0, other levels will be generate
+				break;
+			}
+		}
+
+		if (update_mipmaps)
+		{
+
+		}
+
+		if (make_no_longer_readable)
+		{
+			m_colors.Clear();
+		}
 	}
 }

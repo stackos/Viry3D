@@ -27,7 +27,7 @@ namespace Viry3D
 	public:
 		virtual ~TextureGLES();
 		GLuint GetTexture() const { return m_texture; }
-		void UpdateSampler();
+		void UpdateSampler2D();
 
 	protected:
 		TextureGLES();
@@ -36,10 +36,11 @@ namespace Viry3D
 		void CreateTexture2D();
 		void UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors);
 		void CreateCubemap();
+		void UpdateCubemapFace(int face_index, GLint level, const ByteBuffer& colors);
         void SetExternalTexture2D(void* texture);
 
 	private:
-		void Create(GLenum format, GLenum type, void* pixels, bool mipmap);
+		void Create2D(GLenum format, GLenum type, void* pixels);
 
 	private:
 		GLuint m_texture;

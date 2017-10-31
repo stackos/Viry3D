@@ -18,6 +18,7 @@
 #include "TextureGLES.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/Texture2D.h"
+#include "graphics/Cubemap.h"
 #include "Debug.h"
 #include "math/Mathf.h"
 
@@ -62,7 +63,8 @@ namespace Viry3D
 			assert(!"color format not invalid");
 		}
 
-		this->Create(format, type, NULL, false);
+		this->Create2D(format, type, NULL);
+		this->UpdateSampler2D();
 	}
 
 	void TextureGLES::CreateDepthRenderTexture()
@@ -101,7 +103,8 @@ namespace Viry3D
 			assert(!"depth format not invalid");
 		}
 
-		this->Create(format, type, NULL, false);
+		this->Create2D(format, type, NULL);
+		this->UpdateSampler2D();
 	}
 
 	void TextureGLES::CreateTexture2D()
@@ -109,7 +112,6 @@ namespace Viry3D
 		auto texture = (Texture2D*) this;
 		auto texture_format = texture->GetFormat();
 		auto colors = texture->GetColors();
-		auto mipmap = texture->IsMipmap();
 
 		GLenum format = 0;
 		GLenum type = 0;
@@ -136,7 +138,8 @@ namespace Viry3D
 			assert(!"texture format not implement");
 		}
 
-		this->Create(format, type, colors.Bytes(), mipmap);
+		this->Create2D(format, type, colors.Bytes());
+		this->UpdateSampler2D();
 	}
 
 	void TextureGLES::UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors)
@@ -178,16 +181,65 @@ namespace Viry3D
 
 	void TextureGLES::CreateCubemap()
 	{
-		
+		LogGLError();
+
+		glGenTextures(1, &m_texture);
+
+		LogGLError();
 	}
 
-	void TextureGLES::Create(GLenum format, GLenum type, void* pixels, bool mipmap)
+	void TextureGLES::UpdateCubemapFace(int face_index, GLint level, const ByteBuffer& colors)
+	{
+		LogGLError();
+
+		auto texture = (Cubemap*) this;
+		int width = texture->GetWidth();
+		int height = texture->GetHeight();
+		auto texture_format = texture->GetFormat();
+
+		GLenum format = 0;
+		GLenum type = 0;
+		if (texture_format == TextureFormat::RGBA32)
+		{
+			m_format = GL_RGBA;
+			format = GL_RGBA;
+			type = GL_UNSIGNED_BYTE;
+		}
+		else if (texture_format == TextureFormat::RGB24)
+		{
+			m_format = GL_RGB;
+			format = GL_RGB;
+			type = GL_UNSIGNED_BYTE;
+		}
+		else if (texture_format == TextureFormat::Alpha8)
+		{
+			m_format = GL_R8;
+			format = GL_RED;
+			type = GL_UNSIGNED_BYTE;
+		}
+		else
+		{
+			assert(!"texture format not implement");
+		}
+
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+		
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_index, level, m_format, width, height, 0, format, type, colors.Bytes());
+		
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+		LogGLError();
+	}
+
+	void TextureGLES::Create2D(GLenum format, GLenum type, void* pixels)
 	{
 		LogGLError();
 
 		auto texture = (Texture*) this;
 		int width = texture->GetWidth();
 		int height = texture->GetHeight();
+		bool mipmap = texture->IsMipmap();
 
 		glGenTextures(1, &m_texture);
 		glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -202,8 +254,6 @@ namespace Viry3D
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		UpdateSampler();
-
 		LogGLError();
 	}
 
@@ -213,18 +263,20 @@ namespace Viry3D
         m_external = true;
     }
 
-	void TextureGLES::UpdateSampler()
+	void TextureGLES::UpdateSampler2D()
 	{
 		LogGLError();
 
 		auto texture = (Texture*) this;
-		bool mipmap = texture->GetMipmapCount() > 1;
-
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-
+		auto filter_mode = texture->GetFilterMode();
+		auto wrap_mode = texture->GetWrapMode();
+		bool mipmap = texture->IsMipmap();
 		GLuint filter_min = 0;
 		GLuint filter_mag = 0;
-		auto filter_mode = texture->GetFilterMode();
+		GLuint address_mode = 0;
+		
+		glBindTexture(GL_TEXTURE_2D, m_texture);
+
 		switch (filter_mode)
 		{
 			case FilterMode::Point:
@@ -254,8 +306,6 @@ namespace Viry3D
 				break;
 		}
 
-		GLuint address_mode = 0;
-		auto wrap_mode = texture->GetWrapMode();
 		switch (wrap_mode)
 		{
 			case TextureWrapMode::Repeat:

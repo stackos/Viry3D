@@ -58,7 +58,7 @@ namespace Viry3D
 					if (texture->GetFilterMode() != filter_mode)
 					{
 						texture->SetFilterMode(filter_mode);
-						texture->UpdateSampler();
+						texture->UpdateSampler2D();
 					}
 					break;
 				}
@@ -121,10 +121,11 @@ namespace Viry3D
 		Ref<RenderTexture> texture = Ref<RenderTexture>(new RenderTexture());
 		texture->SetWidth(width);
 		texture->SetHeight(height);
-		texture->SetFormat(format);
-		texture->SetDepth(depth);
 		texture->SetWrapMode(TextureWrapMode::Clamp);
 		texture->SetFilterMode(filter_mode);
+		texture->m_mipmap = false;
+		texture->m_format = format;
+		texture->m_depth = depth;
 
 		if (format == RenderTextureFormat::Depth)
 		{

@@ -45,10 +45,6 @@ namespace Viry3D
 		RenderTextureFormat GetFormat() const { return m_format; }
 		DepthBuffer GetDepth() const { return m_depth; }
 
-	protected:
-		void SetFormat(RenderTextureFormat format) { m_format = format; }
-		void SetDepth(DepthBuffer depth) { m_depth = depth; }
-
 	private:
 		RenderTexture();
 
