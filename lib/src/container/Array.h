@@ -32,8 +32,8 @@ namespace Viry3D
 		byte* Bytes(int index = 0) const { return (byte*) &m_array[index]; }
 		int SizeInBytes() const { return sizeof(V) * Size(); }
 
-		V& operator [](int index) { return m_vector[index]; }
-		const V& operator [](int index) const { return m_vector[index]; }
+		V& operator [](int index) { return m_array[index]; }
+		const V& operator [](int index) const { return m_array[index]; }
 
 		typedef typename std::array<V, S>::iterator Iterator;
 		typedef typename std::array<V, S>::const_iterator ConstIterator;
