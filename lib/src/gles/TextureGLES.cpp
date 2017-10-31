@@ -184,7 +184,6 @@ namespace Viry3D
 		auto texture = (Texture*) this;
 		int width = texture->GetWidth();
 		int height = texture->GetHeight();
-		bool mipmap = texture->IsMipmap();
 
 		m_target = GL_TEXTURE_2D;
 
@@ -194,15 +193,11 @@ namespace Viry3D
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(m_target, 0, m_format, width, height, 0, format, type, pixels);
 
-		if (mipmap)
-		{
-			glGenerateMipmap(m_target);
-		}
-
 		glBindTexture(m_target, 0);
 
 		LogGLError();
 
+		this->GenerateMipmap();
 		this->UpdateSampler();
 	}
 
@@ -274,6 +269,23 @@ namespace Viry3D
 		glBindTexture(m_target, 0);
         
         LogGLError();
+	}
+
+	void TextureGLES::GenerateMipmap()
+	{
+		LogGLError();
+
+		auto texture = (Texture*) this;
+		bool mipmap = texture->IsMipmap();
+
+		if (mipmap)
+		{
+			glBindTexture(m_target, m_texture);
+
+			glGenerateMipmap(m_target);
+		}
+
+		LogGLError();
 	}
 
 	void TextureGLES::CreateCubemap()

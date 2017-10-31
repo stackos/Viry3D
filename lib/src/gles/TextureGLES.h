@@ -36,6 +36,7 @@ namespace Viry3D
 		void CreateTexture2D();
 		void UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors);
         void SetExternalTexture2D(void* texture);
+		void GenerateMipmap();
 		void CreateCubemap();
 		void UpdateCubemapFace(int face_index, GLint level, const ByteBuffer& colors);
 

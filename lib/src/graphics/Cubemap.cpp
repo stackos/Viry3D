@@ -75,7 +75,7 @@ namespace Viry3D
 
 		if (update_mipmaps)
 		{
-
+			this->GenerateMipmap();
 		}
 
 		if (make_no_longer_readable)
