@@ -26,6 +26,7 @@ namespace Viry3D
 {
 	TextureGLES::TextureGLES():
 		m_texture(0),
+		m_target(0),
 		m_format(0),
         m_external(false)
 	{
@@ -64,7 +65,6 @@ namespace Viry3D
 		}
 
 		this->Create2D(format, type, NULL);
-		this->UpdateSampler2D();
 	}
 
 	void TextureGLES::CreateDepthRenderTexture()
@@ -104,7 +104,6 @@ namespace Viry3D
 		}
 
 		this->Create2D(format, type, NULL);
-		this->UpdateSampler2D();
 	}
 
 	void TextureGLES::CreateTexture2D()
@@ -139,7 +138,6 @@ namespace Viry3D
 		}
 
 		this->Create2D(format, type, colors.Bytes());
-		this->UpdateSampler2D();
 	}
 
 	void TextureGLES::UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors)
@@ -171,21 +169,124 @@ namespace Viry3D
 			assert(!"texture format not implement");
 		}
 
-		glBindTexture(GL_TEXTURE_2D, m_texture);
+		glBindTexture(m_target, m_texture);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, format, type, colors.Bytes());
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glTexSubImage2D(m_target, 0, x, y, w, h, format, type, colors.Bytes());
+		glBindTexture(m_target, 0);
 
 		LogGLError();
+	}
+
+	void TextureGLES::Create2D(GLenum format, GLenum type, void* pixels)
+	{
+		LogGLError();
+
+		auto texture = (Texture*) this;
+		int width = texture->GetWidth();
+		int height = texture->GetHeight();
+		bool mipmap = texture->IsMipmap();
+
+		m_target = GL_TEXTURE_2D;
+
+		glGenTextures(1, &m_texture);
+		glBindTexture(m_target, m_texture);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(m_target, 0, m_format, width, height, 0, format, type, pixels);
+
+		if (mipmap)
+		{
+			glGenerateMipmap(m_target);
+		}
+
+		glBindTexture(m_target, 0);
+
+		LogGLError();
+
+		this->UpdateSampler();
+	}
+
+    void TextureGLES::SetExternalTexture2D(void* texture)
+    {
+        m_texture = (GLuint) (size_t) texture;
+        m_external = true;
+    }
+
+	void TextureGLES::UpdateSampler()
+	{
+		LogGLError();
+
+		auto texture = (Texture*) this;
+		auto wrap_mode = texture->GetWrapMode();
+		auto filter_mode = texture->GetFilterMode();
+		bool mipmap = texture->IsMipmap();
+		GLuint address_mode = 0;
+		GLuint filter_min = 0;
+		GLuint filter_mag = 0;
+		
+		switch (wrap_mode)
+		{
+			case TextureWrapMode::Repeat:
+				address_mode = GL_REPEAT;
+				break;
+			case TextureWrapMode::Clamp:
+				address_mode = GL_CLAMP_TO_EDGE;
+				break;
+		}
+
+		switch (filter_mode)
+		{
+			case FilterMode::Point:
+				if (mipmap)
+				{
+					filter_min = GL_NEAREST_MIPMAP_NEAREST;
+				}
+				else
+				{
+					filter_min = GL_NEAREST;
+				}
+
+				filter_mag = GL_NEAREST;
+				break;
+			case FilterMode::Bilinear:
+			case FilterMode::Trilinear:
+				if (mipmap)
+				{
+					filter_min = GL_LINEAR_MIPMAP_LINEAR;
+				}
+				else
+				{
+					filter_min = GL_LINEAR;
+				}
+
+				filter_mag = GL_LINEAR;
+				break;
+		}
+
+		glBindTexture(m_target, m_texture);
+
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, address_mode);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, address_mode);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, address_mode);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, filter_mag);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, filter_min);
+
+		glBindTexture(m_target, 0);
+        
+        LogGLError();
 	}
 
 	void TextureGLES::CreateCubemap()
 	{
 		LogGLError();
 
-		glGenTextures(1, &m_texture);
+		m_target = GL_TEXTURE_CUBE_MAP;
 
+		glGenTextures(1, &m_texture);
+		
 		LogGLError();
+
+		this->UpdateSampler();
 	}
 
 	void TextureGLES::UpdateCubemapFace(int face_index, GLint level, const ByteBuffer& colors)
@@ -222,119 +323,13 @@ namespace Viry3D
 			assert(!"texture format not implement");
 		}
 
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
-		
+		glBindTexture(m_target, m_texture);
+
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_index, level, m_format, width, height, 0, format, type, colors.Bytes());
-		
-		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+		glBindTexture(m_target, 0);
 
 		LogGLError();
-	}
-
-	void TextureGLES::Create2D(GLenum format, GLenum type, void* pixels)
-	{
-		LogGLError();
-
-		auto texture = (Texture*) this;
-		int width = texture->GetWidth();
-		int height = texture->GetHeight();
-		bool mipmap = texture->IsMipmap();
-
-		glGenTextures(1, &m_texture);
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_format, width, height, 0, format, type, pixels);
-
-		if (mipmap)
-		{
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		LogGLError();
-	}
-
-    void TextureGLES::SetExternalTexture2D(void* texture)
-    {
-        m_texture = (GLuint) (size_t) texture;
-        m_external = true;
-    }
-
-	void TextureGLES::UpdateSampler2D()
-	{
-		LogGLError();
-
-		auto texture = (Texture*) this;
-		auto filter_mode = texture->GetFilterMode();
-		auto wrap_mode = texture->GetWrapMode();
-		bool mipmap = texture->IsMipmap();
-		GLuint filter_min = 0;
-		GLuint filter_mag = 0;
-		GLuint address_mode = 0;
-		
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-
-		switch (filter_mode)
-		{
-			case FilterMode::Point:
-				if (mipmap)
-				{
-					filter_min = GL_NEAREST_MIPMAP_LINEAR;
-				}
-				else
-				{
-					filter_min = GL_NEAREST;
-				}
-
-				filter_mag = GL_NEAREST;
-				break;
-			case FilterMode::Bilinear:
-			case FilterMode::Trilinear:
-				if (mipmap)
-				{
-					filter_min = GL_LINEAR_MIPMAP_LINEAR;
-				}
-				else
-				{
-					filter_min = GL_LINEAR;
-				}
-
-				filter_mag = GL_LINEAR;
-				break;
-		}
-
-		switch (wrap_mode)
-		{
-			case TextureWrapMode::Repeat:
-				address_mode = GL_REPEAT;
-				break;
-			case TextureWrapMode::Clamp:
-				address_mode = GL_CLAMP_TO_EDGE;
-				break;
-		}
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, address_mode);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, address_mode);
-
-		if (m_format == GL_DEPTH_COMPONENT16 ||
-			m_format == GL_DEPTH_COMPONENT24 ||
-			m_format == GL_DEPTH24_STENCIL8 ||
-			m_format == GL_DEPTH_COMPONENT32F)
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mag);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_min);
-		}
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-        
-        LogGLError();
 	}
 }

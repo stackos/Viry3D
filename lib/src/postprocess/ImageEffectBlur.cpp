@@ -47,7 +47,7 @@ namespace Viry3D
 		if (src->GetFilterMode() != FilterMode::Bilinear)
 		{
 			src->SetFilterMode(FilterMode::Bilinear);
-			src->UpdateSampler2D();
+			src->UpdateSampler();
 		}
 
 		int downsample = this->GetDownSample();

@@ -58,7 +58,7 @@ namespace Viry3D
 					if (texture->GetFilterMode() != filter_mode)
 					{
 						texture->SetFilterMode(filter_mode);
-						texture->UpdateSampler2D();
+						texture->UpdateSampler();
 					}
 					break;
 				}

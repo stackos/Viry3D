@@ -151,7 +151,7 @@ namespace Viry3D
 		texture->m_format = format;
 
         texture->SetExternalTexture2D(external_texture);
-        texture->UpdateSampler2D();
+        texture->UpdateSampler();
         
         return texture;
     }
