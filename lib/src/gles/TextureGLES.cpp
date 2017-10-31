@@ -175,6 +175,11 @@ namespace Viry3D
 		LogGLError();
 	}
 
+	void TextureGLES::CreateCubemap()
+	{
+		
+	}
+
 	void TextureGLES::Create(GLenum format, GLenum type, void* pixels, bool mipmap)
 	{
 		LogGLError();

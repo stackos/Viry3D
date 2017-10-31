@@ -19,18 +19,23 @@
 
 #include "Texture.h"
 #include "TextureFormat.h"
+#include "container/Vector.h"
+#include "container/Array.h"
 
 namespace Viry3D
 {
 	enum class CubemapFace
 	{
-		Unknown,
+		Unknown = -1,
+
 		PositiveX,
 		NegativeX,
 		PositiveY,
 		NegativeY,
 		PositiveZ,
 		NegativeZ,
+
+		Count
 	};
 
 	class Cubemap: public Texture
@@ -54,5 +59,6 @@ namespace Viry3D
 	private:
 		TextureFormat m_format;
 		bool m_mipmap;
+		Vector<Array<ByteBuffer, (size_t) CubemapFace::Count>> m_colors;
 	};
 }

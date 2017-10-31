@@ -170,7 +170,7 @@ namespace Viry3D
 		{
 			auto colors = m_texture->GetColors();
 
-			//insert one white pixel for underline
+			// insert one white pixel for underline
 			if (m_texture_x == 0 && m_texture_y == 0)
 			{
 				ByteBuffer buffer(1);

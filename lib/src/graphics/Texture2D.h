@@ -53,13 +53,11 @@ namespace Viry3D
         static Ref<Texture2D> CreateExternalTexture(int width, int height, TextureFormat format, bool mipmap, void* external_texture);
         void UpdateExternalTexture(void* external_texture);
 
-		ByteBuffer GetColors() const { return m_colors; }
+		ByteBuffer& GetColors() { return m_colors; }
 		void UpdateTexture(int x, int y, int w, int h, const ByteBuffer& colors);
 		void EncodeToPNG(const String& file);
 		TextureFormat GetFormat() const { return m_format; }
 		bool IsMipmap() const { return m_mipmap; }
-		void SetPixels(const ByteBuffer& colors, int miplevel = 0);
-		void Apply(bool update_mipmaps = true, bool make_no_longer_readable = false);
 
 	private:
 		Texture2D();

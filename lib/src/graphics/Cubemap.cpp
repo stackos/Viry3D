@@ -34,11 +34,23 @@ namespace Viry3D
 		cubemap->m_format = format;
 		cubemap->m_mipmap = mipmap;
 
+		cubemap->CreateCubemap();
+
 		return cubemap;
 	}
 
 	Cubemap::Cubemap()
 	{
 		SetName("Cubemap");
+	}
+
+	void Cubemap::SetPixels(const ByteBuffer& colors, CubemapFace face, int mip_level)
+	{
+		
+	}
+
+	void Cubemap::Apply(bool update_mipmaps, bool make_no_longer_readable)
+	{
+		
 	}
 }
