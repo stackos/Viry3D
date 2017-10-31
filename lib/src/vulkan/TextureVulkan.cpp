@@ -140,7 +140,7 @@ namespace Viry3D
 		int width = texture->GetWidth();
 		int height = texture->GetHeight();
 		bool mipmap = texture->IsMipmap();
-		int mip_count = GetMipCount();
+		int mip_count = texture->GetMipmapCount();
 		int buffer_size;
 
 		if (format == TextureFormat::RGBA32)
@@ -325,35 +325,6 @@ namespace Viry3D
 		assert(!err);
 	}
 
-	int TextureVulkan::GetMipCount()
-	{
-		int mip_count = 0;
-
-		auto texture_render = dynamic_cast<RenderTexture*>(this);
-		auto texture_2d = dynamic_cast<Texture2D*>(this);
-		if (texture_render)
-		{
-			mip_count = 1;
-		}
-		else if (texture_2d)
-		{
-			int width = texture_2d->GetWidth();
-			int height = texture_2d->GetHeight();
-			bool mipmap = texture_2d->IsMipmap();
-
-			if (mipmap)
-			{
-				mip_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
-			}
-			else
-			{
-				mip_count = 1;
-			}
-		}
-
-		return mip_count;
-	}
-
 	void TextureVulkan::UpdateSampler()
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
@@ -365,7 +336,7 @@ namespace Viry3D
 			m_sampler = VK_NULL_HANDLE;
 		}
 
-		int mip_count = GetMipCount();
+		int mip_count = GetMipmapCount();
 		if (mip_count > 0)
 		{
 			this->CreateSampler(mip_count);

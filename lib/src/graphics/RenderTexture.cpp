@@ -138,7 +138,9 @@ namespace Viry3D
 		return texture;
 	}
 
-	RenderTexture::RenderTexture()
+	RenderTexture::RenderTexture():
+		m_format(RenderTextureFormat::RGBA32),
+		m_depth(DepthBuffer::Depth_0)
 	{
 		SetName("RenderTexture");
 	}

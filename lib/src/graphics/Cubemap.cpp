@@ -39,14 +39,20 @@ namespace Viry3D
 		return cubemap;
 	}
 
-	Cubemap::Cubemap()
+	Cubemap::Cubemap():
+		m_format(TextureFormat::RGBA32)
 	{
 		SetName("Cubemap");
 	}
 
 	void Cubemap::SetPixels(const ByteBuffer& colors, CubemapFace face, int mip_level)
 	{
-		
+		if (m_colors.Empty())
+		{
+			m_colors.Resize(this->GetMipmapCount());
+		}
+
+		m_colors[mip_level][(int) face] = colors;
 	}
 
 	void Cubemap::Apply(bool update_mipmaps, bool make_no_longer_readable)

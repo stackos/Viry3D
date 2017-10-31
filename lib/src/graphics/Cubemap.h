@@ -49,7 +49,6 @@ namespace Viry3D
 			bool mipmap);
 
 		TextureFormat GetFormat() const { return m_format; }
-		bool IsMipmap() const { return m_mipmap; }
 		void SetPixels(const ByteBuffer& colors, CubemapFace face, int mip_level = 0);
 		void Apply(bool update_mipmaps = true, bool make_no_longer_readable = false);
 
@@ -58,7 +57,6 @@ namespace Viry3D
 
 	private:
 		TextureFormat m_format;
-		bool m_mipmap;
 		Vector<Array<ByteBuffer, (size_t) CubemapFace::Count>> m_colors;
 	};
 }

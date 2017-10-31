@@ -40,7 +40,6 @@ namespace Viry3D
 
 	private:
 		void Create(GLenum format, GLenum type, void* pixels, bool mipmap);
-		int GetMipCount();
 
 	private:
 		GLuint m_texture;

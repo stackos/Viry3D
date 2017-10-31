@@ -25,6 +25,7 @@ namespace Viry3D
 {
 	TextureGLES::TextureGLES():
 		m_texture(0),
+		m_format(0),
         m_external(false)
 	{
 	}
@@ -211,45 +212,16 @@ namespace Viry3D
         m_texture = (GLuint) (size_t) texture;
         m_external = true;
     }
-    
-	int TextureGLES::GetMipCount()
-	{
-		int mip_count = 0;
-
-		auto texture_render = dynamic_cast<RenderTexture*>(this);
-		auto texture_2d = dynamic_cast<Texture2D*>(this);
-		if (texture_render)
-		{
-			mip_count = 1;
-		}
-		else if (texture_2d)
-		{
-			int width = texture_2d->GetWidth();
-			int height = texture_2d->GetHeight();
-			bool mipmap = texture_2d->IsMipmap();
-
-			if (mipmap)
-			{
-				mip_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
-			}
-			else
-			{
-				mip_count = 1;
-			}
-		}
-
-		return mip_count;
-	}
 
 	void TextureGLES::UpdateSampler()
 	{
 		LogGLError();
 
-		bool mipmap = this->GetMipCount() > 1;
+		auto texture = (Texture*) this;
+		bool mipmap = texture->GetMipmapCount() > 1;
 
 		glBindTexture(GL_TEXTURE_2D, m_texture);
 
-		auto texture = (Texture*) this;
 		GLuint filter_min = 0;
 		GLuint filter_mag = 0;
 		auto filter_mode = texture->GetFilterMode();

@@ -25,6 +25,7 @@
 
 #include "TextureWrapMode.h"
 #include "FilterMode.h"
+#include "math/Mathf.h"
 
 namespace Viry3D
 {
@@ -38,11 +39,14 @@ namespace Viry3D
 		friend class TextureGLES;
 #endif
 	public:
-		Texture()
+		Texture():
+			m_width(0),
+			m_height(0),
+			m_wrap_mode(TextureWrapMode::Clamp),
+			m_filter_mode(FilterMode::Bilinear),
+			m_mipmap(false)
 		{
 			SetName("Texture");
-			SetWidth(0);
-			SetHeight(0);
 		}
 		int GetWidth() const { return m_width; }
 		int GetHeight() const { return m_height; }
@@ -50,6 +54,18 @@ namespace Viry3D
 		void SetWrapMode(TextureWrapMode mode) { m_wrap_mode = mode; }
 		FilterMode GetFilterMode() const { return m_filter_mode; }
 		void SetFilterMode(FilterMode mode) { m_filter_mode = mode; }
+		bool IsMipmap() const { return m_mipmap; }
+		int GetMipmapCount()
+		{
+			int mip_count = 1;
+
+			if (m_mipmap)
+			{
+				mip_count = (int) floor(Mathf::Log2((float) Mathf::Max(m_width, m_height))) + 1;
+			}
+
+			return mip_count;
+		}
 
 	protected:
 		void SetWidth(int witdh) { m_width = witdh; }
@@ -60,5 +76,6 @@ namespace Viry3D
 		int m_height;
 		TextureWrapMode m_wrap_mode;
 		FilterMode m_filter_mode;
+		bool m_mipmap;
 	};
 }

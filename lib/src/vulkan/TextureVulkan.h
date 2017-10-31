@@ -54,7 +54,6 @@ namespace Viry3D
 		void CopyBufferImage(const Ref<ImageBuffer>& image_buffer, int x, int y, int w, int h);
 		void GenMipmaps(int mip_count);
 		void CreateSampler(int mip_count);
-		int GetMipCount();
 
 		VkFormat m_format;
 		VkImage m_image;

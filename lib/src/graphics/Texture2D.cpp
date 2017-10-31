@@ -22,7 +22,8 @@
 
 namespace Viry3D
 {
-	Texture2D::Texture2D()
+	Texture2D::Texture2D():
+		m_format(TextureFormat::RGBA32)
 	{
 		SetName("Texture2D");
 	}
@@ -130,8 +131,8 @@ namespace Viry3D
 		texture->SetHeight(height);
 		texture->SetWrapMode(wrap_mode);
 		texture->SetFilterMode(filter_mode);
-		texture->m_format = format;
 		texture->m_mipmap = mipmap;
+		texture->m_format = format;
 		texture->m_colors = colors;
 
 		texture->CreateTexture2D();
@@ -146,8 +147,8 @@ namespace Viry3D
         texture->SetHeight(height);
         texture->SetWrapMode(TextureWrapMode::Clamp);
         texture->SetFilterMode(FilterMode::Bilinear);
-		texture->m_format = format;
 		texture->m_mipmap = mipmap;
+		texture->m_format = format;
 
         texture->SetExternalTexture2D(external_texture);
         texture->UpdateSampler();
