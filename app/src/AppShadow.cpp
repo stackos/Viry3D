@@ -25,6 +25,7 @@
 #include "renderer/MeshRenderer.h"
 #include "graphics/Material.h"
 #include "graphics/RenderTexture.h"
+#include "graphics/Cubemap.h"
 
 using namespace Viry3D;
 
@@ -91,9 +92,24 @@ public:
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
 		sphere_mesh->Update();
 
+		auto cubemap = Cubemap::Create(1, TextureFormat::RGBA32, TextureWrapMode::Clamp, FilterMode::Bilinear, false);
+		ByteBuffer colors(4);
+		colors[0] = 0;
+		colors[1] = 255;
+		colors[2] = 0;
+		colors[3] = 255;
+		for (int i = 0; i < 6; i++)
+		{
+			cubemap->SetPixels(colors, (CubemapFace) i, 0);
+		}
+		cubemap->Apply(true, true);
+
+		auto sphere_mat = Material::Create("Reflect");
+		sphere_mat->SetTexture("_ReflectMap", cubemap);
+
 		auto sphere = GameObject::Create("sphere")->AddComponent<MeshRenderer>();
 		sphere->GetTransform()->SetPosition(Vector3(-1.5f, 1, 0));
-		sphere->SetSharedMaterial(Material::Create("Diffuse"));
+		sphere->SetSharedMaterial(sphere_mat);
 		sphere->SetSharedMesh(sphere_mesh);
 
 		camera->SetPostRenderFunc([=]() {
