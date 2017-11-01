@@ -203,6 +203,7 @@ namespace Viry3D
 
     void TextureGLES::SetExternalTexture2D(void* texture)
     {
+        m_target = GL_TEXTURE_2D;
         m_texture = (GLuint) (size_t) texture;
         m_external = true;
     }
