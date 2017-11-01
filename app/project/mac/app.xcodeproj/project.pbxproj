@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA410F7D1FAA319A005937F1 /* AppSky.cpp */; };
 		BA7D82D11F9E4DC10085EEB7 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */; };
 		D1A6FA741FA2D2AA0081A94A /* AppShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */; };
 		D1B6AD4A1F83E4CD00082097 /* AppAnim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD421F83E4CD00082097 /* AppAnim.cpp */; };
@@ -38,6 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BA410F7D1FAA319A005937F1 /* AppSky.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppSky.cpp; path = ../../src/AppSky.cpp; sourceTree = "<group>"; };
 		BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
 		D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppShadow.cpp; path = ../../src/AppShadow.cpp; sourceTree = "<group>"; };
 		D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/mac/viry3d.xcodeproj; sourceTree = "<group>"; };
@@ -69,9 +71,9 @@
 				D1F3BBC21F86905F00B738FA /* CoreVideo.framework in Frameworks */,
 				D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */,
 				D1B6AD571F83E88700082097 /* OpenAL.framework in Frameworks */,
+				D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */,
 				D1B6AD551F83E87000082097 /* libz.1.2.5.tbd in Frameworks */,
 				D1B6AD521F83E82B00082097 /* libviry3d.a in Frameworks */,
-				D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +90,7 @@
 				D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */,
 				D1B6AD461F83E4CD00082097 /* AppMesh.cpp */,
 				D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */,
+				BA410F7D1FAA319A005937F1 /* AppSky.cpp */,
 				D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */,
 				D1B6AD491F83E4CD00082097 /* AppWatch.cpp */,
 			);
@@ -233,6 +236,7 @@
 			files = (
 				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
 				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
+				BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */,
 				D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */,
 				D1A6FA741FA2D2AA0081A94A /* AppShadow.cpp in Sources */,
 				D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */,
