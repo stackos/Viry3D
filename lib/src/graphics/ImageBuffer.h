@@ -29,11 +29,10 @@ namespace Viry3D
 {
 #if VR_VULKAN
 	class ImageBuffer: public BufferVulkan
-	{
 #elif VR_GLES
 	class ImageBuffer: public BufferGLES
-	{
 #endif
+	{
 	public:
 		static Ref<ImageBuffer> Create(int size);
 

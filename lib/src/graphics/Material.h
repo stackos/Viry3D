@@ -33,12 +33,12 @@ namespace Viry3D
 {
 	class Camera;
 
-	class Material
 #if VR_VULKAN
-		: public MaterialVulkan{
+	class Material: public MaterialVulkan
 #elif VR_GLES
-		: public MaterialGLES{
+	class Material: public MaterialGLES
 #endif
+	{
 	public:
 		static Ref<Material> Create(const String& shader_name);
 

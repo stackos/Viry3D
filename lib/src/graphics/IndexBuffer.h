@@ -35,11 +35,10 @@ namespace Viry3D
 
 #if VR_VULKAN
 	class IndexBuffer: public BufferVulkan
-	{
 #elif VR_GLES
 	class IndexBuffer: public BufferGLES
-	{
 #endif
+	{
 	public:
 		static Ref<IndexBuffer> Create(int size, bool dynamic = false);
 
