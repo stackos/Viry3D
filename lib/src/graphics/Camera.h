@@ -77,7 +77,7 @@ namespace Viry3D
 		bool IsCulling(const Ref<GameObject>& obj) const;
 		const Matrix4x4& GetViewMatrix();
 		const Matrix4x4& GetProjectionMatrix();
-        void SetViewMatrixExternal(const Matrix4x4& mat) { m_view_matrix_external = mat; m_matrix_external = true; }
+        void SetViewMatrixExternal(const Matrix4x4& mat);
         void SetProjectionMatrixExternal(const Matrix4x4& mat) { m_projection_matrix_external = mat; m_matrix_external = true; }
 		const Frustum& GetFrustum();
         void SetFrustumCulling(bool enable) { m_frustum_culling = enable; }
