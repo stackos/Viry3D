@@ -2,6 +2,7 @@
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
 			<Uniform name="_ViewProjection" size="64"/>
+			<Uniform name="_WorldCameraPos" size="16"/>
 		</UniformBuffer>
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>
@@ -14,6 +15,7 @@ UniformBuffer(1, 0) uniform buf_vs_obj {
 
 UniformBuffer(0, 2) uniform buf_vs {
 	mat4 _ViewProjection;
+	vec4 _WorldCameraPos;
 } u_buf;
 
 layout (location = 0) in vec4 a_pos;
@@ -25,8 +27,12 @@ Varying(1) out vec3 v_world_normal;
 Varying(2) out vec3 v_world_view_dir;
 
 void main() {
-	gl_Position = a_pos * u_buf_obj._World * u_buf._ViewProjection;
+	vec4 world_pos = a_pos * u_buf_obj._World;
+	gl_Position = world_pos * u_buf._ViewProjection;
 	v_uv = a_uv;
+
+	v_world_normal = (vec4(a_normal, 0.0) * u_buf_obj._World).xyz;
+	v_world_view_dir = u_buf._WorldCameraPos.xyz - world_pos.xyz;
 
 	vulkan_convert();
 }
@@ -47,7 +53,11 @@ Varying(2) in vec3 v_world_view_dir;
 layout (location = 0) out vec4 o_frag;
 
 void main() {
-    o_frag = texture(_ReflectMap, vec3(1.0, 0.0, 0.0));
+	vec3 normal = normalize(v_world_normal);
+	vec3 view_dir = normalize(v_world_view_dir);
+	vec3 ref = reflect(view_dir, normal);
+	
+    o_frag = texture(_ReflectMap, ref);
 }
 		</Source>
 	</PixelShader>

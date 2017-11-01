@@ -19,13 +19,11 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
-#include "graphics/Graphics.h"
 #include "graphics/Camera.h"
-#include "animation/Animation.h"
 #include "renderer/MeshRenderer.h"
 #include "graphics/Material.h"
-#include "graphics/RenderTexture.h"
 #include "graphics/Cubemap.h"
+#include "graphics/Texture2D.h"
 
 using namespace Viry3D;
 
@@ -43,7 +41,7 @@ public:
 		this->CreateFPSUI(20, 1, 1);
 
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->GetTransform()->SetPosition(Vector3(0, 3, -5.0f));
+		camera->GetTransform()->SetPosition(Vector3(0, 2.0f, -2.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
 		auto plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
@@ -56,21 +54,18 @@ public:
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
 		sphere_mesh->Update();
 
-		auto cubemap = Cubemap::Create(1, TextureFormat::RGBA32, TextureWrapMode::Clamp, FilterMode::Bilinear, false);
-		ByteBuffer colors(4);
-		colors[0] = 0;
-		colors[1] = 255;
-		colors[2] = 0;
-		colors[3] = 255;
+		auto cubemap = Cubemap::Create(512, TextureFormat::RGB24, TextureWrapMode::Clamp, FilterMode::Bilinear, false);
 		for (int i = 0; i < 6; i++)
 		{
-			cubemap->SetPixels(colors, (CubemapFace) i, 0);
+			auto face = Texture2D::LoadFromFile(String::Format("%s/%d.jpg", (Application::DataPath() + "/AppSky").CString(), i));
+			cubemap->SetPixels(face->GetColors(), (CubemapFace) i, 0);
 		}
 		cubemap->Apply(false, true);
 
 		auto sphere_mat = Material::Create("Reflect");
 		sphere_mat->SetTexture("_ReflectMap", cubemap);
-
+		sphere_mat->SetVector("_WorldCameraPos", camera->GetTransform()->GetPosition());
+		
 		auto sphere = GameObject::Create("sphere")->AddComponent<MeshRenderer>();
 		sphere->GetTransform()->SetPosition(Vector3(0, 1, 0));
 		sphere->SetSharedMaterial(sphere_mat);
