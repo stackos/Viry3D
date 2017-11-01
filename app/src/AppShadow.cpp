@@ -102,7 +102,7 @@ public:
 		{
 			cubemap->SetPixels(colors, (CubemapFace) i, 0);
 		}
-		cubemap->Apply(true, true);
+		cubemap->Apply(false, true);
 
 		auto sphere_mat = Material::Create("Reflect");
 		sphere_mat->SetTexture("_ReflectMap", cubemap);
