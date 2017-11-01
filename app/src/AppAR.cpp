@@ -19,6 +19,7 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
+#include "Input.h"
 #include "ios/ARScene.h"
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
@@ -116,6 +117,8 @@ public:
                     m_planes.Remove(i);
                 }
                 removes.Clear();
+                
+                this->UpdateTouch();
             }
         }
     }
@@ -152,12 +155,28 @@ public:
     
     Ref<ARScene> m_ar;
     Ref<Mesh> m_plane_mesh;
-    Map<String, Ref<MeshRenderer>> m_planes;
+#else
+    virtual void Update()
+    {
+        this->UpdateTouch();
+    }
 #endif
     
+    void UpdateTouch()
+    {
+        if (m_planes.Size() > 0)
+        {
+            if (Input::GetMouseButton(0))
+            {
+                
+            }
+        }
+    }
+    
     Ref<Camera> m_camera;
+    Map<String, Ref<MeshRenderer>> m_planes;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppAR);
 #endif
