@@ -24,6 +24,7 @@
 #include "graphics/Material.h"
 #include "graphics/Cubemap.h"
 #include "graphics/Texture2D.h"
+#include "io/File.h"
 
 using namespace Viry3D;
 
@@ -57,8 +58,18 @@ public:
 		auto cubemap = Cubemap::Create(512, TextureFormat::RGB24, TextureWrapMode::Clamp, FilterMode::Bilinear, false);
 		for (int i = 0; i < 6; i++)
 		{
-			auto face = Texture2D::LoadFromFile(String::Format("%s/%d.jpg", (Application::DataPath() + "/AppSky").CString(), i));
-			cubemap->SetPixels(face->GetColors(), (CubemapFace) i, 0);
+			int width;
+			int height;
+			ByteBuffer colors;
+			TextureFormat format;
+
+			auto file = String::Format("%s/%d.jpg", (Application::DataPath() + "/AppSky").CString(), i);
+			auto buffer = File::ReadAllBytes(file);
+
+			if (Texture2D::LoadImageData(buffer, colors, width, height, format))
+			{
+				cubemap->SetPixels(colors, (CubemapFace) i, 0);
+			}
 		}
 		cubemap->Apply(false, true);
 

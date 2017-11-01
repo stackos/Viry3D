@@ -22,24 +22,15 @@
 
 namespace Viry3D
 {
-	Texture2D::Texture2D():
-		m_format(TextureFormat::RGBA32)
+	bool Texture2D::LoadImageData(const ByteBuffer& buffer, ByteBuffer& colors, int& width, int& height, TextureFormat& format)
 	{
-		SetName("Texture2D");
-	}
-
-	Ref<Texture2D> Texture2D::LoadFromData(const ByteBuffer& buffer,
-		TextureWrapMode wrap_mode,
-		FilterMode filter_mode,
-		bool mipmap)
-	{
-		Ref<Texture2D> texture;
-
 		const byte JPG_HEAD[] = { 0xff, 0xd8, 0xff };
 		const byte PNG_HEAD[] = { 0x89, 0x50, 0x4e, 0x47 };
 
-		int width = 0, height = 0, bpp = 0;
-		ByteBuffer colors;
+		width = 0;
+		height = 0;
+
+		int bpp = 0;
 		if (Memory::Compare(buffer.Bytes(), (void*) JPG_HEAD, 3) == 0)
 		{
 			colors = Image::LoadJPEG(buffer, width, height, bpp);
@@ -51,9 +42,9 @@ namespace Viry3D
 		else
 		{
 			assert(!"invalid image file format");
+			return false;
 		}
 
-		TextureFormat format;
 		if (bpp == 32)
 		{
 			format = TextureFormat::RGBA32;
@@ -69,10 +60,28 @@ namespace Viry3D
 		else
 		{
 			assert(!"invalid image file bpp");
-			format = TextureFormat::RGBA32;
+			return false;
 		}
 
-		texture = Create(width, height, format, wrap_mode, filter_mode, mipmap, colors);
+		return true;
+	}
+
+	Ref<Texture2D> Texture2D::LoadFromData(const ByteBuffer& buffer,
+		TextureWrapMode wrap_mode,
+		FilterMode filter_mode,
+		bool mipmap)
+	{
+		Ref<Texture2D> texture;
+
+		int width;
+		int height;
+		ByteBuffer colors;
+		TextureFormat format;
+
+		if (Texture2D::LoadImageData(buffer, colors, width, height, format))
+		{
+			texture = Create(width, height, format, wrap_mode, filter_mode, mipmap, colors);
+		}
 
 		return texture;
 	}
@@ -92,29 +101,6 @@ namespace Viry3D
 		}
 
 		return texture;
-	}
-
-	void Texture2D::EncodeToPNG(const String& file)
-	{
-		int bpp;
-		auto format = this->GetFormat();
-		switch (format)
-		{
-			case TextureFormat::RGBA32:
-				bpp = 32;
-				break;
-			case TextureFormat::RGB24:
-				bpp = 24;
-				break;
-			case TextureFormat::Alpha8:
-				bpp = 8;
-				break;
-			default:
-				bpp = 0;
-				break;
-		}
-
-		Image::EncodeToPNG(this, bpp, file);
 	}
 
 	Ref<Texture2D> Texture2D::Create(
@@ -139,22 +125,51 @@ namespace Viry3D
 
 		return texture;
 	}
-    
-    Ref<Texture2D> Texture2D::CreateExternalTexture(int width, int height, TextureFormat format, bool mipmap, void* external_texture)
-    {
-        Ref<Texture2D> texture = Ref<Texture2D>(new Texture2D());
-        texture->SetWidth(width);
-        texture->SetHeight(height);
-        texture->SetWrapMode(TextureWrapMode::Clamp);
-        texture->SetFilterMode(FilterMode::Bilinear);
+
+	Ref<Texture2D> Texture2D::CreateExternalTexture(int width, int height, TextureFormat format, bool mipmap, void* external_texture)
+	{
+		Ref<Texture2D> texture = Ref<Texture2D>(new Texture2D());
+		texture->SetWidth(width);
+		texture->SetHeight(height);
+		texture->SetWrapMode(TextureWrapMode::Clamp);
+		texture->SetFilterMode(FilterMode::Bilinear);
 		texture->m_mipmap = mipmap;
 		texture->m_format = format;
 
-        texture->SetExternalTexture2D(external_texture);
-        texture->UpdateSampler();
-        
-        return texture;
-    }
+		texture->SetExternalTexture2D(external_texture);
+		texture->UpdateSampler();
+
+		return texture;
+	}
+
+	Texture2D::Texture2D():
+		m_format(TextureFormat::RGBA32)
+	{
+		SetName("Texture2D");
+	}
+
+	void Texture2D::EncodeToPNG(const String& file)
+	{
+		int bpp;
+		auto format = this->GetFormat();
+		switch (format)
+		{
+			case TextureFormat::RGBA32:
+				bpp = 32;
+				break;
+			case TextureFormat::RGB24:
+				bpp = 24;
+				break;
+			case TextureFormat::Alpha8:
+				bpp = 8;
+				break;
+			default:
+				bpp = 0;
+				break;
+		}
+
+		Image::EncodeToPNG(this, bpp, file);
+	}
     
     void Texture2D::UpdateExternalTexture(void* external_texture)
     {

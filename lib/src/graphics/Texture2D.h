@@ -39,6 +39,7 @@ namespace Viry3D
 			TextureWrapMode wrap_mode = TextureWrapMode::Clamp,
 			FilterMode filter_mode = FilterMode::Bilinear,
 			bool mipmap = false);
+		static bool LoadImageData(const ByteBuffer& buffer, ByteBuffer& colors, int& width, int& height, TextureFormat& format);
 		//
 		//	线程安全
 		//
