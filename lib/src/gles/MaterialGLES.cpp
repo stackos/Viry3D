@@ -172,17 +172,30 @@ namespace Viry3D
 
 			glActiveTexture(GL_TEXTURE0 + i + 1);
 
-			auto& name = sampler_infos[i]->name;
 			const Ref<Texture>* tex;
-			if (textures.TryGet(name, &tex))
+			if (textures.TryGet(sampler_infos[i]->name, &tex))
 			{
 				auto texture = (*tex)->GetTexture();
-				glBindTexture(GL_TEXTURE_2D, texture);
+				if (sampler_infos[i]->type == "2D")
+				{
+					glBindTexture(GL_TEXTURE_2D, texture);
+				}
+				else if (sampler_infos[i]->type == "Cube")
+				{
+					glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+				}
+				else
+				{
+					Log("invalid sampler type!");
+				}
 			}
 			else
 			{
-				auto default_texture = Shader::GetDefaultTexture(sampler_infos[i]->default_tex)->GetTexture();
-				glBindTexture(GL_TEXTURE_2D, default_texture);
+				if (sampler_infos[i]->type == "2D")
+				{
+					auto default_texture = Shader::GetDefaultTexture(sampler_infos[i]->default_tex)->GetTexture();
+					glBindTexture(GL_TEXTURE_2D, default_texture);
+				}
 			}
 
 			glUniform1i(location, i + 1);

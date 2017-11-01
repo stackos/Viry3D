@@ -235,6 +235,7 @@ namespace Viry3D
 						{
 							XMLSampler sampler;
 							try_get_attribute(sampler.name, ps_node, "name");
+							try_get_attribute(sampler.type, ps_node, "type");
 							try_get_attribute_to_type(sampler.binding, ps_node, "binding", int);
 							try_get_attribute(sampler.default_tex, ps_node, "default");
 

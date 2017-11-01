@@ -63,10 +63,12 @@ namespace Viry3D
 	struct XMLSampler
 	{
 		String name;
+		String type; // 2D, Cube
 		int binding;
 		String default_tex;
 
 		XMLSampler():
+			type("2D"),
 			binding(-1),
 			default_tex("white")
 		{
