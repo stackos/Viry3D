@@ -28,7 +28,7 @@ namespace Viry3D
 	public:
 		Array() { }
 
-		int Size() const { m_array.size(); }
+		int Size() const { return m_array.size(); }
 		byte* Bytes(int index = 0) const { return (byte*) &m_array[index]; }
 		int SizeInBytes() const { return sizeof(V) * Size(); }
 
