@@ -57,8 +57,8 @@ namespace Viry3D
 		static int RandomRange(int min, int max);
 		static float Log2(float x) { return logf(x) / logf(2); }
 		static int Abs(int v) { return (int) fabsf((float) v); }
-        static bool RayPlaneIntersection(const Ray& ray, const Vector3& plane_normal, const Vector3& plane_point, float& t);
-        static bool RayBoundsIntersection(const Ray& ray, const Bounds& box, float& t);
+        static bool RayPlaneIntersection(const Ray& ray, const Vector3& plane_normal, const Vector3& plane_point, float& ray_length);
+        static bool RayBoundsIntersection(const Ray& ray, const Bounds& box, float& ray_length);
 	};
 
 	template<class T>

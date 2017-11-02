@@ -168,7 +168,24 @@ public:
         {
             if (Input::GetMouseButton(0))
             {
-                
+				auto pos = Input::GetMousePosition();
+				auto ray = m_camera->ScreenPointToRay(pos);
+
+				for (const auto& i : m_planes)
+				{
+					auto plane_point = i.second->GetTransform()->GetPosition();
+					auto plane_normal = i.second->GetTransform()->GetUp();
+
+					float ray_length;
+					if (Mathf::RayPlaneIntersection(ray, plane_normal, plane_point, ray_length))
+					{
+						auto point = ray.GetPoint(ray_length);
+
+						// if point in plane range
+						// place model at point
+						// break
+					}
+				}
             }
         }
     }

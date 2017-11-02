@@ -17,15 +17,15 @@
 
 #include "Camera.h"
 #include "GameObject.h"
-#include "RenderPass.h"
+#include "Debug.h"
+#include "Profiler.h"
 #include "Graphics.h"
 #include "Material.h"
+#include "RenderPass.h"
 #include "RenderTexture.h"
-#include "Debug.h"
+#include "time/Time.h"
 #include "renderer/Renderer.h"
 #include "postprocess/ImageEffect.h"
-#include "time/Time.h"
-#include "Profiler.h"
 
 namespace Viry3D
 {
@@ -438,5 +438,30 @@ namespace Viry3D
 	{
 		m_matrix_dirty = true;
 		m_frame_buffer = frame_buffer;
+	}
+
+	Vector3 Camera::ScreenToViewportPoint(const Vector3& position)
+	{
+		float x = position.x / GetTargetWidth();
+		x = (x - m_rect.x) / m_rect.width;
+
+		float y = position.y / GetTargetHeight();
+		y = (y - m_rect.y) / m_rect.height;
+
+		return Vector3(x, y, 0);
+	}
+
+	Ray Camera::ScreenPointToRay(const Vector3& position)
+	{
+		Vector3 pos_viewport = this->ScreenToViewportPoint(position);
+		Vector3 pos_proj = pos_viewport * 2.0f - Vector3(1.0f, 1.0f, 0);
+		Matrix4x4 vp_inverse = (this->GetProjectionMatrix() * this->GetViewMatrix()).Inverse();
+		Vector4 pos_world = vp_inverse * Vector4(pos_proj.x, pos_proj.y, -1.0f, 1.0f);
+		pos_world *= 1.0f / pos_world.w;
+
+		Vector3 origin = Vector3(pos_world.x, pos_world.y, pos_world.z);
+		Vector3 direction = Vector3::Normalize(origin - this->GetTransform()->GetPosition());
+
+		return Ray(origin, direction);
 	}
 }

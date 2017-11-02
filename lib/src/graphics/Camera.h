@@ -18,14 +18,15 @@
 #pragma once
 
 #include "Component.h"
+#include "Action.h"
+#include "Color.h"
+#include "FrameBuffer.h"
 #include "CameraClearFlags.h"
-#include "math/Matrix4x4.h"
+#include "math/Ray.h"
 #include "math/Rect.h"
 #include "math/Frustum.h"
-#include "Color.h"
+#include "math/Matrix4x4.h"
 #include "container/List.h"
-#include "FrameBuffer.h"
-#include "Action.h"
 
 namespace Viry3D
 {
@@ -88,6 +89,8 @@ namespace Viry3D
 		void SetPostRenderFunc(Action func) { m_post_render_func = func; }
 		void SetRenderMode(CameraRenderMode mode) { m_render_mode = mode; }
 		CameraRenderMode GetRenderMode() { return m_render_mode; }
+		Vector3 ScreenToViewportPoint(const Vector3& position);
+		Ray ScreenPointToRay(const Vector3& position);
 
 	protected:
 		virtual void OnTranformChanged();

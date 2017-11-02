@@ -74,7 +74,7 @@ namespace Viry3D
 		return (int) (min + RandomRange(0.0f, 1.0f) * (max - min));
 	}
     
-    bool Mathf::RayPlaneIntersection(const Ray& ray, const Vector3& plane_normal, const Vector3& plane_point, float& t)
+    bool Mathf::RayPlaneIntersection(const Ray& ray, const Vector3& plane_normal, const Vector3& plane_point, float& ray_length)
     {
         float n_dot_d = ray.GetDirection().Dot(plane_normal);
         
@@ -83,12 +83,12 @@ namespace Viry3D
             return false;
         }
         
-        t = (plane_point - ray.GetOrigin()).Dot(plane_normal) / n_dot_d;
+		ray_length = (plane_point - ray.GetOrigin()).Dot(plane_normal) / n_dot_d;
         
         return true;
     }
     
-	bool Mathf::RayBoundsIntersection(const Ray& ray, const Bounds& box, float& t)
+	bool Mathf::RayBoundsIntersection(const Ray& ray, const Bounds& box, float& ray_length)
     {
         const Vector3& dir = ray.GetDirection();
         
@@ -192,7 +192,7 @@ namespace Viry3D
             return false;
         }
         
-        t = min;
+		ray_length = min;
         
         return true;
     }
