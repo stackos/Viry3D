@@ -18,8 +18,6 @@ layout (location = 0) in vec4 a_pos;
 
 void main() {
 	gl_Position = a_pos * u_buf_obj._World * u_buf._ViewProjection;
-
-	vulkan_convert();
 }
 		</Source>
 	</VertexShader>
