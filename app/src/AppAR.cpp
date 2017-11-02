@@ -26,6 +26,7 @@
 #include "graphics/Material.h"
 #include "renderer/MeshRenderer.h"
 #include "container/Map.h"
+#include "animation/Animation.h"
 
 using namespace Viry3D;
 
@@ -72,6 +73,7 @@ public:
             {
                 m_camera->SetViewMatrixExternal(m_ar->GetCameraViewMatrix());
                 m_camera->SetProjectionMatrixExternal(m_ar->GetCameraProjectionMatrix());
+                m_camera->GetTransform()->SetLocalToWorldMatrixExternal(m_ar->GetCameraTransform());
                 
                 for (const auto& i : anchors)
                 {
@@ -79,7 +81,7 @@ public:
                     
                     if (m_planes.Contains(i.id) == false)
                     {
-                        plane = GameObject::Create("ground")->AddComponent<MeshRenderer>();
+                        plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
                         plane->SetSharedMaterial(Material::Create("Diffuse"));
                         plane->SetSharedMesh(m_plane_mesh);
                         m_planes.Add(i.id, plane);
@@ -166,7 +168,7 @@ public:
     {
         if (m_planes.Size() > 0)
         {
-            if (Input::GetMouseButton(0))
+            if (Input::GetMouseButtonDown(0) && !m_anim)
             {
 				auto pos = Input::GetMousePosition();
 				auto ray = m_camera->ScreenPointToRay(pos);
@@ -180,18 +182,42 @@ public:
 					if (Mathf::RayPlaneIntersection(ray, plane_normal, plane_point, ray_length))
 					{
 						auto point = ray.GetPoint(ray_length);
-
-						// if point in plane range
-						// place model at point
-						// break
+                        Vector3 forward = m_camera->GetTransform()->GetPosition() - point;
+                        forward.y = 0;
+                        if (forward.SqrMagnitude() > 0)
+                        {
+                            forward.Normalize();
+                        }
+                        else
+                        {
+                            forward = Vector3(0, 0, 1);
+                        }
+                        
+                        PlaceModelTo(point, forward);
 					}
 				}
             }
         }
     }
     
+    void PlaceModelTo(const Vector3& pos, const Vector3& forward)
+    {
+        auto anim_obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+        anim_obj->GetTransform()->SetPosition(pos + Vector3(0, 0, 0));
+        anim_obj->GetTransform()->SetScale(Vector3::One() * 0.2f);
+        anim_obj->GetTransform()->SetForward(forward);
+        auto anim = anim_obj->GetComponent<Animation>();
+        auto anim_state = anim->GetAnimationState("WAIT03");
+        anim_state.wrap_mode = AnimationWrapMode::Loop;
+        anim->UpdateAnimationState("WAIT03", anim_state);
+        anim->Play("WAIT03");
+        
+        //m_anim = anim_obj;
+    }
+    
     Ref<Camera> m_camera;
     Map<String, Ref<MeshRenderer>> m_planes;
+    Ref<GameObject> m_anim;
 };
 
 #if 1

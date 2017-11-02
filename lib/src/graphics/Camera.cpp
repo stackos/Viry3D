@@ -408,20 +408,6 @@ namespace Viry3D
 		return m_projection_matrix;
 	}
     
-    void Camera::SetViewMatrixExternal(const Matrix4x4& mat)
-    {
-        m_view_matrix_external = mat;
-        m_matrix_external = true;
-        
-        auto inverse = m_view_matrix_external.Inverse();
-        auto pos = inverse.MultiplyPoint3x4(Vector3::Zero());
-        auto forward = inverse.MultiplyDirection(Vector3(0, 0, 1));
-        auto up = inverse.MultiplyDirection(Vector3(0, 1, 0));
-        
-        this->GetTransform()->SetPosition(pos);
-        this->GetTransform()->SetRotation(Quaternion::LookRotation(forward, up));
-    }
-
 	const Frustum& Camera::GetFrustum()
 	{
 		if (m_matrix_dirty)

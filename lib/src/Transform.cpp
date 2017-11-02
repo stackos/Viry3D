@@ -413,6 +413,15 @@ namespace Viry3D
 		return m_world_to_local_matrix;
 	}
 
+    void Transform::SetLocalToWorldMatrixExternal(const Matrix4x4& mat)
+    {
+        m_local_to_world_matrix_external = mat;
+        m_matrix_external = true;
+        
+        this->SetPosition(m_local_to_world_matrix_external.MultiplyPoint3x4(Vector3::Zero()));
+        this->SetForward(m_local_to_world_matrix_external.MultiplyDirection(Vector3(0, 0, 1)));
+    }
+    
 	Vector3 Transform::GetRight()
 	{
 		return GetRotation() * Vector3(1, 0, 0);
