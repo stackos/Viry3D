@@ -333,7 +333,7 @@ namespace Viry3D
                 }
                 
                 m_camera_view_matrix = matrix_float4x4_matrix([frame.camera viewMatrixForOrientation:orientation]);
-                m_camera_projection_matrix = matrix_float4x4_matrix([frame.camera projectionMatrixForOrientation:orientation viewportSize:screen_size zNear:0.03f zFar:1000.0f]);
+                m_camera_projection_matrix = matrix_float4x4_matrix([frame.camera projectionMatrixForOrientation:orientation viewportSize:screen_size zNear:0.03f zFar:100.0f]);
             }
         }
     }
