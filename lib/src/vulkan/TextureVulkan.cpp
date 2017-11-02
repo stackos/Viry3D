@@ -83,7 +83,7 @@ namespace Viry3D
 		},
 			1);
 
-		this->CreateSampler(1);
+		this->CreateSampler();
 	}
 
 	void TextureVulkan::CreateDepthRenderTexture()
@@ -129,7 +129,7 @@ namespace Viry3D
 		},
 			1);
 
-		this->CreateSampler(1);
+		this->CreateSampler();
 	}
 
 	void TextureVulkan::CreateTexture2D()
@@ -189,17 +189,13 @@ namespace Viry3D
 
 		this->CopyBufferImage(m_image_buffer, 0, 0, width, height);
 
-		if (mipmap)
-		{
-			this->GenMipmaps(mip_count);
-		}
-
 		this->CreateView(
 			VK_IMAGE_ASPECT_COLOR_BIT,
 			{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
 			mip_count);
 
-		this->CreateSampler(mip_count);
+		this->GenerateMipmap();
+		this->CreateSampler();
 	}
 
 	void TextureVulkan::UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors)
@@ -243,6 +239,7 @@ namespace Viry3D
 			m_image_buffer = ImageBuffer::Create(buffer_size);
 			m_image_buffer_size = buffer_size;
 		}
+
 		this->FillImageBuffer(colors, m_image_buffer);
 		this->CopyBufferImage(m_image_buffer, x, y, w, h);
 	}
@@ -336,24 +333,21 @@ namespace Viry3D
 			m_sampler = VK_NULL_HANDLE;
 		}
 
-		int mip_count = GetMipmapCount();
-		if (mip_count > 0)
-		{
-			this->CreateSampler(mip_count);
-		}
+		this->CreateSampler();
 	}
 
-	void TextureVulkan::CreateSampler(int mip_count)
+	void TextureVulkan::CreateSampler()
 	{
 		auto texture = (Texture*) this;
+		auto wrap_mode = texture->GetWrapMode();
+		auto filter_mode = texture->GetFilterMode();
+		auto mip_count = texture->GetMipmapCount();
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 		VkResult err;
-
 		VkFilter filter;
 		VkSamplerAddressMode address_mode;
 
-		auto filter_mode = texture->GetFilterMode();
 		switch (filter_mode)
 		{
 			case FilterMode::Point:
@@ -365,7 +359,6 @@ namespace Viry3D
 				break;
 		}
 
-		auto wrap_mode = texture->GetWrapMode();
 		switch (wrap_mode)
 		{
 			case TextureWrapMode::Repeat:
@@ -453,11 +446,19 @@ namespace Viry3D
 		display->EndImageCommandBuffer();
 	}
 
-	void TextureVulkan::GenMipmaps(int mip_count)
+	void TextureVulkan::GenerateMipmap()
 	{
-		auto texture = (Texture2D*) this;
+		auto texture = (Texture*) this;
+		bool mipmap = texture->IsMipmap();
+
+		if (mipmap == false)
+		{
+			return;
+		}
+
 		int width = texture->GetWidth();
 		int height = texture->GetHeight();
+		int mip_count = texture->GetMipmapCount();
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 
 		display->BeginImageCommandBuffer();
@@ -536,6 +537,16 @@ namespace Viry3D
 			&range);
 
 		display->EndImageCommandBuffer();
+	}
+
+	void TextureVulkan::CreateCubemap()
+	{
+		
+	}
+
+	void TextureVulkan::UpdateCubemapFace(int face_index, int level, const ByteBuffer& colors)
+	{
+		
 	}
 }
 

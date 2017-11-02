@@ -42,6 +42,9 @@ namespace Viry3D
 		void CreateTexture2D();
 		void UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors);
 		void SetExternalTexture2D(void* texture) { }
+		void GenerateMipmap();
+		void CreateCubemap();
+		void UpdateCubemapFace(int face_index, int level, const ByteBuffer& colors);
 
 	private:
 		void Create(VkImageTiling tiling,
@@ -52,8 +55,7 @@ namespace Viry3D
 		void CreateView(VkImageAspectFlags aspect_mask, VkComponentMapping components, int mip_count);
 		void FillImageBuffer(const ByteBuffer& buffer, const Ref<ImageBuffer>& image_buffer);
 		void CopyBufferImage(const Ref<ImageBuffer>& image_buffer, int x, int y, int w, int h);
-		void GenMipmaps(int mip_count);
-		void CreateSampler(int mip_count);
+		void CreateSampler();
 
 		VkFormat m_format;
 		VkImage m_image;

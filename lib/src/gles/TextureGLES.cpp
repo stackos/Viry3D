@@ -302,7 +302,7 @@ namespace Viry3D
 		this->UpdateSampler();
 	}
 
-	void TextureGLES::UpdateCubemapFace(int face_index, GLint level, const ByteBuffer& colors)
+	void TextureGLES::UpdateCubemapFace(int face_index, int level, const ByteBuffer& colors)
 	{
 		LogGLError();
 
