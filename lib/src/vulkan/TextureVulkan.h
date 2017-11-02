@@ -42,19 +42,23 @@ namespace Viry3D
 		void CreateTexture2D();
 		void UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors);
 		void SetExternalTexture2D(void* texture) { }
-		void GenerateMipmap();
+		void GenerateMipmap(bool cubemap = false);
 		void CreateCubemap();
-		void UpdateCubemapFace(int face_index, int level, const ByteBuffer& colors);
+		void UpdateCubemapFaceBegin();
+		void UpdateCubemapFace(int face, int level, const ByteBuffer& colors);
+		void UpdateCubemapFaceEnd();
 
 	private:
 		void Create(VkImageTiling tiling,
 			VkImageUsageFlags usage,
 			VkFlags required_props,
 			VkImageLayout init_layout,
-			int mip_count);
-		void CreateView(VkImageAspectFlags aspect_mask, VkComponentMapping components, int mip_count);
-		void FillImageBuffer(const ByteBuffer& buffer, const Ref<ImageBuffer>& image_buffer);
-		void CopyBufferImage(const Ref<ImageBuffer>& image_buffer, int x, int y, int w, int h);
+			bool cubemap);
+		void CreateView(VkImageAspectFlags aspect_mask, VkComponentMapping components, bool cubemap);
+		void FillImageBuffer(const ByteBuffer& buffer, const Ref<ImageBuffer>& image_buffer, int offset, int size);
+		void CopyBufferImageBegin(bool cubemap = false);
+		void CopyBufferImage(const Ref<ImageBuffer>& image_buffer, int x, int y, int w, int h, bool cubemap = false, int face = 0, int level = 0);
+		void CopyBufferImageEnd(bool cubemap = false);
 		void CreateSampler();
 
 		VkFormat m_format;
@@ -63,7 +67,6 @@ namespace Viry3D
 		VkDeviceMemory m_memory;
 		VkImageView m_image_view;
 		VkSampler m_sampler;
-		Ref<ImageBuffer> m_image_buffer;
-		int m_image_buffer_size;
+		Vector<Ref<ImageBuffer>> m_image_buffers;
 	};
 }

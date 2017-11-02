@@ -16,12 +16,13 @@
 */
 
 #include "TextureVulkan.h"
+#include "math/Mathf.h"
 #include "memory/Memory.h"
 #include "graphics/Graphics.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/Texture2D.h"
+#include "graphics/Cubemap.h"
 #include "graphics/ImageBuffer.h"
-#include "math/Mathf.h"
 
 #if VR_VULKAN
 
@@ -32,8 +33,7 @@ namespace Viry3D
 		m_image(VK_NULL_HANDLE),
 		m_memory(VK_NULL_HANDLE),
 		m_image_view(VK_NULL_HANDLE),
-		m_sampler(VK_NULL_HANDLE),
-		m_image_buffer_size(0)
+		m_sampler(VK_NULL_HANDLE)
 	{
 		SetName("TextureVulkan");
 		Memory::Zero(&m_memory_info, sizeof(m_memory_info));
@@ -75,13 +75,13 @@ namespace Viry3D
 			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			VK_IMAGE_LAYOUT_UNDEFINED,
-			1);
+			false);
 
 		this->CreateView(VK_IMAGE_ASPECT_COLOR_BIT, {
 			VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
 			VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY
-		},
-			1);
+			},
+			false);
 
 		this->CreateSampler();
 	}
@@ -121,13 +121,13 @@ namespace Viry3D
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			VK_IMAGE_LAYOUT_UNDEFINED,
-			1);
+			false);
 
 		this->CreateView(view_aspect, {
 			VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
 			VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY
-		},
-			1);
+			},
+			false);
 
 		this->CreateSampler();
 	}
@@ -135,12 +135,10 @@ namespace Viry3D
 	void TextureVulkan::CreateTexture2D()
 	{
 		auto texture = (Texture2D*) this;
-		auto colors = texture->GetColors();
-		auto format = texture->GetFormat();
 		int width = texture->GetWidth();
 		int height = texture->GetHeight();
-		bool mipmap = texture->IsMipmap();
-		int mip_count = texture->GetMipmapCount();
+		auto format = texture->GetFormat();
+		auto colors = texture->GetColors();
 		int buffer_size;
 
 		if (format == TextureFormat::RGBA32)
@@ -174,28 +172,24 @@ namespace Viry3D
 			assert(!"texture format not implement");
 		}
 
-		if (!m_image_buffer)
-		{
-			m_image_buffer = ImageBuffer::Create(buffer_size);
-			m_image_buffer_size = buffer_size;
-		}
-		this->FillImageBuffer(colors, m_image_buffer);
+		m_image_buffers.Add(ImageBuffer::Create(buffer_size));
 
 		Create(VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			VK_IMAGE_LAYOUT_UNDEFINED,
-			mip_count);
+			false);
 
-		this->CopyBufferImage(m_image_buffer, 0, 0, width, height);
-
-		this->CreateView(
-			VK_IMAGE_ASPECT_COLOR_BIT,
+		this->CreateView(VK_IMAGE_ASPECT_COLOR_BIT,
 			{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
-			mip_count);
+			false);
 
-		this->GenerateMipmap();
 		this->CreateSampler();
+		this->FillImageBuffer(colors, m_image_buffers[0], 0, buffer_size);
+		this->CopyBufferImageBegin();
+		this->CopyBufferImage(m_image_buffers[0], 0, 0, width, height);
+		this->CopyBufferImageEnd();
+		this->GenerateMipmap();
 	}
 
 	void TextureVulkan::UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors)
@@ -234,43 +228,45 @@ namespace Viry3D
 			assert(!"texture format not implement");
 		}
 
-		if (!m_image_buffer || m_image_buffer_size < buffer_size)
+		if (m_image_buffers.Empty() || m_image_buffers[0]->GetSize() < buffer_size)
 		{
-			m_image_buffer = ImageBuffer::Create(buffer_size);
-			m_image_buffer_size = buffer_size;
+			m_image_buffers.Clear();
+			m_image_buffers.Add(ImageBuffer::Create(buffer_size));
 		}
 
-		this->FillImageBuffer(colors, m_image_buffer);
-		this->CopyBufferImage(m_image_buffer, x, y, w, h);
+		this->FillImageBuffer(colors, m_image_buffers[0], 0, buffer_size);
+		this->CopyBufferImageBegin();
+		this->CopyBufferImage(m_image_buffers[0], x, y, w, h);
+		this->CopyBufferImageEnd();
 	}
 
 	void TextureVulkan::Create(VkImageTiling tiling,
 		VkImageUsageFlags usage,
 		VkFlags required_props,
 		VkImageLayout init_layout,
-		int mip_count)
+		bool cubemap)
 	{
 		auto texture = (Texture*) this;
-		auto display = (DisplayVulkan*) Graphics::GetDisplay();
-		auto device = display->GetDevice();
 		uint32_t width = (uint32_t) texture->GetWidth();
 		uint32_t height = (uint32_t) texture->GetHeight();
+		int mip_count = texture->GetMipmapCount();
+		auto display = (DisplayVulkan*) Graphics::GetDisplay();
+		auto device = display->GetDevice();
 		VkResult err;
 
 		VkImageCreateInfo image;
 		Memory::Zero(&image, sizeof(image));
 		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		image.pNext = NULL;
 		image.imageType = VK_IMAGE_TYPE_2D;
+		image.samples = VK_SAMPLE_COUNT_1_BIT;
 		image.format = m_format;
 		image.extent = { width, height, 1 };
 		image.mipLevels = mip_count;
-		image.arrayLayers = 1;
-		image.samples = VK_SAMPLE_COUNT_1_BIT;
 		image.tiling = tiling;
 		image.usage = usage;
-		image.flags = 0;
 		image.initialLayout = init_layout;
+		image.flags = cubemap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
+		image.arrayLayers = cubemap ? 6 : 1;
 
 		err = vkCreateImage(device, &image, NULL, &m_image);
 		assert(!err);
@@ -297,8 +293,10 @@ namespace Viry3D
 		assert(!err);
 	}
 
-	void TextureVulkan::CreateView(VkImageAspectFlags aspect_mask, VkComponentMapping components, int mip_count)
+	void TextureVulkan::CreateView(VkImageAspectFlags aspect_mask, VkComponentMapping components, bool cubemap)
 	{
+		auto texture = (Texture*) this;
+		int mip_count = texture->GetMipmapCount();
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 		VkResult err;
@@ -306,17 +304,15 @@ namespace Viry3D
 		VkImageViewCreateInfo view;
 		Memory::Zero(&view, sizeof(view));
 		view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		view.pNext = NULL;
-		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		view.flags = 0;
+		view.viewType = cubemap ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
 		view.image = m_image;
 		view.format = m_format;
+		view.components = components;
 		view.subresourceRange = {
 			aspect_mask,
 			0, (uint32_t) mip_count,
-			0, 1
+			0, (uint32_t) (cubemap ? 6 : 1)
 		};
-		view.components = components;
 
 		err = vkCreateImageView(device, &view, NULL, &m_image_view);
 		assert(!err);
@@ -392,21 +388,31 @@ namespace Viry3D
 		assert(!err);
 	}
 
-	void TextureVulkan::FillImageBuffer(const ByteBuffer& buffer, const Ref<ImageBuffer>& image_buffer)
+	void TextureVulkan::FillImageBuffer(const ByteBuffer& buffer, const Ref<ImageBuffer>& image_buffer, int offset, int size)
 	{
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 		auto device = display->GetDevice();
 		VkResult err;
 
+		assert(buffer.Size() == size);
+
 		void* mapped;
-		err = vkMapMemory(device, image_buffer->GetMemory(), 0, buffer.Size(), 0, &mapped);
+		err = vkMapMemory(device, image_buffer->GetMemory(), offset, size, 0, &mapped);
 		Memory::Copy(mapped, buffer.Bytes(), buffer.Size());
 		vkUnmapMemory(device, image_buffer->GetMemory());
 	}
 
-	void TextureVulkan::CopyBufferImage(const Ref<ImageBuffer>& image_buffer, int x, int y, int w, int h)
+	void TextureVulkan::CopyBufferImageBegin(bool cubemap)
 	{
+		auto texture = (Texture*) this;
+		auto mip_count = texture->GetMipmapCount();
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
+
+		VkImageSubresourceRange subresourceRange = { };
+		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subresourceRange.baseMipLevel = 0;
+		subresourceRange.levelCount = mip_count;
+		subresourceRange.layerCount = cubemap ? 6 : 1;
 
 		display->BeginImageCommandBuffer();
 
@@ -415,13 +421,21 @@ namespace Viry3D
 			VK_IMAGE_ASPECT_COLOR_BIT,
 			VK_IMAGE_LAYOUT_UNDEFINED,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			(VkAccessFlagBits) 0);
+			(VkAccessFlagBits) 0,
+			&subresourceRange);
+	}
+
+	void TextureVulkan::CopyBufferImage(const Ref<ImageBuffer>& image_buffer, int x, int y, int w, int h, bool cubemap, int face, int level)
+	{
+		auto texture = (Texture*) this;
+		auto mip_count = texture->GetMipmapCount();
+		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 
 		VkBufferImageCopy copy;
 		Memory::Zero(&copy, sizeof(copy));
 		copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		copy.imageSubresource.mipLevel = 0;
-		copy.imageSubresource.baseArrayLayer = 0;
+		copy.imageSubresource.mipLevel = level;
+		copy.imageSubresource.baseArrayLayer = face;
 		copy.imageSubresource.layerCount = 1;
 		copy.imageExtent.width = w;
 		copy.imageExtent.height = h;
@@ -429,71 +443,100 @@ namespace Viry3D
 		copy.imageOffset.x = x;
 		copy.imageOffset.y = y;
 
+		if (cubemap)
+		{
+			copy.bufferOffset = image_buffer->GetSize() / 6 * face;
+		}
+
 		vkCmdCopyBufferToImage(display->GetImageCommandBuffer(),
 			image_buffer->GetBuffer(),
 			m_image,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1,
 			&copy);
+	}
+
+	void TextureVulkan::CopyBufferImageEnd(bool cubemap)
+	{
+		auto texture = (Texture*) this;
+		auto mip_count = texture->GetMipmapCount();
+		auto display = (DisplayVulkan*) Graphics::GetDisplay();
+
+		VkImageSubresourceRange subresourceRange = { };
+		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subresourceRange.baseMipLevel = 0;
+		subresourceRange.levelCount = mip_count;
+		subresourceRange.layerCount = cubemap ? 6 : 1;
 
 		display->SetImageLayout(
 			m_image,
 			VK_IMAGE_ASPECT_COLOR_BIT,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			VK_ACCESS_TRANSFER_WRITE_BIT);
+			VK_ACCESS_TRANSFER_WRITE_BIT,
+			&subresourceRange);
 
 		display->EndImageCommandBuffer();
 	}
 
-	void TextureVulkan::GenerateMipmap()
+	void TextureVulkan::GenerateMipmap(bool cubemap)
 	{
 		auto texture = (Texture*) this;
+		int width = texture->GetWidth();
+		int height = texture->GetHeight();
 		bool mipmap = texture->IsMipmap();
+		int mip_count = texture->GetMipmapCount();
+		int layer_count = cubemap ? 6 : 1;
 
 		if (mipmap == false)
 		{
 			return;
 		}
 
-		int width = texture->GetWidth();
-		int height = texture->GetHeight();
-		int mip_count = texture->GetMipmapCount();
 		auto display = (DisplayVulkan*) Graphics::GetDisplay();
 
 		display->BeginImageCommandBuffer();
+
+		VkImageSubresourceRange range;
+		Memory::Zero(&range, sizeof(range));
+		range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		range.baseMipLevel = 0;
+		range.levelCount = 1;
+		range.baseArrayLayer = 0;
+		range.layerCount = layer_count;
 
 		display->SetImageLayout(
 			m_image,
 			VK_IMAGE_ASPECT_COLOR_BIT,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			VK_ACCESS_SHADER_READ_BIT);
+			VK_ACCESS_SHADER_READ_BIT,
+			&range);
 
 		for (int i = 1; i < mip_count; i++)
 		{
 			VkImageBlit blit;
 			Memory::Zero(&blit, sizeof(blit));
 			blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			blit.srcSubresource.layerCount = 1;
 			blit.srcSubresource.mipLevel = i - 1;
+			blit.srcSubresource.baseArrayLayer = 0;
+			blit.srcSubresource.layerCount = layer_count;
 			blit.srcOffsets[1].x = Mathf::Max(1, width >> (i - 1));
 			blit.srcOffsets[1].y = Mathf::Max(1, height >> (i - 1));
 			blit.srcOffsets[1].z = 1;
 
 			blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			blit.dstSubresource.layerCount = 1;
 			blit.dstSubresource.mipLevel = i;
+			blit.dstSubresource.baseArrayLayer = 0;
+			blit.dstSubresource.layerCount = layer_count;
 			blit.dstOffsets[1].x = Mathf::Max(1, width >> i);
 			blit.dstOffsets[1].y = Mathf::Max(1, height >> i);
 			blit.dstOffsets[1].z = 1;
 
-			VkImageSubresourceRange range;
-			Memory::Zero(&range, sizeof(range));
-			range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			range.baseMipLevel = i;
 			range.levelCount = 1;
-			range.layerCount = 1;
+			range.baseArrayLayer = 0;
+			range.layerCount = layer_count;
 
 			display->SetImageLayout(
 				m_image,
@@ -522,11 +565,10 @@ namespace Viry3D
 				&range);
 		}
 
-		VkImageSubresourceRange range;
-		Memory::Zero(&range, sizeof(range));
-		range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		range.baseMipLevel = 0;
 		range.levelCount = mip_count;
-		range.layerCount = 1;
+		range.baseArrayLayer = 0;
+		range.layerCount = layer_count;
 
 		display->SetImageLayout(
 			m_image,
@@ -541,12 +583,96 @@ namespace Viry3D
 
 	void TextureVulkan::CreateCubemap()
 	{
-		
+		auto texture = (Cubemap*) this;
+		auto format = texture->GetFormat();
+
+		if (format == TextureFormat::RGBA32)
+		{
+			m_format = VK_FORMAT_R8G8B8A8_UNORM;
+		}
+		else if (format == TextureFormat::RGB24)
+		{
+			m_format = VK_FORMAT_R8G8B8A8_UNORM;
+		}
+		else if (format == TextureFormat::Alpha8)
+		{
+			m_format = VK_FORMAT_R8_UNORM;
+		}
+		else
+		{
+			assert(!"texture format not implement");
+		}
+
+		Create(VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			true);
+
+		this->CreateView(VK_IMAGE_ASPECT_COLOR_BIT,
+			{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
+			true);
+
+		this->CreateSampler();
 	}
 
-	void TextureVulkan::UpdateCubemapFace(int face_index, int level, const ByteBuffer& colors)
+	void TextureVulkan::UpdateCubemapFaceBegin()
 	{
-		
+		this->CopyBufferImageBegin(true);
+	}
+
+	void TextureVulkan::UpdateCubemapFace(int face, int level, const ByteBuffer& colors)
+	{
+		auto texture = (Cubemap*) this;
+		int width = texture->GetWidth();
+		int height = texture->GetHeight();
+		auto format = texture->GetFormat();
+		int buffer_size;
+		ByteBuffer colors_local = colors;
+
+		width = Mathf::Max(width >> level, 1);
+		height = Mathf::Max(height >> level, 1);
+
+		if (format == TextureFormat::RGBA32)
+		{
+			m_format = VK_FORMAT_R8G8B8A8_UNORM;
+			buffer_size = width * height * 4;
+		}
+		else if (format == TextureFormat::RGB24)
+		{
+			m_format = VK_FORMAT_R8G8B8A8_UNORM;
+			buffer_size = width * height * 4;
+
+			int pixel_count = colors.Size() / 3;
+			ByteBuffer temp(pixel_count * 4);
+			for (int i = 0; i < pixel_count; i++)
+			{
+				temp[i * 4 + 0] = colors[i * 3 + 0];
+				temp[i * 4 + 1] = colors[i * 3 + 1];
+				temp[i * 4 + 2] = colors[i * 3 + 2];
+				temp[i * 4 + 3] = 255;
+			}
+			colors_local = temp;
+		}
+		else if (format == TextureFormat::Alpha8)
+		{
+			m_format = VK_FORMAT_R8_UNORM;
+			buffer_size = width * height;
+		}
+
+		if (m_image_buffers.Size() <= level)
+		{
+			m_image_buffers.Resize(level + 1);
+			m_image_buffers[level] = ImageBuffer::Create(buffer_size * 6);
+		}
+
+		this->FillImageBuffer(colors_local, m_image_buffers[level], buffer_size * face, buffer_size);
+		this->CopyBufferImage(m_image_buffers[level], 0, 0, width, height, true, face, level);
+	}
+
+	void TextureVulkan::UpdateCubemapFaceEnd()
+	{
+		this->CopyBufferImageEnd(true);
 	}
 }
 

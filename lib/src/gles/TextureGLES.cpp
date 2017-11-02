@@ -302,7 +302,7 @@ namespace Viry3D
 		this->UpdateSampler();
 	}
 
-	void TextureGLES::UpdateCubemapFace(int face_index, int level, const ByteBuffer& colors)
+	void TextureGLES::UpdateCubemapFace(int face, int level, const ByteBuffer& colors)
 	{
 		LogGLError();
 
@@ -339,7 +339,7 @@ namespace Viry3D
 		glBindTexture(m_target, m_texture);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_index, level, m_format, width, height, 0, format, type, colors.Bytes());
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, level, m_format, width, height, 0, format, type, colors.Bytes());
 
 		glBindTexture(m_target, 0);
 

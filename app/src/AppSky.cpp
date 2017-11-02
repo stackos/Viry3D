@@ -55,7 +55,7 @@ public:
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
 		sphere_mesh->Update();
 
-		auto cubemap = Cubemap::Create(512, TextureFormat::RGB24, TextureWrapMode::Clamp, FilterMode::Bilinear, false);
+		auto cubemap = Cubemap::Create(512, TextureFormat::RGB24, TextureWrapMode::Clamp, FilterMode::Bilinear, true);
 		for (int i = 0; i < 6; i++)
 		{
 			int width;
@@ -71,7 +71,7 @@ public:
 				cubemap->SetPixels(colors, (CubemapFace) i, 0);
 			}
 		}
-		cubemap->Apply(false, true);
+		cubemap->Apply(true, true);
 
 		auto sphere_mat = Material::Create("Reflect");
 		sphere_mat->SetTexture("_ReflectMap", cubemap);
@@ -84,6 +84,6 @@ public:
 	}
 };
 
-#if 0
+#if 1
 VR_MAIN(AppSky);
 #endif
