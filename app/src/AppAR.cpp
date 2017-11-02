@@ -194,6 +194,6 @@ public:
     Map<String, Ref<MeshRenderer>> m_planes;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppAR);
 #endif

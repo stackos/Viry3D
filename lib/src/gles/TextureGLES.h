@@ -36,9 +36,11 @@ namespace Viry3D
 		void CreateTexture2D();
 		void UpdateTexture2D(int x, int y, int w, int h, const ByteBuffer& colors);
         void SetExternalTexture2D(void* texture);
-		void GenerateMipmap();
+		void GenerateMipmap(bool cubemap = false);
 		void CreateCubemap();
+		void UpdateCubemapFaceBegin() { }
 		void UpdateCubemapFace(int face, int level, const ByteBuffer& colors);
+		void UpdateCubemapFaceEnd() { }
 
 	private:
 		void Create2D(GLenum format, GLenum type, void* pixels);

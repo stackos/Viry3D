@@ -272,7 +272,7 @@ namespace Viry3D
         LogGLError();
 	}
 
-	void TextureGLES::GenerateMipmap()
+	void TextureGLES::GenerateMipmap(bool cubemap)
 	{
 		LogGLError();
 
