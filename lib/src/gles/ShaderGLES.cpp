@@ -221,21 +221,45 @@ namespace Viry3D
 			state.offset_units = prs->Offset.units;
 		}
 
-		if (prs->Cull == "Off")
+		auto global_cull_face = Graphics::GetGlobalCullFace();
+		if (global_cull_face == CullFace::NoSet)
 		{
-			state.cull_enable = false;
+			if (prs->Cull == "Off")
+			{
+				state.cull_enable = false;
+			}
+			else
+			{
+				state.cull_enable = true;
+
+				if (prs->Cull == "Back")
+				{
+					state.cull_face = GL_BACK;
+				}
+				else if (prs->Cull == "Front")
+				{
+					state.cull_face = GL_FRONT;
+				}
+			}
 		}
 		else
 		{
-			state.cull_enable = true;
-
-			if (prs->Cull == "Back")
+			if (global_cull_face == CullFace::Off)
 			{
-				state.cull_face = GL_BACK;
+				state.cull_enable = false;
 			}
-			else if (prs->Cull == "Front")
+			else
 			{
-				state.cull_face = GL_FRONT;
+				state.cull_enable = true;
+
+				if (global_cull_face == CullFace::Back)
+				{
+					state.cull_face = GL_BACK;
+				}
+				else if (global_cull_face == CullFace::Front)
+				{
+					state.cull_face = GL_FRONT;
+				}
 			}
 		}
 
