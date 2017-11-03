@@ -24,6 +24,7 @@
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
+#include "graphics/RenderTexture.h"
 #include "renderer/MeshRenderer.h"
 #include "container/Map.h"
 #include "animation/Animation.h"
@@ -44,10 +45,11 @@ public:
         Graphics::GetDisplay()->KeepScreenOn(true);
 		Graphics::SetGlobalCullFace(CullFace::Off);
 
-        this->CreateFPSUI(20, 1, 1);
+        this->CreateFPSUI(20, 10, 10);
         
         m_camera = GameObject::Create("camera")->AddComponent<Camera>();
-        m_camera->SetCullingMask(1 << 0);
+        m_camera->SetCullingMask((1 << 0) | (1 << 1));
+        m_camera->SetDepth(1);
         m_camera->SetFrustumCulling(false);
         
 #if VR_IOS
@@ -76,52 +78,59 @@ public:
                 m_camera->SetProjectionMatrixExternal(m_ar->GetCameraProjectionMatrix());
                 m_camera->GetTransform()->SetLocalToWorldMatrixExternal(m_ar->GetCameraTransform());
                 
-                for (const auto& i : anchors)
+                if (!m_anim)
                 {
-                    Ref<MeshRenderer> plane;
-                    
-                    if (m_planes.Contains(i.id) == false)
+                    for (const auto& i : anchors)
                     {
-                        plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
-                        plane->SetSharedMaterial(Material::Create("Diffuse"));
-                        plane->SetSharedMesh(m_plane_mesh);
-                        m_planes.Add(i.id, plane);
-                    }
-                    else
-                    {
-                        plane = m_planes[i.id];
-                    }
-
-                    plane->GetTransform()->SetLocalToWorldMatrixExternal(i.transform * Matrix4x4::Translation(i.center) * Matrix4x4::Scaling(i.extent));
-                }
-                
-                Vector<String> removes;
-                for (const auto& i : m_planes)
-                {
-                    bool exist = false;
-                    
-                    for (const auto& j : anchors)
-                    {
-                        if (i.first == j.id)
+                        Ref<MeshRenderer> plane;
+                        
+                        if (m_planes.Contains(i.id) == false)
                         {
-                            exist = true;
-                            break;
+                            plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
+                            plane->SetSharedMaterial(Material::Create("Diffuse"));
+                            plane->SetSharedMesh(m_plane_mesh);
+                            m_planes.Add(i.id, plane);
+                        }
+                        else
+                        {
+                            plane = m_planes[i.id];
+                        }
+                        
+                        plane->GetTransform()->SetLocalToWorldMatrixExternal(i.transform * Matrix4x4::Translation(i.center) * Matrix4x4::Scaling(i.extent));
+                    }
+                    
+                    Vector<String> removes;
+                    for (const auto& i : m_planes)
+                    {
+                        bool exist = false;
+                        
+                        for (const auto& j : anchors)
+                        {
+                            if (i.first == j.id)
+                            {
+                                exist = true;
+                                break;
+                            }
+                        }
+                        
+                        if (exist == false)
+                        {
+                            GameObject::Destroy(i.second->GetGameObject());
+                            removes.Add(i.first);
                         }
                     }
-                    
-                    if (exist == false)
+                    for (const auto& i : removes)
                     {
-                        GameObject::Destroy(i.second->GetGameObject());
-                        removes.Add(i.first);
+                        m_planes.Remove(i);
                     }
+                    removes.Clear();
+                    
+                    this->UpdateTouch();
                 }
-                for (const auto& i : removes)
+                else
                 {
-                    m_planes.Remove(i);
+                    // update anim anchor pos & rot
                 }
-                removes.Clear();
-                
-                this->UpdateTouch();
             }
         }
     }
@@ -169,7 +178,7 @@ public:
     {
         if (m_planes.Size() > 0)
         {
-            if (Input::GetMouseButtonDown(0) && !m_anim)
+            if (Input::GetMouseButtonDown(0))
             {
 				auto pos = Input::GetMousePosition();
 				auto ray = m_camera->ScreenPointToRay(pos);
@@ -197,6 +206,11 @@ public:
                         PlaceModelTo(point, forward);
 					}
 				}
+                
+                if (m_anim)
+                {
+                    DestroyPlanes();
+                }
             }
         }
     }
@@ -204,6 +218,7 @@ public:
     void PlaceModelTo(const Vector3& pos, const Vector3& forward)
     {
         auto anim_obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+        anim_obj->SetLayerRecursively(1);
         anim_obj->GetTransform()->SetPosition(pos + Vector3(0, 0, 0));
         anim_obj->GetTransform()->SetScale(Vector3::One() * 0.2f);
         anim_obj->GetTransform()->SetForward(forward);
@@ -213,7 +228,57 @@ public:
         anim->UpdateAnimationState("WAIT03", anim_state);
         anim->Play("WAIT03");
         
-        //m_anim = anim_obj;
+        m_anim = anim_obj;
+        
+        int shadowmap_size = 1024;
+        
+        auto shadow_rt = RefMake<FrameBuffer>();
+        shadow_rt->color_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::R8, DepthBuffer::Depth_0, FilterMode::Bilinear);
+        shadow_rt->depth_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
+        
+        auto shadow_camera = GameObject::Create("camera")->AddComponent<Camera>();
+        shadow_camera->GetTransform()->SetParent(anim_obj->GetTransform());
+        shadow_camera->GetTransform()->SetLocalPosition(Vector3::Zero());
+        shadow_camera->GetTransform()->SetLocalRotation(Quaternion::Euler(45, 0, 0));
+        shadow_camera->GetTransform()->SetLocalScale(Vector3::One());
+        shadow_camera->SetOrthographic(true);
+        shadow_camera->SetOrthographicSize(0.4f);
+        shadow_camera->SetClipNear(-1);
+        shadow_camera->SetClipFar(1);
+        shadow_camera->SetCullingMask(1 << 1);
+        shadow_camera->SetDepth(0);
+        shadow_camera->SetFrameBuffer(shadow_rt);
+        shadow_camera->SetRenderMode(CameraRenderMode::ShadowMap);
+        
+        auto plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
+        plane_mesh->Update();
+        
+        float shadow_bias = 0.005f;
+        float shadow_strength = 0.7f;
+        
+        auto plane_mat = Material::Create("Custom/AR/ShadowReciever");
+        plane_mat->SetTexture("_ShadowMap", shadow_rt->depth_texture);
+        plane_mat->SetMatrix("_ViewProjectionLight", shadow_camera->GetProjectionMatrix() * shadow_camera->GetViewMatrix());
+        plane_mat->SetVector("_ShadowMapTexel", Vector4(1.0f / shadowmap_size, 1.0f / shadowmap_size));
+        plane_mat->SetVector("_ShadowParam", Vector4(shadow_bias, shadow_strength));
+        
+        auto plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
+        plane->GetGameObject()->SetLayerRecursively(1);
+        plane->GetTransform()->SetParent(anim_obj->GetTransform());
+        plane->GetTransform()->SetLocalPosition(Vector3::Zero());
+        plane->GetTransform()->SetLocalRotation(Quaternion::Identity());
+        plane->GetTransform()->SetLocalScale(Vector3::One());
+        plane->SetSharedMaterial(plane_mat);
+        plane->SetSharedMesh(plane_mesh);
+    }
+    
+    void DestroyPlanes()
+    {
+        for (const auto& i : m_planes)
+        {
+            GameObject::Destroy(i.second->GetGameObject());
+        }
+        m_planes.Clear();
     }
     
     Ref<Camera> m_camera;
