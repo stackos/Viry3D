@@ -27,13 +27,14 @@
 
 namespace Viry3D
 {
+	int Graphics::draw_call = 0;
 	Ref<Display> Graphics::m_display;
 	Ref<Mesh> Graphics::m_blit_mesh;
 	Vector<Ref<Material>> Graphics::m_blit_materials;
 	Vector<Ref<RenderPass>> Graphics::m_blit_render_passes;
 	Ref<DescriptorSet> Graphics::m_blit_descriptor_set;
 	Ref<UniformBuffer> Graphics::m_blit_descriptor_set_buffer;
-	int Graphics::draw_call = 0;
+	CullFace Graphics::m_global_cull_face = CullFace::NoSet;
 
 	void Graphics::Init(int width, int height, int fps)
 	{
