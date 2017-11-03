@@ -1332,7 +1332,7 @@ namespace Viry3D
 #endif
 
 			// 将所有obj加入World
-			World::AddGameObjects(objs);
+			//World::AddGameObjects(objs);
 
 			if (obj)
 			{
