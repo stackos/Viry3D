@@ -1337,6 +1337,8 @@ namespace Viry3D
 			if (obj)
 			{
 				Object::AddCache(path, obj);
+
+				obj = GameObject::Instantiate(RefCast<GameObject>(obj));
 			}
 
 			ms.Close();
