@@ -38,7 +38,7 @@ public:
         this->SetName("Viry3D::AppAR");
         this->SetInitSize(1280, 720);
     }
-    
+
     virtual void Start()
     {
         Graphics::GetDisplay()->KeepScreenOn(true);

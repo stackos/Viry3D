@@ -18,6 +18,7 @@
 #include "Main.h"
 #include "Application.h"
 #include "GameObject.h"
+#include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 
 using namespace Viry3D;
@@ -31,8 +32,15 @@ public:
         this->SetInitSize(1280, 720);
     }
     
+	virtual ~AppClear()
+	{
+		Graphics::GetDisplay()->EndRecord();
+	}
+
 	virtual void Start()
     {
+		//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
+
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
         camera->SetClearColor(Color(1, 0, 0, 1));
     }
