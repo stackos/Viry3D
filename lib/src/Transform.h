@@ -70,15 +70,15 @@ namespace Viry3D
 
 	private:
 		Transform();
-		void RemoveChild(WeakRef<Transform>& child);
-		void AddChild(WeakRef<Transform>& child);
+		void RemoveChild(const Ref<Transform>& child);
+		void AddChild(const Ref<Transform>& child);
 		void ApplyChange();
 		void NotifyChange();
 		void NotifyParentHierarchyChange();
 		void NotifyChildHierarchyChange();
 
 		WeakRef<Transform> m_parent;
-		Vector<WeakRef<Transform>> m_children;
+		Vector<Ref<GameObject>> m_children;
 		Vector3 m_local_position;
 		Quaternion m_local_rotation;
 		Vector3 m_local_scale;

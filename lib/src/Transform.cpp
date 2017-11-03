@@ -50,18 +50,18 @@ namespace Viry3D
 
 		for (int i = 0; i < src->m_children.Size(); i++)
 		{
-			auto src_child = src->m_children[i].lock();
-			auto child = GameObject::Instantiate(src_child->GetGameObject());
+			const auto& src_child = src->m_children[i];
+			auto child = GameObject::Instantiate(src_child);
 
 			child->GetTransform()->SetParent(RefCast<Transform>(GetRef()));
 		}
 	}
 
-	void Transform::RemoveChild(WeakRef<Transform>& child)
+	void Transform::RemoveChild(const Ref<Transform>& child)
 	{
 		for (int i = 0; i < m_children.Size(); i++)
 		{
-			if (m_children[i].lock() == child.lock())
+			if (m_children[i]->GetTransform() == child)
 			{
 				m_children.Remove(i);
 				break;
@@ -69,9 +69,9 @@ namespace Viry3D
 		}
 	}
 
-	void Transform::AddChild(WeakRef<Transform>& child)
+	void Transform::AddChild(const Ref<Transform>& child)
 	{
-		m_children.Add(child);
+		m_children.Add(child->GetGameObject());
 	}
 
 	String Transform::PathInParent(const Ref<Transform>& parent) const
@@ -102,7 +102,7 @@ namespace Viry3D
 		if (!m_parent.expired())
 		{
 			auto p = m_parent.lock();
-			p->RemoveChild(m_transform);
+			p->RemoveChild(m_transform.lock());
 			p->NotifyParentHierarchyChange();
 			m_parent.reset();
 
@@ -124,7 +124,7 @@ namespace Viry3D
 		if (!m_parent.expired())
 		{
 			auto p = m_parent.lock();
-			p->AddChild(m_transform);
+			p->AddChild(m_transform.lock());
 			p->NotifyParentHierarchyChange();
 
 			//become child
@@ -146,7 +146,7 @@ namespace Viry3D
 
 	Ref<Transform> Transform::GetChild(int index) const
 	{
-		return m_children[index].lock();
+		return m_children[index]->GetTransform();
 	}
 
 	Ref<Transform> Transform::Find(const String& path) const
@@ -158,7 +158,7 @@ namespace Viry3D
 
 		for (auto& c : m_children)
 		{
-			auto child = c.lock();
+            auto child = c->GetTransform();
 			auto name = names[0];
 
 			if (child->GetName() == name)
@@ -187,7 +187,7 @@ namespace Viry3D
 
 		for (auto& i : m_children)
 		{
-			i.lock()->NotifyChange();
+			i->GetTransform()->NotifyChange();
 		}
 
 		m_change_notifying = false;
@@ -218,7 +218,7 @@ namespace Viry3D
 
 		for (auto& i : m_children)
 		{
-			i.lock()->NotifyChildHierarchyChange();
+			i->GetTransform()->NotifyChildHierarchyChange();
 		}
 
 		m_change_notifying = false;
@@ -340,7 +340,7 @@ namespace Viry3D
 		m_changed = true;
 		for (auto& i : m_children)
 		{
-			i.lock()->Changed();
+			i->GetTransform()->Changed();
 		}
 	}
 
