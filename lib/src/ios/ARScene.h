@@ -34,6 +34,7 @@ namespace Viry3D
     {
         String id;
         Matrix4x4 transform;
+        bool is_plane;
         Vector3 center;
         Vector3 extent;
     };
@@ -48,6 +49,7 @@ namespace Viry3D
         void PauseSession();
         void UpdateSession();
         void OnResize(int width, int height);
+        String AddAnchor(const Matrix4x4& transform);
         const Ref<Camera>& GetCamera() const { return m_camera; }
         const Ref<Texture2D>& GetBackgroundTextureY() const { return m_background_texture_y; }
         const Ref<Texture2D>& GetBackgroundTextureUV() const { return m_background_texture_uv; }

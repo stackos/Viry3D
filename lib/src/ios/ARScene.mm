@@ -53,6 +53,16 @@ Viry3D::Matrix4x4 matrix_float4x4_matrix(const matrix_float4x4& mat)
         mat.columns[0].w, mat.columns[1].w, mat.columns[2].w, mat.columns[3].w);
 }
 
+matrix_float4x4 matrix_float4x4_matrix(const Viry3D::Matrix4x4& mat)
+{
+    matrix_float4x4 matrix;
+    matrix.columns[0] = { mat.m00, mat.m10, mat.m20, mat.m30 };
+    matrix.columns[1] = { mat.m01, mat.m11, mat.m21, mat.m31 };
+    matrix.columns[2] = { mat.m02, mat.m12, mat.m22, mat.m32 };
+    matrix.columns[3] = { mat.m03, mat.m13, mat.m23, mat.m33 };
+    return matrix;
+}
+
 API_AVAILABLE(ios(11.0))
 @interface SessionDelegate : NSObject <ARSessionDelegate>
 
@@ -121,6 +131,14 @@ API_AVAILABLE(ios(11.0))
     [self _updateAnchors:frame anchors:anchors];
 }
 
+- (Viry3D::String)addAnchor:(Viry3D::Matrix4x4)transform
+{
+    ARAnchor* anchor = [[ARAnchor alloc] initWithTransform:matrix_float4x4_matrix(transform)];
+    [self.session addAnchor:anchor];
+    Viry3D::String id = anchor.identifier.UUIDString.UTF8String;
+    return id;
+}
+
 - (void)_updateCapturedTexture:(CVPixelBufferRef)pixel_buffer texture:(CapturedTexture*)texture
 {
     int width_y;
@@ -177,8 +195,20 @@ API_AVAILABLE(ios(11.0))
             Viry3D::ARAnchor a;
             a.id = plane.identifier.UUIDString.UTF8String;
             a.transform = matrix_float4x4_matrix(plane.transform);
+            a.is_plane = true;
             a.center = Viry3D::Vector3(plane.center.x, plane.center.y, plane.center.z);
             a.extent = Viry3D::Vector3(plane.extent.x, plane.extent.y, plane.extent.z);
+            
+            anchors.Add(a);
+        }
+        else
+        {
+            Viry3D::ARAnchor a;
+            a.id = anchor.identifier.UUIDString.UTF8String;
+            a.transform = matrix_float4x4_matrix(anchor.transform);
+            a.is_plane = false;
+            a.center = Viry3D::Vector3::Zero();
+            a.extent = Viry3D::Vector3::Zero();
             
             anchors.Add(a);
         }
@@ -353,5 +383,15 @@ namespace Viry3D
     void ARScene::OnResize(int width, int height)
     {
         m_resized = true;
+    }
+    
+    String ARScene::AddAnchor(const Matrix4x4& transform)
+    {
+        if (g_session != nil)
+        {
+            return [g_session addAnchor:transform];
+        }
+        
+        return "";
     }
 }
