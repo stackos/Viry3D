@@ -58,6 +58,8 @@ public:
             
             m_camera = m_ar->GetCamera();
         }
+#else
+        m_camera = GameObject::Create("camera")->AddComponent<Camera>();
 #endif
     }
     
