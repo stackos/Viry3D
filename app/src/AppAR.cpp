@@ -77,21 +77,24 @@ public:
                 {
                     for (const auto& i : anchors)
                     {
-                        Ref<MeshRenderer> plane;
-                        
-                        if (m_planes.Contains(i.id) == false)
+                        if (i.is_plane)
                         {
-                            plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
-                            plane->SetSharedMaterial(Material::Create("Diffuse"));
-                            plane->SetSharedMesh(m_plane_mesh);
-                            m_planes.Add(i.id, plane);
+                            Ref<MeshRenderer> plane;
+                            
+                            if (m_planes.Contains(i.id) == false)
+                            {
+                                plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
+                                plane->SetSharedMaterial(Material::Create("Diffuse"));
+                                plane->SetSharedMesh(m_plane_mesh);
+                                m_planes.Add(i.id, plane);
+                            }
+                            else
+                            {
+                                plane = m_planes[i.id];
+                            }
+                            
+                            plane->GetTransform()->SetLocalToWorldMatrixExternal(i.transform * Matrix4x4::Translation(i.center) * Matrix4x4::Scaling(i.extent));
                         }
-                        else
-                        {
-                            plane = m_planes[i.id];
-                        }
-                        
-                        plane->GetTransform()->SetLocalToWorldMatrixExternal(i.transform * Matrix4x4::Translation(i.center) * Matrix4x4::Scaling(i.extent));
                     }
                     
                     Vector<String> removes;
@@ -125,6 +128,15 @@ public:
                 else
                 {
                     // update anim anchor pos & rot
+                    for (const auto& i : anchors)
+                    {
+                        if (i.is_plane == false &&
+                            i.id == m_anim_anchor_id)
+                        {
+                            m_anim->GetTransform()->SetLocalToWorldMatrixExternal(i.transform);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -160,33 +172,24 @@ public:
         }
     }
     
-    Ref<ARScene> m_ar;
-    Ref<Mesh> m_plane_mesh;
-#else
-    virtual void Update()
-    {
-        this->UpdateTouch();
-    }
-#endif
-    
     void UpdateTouch()
     {
         if (m_planes.Size() > 0)
         {
             if (Input::GetMouseButtonDown(0))
             {
-				auto pos = Input::GetMousePosition();
-				auto ray = m_camera->ScreenPointToRay(pos);
-
-				for (const auto& i : m_planes)
-				{
-					auto plane_point = i.second->GetTransform()->GetPosition();
-					auto plane_normal = i.second->GetTransform()->GetUp();
-
-					float ray_length;
-					if (Mathf::RayPlaneIntersection(ray, plane_normal, plane_point, ray_length))
-					{
-						auto point = ray.GetPoint(ray_length);
+                auto pos = Input::GetMousePosition();
+                auto ray = m_camera->ScreenPointToRay(pos);
+                
+                for (const auto& i : m_planes)
+                {
+                    auto plane_point = i.second->GetTransform()->GetPosition();
+                    auto plane_normal = i.second->GetTransform()->GetUp();
+                    
+                    float ray_length;
+                    if (Mathf::RayPlaneIntersection(ray, plane_normal, plane_point, ray_length))
+                    {
+                        auto point = ray.GetPoint(ray_length);
                         Vector3 forward = m_camera->GetTransform()->GetPosition() - point;
                         forward.y = 0;
                         if (forward.SqrMagnitude() > 0)
@@ -198,9 +201,13 @@ public:
                             forward = Vector3(0, 0, 1);
                         }
                         
-                        PlaceModelTo(point, forward);
-					}
-				}
+                        Matrix4x4 anchor_transform;
+                        PlaceModelTo(point, forward, anchor_transform);
+                        m_anim_anchor_id = m_ar->AddAnchor(anchor_transform);
+                        
+                        break;
+                    }
+                }
                 
                 if (m_anim)
                 {
@@ -210,13 +217,19 @@ public:
         }
     }
     
-    void PlaceModelTo(const Vector3& pos, const Vector3& forward)
+    Ref<ARScene> m_ar;
+    Ref<Mesh> m_plane_mesh;
+#endif
+    
+    void PlaceModelTo(const Vector3& pos, const Vector3& forward, Matrix4x4& transform)
     {
         auto anim_obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
         anim_obj->SetLayerRecursively(1);
         anim_obj->GetTransform()->SetPosition(pos + Vector3(0, 0, 0));
         anim_obj->GetTransform()->SetScale(Vector3::One() * 0.2f);
         anim_obj->GetTransform()->SetForward(forward);
+        transform = anim_obj->GetTransform()->GetLocalToWorldMatrix();
+        
         auto anim = anim_obj->GetComponent<Animation>();
         auto anim_state = anim->GetAnimationState("WAIT03");
         anim_state.wrap_mode = AnimationWrapMode::Loop;
@@ -279,6 +292,7 @@ public:
     Ref<Camera> m_camera;
     Map<String, Ref<MeshRenderer>> m_planes;
     Ref<GameObject> m_anim;
+    String m_anim_anchor_id;
 };
 
 #if 1
