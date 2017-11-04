@@ -47,19 +47,16 @@ public:
 
         this->CreateFPSUI(20, 10, 10);
         
-        m_camera = GameObject::Create("camera")->AddComponent<Camera>();
-        m_camera->SetCullingMask((1 << 0) | (1 << 1));
-        m_camera->SetDepth(1);
-        m_camera->SetFrustumCulling(false);
-        
 #if VR_IOS
 		m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
 		m_plane_mesh->Update();
 
         if (ARScene::IsSupported())
         {
-            m_ar = RefMake<ARScene>();
+            m_ar = RefMake<ARScene>(1, (1 << 0) | (1 << 1), 0);
             m_ar->RunSession();
+            
+            m_camera = m_ar->GetCamera();
         }
 #endif
     }
@@ -74,10 +71,6 @@ public:
             const auto& anchors = m_ar->GetAnchors();
             if (anchors.Size() > 0)
             {
-                m_camera->SetViewMatrixExternal(m_ar->GetCameraViewMatrix());
-                m_camera->SetProjectionMatrixExternal(m_ar->GetCameraProjectionMatrix());
-                m_camera->GetTransform()->SetLocalToWorldMatrixExternal(m_ar->GetCameraTransform());
-                
                 if (!m_anim)
                 {
                     for (const auto& i : anchors)

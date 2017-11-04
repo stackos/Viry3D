@@ -24,6 +24,7 @@
 
 namespace Viry3D
 {
+    class Camera;
     class Texture2D;
     class Material;
     class GameObject;
@@ -41,12 +42,13 @@ namespace Viry3D
     {
     public:
         static bool IsSupported();
-        ARScene();
+        ARScene(int camera_depth = 0, int camera_culling_mask = -1, int bg_layer = 0);
         virtual ~ARScene();
         void RunSession();
         void PauseSession();
         void UpdateSession();
         void OnResize(int width, int height);
+        const Ref<Camera>& GetCamera() const { return m_camera; }
         const Ref<Texture2D>& GetBackgroundTextureY() const { return m_background_texture_y; }
         const Ref<Texture2D>& GetBackgroundTextureUV() const { return m_background_texture_uv; }
         const Vector<ARAnchor>& GetAnchors() const { return m_anchors; }
@@ -55,6 +57,7 @@ namespace Viry3D
         const Matrix4x4& GetCameraTransform() const { return m_camera_transform; }
         
     private:
+        Ref<Camera> m_camera;
         Ref<Texture2D> m_background_texture_y;
         Ref<Texture2D> m_background_texture_uv;
         Ref<Material> m_background_mat;

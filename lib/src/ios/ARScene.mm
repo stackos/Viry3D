@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "Debug.h"
 #include "gles/gles_include.h"
+#include "graphics/Camera.h"
 #include "graphics/Texture2D.h"
 #include "graphics/Mesh.h"
 #include "graphics/Material.h"
@@ -212,10 +213,15 @@ namespace Viry3D
         return ARConfiguration.isSupported;
     }
     
-    ARScene::ARScene():
+    ARScene::ARScene(int camera_depth, int camera_culling_mask, int bg_layer):
         m_resized(true)
     {
         g_session = [[SessionDelegate alloc] init];
+        
+        m_camera = GameObject::Create("camera")->AddComponent<Camera>();
+        m_camera->SetDepth(camera_depth);
+        m_camera->SetCullingMask(camera_culling_mask);
+        m_camera->SetFrustumCulling(false);
         
         auto mesh = Mesh::Create();
         for (int i = 0; i < 4; i++)
@@ -232,6 +238,7 @@ namespace Viry3D
         auto mat = Material::Create("YUVToRGB");
         
         auto obj = GameObject::Create("mesh");
+        obj->SetLayerRecursively(bg_layer);
         obj->SetActive(false);
         
         auto renderer = obj->AddComponent<MeshRenderer>();
@@ -335,6 +342,10 @@ namespace Viry3D
                 m_camera_view_matrix = matrix_float4x4_matrix([frame.camera viewMatrixForOrientation:orientation]);
                 m_camera_projection_matrix = matrix_float4x4_matrix([frame.camera projectionMatrixForOrientation:orientation viewportSize:screen_size zNear:0.03f zFar:100.0f]);
                 m_camera_transform = matrix_float4x4_matrix([frame.camera transform]);
+                
+                m_camera->SetViewMatrixExternal(m_camera_view_matrix);
+                m_camera->SetProjectionMatrixExternal(m_camera_projection_matrix);
+                m_camera->GetTransform()->SetLocalToWorldMatrixExternal(m_camera_transform);
             }
         }
     }
