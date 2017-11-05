@@ -58,10 +58,13 @@ public:
             
             m_camera = m_ar->GetCamera();
         }
-#else
-        m_camera = GameObject::Create("camera")->AddComponent<Camera>();
-		m_camera->SetCullingMask(1 << 0);
 #endif
+        
+        if (!m_camera)
+        {
+            m_camera = GameObject::Create("camera")->AddComponent<Camera>();
+            m_camera->SetCullingMask(1 << 0);
+        }
     }
     
 #if VR_IOS
