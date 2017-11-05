@@ -45,13 +45,6 @@ public:
 		camera->GetTransform()->SetPosition(Vector3(0, 2.0f, -2.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
-		auto plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
-		plane_mesh->Update();
-
-		auto plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
-		plane->SetSharedMaterial(Material::Create("Diffuse"));
-		plane->SetSharedMesh(plane_mesh);
-
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
 		sphere_mesh->Update();
 
@@ -81,9 +74,12 @@ public:
 		sphere->GetTransform()->SetPosition(Vector3(0, 1, 0));
 		sphere->SetSharedMaterial(sphere_mat);
 		sphere->SetSharedMesh(sphere_mesh);
+
+		// skybox
+		
 	}
 };
 
-#if 0
+#if 1
 VR_MAIN(AppSky);
 #endif

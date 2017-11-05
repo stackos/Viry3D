@@ -299,6 +299,6 @@ public:
     String m_anim_anchor_id;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppAR);
 #endif
