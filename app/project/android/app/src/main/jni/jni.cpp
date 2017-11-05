@@ -383,6 +383,15 @@ static void handle_cmd(android_app* app, int32_t cmdi)
             engine_pause();
             break;
 
+        case APP_CMD::APP_CMD_INIT_WINDOW:
+            // set keep screen on will recreate window, so recreate surface
+            if (_displayHasInit)
+            {
+                engine_pause();
+                engine_resume();
+            }
+            break;
+
 		case APP_CMD::APP_CMD_CONFIG_CHANGED:
             if (_canDraw && app->window)
             {

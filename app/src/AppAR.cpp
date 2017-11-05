@@ -42,7 +42,7 @@ public:
 
     virtual void Start()
     {
-        Graphics::GetDisplay()->KeepScreenOn(true);
+		Graphics::GetDisplay()->KeepScreenOn(true);
 		Graphics::SetGlobalCullFace(CullFace::Off);
 
         this->CreateFPSUI(20, 10, 10);
@@ -60,6 +60,7 @@ public:
         }
 #else
         m_camera = GameObject::Create("camera")->AddComponent<Camera>();
+		m_camera->SetCullingMask(1 << 0);
 #endif
     }
     
