@@ -42,7 +42,7 @@ public:
 		this->CreateFPSUI(20, 1, 1);
 
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->GetTransform()->SetPosition(Vector3(0, 2.0f, -2.0f));
+		camera->GetTransform()->SetPosition(Vector3(0, 3.0f, -3.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
@@ -76,7 +76,12 @@ public:
 		sphere->SetSharedMesh(sphere_mesh);
 
 		// skybox
-		
+		auto cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
+		cube_mesh->Update();
+
+		auto cube = GameObject::Create("sphere")->AddComponent<MeshRenderer>();
+		cube->SetSharedMaterial(Material::Create("Diffuse"));
+		cube->SetSharedMesh(cube_mesh);
 	}
 };
 
