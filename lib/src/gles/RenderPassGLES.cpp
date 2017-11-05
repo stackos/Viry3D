@@ -146,13 +146,10 @@ namespace Viry3D
 #if VR_IOS
 			attachments.Add(GL_COLOR_ATTACHMENT0);
 			attachments.Add(GL_DEPTH_ATTACHMENT);
-			attachments.Add(GL_STENCIL_ATTACHMENT);
 #else
 			attachments.Add(GL_COLOR);
 			attachments.Add(GL_DEPTH);
-			attachments.Add(GL_STENCIL);
 #endif
-			has_stencil = true;
 		}
 		else
 		{
@@ -172,7 +169,6 @@ namespace Viry3D
 					case DepthBuffer::Depth_24:
 					case DepthBuffer::Depth_32:
 						attachments.Add(GL_DEPTH_ATTACHMENT);
-						has_stencil = false;
 						break;
 					case DepthBuffer::Depth_24_Stencil_8:
 						attachments.Add(GL_DEPTH_ATTACHMENT);
@@ -187,8 +183,6 @@ namespace Viry3D
 			else
 			{
 				attachments.Add(GL_DEPTH_ATTACHMENT);
-				attachments.Add(GL_STENCIL_ATTACHMENT);
-				has_stencil = true;
 			}
 
 			glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
