@@ -162,8 +162,9 @@ void touch_update(void *touches, void *view)
     
     GLKView* view = (GLKView*) self.view;
     view.context = self.context;
+    view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-    view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
+    view.drawableStencilFormat = GLKViewDrawableStencilFormatNone;
 
     [EAGLContext setCurrentContext:self.context];
 #endif
