@@ -1,0 +1,58 @@
+<Shader name="Skybox" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="2">
+			<Uniform name="_ViewProjection" size="64"/>
+			<Uniform name="_SkyWorld" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<Include name="Base.in"/>
+		<Source>
+UniformBuffer(1, 0) uniform buf_vs_obj {
+	mat4 _World;
+} u_buf_obj;
+
+UniformBuffer(0, 2) uniform buf_vs {
+	mat4 _ViewProjection;
+	mat4 _SkyWorld;
+} u_buf;
+
+layout (location = 0) in vec4 a_pos;
+
+Varying(0) out vec3 v_uv;
+
+void main() {
+	gl_Position = (a_pos * u_buf._SkyWorld * u_buf._ViewProjection).xyww;
+	v_uv = a_pos.xyz;
+
+	vulkan_convert();
+}
+		</Source>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<Sampler name="_CubeMap" type="Cube" binding="3"/>
+		<Source>
+precision mediump float;
+      
+UniformTexture(0, 3) uniform samplerCube _CubeMap;
+
+Varying(0) in vec3 v_uv;
+
+layout (location = 0) out vec4 o_frag;
+
+void main() {
+    o_frag = texture(_CubeMap, v_uv);
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+		<Cull value="Front"/>
+		<ZWrite value="Off"/>
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

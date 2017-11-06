@@ -32,7 +32,7 @@ void main() {
 	v_uv = a_uv;
 
 	v_world_normal = (vec4(a_normal, 0.0) * u_buf_obj._World).xyz;
-	v_world_view_dir = u_buf._WorldCameraPos.xyz - world_pos.xyz;
+	v_world_view_dir = world_pos.xyz - u_buf._WorldCameraPos.xyz;
 
 	vulkan_convert();
 }
@@ -40,11 +40,11 @@ void main() {
 	</VertexShader>
 
 	<PixelShader name="ps">
-		<Sampler name="_ReflectMap" type="Cube" binding="3"/>
+		<Sampler name="_CubeMap" type="Cube" binding="3"/>
 		<Source>
 precision mediump float;
       
-UniformTexture(0, 3) uniform samplerCube _ReflectMap;
+UniformTexture(0, 3) uniform samplerCube _CubeMap;
 
 Varying(0) in vec2 v_uv;
 Varying(1) in vec3 v_world_normal;
@@ -57,7 +57,7 @@ void main() {
 	vec3 view_dir = normalize(v_world_view_dir);
 	vec3 ref = reflect(view_dir, normal);
 	
-    o_frag = texture(_ReflectMap, ref);
+    o_frag = texture(_CubeMap, ref);
 }
 		</Source>
 	</PixelShader>
