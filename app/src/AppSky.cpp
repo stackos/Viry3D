@@ -129,6 +129,6 @@ public:
 	Ref<Material> m_sphere_mat;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppSky);
 #endif
