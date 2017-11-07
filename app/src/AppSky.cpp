@@ -84,7 +84,7 @@ public:
 
 		m_sky_mat = Material::Create("Skybox");
 		m_sky_mat->SetTexture("_CubeMap", cubemap);
-		auto sky_matrix = Matrix4x4::TRS(m_camera->GetTransform()->GetPosition(), Quaternion::Identity(), Vector3::One());
+		auto sky_matrix = Matrix4x4::Translation(m_camera->GetTransform()->GetPosition());
 		m_sky_mat->SetMatrix("_SkyWorld", sky_matrix);
 
 		auto sky = GameObject::Create("sky")->AddComponent<MeshRenderer>();
@@ -114,7 +114,7 @@ public:
 			auto cam_dir = m_camera->GetTransform()->GetForward();
 			m_camera->GetTransform()->SetPosition(Vector3::Zero() - cam_dir * m_cam_dis);
 
-			auto sky_matrix = Matrix4x4::TRS(m_camera->GetTransform()->GetPosition(), Quaternion::Identity(), Vector3::One());
+			auto sky_matrix = Matrix4x4::Translation(m_camera->GetTransform()->GetPosition());
 			m_sky_mat->SetMatrix("_SkyWorld", sky_matrix);
 
 			m_sphere_mat->SetVector("_WorldCameraPos", m_camera->GetTransform()->GetPosition());
