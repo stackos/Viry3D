@@ -18,9 +18,7 @@
 #include "Main.h"
 #include "Application.h"
 #include "GameObject.h"
-#include "graphics/Graphics.h"
 #include "graphics/Camera.h"
-#include "graphics/Texture2D.h"
 
 using namespace Viry3D;
 
@@ -33,26 +31,13 @@ public:
         this->SetInitSize(480, 720);
     }
     
-	virtual ~AppClear()
-	{
-		Graphics::GetDisplay()->EndRecord();
-	}
-
 	virtual void Start()
     {
-		//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
-
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
         camera->SetClearColor(Color(1, 0, 0, 1));
-
-		auto tex = Texture2D::LoadFromFile(Application::DataPath() + "/design/zgs.jpg");
-		camera->SetPostRenderFunc([=]() {
-			Viry3D::Rect rect(0, 0, 1, 1);
-			Graphics::DrawQuad(&rect, tex, false);
-		});
     }
 };
 
-#if 1
+#if 0
 VR_MAIN(AppClear);
 #endif
