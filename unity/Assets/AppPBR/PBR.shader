@@ -1,18 +1,17 @@
-﻿Shader "PBR2"
+﻿Shader "PBR"
 {
 	Properties
 	{
-		albedoMap("albedoMap", 2D) = "white" { }
 		_albedo("albedo", Color) = (1, 1, 1, 1)
+		albedoMap("albedoMap", 2D) = "white" { }
 		normalMap("normalMap", 2D) = "bump" { }
 		metallicMap("metallicMap", 2D) = "white" { }
-		_metallic("metallic", Range(0, 1)) = 1
 		roughnessMap("roughnessMap", 2D) = "white" { }
-		_roughness("roughness", Range(0, 1)) = 1
 		aoMap("aoMap", 2D) = "white" { }
-		_ao("ao", Range(0, 1)) = 1
 		brdfLUT("brdfLUT", 2D) = "white" { }
-		_lut("lut", Range(0, 1)) = 1
+		_metallic("metallic", Range(0, 1)) = 1
+		_roughness("roughness", Range(0, 1)) = 1
+		_ao("ao", Range(0, 1)) = 1
 		irradianceMap("irradianceMap", CUBE) = "white" { }
 		prefilterMap("prefilterMap", CUBE) = "white" { }
 		_LightDir("LightDir", Vector) = (0, 0, 1, 0)
@@ -57,7 +56,6 @@
 			sampler2D aoMap;
 			float _ao;
 			sampler2D brdfLUT;
-			float _lut;
 			samplerCUBE irradianceMap;
 			samplerCUBE prefilterMap;
 			half3 _LightDir;
@@ -83,8 +81,6 @@
 				return o;
 			}
 			
-			const float PI = 3.14159265359;
-
 			float DistributionGGX(float3 N, float3 H, float roughness)
 			{
 				float a = roughness*roughness;
@@ -92,6 +88,7 @@
 				float NdotH = max(dot(N, H), 0.0);
 				float NdotH2 = NdotH*NdotH;
 
+				const float PI = 3.14159265359;
 				float nom = a2;
 				float denom = (NdotH2 * (a2 - 1.0) + 1.0);
 				denom = PI * denom * denom;
@@ -143,7 +140,7 @@
 				half3 viewDir = normalize(UnityWorldSpaceViewDir(i.posWorld));
 
 				half3 lightDir = normalize(-_LightDir);
-				fixed3 lightColor = _LightColor;
+				float3 lightColor = _LightColor;
 
 				float3 albedo = pow(tex2D(albedoMap, i.uv).rgb * _albedo.rgb, float3(2.2, 2.2, 2.2));
 				float metallic = tex2D(metallicMap, i.uv).r * _metallic;
@@ -157,34 +154,39 @@
 				float3 F0 = float3(0.04, 0.04, 0.04);
 				F0 = lerp(F0, albedo, metallic);
 
-				float3 L = lightDir;
-				float3 H = normalize(V + L);
+				float3 Lo = float3(0.0, 0.0, 0.0);
+				{
+					float3 L = lightDir;
+					float3 H = normalize(V + L);
+					float3 radiance = lightColor;
 
-				// Cook-Torrance BRDF
-				float NDF = DistributionGGX(N, H, roughness);
-				float G = GeometrySmith(N, V, L, roughness);
-				float3 F_ = fresnelSchlick(max(dot(H, V), 0.0), F0);
+					// Cook-Torrance BRDF
+					float NDF = DistributionGGX(N, H, roughness);
+					float G = GeometrySmith(N, V, L, roughness);
+					float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-				float3 nominator = NDF * G * F_;
-				float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-				float3 specular_ = nominator / denominator;
+					float3 nominator = NDF * G * F;
+					float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+					float3 specular = nominator / denominator;
 
-				// kS is equal to Fresnel
-				float3 kS_ = F_;
-				// for energy conservation, the diffuse and specular light can't
-				// be above 1.0 (unless the surface emits light); to preserve this
-				// relationship the diffuse component (kD) should equal 1.0 - kS.
-				float3 kD_ = float3(1.0, 1.0, 1.0) - kS_;
-				// multiply kD by the inverse metalness such that only non-metals
-				// have diffuse lighting, or a linear blend if partly metal (pure metals
-				// have no diffuse light).
-				kD_ *= 1.0 - metallic;
+					// kS is equal to Fresnel
+					float3 kS = F;
+					// for energy conservation, the diffuse and specular light can't
+					// be above 1.0 (unless the surface emits light); to preserve this
+					// relationship the diffuse component (kD) should equal 1.0 - kS.
+					float3 kD = float3(1.0, 1.0, 1.0) - kS;
+					// multiply kD by the inverse metalness such that only non-metals
+					// have diffuse lighting, or a linear blend if partly metal (pure metals
+					// have no diffuse light).
+					kD *= 1.0 - metallic;
 
-				// scale light by NdotL
-				float NdotL = max(dot(N, L), 0.0);
+					// scale light by NdotL
+					float NdotL = max(dot(N, L), 0.0);
 
-				// add to outgoing radiance Lo
-				float3 Lo = (kD_ * albedo / PI + specular_) * NdotL * 4; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+					// add to outgoing radiance Lo
+					const float PI = 3.14159265359;
+					Lo = (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+				}
 
 				float3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
@@ -197,7 +199,7 @@
 
 				const float MAX_REFLECTION_LOD = 4.0;
 				float3 prefilteredColor = texCUBElod(prefilterMap, float4(R, roughness * MAX_REFLECTION_LOD)).rgb;
-				float2 brdf = tex2D(brdfLUT, float2(max(dot(N, V), 0.0), roughness)).rg * _lut;
+				float2 brdf = tex2D(brdfLUT, float2(max(dot(N, V), 0.0), 1 - roughness)).rg;
 				float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
 				float3 ambient = (kD * diffuse + specular) * ao;
@@ -206,7 +208,7 @@
 
 				color = color / (color + float3(1.0, 1.0, 1.0));
 				// gamma correct
-				color = pow(color, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
+				color = pow(color, 1.0 / 2.2);
 
 				return float4(color, 1.0);
 			}

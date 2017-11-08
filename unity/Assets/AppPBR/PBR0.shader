@@ -1,4 +1,4 @@
-﻿Shader "PBR"
+﻿Shader "PBR0"
 {
 	Properties
 	{
