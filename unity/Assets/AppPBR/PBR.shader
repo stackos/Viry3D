@@ -129,31 +129,36 @@
 
 			fixed4 frag (v2f i) : SV_Target
 			{
-				fixed3 n = UnpackNormal(tex2D(normalMap, i.uv));
+				float3 n = UnpackNormal(tex2D(normalMap, i.uv));
 
-				half3 normal;
+				float3 normal;
 				normal.x = dot(i.tspace0, n);
 				normal.y = dot(i.tspace1, n);
 				normal.z = dot(i.tspace2, n);
 				normal = normalize(normal);
 
-				half3 viewDir = normalize(UnityWorldSpaceViewDir(i.posWorld));
-
-				half3 lightDir = normalize(-_LightDir);
+				float3 viewDir = normalize(UnityWorldSpaceViewDir(i.posWorld));
+				float3 lightDir = normalize(-_LightDir);
 				float3 lightColor = _LightColor;
 
-				float3 albedo = pow(tex2D(albedoMap, i.uv).rgb * _albedo.rgb, float3(2.2, 2.2, 2.2));
+				// material properties
+				float3 albedo = pow(tex2D(albedoMap, i.uv).rgb * _albedo.rgb, 2.2);
+				//float3 albedo = tex2D(albedoMap, i.uv).rgb * _albedo.rgb;
 				float metallic = tex2D(metallicMap, i.uv).r * _metallic;
 				float roughness = tex2D(roughnessMap, i.uv).r * _roughness;
 				float ao = tex2D(aoMap, i.uv).r * _ao;
 
+				// input lighting data
 				float3 N = normal;
 				float3 V = viewDir;
 				float3 R = reflect(-V, N);
 
+				// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+				// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)  
 				float3 F0 = float3(0.04, 0.04, 0.04);
 				F0 = lerp(F0, albedo, metallic);
 
+				// reflectance equation
 				float3 Lo = float3(0.0, 0.0, 0.0);
 				{
 					float3 L = lightDir;
@@ -185,20 +190,23 @@
 
 					// add to outgoing radiance Lo
 					const float PI = 3.14159265359;
-					Lo = (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+					Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 				}
 
+				// ambient lighting (we now use IBL as the ambient term)
 				float3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
 				float3 kS = F;
 				float3 kD = 1.0 - kS;
 				kD *= 1.0 - metallic;
 
-				float3 irradiance = texCUBE(irradianceMap, N).rgb;
+				float3 irradiance = pow(texCUBE(irradianceMap, N).rgb, 2.2);
+				//float3 irradiance = texCUBE(irradianceMap, N).rgb;
 				float3 diffuse = irradiance * albedo;
 
 				const float MAX_REFLECTION_LOD = 4.0;
-				float3 prefilteredColor = texCUBElod(prefilterMap, float4(R, roughness * MAX_REFLECTION_LOD)).rgb;
+				float3 prefilteredColor = pow(texCUBElod(prefilterMap, float4(R, roughness * MAX_REFLECTION_LOD)).rgb, 2.2);
+				//float3 prefilteredColor = texCUBElod(prefilterMap, float4(R, roughness * MAX_REFLECTION_LOD)).rgb;
 				float2 brdf = tex2D(brdfLUT, float2(max(dot(N, V), 0.0), 1 - roughness)).rg;
 				float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
@@ -206,6 +214,7 @@
 
 				float3 color = ambient + Lo;
 
+				// HDR tonemapping
 				color = color / (color + float3(1.0, 1.0, 1.0));
 				// gamma correct
 				color = pow(color, 1.0 / 2.2);
