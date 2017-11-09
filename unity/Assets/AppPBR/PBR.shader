@@ -200,14 +200,12 @@
 				float3 kD = 1.0 - kS;
 				kD *= 1.0 - metallic;
 
-				float3 irradiance = pow(texCUBE(irradianceMap, N).rgb, 2.2);
-				//float3 irradiance = texCUBE(irradianceMap, N).rgb;
+				float3 irradiance = texCUBE(irradianceMap, N).rgb;
 				float3 diffuse = irradiance * albedo;
 
 				const float MAX_REFLECTION_LOD = 4.0;
-				float3 prefilteredColor = pow(texCUBElod(prefilterMap, float4(R, roughness * MAX_REFLECTION_LOD)).rgb, 2.2);
-				//float3 prefilteredColor = texCUBElod(prefilterMap, float4(R, roughness * MAX_REFLECTION_LOD)).rgb;
-				float2 brdf = tex2D(brdfLUT, float2(max(dot(N, V), 0.0), 1 - roughness)).rg;
+				float3 prefilteredColor = texCUBElod(prefilterMap, float4(R, roughness * MAX_REFLECTION_LOD)).rgb;
+				float2 brdf = tex2D(brdfLUT, float2(max(dot(N, V), 0.0), roughness)).rg;
 				float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
 				float3 ambient = (kD * diffuse + specular) * ao;

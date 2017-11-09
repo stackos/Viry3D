@@ -63,7 +63,7 @@
 						// tangent space to world
 						float3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
 
-						irradiance += texCUBE(_CubeMap, sampleVec).rgb * cos(theta) * sin(theta);
+						irradiance += pow(texCUBE(_CubeMap, sampleVec).rgb, 2.2) * cos(theta) * sin(theta);
 						nrSamples++;
 					}
 				}

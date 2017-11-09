@@ -1,14 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 public class PBR : MonoBehaviour {
-	public Cubemap cube_map;
+	public Cubemap m_cube_map;
 
 	void Start () {
 		genIrradiance();
 		genBRDF();
+		genPrefilter();
 	}
 
 	void genIrradiance() {
@@ -23,13 +22,15 @@ public class PBR : MonoBehaviour {
 		camera.allowHDR = true;
 
 		var cube_mat = new Material(Shader.Find("irradiance"));
-		cube_mat.SetTexture("_CubeMap", cube_map);
+		cube_mat.SetTexture("_CubeMap", m_cube_map);
 
 		var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		cube.transform.localScale = Vector3.one * 2;
 		cube.GetComponent<MeshRenderer>().sharedMaterial = cube_mat;
 
-		var irradiance = new Cubemap(32, TextureFormat.RGBAHalf, false);
+		int size = 32;
+
+		var irradiance = new Cubemap(size, TextureFormat.RGBAHalf, false);
 		camera.RenderToCubemap(irradiance);
 
 		GameObject.DestroyImmediate(cube);
@@ -37,39 +38,59 @@ public class PBR : MonoBehaviour {
 
 		AssetDatabase.CreateAsset(irradiance, "Assets/AppPBR/irradiance.asset");
 	}
-
+	
 	void genBRDF() {
-		var camera = new GameObject().AddComponent<Camera>();
-		camera.clearFlags = CameraClearFlags.Color;
-		camera.backgroundColor = Color.black;
-		camera.orthographic = true;
-		camera.orthographicSize = 1;
-		camera.nearClipPlane = -1;
-		camera.farClipPlane = 1;
-		camera.useOcclusionCulling = false;
-		camera.allowMSAA = false;
-		camera.allowHDR = true;
+		RenderTexture old_rt = RenderTexture.active;
 
-		var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
-		quad.transform.localScale = Vector3.one * 2;
-		quad.GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("brdf"));
+		int size = 512;
 
-		var brdf_cube = new Cubemap(512, TextureFormat.RGBAHalf, false);
-		camera.RenderToCubemap(brdf_cube);
+		var rt = new RenderTexture(size, size, 0, RenderTextureFormat.ARGBHalf);
+		Graphics.Blit(null, rt, new Material(Shader.Find("brdf")), 0);
 
-		GameObject.DestroyImmediate(quad);
-		GameObject.DestroyImmediate(camera.gameObject);
-
-		var pixels = brdf_cube.GetPixels(CubemapFace.PositiveZ, 0);
-		var brdf = new Texture2D(512, 512, TextureFormat.RGBAHalf, false);
+		var brdf = new Texture2D(size, size, TextureFormat.RGBAHalf, false);
 		brdf.wrapMode = TextureWrapMode.Clamp;
 		brdf.filterMode = FilterMode.Bilinear;
-		brdf.SetPixels(pixels);
+
+		RenderTexture.active = rt;
+		brdf.ReadPixels(new Rect(0, 0, size, size), 0, 0);
 
 		AssetDatabase.CreateAsset(brdf, "Assets/AppPBR/brdf.asset");
+
+		RenderTexture.active = old_rt;
 	}
 
-	void Update () {
-		
+	void genPrefilter() {
+		RenderTexture old_rt = RenderTexture.active;
+
+		int size = m_cube_map.width;
+
+		var prefilter = new Cubemap(size, m_cube_map.format, true);
+
+		int size_mip = size;
+
+		for(int i = 0; i < m_cube_map.mipmapCount; i++) {
+			for(int j = 0; j < 6; j++) {
+				var ps = m_cube_map.GetPixels((CubemapFace) j, i);
+				var tex = new Texture2D(size_mip, size_mip, m_cube_map.format, false);
+				tex.SetPixels(ps);
+				tex.Apply();
+
+				var rt = RenderTexture.GetTemporary(size_mip, size_mip, 0, RenderTextureFormat.ARGBHalf);
+				var mat = new Material(Shader.Find("prefilter"));
+				mat.mainTexture = tex;
+				Graphics.Blit(tex, rt, mat, 0);
+				RenderTexture.active = rt;
+				tex.ReadPixels(new Rect(0, 0, size_mip, size_mip), 0, 0);
+				RenderTexture.ReleaseTemporary(rt);
+
+				prefilter.SetPixels(tex.GetPixels(), (CubemapFace) j, i);
+			}
+
+			size_mip >>= 1;
+		}
+
+		AssetDatabase.CreateAsset(prefilter, "Assets/AppPBR/prefilter.asset");
+
+		RenderTexture.active = old_rt;
 	}
 }
