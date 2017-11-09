@@ -12,10 +12,11 @@
 		_metallic("metallic", Range(0, 1)) = 1
 		_roughness("roughness", Range(0, 1)) = 1
 		_ao("ao", Range(0, 1)) = 1
-		irradianceMap("irradianceMap", CUBE) = "white" { }
-		prefilterMap("prefilterMap", CUBE) = "white" { }
+		irradianceMap("irradianceMap", CUBE) = "" { }
+		prefilterMap("prefilterMap", CUBE) = "" { }
 		_LightDir("LightDir", Vector) = (0, 0, 1, 0)
 		_LightColor("LightColor", Color) = (1, 1, 1, 1)
+		_LightIntensity("LightIntensity", Range(0, 10)) = 1
 	}
 
 	SubShader
@@ -40,9 +41,9 @@
 			{
 				float4 pos : SV_POSITION;
 				float2 uv : TEXCOORD0;
-				half3 tspace0 : TEXCOORD1;
-				half3 tspace1 : TEXCOORD2;
-				half3 tspace2 : TEXCOORD3;
+				float3 tspace0 : TEXCOORD1;
+				float3 tspace1 : TEXCOORD2;
+				float3 tspace2 : TEXCOORD3;
 				float3 posWorld : TEXCOORD4;
 			};
 
@@ -58,8 +59,9 @@
 			sampler2D brdfLUT;
 			samplerCUBE irradianceMap;
 			samplerCUBE prefilterMap;
-			half3 _LightDir;
-			fixed4 _LightColor;
+			float3 _LightDir;
+			float4 _LightColor;
+			float _LightIntensity;
 
 			v2f vert (appdata v)
 			{
@@ -69,14 +71,14 @@
 
 				o.posWorld = mul(unity_ObjectToWorld, v.vertex).xyz;
 
-				half3 normal = UnityObjectToWorldNormal(v.normal);
-				half3 tangent = UnityObjectToWorldDir(v.tangent.xyz);
-				half tangentSign = v.tangent.w * unity_WorldTransformParams.w;
-				half3 bitangent = cross(normal, tangent) * tangentSign;
+				float3 normal = UnityObjectToWorldNormal(v.normal);
+				float3 tangent = UnityObjectToWorldDir(v.tangent.xyz);
+				float tangentSign = v.tangent.w * unity_WorldTransformParams.w;
+				float3 bitangent = cross(normal, tangent) * tangentSign;
 
-				o.tspace0 = half3(tangent.x, bitangent.x, normal.x);
-				o.tspace1 = half3(tangent.y, bitangent.y, normal.y);
-				o.tspace2 = half3(tangent.z, bitangent.z, normal.z);
+				o.tspace0 = float3(tangent.x, bitangent.x, normal.x);
+				o.tspace1 = float3(tangent.y, bitangent.y, normal.y);
+				o.tspace2 = float3(tangent.z, bitangent.z, normal.z);
 
 				return o;
 			}
@@ -127,7 +129,7 @@
 				return F0 + (max(float3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 			}
 
-			fixed4 frag (v2f i) : SV_Target
+			float4 frag (v2f i) : SV_Target
 			{
 				float3 n = UnpackNormal(tex2D(normalMap, i.uv));
 
@@ -139,7 +141,7 @@
 
 				float3 viewDir = normalize(UnityWorldSpaceViewDir(i.posWorld));
 				float3 lightDir = normalize(-_LightDir);
-				float3 lightColor = _LightColor;
+				float3 lightColor = _LightColor * _LightIntensity;
 
 				// material properties
 				float3 albedo = pow(tex2D(albedoMap, i.uv).rgb * _albedo.rgb, 2.2);
