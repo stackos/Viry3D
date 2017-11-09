@@ -5,8 +5,9 @@
 		_Color ("Color", Color) = (1, 1, 1, 1)
 		_MainTex ("Texture", 2D) = "white" {}
 		_Normal ("Normal", 2D) = "bump" {}
+		_SpecMap("SpecMap", 2D) = "white" {}
+		_SmoothMap("SmoothMap", 2D) = "white" {}
 		_CubeMap ("CubeMap", CUBE) = "" {}
-		_SpecMap ("SpecMap", 2D) = "white" {}
 		_Spec ("Spec", Color) = (1, 1, 1, 1)
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.5
 		_LightDir ("LightDir", Vector) = (0, 0, 1, 0)
@@ -45,14 +46,12 @@
 
 			fixed4 _Color;
 			sampler2D _MainTex;
-			float4 _MainTex_ST;
 			sampler2D _Normal;
-
-			samplerCUBE _CubeMap;
 			sampler2D _SpecMap;
+			sampler2D _SmoothMap;
+			samplerCUBE _CubeMap;
 			fixed3 _Spec;
 			half _Smoothness;
-
 			half3 _LightDir;
 			fixed4 _LightColor;
 
@@ -60,7 +59,7 @@
 			{
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.vertex);
-				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+				o.uv = v.uv;
 
 				o.posWorld = mul(unity_ObjectToWorld, v.vertex).xyz;
 
