@@ -40,6 +40,9 @@
     <ClCompile Include="..\..\src\AppSky.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\AppPBR.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\..\lib\src\gles\glew\prebuilt\glew32.lib">

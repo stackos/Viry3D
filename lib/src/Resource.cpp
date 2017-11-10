@@ -69,10 +69,8 @@ namespace Viry3D
 			auto ms = MemoryStream(File::ReadAllBytes(full_path));
 
 			auto texture_name = read_string(ms);
-			//	width
-			ms.Read<int>();
-			//	height
-			ms.Read<int>();
+			auto width = ms.Read<int>();
+			auto height = ms.Read<int>();
 			auto wrap_mode = (TextureWrapMode) ms.Read<int>();
 			auto filter_mode = (FilterMode) ms.Read<int>();
 			auto texture_type = read_string(ms);
@@ -90,6 +88,18 @@ namespace Viry3D
 				{
 					Object::AddCache(path, texture);
 				}
+			}
+			else if (texture_type == "Texture2DRGFloat")
+			{
+
+			}
+			else if (texture_type == "Cubemap")
+			{
+
+			}
+			else if(texture_type == "CubemapRGBFloat")
+			{
+				
 			}
 
 			ms.Close();

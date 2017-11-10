@@ -168,6 +168,7 @@
     <ClCompile Include="..\..\src\AppMesh.cpp" />
     <ClCompile Include="..\..\src\AppAnim.cpp" />
     <ClCompile Include="..\..\src\AppBlur.cpp" />
+    <ClCompile Include="..\..\src\AppPBR.cpp" />
     <ClCompile Include="..\..\src\AppShadow.cpp" />
     <ClCompile Include="..\..\src\AppSky.cpp" />
     <ClCompile Include="..\..\src\AppTerrain.cpp" />
