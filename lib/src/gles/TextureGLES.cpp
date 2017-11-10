@@ -251,6 +251,17 @@ namespace Viry3D
 				filter_mag = GL_NEAREST;
 				break;
 			case FilterMode::Bilinear:
+				if (mipmap)
+				{
+					filter_min = GL_LINEAR_MIPMAP_NEAREST;
+				}
+				else
+				{
+					filter_min = GL_LINEAR;
+				}
+
+				filter_mag = GL_LINEAR;
+				break;
 			case FilterMode::Trilinear:
 				if (mipmap)
 				{
