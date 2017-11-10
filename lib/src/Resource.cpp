@@ -27,6 +27,7 @@
 #include "graphics/Graphics.h"
 #include "graphics/Display.h"
 #include "graphics/LightmapSettings.h"
+#include "graphics/Cubemap.h"
 #include "ui/UICanvasRenderer.h"
 #include "ui/UISprite.h"
 #include "ui/Atlas.h"
@@ -81,8 +82,7 @@ namespace Viry3D
 				auto png_path = read_string(ms);
 				png_path = Application::DataPath() + png_path.Substring(String("Assets").Size());
 
-				bool mipmap = mipmap_count > 1;
-				texture = Texture2D::LoadFromFile(png_path, wrap_mode, filter_mode, mipmap);
+				texture = Texture2D::LoadFromFile(png_path, wrap_mode, filter_mode, mipmap_count > 1);
 
 				if (texture)
 				{
@@ -99,7 +99,26 @@ namespace Viry3D
 			}
 			else if(texture_type == "CubemapRGBFloat")
 			{
+				int mipmap_count = ms.Read<int>();
+
+				auto cubemap = Cubemap::Create(width, TextureFormat::RGBFloat, wrap_mode, filter_mode, mipmap_count > 1);
 				
+				for (int i = 0; i < mipmap_count; i++)
+				{
+					for (int j = 0; j < 6; j++)
+					{
+						auto face_path = read_string(ms);
+						face_path = Application::DataPath() + face_path.Substring(String("Assets").Size());
+
+						auto colors = File::ReadAllBytes(face_path);
+						cubemap->SetPixels(colors, (CubemapFace) j, i);
+					}
+				}
+
+				cubemap->Apply(false, true);
+
+				texture = cubemap;
+				Object::AddCache(path, texture);
 			}
 
 			ms.Close();

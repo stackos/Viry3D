@@ -55,7 +55,7 @@ namespace Viry3D
 		}
 		else if (bpp == 8)
 		{
-			format = TextureFormat::Alpha8;
+			format = TextureFormat::R8;
 		}
 		else
 		{
@@ -160,7 +160,7 @@ namespace Viry3D
 			case TextureFormat::RGB24:
 				bpp = 24;
 				break;
-			case TextureFormat::Alpha8:
+			case TextureFormat::R8:
 				bpp = 8;
 				break;
 			default:

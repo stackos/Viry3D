@@ -48,28 +48,7 @@ public:
 		auto cam_dir = m_camera->GetTransform()->GetForward();
 		m_camera->GetTransform()->SetPosition(Vector3::Zero() - cam_dir * m_cam_dis);
 
-		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
-		sphere_mesh->Update();
-
-		auto cubemap = Cubemap::Create(1024, TextureFormat::RGB24, TextureWrapMode::Clamp, FilterMode::Bilinear, false);
-		for (int i = 0; i < 6; i++)
-		{
-			int width;
-			int height;
-			ByteBuffer colors;
-			TextureFormat format;
-
-			auto file = String::Format("%s/dawn/%d.png", (Application::DataPath() + "/AppSky").CString(), i);
-			auto buffer = File::ReadAllBytes(file);
-
-			if (Texture2D::LoadImageData(buffer, colors, width, height, format))
-			{
-				cubemap->SetPixels(colors, (CubemapFace) i, 0);
-			}
-		}
-		cubemap->Apply(false, true);
-
-		//auto cubemap = Resource::LoadTexture("Assets/AppPBR/prefilter.asset.tex");
+		auto cubemap = Resource::LoadTexture("Assets/AppPBR/prefilter.asset.tex");
 
 		// skybox
 		auto cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");

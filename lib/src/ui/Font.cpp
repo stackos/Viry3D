@@ -72,7 +72,7 @@ namespace Viry3D
 		Memory::Zero(buffer.Bytes(), buffer.Size());
 		m_texture = Texture2D::Create(
 			TEXTURE_SIZE_MAX, TEXTURE_SIZE_MAX,
-			TextureFormat::Alpha8,
+			TextureFormat::R8,
 			TextureWrapMode::Clamp, FilterMode::Point,
 			false,
 			buffer);

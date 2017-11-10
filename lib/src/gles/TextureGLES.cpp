@@ -126,7 +126,7 @@ namespace Viry3D
 			format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 		}
-		else if (texture_format == TextureFormat::Alpha8)
+		else if (texture_format == TextureFormat::R8)
 		{
 			m_format = GL_R8;
 			format = GL_RED;
@@ -159,7 +159,7 @@ namespace Viry3D
 			format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 		}
-		else if (texture_format == TextureFormat::Alpha8)
+		else if (texture_format == TextureFormat::R8)
 		{
             format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
@@ -325,11 +325,17 @@ namespace Viry3D
 			format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 		}
-		else if (texture_format == TextureFormat::Alpha8)
+		else if (texture_format == TextureFormat::R8)
 		{
 			m_format = GL_R8;
 			format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
+		}
+		else if (texture_format == TextureFormat::RGBFloat)
+		{
+			m_format = GL_RGB16F;
+			format = GL_RGB;
+			type = GL_FLOAT;
 		}
 		else
 		{
@@ -339,7 +345,7 @@ namespace Viry3D
 		glBindTexture(m_target, m_texture);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, level, m_format, width, height, 0, format, type, colors.Bytes());
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, level, m_format, width >> level, height >> level, 0, format, type, colors.Bytes());
 
 		glBindTexture(m_target, 0);
 

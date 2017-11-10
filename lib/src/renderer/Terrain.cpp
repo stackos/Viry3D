@@ -97,7 +97,7 @@ namespace Viry3D
 				colors[i * m_tile_map_size + j] = us >> 8;
 			}
 		}
-		m_tile->debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::Alpha8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
+		m_tile->debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::R8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
 	}
 
 	void Terrain::GenerateTileHeightMap()
