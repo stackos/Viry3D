@@ -215,7 +215,7 @@ public class ExporterBase
 				png_path = m_out_path + "/" + png_path;
 
 				var importer = AssetImporter.GetAtPath(asset_path) as TextureImporter;
-				if (importer.textureType == TextureImporterType.NormalMap)
+				if (importer != null && importer.textureType == TextureImporterType.NormalMap)
 				{
 					if (asset_path.EndsWith(".png") || asset_path.EndsWith(".PNG"))
 					{
@@ -283,7 +283,11 @@ public class ExporterBase
 
 						var colors = cubemap.GetPixels((CubemapFace) j, i);
 						var face = new Texture2D(size, size, cubemap.format, false);
-						face.SetPixels(colors);
+						for(int k = 0; k < size; k++) {
+							Color[] line = new Color[size];
+							System.Array.Copy(colors, k * size, line, 0, size);
+							face.SetPixels(0, size - k - 1, size, 1, line);
+						}
 
 						face_path = m_out_path + "/" + face_path;
 

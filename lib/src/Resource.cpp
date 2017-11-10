@@ -101,7 +101,32 @@ namespace Viry3D
 			}
 			else if (texture_type == "Cubemap")
 			{
+				int mipmap_count = ms.Read<int>();
 
+				auto cubemap = Cubemap::Create(width, TextureFormat::RGBA32, wrap_mode, filter_mode, mipmap_count > 1);
+
+				for (int i = 0; i < mipmap_count; i++)
+				{
+					for (int j = 0; j < 6; j++)
+					{
+						auto face_path = read_string(ms);
+						face_path = Application::DataPath() + face_path.Substring(String("Assets").Size());
+
+						ByteBuffer colors;
+						int w, h;
+						TextureFormat format;
+						auto buffer = File::ReadAllBytes(face_path);
+						if (Texture2D::LoadImageData(buffer, colors, w, h, format))
+						{
+							cubemap->SetPixels(colors, (CubemapFace) j, i);
+						}
+					}
+				}
+
+				cubemap->Apply(false, true);
+
+				texture = cubemap;
+				Object::AddCache(path, texture);
 			}
 			else if(texture_type == "CubemapRGBFloat")
 			{

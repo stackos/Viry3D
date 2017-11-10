@@ -1,8 +1,18 @@
-﻿using UnityEngine;
+﻿//#define HDR
+
+using UnityEngine;
 using UnityEditor;
 
 public class PBRGen : MonoBehaviour
 {
+#if HDR
+	const RenderTextureFormat render_texture_format = RenderTextureFormat.ARGBHalf;
+	const TextureFormat texture_format = TextureFormat.RGBAHalf;
+#else
+	const RenderTextureFormat render_texture_format = RenderTextureFormat.ARGB32;
+	const TextureFormat texture_format = TextureFormat.RGBA32;
+#endif
+
 	public Cubemap m_cube_map;
 
 	void Start()
@@ -33,7 +43,7 @@ public class PBRGen : MonoBehaviour
 
 		int size = 32;
 
-		var irradiance = new Cubemap(size, TextureFormat.RGBAHalf, false);
+		var irradiance = new Cubemap(size, texture_format, false);
 		camera.RenderToCubemap(irradiance);
 
 		GameObject.DestroyImmediate(cube);
@@ -48,10 +58,10 @@ public class PBRGen : MonoBehaviour
 
 		int size = 512;
 
-		var rt = new RenderTexture(size, size, 0, RenderTextureFormat.ARGBHalf);
+		var rt = new RenderTexture(size, size, 0, render_texture_format);
 		Graphics.Blit(null, rt, new Material(Shader.Find("brdf")), 0);
 
-		var brdf = new Texture2D(size, size, TextureFormat.RGBAHalf, false);
+		var brdf = new Texture2D(size, size, texture_format, false);
 		brdf.wrapMode = TextureWrapMode.Clamp;
 		brdf.filterMode = FilterMode.Bilinear;
 
@@ -69,7 +79,7 @@ public class PBRGen : MonoBehaviour
 
 		int size = m_cube_map.width;
 
-		var prefilter = new Cubemap(size, TextureFormat.RGBAHalf, true);
+		var prefilter = new Cubemap(size, texture_format, true);
 		prefilter.filterMode = FilterMode.Trilinear;
 
 		int size_mip = size;
@@ -79,11 +89,11 @@ public class PBRGen : MonoBehaviour
 			for (int j = 0; j < 6; j++)
 			{
 				var ps = m_cube_map.GetPixels((CubemapFace) j, i);
-				var tex = new Texture2D(size_mip, size_mip, TextureFormat.RGBAHalf, false);
+				var tex = new Texture2D(size_mip, size_mip, texture_format, false);
 				tex.SetPixels(ps);
 				tex.Apply();
 
-				var rt = RenderTexture.GetTemporary(size_mip, size_mip, 0, RenderTextureFormat.ARGBHalf);
+				var rt = RenderTexture.GetTemporary(size_mip, size_mip, 0, render_texture_format);
 				var mat = new Material(Shader.Find("prefilter"));
 				mat.mainTexture = tex;
 				Graphics.Blit(tex, rt, mat, 0);

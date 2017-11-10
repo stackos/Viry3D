@@ -56,7 +56,7 @@ public:
 			auto cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
 			cube_mesh->Update();
 
-			m_sky_mat = Material::Create("Skybox");
+			m_sky_mat = Material::Create("SkyboxGamma");
 			m_sky_mat->SetTexture("_CubeMap", cubemap);
 			auto sky_matrix = Matrix4x4::Translation(m_camera->GetTransform()->GetPosition());
 			m_sky_mat->SetMatrix("_SkyWorld", sky_matrix);
