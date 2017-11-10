@@ -36,8 +36,6 @@ namespace Viry3D
 		}
 		else
 		{
-			Log("can not find shader %s", shader_name.CString());
-
 			mat = Ref<Material>(new Material());
 			mat->SetName(shader_name);
 			mat->m_shader = Shader::Find("Error");

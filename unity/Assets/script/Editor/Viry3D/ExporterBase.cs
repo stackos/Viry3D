@@ -232,9 +232,9 @@ public class ExporterBase
 					File.WriteAllBytes(png_path, bytes);
 				}
 			}
-			else if (tex2d.format == TextureFormat.RGHalf)
+			else if (tex2d.format == TextureFormat.RGBAHalf)
 			{
-				WriteString("Texture2DRGFloat");
+				WriteString("Texture2DRGBFloat");
 				m_writer.Write(tex2d.mipmapCount);
 
 				var data_path = path + ".f";
@@ -245,14 +245,16 @@ public class ExporterBase
 
 				data_path = m_out_path + "/" + data_path;
 
-				var bytes = new byte[colors.Length * 8];
+				var bytes = new byte[colors.Length * 12];
 				for (int k = 0; k < colors.Length; k++)
 				{
 					var r = System.BitConverter.GetBytes(colors[k].r);
 					var g = System.BitConverter.GetBytes(colors[k].g);
+					var b = System.BitConverter.GetBytes(colors[k].b);
 
-					System.Array.Copy(r, 0, bytes, k * 8 + 0, 4);
-					System.Array.Copy(g, 0, bytes, k * 8 + 4, 4);
+					System.Array.Copy(r, 0, bytes, k * 12 + 0, 4);
+					System.Array.Copy(g, 0, bytes, k * 12 + 4, 4);
+					System.Array.Copy(b, 0, bytes, k * 12 + 8, 4);
 				}
 				File.WriteAllBytes(data_path, bytes);
 			}

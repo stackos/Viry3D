@@ -132,6 +132,12 @@ namespace Viry3D
 			format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
 		}
+		else if (texture_format == TextureFormat::RGBFloat)
+		{
+			m_format = GL_RGB16F;
+			format = GL_RGB;
+			type = GL_FLOAT;
+		}
 		else
 		{
 			assert(!"texture format not implement");

@@ -25,6 +25,7 @@
 #include "graphics/Material.h"
 #include "graphics/Cubemap.h"
 #include "graphics/Texture2D.h"
+#include "graphics/Light.h"
 #include "io/File.h"
 
 using namespace Viry3D;
@@ -51,17 +52,25 @@ public:
 		auto cubemap = Resource::LoadTexture("Assets/AppPBR/prefilter.asset.tex");
 
 		// skybox
-		auto cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
-		cube_mesh->Update();
+		{
+			auto cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
+			cube_mesh->Update();
 
-		m_sky_mat = Material::Create("Skybox");
-		m_sky_mat->SetTexture("_CubeMap", cubemap);
-		auto sky_matrix = Matrix4x4::Translation(m_camera->GetTransform()->GetPosition());
-		m_sky_mat->SetMatrix("_SkyWorld", sky_matrix);
+			m_sky_mat = Material::Create("Skybox");
+			m_sky_mat->SetTexture("_CubeMap", cubemap);
+			auto sky_matrix = Matrix4x4::Translation(m_camera->GetTransform()->GetPosition());
+			m_sky_mat->SetMatrix("_SkyWorld", sky_matrix);
 
-		auto sky = GameObject::Create("sky")->AddComponent<MeshRenderer>();
-		sky->SetSharedMaterial(m_sky_mat);
-		sky->SetSharedMesh(cube_mesh);
+			auto sky = GameObject::Create("sky")->AddComponent<MeshRenderer>();
+			sky->SetSharedMaterial(m_sky_mat);
+			sky->SetSharedMesh(cube_mesh);
+		}
+
+		Resource::LoadGameObject("Assets/AppPBR/models.prefab");
+
+		auto light = GameObject::Create("light")->AddComponent<Light>();
+		light->GetTransform()->SetRotation(Quaternion::Euler(45, -30, 0));
+		Light::main = light;
 	}
 
 	virtual void Update()
@@ -94,7 +103,7 @@ public:
 	Ref<Camera> m_camera;
 	Vector3 m_mouse = Vector3(-1, -1, -1);
 	Vector3 m_cam_rot = Vector3(30, 0, 0);
-	const float m_cam_dis = 3;
+	const float m_cam_dis = 4;
 	Ref<Material> m_sky_mat;
 };
 

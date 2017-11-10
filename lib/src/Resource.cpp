@@ -89,9 +89,15 @@ namespace Viry3D
 					Object::AddCache(path, texture);
 				}
 			}
-			else if (texture_type == "Texture2DRGFloat")
+			else if (texture_type == "Texture2DRGBFloat")
 			{
+				int mipmap_count = ms.Read<int>();
+				auto data_path = read_string(ms);
+				data_path = Application::DataPath() + data_path.Substring(String("Assets").Size());
+				auto colors = File::ReadAllBytes(data_path);
 
+				texture = Texture2D::Create(width, height, TextureFormat::RGBFloat, wrap_mode, filter_mode, mipmap_count > 1, colors);
+				Object::AddCache(path, texture);
 			}
 			else if (texture_type == "Cubemap")
 			{
@@ -109,7 +115,6 @@ namespace Viry3D
 					{
 						auto face_path = read_string(ms);
 						face_path = Application::DataPath() + face_path.Substring(String("Assets").Size());
-
 						auto colors = File::ReadAllBytes(face_path);
 						cubemap->SetPixels(colors, (CubemapFace) j, i);
 					}

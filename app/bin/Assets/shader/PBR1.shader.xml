@@ -1,0 +1,243 @@
+<Shader name="PBR1" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="2">
+			<Uniform name="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<VertexAttribute name="Normal" location="2"/>
+		<VertexAttribute name="Tangent" location="3"/>
+		<Include name="Base.in"/>
+		<Source>
+UniformBuffer(1, 0) uniform buf_vs_obj
+{
+	mat4 _World;
+} u_buf_obj;
+
+UniformBuffer(0, 2) uniform buf_vs
+{
+	mat4 _ViewProjection;
+} u_buf;
+
+layout (location = 0) in vec4 a_pos;
+layout (location = 1) in vec2 a_uv;
+layout (location = 2) in vec3 a_normal;
+layout (location = 3) in vec4 a_tangent;
+
+Varying(0) out vec2 v_uv;
+Varying(1) out vec4 v_t2w0;
+Varying(2) out vec4 v_t2w1;
+Varying(3) out vec4 v_t2w2;
+
+void main()
+{
+	vec4 world_pos = a_pos * u_buf_obj._World;
+	gl_Position = world_pos * u_buf._ViewProjection;
+	v_uv = a_uv;
+
+	vec3 normal = (vec4(a_normal, 0.0) * u_buf_obj._World).xyz;
+	vec3 tangent = (vec4(a_tangent.xyz, 0.0) * u_buf_obj._World).xyz;
+	vec3 binormal = cross(normal, tangent) * a_tangent.w;
+
+	v_t2w0 = vec4(tangent.x, binormal.x, normal.x, world_pos.x);
+	v_t2w1 = vec4(tangent.y, binormal.y, normal.y, world_pos.y);
+	v_t2w2 = vec4(tangent.z, binormal.z, normal.z, world_pos.z);
+
+	vulkan_convert();
+}
+		</Source>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<UniformBuffer name="buf_ps" binding="3">
+			<Uniform name="_albedo" size="16"/>
+			<Uniform name="_metallic" size="16"/>
+			<Uniform name="_roughness" size="16"/>
+			<Uniform name="_ao" size="16"/>
+			<Uniform name="_WorldSpaceCameraPos" size="16"/>
+			<Uniform name="_WorldSpaceLightPos" size="16"/>
+			<Uniform name="_LightColor" size="16"/>
+			<Uniform name="_LightIntensity" size="16"/>
+		</UniformBuffer>
+		<Sampler name="albedoMap" binding="4" default="white"/>
+		<Sampler name="normalMap" binding="5" default="bump"/>
+		<Sampler name="metallicMap" binding="6" default="white"/>
+		<Sampler name="roughnessMap" binding="7" default="white"/>
+		<Sampler name="aoMap" binding="8" default="white"/>
+		<Sampler name="brdfLUT" binding="9" default="white"/>
+		<Sampler name="irradianceMap" binding="10" type="Cube"/>
+		<Sampler name="prefilterMap" binding="11" type="Cube"/>
+		<Source>
+precision highp float;
+
+UniformBuffer(0, 3) uniform buf_ps
+{
+	vec4 _albedo;
+	vec4 _metallic;
+	vec4 _roughness;
+	vec4 _ao;
+	vec4 _WorldSpaceCameraPos;
+	vec4 _WorldSpaceLightPos;
+	vec4 _LightColor;
+	vec4 _LightIntensity;
+} u_buf;
+
+UniformTexture(0, 4) uniform sampler2D albedoMap;
+UniformTexture(0, 5) uniform sampler2D normalMap;
+UniformTexture(0, 6) uniform sampler2D metallicMap;
+UniformTexture(0, 7) uniform sampler2D roughnessMap;
+UniformTexture(0, 8) uniform sampler2D aoMap;
+UniformTexture(0, 9) uniform sampler2D brdfLUT;
+UniformTexture(0, 10) uniform samplerCube irradianceMap;
+UniformTexture(0, 11) uniform samplerCube prefilterMap;
+
+Varying(0) in vec2 v_uv;
+Varying(1) in vec4 v_t2w0;
+Varying(2) in vec4 v_t2w1;
+Varying(3) in vec4 v_t2w2;
+
+layout (location = 0) out vec4 o_frag;
+
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+	float a = roughness*roughness;
+	float a2 = a*a;
+	float NdotH = max(dot(N, H), 0.0);
+	float NdotH2 = NdotH*NdotH;
+
+	const float PI = 3.14159265359;
+	float nom = a2;
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+	denom = PI * denom * denom;
+
+	return nom / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+	float r = (roughness + 1.0);
+	float k = (r*r) / 8.0;
+
+	float nom = NdotV;
+	float denom = NdotV * (1.0 - k) + k;
+
+	return nom / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+	float NdotV = max(dot(N, V), 0.0);
+	float NdotL = max(dot(N, L), 0.0);
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+	return ggx1 * ggx2;
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+	return F0 + (max(vec3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+void main()
+{
+	vec3 n = texture(normalMap, v_uv).rgb * 2.0 - 1.0;
+	vec3 world_pos = vec3(v_t2w0.w, v_t2w1.w, v_t2w2.w);
+	vec3 world_normal = normalize(vec3(dot(v_t2w0.xyz, n), dot(v_t2w1.xyz, n), dot(v_t2w2.xyz, n)));
+	vec3 light_dir = normalize(u_buf._WorldSpaceLightPos.xyz - world_pos * u_buf._WorldSpaceLightPos.w);
+	vec3 view_dir = normalize(u_buf._WorldSpaceCameraPos.xyz - world_pos);
+	vec3 light_color = u_buf._LightColor.rgb * u_buf._LightIntensity.x;
+	
+	// material properties
+	vec3 albedo = pow(texture(albedoMap, v_uv).rgb * u_buf._albedo.rgb, vec3(2.2));
+	float metallic = texture(metallicMap, v_uv).r * u_buf._metallic.x;
+	float roughness = texture(roughnessMap, v_uv).r * u_buf. _roughness.x;
+	float ao = texture(aoMap, v_uv).r * u_buf._ao.x;
+	
+	// input lighting data
+	vec3 N = world_normal;
+	vec3 V = view_dir;
+	vec3 R = reflect(-V, N);
+		
+	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)  
+	vec3 F0 = vec3(0.04);
+	F0 = mix(F0, albedo, metallic);
+	
+	// reflectance equation
+	vec3 Lo = vec3(0.0);
+	{
+		vec3 L = light_dir;
+		vec3 H = normalize(V + L);
+		vec3 radiance = light_color;
+
+		// Cook-Torrance BRDF
+		float NDF = DistributionGGX(N, H, roughness);
+		float G = GeometrySmith(N, V, L, roughness);
+		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+		vec3 nominator = NDF * G * F;
+		float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+		vec3 specular = nominator / denominator;
+
+		// kS is equal to Fresnel
+		vec3 kS = F;
+		// for energy conservation, the diffuse and specular light can't
+		// be above 1.0 (unless the surface emits light); to preserve this
+		// relationship the diffuse component (kD) should equal 1.0 - kS.
+		vec3 kD = vec3(1.0) - kS;
+		// multiply kD by the inverse metalness such that only non-metals
+		// have diffuse lighting, or a linear blend if partly metal (pure metals
+		// have no diffuse light).
+		kD *= 1.0 - metallic;
+
+		// scale light by NdotL
+		float NdotL = max(dot(N, L), 0.0);
+
+		// add to outgoing radiance Lo
+		const float PI = 3.14159265359;
+		Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+	}
+	
+	// ambient lighting (we now use IBL as the ambient term)
+	vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+	
+	vec3 kS = F;
+	vec3 kD = 1.0 - kS;
+	kD *= 1.0 - metallic;
+	
+	vec3 irradiance = texture(irradianceMap, N).rgb;
+	vec3 diffuse = irradiance * albedo;
+	
+	const float MAX_REFLECTION_LOD = 4.0;
+	vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+	vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+	vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+	
+	vec3 ambient = (kD * diffuse + specular) * ao;
+
+	vec3 color = ambient + Lo;
+
+	// HDR tonemapping
+	color = color / (color + vec3(1.0));
+	// gamma correct
+	color = pow(color, vec3(1.0 / 2.2));
+	
+    o_frag = vec4(color, 1.0);
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

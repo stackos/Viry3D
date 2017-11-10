@@ -51,14 +51,12 @@ public class PBRGen : MonoBehaviour
 		var rt = new RenderTexture(size, size, 0, RenderTextureFormat.ARGBHalf);
 		Graphics.Blit(null, rt, new Material(Shader.Find("brdf")), 0);
 
-		var brdf4 = new Texture2D(size, size, TextureFormat.RGBAHalf, false);
-		var brdf = new Texture2D(size, size, TextureFormat.RGHalf, false);
+		var brdf = new Texture2D(size, size, TextureFormat.RGBAHalf, false);
 		brdf.wrapMode = TextureWrapMode.Clamp;
 		brdf.filterMode = FilterMode.Bilinear;
 
 		RenderTexture.active = rt;
-		brdf4.ReadPixels(new Rect(0, 0, size, size), 0, 0);
-		brdf.SetPixels(brdf4.GetPixels());
+		brdf.ReadPixels(new Rect(0, 0, size, size), 0, 0);
 
 		AssetDatabase.CreateAsset(brdf, "Assets/AppPBR/brdf.asset");
 
