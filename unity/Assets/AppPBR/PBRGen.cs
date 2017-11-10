@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public class PBRGen : MonoBehaviour {
+public class PBRGen : MonoBehaviour
+{
 	public Cubemap m_cube_map;
 
-	void Start () {
+	void Start()
+	{
 		genIrradiance();
 		genBRDF();
 		genPrefilter();
 	}
 
-	void genIrradiance() {
+	void genIrradiance()
+	{
 		var camera = new GameObject().AddComponent<Camera>();
 		camera.clearFlags = CameraClearFlags.Color;
 		camera.backgroundColor = Color.black;
@@ -38,8 +41,9 @@ public class PBRGen : MonoBehaviour {
 
 		AssetDatabase.CreateAsset(irradiance, "Assets/AppPBR/irradiance.asset");
 	}
-	
-	void genBRDF() {
+
+	void genBRDF()
+	{
 		RenderTexture old_rt = RenderTexture.active;
 
 		int size = 512;
@@ -47,32 +51,37 @@ public class PBRGen : MonoBehaviour {
 		var rt = new RenderTexture(size, size, 0, RenderTextureFormat.ARGBHalf);
 		Graphics.Blit(null, rt, new Material(Shader.Find("brdf")), 0);
 
-		var brdf = new Texture2D(size, size, TextureFormat.RGBAHalf, false);
+		var brdf4 = new Texture2D(size, size, TextureFormat.RGBAHalf, false);
+		var brdf = new Texture2D(size, size, TextureFormat.RGHalf, false);
 		brdf.wrapMode = TextureWrapMode.Clamp;
 		brdf.filterMode = FilterMode.Bilinear;
 
 		RenderTexture.active = rt;
-		brdf.ReadPixels(new Rect(0, 0, size, size), 0, 0);
+		brdf4.ReadPixels(new Rect(0, 0, size, size), 0, 0);
+		brdf.SetPixels(brdf4.GetPixels());
 
 		AssetDatabase.CreateAsset(brdf, "Assets/AppPBR/brdf.asset");
 
 		RenderTexture.active = old_rt;
 	}
 
-	void genPrefilter() {
+	void genPrefilter()
+	{
 		RenderTexture old_rt = RenderTexture.active;
 
 		int size = m_cube_map.width;
 
-		var prefilter = new Cubemap(size, m_cube_map.format, true);
+		var prefilter = new Cubemap(size, TextureFormat.RGBAHalf, true);
 		prefilter.filterMode = FilterMode.Trilinear;
 
 		int size_mip = size;
 
-		for(int i = 0; i < m_cube_map.mipmapCount; i++) {
-			for(int j = 0; j < 6; j++) {
+		for (int i = 0; i < m_cube_map.mipmapCount; i++)
+		{
+			for (int j = 0; j < 6; j++)
+			{
 				var ps = m_cube_map.GetPixels((CubemapFace) j, i);
-				var tex = new Texture2D(size_mip, size_mip, m_cube_map.format, false);
+				var tex = new Texture2D(size_mip, size_mip, TextureFormat.RGBAHalf, false);
 				tex.SetPixels(ps);
 				tex.Apply();
 

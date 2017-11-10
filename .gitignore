@@ -19,4 +19,6 @@ Release
 AppScene
 unity/Library
 unity/Temp
+export out
+export out.meta
 .DS_Store
