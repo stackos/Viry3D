@@ -249,6 +249,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/gles/TextureGLES.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Camera.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Color.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Cubemap.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/DisplayBase.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Graphics.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Image.cpp
@@ -344,7 +345,9 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppClear.cpp
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
             ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppPBR.cpp
             ${VIRY3D_APP_SRC_DIR}/AppShadow.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppSky.cpp
             ${VIRY3D_APP_SRC_DIR}/AppTerrain.cpp
             ${VIRY3D_APP_SRC_DIR}/AppWatch.cpp)
 

@@ -494,6 +494,32 @@ static String call_activity_method_string(ANativeActivity* activity, const char*
 	return result;
 }
 
+static void extract_assets(const String& source, const String& dest, bool directory)
+{
+    auto mgr = _app->activity->assetManager;
+    auto dir = AAssetManager_openDir(mgr, source.CString());
+    if (dir)
+    {
+		const char* file = NULL;
+
+		while ((file = AAssetDir_getNextFileName(dir)) != NULL)
+		{
+			auto asset = AAssetManager_open(mgr, (source + "/" + file).CString(), AASSET_MODE_BUFFER);
+			if (asset)
+			{
+				auto size = AAsset_getLength(asset);
+                auto buffer = AAsset_getBuffer(asset);
+
+				Log("find asset:%s size:%d buffer:%p", file, size, buffer);
+
+				AAsset_close(asset);
+			}
+		}
+
+        AAssetDir_close(dir);
+    }
+}
+
 static void extract_assets_if_needed(const String& package_path, const String& data_path)
 {
 	bool extract = false;
@@ -518,7 +544,8 @@ static void extract_assets_if_needed(const String& package_path, const String& d
 	{
 		Log("extract Assets");
 
-		File::Unzip(package_path, "assets/Assets", data_path, true);
+        //File::Unzip(package_path, "assets/Assets", data_path, true);
+        extract_assets("Assets/shader", data_path, true);
 	}
 	else
 	{

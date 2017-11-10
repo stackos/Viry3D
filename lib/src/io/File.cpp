@@ -17,6 +17,7 @@
 
 #include "File.h"
 #include "Directory.h"
+#include "Debug.h"
 #include "zlib/unzip.h"
 #include <fstream>
 
@@ -145,6 +146,10 @@ namespace Viry3D
 			}
 
 			unzClose(file);
+		}
+		else
+		{
+			Log("zip file open failed:%s", path.CString());
 		}
 	}
 }
