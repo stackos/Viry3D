@@ -93,4 +93,6 @@ UI
 
 ## 游戏截图
 ![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/design/AppPBR.png)
-<center>AppPBR</center>
+<p align="center">AppPBR</p>
+![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/design/AppSky.png)
+<p align="center">AppSky</p>
