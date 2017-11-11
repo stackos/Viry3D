@@ -91,9 +91,10 @@ UI
     UTF8、UTF32字符串编码
     数学库
 
-## 游戏截图
+## 示例截图
 ![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/design/AppPBR.png)
 <p align="center">AppPBR</p>
 
+---
 ![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/design/AppSky.png)
 <p align="center">AppSky</p>
