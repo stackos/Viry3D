@@ -75,28 +75,41 @@ public:
 
 	virtual void Update()
 	{
-		auto mouse = Input::GetMousePosition();
-
-		if (m_mouse.x < 0)
+		if (Input::GetMouseButtonDown(0))
 		{
-			m_mouse = mouse;
+			m_mouse_down = true;
+			m_mouse = Input::GetMousePosition();
 		}
-		
-		auto delta = mouse - m_mouse;
-		m_mouse = mouse;
-
-		if (delta.SqrMagnitude() > 0)
+		else if(Input::GetMouseButtonUp(0))
 		{
-			m_cam_rot.x += -delta.y;
-			m_cam_rot.y += delta.x;
+			m_mouse_down = false;
+		}
 
-			m_camera->GetTransform()->SetRotation(Quaternion::Euler(m_cam_rot));
+		if (m_mouse_down)
+		{
+			auto mouse = Input::GetMousePosition();
 
-			auto cam_dir = m_camera->GetTransform()->GetForward();
-			m_camera->GetTransform()->SetPosition(Vector3::Zero() - cam_dir * m_cam_dis);
+			if (m_mouse.x < 0)
+			{
+				m_mouse = mouse;
+			}
 
-			auto sky_matrix = Matrix4x4::Translation(m_camera->GetTransform()->GetPosition());
-			m_sky_mat->SetMatrix("_SkyWorld", sky_matrix);
+			auto delta = mouse - m_mouse;
+			m_mouse = mouse;
+
+			if (delta.SqrMagnitude() > 0)
+			{
+				m_cam_rot.x += -delta.y;
+				m_cam_rot.y += delta.x;
+
+				m_camera->GetTransform()->SetRotation(Quaternion::Euler(m_cam_rot));
+
+				auto cam_dir = m_camera->GetTransform()->GetForward();
+				m_camera->GetTransform()->SetPosition(Vector3::Zero() - cam_dir * m_cam_dis);
+
+				auto sky_matrix = Matrix4x4::Translation(m_camera->GetTransform()->GetPosition());
+				m_sky_mat->SetMatrix("_SkyWorld", sky_matrix);
+			}
 		}
 	}
 
@@ -105,6 +118,7 @@ public:
 	Vector3 m_cam_rot = Vector3(30, 0, 0);
 	const float m_cam_dis = 4;
 	Ref<Material> m_sky_mat;
+	bool m_mouse_down = false;
 };
 
 #if 1
