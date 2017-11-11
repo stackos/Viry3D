@@ -27,6 +27,7 @@
 		BA8C136E1F9FC710003776D0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA8C136C1F9FC710003776D0 /* CoreGraphics.framework */; };
 		BA94EE511D9E95CF00254ABF /* AppMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */; };
 		BA94EEAD1D9E9C1200254ABF /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */; };
+		BAA45E5F1FB752800049A867 /* AppPBR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */; };
 		BAD39DF01E926D220021B013 /* AppFlappyBird.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */; };
 		D1A6FA781FA2D3980081A94A /* AppShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A6FA771FA2D3980081A94A /* AppShadow.cpp */; };
 		D1EA4E081F2DD91D0034D59B /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EA4E021F2DD5170034D59B /* libviry3d.a */; };
@@ -65,6 +66,7 @@
 		BA8C136C1F9FC710003776D0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppMesh.cpp; path = ../../src/AppMesh.cpp; sourceTree = "<group>"; };
 		BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.5.tbd; path = usr/lib/libz.1.2.5.tbd; sourceTree = SDKROOT; };
+		BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPBR.cpp; path = ../../src/AppPBR.cpp; sourceTree = "<group>"; };
 		BABF7B941E97E7A3000C2116 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppFlappyBird.cpp; path = ../../src/AppFlappyBird.cpp; sourceTree = "<group>"; };
 		BAF6E2041E9E8229007C28BF /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = ../../../lib/src/spidermonkey/prebuilt/ios/libjs_static.a; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 				BA5924801D90588800173EDC /* AppClear.cpp */,
 				BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */,
 				BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */,
+				BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */,
 				D1A6FA771FA2D3980081A94A /* AppShadow.cpp */,
 				BA410F8B1FAA3282005937F1 /* AppSky.cpp */,
 				BA2800651F69A41C00215483 /* AppTerrain.cpp */,
@@ -253,6 +256,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BAA45E5F1FB752800049A867 /* AppPBR.cpp in Sources */,
 				BA4A33451D7C1FE300DEEE5A /* AppDelegate.mm in Sources */,
 				BA2800661F69A41C00215483 /* AppTerrain.cpp in Sources */,
 				BA410F8D1FAA3282005937F1 /* AppSky.cpp in Sources */,

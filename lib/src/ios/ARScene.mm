@@ -318,7 +318,7 @@ namespace Viry3D
                 }
                 else
                 {
-                    m_background_texture_y = Texture2D::CreateExternalTexture(background.width_y, background.height_y, TextureFormat::Alpha8, false, (void*) (size_t) background.texture_y);
+                    m_background_texture_y = Texture2D::CreateExternalTexture(background.width_y, background.height_y, TextureFormat::R8, false, (void*) (size_t) background.texture_y);
                 }
                 
                 if (m_background_texture_uv)
