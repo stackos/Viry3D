@@ -21,6 +21,7 @@
 #include "Input.h"
 #include "Debug.h"
 #include "io/File.h"
+#include "io/Directory.h"
 #include "graphics/Graphics.h"
 #include "container/FastList.h"
 
@@ -497,26 +498,47 @@ static String call_activity_method_string(ANativeActivity* activity, const char*
 static void extract_assets(const String& source, const String& dest, bool directory)
 {
     auto mgr = _app->activity->assetManager;
-    auto dir = AAssetManager_openDir(mgr, source.CString());
-    if (dir)
+    Vector<String> files;
+
+    auto asset = AAssetManager_open(mgr, "file_list.txt", AASSET_MODE_BUFFER);
+    if (asset)
     {
-		const char* file = NULL;
+        auto size = AAsset_getLength(asset);
+        auto asset_buffer = AAsset_getBuffer(asset);
+        auto buffer = ByteBuffer((byte*) asset_buffer, size);
+        auto file_list = String(buffer).Replace("\r\n", "\n");
+        files = file_list.Split("\n", true);
 
-		while ((file = AAssetDir_getNextFileName(dir)) != NULL)
-		{
-			auto asset = AAssetManager_open(mgr, (source + "/" + file).CString(), AASSET_MODE_BUFFER);
-			if (asset)
-			{
-				auto size = AAsset_getLength(asset);
-                auto buffer = AAsset_getBuffer(asset);
+        AAsset_close(asset);
+    }
+    else
+    {
+        Log("open file_list.txt in assets failed");
+    }
 
-				Log("find asset:%s size:%d buffer:%p", file, size, buffer);
+    for (int i = 0; i < files.Size(); i++)
+    {
+        const auto& file = files[i];
 
-				AAsset_close(asset);
-			}
-		}
+        asset = AAssetManager_open(mgr, file.CString(), AASSET_MODE_BUFFER);
+        if (asset)
+        {
+            auto size = AAsset_getLength(asset);
+            auto asset_buffer = AAsset_getBuffer(asset);
+            auto buffer = ByteBuffer((byte*) asset_buffer, size);
 
-        AAssetDir_close(dir);
+            String dest_filename = dest + file.Substring(source.Size());
+            auto dir = dest_filename.Substring(0, dest_filename.LastIndexOf("/"));
+            Directory::Create(dir);
+
+            File::WriteAllBytes(dest_filename, buffer);
+
+            AAsset_close(asset);
+        }
+        else
+        {
+            Log("open asset file:%s failed", file.CString());
+        }
     }
 }
 
@@ -545,7 +567,7 @@ static void extract_assets_if_needed(const String& package_path, const String& d
 		Log("extract Assets");
 
         //File::Unzip(package_path, "assets/Assets", data_path, true);
-        extract_assets("Assets/shader", data_path, true);
+        extract_assets("Assets", data_path, true);
 	}
 	else
 	{
