@@ -525,6 +525,10 @@ namespace Viry3D
 			auto source = combine_shader_src(i.includes, i.src);
 
 			auto shader = create_shader(GL_VERTEX_SHADER, source);
+			if (shader == 0)
+			{
+				Log("shader create failed:%s", this->m_name.CString());
+			}
 
 			m_vertex_shaders.Add(i.name, shader);
 		}
@@ -534,6 +538,10 @@ namespace Viry3D
 			auto source = combine_shader_src(i.includes, i.src);
 
 			auto shader = create_shader(GL_FRAGMENT_SHADER, source);
+			if (shader == 0)
+			{
+				Log("shader create failed:%s", this->m_name.CString());
+			}
 
 			m_pixel_shaders.Add(i.name, shader);
 		}
