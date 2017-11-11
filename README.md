@@ -1,4 +1,4 @@
-![](http://www.viry3d.com/files/logo.png)
+![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/design/logo720p.png)
 
 # Viry3D
 C++跨平台3D游戏引擎。
@@ -92,3 +92,5 @@ UI
     数学库
 
 ## 游戏截图
+![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/design/AppPBR.png)
+<center>AppPBR</center>
