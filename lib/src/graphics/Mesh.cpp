@@ -175,4 +175,16 @@ namespace Viry3D
 			count = submesh.count;
 		}
 	}
+
+	int Mesh::GetSubmeshCount() const
+	{
+		if (submeshes.Empty())
+		{
+			return 1;
+		}
+		else
+		{
+			return submeshes.Size();
+		}
+	}
 }

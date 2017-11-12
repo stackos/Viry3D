@@ -39,6 +39,7 @@ namespace Viry3D
 		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_vertex_buffer; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_index_buffer; }
 		void GetIndexRange(int submesh_index, int& start, int& count);
+		int GetSubmeshCount() const;
 		bool IsDynamic() const { return m_dynamic; }
 
 		Vector<Vector3> vertices;

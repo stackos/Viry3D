@@ -114,7 +114,6 @@ namespace Viry3D
 		{
 			material = Material::Create("Blit");
 			material->SetMainTexture(texture);
-			material->UpdateUniforms(0);
 
 			m_blit_materials.Add(material);
 		}
@@ -165,27 +164,48 @@ namespace Viry3D
 			m_blit_mesh = mesh;
 		}
 
+		Graphics::DrawMesh(m_blit_mesh, world, material);
+	}
+
+	void Graphics::DrawMesh(const Ref<Mesh>& mesh, const Matrix4x4& matrix, const Ref<Material>& material)
+	{
+		auto vp = Camera::Current()->GetProjectionMatrix() * Camera::Current()->GetViewMatrix();
+		material->SetMatrix("_ViewProjection", vp);
+
 		auto shader = material->GetShader();
 
-		shader->PreparePass(pass);
-		material->UpdateUniforms(pass);
+		for (int i = 0; i < mesh->GetSubmeshCount(); i++)
+		{
+			int submesh = i;
 
-		shader->BeginPass(pass);
-		shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, &world, sizeof(Matrix4x4), -1);
-		shader->BindSharedMaterial(pass, material);
-		shader->BindMaterial(pass, material, m_blit_descriptor_set);
-		shader->BindRendererDescriptorSet(pass, m_blit_descriptor_set_buffer, -1);
+			for (int j = 0; j < shader->GetPassCount(); j++)
+			{
+				int pass = j;
 
-		auto index_type = IndexType::UnsignedShort;
+				shader->PreparePass(pass);
+				material->UpdateUniforms(pass);
 
-		GetDisplay()->BindVertexArray();
-		GetDisplay()->BindVertexBuffer(m_blit_mesh->GetVertexBuffer().get());
-		GetDisplay()->BindIndexBuffer(m_blit_mesh->GetIndexBuffer().get(), index_type);
-		GetDisplay()->BindVertexAttribArray(shader, pass);
-		GetDisplay()->DrawIndexed(0, 6, index_type);
-		GetDisplay()->DisableVertexArray(shader, pass);
+				shader->BeginPass(pass);
+				shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, &matrix, sizeof(Matrix4x4), -1);
+				shader->BindSharedMaterial(pass, material);
+				shader->BindMaterial(pass, material, m_blit_descriptor_set);
+				shader->BindRendererDescriptorSet(pass, m_blit_descriptor_set_buffer, -1);
 
-		shader->EndPass(0);
+				auto index_type = IndexType::UnsignedShort;
+				int index_start;
+				int index_count;
+				mesh->GetIndexRange(submesh, index_start, index_count);
+
+				GetDisplay()->BindVertexArray();
+				GetDisplay()->BindVertexBuffer(mesh->GetVertexBuffer().get());
+				GetDisplay()->BindIndexBuffer(mesh->GetIndexBuffer().get(), index_type);
+				GetDisplay()->BindVertexAttribArray(shader, pass);
+				GetDisplay()->DrawIndexed(index_start, index_count, index_type);
+				GetDisplay()->DisableVertexArray(shader, pass);
+
+				shader->EndPass(pass);
+			}
+		}
 	}
 
 	void Graphics::Blit(const Ref<RenderTexture>& src, const Ref<RenderTexture>& dest, const Ref<Material>& material, int pass, const Rect* rect)

@@ -62,8 +62,9 @@ namespace Viry3D
 		//	0,0		1,0
 		static void DrawQuad(const Rect* rect, const Ref<Texture>& texture, bool reverse_uv_y = false);
 		static void DrawQuad(const Rect* rect, const Ref<Material>& material, int pass, bool reverse_uv_y = false);
+		static void DrawMesh(const Ref<Mesh>& mesh, const Matrix4x4& matrix, const Ref<Material>& material);
 		static void Blit(const Ref<RenderTexture>& src, const Ref<RenderTexture>& dest, const Ref<Material>& material = Ref<Material>(), int pass = 0, const Rect* rect = NULL);
-		
+
 		static CullFace GetGlobalCullFace() { return m_global_cull_face; }
 		static void SetGlobalCullFace(CullFace cull_face) { m_global_cull_face = cull_face; }
 

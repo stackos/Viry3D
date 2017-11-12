@@ -19,6 +19,7 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
+#include "Input.h"
 #include "animation/Animation.h"
 #include "renderer/MeshRenderer.h"
 #include "graphics/Graphics.h"
@@ -42,7 +43,6 @@ public:
 		this->CreateFPSUI(20, 1, 1);
 
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->SetClearColor(Color(0, 0, 1, 1));
 		camera->SetCullingMask(1 << 0);
 		camera->GetTransform()->SetPosition(Vector3(0, 3, -5.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
@@ -78,7 +78,7 @@ public:
 		float shadow_bias = 0.005f;
 		float shadow_strength = 0.7f;
 
-		auto plane_mat = Material::Create("Custom/AR/ShadowReciever");
+		auto plane_mat = Material::Create("Shadow/Diffuse");
 		plane_mat->SetTexture("_ShadowMap", shadow_rt->depth_texture);
 		plane_mat->SetMatrix("_ViewProjectionLight", shadow_camera->GetProjectionMatrix() * shadow_camera->GetViewMatrix());
 		plane_mat->SetVector("_ShadowMapTexel", Vector4(1.0f / shadowmap_size, 1.0f / shadowmap_size));
@@ -88,11 +88,48 @@ public:
 		plane->SetSharedMaterial(plane_mat);
 		plane->SetSharedMesh(plane_mesh);
 
+		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
+		sphere_mesh->Update();
+
+		auto sphere_mat = Material::Create("Gizmos");
+		sphere_mat->SetMainColor(Color(0, 1, 0, 1));
+
 		camera->SetPostRenderFunc([=]() {
+			if (m_mouse_down)
+			{
+				auto pos = Input::GetMousePosition();
+				auto ray = camera->ScreenPointToRay(pos);
+				auto plane_point = plane->GetTransform()->GetPosition();
+				auto plane_normal = plane->GetTransform()->GetUp();
+
+				float ray_length;
+				if (Mathf::RayPlaneIntersection(ray, plane_normal, plane_point, ray_length))
+				{
+					auto point = ray.GetPoint(ray_length);
+
+					auto sphere_matrix = Matrix4x4::TRS(point, Quaternion::Identity(), Vector3::One() * 0.1f);
+					Graphics::DrawMesh(sphere_mesh, sphere_matrix, sphere_mat);
+				}
+			}
+
 			Viry3D::Rect rect(0.8f, 0.8f, 0.2f, 0.2f);
 			Graphics::DrawQuad(&rect, shadow_rt->depth_texture, true);
 		});
 	}
+
+	virtual void Update()
+	{
+		if (Input::GetMouseButtonDown(0))
+		{
+			m_mouse_down = true;
+		}
+		else if (Input::GetMouseButtonUp(0))
+		{
+			m_mouse_down = false;
+		}
+	}
+
+	bool m_mouse_down = false;
 };
 
 #if 0
