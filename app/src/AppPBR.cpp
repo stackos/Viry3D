@@ -20,12 +20,13 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "Input.h"
+#include "graphics/Graphics.h"
 #include "graphics/Camera.h"
-#include "renderer/MeshRenderer.h"
 #include "graphics/Material.h"
 #include "graphics/Cubemap.h"
 #include "graphics/Texture2D.h"
 #include "graphics/Light.h"
+#include "renderer/MeshRenderer.h"
 #include "io/File.h"
 
 using namespace Viry3D;
@@ -39,8 +40,15 @@ public:
 		this->SetInitSize(1280, 720);
 	}
 
+	~AppPBR()
+	{
+		Graphics::GetDisplay()->EndRecord();
+	}
+
 	virtual void Start()
 	{
+		//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
+
 		this->CreateFPSUI(20, 1, 1);
 
 		m_camera = GameObject::Create("camera")->AddComponent<Camera>();
