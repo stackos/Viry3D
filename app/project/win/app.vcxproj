@@ -69,23 +69,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../../lib/src;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x86;C:\Program Files\VulkanSDK\1.0.30.0\Source\lib32;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
+    <LibraryPath>../../../lib/src/ffmpeg/lib/x86;../../../lib/src/vulkan/vulkan_sdk/lib/x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../../lib/src;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x86;C:\Program Files\VulkanSDK\1.0.30.0\Bin32;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
+    <LibraryPath>../../../lib/src/ffmpeg/lib/x86;../../../lib/src/vulkan/vulkan_sdk/lib/x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../../lib/src;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x64;C:\Program Files\VulkanSDK\1.0.30.0\Source\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
+    <LibraryPath>../../../lib/src/ffmpeg/lib/x64;../../../lib/src/vulkan/vulkan_sdk/lib/x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../../lib/src;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x64;C:\Program Files\VulkanSDK\1.0.30.0\Bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
+    <LibraryPath>../../../lib/src/ffmpeg/lib/x64;../../../lib/src/vulkan/vulkan_sdk/lib/x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

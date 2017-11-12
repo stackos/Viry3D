@@ -94,11 +94,13 @@ public:
 		auto sphere_mat = Material::Create("Gizmos");
 		sphere_mat->SetMainColor(Color(0, 1, 0, 1));
 
+		// make weak ref avoid cycle ref
+		WeakRef<Camera> camera_weak = camera;
 		camera->SetPostRenderFunc([=]() {
 			if (m_mouse_down)
 			{
 				auto pos = Input::GetMousePosition();
-				auto ray = camera->ScreenPointToRay(pos);
+				auto ray = camera_weak.lock()->ScreenPointToRay(pos);
 				auto plane_point = plane->GetTransform()->GetPosition();
 				auto plane_normal = plane->GetTransform()->GetUp();
 

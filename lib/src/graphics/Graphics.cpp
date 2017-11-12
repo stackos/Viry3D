@@ -32,8 +32,8 @@ namespace Viry3D
 	Ref<Mesh> Graphics::m_blit_mesh;
 	Vector<Ref<Material>> Graphics::m_blit_materials;
 	Vector<Ref<RenderPass>> Graphics::m_blit_render_passes;
-	Ref<DescriptorSet> Graphics::m_blit_descriptor_set;
-	Ref<UniformBuffer> Graphics::m_blit_descriptor_set_buffer;
+	Ref<DescriptorSet> Graphics::m_draw_descriptor_set;
+	Ref<UniformBuffer> Graphics::m_draw_descriptor_set_buffer;
 	CullFace Graphics::m_global_cull_face = CullFace::NoSet;
 
 	void Graphics::Init(int width, int height, int fps)
@@ -67,8 +67,8 @@ namespace Viry3D
 
 	void Graphics::Deinit()
 	{
-		m_blit_descriptor_set.reset();
-		m_blit_descriptor_set_buffer.reset();
+		m_draw_descriptor_set.reset();
+		m_draw_descriptor_set_buffer.reset();
 		m_blit_render_passes.Clear();
 		m_blit_materials.Clear();
 		if (m_blit_mesh)
@@ -114,6 +114,7 @@ namespace Viry3D
 		{
 			material = Material::Create("Blit");
 			material->SetMainTexture(texture);
+			material->UpdateUniforms(0);
 
 			m_blit_materials.Add(material);
 		}
@@ -164,54 +165,72 @@ namespace Viry3D
 			m_blit_mesh = mesh;
 		}
 
-		Graphics::DrawMesh(m_blit_mesh, world, material);
+		Graphics::DrawMesh(m_blit_mesh, world, material, pass);
 	}
 
-	void Graphics::DrawMesh(const Ref<Mesh>& mesh, const Matrix4x4& matrix, const Ref<Material>& material)
+	void Graphics::DrawMesh(const Ref<Mesh>& mesh, const Matrix4x4& matrix, const Ref<Material>& material, int pass)
 	{
+		auto render_pass = RenderPass::GetRenderPassBinding();
+		if (render_pass == NULL)
+		{
+			Camera::Current()->BeginRenderPass(true);
+		}
+
 		auto vp = Camera::Current()->GetProjectionMatrix() * Camera::Current()->GetViewMatrix();
 		material->SetMatrix("_ViewProjection", vp);
 
 		auto shader = material->GetShader();
+		shader->UpdateRendererDescriptorSet(m_draw_descriptor_set, m_draw_descriptor_set_buffer, &matrix, sizeof(Matrix4x4), -1);
+
+		int pass_begin = 0;
+		int pass_end = 0;
+		if (pass < 0)
+		{
+			pass_begin = 0;
+			pass_end = shader->GetPassCount();
+		}
+		else
+		{
+			pass_begin = pass;
+			pass_end = pass_begin + 1;
+		}
 
 		for (int i = 0; i < mesh->GetSubmeshCount(); i++)
 		{
-			int submesh = i;
-
-			for (int j = 0; j < shader->GetPassCount(); j++)
+			for (int j = pass_begin; j < pass_end; j++)
 			{
-				int pass = j;
+				shader->PreparePass(j);
+				material->UpdateUniforms(j);
 
-				shader->PreparePass(pass);
-				material->UpdateUniforms(pass);
-
-				shader->BeginPass(pass);
-				shader->UpdateRendererDescriptorSet(m_blit_descriptor_set, m_blit_descriptor_set_buffer, &matrix, sizeof(Matrix4x4), -1);
-				shader->BindSharedMaterial(pass, material);
-				shader->BindMaterial(pass, material, m_blit_descriptor_set);
-				shader->BindRendererDescriptorSet(pass, m_blit_descriptor_set_buffer, -1);
+				shader->BeginPass(j);
+				shader->BindSharedMaterial(j, material);
+				shader->BindMaterial(j, material, m_draw_descriptor_set);
+				shader->BindRendererDescriptorSet(j, m_draw_descriptor_set_buffer, -1);
 
 				auto index_type = IndexType::UnsignedShort;
 				int index_start;
 				int index_count;
-				mesh->GetIndexRange(submesh, index_start, index_count);
+				mesh->GetIndexRange(i, index_start, index_count);
 
 				GetDisplay()->BindVertexArray();
 				GetDisplay()->BindVertexBuffer(mesh->GetVertexBuffer().get());
 				GetDisplay()->BindIndexBuffer(mesh->GetIndexBuffer().get(), index_type);
-				GetDisplay()->BindVertexAttribArray(shader, pass);
+				GetDisplay()->BindVertexAttribArray(shader, j);
 				GetDisplay()->DrawIndexed(index_start, index_count, index_type);
-				GetDisplay()->DisableVertexArray(shader, pass);
+				GetDisplay()->DisableVertexArray(shader, j);
 
-				shader->EndPass(pass);
+				shader->EndPass(j);
 			}
+		}
+
+		if (render_pass == NULL)
+		{
+			Camera::Current()->EndRenderPass(true);
 		}
 	}
 
 	void Graphics::Blit(const Ref<RenderTexture>& src, const Ref<RenderTexture>& dest, const Ref<Material>& material, int pass, const Rect* rect)
 	{
-		GetDisplay()->WaitQueueIdle();
-
 		Ref<RenderPass> render_pass;
 
 		for (auto& i : m_blit_render_passes)
@@ -241,6 +260,7 @@ namespace Viry3D
 			m_blit_render_passes.Add(render_pass);
 		}
 
+		GetDisplay()->WaitQueueIdle();
 		render_pass->Begin(Color(0, 0, 0, 1));
 
 #if VR_GLES
@@ -288,7 +308,6 @@ namespace Viry3D
 		}
 
 		render_pass->End();
-
 		GetDisplay()->SubmitQueue(render_pass->GetCommandBuffer());
 	}
 }

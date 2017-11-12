@@ -162,7 +162,7 @@ namespace Viry3D
 			}
 			colors = temp;
 		}
-		else if (format == TextureFormat::Alpha8)
+		else if (format == TextureFormat::R8)
 		{
 			m_format = VK_FORMAT_R8_UNORM;
 			buffer_size = width * height;
@@ -218,7 +218,7 @@ namespace Viry3D
 				temp[i * 4 + 3] = 255;
 			}
 		}
-		else if (format == TextureFormat::Alpha8)
+		else if (format == TextureFormat::R8)
 		{
 			m_format = VK_FORMAT_R8_UNORM;
 			buffer_size = w * h;
@@ -594,7 +594,7 @@ namespace Viry3D
 		{
 			m_format = VK_FORMAT_R8G8B8A8_UNORM;
 		}
-		else if (format == TextureFormat::Alpha8)
+		else if (format == TextureFormat::R8)
 		{
 			m_format = VK_FORMAT_R8_UNORM;
 		}
@@ -654,7 +654,7 @@ namespace Viry3D
 			}
 			colors_local = temp;
 		}
-		else if (format == TextureFormat::Alpha8)
+		else if (format == TextureFormat::R8)
 		{
 			m_format = VK_FORMAT_R8_UNORM;
 			buffer_size = width * height;

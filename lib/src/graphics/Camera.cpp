@@ -136,6 +136,7 @@ namespace Viry3D
 		for (auto i : m_cameras)
 		{
 			i->m_render_pass.reset();
+			i->m_render_pass_post.reset();
 			i->m_matrix_dirty = true;
 
 			Renderer::SetCullingDirty(i);
@@ -151,6 +152,7 @@ namespace Viry3D
 		for (auto i : m_cameras)
 		{
 			i->m_render_pass.reset();
+			i->m_render_pass_post.reset();
 			i->m_matrix_dirty = true;
 
 			Renderer::SetCullingDirty(i);
@@ -188,10 +190,12 @@ namespace Viry3D
 			if (m_target_rendering)
 			{
 				m_render_pass = RenderPass::Create(m_target_rendering->color_texture, m_target_rendering->depth_texture, this->GetClearFlags(), true, this->GetRect());
+				m_render_pass_post = RenderPass::Create(m_target_rendering->color_texture, m_target_rendering->depth_texture, CameraClearFlags::Nothing, true, this->GetRect());
 			}
 			else
 			{
 				m_render_pass = RenderPass::Create(Ref<RenderTexture>(), Ref<RenderTexture>(), this->GetClearFlags(), true, this->GetRect());
+				m_render_pass_post = RenderPass::Create(Ref<RenderTexture>(), Ref<RenderTexture>(), CameraClearFlags::Nothing, true, this->GetRect());
 			}
 		}
 
@@ -202,21 +206,44 @@ namespace Viry3D
 		m_render_pass->Unbind();
 	}
 
+	void Camera::BeginRenderPass(bool post) const
+	{
+		Graphics::GetDisplay()->WaitQueueIdle();
+		if (post)
+		{
+			m_render_pass_post->Begin(this->GetClearColor());
+		}
+		else
+		{
+			m_render_pass->Begin(this->GetClearColor());
+		}
+	}
+
+	void Camera::EndRenderPass(bool post) const
+	{
+		if (post)
+		{
+			m_render_pass_post->End();
+			Graphics::GetDisplay()->SubmitQueue(m_render_pass_post->GetCommandBuffer());
+		}
+		else
+		{
+			m_render_pass->End();
+			Graphics::GetDisplay()->SubmitQueue(m_render_pass->GetCommandBuffer());
+		}
+	}
+
 	void Camera::Render()
 	{
-		m_render_pass->Begin(this->GetClearColor());
-		
+		this->BeginRenderPass(false);
 		Renderer::RenderAllPass();
+		this->EndRenderPass(false);
 
 		this->GetGameObject()->OnPostRender();
 		if (m_post_render_func)
 		{
 			m_post_render_func();
 		}
-
-		m_render_pass->End();
-
-		Graphics::GetDisplay()->SubmitQueue(m_render_pass->GetCommandBuffer());
 
 		this->PostProcess();
 	}

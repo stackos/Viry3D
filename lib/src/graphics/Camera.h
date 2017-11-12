@@ -91,6 +91,8 @@ namespace Viry3D
 		CameraRenderMode GetRenderMode() { return m_render_mode; }
 		Vector3 ScreenToViewportPoint(const Vector3& position);
 		Ray ScreenPointToRay(const Vector3& position);
+		void BeginRenderPass(bool post) const;
+		void EndRenderPass(bool post) const;
 
 	protected:
 		virtual void OnTranformChanged();
@@ -138,6 +140,7 @@ namespace Viry3D
 		Frustum m_frustum;
         bool m_frustum_culling;
 		Ref<RenderPass> m_render_pass;
+		Ref<RenderPass> m_render_pass_post;
 		Action m_post_render_func;
 		CameraRenderMode m_render_mode;
 	};
