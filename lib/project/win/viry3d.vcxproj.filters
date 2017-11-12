@@ -121,6 +121,9 @@
     <Filter Include="src\bullet">
       <UniqueIdentifier>{c599374b-eaa0-48cc-beb2-d2ee510a4ecf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\gles\glew">
+      <UniqueIdentifier>{b32848bd-8013-4fc7-addf-44fbc18c0d78}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -2488,6 +2491,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\bullet\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.cpp">
       <Filter>src\bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\glew\src\glew.c">
+      <Filter>src\gles\glew</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -570,6 +570,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\gles\glew\src\glew.c" />
     <ClCompile Include="..\..\src\gles\MaterialGLES.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -942,19 +943,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;$(IncludePath)</IncludePath>
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;../../src/gles/glew/include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;$(IncludePath)</IncludePath>
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;../../src/gles/glew/include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;$(IncludePath)</IncludePath>
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;../../src/gles/glew/include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;$(IncludePath)</IncludePath>
+    <IncludePath>../../src/zlib;C:\Program Files\VulkanSDK\1.0.30.0\Include;../../src;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/bullet/src;../../src/gles/glew/include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
