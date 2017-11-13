@@ -96,5 +96,4 @@ UI
 <p align="center">AppPBR</p>
 
 ---
-![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/design/AppSky.png)
-<p align="center">AppSky</p>
+
