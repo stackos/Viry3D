@@ -90,8 +90,8 @@ public:
 		plane->SetSharedMaterial(plane_mat);
 		plane->SetSharedMesh(plane_mesh);
 
-		auto col = plane->GetGameObject()->AddComponent<MeshCollider>();
-		col->SetMesh(plane_mesh);
+		auto plane_col = plane->GetGameObject()->AddComponent<MeshCollider>();
+		plane_col->SetMesh(plane_mesh);
 
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
 		sphere_mesh->Update();
