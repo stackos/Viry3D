@@ -37,6 +37,7 @@
 #include "time/Timer.h"
 #include "audio/AudioListener.h"
 #include "audio/AudioSource.h"
+#include "physics/MeshCollider.h"
 
 namespace Viry3D
 {
@@ -65,6 +66,7 @@ namespace Viry3D
 		AudioSource::RegisterComponent();
 		Light::RegisterComponent();
 		RenderTextureBliter::RegisterComponent();
+		MeshCollider::RegisterComponent();
 	}
 
 	Component::Component():

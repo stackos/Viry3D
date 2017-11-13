@@ -23,6 +23,11 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(Collider);
 
+	void Collider::DeepCopy(const Ref<Object>& source)
+	{
+		Component::DeepCopy(source);
+	}
+
 	Collider::~Collider()
 	{
 		auto body = (btRigidBody*) m_rigidbody;

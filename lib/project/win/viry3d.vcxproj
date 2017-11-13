@@ -309,6 +309,7 @@
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btTransformUtil.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btVector3.h" />
     <ClInclude Include="..\..\src\physics\Collider.h" />
+    <ClInclude Include="..\..\src\physics\MeshCollider.h" />
     <ClInclude Include="..\..\src\physics\Physics.h" />
     <ClInclude Include="..\..\src\postprocess\ImageEffect.h" />
     <ClInclude Include="..\..\src\postprocess\ImageEffectBlur.h" />
@@ -773,6 +774,7 @@
     <ClCompile Include="..\..\src\physics\bullet\src\LinearMath\btSerializer.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\LinearMath\btVector3.cpp" />
     <ClCompile Include="..\..\src\physics\Collider.cpp" />
+    <ClCompile Include="..\..\src\physics\MeshCollider.cpp" />
     <ClCompile Include="..\..\src\physics\Physics.cpp" />
     <ClCompile Include="..\..\src\png\png.c" />
     <ClCompile Include="..\..\src\png\pngerror.c" />
