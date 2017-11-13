@@ -16,6 +16,7 @@
 */
 
 #include "Collider.h"
+#include "GameObject.h"
 #include "Physics.h"
 #include "btBulletDynamicsCommon.h"
 
@@ -61,6 +62,9 @@ namespace Viry3D
 			if (body != NULL)
 			{
 				Physics::AddRigidBody(body);
+
+				auto proxy = body->getBroadphaseHandle();
+				proxy->layer = this->GetGameObject()->GetLayer();
 			}
 		}
 	}
@@ -73,6 +77,16 @@ namespace Viry3D
 
 			auto body = (btRigidBody*) m_rigidbody;
 			Physics::RemoveRigidBody(body);
+		}
+	}
+
+	void Collider::OnLayerChanged()
+	{
+		if (m_in_world)
+		{
+			auto body = (btRigidBody*) m_rigidbody;
+			auto proxy = body->getBroadphaseHandle();
+			proxy->layer = this->GetGameObject()->GetLayer();
 		}
 	}
 }

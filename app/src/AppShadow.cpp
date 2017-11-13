@@ -26,6 +26,8 @@
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "graphics/RenderTexture.h"
+#include "physics/MeshCollider.h"
+#include "physics/Physics.h"
 
 using namespace Viry3D;
 
@@ -88,6 +90,9 @@ public:
 		plane->SetSharedMaterial(plane_mat);
 		plane->SetSharedMesh(plane_mesh);
 
+		auto col = plane->GetGameObject()->AddComponent<MeshCollider>();
+		col->SetMesh(plane_mesh);
+
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
 		sphere_mesh->Update();
 
@@ -101,13 +106,11 @@ public:
 			{
 				auto pos = Input::GetMousePosition();
 				auto ray = camera_weak.lock()->ScreenPointToRay(pos);
-				auto plane_point = plane->GetTransform()->GetPosition();
-				auto plane_normal = plane->GetTransform()->GetUp();
 
-				float ray_length;
-				if (Mathf::RayPlaneIntersection(ray, plane_normal, plane_point, ray_length))
+				RaycastHit hit;
+				if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), 1000))
 				{
-					auto point = ray.GetPoint(ray_length);
+					auto point = hit.point;
 
 					auto sphere_matrix = Matrix4x4::TRS(point, Quaternion::Identity(), Vector3::One() * 0.1f);
 					Graphics::DrawMesh(sphere_mesh, sphere_matrix, sphere_mat);

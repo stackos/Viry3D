@@ -147,6 +147,8 @@ namespace Viry3D
 			{
 				Renderer::ClearPasses();
 			}
+
+			this->OnLayerChanged();
 		}
 	}
 
@@ -445,6 +447,19 @@ namespace Viry3D
 		for (const auto& i : m_components_new)
 		{
 			i->OnTranformHierarchyChanged();
+		}
+	}
+
+	void GameObject::OnLayerChanged()
+	{
+		for (const auto& i : m_components)
+		{
+			i->OnLayerChanged();
+		}
+
+		for (const auto& i : m_components_new)
+		{
+			i->OnLayerChanged();
 		}
 	}
 

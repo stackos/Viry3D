@@ -183,17 +183,17 @@ namespace Viry3D
 		RenderTexture::Init();
 		AudioManager::Init();
 		Renderer::Init();
-		Resource::Init();
 		Physics::Init();
+		Resource::Init();
 	}
 
 	void World::Deinit()
 	{
-		Physics::Deinit();
 		LightmapSettings::Clear();
 		Resource::Deinit();
 		m_gameobjects.Clear();
 		m_gameobjects_start.Clear();
+		Physics::Deinit();
 		Renderer::Deinit();
 		AudioManager::Deinit();
 		RenderTexture::Deinit();

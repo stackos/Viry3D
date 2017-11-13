@@ -207,6 +207,7 @@ public:
 		const btCollisionObject*		m_collisionObject;
 		short int	m_collisionFilterGroup;
 		short int	m_collisionFilterMask;
+		int layer_mask;
 		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
 		unsigned int m_flags;
 
@@ -223,6 +224,7 @@ public:
 			m_collisionObject(0),
 			m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
 			m_collisionFilterMask(btBroadphaseProxy::AllFilter),
+			layer_mask(-1),
 			//@BP Mod
 			m_flags(0)
 		{
@@ -232,6 +234,7 @@ public:
 		{
 			bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
 			collides = collides && (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			collides = collides && ((1 << proxy0->layer) & layer_mask);
 			return collides;
 		}
 

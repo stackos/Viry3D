@@ -75,6 +75,7 @@ namespace Viry3D
 		void CopyComponent(const Ref<Component>& com);
 		void OnTranformChanged();
 		void OnTranformHierarchyChanged();
+		void OnLayerChanged();
 		void OnPostRender(); // 仅带摄像机的对象
 
 		int m_layer;

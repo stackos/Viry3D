@@ -126,6 +126,9 @@ namespace Viry3D
 
 		Physics::AddRigidBody(body);
 
+		auto proxy = body->getBroadphaseHandle();
+		proxy->layer = this->GetGameObject()->GetLayer();
+
 		m_in_world = true;
 		m_rigidbody = body;
 	}

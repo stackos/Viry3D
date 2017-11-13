@@ -97,7 +97,8 @@ namespace Viry3D
 		btVector3 to_(to.x, to.y, to.z);
 
 		btCollisionWorld::ClosestRayResultCallback closest(from_, to_);
-		closest.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+		closest.layer_mask = layer_mask;
+		//closest.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
 
 		g_dynamics_world->rayTest(from_, to_, closest);
 
@@ -134,7 +135,8 @@ namespace Viry3D
 		btVector3 to_(to.x, to.y, to.z);
 
 		btCollisionWorld::AllHitsRayResultCallback all(from_, to_);
-		all.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+		all.layer_mask = layer_mask;
+		//all.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
 
 		g_dynamics_world->rayTest(from_, to_, all);
 
@@ -158,11 +160,7 @@ namespace Viry3D
 						Collider* collider = (Collider*) user_data;
 						hit.collider = std::dynamic_pointer_cast<Collider>(collider->GetRef());
 
-						int obj_layer = hit.collider.lock()->GetGameObject()->GetLayer();
-						if (((1 << obj_layer) & layer_mask) != 0)
-						{
-							hits.Add(hit);
-						}
+						hits.Add(hit);
 					}
 				}
 			}

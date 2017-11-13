@@ -103,6 +103,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	void*	m_clientObject;
 	short int m_collisionFilterGroup;
 	short int m_collisionFilterMask;
+	int layer;
 	void*	m_multiSapParentProxy;		
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
 
@@ -123,6 +124,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 		:m_clientObject(userPtr),
 		m_collisionFilterGroup(collisionFilterGroup),
 		m_collisionFilterMask(collisionFilterMask),
+		layer(0),
 		m_aabbMin(aabbMin),
 		m_aabbMax(aabbMax)
 	{

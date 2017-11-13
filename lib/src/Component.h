@@ -61,6 +61,7 @@ namespace Viry3D
 		virtual void OnDisable() { }
 		virtual void OnTranformChanged() { }
 		virtual void OnTranformHierarchyChanged() { }
+		virtual void OnLayerChanged() { }
 		virtual void OnPostRender() { }
 
 		WeakRef<GameObject> m_gameobject;
