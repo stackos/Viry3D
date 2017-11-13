@@ -129,6 +129,6 @@ public:
 	bool m_mouse_down = false;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppPBR);
 #endif

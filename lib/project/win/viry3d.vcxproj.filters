@@ -1113,6 +1113,12 @@
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.h">
       <Filter>src\physics\bullet</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\physics\Physics.h">
+      <Filter>src\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\physics\Collider.h">
+      <Filter>src\physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">
@@ -2497,6 +2503,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\physics\bullet\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.cpp">
       <Filter>src\physics\bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\physics\Physics.cpp">
+      <Filter>src\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\physics\Collider.cpp">
+      <Filter>src\physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

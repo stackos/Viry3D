@@ -17,6 +17,8 @@
 
 #include "World.h"
 #include "Resource.h"
+#include "Profiler.h"
+#include "ui/Font.h"
 #include "time/Time.h"
 #include "graphics/Shader.h"
 #include "graphics/Camera.h"
@@ -24,8 +26,7 @@
 #include "graphics/LightmapSettings.h"
 #include "renderer/Renderer.h"
 #include "audio/AudioManager.h"
-#include "ui/Font.h"
-#include "Profiler.h"
+#include "physics/Physics.h"
 #include <stdlib.h>
 
 namespace Viry3D
@@ -53,6 +54,7 @@ namespace Viry3D
 
 	void World::Update()
 	{
+		Physics::Update();
 		Renderer::HandleUIEvent();
 
 		//	start
@@ -181,18 +183,17 @@ namespace Viry3D
 		RenderTexture::Init();
 		AudioManager::Init();
 		Renderer::Init();
-
 		Resource::Init();
+		Physics::Init();
 	}
 
 	void World::Deinit()
 	{
+		Physics::Deinit();
 		LightmapSettings::Clear();
 		Resource::Deinit();
-
 		m_gameobjects.Clear();
 		m_gameobjects_start.Clear();
-
 		Renderer::Deinit();
 		AudioManager::Deinit();
 		RenderTexture::Deinit();

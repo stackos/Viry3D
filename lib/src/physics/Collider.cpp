@@ -1,54 +1,73 @@
+/*
+* Viry3D
+* Copyright 2014-2017 by Stack - stackos@qq.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "Collider.h"
 #include "Physics.h"
 #include "btBulletDynamicsCommon.h"
 
-namespace Galaxy3D
+namespace Viry3D
 {
-    Collider::~Collider()
-    {
-        btRigidBody *body = (btRigidBody *) m_rigidbody;
-        if(body != NULL)
-        {
-            OnDisable();
+	DEFINE_COM_CLASS(Collider);
 
-            auto motion_state = body->getMotionState();
-            if(motion_state != NULL)
-            {
-                delete motion_state;
-            }
+	Collider::~Collider()
+	{
+		auto body = (btRigidBody*) m_rigidbody;
+		if (body != NULL)
+		{
+			this->OnDisable();
 
-            auto shape = body->getCollisionShape();
-            if(shape != NULL)
-            {
-                delete shape;
-            }
+			auto motion_state = body->getMotionState();
+			if (motion_state != NULL)
+			{
+				delete motion_state;
+			}
 
-            delete body;
-        }
-    }
+			auto shape = body->getCollisionShape();
+			if (shape != NULL)
+			{
+				delete shape;
+			}
 
-    void Collider::OnEnable()
-    {
-        if(!m_in_world)
-        {
-            m_in_world = true;
+			delete body;
+		}
+	}
 
-            btRigidBody *body = (btRigidBody *) m_rigidbody;
-			if(body != NULL)
+	void Collider::OnEnable()
+	{
+		if (!m_in_world)
+		{
+			m_in_world = true;
+
+			auto body = (btRigidBody*) m_rigidbody;
+			if (body != NULL)
 			{
 				Physics::AddRigidBody(body);
 			}
-        }
-    }
+		}
+	}
 
-    void Collider::OnDisable()
-    {
-        if(m_in_world)
-        {
-            m_in_world = false;
+	void Collider::OnDisable()
+	{
+		if (m_in_world)
+		{
+			m_in_world = false;
 
-            btRigidBody *body = (btRigidBody *) m_rigidbody;
-            Physics::RemoveRigidBody(body);
-        }
-    }
+			auto body = (btRigidBody*) m_rigidbody;
+			Physics::RemoveRigidBody(body);
+		}
+	}
 }
