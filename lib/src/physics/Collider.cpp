@@ -31,24 +31,18 @@ namespace Viry3D
 
 	Collider::~Collider()
 	{
-		auto body = (btRigidBody*) m_rigidbody;
-		if (body != NULL)
+		auto col = (btCollisionObject*) m_collider;
+		if (col != NULL)
 		{
 			this->OnDisable();
 
-			auto motion_state = body->getMotionState();
-			if (motion_state != NULL)
-			{
-				delete motion_state;
-			}
-
-			auto shape = body->getCollisionShape();
+			auto shape = col->getCollisionShape();
 			if (shape != NULL)
 			{
 				delete shape;
 			}
 
-			delete body;
+			delete col;
 		}
 	}
 
@@ -58,12 +52,12 @@ namespace Viry3D
 		{
 			m_in_world = true;
 
-			auto body = (btRigidBody*) m_rigidbody;
-			if (body != NULL)
+			auto col = (btCollisionObject*) m_collider;
+			if (col != NULL)
 			{
-				Physics::AddRigidBody(body);
+				Physics::AddCollider(col);
 
-				auto proxy = body->getBroadphaseHandle();
+				auto proxy = col->getBroadphaseHandle();
 				proxy->layer = this->GetGameObject()->GetLayer();
 			}
 		}
@@ -75,8 +69,8 @@ namespace Viry3D
 		{
 			m_in_world = false;
 
-			auto body = (btRigidBody*) m_rigidbody;
-			Physics::RemoveRigidBody(body);
+			auto col = (btCollisionObject*) m_collider;
+			Physics::RemoveCollider(col);
 		}
 	}
 
@@ -84,8 +78,8 @@ namespace Viry3D
 	{
 		if (m_in_world)
 		{
-			auto body = (btRigidBody*) m_rigidbody;
-			auto proxy = body->getBroadphaseHandle();
+			auto col = (btCollisionObject*) m_collider;
+			auto proxy = col->getBroadphaseHandle();
 			proxy->layer = this->GetGameObject()->GetLayer();
 		}
 	}

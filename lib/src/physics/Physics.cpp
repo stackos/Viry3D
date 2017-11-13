@@ -59,14 +59,14 @@ namespace Viry3D
 		g_dynamics_world->stepSimulation(Time::GetDeltaTime());
 	}
 
-	void Physics::AddRigidBody(void* body)
+	void Physics::AddCollider(void* col)
 	{
-		g_dynamics_world->addRigidBody((btRigidBody*) body);
+		g_dynamics_world->addCollisionObject((btCollisionObject*) col);
 	}
 
-	void Physics::RemoveRigidBody(void* body)
+	void Physics::RemoveCollider(void* col)
 	{
-		g_dynamics_world->removeRigidBody((btRigidBody*) body);
+		g_dynamics_world->removeCollisionObject((btCollisionObject*) col);
 	}
 
 	void Physics::AddCharacter(void* character)

@@ -111,31 +111,27 @@ namespace Viry3D
 		transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 		transform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
 
-		btScalar mass(0);
-		btVector3 local_inertia(0, 0, 0);
-
-		// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		auto motion_state = new btDefaultMotionState(transform);
 		auto shape = new btBvhTriangleMeshShape(collider_data, true);
-		btRigidBody::btRigidBodyConstructionInfo info(mass, motion_state, shape, local_inertia);
-		
-		auto body = new btRigidBody(info);
-		body->setRollingFriction(1);
-		body->setFriction(1);
-		body->setUserPointer(this);
 
-		Physics::AddRigidBody(body);
+		auto col = new btCollisionObject();
+		col->setWorldTransform(transform);
+		col->setCollisionShape(shape);
+		col->setRollingFriction(1);
+		col->setFriction(1);
+		col->setUserPointer(this);
 
-		auto proxy = body->getBroadphaseHandle();
+		Physics::AddCollider(col);
+
+		auto proxy = col->getBroadphaseHandle();
 		proxy->layer = this->GetGameObject()->GetLayer();
 
 		m_in_world = true;
-		m_rigidbody = body;
+		m_collider = col;
 	}
 
 	void MeshCollider::OnTranformChanged()
 	{
-		if (m_rigidbody != NULL)
+		if (m_collider != NULL)
 		{
 			auto pos = GetTransform()->GetPosition();
 			auto rot = GetTransform()->GetRotation();
@@ -145,8 +141,8 @@ namespace Viry3D
 			transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 			transform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
 
-			auto body = (btRigidBody*) m_rigidbody;
-			body->setWorldTransform(transform);
+			auto col = (btCollisionObject*) m_collider;
+			col->setWorldTransform(transform);
 		}
 	}
 }

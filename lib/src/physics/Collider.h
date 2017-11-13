@@ -26,11 +26,11 @@ namespace Viry3D
 		DECLARE_COM_CLASS(Collider, Component);
 
 	protected:
-		void* m_rigidbody;
+		void* m_collider;
 		bool m_in_world;
 
 		Collider():
-			m_rigidbody(NULL),
+			m_collider(NULL),
 			m_in_world(false)
 		{
 		}
