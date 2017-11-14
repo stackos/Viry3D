@@ -9,7 +9,6 @@ if (project.rootProject.file('local.properties').exists()) {
 if (!ndkDir) {
     ndkDir = System.getenv("ANDROID_NDK_HOME")
 }
-
 if(!ndkDir || ndkDir.empty) {
     throw new GradleException('Environment Variable ANDROID_NDK_HOME for NDK path need to be setup')
 }

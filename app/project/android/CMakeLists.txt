@@ -203,6 +203,118 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alListener.c
             ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alSource.c
             ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alThunk.c
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btAxisSweep3.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btBroadphaseProxy.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btDbvt.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btDbvtBroadphase.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btDispatcher.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btMultiSapBroadphase.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btOverlappingPairCache.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btQuantizedBvh.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btSimpleBroadphase.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btBoxBoxDetector.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btCollisionDispatcher.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btCollisionObject.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btCollisionWorld.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btCollisionWorldImporter.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btGhostObject.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btHashedSimplePairCache.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btInternalEdgeUtility.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btManifoldResult.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btSimulationIslandManager.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/btUnionFind.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionDispatch/SphereTriangleDetector.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btBox2dShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btBoxShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btCapsuleShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btCollisionShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btCompoundShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConcaveShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConeShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConvex2dShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConvexHullShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConvexInternalShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConvexPointCloudShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConvexShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btConvexTriangleMeshShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btCylinderShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btEmptyShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btMinkowskiSumShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btMultiSphereShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btOptimizedBvh.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btPolyhedralConvexShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btShapeHull.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btSphereShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btStaticPlaneShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btStridingMeshInterface.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btTetrahedronShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btTriangleBuffer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btTriangleCallback.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btTriangleIndexVertexArray.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btTriangleIndexVertexMaterialArray.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btTriangleMesh.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btTriangleMeshShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/CollisionShapes/btUniformScalingShape.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btConvexCast.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btGjkConvexCast.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btGjkEpa2.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btGjkPairDetector.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btPersistentManifold.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/Character/btKinematicCharacterController.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btConeTwistConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btContactConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btFixedConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btGearConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btHinge2Constraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btHingeConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btSliderConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btTypedConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/ConstraintSolver/btUniversalConstraint.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/Dynamics/btRigidBody.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btAlignedAllocator.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btConvexHull.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btConvexHullComputer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btGeometryUtil.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btPolarDecomposition.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btQuickprof.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btSerializer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/LinearMath/btVector3.cpp
             ${VIRY3D_LIB_SRC_DIR}/png/png.c
             ${VIRY3D_LIB_SRC_DIR}/png/pngerror.c
             ${VIRY3D_LIB_SRC_DIR}/png/pngget.c
@@ -228,7 +340,8 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/mp3/mad
                            ${VIRY3D_LIB_SRC_DIR}/openal/include
                            ${VIRY3D_LIB_SRC_DIR}/openal/android
-                           ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include)
+                           ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
+                           ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src)
 
 add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/android/DisplayAndroid.cpp
@@ -285,6 +398,10 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/math/Vector3.cpp
             ${VIRY3D_LIB_SRC_DIR}/memory/ByteBuffer.cpp
             ${VIRY3D_LIB_SRC_DIR}/Object.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/BoxCollider.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/Collider.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/MeshCollider.cpp
+            ${VIRY3D_LIB_SRC_DIR}/physics/Physics.cpp
             ${VIRY3D_LIB_SRC_DIR}/postprocess/ImageEffect.cpp
             ${VIRY3D_LIB_SRC_DIR}/postprocess/ImageEffectBlur.cpp
             ${VIRY3D_LIB_SRC_DIR}/Profiler.cpp
@@ -332,6 +449,7 @@ target_include_directories(Viry3D PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/openal/include
                            ${VIRY3D_LIB_SRC_DIR}/openal/android
                            ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
+                           ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src
                            ${ANDROID_NDK}/sources/third_party/shaderc/include
                            ${SHADERC_SRC}/third_party/spirv-tools/include
                            ${SHADERC_SRC}/third_party/spirv-tools/include/spirv-tools)
@@ -346,6 +464,7 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
             ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
             ${VIRY3D_APP_SRC_DIR}/AppPBR.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppPhysics.cpp
             ${VIRY3D_APP_SRC_DIR}/AppShadow.cpp
             ${VIRY3D_APP_SRC_DIR}/AppSky.cpp
             ${VIRY3D_APP_SRC_DIR}/AppTerrain.cpp
