@@ -10,7 +10,10 @@
 	</VertexShader>
 
 	<PixelShader name="ps">
-		<Sampler name="_MainTex" binding="3"/>
+		<UniformBuffer name="buf_ps" binding="3">
+			<Uniform name="_Color" size="16"/>
+		</UniformBuffer>
+		<Sampler name="_MainTex" binding="4"/>
 		<Include name="Texture.ps"/>
 	</PixelShader>
 

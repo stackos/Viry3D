@@ -48,6 +48,7 @@ public:
 		camera->SetCullingMask(1 << 0);
 		camera->GetTransform()->SetPosition(Vector3(0, 6, -10.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
+		m_camera = camera;
 
 		int shadowmap_size = 1024;
 
@@ -99,6 +100,12 @@ public:
 		auto sphere_mat = Material::Create("Gizmos");
 		sphere_mat->SetMainColor(Color(0, 1, 0, 1));
 
+		m_cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
+		m_cube_mesh->Update();
+
+		m_cube_mat = Material::Create("Diffuse");
+		m_cube_mat->SetMainColor(Color(1, 0, 0, 1));
+
 		// make weak ref avoid cycle ref
 		WeakRef<Camera> camera_weak = camera;
 		camera->SetPostRenderFunc([=]() {
@@ -127,6 +134,22 @@ public:
 		if (Input::GetMouseButtonDown(0))
 		{
 			m_mouse_down = true;
+
+			//
+			auto pos = Input::GetMousePosition();
+			auto ray = m_camera->ScreenPointToRay(pos);
+
+			RaycastHit hit;
+			if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), 1000))
+			{
+				auto point = hit.point;
+
+				auto cube = GameObject::Create("cube")->AddComponent<MeshRenderer>();
+				cube->GetTransform()->SetPosition(point + Vector3(0, 2, 0));
+				cube->GetTransform()->SetScale(Vector3::One() * 0.5f);
+				cube->SetSharedMaterial(m_cube_mat);
+				cube->SetSharedMesh(m_cube_mesh);
+			}
 		}
 		else if (Input::GetMouseButtonUp(0))
 		{
@@ -135,6 +158,9 @@ public:
 	}
 
 	bool m_mouse_down = false;
+	Ref<Camera> m_camera;
+	Ref<Mesh> m_cube_mesh;
+	Ref<Material> m_cube_mat;
 };
 
 #if 1
