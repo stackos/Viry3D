@@ -43,7 +43,7 @@ void touch_begin(void *touches, void *view)
     NSArray *allTouches = [set allObjects];
     int count = (int) [allTouches count];
     int height = [[UIScreen mainScreen] bounds].size.height;
-    float scale = [UIScreen mainScreen].scale;
+    float scale = [UIScreen mainScreen].nativeScale;
     
     for (int i = 0; i < count; i++)
     {
@@ -87,7 +87,7 @@ void touch_update(void *touches, void *view)
     NSArray *allTouches = [set allObjects];
     int count = (int) [allTouches count];
     int height = [[UIScreen mainScreen] bounds].size.height;
-    float scale = [UIScreen mainScreen].scale;
+    float scale = [UIScreen mainScreen].nativeScale;
     
     for (int i = 0; i < count; i++)
     {
