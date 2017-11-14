@@ -207,6 +207,20 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     int x = [event locationInWindow].x;
     int y = [event locationInWindow].y;
     
+    g_mouse_position.x = (float) x;
+    g_mouse_position.y = (float) y;
+    
+    display->DisplayUnlock();
+}
+
+- (void)mouseDragged:(NSEvent *)event
+{
+    auto display = ((Viry3D::DisplayMac*) Viry3D::Graphics::GetDisplay());
+    display->DisplayLock();
+    
+    int x = [event locationInWindow].x;
+    int y = [event locationInWindow].y;
+    
     if (g_input_down)
     {
         Touch t;
@@ -246,11 +260,6 @@ static CVReturn outputFrame(CVDisplayLinkRef displayLink, const CVTimeStamp* now
     g_mouse_position.y = (float) y;
     
     display->DisplayUnlock();
-}
-
-- (void)mouseDragged:(NSEvent *)event
-{
-    
 }
 
 @end
