@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA410F7D1FAA319A005937F1 /* AppSky.cpp */; };
+		BA4FAC201FBB564200C1ADB7 /* AppPhysics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */; };
 		BA7D82D11F9E4DC10085EEB7 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */; };
 		BAA45E5B1FB752210049A867 /* AppPBR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAA45E591FB752210049A867 /* AppPBR.cpp */; };
 		D1A6FA741FA2D2AA0081A94A /* AppShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */; };
@@ -41,6 +42,7 @@
 
 /* Begin PBXFileReference section */
 		BA410F7D1FAA319A005937F1 /* AppSky.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppSky.cpp; path = ../../src/AppSky.cpp; sourceTree = "<group>"; };
+		BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPhysics.cpp; path = ../../src/AppPhysics.cpp; sourceTree = "<group>"; };
 		BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
 		BAA45E591FB752210049A867 /* AppPBR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPBR.cpp; path = ../../src/AppPBR.cpp; sourceTree = "<group>"; };
 		D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppShadow.cpp; path = ../../src/AppShadow.cpp; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */,
 				D1B6AD461F83E4CD00082097 /* AppMesh.cpp */,
 				BAA45E591FB752210049A867 /* AppPBR.cpp */,
+				BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */,
 				D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */,
 				BA410F7D1FAA319A005937F1 /* AppSky.cpp */,
 				D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */,
@@ -241,6 +244,7 @@
 				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
 				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
 				BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */,
+				BA4FAC201FBB564200C1ADB7 /* AppPhysics.cpp in Sources */,
 				D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */,
 				D1A6FA741FA2D2AA0081A94A /* AppShadow.cpp in Sources */,
 				D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */,
