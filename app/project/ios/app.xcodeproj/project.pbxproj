@@ -10,6 +10,7 @@
 		BA0913B81DAA85C500CA11BF /* AppWatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA0913B71DAA85C500CA11BF /* AppWatch.cpp */; };
 		BA0913C91DAFCF9500CA11BF /* AppAnim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA0913C81DAFCF9500CA11BF /* AppAnim.cpp */; };
 		BA0F43B51E92747500C9009C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA0F43B41E92747500C9009C /* OpenAL.framework */; };
+		BA1795481FBB597800D0B77E /* AppPhysics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1795461FBB597800D0B77E /* AppPhysics.cpp */; };
 		BA2800661F69A41C00215483 /* AppTerrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800651F69A41C00215483 /* AppTerrain.cpp */; };
 		BA2800E71F69A71100215483 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = BA2800E61F69A71100215483 /* Assets */; };
 		BA29655A1F9A6F6300C3FB87 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2965581F9A6F6300C3FB87 /* AppAR.cpp */; };
@@ -47,6 +48,7 @@
 		BA0913B71DAA85C500CA11BF /* AppWatch.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppWatch.cpp; path = ../../src/AppWatch.cpp; sourceTree = "<group>"; };
 		BA0913C81DAFCF9500CA11BF /* AppAnim.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppAnim.cpp; path = ../../src/AppAnim.cpp; sourceTree = "<group>"; };
 		BA0F43B41E92747500C9009C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		BA1795461FBB597800D0B77E /* AppPhysics.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPhysics.cpp; path = ../../src/AppPhysics.cpp; sourceTree = "<group>"; };
 		BA2800651F69A41C00215483 /* AppTerrain.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppTerrain.cpp; path = ../../src/AppTerrain.cpp; sourceTree = "<group>"; };
 		BA2800E61F69A71100215483 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
 		BA2965581F9A6F6300C3FB87 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 				BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */,
 				BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */,
 				BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */,
+				BA1795461FBB597800D0B77E /* AppPhysics.cpp */,
 				D1A6FA771FA2D3980081A94A /* AppShadow.cpp */,
 				BA410F8B1FAA3282005937F1 /* AppSky.cpp */,
 				BA2800651F69A41C00215483 /* AppTerrain.cpp */,
@@ -260,6 +263,7 @@
 				BA4A33451D7C1FE300DEEE5A /* AppDelegate.mm in Sources */,
 				BA2800661F69A41C00215483 /* AppTerrain.cpp in Sources */,
 				BA410F8D1FAA3282005937F1 /* AppSky.cpp in Sources */,
+				BA1795481FBB597800D0B77E /* AppPhysics.cpp in Sources */,
 				BA94EE511D9E95CF00254ABF /* AppMesh.cpp in Sources */,
 				D1A6FA781FA2D3980081A94A /* AppShadow.cpp in Sources */,
 				BA4101DF1DC6021E003B50D6 /* AppBlur.cpp in Sources */,
