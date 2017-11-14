@@ -19,15 +19,12 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
-#include "Input.h"
 #include "animation/Animation.h"
 #include "renderer/MeshRenderer.h"
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "graphics/RenderTexture.h"
-#include "physics/BoxCollider.h"
-#include "physics/Physics.h"
 
 using namespace Viry3D;
 
