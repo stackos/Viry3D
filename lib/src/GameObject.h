@@ -57,12 +57,12 @@ namespace Viry3D
 		bool IsActiveInHierarchy() const { return m_active_in_hierarchy; }
 		bool IsActiveSelf() const { return m_active_self; }
 		void SetActive(bool active);
-		void SetLayerRecursively(int layer);
 		bool IsStatic() const { return m_static; }
 		void SetStatic(bool value) { m_static = value; }
 		void SetName(const String& name);
-		void SetLayer(int layer);
 		int GetLayer() const { return m_layer; }
+		void SetLayer(int layer);
+		void SetLayerRecursively(int layer);
 
 	private:
 		GameObject(const String& name);

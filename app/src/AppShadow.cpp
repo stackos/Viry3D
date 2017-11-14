@@ -26,7 +26,7 @@
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "graphics/RenderTexture.h"
-#include "physics/MeshCollider.h"
+#include "physics/BoxCollider.h"
 #include "physics/Physics.h"
 
 using namespace Viry3D;
@@ -46,7 +46,7 @@ public:
 
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 		camera->SetCullingMask(1 << 0);
-		camera->GetTransform()->SetPosition(Vector3(0, 3, -5.0f));
+		camera->GetTransform()->SetPosition(Vector3(0, 6, -10.0f));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
 		int shadowmap_size = 1024;
@@ -90,8 +90,8 @@ public:
 		plane->SetSharedMaterial(plane_mat);
 		plane->SetSharedMesh(plane_mesh);
 
-		auto plane_col = plane->GetGameObject()->AddComponent<MeshCollider>();
-		plane_col->SetMesh(plane_mesh);
+		auto plane_col = plane->GetGameObject()->AddComponent<BoxCollider>();
+		plane_col->SetSize(Vector3(10, 0, 10));
 
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
 		sphere_mesh->Update();

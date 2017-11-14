@@ -151,6 +151,7 @@
     <ClInclude Include="..\..\src\memory\Ref.h" />
     <ClInclude Include="..\..\src\Object.h" />
     <ClInclude Include="..\..\src\openal\win\config.h" />
+    <ClInclude Include="..\..\src\physics\BoxCollider.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseInterface.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseProxy.h" />
@@ -661,6 +662,7 @@
     <ClCompile Include="..\..\src\openal\OpenAL32\alListener.c" />
     <ClCompile Include="..\..\src\openal\OpenAL32\alSource.c" />
     <ClCompile Include="..\..\src\openal\OpenAL32\alThunk.c" />
+    <ClCompile Include="..\..\src\physics\BoxCollider.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btAxisSweep3.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseProxy.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.cpp" />

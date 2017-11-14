@@ -136,6 +136,21 @@ namespace Viry3D
 	{
 	}
 
+	void GameObject::Delete()
+	{
+		if (!m_deleted)
+		{
+			m_deleted = true;
+		}
+
+		auto transform = GetTransform();
+		int child_count = transform->GetChildCount();
+		for (int i = 0; i < child_count; i++)
+		{
+			transform->GetChild(i)->GetGameObject()->Delete();
+		}
+	}
+
 	void GameObject::SetLayer(int layer)
 	{
 		if (m_layer != layer)
@@ -152,18 +167,16 @@ namespace Viry3D
 		}
 	}
 
-	void GameObject::Delete()
+	void GameObject::SetLayerRecursively(int layer)
 	{
-		if (!m_deleted)
-		{
-			m_deleted = true;
-		}
+		this->SetLayer(layer);
 
-		auto transform = GetTransform();
+		auto transform = m_transform.lock();
 		int child_count = transform->GetChildCount();
 		for (int i = 0; i < child_count; i++)
 		{
-			transform->GetChild(i)->GetGameObject()->Delete();
+			auto child = transform->GetChild(i);
+			child->GetGameObject()->SetLayerRecursively(layer);
 		}
 	}
 
@@ -387,19 +400,6 @@ namespace Viry3D
 					child->GetGameObject()->SetActiveInHierarchy(active);
 				}
 			}
-		}
-	}
-
-	void GameObject::SetLayerRecursively(int layer)
-	{
-		SetLayer(layer);
-
-		auto transform = m_transform.lock();
-		int child_count = transform->GetChildCount();
-		for (int i = 0; i < child_count; i++)
-		{
-			auto child = transform->GetChild(i);
-			child->GetGameObject()->SetLayerRecursively(layer);
 		}
 	}
 
