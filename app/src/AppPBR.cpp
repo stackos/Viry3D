@@ -62,7 +62,6 @@ public:
 		// skybox
 		{
 			auto cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
-			cube_mesh->Update();
 
 			m_sky_mat = Material::Create("SkyboxGamma");
 			m_sky_mat->SetTexture("_CubeMap", cubemap);

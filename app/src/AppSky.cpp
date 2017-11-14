@@ -49,7 +49,6 @@ public:
 		m_camera->GetTransform()->SetPosition(Vector3::Zero() - cam_dir * m_cam_dis);
 
 		auto sphere_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Sphere.mesh");
-		sphere_mesh->Update();
 
 		auto cubemap = Cubemap::Create(1024, TextureFormat::RGB24, TextureWrapMode::Clamp, FilterMode::Bilinear, false);
 		for (int i = 0; i < 6; i++)
@@ -80,7 +79,6 @@ public:
 
 		// skybox
 		auto cube_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
-		cube_mesh->Update();
 
 		m_sky_mat = Material::Create("Skybox");
 		m_sky_mat->SetTexture("_CubeMap", cubemap);

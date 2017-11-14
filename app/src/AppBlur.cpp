@@ -57,8 +57,7 @@ public:
         anim->Play("WAIT03");
         
         auto mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
-        mesh->Update();
-        
+
         auto ground = GameObject::Create("ground")->AddComponent<MeshRenderer>();
         ground->SetSharedMaterial(Material::Create("Diffuse"));
         ground->SetSharedMesh(mesh);

@@ -49,7 +49,6 @@ public:
         
 #if VR_IOS
 		m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
-		m_plane_mesh->Update();
 
         if (ARScene::IsSupported())
         {
@@ -263,8 +262,7 @@ public:
         shadow_camera->SetRenderMode(CameraRenderMode::ShadowMap);
         
         auto plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
-        plane_mesh->Update();
-        
+
         float shadow_bias = 0.005f;
         float shadow_strength = 0.7f;
         

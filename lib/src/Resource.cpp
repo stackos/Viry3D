@@ -472,6 +472,8 @@ namespace Viry3D
 			}
 
 			ms.Close();
+
+			mesh->Update();
 		}
 
 		return mesh;
@@ -587,15 +589,6 @@ namespace Viry3D
 
 		read_renderer_materials(ms, renderer.get());
 
-		if (renderer->GetSharedMaterials().Size() > 0)
-		{
-			auto mesh = renderer->GetSharedMesh();
-			if (mesh)
-			{
-				mesh->Update();
-			}
-		}
-
 		auto lightmap_index = ms.Read<int>();
 		auto lightmap_scale_offset = ms.Read<Vector4>();
 
@@ -620,16 +613,6 @@ namespace Viry3D
 		renderer->SetBounds(Bounds(bounds_min, bounds_max));
 
 		read_renderer_materials(ms, renderer.get());
-
-		auto mats = renderer->GetSharedMaterials();
-		if (mats.Size() > 0)
-		{
-			auto mesh = renderer->GetSharedMesh();
-			if (mesh)
-			{
-				mesh->Update();
-			}
-		}
 
 		auto bone_count = ms.Read<int>();
 		if (bone_count > 0)
