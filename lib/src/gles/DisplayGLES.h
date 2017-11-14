@@ -78,7 +78,7 @@ namespace Viry3D
 		void EGLInit(int& width, int& height);
 		void EGLDeinit();
 		void EGLPause();
-		void EGLResume();
+		void EGLResume(int& width, int& height);
 #endif
 
 #if VR_ANDROID || VR_WINDOWS

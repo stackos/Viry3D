@@ -23,6 +23,7 @@
 #include "io/File.h"
 #include "io/Directory.h"
 #include "graphics/Graphics.h"
+#include "graphics/Screen.h"
 #include "container/FastList.h"
 
 using namespace Viry3D;
@@ -59,6 +60,7 @@ static bool _canDraw = false;
 static Ref<Application> _viry3d_app;
 static FastList<Action> _events;
 static Mutex _mutex;
+static int _orientation = -1;
 
 static void engine_create()
 {
@@ -361,6 +363,22 @@ enum class APP_CMD {
     APP_CMD_DESTROY,
 };
 
+static void update_orientation(android_app* app)
+{
+    auto orientation = AConfiguration_getOrientation(app->config);
+
+    if (orientation == ACONFIGURATION_ORIENTATION_PORT)
+    {
+        Screen::SetOrientation(Screen::Orientation::HomeBottom);
+    }
+    else if (orientation == ACONFIGURATION_ORIENTATION_LAND)
+    {
+        Screen::SetOrientation(Screen::Orientation::HomeRight);
+    }
+
+    _orientation = orientation;
+}
+
 static void handle_cmd(android_app* app, int32_t cmdi)
 {
     APP_CMD cmd = (APP_CMD) cmdi;
@@ -372,11 +390,20 @@ static void handle_cmd(android_app* app, int32_t cmdi)
             {
                 _displayHasInit = true;
 
+                update_orientation(app);
                 engine_create();
             }
             else
             {
+                int old_orientation = _orientation;
+
+                update_orientation(app);
                 engine_resume();
+
+                if (old_orientation != _orientation)
+                {
+                    handle_cmd(app, (int32_t) APP_CMD::APP_CMD_CONFIG_CHANGED);
+                }
             }
             break;
 
@@ -386,9 +413,11 @@ static void handle_cmd(android_app* app, int32_t cmdi)
 
         case APP_CMD::APP_CMD_INIT_WINDOW:
             // set keep screen on will recreate window, so recreate surface
-            if (_displayHasInit)
+            if (_displayHasInit && _canDraw)
             {
                 engine_pause();
+
+                update_orientation(app);
                 engine_resume();
             }
             break;
@@ -398,6 +427,8 @@ static void handle_cmd(android_app* app, int32_t cmdi)
             {
                 int w = ANativeWindow_getWidth(app->window);
                 int h = ANativeWindow_getHeight(app->window);
+
+                update_orientation(app);
                 _viry3d_app->OnResize(w, h);
             }
 		    break;

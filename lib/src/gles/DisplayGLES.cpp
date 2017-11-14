@@ -23,6 +23,7 @@
 #include "graphics/Shader.h"
 #include "graphics/VertexAttribute.h"
 #include "graphics/Graphics.h"
+#include "graphics/Screen.h"
 #include "memory/ByteBuffer.h"
 #include "memory/Memory.h"
 #include "io/File.h"
@@ -161,7 +162,7 @@ namespace Viry3D
 	{
 #if VR_ANDROID
 		EGLPause();
-		EGLResume();
+		EGLResume(width, height);
 #endif
 
 		m_width = width;
@@ -183,7 +184,7 @@ namespace Viry3D
 	void DisplayGLES::OnResume()
 	{
 #if VR_ANDROID
-		EGLResume();
+		EGLResume(m_width, m_height);
 #endif
 	}
 
@@ -265,11 +266,34 @@ namespace Viry3D
 		m_surface = EGL_NO_SURFACE;
 	}
 
-	void DisplayGLES::EGLResume()
+	void DisplayGLES::EGLResume(int& width, int& height)
 	{
 		auto window = (EGLNativeWindowType) get_native_window();
 		m_surface = eglCreateWindowSurface(m_display, m_config, window, NULL);
 		eglMakeCurrent(m_display, m_surface, m_surface, m_context);
+
+        eglQuerySurface(m_display, m_surface, EGL_WIDTH, &width);
+        eglQuerySurface(m_display, m_surface, EGL_HEIGHT, &height);
+
+        auto orientation = Screen::GetOrientation();
+        if (orientation == Screen::Orientation::HomeBottom)
+        {
+            if (width > height)
+            {
+                int temp = width;
+                width = height;
+                height = temp;
+            }
+        }
+        else if (orientation == Screen::Orientation::HomeRight)
+        {
+            if (width < height)
+            {
+                int temp = width;
+                width = height;
+                height = temp;
+            }
+        }
 	}
 
 	void DisplayGLES::CreateSharedContext()
