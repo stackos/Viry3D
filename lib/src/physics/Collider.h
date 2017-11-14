@@ -24,14 +24,18 @@ namespace Viry3D
 	class Collider: public Component
 	{
 		DECLARE_COM_CLASS(Collider, Component);
+	public:
+		virtual void SetIsRigidbody(bool value);
 
 	protected:
 		void* m_collider;
 		bool m_in_world;
+		bool m_is_rigidbody;
 
 		Collider():
 			m_collider(NULL),
-			m_in_world(false)
+			m_in_world(false),
+			m_is_rigidbody(false)
 		{
 		}
 		virtual ~Collider();

@@ -32,13 +32,14 @@ namespace Viry3D
 			m_size(1, 1, 1)
 		{
 		}
-		Vector3 GetCenter() const { return m_center; }
-		void SetCenter(const Vector3 &center);
-		Vector3 GetSize() const { return m_size; }
-		void SetSize(const Vector3 &size);
+		const Vector3& GetCenter() const { return m_center; }
+		void SetCenter(const Vector3& center);
+		const Vector3& GetSize() const { return m_size; }
+		void SetSize(const Vector3& size);
 
 	protected:
 		virtual void Start();
+		virtual void Update();
 		virtual void OnTranformChanged();
 
 	private:

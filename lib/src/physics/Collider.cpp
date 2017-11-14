@@ -27,6 +27,9 @@ namespace Viry3D
 	void Collider::DeepCopy(const Ref<Object>& source)
 	{
 		Component::DeepCopy(source);
+
+		auto src = RefCast<Collider>(source);
+		this->m_is_rigidbody = src->m_is_rigidbody;
 	}
 
 	Collider::~Collider()
@@ -35,6 +38,15 @@ namespace Viry3D
 		if (col != NULL)
 		{
 			this->OnDisable();
+
+			if (m_is_rigidbody)
+			{
+				auto motion_state = ((btRigidBody*) col)->getMotionState();
+				if (motion_state != NULL)
+				{
+					delete motion_state;
+				}
+			}
 
 			auto shape = col->getCollisionShape();
 			if (shape != NULL)
@@ -46,6 +58,11 @@ namespace Viry3D
 		}
 	}
 
+	void Collider::SetIsRigidbody(bool value)
+	{
+		m_is_rigidbody = value;
+	}
+
 	void Collider::OnEnable()
 	{
 		if (!m_in_world)
@@ -55,7 +72,14 @@ namespace Viry3D
 			auto col = (btCollisionObject*) m_collider;
 			if (col != NULL)
 			{
-				Physics::AddCollider(col);
+				if (m_is_rigidbody)
+				{
+					Physics::AddRigidBody(col);
+				}
+				else
+				{
+					Physics::AddCollider(col);
+				}
 
 				auto proxy = col->getBroadphaseHandle();
 				proxy->layer = this->GetGameObject()->GetLayer();
@@ -70,7 +94,14 @@ namespace Viry3D
 			m_in_world = false;
 
 			auto col = (btCollisionObject*) m_collider;
-			Physics::RemoveCollider(col);
+			if (m_is_rigidbody)
+			{
+				Physics::RemoveRigidBody(col);
+			}
+			else
+			{
+				Physics::RemoveCollider(col);
+			}
 		}
 	}
 

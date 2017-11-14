@@ -104,6 +104,9 @@ public:
 				cube->GetTransform()->SetScale(Vector3::One() * 0.5f);
 				cube->SetSharedMaterial(m_cube_mat);
 				cube->SetSharedMesh(m_cube_mesh);
+
+				auto cube_col = cube->GetGameObject()->AddComponent<BoxCollider>();
+				cube_col->SetIsRigidbody(true);
 			}
 		}
 		else if (Input::GetMouseButtonUp(0))

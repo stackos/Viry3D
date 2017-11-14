@@ -36,6 +36,7 @@ namespace Viry3D
 		{
 		}
 		virtual ~MeshCollider();
+		virtual void SetIsRigidbody(bool value);
 		void SetMesh(const Ref<Mesh>& mesh) { m_mesh = mesh; }
 
 	protected:

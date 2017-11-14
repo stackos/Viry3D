@@ -54,6 +54,11 @@ namespace Viry3D
 		}
 	}
 
+	void MeshCollider::SetIsRigidbody(bool value)
+	{
+		m_is_rigidbody = false;
+	}
+
 	void MeshCollider::Start()
 	{
 		int index_count = 0;
@@ -125,8 +130,8 @@ namespace Viry3D
 		auto proxy = col->getBroadphaseHandle();
 		proxy->layer = this->GetGameObject()->GetLayer();
 
-		m_in_world = true;
 		m_collider = col;
+		m_in_world = true;
 	}
 
 	void MeshCollider::OnTranformChanged()

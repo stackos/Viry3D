@@ -69,6 +69,16 @@ namespace Viry3D
 		g_dynamics_world->removeCollisionObject((btCollisionObject*) col);
 	}
 
+	void Physics::AddRigidBody(void* body)
+	{
+		g_dynamics_world->addRigidBody((btRigidBody*) body);
+	}
+
+	void Physics::RemoveRigidBody(void* body)
+	{
+		g_dynamics_world->removeRigidBody((btRigidBody*) body);
+	}
+
 	void Physics::AddCharacter(void* character)
 	{
 		auto c = (btKinematicCharacterController*) character;

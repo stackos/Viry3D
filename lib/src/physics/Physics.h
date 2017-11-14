@@ -38,8 +38,10 @@ namespace Viry3D
 		static void Init();
 		static void Deinit();
 		static void Update();
-		static void AddCollider(void* body);
-		static void RemoveCollider(void* body);
+		static void AddCollider(void* col);
+		static void RemoveCollider(void* col);
+		static void AddRigidBody(void* body);
+		static void RemoveRigidBody(void* body);
 		static void AddCharacter(void* character);
 		static void RemoveCharacter(void* character);
 		static bool Raycast(RaycastHit& hit, const Vector3& from, const Vector3& dir, float length, int layer_mask = -1);
