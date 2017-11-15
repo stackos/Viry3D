@@ -121,6 +121,6 @@ public:
 	Ref<Material> m_cube_mat;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppPhysics);
 #endif

@@ -28,6 +28,9 @@
 #include "renderer/MeshRenderer.h"
 #include "container/Map.h"
 #include "animation/Animation.h"
+#include "physics/Physics.h"
+#include "physics/BoxCollider.h"
+#include "physics/MeshCollider.h"
 
 using namespace Viry3D;
 
@@ -90,13 +93,17 @@ public:
                                 plane->SetSharedMaterial(Material::Create("Diffuse"));
                                 plane->SetSharedMesh(m_plane_mesh);
                                 m_planes.Add(i.id, plane);
+                                
+                                auto plane_col = plane->GetGameObject()->AddComponent<BoxCollider>();
+                                //plane_col->SetMesh(m_plane_mesh);
                             }
                             else
                             {
                                 plane = m_planes[i.id];
                             }
                             
-                            plane->GetTransform()->SetLocalToWorldMatrixExternal(i.transform * Matrix4x4::Translation(i.center) * Matrix4x4::Scaling(i.extent));
+                            auto local_to_world_matrix = i.transform * Matrix4x4::Translation(i.center) * Matrix4x4::Scaling(i.extent);
+                            plane->GetTransform()->SetLocalToWorldMatrixExternal(local_to_world_matrix);
                         }
                     }
                     
@@ -184,32 +191,24 @@ public:
                 auto pos = Input::GetMousePosition();
                 auto ray = m_camera->ScreenPointToRay(pos);
                 
-                for (const auto& i : m_planes)
+                RaycastHit hit;
+                if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), 1000))
                 {
-                    auto plane_point = i.second->GetTransform()->GetPosition();
-                    auto plane_normal = i.second->GetTransform()->GetUp();
-                    
-                    float ray_length;
-                    if (Mathf::RayPlaneIntersection(ray, plane_normal, plane_point, ray_length))
+                    auto point = hit.point;
+                    Vector3 forward = m_camera->GetTransform()->GetPosition() - point;
+                    forward.y = 0;
+                    if (forward.SqrMagnitude() > 0)
                     {
-                        auto point = ray.GetPoint(ray_length);
-                        Vector3 forward = m_camera->GetTransform()->GetPosition() - point;
-                        forward.y = 0;
-                        if (forward.SqrMagnitude() > 0)
-                        {
-                            forward.Normalize();
-                        }
-                        else
-                        {
-                            forward = Vector3(0, 0, 1);
-                        }
-                        
-                        Matrix4x4 anchor_transform;
-                        PlaceModelTo(point, forward, anchor_transform);
-                        m_anim_anchor_id = m_ar->AddAnchor(anchor_transform);
-                        
-                        break;
+                        forward.Normalize();
                     }
+                    else
+                    {
+                        forward = Vector3(0, 0, 1);
+                    }
+                    
+                    Matrix4x4 anchor_transform;
+                    PlaceModelTo(point, forward, anchor_transform);
+                    m_anim_anchor_id = m_ar->AddAnchor(anchor_transform);
                 }
                 
                 if (m_anim)
