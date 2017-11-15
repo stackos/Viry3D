@@ -83,18 +83,8 @@ namespace Viry3D
 		}
 
 		const auto& vertices = m_mesh->vertices;
-		const auto& scale = this->GetTransform()->GetScale();
 		m_vertices = new Vector3[vertices.Size()];
-
-		for (int i = 0; i < vertices.Size(); i++)
-		{
-			Vector3 v = vertices[i];
-			v.x *= scale.x;
-			v.y *= scale.y;
-			v.z *= scale.z;
-
-			m_vertices[i] = v;
-		}
+        memcpy(m_vertices, vertices.Bytes(), vertices.SizeInBytes());
 
 		btIndexedMesh mesh;
 		mesh.m_numTriangles = index_count / 3;
@@ -110,14 +100,16 @@ namespace Viry3D
 
 		auto pos = GetTransform()->GetPosition();
 		auto rot = GetTransform()->GetRotation();
-
+        auto sca = this->GetTransform()->GetScale();
+        
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 		transform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
 
 		auto shape = new btBvhTriangleMeshShape(collider_data, true);
-
+        shape->setLocalScaling(btVector3(sca.x, sca.y, sca.z));
+        
 		auto col = new btCollisionObject();
 		col->setWorldTransform(transform);
 		col->setCollisionShape(shape);
@@ -140,13 +132,17 @@ namespace Viry3D
 		{
 			auto pos = GetTransform()->GetPosition();
 			auto rot = GetTransform()->GetRotation();
-
+            auto sca = this->GetTransform()->GetScale();
+            
+            auto col = (btCollisionObject*) m_collider;
+            auto shape = col->getCollisionShape();
+            shape->setLocalScaling(btVector3(sca.x, sca.y, sca.z));
+            
 			btTransform transform;
 			transform.setIdentity();
 			transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 			transform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
 
-			auto col = (btCollisionObject*) m_collider;
 			col->setWorldTransform(transform);
 		}
 	}

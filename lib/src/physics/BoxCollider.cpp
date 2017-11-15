@@ -38,7 +38,8 @@ namespace Viry3D
 		auto pos = this->GetTransform()->GetPosition();
 		auto rot = this->GetTransform()->GetRotation();
 		auto sca = this->GetTransform()->GetScale();
-
+        sca = Vector3::Max(sca, Vector3::One() * 0.001f);
+        
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(btVector3(pos.x + m_center.x * sca.x, pos.y + m_center.y * sca.y, pos.z + m_center.z * sca.z));
@@ -96,7 +97,8 @@ namespace Viry3D
 			if (state)
 			{
 				auto sca = this->GetTransform()->GetScale();
-
+                sca = Vector3::Max(sca, Vector3::One() * 0.001f);
+                
 				btTransform transform;
 				state->getWorldTransform(transform);
 
@@ -123,7 +125,8 @@ namespace Viry3D
 			auto pos = this->GetTransform()->GetPosition();
 			auto rot = this->GetTransform()->GetRotation();
 			auto sca = this->GetTransform()->GetScale();
-
+            sca = Vector3::Max(sca, Vector3::One() * 0.001f);
+            
 			btTransform transform;
 			transform.setIdentity();
 			transform.setOrigin(btVector3(pos.x + m_center.x * sca.x, pos.y + m_center.y * sca.y, pos.z + m_center.z * sca.z));
@@ -141,6 +144,7 @@ namespace Viry3D
 		if (m_collider != NULL)
 		{
 			auto sca = this->GetTransform()->GetScale();
+            sca = Vector3::Max(sca, Vector3::One() * 0.001f);
 
 			auto col = (btCollisionObject*) m_collider;
 			auto shape = col->getCollisionShape();
@@ -157,7 +161,8 @@ namespace Viry3D
 				auto pos = this->GetTransform()->GetPosition();
 				auto rot = this->GetTransform()->GetRotation();
 				auto sca = this->GetTransform()->GetScale();
-
+                sca = Vector3::Max(sca, Vector3::One() * 0.001f);
+                
 				auto col = (btCollisionObject*) m_collider;
 				auto shape = col->getCollisionShape();
 				shape->setLocalScaling(btVector3(m_size.x * sca.x, m_size.y * sca.y, m_size.z * sca.z));
