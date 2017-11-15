@@ -88,8 +88,6 @@ namespace Viry3D
 		Vector3 m_scale;
 		Matrix4x4 m_local_to_world_matrix;
 		Matrix4x4 m_world_to_local_matrix;
-        Matrix4x4 m_local_to_world_matrix_external;
-        bool m_matrix_external;
 		bool m_change_notifying;
 	};
 }

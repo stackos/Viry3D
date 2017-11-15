@@ -30,7 +30,6 @@ namespace Viry3D
 		m_position(m_local_position),
 		m_rotation(m_local_rotation),
 		m_scale(m_local_scale),
-        m_matrix_external(false),
 		m_change_notifying(false)
 	{
 	}
@@ -396,11 +395,6 @@ namespace Viry3D
 
 	const Matrix4x4& Transform::GetLocalToWorldMatrix()
 	{
-        if (m_matrix_external)
-        {
-            return m_local_to_world_matrix_external;
-        }
-        
 		ApplyChange();
 
 		return m_local_to_world_matrix;
@@ -415,11 +409,13 @@ namespace Viry3D
 
     void Transform::SetLocalToWorldMatrixExternal(const Matrix4x4& mat)
     {
-        m_local_to_world_matrix_external = mat;
-        m_matrix_external = true;
+        this->SetPosition(mat.MultiplyPoint3x4(Vector3::Zero()));
+        this->SetForward(mat.MultiplyDirection(Vector3(0, 0, 1)));
         
-        this->SetPosition(m_local_to_world_matrix_external.MultiplyPoint3x4(Vector3::Zero()));
-        this->SetForward(m_local_to_world_matrix_external.MultiplyDirection(Vector3(0, 0, 1)));
+        float scale_x = (mat.MultiplyPoint3x4(Vector3::Zero()) - mat.MultiplyPoint3x4(Vector3(1, 0, 0))).Magnitude();
+        float scale_y = (mat.MultiplyPoint3x4(Vector3::Zero()) - mat.MultiplyPoint3x4(Vector3(0, 1, 0))).Magnitude();
+        float scale_z = (mat.MultiplyPoint3x4(Vector3::Zero()) - mat.MultiplyPoint3x4(Vector3(0, 0, 1))).Magnitude();
+        this->SetScale(Vector3(scale_x, scale_y, scale_z));
     }
     
 	Vector3 Transform::GetRight()
