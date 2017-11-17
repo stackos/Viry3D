@@ -468,6 +468,7 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppShadow.cpp
             ${VIRY3D_APP_SRC_DIR}/AppSky.cpp
             ${VIRY3D_APP_SRC_DIR}/AppTerrain.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppUI.cpp
             ${VIRY3D_APP_SRC_DIR}/AppWatch.cpp)
 
 target_include_directories(Viry3DApp PRIVATE
