@@ -47,6 +47,12 @@ namespace Viry3D
 
 		auto src = RefCast<UICanvasRenderer>(source);
 		this->SetSortingOrder(src->GetSortingOrder());
+		m_anchor_min = src->m_anchor_min;
+		m_anchor_max = src->m_anchor_max;
+		m_offset_min = src->m_offset_min;
+		m_offset_max = src->m_offset_max;
+		m_pivot = src->m_pivot;
+		m_dirty = true;
 	}
 
 	void UICanvasRenderer::HandleUIEvent(const List<UICanvasRenderer*>& list)
