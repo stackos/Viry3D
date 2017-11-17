@@ -43,5 +43,8 @@
     <ClCompile Include="..\..\src\AppPhysics.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\AppUI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
