@@ -352,7 +352,7 @@ namespace Viry3D
 		rect->SetPivot(pivot);
 
 		auto canvas = RefCast<UICanvasRenderer>(rect);
-		if (canvas)
+		if (canvas && canvas->IsRoot())
 		{
 			int screen_w = Graphics::GetDisplay()->GetWidth();
 			int screen_h = Graphics::GetDisplay()->GetHeight();

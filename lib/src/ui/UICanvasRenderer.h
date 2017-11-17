@@ -49,6 +49,7 @@ namespace Viry3D
 		virtual void GetIndexRange(int material_index, int& start, int& count) const;
 		void MarkDirty();
 		const Vector<Ref<UIView>>& GetViews() const { return m_views; }
+		bool IsRoot() const;
 
 	protected:
 		virtual void LateUpdate();

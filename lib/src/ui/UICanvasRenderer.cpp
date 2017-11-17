@@ -36,6 +36,11 @@ namespace Viry3D
 	{
 	}
 
+	bool UICanvasRenderer::IsRoot() const
+	{
+		return !GetParentRect();
+	}
+
 	void UICanvasRenderer::DeepCopy(const Ref<Object>& source)
 	{
 		Renderer::DeepCopy(source);
