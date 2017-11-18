@@ -49,12 +49,14 @@ public:
 		ui->GetTransform()->SetPosition(Vector3::Zero());
 		ui->GetTransform()->SetScale(Vector3::One());
 
+		auto button_main = ui->GetTransform()->Find("button main")->GetGameObject();
 		auto window_menu = ui->GetTransform()->Find("window menu")->GetGameObject();
 		m_window_menu_pos = window_menu->GetTransform()->GetLocalPosition();
 
-		auto button_main_border = ui->GetTransform()->Find("button main/border")->GetGameObject()->GetComponent<UISprite>();
+		auto button_main_border = button_main->GetTransform()->Find("border")->GetGameObject()->GetComponent<UISprite>();
 		button_main_border->event_handler.enable = true;
 		button_main_border->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+			button_main->SetActive(false);
 			window_menu->SetActive(true);
 
 			// tween color in
@@ -67,7 +69,7 @@ public:
 			auto tc = window_menu->AddComponent<TweenUIColor>();
 			tc->duration = 0.2f;
 			tc->from = Color(1, 1, 1, 0);
-			tc->to = Color(1, 1, 1, 1);
+			tc->to = Color(1, 1, 1, 0.9f);
 
 			// tween pos in
 			auto start_pos = m_window_menu_pos + Vector3(-10, 0, 0);
@@ -78,10 +80,27 @@ public:
 			tp->to = m_window_menu_pos;
 		};
 
-		auto window_menu_border = ui->GetTransform()->Find("window menu/border")->GetGameObject()->GetComponent<UISprite>();
+		// block event with background
+		auto window_menu_border = window_menu->GetTransform()->Find("left bar/border")->GetGameObject()->GetComponent<UISprite>();
 		window_menu_border->event_handler.enable = true;
-		window_menu_border->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+
+		auto window_menu_closer = window_menu->GetTransform()->Find("closer")->GetGameObject()->GetComponent<UIView>();
+		window_menu_closer->event_handler.enable = true;
+		window_menu_closer->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+			button_main->SetActive(true);
 			window_menu->SetActive(false);
+		};
+
+		auto button_fps = window_menu->GetTransform()->Find("left bar/button fps")->GetGameObject()->GetComponent<UISprite>();
+		button_fps->event_handler.enable = true;
+		button_fps->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+
+		};
+
+		auto button_profiler = window_menu->GetTransform()->Find("left bar/button profiler")->GetGameObject()->GetComponent<UISprite>();
+		button_profiler->event_handler.enable = true;
+		button_profiler->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+
 		};
     }
 

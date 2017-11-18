@@ -122,7 +122,7 @@ namespace Viry3D
 				}
 				else if (type_name == "UIView")
 				{
-					// do not render empty view
+					m_views.Add(view);
 				}
 				else
 				{
@@ -183,11 +183,17 @@ namespace Viry3D
 			Vector<Color> colors;
 			Vector<unsigned short> indices;
 
-			for (int i = 0; i < m_views.Size(); i++)
+			for (auto& i : m_views)
 			{
-				m_views[i]->SetRenderer(RefCast<UICanvasRenderer>(this->GetRef()));
-				m_views[i]->FillVertices(vertices, uv, colors, indices);
-				m_views[i]->FillMaterial(mat);
+				// skip render empty view, which just used by ui event
+				if (i->GetTypeName() == "UIView")
+				{
+					continue;
+				}
+
+				i->SetRenderer(RefCast<UICanvasRenderer>(this->GetRef()));
+				i->FillVertices(vertices, uv, colors, indices);
+				i->FillMaterial(mat);
 			}
 
 			if (!vertices.Empty())
