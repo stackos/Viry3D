@@ -197,11 +197,15 @@
     <ClCompile Include="..\..\src\AppTerrain.cpp" />
     <ClCompile Include="..\..\src\AppUI.cpp" />
     <ClCompile Include="..\..\src\AppWatch.cpp" />
+    <ClCompile Include="..\..\src\DebugUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\lib\project\win\viry3d.vcxproj">
       <Project>{b1a3401a-a9fa-429d-8021-cf57f3c7f89b}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\DebugUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -46,5 +46,13 @@
     <ClCompile Include="..\..\src\AppUI.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\DebugUI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\DebugUI.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
