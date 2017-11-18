@@ -35,6 +35,7 @@ namespace Viry3D
 		DECLARE_COM_CLASS(UIView, Component);
 
 	public:
+		virtual ~UIView();
 		virtual void SetAnchors(const Vector2& min, const Vector2& max);
 		virtual void SetOffsets(const Vector2& min, const Vector2& max);
 		virtual void SetPivot(const Vector2& pivot);

@@ -27,6 +27,14 @@ namespace Viry3D
 	{
 	}
 
+	UIView::~UIView()
+	{
+		event_handler.enable = false;
+		event_handler.on_pointer_down = NULL;
+		event_handler.on_pointer_up = NULL;
+		event_handler.on_pointer_click = NULL;
+	}
+
 	void UIView::DeepCopy(const Ref<Object>& source)
 	{
 		Component::DeepCopy(source);

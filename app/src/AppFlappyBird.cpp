@@ -246,6 +246,7 @@ void AppFlappyBird::OnTouchDownBG(UIPointerEvent& e)
 		m_pipe_count = 0;
 
 		auto tc = m_ui_obj.lock()->GetTransform()->Find("Canvas UI/Ready")->GetGameObject()->AddComponent<TweenUIColor>();
+		tc->mode = TweenUIColorMode::View;
 		tc->duration = 0.2f;
 		tc->from = Color(1, 1, 1, 1);
 		tc->to = Color(1, 1, 1, 0);
@@ -644,6 +645,7 @@ void AppFlappyBird::CoverFlashWhite()
 	sprite->SetColor(Color(1, 1, 1, 1));
 
 	auto tc = sprite->GetGameObject()->AddComponent<TweenUIColor>();
+	tc->mode = TweenUIColorMode::View;
 	tc->duration = 0.2f;
 	tc->from = Color(1, 1, 1, 1);
 	tc->to = Color(1, 1, 1, 0);
@@ -705,11 +707,13 @@ void AppFlappyBird::Restart()
 		sprite->SetColor(Color(0, 0, 0, 0));
 
 		auto tc = sprite->GetGameObject()->AddComponent<TweenUIColor>();
+		tc->mode = TweenUIColorMode::View;
 		tc->duration = 0.3f;
 		tc->from = Color(0, 0, 0, 0);
 		tc->to = Color(0, 0, 0, 1);
 		tc->on_finish = [this]() {
 			auto tc = m_cover_sprite.lock()->GetGameObject()->AddComponent<TweenUIColor>();
+			tc->mode = TweenUIColorMode::View;
 			tc->duration = 0.3f;
 			tc->from = Color(0, 0, 0, 1);
 			tc->to = Color(0, 0, 0, 0);
@@ -763,6 +767,7 @@ void AppFlappyBird::GameOver()
 			tp->curve.keys.Add(Keyframe(1, 0, -1, -1));
 
 			auto tc = over_obj->GetTransform()->Find("Image Title")->GetGameObject()->AddComponent<TweenUIColor>();
+			tc->mode = TweenUIColorMode::View;
 			tc->GetGameObject()->GetComponent<Viry3D::UIView>()->SetColor(Color(1, 1, 1, 0));
 			tc->duration = 0.2f;
 			tc->from = Color(1, 1, 1, 0);

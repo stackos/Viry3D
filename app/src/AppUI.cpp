@@ -20,6 +20,9 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "graphics/Camera.h"
+#include "ui/UISprite.h"
+#include "ui/UICanvasRenderer.h"
+#include "tweener/TweenUIColor.h"
 
 using namespace Viry3D;
 
@@ -44,6 +47,24 @@ public:
 		auto ui = Resource::LoadGameObject("Assets/AppUI/debug_ui.prefab");
 		ui->GetTransform()->SetPosition(Vector3::Zero());
 		ui->GetTransform()->SetScale(Vector3::One());
+
+		auto button_main = ui->GetTransform()->Find("button main/border")->GetGameObject()->GetComponent<UISprite>();
+		button_main->event_handler.enable = true;
+		button_main->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+			auto window_menu = ui->GetTransform()->Find("window menu")->GetGameObject();
+			window_menu->SetActive(true);
+
+			auto renderers = window_menu->GetComponentsInChildren<UICanvasRenderer>();
+			for (auto& i : renderers)
+			{
+				i->SetColor(Color(1, 1, 1, 0));
+			}
+
+			auto tc = window_menu->AddComponent<TweenUIColor>();
+			tc->duration = 0.2f;
+			tc->from = Color(1, 1, 1, 0);
+			tc->to = Color(1, 1, 1, 1);
+		};
     }
 };
 
