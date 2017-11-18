@@ -75,6 +75,11 @@ namespace Viry3D
 		Object::DeepCopy(source);
 
 		auto src = RefCast<GameObject>(source);
+		this->SetLayer(src->GetLayer());
+		m_active_in_hierarchy = src->m_active_in_hierarchy;
+		m_active_self = src->m_active_self;
+		m_deleted = src->m_deleted;
+		m_static = src->m_static;
 
 		for (const auto& i : src->m_components)
 		{
@@ -85,12 +90,6 @@ namespace Viry3D
 		{
 			CopyComponent(i);
 		}
-
-		this->SetLayer(src->GetLayer());
-		m_active_in_hierarchy = src->m_active_in_hierarchy;
-		m_active_self = src->m_active_self;
-		m_deleted = src->m_deleted;
-		m_static = src->m_static;
 	}
 
 	void GameObject::SetName(const String& name)
