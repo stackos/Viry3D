@@ -28,7 +28,8 @@ namespace Viry3D
 	DEFINE_COM_CLASS(UICanvasRenderer);
 
 	UICanvasRenderer::UICanvasRenderer():
-		m_type(RenderType::BaseView)
+		m_type(RenderType::BaseView),
+		m_color(Color::White())
 	{
 	}
 
@@ -39,6 +40,17 @@ namespace Viry3D
 	bool UICanvasRenderer::IsRoot() const
 	{
 		return !GetParentRect();
+	}
+
+	void UICanvasRenderer::SetColor(const Color& color)
+	{
+		m_color = color;
+
+		auto mat = this->GetSharedMaterial();
+		if (mat)
+		{
+			mat->SetMainColor(color);
+		}
 	}
 
 	void UICanvasRenderer::DeepCopy(const Ref<Object>& source)
@@ -162,6 +174,8 @@ namespace Viry3D
 					mat = Material::Create("UI/Text");
 					this->SetSharedMaterial(mat);
 				}
+
+				mat->SetMainColor(m_color);
 			}
 
 			Vector<Vector3> vertices;

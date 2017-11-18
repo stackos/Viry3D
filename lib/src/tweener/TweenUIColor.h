@@ -23,6 +23,12 @@
 
 namespace Viry3D
 {
+	enum class TweenUIColorMode
+	{
+		Canvas,
+		View,
+	};
+
 	class TweenUIColor: public Tweener
 	{
 		DECLARE_COM_CLASS(TweenUIColor, Tweener);
@@ -36,5 +42,6 @@ namespace Viry3D
 	public:
 		Color from;
 		Color to;
+		TweenUIColorMode mode;
 	};
 }

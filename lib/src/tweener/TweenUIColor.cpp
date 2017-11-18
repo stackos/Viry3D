@@ -17,6 +17,7 @@
 
 #include "TweenUIColor.h"
 #include "ui/UIView.h"
+#include "ui/UICanvasRenderer.h"
 
 namespace Viry3D
 {
@@ -24,7 +25,8 @@ namespace Viry3D
 
 	TweenUIColor::TweenUIColor():
 		from(1, 1, 1, 1),
-		to(1, 1, 1, 1)
+		to(1, 1, 1, 1),
+		mode(TweenUIColorMode::Canvas)
 	{
 	}
 
@@ -40,10 +42,22 @@ namespace Viry3D
 	void TweenUIColor::OnSetValue(float value)
 	{
 		auto color = Color::Lerp(from, to, value);
-		auto views = this->GetGameObject()->GetComponentsInChildren<UIView>();
-		for (auto i : views)
+
+		if (mode == TweenUIColorMode::Canvas)
 		{
-			i->SetColor(color);
+			auto renderers = this->GetGameObject()->GetComponentsInChildren<UICanvasRenderer>();
+			for (auto& i : renderers)
+			{
+				i->SetColor(color);
+			}
+		}
+		else if (mode == TweenUIColorMode::View)
+		{
+			auto views = this->GetGameObject()->GetComponentsInChildren<UIView>();
+			for (auto& i : views)
+			{
+				i->SetColor(color);
+			}
 		}
 	}
 }

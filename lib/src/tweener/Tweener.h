@@ -36,6 +36,7 @@ namespace Viry3D
 		DECLARE_COM_CLASS_ABSTRACT(Tweener, Component);
 	protected:
 		Tweener();
+		virtual ~Tweener();
 		virtual void Update();
 		virtual void OnSetValue(float value) = 0;
 

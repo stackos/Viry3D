@@ -35,6 +35,11 @@ namespace Viry3D
 	{
 	}
 
+	Tweener::~Tweener()
+	{
+		on_finish = NULL;
+	}
+
 	void Tweener::DeepCopy(const Ref<Object>& source)
 	{
 		Component::DeepCopy(source);

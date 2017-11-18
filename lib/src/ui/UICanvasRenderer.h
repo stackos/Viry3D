@@ -19,6 +19,7 @@
 
 #include "UIRect.h"
 #include "renderer/Renderer.h"
+#include "graphics/Color.h"
 
 namespace Viry3D
 {
@@ -50,6 +51,8 @@ namespace Viry3D
 		void MarkDirty();
 		const Vector<Ref<UIView>>& GetViews() const { return m_views; }
 		bool IsRoot() const;
+		const Color& GetColor() const { return m_color; }
+		void SetColor(const Color& color);
 
 	protected:
 		virtual void LateUpdate();
@@ -63,5 +66,6 @@ namespace Viry3D
 		RenderType m_type;
 		Ref<Mesh> m_mesh;
 		Vector<Ref<UIView>> m_views;
+		Color m_color;
 	};
 }

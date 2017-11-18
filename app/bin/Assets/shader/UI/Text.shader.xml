@@ -12,10 +12,17 @@
 
 	<PixelShader name="ps">
 		<Sampler name="_MainTex" binding="3"/>
+		<UniformBuffer name="buf_ps" binding="4">
+			<Uniform name="_Color" size="16"/>
+		</UniformBuffer>
 		<Source>
 precision mediump float;
       
 UniformTexture(0, 3) uniform sampler2D _MainTex;
+
+UniformBuffer(0, 4) uniform buf_ps {
+	vec4 _Color;
+} u_buf;
 
 Varying(0) in vec2 v_uv;
 Varying(1) in vec4 v_color;
@@ -25,7 +32,7 @@ layout (location = 0) out vec4 o_frag;
 void main() {
 	vec4 c = v_color;
 	c.a *= texture(_MainTex, v_uv).r;
-	o_frag = c;
+	o_frag = c * u_buf._Color;
 }
 		</Source>
 	</PixelShader>
