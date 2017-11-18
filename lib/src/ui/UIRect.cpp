@@ -153,8 +153,6 @@ namespace Viry3D
 			auto parent_y = parent_size.y * parent->m_pivot.y;
 
 			auto pos = Vector2(x - parent_x, y - parent_y);
-			pos.x = floor(pos.x);
-			pos.y = floor(pos.y);
 
 			auto c = dynamic_cast<const Component*>(this);
 			c->GetTransform()->SetLocalPosition(pos);

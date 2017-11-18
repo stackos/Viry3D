@@ -198,6 +198,17 @@ namespace Viry3D
 
 			if (!vertices.Empty())
 			{
+				// make pixel perfect
+				auto world_mat = this->GetTransform()->GetLocalToWorldMatrix();
+				auto world_invert_mat = this->GetTransform()->GetWorldToLocalMatrix();
+				for (int i = 0; i < vertices.Size(); i++)
+				{
+					auto world_pos = world_mat.MultiplyPoint3x4(vertices[i]);
+					world_pos.x = floor(world_pos.x);
+					world_pos.y = floor(world_pos.y);
+					vertices[i] = world_invert_mat.MultiplyPoint3x4(world_pos);
+				}
+
 				if (!m_mesh)
 				{
 					m_mesh = Mesh::Create(true);

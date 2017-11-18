@@ -136,8 +136,6 @@ namespace Viry3D
 		for (int i = vertices.Size() - 4; i < vertices.Size(); i++)
 		{
 			auto v = vertices[i];
-			v.x = floor(v.x);
-			v.y = floor(v.y);
 
 			vertices[i] = mat.MultiplyPoint3x4(v);
 		}
