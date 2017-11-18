@@ -660,6 +660,9 @@ namespace Viry3D
 						break;
 				}
 
+				v.x = floor(v.x);
+				v.y = floor(v.y);
+
 				vertices.Add(mat.MultiplyPoint3x4(v));
 			}
 
