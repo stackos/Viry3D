@@ -38,7 +38,7 @@
 #include "audio/AudioSource.h"
 #include "audio/AudioClip.h"
 
-#define OPEN 0
+#define OPEN 1
 
 using namespace Viry3D;
 
@@ -191,10 +191,13 @@ void AppFlappyBird::Start()
 	camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
 	camera->SetClipNear(-1);
 	camera->SetClipFar(1);
-	m_ui_camera = camera;
-
+	
 	auto ui = Resource::LoadGameObject("Assets/AppFlappyBird/Play.prefab");
 	ui->GetTransform()->SetPosition(Vector3::Zero());
+	auto canvas = ui->GetComponent<UICanvasRenderer>();
+	canvas->SetCamera(camera);
+
+	m_ui_camera = camera;
 	m_ui_obj = ui;
 
 	OnResize();
