@@ -48,8 +48,6 @@ public:
 		Graphics::GetDisplay()->KeepScreenOn(true);
 		Graphics::SetGlobalCullFace(CullFace::Off);
 
-        this->CreateFPSUI(20, 10, 10);
-        
 #if VR_IOS
 		m_plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Cube.mesh");
 

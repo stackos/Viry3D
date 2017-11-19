@@ -39,8 +39,6 @@ public:
 
 	virtual void Start()
 	{
-		this->CreateFPSUI(20, 1, 1);
-
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 		camera->SetCullingMask(1 << 0);
 		camera->GetTransform()->SetPosition(Vector3(0, 6, -10.0f));

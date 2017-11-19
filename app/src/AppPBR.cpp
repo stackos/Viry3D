@@ -48,24 +48,43 @@ public:
 		Graphics::GetDisplay()->EndRecord();
 	}
 
+	virtual void OnResize(int width, int height)
+	{
+		Application::OnResize(width, height);
+
+		DoResize(width, height);
+	}
+
+	void DoResize(int width, int height)
+	{
+		if (m_ui_camera)
+		{
+			m_ui_camera->SetOrthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
+
+			m_debug_ui->OnResize(width, height);
+		}
+	}
+
 	virtual void Start()
 	{
 		//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 
 		// debug ui
 		{
-			auto ui_camera = GameObject::Create("camera")->AddComponent<Camera>();
-			ui_camera->SetCullingMask(1 << (int) Layer::UI);
-			ui_camera->SetOrthographic(true);
-			ui_camera->SetOrthographicSize(ui_camera->GetTargetHeight() / 2.0f);
-			ui_camera->SetClipNear(-1);
-			ui_camera->SetClipFar(1);
-			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
-			ui_camera->SetDepth(1);
+			m_ui_camera = GameObject::Create("camera")->AddComponent<Camera>();
+			m_ui_camera->SetCullingMask(1 << (int) Layer::UI);
+			m_ui_camera->SetOrthographic(true);
+			m_ui_camera->SetOrthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
+			m_ui_camera->SetClipNear(-1);
+			m_ui_camera->SetClipFar(1);
+			m_ui_camera->SetClearFlags(CameraClearFlags::Nothing);
+			m_ui_camera->SetDepth(1);
 
 			DebugUI::RegisterComponent();
-			GameObject::Create("debug_ui")->AddComponent<DebugUI>();
+			m_debug_ui = GameObject::Create("debug_ui")->AddComponent<DebugUI>();
 		}
+
+		DoResize(m_ui_camera->GetTargetWidth(), m_ui_camera->GetTargetHeight());
 
 		m_camera = GameObject::Create("camera")->AddComponent<Camera>();
 		m_camera->SetCullingMask(1 << 0);
@@ -136,6 +155,8 @@ public:
 		}
 	}
 
+	Ref<Camera> m_ui_camera;
+	Ref<DebugUI> m_debug_ui;
 	Ref<Camera> m_camera;
 	Vector3 m_mouse = Vector3(-1, -1, -1);
 	Vector3 m_cam_rot = Vector3(30, 0, 0);

@@ -28,11 +28,15 @@ namespace Viry3D
 	{
 		DECLARE_COM_CLASS(DebugUI, Component);
 
+	public:
+		void OnResize(int width, int height);
+
 	protected:
 		virtual void Start();
 		virtual void Update();
 
 	private:
+		Ref<GameObject> m_ui;
 		Vector3 m_window_menu_pos;
 		Ref<UILabel> m_fps_text;
 	};

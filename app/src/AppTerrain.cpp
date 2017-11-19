@@ -35,8 +35,6 @@ public:
 
 	virtual void Start()
 	{
-		this->CreateFPSUI(20, 1, 1);
-
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 		auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
 		terrain->GenerateTile(0, 0);

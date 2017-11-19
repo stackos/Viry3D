@@ -185,8 +185,6 @@ void AppFlappyBird::OnResize()
 
 void AppFlappyBird::Start()
 {
-	this->CreateFPSUI(20, 1, 1);
-
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
 	camera->SetCullingMask(1 << (int) Layer::UI);
 	camera->SetOrthographic(true);

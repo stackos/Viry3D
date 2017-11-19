@@ -34,15 +34,25 @@ namespace Viry3D
 		Component::DeepCopy(source);
 	}
 
+	void DebugUI::OnResize(int width, int height)
+	{
+		if (m_ui)
+		{
+			auto canvas = m_ui->GetComponent<UICanvasRenderer>();
+			canvas->SetSize(Vector2((float) width, (float) height));
+			canvas->OnAnchor();
+		}
+	}
+
 	void DebugUI::Start()
 	{
-		auto ui = Resource::LoadGameObject("Assets/AppUI/debug_ui.prefab");
-		ui->GetTransform()->SetPosition(Vector3::Zero());
-		ui->GetTransform()->SetScale(Vector3::One());
+		m_ui = Resource::LoadGameObject("Assets/AppUI/debug_ui.prefab");
+		m_ui->GetTransform()->SetPosition(Vector3::Zero());
+		m_ui->GetTransform()->SetScale(Vector3::One());
 
-		auto button_main = ui->GetTransform()->Find("button main")->GetGameObject();
-		auto window_menu = ui->GetTransform()->Find("window menu")->GetGameObject();
-		auto window_fps = ui->GetTransform()->Find("window fps")->GetGameObject();
+		auto button_main = m_ui->GetTransform()->Find("button main")->GetGameObject();
+		auto window_menu = m_ui->GetTransform()->Find("window menu")->GetGameObject();
+		auto window_fps = m_ui->GetTransform()->Find("window fps")->GetGameObject();
 
 		m_window_menu_pos = window_menu->GetTransform()->GetLocalPosition();
 		m_fps_text = window_fps->GetTransform()->Find("Text Canvas/Text")->GetGameObject()->GetComponent<UILabel>();

@@ -469,7 +469,8 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppSky.cpp
             ${VIRY3D_APP_SRC_DIR}/AppTerrain.cpp
             ${VIRY3D_APP_SRC_DIR}/AppUI.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppWatch.cpp)
+            ${VIRY3D_APP_SRC_DIR}/AppWatch.cpp
+            ${VIRY3D_APP_SRC_DIR}/DebugUI.cpp)
 
 target_include_directories(Viry3DApp PRIVATE
                            ${ANDROID_NDK}/sources/android/native_app_glue

@@ -39,8 +39,6 @@ public:
     
 	virtual void Start()
     {
-        this->CreateFPSUI(20, 1, 1);
-        
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
         camera->GetTransform()->SetPosition(Vector3(0, 6, -10));
         camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));

@@ -138,6 +138,8 @@ namespace Viry3D
 
 	void UIRect::OnAnchor()
 	{
+		auto com = dynamic_cast<const Component*>(this);
+
 		auto parent = this->GetParentRect();
 		if (parent)
 		{
@@ -153,9 +155,24 @@ namespace Viry3D
 			auto parent_y = parent_size.y * parent->m_pivot.y;
 
 			auto pos = Vector2(x - parent_x, y - parent_y);
+			com->GetTransform()->SetLocalPosition(pos);
+		}
 
-			auto c = dynamic_cast<const Component*>(this);
-			c->GetTransform()->SetLocalPosition(pos);
+		int child_count = com->GetTransform()->GetChildCount();
+		for (int i = 0; i < child_count; i++)
+		{
+			auto child = com->GetTransform()->GetChild(i);
+			auto view = child->GetGameObject()->GetComponent<UIView>();
+			if (view)
+			{
+				view->OnAnchor();
+			}
+			
+			auto canvas = child->GetGameObject()->GetComponent<UICanvasRenderer>();
+			if (canvas)
+			{
+				canvas->OnAnchor();
+			}
 		}
 	}
 }

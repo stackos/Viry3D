@@ -63,12 +63,8 @@ namespace Viry3D
         
 	protected:
 		Application();
-		void CreateFPSUI(int font_size, int camera_depth, int layer, const Ref<FrameBuffer>& render_target = Ref<FrameBuffer>());
 
 	private:
-		void UpdateFPSUI();
-		void OnResizeFPSUI(int width, int height);
-
 		static Application* m_instance;
 		static String m_data_path;
 
@@ -81,6 +77,5 @@ namespace Viry3D
 		Ref<RunLoop> m_pre_runloop;
 		Ref<RunLoop> m_post_runloop;
 		Ref<ThreadPool> m_thread_pool_update;
-		Ref<UILabel> m_fps;
 	};
 }

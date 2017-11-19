@@ -40,8 +40,6 @@ public:
 
 	virtual void Start()
 	{
-		this->CreateFPSUI(20, 1, 1);
-
 		m_camera = GameObject::Create("camera")->AddComponent<Camera>();
 		m_camera->SetCullingMask(1 << 0);
 		m_camera->GetTransform()->SetRotation(Quaternion::Euler(m_cam_rot));

@@ -115,7 +115,6 @@ namespace Viry3D
 		m_pre_runloop.reset();
 		m_post_runloop.reset();
 		m_thread_pool_update.reset();
-		m_fps.reset();
 
 		World::Deinit();
 		Graphics::Deinit();
@@ -190,7 +189,6 @@ namespace Viry3D
 
 	void Application::OnUpdate()
 	{
-		this->UpdateFPSUI();
 		Profiler::Reset();
 
 		Profiler::SampleBegin("Application::OnUpdate");
@@ -203,7 +201,11 @@ namespace Viry3D
 		m_post_runloop->Run();
 		m_thread_pool_update->Wait();
 
+#if VR_ANDROID
+		if (Input::GetKeyDown(KeyCode::Backspace))
+#else
 		if (Input::GetKeyDown(KeyCode::Escape))
+#endif
 		{
 			Quit();
 		}
@@ -225,8 +227,6 @@ namespace Viry3D
 	void Application::OnResize(int width, int height)
 	{
 		Graphics::OnResize(width, height);
-
-		this->OnResizeFPSUI(width, height);
 	}
     
     void Application::OnPause()
@@ -258,75 +258,5 @@ namespace Viry3D
 	void Application::RunTaskInPostLoop(const RunLoop::Task& task)
 	{
 		m_instance->m_post_runloop->Add(task);
-	}
-
-	void Application::CreateFPSUI(int font_size, int camera_depth, int layer, const Ref<FrameBuffer>& render_target)
-	{
-		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->SetClipNear(-1);
-		camera->SetClipFar(1);
-		camera->SetDepth(camera_depth);
-		camera->SetClearFlags(CameraClearFlags::Nothing);
-		camera->SetCullingMask(1 << layer);
-		camera->SetFrameBuffer(render_target);
-		camera->SetOrthographic(true);
-		camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
-
-		auto canvas = GameObject::Create("canvas")->AddComponent<UICanvasRenderer>();
-		canvas->GetTransform()->SetParent(camera->GetTransform());
-		canvas->SetSize(Vector2((float) camera->GetTargetWidth(), (float) camera->GetTargetHeight()));
-
-		auto font = Resource::LoadFont("Assets/font/arial.ttf");
-
-		auto fps = GameObject::Create("fps")->AddComponent<UILabel>();
-		fps->GetTransform()->SetParent(canvas->GetTransform());
-		fps->SetFont(font);
-		fps->SetFontSize(font_size);
-		fps->SetColor(Color(0, 1, 0, 1));
-		fps->SetText("fps");
-		fps->SetRich(true);
-		fps->SetAlignment(TextAlignment::UpperLeft);
-
-		fps->SetAnchors(Vector2(0, 1), Vector2(0, 1));
-		fps->SetOffsets(Vector2(0, (float) -camera->GetTargetHeight()), Vector2((float) camera->GetTargetWidth(), 0));
-		fps->OnAnchor();
-
-		canvas->GetGameObject()->SetLayerRecursively(layer);
-
-		m_fps = fps;
-	}
-
-	void Application::UpdateFPSUI()
-	{
-		if (m_fps)
-		{
-			auto text = String::Format("%s %dx%d\nfps:%d dc:%d",
-				Graphics::GetDisplay()->GetDeviceName().CString(),
-				Graphics::GetDisplay()->GetWidth(),
-				Graphics::GetDisplay()->GetHeight(),
-				Time::GetFPS(), Graphics::draw_call);
-			auto samples = Profiler::GetSamples();
-			for (auto& i : samples)
-			{
-				text += String::Format("\n%s: t:%.3f c:%d", i.first.CString(), i.second.time * 1000, i.second.call_count);
-			}
-
-			m_fps->SetText(text);
-		}
-	}
-
-	void Application::OnResizeFPSUI(int width, int height)
-	{
-		if (m_fps)
-		{
-			auto camera = m_fps->GetTransform()->GetParent().lock()->GetParent().lock()->GetGameObject()->GetComponent<Camera>();
-			camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
-
-			auto canvas = m_fps->GetTransform()->GetParent().lock()->GetGameObject()->GetComponent<UICanvasRenderer>();
-			canvas->SetSize(Vector2((float) camera->GetTargetWidth(), (float) camera->GetTargetHeight()));
-
-			m_fps->SetOffsets(Vector2(0, (float) -camera->GetTargetHeight()), Vector2((float) camera->GetTargetWidth(), 0));
-			m_fps->OnAnchor();
-		}
 	}
 }
