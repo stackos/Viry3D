@@ -19,6 +19,7 @@
 #include "Resource.h"
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
+#include "graphics//Screen.h"
 #include "ui/UISprite.h"
 #include "ui/UILabel.h"
 #include "ui/UICanvasRenderer.h"
@@ -50,7 +51,17 @@ namespace Viry3D
 
 	void DebugUI::Awake()
 	{
-		m_ui = Resource::LoadGameObject("Assets/AppUI/debug_ui.prefab");
+		String prefab;
+		if (Screen::GetWidth() >= 1080 && Screen::GetHeight() >= 1080)
+		{
+			prefab = "Assets/AppUI/debug_ui_1080.prefab";
+		}
+		else
+		{
+			prefab = "Assets/AppUI/debug_ui_720.prefab";
+		}
+
+		m_ui = Resource::LoadGameObject(prefab);
 		m_ui->GetTransform()->SetPosition(Vector3::Zero());
 		m_ui->GetTransform()->SetScale(Vector3::One());
 

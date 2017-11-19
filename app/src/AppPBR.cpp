@@ -52,16 +52,16 @@ public:
 	{
 		Application::OnResize(width, height);
 
-		DoResize(width, height);
+		DoResize();
 	}
 
-	void DoResize(int width, int height)
+	void DoResize()
 	{
 		if (m_ui_camera)
 		{
 			m_ui_camera->SetOrthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
 
-			m_debug_ui->OnResize(width, height);
+			m_debug_ui->OnResize(m_ui_camera->GetTargetWidth(), m_ui_camera->GetTargetHeight());
 		}
 	}
 
@@ -85,7 +85,7 @@ public:
 			m_debug_ui->SetCamera(m_ui_camera);
 		}
 
-		DoResize(m_ui_camera->GetTargetWidth(), m_ui_camera->GetTargetHeight());
+		DoResize();
 
 		m_camera = GameObject::Create("camera")->AddComponent<Camera>();
 		m_camera->SetCullingMask(1 << 0);
