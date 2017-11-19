@@ -1228,11 +1228,13 @@ namespace Viry3D
 		Map<int, Ref<Transform>>& transform_instances)
 	{
 		auto name = read_string(ms);
+		auto layer = ms.Read<int>();
 		auto active = ms.Read<bool>();
 		auto is_static = ms.Read<bool>();
 
 		// 为了线程安全, 创建时不加入World
 		auto obj = GameObject::Create(name, false);
+		obj->SetLayer(layer);
 		objs.AddLast(obj);
 		obj->SetActive(active);
 		obj->SetStatic(is_static);

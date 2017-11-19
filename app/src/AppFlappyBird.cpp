@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "Debug.h"
+#include "Layer.h"
 #include "graphics/Camera.h"
 #include "graphics/Graphics.h"
 #include "graphics/Display.h"
@@ -187,6 +188,7 @@ void AppFlappyBird::Start()
 	this->CreateFPSUI(20, 1, 1);
 
 	auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+	camera->SetCullingMask(1 << (int) Layer::UI);
 	camera->SetOrthographic(true);
 	camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
 	camera->SetClipNear(-1);

@@ -36,7 +36,8 @@ public class UIExporter : ExporterBase {
 
     static void WriteTransform(Transform t) {
         WriteString(t.name);
-        m_writer.Write(t.gameObject.activeSelf);
+		m_writer.Write(t.gameObject.layer);
+		m_writer.Write(t.gameObject.activeSelf);
 		m_writer.Write(false);
 		
 		WriteVector3(t.localPosition);

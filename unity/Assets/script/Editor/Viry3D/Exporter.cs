@@ -63,7 +63,8 @@ public partial class Exporter : MeshExporter {
 
 	static void WriteTransform(Transform t, bool active_only) {
         WriteString(t.name);
-        m_writer.Write(t.gameObject.activeSelf);
+		m_writer.Write(t.gameObject.layer);
+		m_writer.Write(t.gameObject.activeSelf);
 		bool is_static = (GameObjectUtility.GetStaticEditorFlags(t.gameObject) & StaticEditorFlags.BatchingStatic) != 0;
 		m_writer.Write(is_static);
 

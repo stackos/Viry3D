@@ -19,6 +19,7 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Resource.h"
+#include "Layer.h"
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "ui/UISprite.h"
@@ -42,6 +43,7 @@ public:
 	virtual void Start()
     {
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+		camera->SetCullingMask(1 << (int) Layer::UI);
 		camera->SetOrthographic(true);
 		camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
 		camera->SetClipNear(-1);
@@ -70,7 +72,6 @@ public:
 		auto button_main_border = button_main->GetTransform()->Find("border")->GetGameObject()->GetComponent<UISprite>();
 		button_main_border->event_handler.enable = true;
 		button_main_border->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
-			button_main->SetActive(false);
 			window_menu->SetActive(true);
 
 			// tween color in
@@ -101,7 +102,6 @@ public:
 		auto window_menu_closer = window_menu->GetTransform()->Find("closer")->GetGameObject()->GetComponent<UIView>();
 		window_menu_closer->event_handler.enable = true;
 		window_menu_closer->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
-			button_main->SetActive(true);
 			window_menu->SetActive(false);
 		};
 
@@ -122,11 +122,11 @@ public:
 	{
 		if (m_fps_text->GetGameObject()->IsActiveInHierarchy())
 		{
-			auto text = String::Format("W:%d H:%d FPS:%d DC:%d ",
+			auto text = String::Format("W:%d H:%d DC:%d FPS:%d",
 				Graphics::GetDisplay()->GetWidth(),
 				Graphics::GetDisplay()->GetHeight(),
-				Time::GetFPS(),
-				Graphics::draw_call);
+				Graphics::draw_call,
+				Time::GetFPS());
 			m_fps_text->SetText(text);
 		}
 	}
