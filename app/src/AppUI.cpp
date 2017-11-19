@@ -18,16 +18,9 @@
 #include "Main.h"
 #include "Application.h"
 #include "GameObject.h"
-#include "Resource.h"
 #include "Layer.h"
-#include "graphics/Graphics.h"
+#include "DebugUI.h"
 #include "graphics/Camera.h"
-#include "ui/UISprite.h"
-#include "ui/UILabel.h"
-#include "ui/UICanvasRenderer.h"
-#include "tweener/TweenUIColor.h"
-#include "tweener/TweenPosition.h"
-#include "time/Time.h"
 
 using namespace Viry3D;
 
@@ -50,89 +43,9 @@ public:
 		camera->SetClipFar(1);
 		camera->SetClearColor(Color::White());
 
-		auto ui = Resource::LoadGameObject("Assets/AppUI/debug_ui.prefab");
-		ui->GetTransform()->SetPosition(Vector3::Zero());
-		ui->GetTransform()->SetScale(Vector3::One());
-
-		auto button_main = ui->GetTransform()->Find("button main")->GetGameObject();
-		auto window_menu = ui->GetTransform()->Find("window menu")->GetGameObject();
-		auto window_fps = ui->GetTransform()->Find("window fps")->GetGameObject();
-
-		m_window_menu_pos = window_menu->GetTransform()->GetLocalPosition();
-		m_fps_text = window_fps->GetTransform()->Find("Text Canvas/Text")->GetGameObject()->GetComponent<UILabel>();
-
-		{
-			auto renderers = window_fps->GetComponentsInChildren<UICanvasRenderer>();
-			for (auto& i : renderers)
-			{
-				i->SetColor(Color(1, 1, 1, 0.8f));
-			}
-		}
-
-		auto button_main_border = button_main->GetTransform()->Find("border")->GetGameObject()->GetComponent<UISprite>();
-		button_main_border->event_handler.enable = true;
-		button_main_border->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
-			window_menu->SetActive(true);
-
-			// tween color in
-			auto renderers = window_menu->GetComponentsInChildren<UICanvasRenderer>();
-			for (auto& i : renderers)
-			{
-				i->SetColor(Color(1, 1, 1, 0));
-			}
-
-			auto tc = window_menu->AddComponent<TweenUIColor>();
-			tc->duration = 0.2f;
-			tc->from = Color(1, 1, 1, 0);
-			tc->to = Color(1, 1, 1, 0.8f);
-
-			// tween pos in
-			auto start_pos = m_window_menu_pos + Vector3(-10, 0, 0);
-			window_menu->GetTransform()->SetLocalPosition(start_pos);
-			auto tp = window_menu->AddComponent<TweenPosition>();
-			tp->duration = 0.2f;
-			tp->from = start_pos;
-			tp->to = m_window_menu_pos;
-		};
-
-		// block event with background
-		auto window_menu_border = window_menu->GetTransform()->Find("left bar/border")->GetGameObject()->GetComponent<UISprite>();
-		window_menu_border->event_handler.enable = true;
-
-		auto window_menu_closer = window_menu->GetTransform()->Find("closer")->GetGameObject()->GetComponent<UIView>();
-		window_menu_closer->event_handler.enable = true;
-		window_menu_closer->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
-			window_menu->SetActive(false);
-		};
-
-		auto button_fps = window_menu->GetTransform()->Find("left bar/button fps")->GetGameObject()->GetComponent<UISprite>();
-		button_fps->event_handler.enable = true;
-		button_fps->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
-			window_fps->SetActive(!window_fps->IsActiveSelf());
-		};
-
-		auto button_profiler = window_menu->GetTransform()->Find("left bar/button profiler")->GetGameObject()->GetComponent<UISprite>();
-		button_profiler->event_handler.enable = true;
-		button_profiler->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
-
-		};
+		DebugUI::RegisterComponent();
+		GameObject::Create("debug_ui")->AddComponent<DebugUI>();
     }
-
-	virtual void Update()
-	{
-		if (m_fps_text->GetGameObject()->IsActiveInHierarchy())
-		{
-			auto text = String::Format("W:%d H:%d DC:%d FPS:%d",
-				Graphics::GetDisplay()->GetWidth(),
-				Graphics::GetDisplay()->GetHeight(),
-				Graphics::draw_call,
-				Time::GetFPS());
-			m_fps_text->SetText(text);
-		}
-	}
-
-	Vector3 m_window_menu_pos;
-	Ref<UILabel> m_fps_text;
 };
 
 #if 1
