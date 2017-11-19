@@ -38,7 +38,7 @@
 #include "audio/AudioSource.h"
 #include "audio/AudioClip.h"
 
-#define OPEN 1
+#define OPEN 0
 
 using namespace Viry3D;
 
@@ -829,7 +829,7 @@ void AppFlappyBird::GameOver()
 							}
 
 							Timer::Start(0.3f)->on_tick = [=](Timer*) {
-								over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
+								m_over_obj.lock()->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 							};
 						}
 					};
@@ -837,7 +837,7 @@ void AppFlappyBird::GameOver()
 				else
 				{
 					Timer::Start(0.3f)->on_tick = [=](Timer*) {
-						over_obj->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
+						m_over_obj.lock()->GetTransform()->Find("Button")->GetGameObject()->SetActive(true);
 					};
 				}
 			};
@@ -854,23 +854,23 @@ void AppFlappyBird::ShowMedal(int index)
 
 	m_blink_timer = Timer::Start(0.5f, true);
 	m_blink_timer->on_tick = [=](Timer*) {
-		WeakRef<GameObject> blink_obj = obj.lock()->GetTransform()->Find("Blink")->GetGameObject();
-		blink_obj.lock()->SetActive(true);
-		WeakRef<UISprite> blink = blink_obj.lock()->GetComponent<UISprite>();
-		blink.lock()->SetSpriteName("blink_00");
+		auto blink_obj = obj.lock()->GetTransform()->Find("Blink")->GetGameObject();
+		blink_obj->SetActive(true);
+		auto blink = blink_obj->GetComponent<UISprite>();
+		blink->SetSpriteName("blink_00");
 
-		blink_obj.lock()->GetTransform()->SetLocalPosition(Vector3(Mathf::RandomRange(-22.0f, 22.0f), Mathf::RandomRange(-22.0f, 22.0f), 0));
+		blink_obj->GetTransform()->SetLocalPosition(Vector3(Mathf::RandomRange(-22.0f, 22.0f), Mathf::RandomRange(-22.0f, 22.0f), 0));
 
 		Timer::Start(0.1f, true)->on_tick = [=](Timer* t) {
 			auto tick_count = t->tick_count;
 			if (tick_count == 3)
 			{
                 t->Stop();
-				blink_obj.lock()->SetActive(false);
+				obj.lock()->GetTransform()->Find("Blink")->GetGameObject()->SetActive(false);
 			}
 			else
 			{
-				blink.lock()->SetSpriteName(String::Format("blink_0%d", tick_count));
+				obj.lock()->GetTransform()->Find("Blink")->GetGameObject()->GetComponent<UISprite>()->SetSpriteName(String::Format("blink_0%d", tick_count));
 			}
 		};
 	};
