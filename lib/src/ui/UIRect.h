@@ -35,10 +35,10 @@ namespace Viry3D
 		const Vector2& GetOffsetMax() const { return m_offset_max; }
 		const Vector2& GetPivot() const { return m_pivot; }
 		void OnAnchor();
+		Ref<UIRect> GetParentRect() const;
 
 	protected:
 		UIRect();
-		Ref<UIRect> GetParentRect() const;
 		Vector2 GetSize() const;
 
 		Vector2 m_anchor_min;

@@ -50,7 +50,10 @@ namespace Viry3D
 		virtual void GetIndexRange(int material_index, int& start, int& count) const;
 		void MarkDirty();
 		const Vector<Ref<UIView>>& GetViews() const { return m_views; }
-		bool IsRoot() const;
+		bool IsRootCanvas() const;
+		Ref<UICanvasRenderer> GetRootCanvas() const;
+		Ref<Camera> GetCamera() const { return m_camera.lock(); }
+		void SetCamera(const Ref<Camera>& camera) { m_camera = camera; }
 		const Color& GetColor() const { return m_color; }
 		void SetColor(const Color& color);
 
@@ -67,5 +70,6 @@ namespace Viry3D
 		Ref<Mesh> m_mesh;
 		Vector<Ref<UIView>> m_views;
 		Color m_color;
+		WeakRef<Camera> m_camera;
 	};
 }

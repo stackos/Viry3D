@@ -22,6 +22,7 @@
 #include "Debug.h"
 #include "graphics/Material.h"
 #include "graphics/Mesh.h"
+#include "graphics/Camera.h"
 
 namespace Viry3D
 {
@@ -37,9 +38,28 @@ namespace Viry3D
 	{
 	}
 
-	bool UICanvasRenderer::IsRoot() const
+	bool UICanvasRenderer::IsRootCanvas() const
 	{
-		return !GetParentRect();
+		return !this->GetParentRect();
+	}
+
+	Ref<UICanvasRenderer> UICanvasRenderer::GetRootCanvas() const
+	{
+		Ref<UICanvasRenderer> root = RefCast<UICanvasRenderer>(this->GetRef());
+
+		auto parent = this->GetParentRect();
+		while (parent)
+		{
+			auto canvas = dynamic_cast<UICanvasRenderer*>(parent.get());
+			if (canvas)
+			{
+				root = RefCast<UICanvasRenderer>(canvas->GetRef());
+			}
+
+			parent = parent->GetParentRect();
+		} 
+
+		return root;
 	}
 
 	void UICanvasRenderer::SetColor(const Color& color)
@@ -201,11 +221,32 @@ namespace Viry3D
 				// make pixel perfect
 				auto world_mat = this->GetTransform()->GetLocalToWorldMatrix();
 				auto world_invert_mat = this->GetTransform()->GetWorldToLocalMatrix();
+				auto camera = this->GetRootCanvas()->GetCamera();
+				auto target_width = camera->GetTargetWidth();
+				auto target_height = camera->GetTargetHeight();
+
 				for (int i = 0; i < vertices.Size(); i++)
 				{
 					auto world_pos = world_mat.MultiplyPoint3x4(vertices[i]);
-					world_pos.x = floor(world_pos.x);
-					world_pos.y = floor(world_pos.y);
+					
+					if (target_width % 2 == 1)
+					{
+						world_pos.x = floor(world_pos.x) + 0.5f;
+					}
+					else
+					{
+						world_pos.x = floor(world_pos.x);
+					}
+
+					if (target_height % 2 == 1)
+					{
+						world_pos.y = floor(world_pos.y) + 0.5f;
+					}
+					else
+					{
+						world_pos.y = floor(world_pos.y);
+					}
+					
 					vertices[i] = world_invert_mat.MultiplyPoint3x4(world_pos);
 				}
 

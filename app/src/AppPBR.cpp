@@ -82,6 +82,7 @@ public:
 
 			DebugUI::RegisterComponent();
 			m_debug_ui = GameObject::Create("debug_ui")->AddComponent<DebugUI>();
+			m_debug_ui->SetCamera(m_ui_camera);
 		}
 
 		DoResize(m_ui_camera->GetTargetWidth(), m_ui_camera->GetTargetHeight());

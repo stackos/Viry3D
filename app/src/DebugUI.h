@@ -23,6 +23,7 @@
 namespace Viry3D
 {
 	class UILabel;
+	class Camera;
 
 	class DebugUI: public Component
 	{
@@ -30,9 +31,10 @@ namespace Viry3D
 
 	public:
 		void OnResize(int width, int height);
+		void SetCamera(const Ref<Camera>& camera);
 
 	protected:
-		virtual void Start();
+		virtual void Awake();
 		virtual void Update();
 
 	private:

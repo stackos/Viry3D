@@ -18,6 +18,7 @@
 #include "DebugUI.h"
 #include "Resource.h"
 #include "graphics/Graphics.h"
+#include "graphics/Camera.h"
 #include "ui/UISprite.h"
 #include "ui/UILabel.h"
 #include "ui/UICanvasRenderer.h"
@@ -36,15 +37,18 @@ namespace Viry3D
 
 	void DebugUI::OnResize(int width, int height)
 	{
-		if (m_ui)
-		{
-			auto canvas = m_ui->GetComponent<UICanvasRenderer>();
-			canvas->SetSize(Vector2((float) width, (float) height));
-			canvas->OnAnchor();
-		}
+		auto canvas = m_ui->GetComponent<UICanvasRenderer>();
+		canvas->SetSize(Vector2((float) width, (float) height));
+		canvas->OnAnchor();
 	}
 
-	void DebugUI::Start()
+	void DebugUI::SetCamera(const Ref<Camera>& camera)
+	{
+		auto canvas = m_ui->GetComponent<UICanvasRenderer>();
+		canvas->SetCamera(camera);
+	}
+
+	void DebugUI::Awake()
 	{
 		m_ui = Resource::LoadGameObject("Assets/AppUI/debug_ui.prefab");
 		m_ui->GetTransform()->SetPosition(Vector3::Zero());
@@ -123,6 +127,7 @@ namespace Viry3D
 				Graphics::GetDisplay()->GetHeight(),
 				Graphics::draw_call,
 				Time::GetFPS());
+			//text = String::Format("FPS:%d", Time::GetFPS());
 			m_fps_text->SetText(text);
 		}
 	}
