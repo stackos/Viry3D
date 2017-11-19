@@ -198,12 +198,12 @@ namespace Viry3D
 		Time::Update();
 
 		m_pre_runloop->Run();
-		this->Update();
 		World::Update();
+		this->Update();
 		m_post_runloop->Run();
 		m_thread_pool_update->Wait();
 
-		if (Input::GetKeyDown(KeyCode::Backspace))
+		if (Input::GetKeyDown(KeyCode::Escape))
 		{
 			Quit();
 		}

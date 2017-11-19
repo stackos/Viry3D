@@ -36,6 +36,7 @@ namespace Viry3D
 	{
 	public:
 		static void HandleUIEvent(const List<UICanvasRenderer*>& list);
+		static bool HasEvent() { return m_has_event; }
 
 	public:
 		bool enable = false;
@@ -47,5 +48,8 @@ namespace Viry3D
 		//Action on_drag_begin;
 		//Action on_drag;
 		//Action on_drag_end;
+
+	private:
+		static bool m_has_event;
 	};
 }

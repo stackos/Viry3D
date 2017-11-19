@@ -19,8 +19,8 @@
 #include "Application.h"
 #include "GameObject.h"
 #include "Layer.h"
-#include "DebugUI.h"
 #include "graphics/Camera.h"
+#include "DebugUI.h"
 
 using namespace Viry3D;
 
@@ -48,6 +48,6 @@ public:
     }
 };
 
-#if 1
+#if 0
 VR_MAIN(AppUI);
 #endif

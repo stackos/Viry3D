@@ -24,6 +24,7 @@
 namespace Viry3D
 {
 	static Map<int, Vector<WeakRef<UIView>>> g_hit_views;
+	bool UIEventHandler::m_has_event;
 
 	static Vector<WeakRef<UIView>> hit_test(Vector2 position, const Vector<Ref<UIView>>& views)
 	{
@@ -58,6 +59,8 @@ namespace Viry3D
 
 	void UIEventHandler::HandleUIEvent(const List<UICanvasRenderer*>& list)
 	{
+		m_has_event = false;
+
 		int touch_count = Input::GetTouchCount();
 		if (touch_count == 0)
 		{
@@ -105,6 +108,8 @@ namespace Viry3D
 						}
 
 						pointer_views.Add(hit_views[j]);
+
+						m_has_event = true;
 					}
 				}
 			}
@@ -144,6 +149,7 @@ namespace Viry3D
 							}
 						}
 
+						m_has_event = true;
 						break;
 					}
 				}

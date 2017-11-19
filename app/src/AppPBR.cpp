@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "Input.h"
+#include "Layer.h"
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
@@ -28,6 +29,8 @@
 #include "graphics/Light.h"
 #include "renderer/MeshRenderer.h"
 #include "io/File.h"
+#include "ui/UIEventHandler.h"
+#include "DebugUI.h"
 
 using namespace Viry3D;
 
@@ -49,7 +52,20 @@ public:
 	{
 		//Graphics::GetDisplay()->BeginRecord("../../../demo.mp4");
 
-		this->CreateFPSUI(20, 1, 1);
+		// debug ui
+		{
+			auto ui_camera = GameObject::Create("camera")->AddComponent<Camera>();
+			ui_camera->SetCullingMask(1 << (int) Layer::UI);
+			ui_camera->SetOrthographic(true);
+			ui_camera->SetOrthographicSize(ui_camera->GetTargetHeight() / 2.0f);
+			ui_camera->SetClipNear(-1);
+			ui_camera->SetClipFar(1);
+			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
+			ui_camera->SetDepth(1);
+
+			DebugUI::RegisterComponent();
+			GameObject::Create("debug_ui")->AddComponent<DebugUI>();
+		}
 
 		m_camera = GameObject::Create("camera")->AddComponent<Camera>();
 		m_camera->SetCullingMask(1 << 0);
@@ -82,7 +98,7 @@ public:
 
 	virtual void Update()
 	{
-		if (Input::GetMouseButtonDown(0))
+		if (Input::GetMouseButtonDown(0) && !UIEventHandler::HasEvent())
 		{
 			m_mouse_down = true;
 			m_mouse = Input::GetMousePosition();
@@ -128,6 +144,6 @@ public:
 	bool m_mouse_down = false;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppPBR);
 #endif
