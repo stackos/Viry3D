@@ -32,7 +32,7 @@
 namespace Viry3D
 {
 	FastList<Ref<GameObject>> World::m_gameobjects;
-	FastList<Ref<GameObject>> World::m_gameobjects_start;
+	List<Ref<GameObject>> World::m_gameobjects_start;
 	Mutex World::m_mutex;
 
 	void World::AddGameObject(const Ref<GameObject>& obj)
@@ -58,26 +58,38 @@ namespace Viry3D
 		Renderer::HandleUIEvent();
 
 		//	start
-		m_mutex.lock();
-		for (auto i = m_gameobjects_start.Begin(); i != m_gameobjects_start.End(); i = i->next)
+		int start_count = 0;
+		do
 		{
-			auto& obj = i->value;
-			if (!obj->m_deleted)
-			{
-				if (obj->IsActiveInHierarchy())
-				{
-					obj->Start();
-				}
+			List<Ref<GameObject>> starts;
+			m_mutex.lock();
+			starts = m_gameobjects_start;
+			m_gameobjects_start.Clear();
+			m_mutex.unlock();
 
-				if (!obj->m_in_world_update)
+			for (auto& i : starts)
+			{
+				auto& obj = i;
+				if (!obj->m_deleted)
 				{
-					obj->m_in_world_update = true;
-					m_gameobjects.AddLast(obj);
+					if (obj->IsActiveInHierarchy())
+					{
+						obj->Start();
+					}
+
+					if (!obj->m_in_world_update)
+					{
+						obj->m_in_world_update = true;
+						m_gameobjects.AddLast(obj);
+					}
 				}
 			}
-		}
-		m_gameobjects_start.Clear();
-		m_mutex.unlock();
+			starts.Clear();
+
+			m_mutex.lock();
+			start_count = m_gameobjects_start.Size();
+			m_mutex.unlock();
+		} while (start_count > 0);
 
 		//	update
 		for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); )
