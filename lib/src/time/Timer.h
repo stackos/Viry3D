@@ -29,13 +29,14 @@ namespace Viry3D
 	public:
 		static Ref<Timer> Start(float duration, bool loop = false);
 		static void Stop(const Ref<Timer>& timer);
+        void Stop();
 
 	protected:
 		Timer();
 		virtual void Update();
 
 	public:
-		Action on_tick;
+        std::function<void(Timer*)> on_tick;
 		int tick_count;
 
 	protected:

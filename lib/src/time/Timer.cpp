@@ -34,9 +34,14 @@ namespace Viry3D
 
 	void Timer::Stop(const Ref<Timer>& timer)
 	{
-		timer->on_tick = NULL;
-		GameObject::Destroy(timer->GetGameObject());
+        timer->Stop();
 	}
+    
+    void Timer::Stop()
+    {
+        this->on_tick = NULL;
+        GameObject::Destroy(this->GetGameObject());
+    }
 
 	Timer::Timer():
 		tick_count(0),
@@ -60,7 +65,7 @@ namespace Viry3D
 			if (on_tick)
 			{
 				tick_count++;
-				on_tick();
+				on_tick(this);
 			}
 
 			if (m_loop)
