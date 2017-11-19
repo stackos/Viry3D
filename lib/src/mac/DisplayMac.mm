@@ -69,7 +69,7 @@ static bool g_input_down = false;
 {
     stop = false;
     
-    GLint swapInt = 0;
+    GLint swapInt = 1;
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLContextParameterSwapInterval];
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
     CVDisplayLinkSetOutputCallback(displayLink, &outputFrame, (__bridge void * _Nullable)(self));
