@@ -1,0 +1,30 @@
+<Shader name="Transparent" queue="Transparent">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="2">
+			<Uniform name="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<Include name="Base.in"/>
+		<Include name="Texture.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<UniformBuffer name="buf_ps" binding="3">
+			<Uniform name="_Color" size="16"/>
+		</UniformBuffer>
+		<Sampler name="_MainTex" binding="4"/>
+		<Include name="Texture.ps"/>
+	</PixelShader>
+
+	<RenderState name="rs">
+		<ZWrite value="Off"/>
+		<Blend src="SrcAlpha"
+			   dst="OneMinusSrcAlpha"/>
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>
