@@ -20,17 +20,22 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "Input.h"
+#include "Layer.h"
 #include "ios/ARScene.h"
 #include "graphics/Graphics.h"
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "graphics/RenderTexture.h"
+#include "graphics//Screen.h"
 #include "renderer/MeshRenderer.h"
 #include "container/Map.h"
 #include "animation/Animation.h"
 #include "physics/Physics.h"
 #include "physics/BoxCollider.h"
 #include "physics/MeshCollider.h"
+#include "ui/UISprite.h"
+#include "ui/UILabel.h"
+#include "ui/UICanvasRenderer.h"
 
 using namespace Viry3D;
 
@@ -63,9 +68,79 @@ public:
         if (!m_camera)
         {
             m_camera = GameObject::Create("camera")->AddComponent<Camera>();
-            m_camera->SetCullingMask(1 << 0);
+			m_camera->SetDepth(1);
+            m_camera->SetCullingMask((1 << 0) | (1 << 1));
         }
+
+		m_scan = Resource::LoadGameObject("Assets/AppAR/scan.prefab");
+		m_scan->GetTransform()->SetParent(m_camera->GetTransform());
+		m_scan->GetTransform()->SetLocalPosition(Vector3(0, 0, 16));
+		m_scan->GetTransform()->SetLocalRotation(Quaternion::Identity());
+		m_scan->GetTransform()->SetLocalScale(Vector3::One());
+
+		this->InitUI();
     }
+
+	void InitUI()
+	{
+		m_ui_camera = GameObject::Create("camera")->AddComponent<Camera>();
+		m_ui_camera->SetCullingMask(1 << (int) Layer::UI);
+		m_ui_camera->SetOrthographic(true);
+		m_ui_camera->SetOrthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
+		m_ui_camera->SetClipNear(-1);
+		m_ui_camera->SetClipFar(1);
+		m_ui_camera->SetClearFlags(CameraClearFlags::Nothing);
+		m_ui_camera->SetDepth(2);
+
+		String prefab;
+		if (Screen::GetWidth() >= 1080 && Screen::GetHeight() >= 1080)
+		{
+			prefab = "Assets/AppAR/ui_1080.prefab";
+		}
+		else
+		{
+			prefab = "Assets/AppAR/ui_720.prefab";
+		}
+
+		m_ui = Resource::LoadGameObject(prefab);
+		m_ui->GetTransform()->SetPosition(Vector3::Zero());
+		m_ui->GetTransform()->SetScale(Vector3::One());
+
+		m_ui->GetComponent<UICanvasRenderer>()->SetCamera(m_ui_camera);
+
+		DoResize();
+
+		auto put = m_ui->GetTransform()->Find("put/Image")->GetGameObject()->GetComponent<UISprite>();
+		put->event_handler.enable = true;
+		put->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+			Log("click put");
+		};
+
+		auto reset = m_ui->GetTransform()->Find("reset/Image")->GetGameObject()->GetComponent<UISprite>();
+		reset->event_handler.enable = true;
+		reset->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+			Log("click reset");
+		};
+	}
+
+	void DoResize()
+	{
+		if (m_ui_camera)
+		{
+			m_ui_camera->SetOrthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
+
+			auto canvas = m_ui->GetComponent<UICanvasRenderer>();
+			canvas->SetSize(Vector2((float) m_ui_camera->GetTargetWidth(), (float) m_ui_camera->GetTargetHeight()));
+			canvas->OnAnchor();
+		}
+	}
+
+	virtual void OnResize(int width, int height)
+	{
+		Application::OnResize(width, height);
+
+		DoResize();
+	}
     
 #if VR_IOS
     virtual void Update()
@@ -292,8 +367,11 @@ public:
     Map<String, Ref<MeshRenderer>> m_planes;
     Ref<GameObject> m_anim;
     String m_anim_anchor_id;
+	Ref<GameObject> m_scan;
+	Ref<GameObject> m_ui;
+	Ref<Camera> m_ui_camera;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppAR);
 #endif
