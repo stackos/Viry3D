@@ -68,17 +68,10 @@ namespace Viry3D
 		auto button_main = m_ui->GetTransform()->Find("button main")->GetGameObject();
 		auto window_menu = m_ui->GetTransform()->Find("window menu")->GetGameObject();
 		auto window_fps = m_ui->GetTransform()->Find("window fps")->GetGameObject();
+		auto window_profiler = m_ui->GetTransform()->Find("window profiler")->GetGameObject();
 
 		m_window_menu_pos = window_menu->GetTransform()->GetLocalPosition();
 		m_fps_text = window_fps->GetTransform()->Find("Text Canvas/Text")->GetGameObject()->GetComponent<UILabel>();
-
-		{
-			auto renderers = window_fps->GetComponentsInChildren<UICanvasRenderer>();
-			for (auto& i : renderers)
-			{
-				i->SetColor(Color(1, 1, 1, 0.8f));
-			}
-		}
 
 		auto button_main_border = button_main->GetTransform()->Find("border")->GetGameObject()->GetComponent<UISprite>();
 		button_main_border->event_handler.enable = true;
@@ -114,19 +107,35 @@ namespace Viry3D
 		window_menu_closer->event_handler.enable = true;
 		window_menu_closer->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
 			window_menu->SetActive(false);
+			window_profiler->SetActive(false);
 		};
 
 		auto button_fps = window_menu->GetTransform()->Find("left bar/button fps")->GetGameObject()->GetComponent<UISprite>();
 		button_fps->event_handler.enable = true;
 		button_fps->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
 			window_fps->SetActive(!window_fps->IsActiveSelf());
+
+			auto renderers = window_fps->GetComponentsInChildren<UICanvasRenderer>();
+			for (auto& i : renderers)
+			{
+				i->SetColor(Color(1, 1, 1, 0.8f));
+			}
 		};
 
 		auto button_profiler = window_menu->GetTransform()->Find("left bar/button profiler")->GetGameObject()->GetComponent<UISprite>();
 		button_profiler->event_handler.enable = true;
 		button_profiler->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
+			window_profiler->SetActive(!window_profiler->IsActiveSelf());
 
+			auto renderers = window_profiler->GetComponentsInChildren<UICanvasRenderer>();
+			for (auto& i : renderers)
+			{
+				i->SetColor(Color(1, 1, 1, 0.8f));
+			}
 		};
+
+		auto window_profiler_border = window_profiler->GetTransform()->Find("border")->GetGameObject()->GetComponent<UISprite>();
+		window_profiler_border->event_handler.enable = true;
 	}
 
 	void DebugUI::Update()
