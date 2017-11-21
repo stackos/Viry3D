@@ -108,7 +108,7 @@ public:
 
 		m_ui->GetComponent<UICanvasRenderer>()->SetCamera(m_ui_camera);
 
-		DoResize();
+		DoUIResize();
 
 		auto put = m_ui->GetTransform()->Find("put/Image")->GetGameObject()->GetComponent<UISprite>();
 		put->event_handler.enable = true;
@@ -123,7 +123,7 @@ public:
 		};
 	}
 
-	void DoResize()
+	void DoUIResize()
 	{
 		if (m_ui_camera)
 		{
@@ -139,7 +139,14 @@ public:
 	{
 		Application::OnResize(width, height);
 
-		DoResize();
+#if VR_IOS
+        if (m_ar)
+        {
+            m_ar->OnResize(width, height);
+        }
+#endif
+        
+		DoUIResize();
 	}
     
 #if VR_IOS
@@ -222,16 +229,6 @@ public:
                     }
                 }
             }
-        }
-    }
-    
-    virtual void OnResize(int width, int height)
-    {
-        Application::OnResize(width, height);
-        
-        if (m_ar)
-        {
-            m_ar->OnResize(width, height);
         }
     }
     
