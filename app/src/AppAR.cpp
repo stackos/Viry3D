@@ -72,12 +72,6 @@ public:
             m_camera->SetCullingMask((1 << 0) | (1 << 1));
         }
 
-		m_scan = Resource::LoadGameObject("Assets/AppAR/scan.prefab");
-		m_scan->GetTransform()->SetParent(m_camera->GetTransform());
-		m_scan->GetTransform()->SetLocalPosition(Vector3(0, 0, 16));
-		m_scan->GetTransform()->SetLocalRotation(Quaternion::Identity());
-		m_scan->GetTransform()->SetLocalScale(Vector3::One());
-
 		this->InitUI();
     }
 
@@ -87,8 +81,8 @@ public:
 		m_ui_camera->SetCullingMask(1 << (int) Layer::UI);
 		m_ui_camera->SetOrthographic(true);
 		m_ui_camera->SetOrthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
-		m_ui_camera->SetClipNear(-1);
-		m_ui_camera->SetClipFar(1);
+		m_ui_camera->SetClipNear(-500);
+		m_ui_camera->SetClipFar(500);
 		m_ui_camera->SetClearFlags(CameraClearFlags::Nothing);
 		m_ui_camera->SetDepth(2);
 
@@ -121,6 +115,13 @@ public:
 		reset->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
 			Log("click reset");
 		};
+        
+        m_scan = Resource::LoadGameObject("Assets/AppAR/scan.prefab");
+        m_scan->SetLayerRecursively((int) Layer::UI);
+        m_scan->GetTransform()->SetParent(m_ui_camera->GetTransform());
+        m_scan->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));
+        m_scan->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));
+        m_scan->GetTransform()->SetLocalScale(Vector3::One() * 100);
 	}
 
 	void DoUIResize()
