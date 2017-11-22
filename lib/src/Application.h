@@ -54,6 +54,7 @@ namespace Viry3D
 		void OnDraw();
 		void AddAsyncUpdateTask(const Thread::Task& task);
 		void EnsureFPS();
+        bool IsPaused() const { return m_paused; }
 
 		virtual void Start() { }
 		virtual void Update() { }
@@ -70,6 +71,7 @@ namespace Viry3D
 
 		bool m_start;
 		bool m_quit;
+        bool m_paused;
 		String m_name;
 		int m_init_width;
 		int m_init_height;

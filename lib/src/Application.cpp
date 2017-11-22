@@ -101,6 +101,7 @@ namespace Viry3D
 		m_instance = this;
 		m_start = false;
 		m_quit = false;
+        m_paused = false;
 		m_name = "Viry3D::Application";
 		m_init_width = 1280;
 		m_init_height = 720;
@@ -233,12 +234,14 @@ namespace Viry3D
     {
         Graphics::OnPause();
         World::OnPause();
+        m_paused = true;
     }
     
     void Application::OnResume()
     {
         Graphics::OnResume();
         World::OnResume();
+        m_paused = false;
     }
 
 	void Application::Quit()

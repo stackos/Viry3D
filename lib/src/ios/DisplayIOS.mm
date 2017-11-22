@@ -212,6 +212,23 @@ void touch_update(void *touches, void *view)
 }
 #endif
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (Viry3D::Application::Current()->IsPaused())
+    {
+        Viry3D::Application::Current()->OnResume();
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    Viry3D::Application::Current()->OnPause();
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     touch_begin((__bridge void *) touches, (__bridge void *) self.view);
