@@ -139,6 +139,22 @@ API_AVAILABLE(ios(11.0))
     return id;
 }
 
+- (void)removeAnchor:(const Viry3D::String&)id
+{
+    NSArray<ARAnchor*>* frame_anchors = self.session.currentFrame.anchors;
+    int anchor_count = (int) [frame_anchors count];
+    
+    for (int i = 0; i < anchor_count; i++)
+    {
+        ARAnchor* anchor = [frame_anchors objectAtIndex:i];
+        if (Viry3D::String(anchor.identifier.UUIDString.UTF8String) == id)
+        {
+            [self.session removeAnchor:anchor];
+            break;
+        }
+    }
+}
+
 - (void)_updateCapturedTexture:(CVPixelBufferRef)pixel_buffer texture:(CapturedTexture*)texture
 {
     int width_y;
@@ -393,5 +409,13 @@ namespace Viry3D
         }
         
         return "";
+    }
+    
+    void ARScene::RemoveAnchor(const String& id)
+    {
+        if (g_session != nil)
+        {
+            [g_session removeAnchor:id];
+        }
     }
 }

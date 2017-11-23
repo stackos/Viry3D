@@ -114,6 +114,13 @@ public:
 		reset->event_handler.enable = true;
 		reset->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
 			Log("click reset");
+            
+            if (m_anim)
+            {
+                m_anim_loaded = m_anim;
+                m_anim_loaded->SetActive(false);
+                m_anim.reset();
+            }
 		};
         
         m_scan = Resource::LoadGameObject("Assets/AppAR/scan.prefab");
@@ -182,8 +189,7 @@ public:
                                 plane->SetSharedMesh(m_plane_mesh);
                                 m_planes.Add(i.id, plane);
                                 
-                                auto plane_col = plane->GetGameObject()->AddComponent<BoxCollider>();
-                                //plane_col->SetMesh(m_plane_mesh);
+                                plane->GetGameObject()->AddComponent<BoxCollider>();
                             }
                             else
                             {
@@ -286,6 +292,11 @@ public:
                     
                     Matrix4x4 anchor_transform;
                     PlaceModelTo(point, forward, anchor_transform);
+                    
+                    if (m_anim_anchor_id.Size() > 0)
+                    {
+                        m_ar->RemoveAnchor(m_anim_anchor_id);
+                    }
                     m_anim_anchor_id = m_ar->AddAnchor(anchor_transform);
                 }
                 
@@ -303,60 +314,78 @@ public:
     
     void PlaceModelTo(const Vector3& pos, const Vector3& forward, Matrix4x4& transform)
     {
-        auto anim_obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
-        anim_obj->SetLayerRecursively(1);
-        anim_obj->GetTransform()->SetPosition(pos + Vector3(0, 0, 0));
-        anim_obj->GetTransform()->SetScale(Vector3::One() * 0.2f);
-        anim_obj->GetTransform()->SetForward(forward);
-        transform = anim_obj->GetTransform()->GetLocalToWorldMatrix();
-        
-        auto anim = anim_obj->GetComponent<Animation>();
-        auto anim_state = anim->GetAnimationState("WAIT03");
-        anim_state.wrap_mode = AnimationWrapMode::Loop;
-        anim->UpdateAnimationState("WAIT03", anim_state);
-        anim->Play("WAIT03");
-        
-        m_anim = anim_obj;
-        
-        int shadowmap_size = 1024;
-        
-        auto shadow_rt = RefMake<FrameBuffer>();
-        shadow_rt->color_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::R8, DepthBuffer::Depth_0, FilterMode::Bilinear);
-        shadow_rt->depth_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
-        
-        auto shadow_camera = GameObject::Create("camera")->AddComponent<Camera>();
-        shadow_camera->GetTransform()->SetParent(anim_obj->GetTransform());
-        shadow_camera->GetTransform()->SetLocalPosition(Vector3::Zero());
-        shadow_camera->GetTransform()->SetLocalRotation(Quaternion::Euler(45, 0, 0));
-        shadow_camera->GetTransform()->SetLocalScale(Vector3::One());
-        shadow_camera->SetOrthographic(true);
-        shadow_camera->SetOrthographicSize(0.4f);
-        shadow_camera->SetClipNear(-1);
-        shadow_camera->SetClipFar(1);
-        shadow_camera->SetCullingMask(1 << 1);
-        shadow_camera->SetDepth(0);
-        shadow_camera->SetFrameBuffer(shadow_rt);
-        shadow_camera->SetRenderMode(CameraRenderMode::ShadowMap);
-        
-        auto plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
+        if (m_anim_loaded)
+        {
+            m_anim = m_anim_loaded;
+            m_anim->SetActive(true);
+            m_anim_loaded.reset();
+            
+            m_anim->GetTransform()->SetPosition(pos + Vector3(0, 0, 0));
+            m_anim->GetTransform()->SetScale(Vector3::One() * 0.2f);
+            m_anim->GetTransform()->SetForward(forward);
+            transform = m_anim->GetTransform()->GetLocalToWorldMatrix();
+            
+            m_shadow_plane_mat->SetMatrix("_ViewProjectionLight", m_shadow_camera->GetProjectionMatrix() * m_shadow_camera->GetViewMatrix());
+        }
+        else
+        {
+            auto anim_obj = Resource::LoadGameObject("Assets/AppAnim/unitychan.prefab");
+            anim_obj->SetLayerRecursively(1);
+            anim_obj->GetTransform()->SetPosition(pos + Vector3(0, 0, 0));
+            anim_obj->GetTransform()->SetScale(Vector3::One() * 0.2f);
+            anim_obj->GetTransform()->SetForward(forward);
+            transform = anim_obj->GetTransform()->GetLocalToWorldMatrix();
 
-        float shadow_bias = 0.005f;
-        float shadow_strength = 0.7f;
-        
-        auto plane_mat = Material::Create("Custom/AR/ShadowReciever");
-        plane_mat->SetTexture("_ShadowMap", shadow_rt->depth_texture);
-        plane_mat->SetMatrix("_ViewProjectionLight", shadow_camera->GetProjectionMatrix() * shadow_camera->GetViewMatrix());
-        plane_mat->SetVector("_ShadowMapTexel", Vector4(1.0f / shadowmap_size, 1.0f / shadowmap_size));
-        plane_mat->SetVector("_ShadowParam", Vector4(shadow_bias, shadow_strength));
-        
-        auto plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
-        plane->GetGameObject()->SetLayerRecursively(1);
-        plane->GetTransform()->SetParent(anim_obj->GetTransform());
-        plane->GetTransform()->SetLocalPosition(Vector3::Zero());
-        plane->GetTransform()->SetLocalRotation(Quaternion::Identity());
-        plane->GetTransform()->SetLocalScale(Vector3::One());
-        plane->SetSharedMaterial(plane_mat);
-        plane->SetSharedMesh(plane_mesh);
+            auto anim = anim_obj->GetComponent<Animation>();
+            auto anim_state = anim->GetAnimationState("WAIT03");
+            anim_state.wrap_mode = AnimationWrapMode::Loop;
+            anim->UpdateAnimationState("WAIT03", anim_state);
+            anim->Play("WAIT03");
+            
+            m_anim = anim_obj;
+            
+            int shadowmap_size = 1024;
+            
+            auto shadow_rt = RefMake<FrameBuffer>();
+            shadow_rt->color_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::R8, DepthBuffer::Depth_0, FilterMode::Bilinear);
+            shadow_rt->depth_texture = RenderTexture::Create(shadowmap_size, shadowmap_size, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
+            
+            auto shadow_camera = GameObject::Create("camera")->AddComponent<Camera>();
+            shadow_camera->GetTransform()->SetParent(anim_obj->GetTransform());
+            shadow_camera->GetTransform()->SetLocalPosition(Vector3::Zero());
+            shadow_camera->GetTransform()->SetLocalRotation(Quaternion::Euler(45, 0, 0));
+            shadow_camera->GetTransform()->SetLocalScale(Vector3::One());
+            shadow_camera->SetOrthographic(true);
+            shadow_camera->SetOrthographicSize(0.4f);
+            shadow_camera->SetClipNear(-1);
+            shadow_camera->SetClipFar(1);
+            shadow_camera->SetCullingMask(1 << 1);
+            shadow_camera->SetDepth(0);
+            shadow_camera->SetFrameBuffer(shadow_rt);
+            shadow_camera->SetRenderMode(CameraRenderMode::ShadowMap);
+            m_shadow_camera = shadow_camera;
+            
+            auto plane_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Plane.mesh");
+            
+            float shadow_bias = 0.005f;
+            float shadow_strength = 0.7f;
+            
+            auto plane_mat = Material::Create("Custom/AR/ShadowReciever");
+            plane_mat->SetTexture("_ShadowMap", shadow_rt->depth_texture);
+            plane_mat->SetMatrix("_ViewProjectionLight", shadow_camera->GetProjectionMatrix() * shadow_camera->GetViewMatrix());
+            plane_mat->SetVector("_ShadowMapTexel", Vector4(1.0f / shadowmap_size, 1.0f / shadowmap_size));
+            plane_mat->SetVector("_ShadowParam", Vector4(shadow_bias, shadow_strength));
+            m_shadow_plane_mat = plane_mat;
+            
+            auto plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
+            plane->GetGameObject()->SetLayerRecursively(1);
+            plane->GetTransform()->SetParent(anim_obj->GetTransform());
+            plane->GetTransform()->SetLocalPosition(Vector3::Zero());
+            plane->GetTransform()->SetLocalRotation(Quaternion::Identity());
+            plane->GetTransform()->SetLocalScale(Vector3::One());
+            plane->SetSharedMaterial(plane_mat);
+            plane->SetSharedMesh(plane_mesh);
+        }
     }
     
     void DestroyPlanes()
@@ -371,6 +400,9 @@ public:
     Ref<Camera> m_camera;
     Map<String, Ref<MeshRenderer>> m_planes;
     Ref<GameObject> m_anim;
+    Ref<GameObject> m_anim_loaded;
+    Ref<Material> m_shadow_plane_mat;
+    Ref<Camera> m_shadow_camera;
     String m_anim_anchor_id;
 	Ref<GameObject> m_scan;
 	Ref<GameObject> m_ui;
