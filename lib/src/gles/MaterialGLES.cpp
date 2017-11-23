@@ -28,6 +28,11 @@
 
 namespace Viry3D
 {
+	void MaterialGLES::OnShaderChanged()
+	{
+		m_uniform_buffers.Clear();
+	}
+
 	void MaterialGLES::UpdateUniformsBegin(int pass_index)
 	{
 		auto mat = (Material*) this;

@@ -36,11 +36,11 @@ namespace Viry3D
 	class MaterialVulkan: public Object
 	{
 	public:
-		virtual ~MaterialVulkan();
+		virtual ~MaterialVulkan() { }
 		const Ref<DescriptorSet>& GetDescriptorSet(int pass_index);
 
 	protected:
-		MaterialVulkan();
+		void OnShaderChanged();
 		void UpdateUniformsBegin(int pass_index);
 		void UpdateUniformsEnd(int pass_index);
 		void* SetUniformBegin(int pass_index);

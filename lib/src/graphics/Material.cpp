@@ -26,27 +26,21 @@ namespace Viry3D
 	Ref<Material> Material::Create(const String& shader_name)
 	{
 		Ref<Material> mat;
+		
+		mat = Ref<Material>(new Material());
+		mat->SetName(shader_name);
 
 		auto shader = Shader::Find(shader_name);
 		if (shader)
 		{
-			mat = Ref<Material>(new Material());
-			mat->SetName(shader_name);
 			mat->m_shader = shader;
 		}
 		else
 		{
-			mat = Ref<Material>(new Material());
-			mat->SetName(shader_name);
 			mat->m_shader = Shader::Find("Error");
 		}
 
 		return mat;
-	}
-
-	Material::Material()
-	{
-		this->SetMainColor(Color(1, 1, 1, 1));
 	}
 
 	void Material::DeepCopy(const Ref<Object>& source)
@@ -59,6 +53,20 @@ namespace Viry3D
 		this->m_vector_arrays = src->m_vector_arrays;
 		this->m_textures = src->m_textures;
 		this->m_colors = src->m_colors;
+	}
+
+	Material::Material()
+	{
+		this->SetMainColor(Color(1, 1, 1, 1));
+	}
+
+	void Material::SetShader(const Ref<Shader>& shader)
+	{
+		if (shader)
+		{
+			m_shader = shader;
+			this->OnShaderChanged();
+		}
 	}
 
 	void Material::SetMatrix(const String& name, const Matrix4x4& v)

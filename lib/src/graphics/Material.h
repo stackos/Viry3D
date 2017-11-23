@@ -45,6 +45,7 @@ namespace Viry3D
 		virtual void DeepCopy(const Ref<Object>& source);
 
 		const Ref<Shader>& GetShader() const { return m_shader; }
+		void SetShader(const Ref<Shader>& shader);
 
 		void SetMatrix(const String& name, const Matrix4x4& v);
 		const Matrix4x4& GetMatrix(const String& name) const;

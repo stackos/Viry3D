@@ -31,12 +31,10 @@
 
 namespace Viry3D
 {
-	MaterialVulkan::MaterialVulkan()
+	void MaterialVulkan::OnShaderChanged()
 	{
-	}
-
-	MaterialVulkan::~MaterialVulkan()
-	{
+		m_descriptor_sets.Clear();
+		m_uniform_buffers.Clear();
 	}
 
 	const Ref<DescriptorSet>& MaterialVulkan::GetDescriptorSet(int pass_index)

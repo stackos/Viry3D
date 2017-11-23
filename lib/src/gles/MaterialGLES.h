@@ -27,9 +27,11 @@ namespace Viry3D
 	class MaterialGLES: public Object
 	{
 	public:
+		virtual ~MaterialGLES() { }
 		void Apply(int pass_index);
 
 	protected:
+		void OnShaderChanged();
 		void UpdateUniformsBegin(int pass_index);
 		void UpdateUniformsEnd(int pass_index) { }
 		void* SetUniformBegin(int pass_index);
