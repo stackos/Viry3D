@@ -122,6 +122,13 @@ public:
         m_scan->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));
         m_scan->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));
         m_scan->GetTransform()->SetLocalScale(Vector3::One() * 100);
+
+		auto scan_shader = Shader::Find("Custom/AR/TransparentScan");
+		auto scan_renderers = m_scan->GetComponentsInChildren<Renderer>();
+		for (auto& i : scan_renderers)
+		{
+			i->GetSharedMaterial()->SetShader(scan_shader);
+		}
 	}
 
 	void DoUIResize()
