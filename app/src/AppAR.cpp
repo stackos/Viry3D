@@ -108,6 +108,12 @@ public:
 		put->event_handler.enable = true;
 		put->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
 			Log("click put");
+            
+            if (m_planes.Size() > 0)
+            {
+                auto pos = Vector3(Screen::GetWidth() / 2, Screen::GetHeight() / 2, 0);
+                this->PlaceModelIfRayCast(pos);
+            }
 		};
 
 		auto reset = m_ui->GetTransform()->Find("reset/Image")->GetGameObject()->GetComponent<UISprite>();
@@ -120,6 +126,8 @@ public:
                 m_anim_loaded = m_anim;
                 m_anim_loaded->SetActive(false);
                 m_anim.reset();
+                
+                m_scan->SetActive(true);
             }
 		};
         
@@ -187,6 +195,7 @@ public:
                                 plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
                                 plane->SetSharedMaterial(Material::Create("Diffuse"));
                                 plane->SetSharedMesh(m_plane_mesh);
+                                plane->Enable(false);
                                 m_planes.Add(i.id, plane);
                                 
                                 plane->GetGameObject()->AddComponent<BoxCollider>();
@@ -270,41 +279,70 @@ public:
     {
         if (m_planes.Size() > 0)
         {
-            if (Input::GetMouseButtonDown(0))
+            // ray cast from scan
             {
-                auto pos = Input::GetMousePosition();
+                auto pos = Vector3(Screen::GetWidth() / 2, Screen::GetHeight() / 2, 0);
                 auto ray = m_camera->ScreenPointToRay(pos);
                 
                 RaycastHit hit;
                 if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), 1000))
                 {
-                    auto point = hit.point;
-                    Vector3 forward = m_camera->GetTransform()->GetPosition() - point;
-                    forward.y = 0;
-                    if (forward.SqrMagnitude() > 0)
-                    {
-                        forward.Normalize();
-                    }
-                    else
-                    {
-                        forward = Vector3(0, 0, 1);
-                    }
-                    
-                    Matrix4x4 anchor_transform;
-                    PlaceModelTo(point, forward, anchor_transform);
-                    
-                    if (m_anim_anchor_id.Size() > 0)
-                    {
-                        m_ar->RemoveAnchor(m_anim_anchor_id);
-                    }
-                    m_anim_anchor_id = m_ar->AddAnchor(anchor_transform);
+                    m_scan->GetTransform()->GetChild(0)->SetLocalPosition(Vector3(-1, 1, 0) * 0.5f);
+                    m_scan->GetTransform()->GetChild(1)->SetLocalPosition(Vector3(1, 1, 0) * 0.5f);
+                    m_scan->GetTransform()->GetChild(2)->SetLocalPosition(Vector3(1, -1, 0) * 0.5f);
+                    m_scan->GetTransform()->GetChild(3)->SetLocalPosition(Vector3(-1, -1, 0) * 0.5f);
                 }
-                
-                if (m_anim)
+                else
                 {
-                    DestroyPlanes();
+                    m_scan->GetTransform()->GetChild(0)->SetLocalPosition(Vector3(-1, 1, 0));
+                    m_scan->GetTransform()->GetChild(1)->SetLocalPosition(Vector3(1, 1, 0));
+                    m_scan->GetTransform()->GetChild(2)->SetLocalPosition(Vector3(1, -1, 0));
+                    m_scan->GetTransform()->GetChild(3)->SetLocalPosition(Vector3(-1, -1, 0));
                 }
             }
+            
+            if (Input::GetMouseButtonDown(0))
+            {
+                auto pos = Input::GetMousePosition();
+                this->PlaceModelIfRayCast(pos);
+            }
+        }
+    }
+    
+    void PlaceModelIfRayCast(const Vector3& pos)
+    {
+        auto ray = m_camera->ScreenPointToRay(pos);
+        
+        RaycastHit hit;
+        if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), 1000))
+        {
+            auto point = hit.point;
+            Vector3 forward = m_camera->GetTransform()->GetPosition() - point;
+            forward.y = 0;
+            if (forward.SqrMagnitude() > 0)
+            {
+                forward.Normalize();
+            }
+            else
+            {
+                forward = Vector3(0, 0, 1);
+            }
+            
+            Matrix4x4 anchor_transform;
+            this->PlaceModelTo(point, forward, anchor_transform);
+            
+            if (m_anim_anchor_id.Size() > 0)
+            {
+                m_ar->RemoveAnchor(m_anim_anchor_id);
+            }
+            m_anim_anchor_id = m_ar->AddAnchor(anchor_transform);
+        }
+        
+        if (m_anim)
+        {
+            this->DestroyPlanes();
+            
+            m_scan->SetActive(false);
         }
     }
     
