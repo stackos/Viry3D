@@ -109,11 +109,13 @@ public:
 		put->event_handler.on_pointer_click = [=](UIPointerEvent& e) {
 			Log("click put");
             
+#if VR_IOS
             if (m_planes.Size() > 0)
             {
                 auto pos = Vector3(Screen::GetWidth() / 2, Screen::GetHeight() / 2, 0);
                 this->PlaceModelIfRayCast(pos);
             }
+#endif
 		};
 
 		auto reset = m_ui->GetTransform()->Find("reset/Image")->GetGameObject()->GetComponent<UISprite>();
