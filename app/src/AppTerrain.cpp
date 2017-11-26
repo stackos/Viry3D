@@ -36,6 +36,8 @@ public:
 	virtual void Start()
 	{
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+
+
 		auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
 		terrain->GenerateTile(0, 0);
 
@@ -51,6 +53,6 @@ public:
 	}
 };
 
-#if 0
+#if 1
 VR_MAIN(AppTerrain);
 #endif
