@@ -57,9 +57,35 @@ namespace Viry3D
 			int count;
 		};
 
+		struct BlendShapeVertexDelta
+		{
+			Vector3 vertex;
+			Vector3 normal;
+			Vector3 tangent;
+		};
+
+		struct BlendShapeFrame
+		{
+			float weight;
+			Vector<BlendShapeVertexDelta> deltas;
+		};
+
+		struct BlendShape
+		{
+			String name;
+			Vector<BlendShapeFrame> frames;
+			float weight;
+
+			BlendShape():
+				weight(0)
+			{
+			}
+		};
+
 		Vector<unsigned short> triangles;
 		Vector<Submesh> submeshes;
 		Vector<Matrix4x4> bind_poses;
+		Vector<BlendShape> blend_shapes;
 
 	private:
 		static void FillVertexBuffer(void* param, const ByteBuffer& buffer);

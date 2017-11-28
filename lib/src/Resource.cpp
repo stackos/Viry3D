@@ -471,6 +471,30 @@ namespace Viry3D
 				ms.Read(&mesh->submeshes[0], submesh_count * sizeof(Mesh::Submesh));
 			}
 
+			auto blend_shape_count = ms.Read<int>();
+			if (blend_shape_count > 0)
+			{
+				mesh->blend_shapes.Resize(blend_shape_count);
+
+				for (int i = 0; i < blend_shape_count; i++)
+				{
+					mesh->blend_shapes[i].name = read_string(ms);
+					auto frame_count = ms.Read<int>();
+					if (frame_count > 0)
+					{
+						mesh->blend_shapes[i].frames.Resize(frame_count);
+
+						for (int j = 0; j < frame_count; j++)
+						{
+							mesh->blend_shapes[i].frames[j].weight = ms.Read<float>();
+							mesh->blend_shapes[i].frames[j].deltas.Resize(vertex_count);
+
+							ms.Read(&mesh->blend_shapes[i].frames[j].deltas[0], sizeof(Mesh::BlendShapeVertexDelta) * vertex_count);
+						}
+					}
+				}
+			}
+
 			ms.Close();
 
 			mesh->Update();
@@ -1366,17 +1390,23 @@ namespace Viry3D
 			FastList<Ref<GameObject>> objs;
 			Map<int, Ref<Transform>> transform_instances;
 
-			obj = read_transform(ms, Ref<Transform>(), objs, transform_instances)->GetGameObject();
+			char flag[5] = { 0 };
+			ms.Read(flag, 4);
+			if (String(flag) == "VIRY")
+			{
+				unsigned int version = ms.Read<unsigned int>();
+				if (version >= 0x00010000)
+				{
+					obj = read_transform(ms, Ref<Transform>(), objs, transform_instances)->GetGameObject();
+				}
+			}
 
 #if VR_GLES
-			if (static_batch)
+			if (obj && static_batch)
 			{
 				Renderer::BuildStaticBatch(obj);
 			}
 #endif
-
-			// 将所有obj加入World
-			//World::AddGameObjects(objs);
 
 			if (obj)
 			{
