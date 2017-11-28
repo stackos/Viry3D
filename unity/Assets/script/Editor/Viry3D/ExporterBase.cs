@@ -32,6 +32,15 @@ public class ExporterBase
 		m_out_path = null;
 	}
 
+	protected static void WriteVersion()
+	{
+		m_writer.Write((byte) 'V');
+		m_writer.Write((byte) 'I');
+		m_writer.Write((byte) 'R');
+		m_writer.Write((byte) 'Y');
+		m_writer.Write(0x00010000); // version 1.0
+	}
+
 	protected static void WriteVector2(Vector2 v)
 	{
 		m_writer.Write(v.x);

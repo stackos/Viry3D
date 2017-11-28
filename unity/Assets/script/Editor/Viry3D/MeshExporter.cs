@@ -168,7 +168,38 @@ public class MeshExporter : ExporterBase {
 			}
 		}
 
-        var file_path = new FileInfo(m_out_path + "/" + path);
+		int blend_shape_count = mesh.blendShapeCount;
+		m_writer.Write(blend_shape_count);
+		if (blend_shape_count > 0)
+		{
+			Vector3[] delta_vertices = new Vector3[mesh.vertexCount];
+			Vector3[] delta_normals = new Vector3[mesh.vertexCount];
+			Vector3[] delta_tangents = new Vector3[mesh.vertexCount];
+
+			for (int i = 0; i < blend_shape_count; i++)
+			{
+				var name = mesh.GetBlendShapeName(i);
+				WriteString(name);
+
+				int frame_count = mesh.GetBlendShapeFrameCount(i);
+				m_writer.Write(frame_count);
+				for (int j = 0; j < frame_count; j++)
+				{
+					float weight = mesh.GetBlendShapeFrameWeight(i, j);
+					m_writer.Write(weight);
+
+					mesh.GetBlendShapeFrameVertices(i, j, delta_vertices, delta_normals, delta_tangents);
+					for (int k = 0; k < mesh.vertexCount; k++)
+					{
+						WriteVector3(delta_vertices[k]);
+						WriteVector3(delta_normals[k]);
+						WriteVector3(delta_tangents[k]);
+					}
+				}
+			}
+		}
+
+		var file_path = new FileInfo(m_out_path + "/" + path);
         if(!file_path.Directory.Exists) {
             Directory.CreateDirectory(file_path.Directory.FullName);
         }

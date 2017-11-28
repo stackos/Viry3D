@@ -13,7 +13,9 @@ public class UIExporter : ExporterBase {
 
         MemoryStream ms = Init();
 
-        WriteTransform(obj.transform);
+		WriteVersion();
+
+		WriteTransform(obj.transform);
 
         var file_path = new FileInfo(m_out_path + "/Assets/" + obj.name + ".prefab");
         if(!file_path.Directory.Exists) {

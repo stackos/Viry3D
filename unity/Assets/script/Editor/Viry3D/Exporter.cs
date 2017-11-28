@@ -48,7 +48,9 @@ public partial class Exporter : MeshExporter {
 
         MemoryStream ms = Init();
 
-        WriteTransform(obj.transform, active_only);
+		WriteVersion();
+
+		WriteTransform(obj.transform, active_only);
 
 		var file_path = new FileInfo(m_out_path + "/Assets/" + obj.name + ".prefab");
         if(!file_path.Directory.Exists) {
