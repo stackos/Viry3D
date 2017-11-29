@@ -303,7 +303,7 @@ public:
                 }
             }
             
-            if (Input::GetMouseButtonDown(0))
+            if (Input::GetMouseButtonDown(0) && !UIEventHandler::HasEvent())
             {
                 auto pos = Input::GetMousePosition();
                 this->PlaceModelIfRayCast(pos);
@@ -449,6 +449,6 @@ public:
 	Ref<Camera> m_ui_camera;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppAR);
 #endif
