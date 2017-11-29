@@ -212,7 +212,9 @@ public class ExporterBase
 		{
 			var tex2d = (texture as Texture2D);
 
-			if (tex2d.format == TextureFormat.RGB24 || tex2d.format == TextureFormat.RGBA32)
+			if (tex2d.format == TextureFormat.RGB24 ||
+				tex2d.format == TextureFormat.RGBA32 ||
+				tex2d.format == TextureFormat.ARGB32)
 			{
 				WriteString("Texture2D");
 				m_writer.Write(tex2d.mipmapCount);

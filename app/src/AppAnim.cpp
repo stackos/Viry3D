@@ -51,6 +51,6 @@ public:
     }
 };
 
-#if 0
+#if 1
 VR_MAIN(AppAnim);
 #endif

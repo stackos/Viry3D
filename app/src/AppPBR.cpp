@@ -43,7 +43,7 @@ public:
 		this->SetInitSize(1280, 720);
 	}
 
-	~AppPBR()
+	virtual ~AppPBR()
 	{
 		Graphics::GetDisplay()->EndRecord();
 	}

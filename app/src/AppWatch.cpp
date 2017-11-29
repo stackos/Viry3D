@@ -53,8 +53,12 @@ public:
         auto scale_ui = Mathf::Min(scale_w, scale_h);
         
         auto ui = Resource::LoadGameObject("Assets/AppWatch/ui.prefab");
+		ui->GetTransform()->SetPosition(Vector3::Zero());
         ui->GetTransform()->SetScale(Vector3::One() * scale_ui);
         ui_obj = ui;
+
+		auto canvas = ui->GetComponent<UICanvasRenderer>();
+		canvas->SetCamera(camera);
         
         fps = ui->GetTransform()->Find("fps/label")->GetGameObject()->GetComponent<Viry3D::UILabel>();
         fps->Enable(false);
