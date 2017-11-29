@@ -55,7 +55,6 @@ namespace Viry3D
 	void World::Update()
 	{
 		Physics::Update();
-		Renderer::HandleUIEvent();
 
 		//	start
 		int start_count = 0;

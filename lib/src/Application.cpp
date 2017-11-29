@@ -17,19 +17,10 @@
 
 #include "Application.h"
 #include "World.h"
-#include "GameObject.h"
-#include "Resource.h"
-#include "graphics/Camera.h"
-#include "graphics/Graphics.h"
-#include "memory/Memory.h"
-#include "time/Time.h"
-#include "ui/UICanvasRenderer.h"
-#include "ui/UILabel.h"
-#include "ui/Font.h"
 #include "Input.h"
-#include "Profiler.h"
-#include "Debug.h"
-#include "thread/Thread.h"
+#include "time/Time.h"
+#include "graphics/Graphics.h"
+#include "renderer/Renderer.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -197,8 +188,9 @@ namespace Viry3D
 		Time::Update();
 
 		m_pre_runloop->Run();
-		World::Update();
+		Renderer::HandleUIEvent();
 		this->Update();
+		World::Update();
 		m_post_runloop->Run();
 		m_thread_pool_update->Wait();
 
