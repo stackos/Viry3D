@@ -258,7 +258,7 @@ namespace Viry3D
 				m_mesh->uv = uv;
 				m_mesh->colors = colors;
 				m_mesh->triangles = indices;
-				m_mesh->Update();
+				m_mesh->Apply();
 			}
 		}
 	}

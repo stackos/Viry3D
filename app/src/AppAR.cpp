@@ -449,6 +449,6 @@ public:
 	Ref<Camera> m_ui_camera;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppAR);
 #endif

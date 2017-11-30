@@ -493,11 +493,13 @@ namespace Viry3D
 						}
 					}
 				}
+
+				mesh->SetDynamic(true);
 			}
 
 			ms.Close();
 
-			mesh->Update();
+			mesh->Apply();
 		}
 
 		return mesh;

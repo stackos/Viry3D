@@ -35,12 +35,14 @@ namespace Viry3D
 	public:
 		static Ref<Mesh> Create(bool dynamic = false);
 
-		void Update();
+		void Apply();
 		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_vertex_buffer; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_index_buffer; }
 		void GetIndexRange(int submesh_index, int& start, int& count);
 		int GetSubmeshCount() const;
+		void SetDynamic(bool dynamic);
 		bool IsDynamic() const { return m_dynamic; }
+		void UpdateBlendShapes();
 
 		Vector<Vector3> vertices;
 		Vector<Vector2> uv;				//Texture
@@ -86,6 +88,7 @@ namespace Viry3D
 		Vector<Submesh> submeshes;
 		Vector<Matrix4x4> bind_poses;
 		Vector<BlendShape> blend_shapes;
+		Vector<BlendShapeVertexDelta> blend_shapes_deltas;
 
 	private:
 		static void FillVertexBuffer(void* param, const ByteBuffer& buffer);

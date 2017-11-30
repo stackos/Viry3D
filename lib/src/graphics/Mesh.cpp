@@ -21,11 +21,10 @@
 
 namespace Viry3D
 {
-	Mesh::Mesh()
+	Mesh::Mesh():
+		m_dynamic(false)
 	{
 		SetName("Mesh");
-
-		m_dynamic = false;
 	}
 
 	Ref<Mesh> Mesh::Create(bool dynamic)
@@ -37,7 +36,94 @@ namespace Viry3D
 		return mesh;
 	}
 
-	void Mesh::Update()
+	void Mesh::SetDynamic(bool dynamic)
+	{
+		if(!this->IsDynamic() && dynamic)
+		{
+			if (m_vertex_buffer)
+			{
+				m_vertex_buffer.reset();
+			}
+
+			if (m_index_buffer)
+			{
+				m_index_buffer.reset();
+			}
+
+			this->m_dynamic = dynamic;
+		}
+	}
+
+	void Mesh::UpdateBlendShapes()
+	{
+		if (blend_shapes.Size() > 0)
+		{
+			int vertex_count = this->vertices.Size();
+
+			if (blend_shapes_deltas.Empty())
+			{
+				blend_shapes_deltas.Resize(vertex_count);
+			}
+
+			bool first_frame = true;
+
+			for (int i = 0; i < blend_shapes.Size(); i++)
+			{
+				auto& shape = blend_shapes[i];
+
+				if (shape.weight > 0)
+				{
+					for (int j = 0; j < shape.frames.Size(); j++)
+					{
+						auto& frame = shape.frames[j];
+
+						if (frame.weight > 0)
+						{
+							for (int k = 0; k < vertex_count; k++)
+							{
+								float weight = shape.weight / 100.0f * frame.weight / 100.0f;
+
+								if (first_frame)
+								{
+									Vector3 vertex = this->vertices[k];
+									Vector3 normal(0, 0, 0);
+									if (this->normals.Size() > 0)
+									{
+										normal = this->normals[k];
+									}
+
+									Vector3 tangent(0, 0, 0);
+									if (this->tangents.Size() > 0)
+									{
+										tangent = Vector3(this->tangents[k].x, this->tangents[k].y, this->tangents[k].z);
+									}
+
+									blend_shapes_deltas[k].vertex = vertex + frame.deltas[k].vertex * weight;
+									blend_shapes_deltas[k].normal = normal + frame.deltas[k].normal * weight;
+									blend_shapes_deltas[k].tangent = tangent + frame.deltas[k].tangent * weight;
+								}
+								else
+								{
+									blend_shapes_deltas[k].vertex += frame.deltas[k].vertex * weight;
+									blend_shapes_deltas[k].normal += frame.deltas[k].normal * weight;
+									blend_shapes_deltas[k].tangent += frame.deltas[k].tangent * weight;
+								}
+							}
+
+							first_frame = false;
+						}
+					}
+				}
+			}
+
+			if (!first_frame) // need update vertex buffer
+			{
+				//this->UpdateVertexBuffer();
+			}
+		}
+	}
+
+	void Mesh::Apply()
 	{
 		this->UpdateVertexBuffer();
 		this->UpdateIndexBuffer();

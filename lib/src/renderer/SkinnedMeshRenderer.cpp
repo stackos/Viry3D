@@ -81,7 +81,8 @@ namespace Viry3D
 
 	void SkinnedMeshRenderer::PreRenderByRenderer(int material_index)
 	{
-		const auto& bindposes = this->GetSharedMesh()->bind_poses;
+		auto& mesh = this->GetSharedMesh();
+		const auto& bindposes = mesh->bind_poses;
 		const auto& bones = this->GetBones();
 		Vector<Vector4> bone_matrix;
 		const void* buffer;
@@ -112,5 +113,10 @@ namespace Viry3D
 			shader = Shader::ReplaceToShadowMapShader(shader);
 		}
 		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, buffer, size, m_lightmap_index);
+
+		if (mesh->blend_shapes.Size() > 0)
+		{
+			mesh->UpdateBlendShapes();
+		}
 	}
 }

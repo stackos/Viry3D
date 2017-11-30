@@ -72,7 +72,7 @@ public:
         mesh->triangles.AddRange(triangles, 36);
         
         auto mat = Material::Create("Diffuse");
-        mesh->Update();
+        mesh->Apply();
         
         auto obj = GameObject::Create("mesh");
         auto renderer = obj->AddComponent<MeshRenderer>();

@@ -160,7 +160,7 @@ namespace Viry3D
 				0, 1, 2, 0, 2, 3
 			};
 			mesh->triangles.AddRange(triangles, 6);
-			mesh->Update();
+			mesh->Apply();
 
 			m_blit_mesh = mesh;
 		}
