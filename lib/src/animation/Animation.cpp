@@ -38,7 +38,7 @@ namespace Viry3D
 
 		auto transform = this->GetTransform();
 		auto src_transform = src->GetTransform();
-		auto renderers = GetGameObject()->GetComponentsInChildren<SkinnedMeshRenderer>();
+		auto renderers = this->GetGameObject()->GetComponentsInChildren<SkinnedMeshRenderer>();
 		for (auto& i : renderers)
 		{
 			auto& bones = i->GetBones();
@@ -49,7 +49,7 @@ namespace Viry3D
 			}
 		}
 
-		Stop();
+		this->Stop();
 	}
 
 	void Animation::FindBones()
@@ -66,7 +66,7 @@ namespace Viry3D
 			}
 		}
 
-		auto transform = GetTransform();
+		auto transform = this->GetTransform();
 		for (auto& i : bones)
 		{
 			auto& path = i.first;
@@ -101,13 +101,13 @@ namespace Viry3D
 			switch (i.type)
 			{
 				case StateCmdType::Play:
-					PlayCmd(i.clip, i.mode);
+					this->PlayCmd(i.clip, i.mode);
 					break;
 				case StateCmdType::Stop:
-					StopCmd();
+					this->StopCmd();
 					break;
 				case StateCmdType::CrossFade:
-					CrossFadeCmd(i.clip, i.fade_length, i.mode);
+					this->CrossFadeCmd(i.clip, i.fade_length, i.mode);
 					break;
 				case StateCmdType::UpdateState:
 					m_states[i.clip] = i.state;
@@ -149,7 +149,7 @@ namespace Viry3D
 				state->fade.weight += time_delta * (0 - state->weight) / state->fade.length;
 				if (state->fade.weight <= 0)
 				{
-					Stop(*state);
+					this->Stop(*state);
 				}
 			}
 
@@ -166,7 +166,7 @@ namespace Viry3D
 				{
 					case AnimationWrapMode::Default:
 					case AnimationWrapMode::Once:
-						Stop(*state);
+						this->Stop(*state);
 						continue;
 
 					case AnimationWrapMode::Loop:
@@ -200,8 +200,9 @@ namespace Viry3D
 			}
 		}
 
-		UpdateBlend();
-		UpdateBones();
+		this->UpdateBlend();
+		this->UpdateBones();
+		this->UpdateBlendShapes();
 	}
 
 	void Animation::UpdateBlend()
@@ -277,11 +278,11 @@ namespace Viry3D
 					Vector3 pos(0, 0, 0);
 					Quaternion rot(0, 0, 0, 1);
 					Vector3 sca(1, 1, 1);
-					auto &cb = *p_binding;
+					auto& cb = *p_binding;
 
-					for (int k = 0; k < cb.curves.Size(); k++)
+					for (int k = 0; k < cb.transform_curves.Size(); k++)
 					{
-						auto &curve = cb.curves[k];
+						auto& curve = cb.transform_curves[k];
 						if (!curve.keys.Empty())
 						{
 							float value = curve.Evaluate(state->time);
@@ -389,7 +390,77 @@ namespace Viry3D
 			}
 		}
 
-		GetTransform()->Changed();
+		this->GetTransform()->Changed();
+	}
+
+	struct BlendShapeWeight
+	{
+		String path;
+		String blend_shape_name;
+		float weight;
+	};
+
+	void Animation::UpdateBlendShapes()
+	{
+		const int blend_shape_name_prefix_len = String("blendShape.").Size();
+		Map<String, BlendShapeWeight> weights;
+
+		for (auto i = m_blends.begin(); i != m_blends.end(); i++)
+		{
+			auto state = i->state;
+			float weight = i->weight;
+
+			for (auto j : state->clip->curves)
+			{
+				auto& path = j.second.path;
+
+				if (j.second.blend_shape_curves.Size() > 0)
+				{
+					for (int k = 0; k < j.second.blend_shape_curves.Size(); k++)
+					{
+						auto& property = j.second.blend_shape_properties[k];
+						auto& curve = j.second.blend_shape_curves[k];
+						float value = 0;
+						if (!curve.keys.Empty())
+						{
+							value = curve.Evaluate(state->time);
+						}
+
+						String key = path + property;
+						BlendShapeWeight* p_weight;
+						if (weights.TryGet(key, &p_weight))
+						{
+							p_weight->weight += value * weight;
+						}
+						else
+						{
+							BlendShapeWeight shape_weight;
+							shape_weight.path = path;
+							shape_weight.blend_shape_name = property.Substring(blend_shape_name_prefix_len);
+							shape_weight.weight = value * weight;
+							weights.Add(key, shape_weight);
+						}
+					}
+				}
+			}
+		}
+
+		for (auto i : weights)
+		{
+			auto transform = this->GetTransform()->Find(i.second.path);
+			auto skin = transform->GetGameObject()->GetComponent<SkinnedMeshRenderer>();
+			auto mesh = skin->GetSharedMesh();
+
+			int count = mesh->GetBlendShapeCount();
+			for (int j = 0; j < count; j++)
+			{
+				if (mesh->GetBlendShapeName(j) == i.second.blend_shape_name)
+				{
+					mesh->SetBlendShapeWeight(j, i.second.weight);
+					break;
+				}
+			}
+		}
 	}
 
 	AnimationState Animation::GetAnimationState(const String& clip) const
@@ -465,15 +536,15 @@ namespace Viry3D
 
 			if (mode == PlayMode::StopAll && state != s && s->enabled)
 			{
-				Stop(*s);
+				this->Stop(*s);
 			}
 			else if (mode == PlayMode::StopSameLayer && s->layer == state->layer && state != s && s->enabled)
 			{
-				Stop(*s);
+				this->Stop(*s);
 			}
 			else if (state == s && !s->enabled)
 			{
-				Play(*s);
+				this->Play(*s);
 			}
 		}
 	}
@@ -522,7 +593,7 @@ namespace Viry3D
 			{
 				if (!s->enabled)
 				{
-					Play(*s);
+					this->Play(*s);
 
 					s->fade.mode = AnimationFadeMode::In;
 					s->fade.length = fade_length;
@@ -542,9 +613,9 @@ namespace Viry3D
 
 	void Animation::StopCmd()
 	{
-		for (auto &i : m_states)
+		for (auto& i : m_states)
 		{
-			Stop(i.second);
+			this->Stop(i.second);
 		}
 	}
 

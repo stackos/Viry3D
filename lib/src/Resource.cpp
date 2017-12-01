@@ -746,15 +746,30 @@ namespace Viry3D
 					CurveBinding* p_binding;
 					if (!clip->curves.TryGet(path, &p_binding))
 					{
-						CurveBinding binding;
-						clip->curves.Add(path, binding);
+						clip->curves.Add(path, CurveBinding());
 						p_binding = &clip->curves[path];
-
 						p_binding->path = path;
-						p_binding->curves.Resize((int) CurveProperty::Count);
+						p_binding->transform_curves.Resize((int) CurveProperty::Count);
 					}
 
-					curve = &p_binding->curves[property_index];
+					curve = &p_binding->transform_curves[property_index];
+				}
+				else
+				{
+					if (property.StartsWith("blendShape"))
+					{
+						CurveBinding* p_binding;
+						if (!clip->curves.TryGet(path, &p_binding))
+						{
+							clip->curves.Add(path, CurveBinding());
+							p_binding = &clip->curves[path];
+							p_binding->path = path;
+						}
+
+						p_binding->blend_shape_properties.Add(property);
+						p_binding->blend_shape_curves.Add(AnimationCurve());
+						curve = &p_binding->blend_shape_curves[p_binding->blend_shape_curves.Size() - 1];
+					}
 				}
 
 				read_animation_curve(ms, curve);

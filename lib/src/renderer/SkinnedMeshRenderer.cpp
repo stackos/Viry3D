@@ -114,9 +114,6 @@ namespace Viry3D
 		}
 		shader->UpdateRendererDescriptorSet(m_descriptor_set, m_descriptor_set_buffer, buffer, size, m_lightmap_index);
 
-		if (mesh->blend_shapes.Size() > 0)
-		{
-			mesh->UpdateBlendShapes();
-		}
+		mesh->UpdateBlendShapes();
 	}
 }

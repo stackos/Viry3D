@@ -22,7 +22,8 @@
 namespace Viry3D
 {
 	Mesh::Mesh():
-		m_dynamic(false)
+		m_dynamic(false),
+		m_blend_shape_dirty(false)
 	{
 		SetName("Mesh");
 	}
@@ -54,10 +55,36 @@ namespace Viry3D
 		}
 	}
 
+	int Mesh::GetBlendShapeCount() const
+	{
+		return blend_shapes.Size();
+	}
+
+	const String& Mesh::GetBlendShapeName(int index) const
+	{
+		return blend_shapes[index].name;
+	}
+
+	float Mesh::GetBlendShapeWeight(int index) const
+	{
+		return blend_shapes[index].weight;
+	}
+
+	void Mesh::SetBlendShapeWeight(int index, float weight)
+	{
+		if (!Mathf::FloatEqual(blend_shapes[index].weight, weight))
+		{
+			blend_shapes[index].weight = weight;
+			m_blend_shape_dirty = true;
+		}
+	}
+
 	void Mesh::UpdateBlendShapes()
 	{
-		if (blend_shapes.Size() > 0)
+		if (blend_shapes.Size() > 0 && m_blend_shape_dirty)
 		{
+			m_blend_shape_dirty = false;
+
 			int vertex_count = this->vertices.Size();
 
 			if (blend_shapes_deltas.Empty())
@@ -85,22 +112,9 @@ namespace Viry3D
 
 								if (first_frame)
 								{
-									Vector3 vertex = this->vertices[k];
-									Vector3 normal(0, 0, 0);
-									if (this->normals.Size() > 0)
-									{
-										normal = this->normals[k];
-									}
-
-									Vector3 tangent(0, 0, 0);
-									if (this->tangents.Size() > 0)
-									{
-										tangent = Vector3(this->tangents[k].x, this->tangents[k].y, this->tangents[k].z);
-									}
-
-									blend_shapes_deltas[k].vertex = vertex + frame.deltas[k].vertex * weight;
-									blend_shapes_deltas[k].normal = normal + frame.deltas[k].normal * weight;
-									blend_shapes_deltas[k].tangent = tangent + frame.deltas[k].tangent * weight;
+									blend_shapes_deltas[k].vertex = frame.deltas[k].vertex * weight;
+									blend_shapes_deltas[k].normal = frame.deltas[k].normal * weight;
+									blend_shapes_deltas[k].tangent = frame.deltas[k].tangent * weight;
 								}
 								else
 								{
@@ -118,7 +132,7 @@ namespace Viry3D
 
 			if (!first_frame) // need update vertex buffer
 			{
-				//this->UpdateVertexBuffer();
+				this->UpdateVertexBuffer();
 			}
 		}
 	}
@@ -168,10 +182,19 @@ namespace Viry3D
 		auto mesh = (Mesh*) param;
 		auto ms = MemoryStream(buffer);
 
+		bool has_blend_shape = mesh->blend_shapes_deltas.Size() > 0;
+
 		int count = mesh->vertices.Size();
 		for (int i = 0; i < count; i++)
 		{
-			ms.Write<Vector3>(mesh->vertices[i]);
+			if (has_blend_shape)
+			{
+				ms.Write<Vector3>(mesh->vertices[i] + mesh->blend_shapes_deltas[i].vertex);
+			}
+			else
+			{
+				ms.Write<Vector3>(mesh->vertices[i]);
+			}
 
 			if (mesh->colors.Empty())
 			{
@@ -206,7 +229,14 @@ namespace Viry3D
 			}
 			else
 			{
-				ms.Write<Vector3>(mesh->normals[i]);
+				if (has_blend_shape)
+				{
+					ms.Write<Vector3>(mesh->normals[i] + mesh->blend_shapes_deltas[i].normal);
+				}
+				else
+				{
+					ms.Write<Vector3>(mesh->normals[i]);
+				}
 			}
 
 			if (mesh->tangents.Empty())
@@ -215,7 +245,14 @@ namespace Viry3D
 			}
 			else
 			{
-				ms.Write<Vector4>(mesh->tangents[i]);
+				if (has_blend_shape)
+				{
+					ms.Write<Vector4>(mesh->tangents[i] + mesh->blend_shapes_deltas[i].tangent);
+				}
+				else
+				{
+					ms.Write<Vector4>(mesh->tangents[i]);
+				}
 			}
 
 			if (mesh->bone_weights.Empty())

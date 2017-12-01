@@ -84,6 +84,7 @@ namespace Viry3D
 		void UpdateAnimation();
 		void UpdateBlend();
 		void UpdateBones();
+		void UpdateBlendShapes();
 		void Play(AnimationState& state);
 		void Stop(AnimationState& state);
 		void ExecuteStateCommands();

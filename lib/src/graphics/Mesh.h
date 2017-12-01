@@ -42,6 +42,10 @@ namespace Viry3D
 		int GetSubmeshCount() const;
 		void SetDynamic(bool dynamic);
 		bool IsDynamic() const { return m_dynamic; }
+		int GetBlendShapeCount() const;
+		const String& GetBlendShapeName(int index) const;
+		float GetBlendShapeWeight(int index) const;
+		void SetBlendShapeWeight(int index, float weight);
 		void UpdateBlendShapes();
 
 		Vector<Vector3> vertices;
@@ -103,5 +107,6 @@ namespace Viry3D
 		bool m_dynamic;
 		Ref<VertexBuffer> m_vertex_buffer;
 		Ref<IndexBuffer> m_index_buffer;
+		bool m_blend_shape_dirty;
 	};
 }

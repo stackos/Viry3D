@@ -42,7 +42,9 @@ namespace Viry3D
 	struct CurveBinding
 	{
 		String path;
-		Vector<AnimationCurve> curves;
+		Vector<AnimationCurve> transform_curves;
+		Vector<String> blend_shape_properties;
+		Vector<AnimationCurve> blend_shape_curves;
 	};
 
 	class AnimationClip: public Object
