@@ -176,10 +176,18 @@ public class ExporterBase
 		m_writer = save;
 	}
 
-	protected static void WriteTexture(Texture texture)
+	protected static void WriteTexture(Texture texture, int index = -1)
 	{
 		var asset_path = AssetDatabase.GetAssetPath(texture);
-		var path = asset_path + ".tex";
+		string path;
+		if (index >= 0)
+		{
+			path = string.Format("{0}.{1}.tex", asset_path, index);
+		}
+		else
+		{
+			path = asset_path + ".tex";
+		}
 
 		WriteString(path);
 
