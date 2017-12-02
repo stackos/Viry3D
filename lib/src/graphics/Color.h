@@ -28,7 +28,7 @@ namespace Viry3D
 		static Color Blue() { return Color(0, 0, 1, 1); }
 		static Color Lerp(const Color &from, const Color &to, float t, bool clamp_01 = true);
 
-		Color(float r = 0, float g = 0, float b = 0, float a = 0);
+		Color(float r = 1, float g = 1, float b = 1, float a = 1);
 		bool operator ==(const Color &c) const;
 		bool operator !=(const Color &c) const;
 		Color operator *(const Color &c) const;

@@ -18,18 +18,21 @@
 #include "Terrain.h"
 #include "noise/noise.h"
 #include "noise/noiseutils.h"
+#include "graphics/VertexAttribute.h"
+#include "memory/Memory.h"
 
 namespace Viry3D
 {
 	DEFINE_COM_CLASS(Terrain);
 
 	Terrain::Terrain():
-		m_tile_map_size(513),
 		m_tile_noise_size(4),
-		m_tile_world_unit(513),
-		m_noise_center(0, 0)
+		m_noise_center(0, 0),
+		m_terrain_size(500, 500, 500),
+		m_heightmap_size(0),
+		m_alphamap_size(512)
 	{
-	
+		
 	}
 
 	Terrain::~Terrain()
@@ -74,6 +77,56 @@ namespace Viry3D
 		return false;
 	}
 
+	void Terrain::Apply()
+	{
+		if (m_heightmap_size <= 0)
+		{
+			return;
+		}
+
+		Vertex* vertices = Memory::Alloc<Vertex>(sizeof(Vertex) * m_heightmap_size * m_heightmap_size);
+		int* indices = Memory::Alloc<int>(sizeof(int) * (m_heightmap_size - 1) * (m_heightmap_size - 1) * 2 * 3);
+
+		int k = 0;
+		for (int i = 0; i < m_heightmap_size; i++)
+		{
+			for (int j = 0; j < m_heightmap_size; j++)
+			{
+				float height = m_heightmap_data[i * m_heightmap_size + j];
+				Vertex& v = vertices[i * m_heightmap_size + j];
+				float x = j / (m_heightmap_size - 1) * m_terrain_size.x;
+				float y = height * m_terrain_size.y;
+				float z = (m_heightmap_size - 1 - i) / (m_heightmap_size - 1) * m_terrain_size.z;
+
+				v.vertex = Vector3(x, y, z);
+				v.uv = Vector2(x, z);
+				v.uv2 = Vector2(x / m_terrain_size.x, z / m_terrain_size.z);
+
+				if (i < m_heightmap_size - 1 && j < m_heightmap_size - 1)
+				{
+					indices[k++] = i * m_heightmap_size + j;
+					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
+					indices[k++] = (i + 1) * m_heightmap_size + j;
+
+					indices[k++] = i * m_heightmap_size + j;
+					indices[k++] = i * m_heightmap_size + (j + 1);
+					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
+				}
+			}
+		}
+
+		this->CalculateNormals(vertices);
+
+		Memory::Free(vertices);
+		Memory::Free(indices);
+	}
+
+	void Terrain::CalculateNormals(Vertex* vertices)
+	{
+		// calculate normals and tangents
+
+	}
+
 	void Terrain::GenerateTile(int x, int y)
 	{
 		m_tile = RefMake<TerrainTile>();
@@ -81,23 +134,23 @@ namespace Viry3D
 		m_tile->y = y;
 		m_tile->noise_pos.x = m_noise_center.x + x * m_tile_noise_size;
 		m_tile->noise_pos.y = m_noise_center.y + y * m_tile_noise_size;
-		m_tile->world_pos.x = x * m_tile_world_unit;
+		m_tile->world_pos.x = x * m_terrain_size.x;
 		m_tile->world_pos.y = 0;
-		m_tile->world_pos.z = y * m_tile_world_unit;
-		m_tile->height_map = ByteBuffer(m_tile_map_size * m_tile_map_size * 2);
+		m_tile->world_pos.z = y * m_terrain_size.z;
+		m_tile->height_map = ByteBuffer(m_heightmap_size * m_heightmap_size * 2);
 
 		GenerateTileHeightMap();
 
-		auto colors = ByteBuffer(m_tile_map_size * m_tile_map_size);
-		for (int i = 0; i < m_tile_map_size; i++)
+		auto colors = ByteBuffer(m_heightmap_size * m_heightmap_size);
+		for (int i = 0; i < m_heightmap_size; i++)
 		{
-			for (int j = 0; j < m_tile_map_size; j++)
+			for (int j = 0; j < m_heightmap_size; j++)
 			{
-				int us = *((unsigned short*) &m_tile->height_map[i * m_tile_map_size * 2 + j * 2]);
-				colors[i * m_tile_map_size + j] = us >> 8;
+				int us = *((unsigned short*) &m_tile->height_map[i * m_heightmap_size * 2 + j * 2]);
+				colors[i * m_heightmap_size + j] = us >> 8;
 			}
 		}
-		m_tile->debug_image = Texture2D::Create(m_tile_map_size, m_tile_map_size, TextureFormat::R8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
+		m_tile->debug_image = Texture2D::Create(m_heightmap_size, m_heightmap_size, TextureFormat::R8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
 	}
 
 	void Terrain::GenerateTileHeightMap()
@@ -134,7 +187,7 @@ namespace Viry3D
 		utils::NoiseMapBuilderPlane builder;
 		builder.SetSourceModule(final);
 		builder.SetDestNoiseMap(map);
-		builder.SetDestSize(m_tile_map_size, m_tile_map_size);
+		builder.SetDestSize(m_heightmap_size, m_heightmap_size);
 		float noise_x_min = m_tile->noise_pos.x - m_tile_noise_size / 2;
 		float noise_x_max = m_tile->noise_pos.x + m_tile_noise_size / 2;
 		float noise_z_min = m_tile->noise_pos.y - m_tile_noise_size / 2;
@@ -142,13 +195,13 @@ namespace Viry3D
 		builder.SetBounds(noise_x_min, noise_x_max, noise_z_min, noise_z_max);
 		builder.Build();
 
-		for (int i = 0; i < m_tile_map_size; i++)
+		for (int i = 0; i < m_heightmap_size; i++)
 		{
 			float* row = map.GetSlabPtr(i);
-			for (int j = 0; j < m_tile_map_size; j++)
+			for (int j = 0; j < m_heightmap_size; j++)
 			{
 				unsigned short us = (unsigned short) (Mathf::Clamp01((row[j] + 1.0f) * 0.5f) * 65535);
-				unsigned short* p = (unsigned short*) &buffer[i * m_tile_map_size * 2 + j * 2];
+				unsigned short* p = (unsigned short*) &buffer[i * m_heightmap_size * 2 + j * 2];
 				*p = us;
 			}
 		}

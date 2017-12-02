@@ -1312,6 +1312,8 @@ namespace Viry3D
 		com->SetAlphamapSize(alphamap_size);
 		com->SetAlphamaps(alphamaps);
 		com->SetSplatTextures(splat_textures);
+
+		com->Apply();
 	}
 
 	static Ref<Transform> read_transform(

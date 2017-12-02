@@ -41,6 +41,7 @@ public:
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
 		/*auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
+		terrain->SetHeightmapSize(513);
 		terrain->GenerateTile(0, 0);
 
 		camera->SetPostRenderFunc([=]() {
@@ -49,7 +50,7 @@ public:
 #else
 			bool reverse = false;
 #endif
-            Viry3D::Rect rect(0.5f, 0, 0.5f, 1);
+			Viry3D::Rect rect(0.5f, 0, 0.5f, 1);
 			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
 		});*/
 

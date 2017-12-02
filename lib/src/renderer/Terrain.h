@@ -24,6 +24,8 @@
 
 namespace Viry3D
 {
+	struct Vertex;
+
 	struct TerrainTile
 	{
 		int x;
@@ -53,9 +55,7 @@ namespace Viry3D
 		virtual bool IsValidPass(int material_index) const;
 		virtual IndexType GetIndexType() const { return IndexType::UnsignedInt; }
 
-		void SetTileMapSize(int size) { m_tile_map_size = size; }
 		void SetTileNoiseSize(float size) { m_tile_noise_size = size; }
-		void SetTileWorldUnit(float unit) { m_tile_world_unit = unit; }
 		// noise pos in world pos (0, 0, 0)
 		void SetNoiseCenter(const Vector2& noise_center) { m_noise_center = noise_center; }
 		void GenerateTile(int x, int y);
@@ -66,15 +66,15 @@ namespace Viry3D
 		void SetAlphamapSize(int size) { m_alphamap_size = size; }
 		void SetAlphamaps(const Vector<Ref<Texture2D>>& maps) { m_alphamaps = maps; }
 		void SetSplatTextures(const Vector<TerrainSplatTexture>& textures) { m_splat_textures = textures; }
+		void Apply();
 
 	private:
 		Terrain();
 		void GenerateTileHeightMap();
+		void CalculateNormals(Vertex* vertices);
 
 	private:
-		int m_tile_map_size;
 		float m_tile_noise_size;
-		float m_tile_world_unit;
 		Vector2 m_noise_center;
 		Ref<TerrainTile> m_tile;
 		Ref<VertexBuffer> m_vertex_buffer;
