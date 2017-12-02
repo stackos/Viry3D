@@ -4,10 +4,6 @@ using UnityEditor;
 public partial class Exporter {
 	static void WriteTerrain(Terrain terrain) {
 		var data = terrain.terrainData;
-
-		m_writer.Write(terrain.lightmapIndex);
-		WriteVector4(terrain.lightmapScaleOffset);
-
 		Vector3 terrain_size = data.size;
 		int heightmap_size = data.heightmapResolution;
 		float[,] heightmap_data = data.GetHeights(0, 0, heightmap_size, heightmap_size);
@@ -16,6 +12,9 @@ public partial class Exporter {
 		int alphamap_count = alphamaps.Length;
 		var splats = data.splatPrototypes;
 		int splat_count = splats.Length;
+
+		m_writer.Write(terrain.lightmapIndex);
+		WriteVector4(terrain.lightmapScaleOffset);
 
 		WriteVector3(terrain_size);
 		m_writer.Write(heightmap_size);

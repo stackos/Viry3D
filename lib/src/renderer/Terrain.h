@@ -34,6 +34,14 @@ namespace Viry3D
 		Ref<Texture2D> debug_image;
 	};
 
+	struct TerrainSplatTexture
+	{
+		Ref<Texture2D> texture;
+		Ref<Texture2D> normal;
+		Vector2 tile_size;
+		Vector2 tile_offset;
+	};
+
 	class Terrain : public Renderer
 	{
 		DECLARE_COM_CLASS(Terrain, Renderer);
@@ -52,6 +60,12 @@ namespace Viry3D
 		void SetNoiseCenter(const Vector2& noise_center) { m_noise_center = noise_center; }
 		void GenerateTile(int x, int y);
 		const Ref<TerrainTile>& GetTile() const { return m_tile; }
+		void SetTerrainSize(const Vector3& size) { m_terrain_size = size; }
+		void SetHeightmapSize(int size) { m_heightmap_size = size; }
+		void SetHeightmapData(const Vector<float>& data) { m_heightmap_data = data; }
+		void SetAlphamapSize(int size) { m_alphamap_size = size; }
+		void SetAlphamaps(const Vector<Ref<Texture2D>>& maps) { m_alphamaps = maps; }
+		void SetSplatTextures(const Vector<TerrainSplatTexture>& textures) { m_splat_textures = textures; }
 
 	private:
 		Terrain();
@@ -65,5 +79,11 @@ namespace Viry3D
 		Ref<TerrainTile> m_tile;
 		Ref<VertexBuffer> m_vertex_buffer;
 		Ref<IndexBuffer> m_index_buffer;
+		Vector3 m_terrain_size;
+		int m_heightmap_size;
+		Vector<float> m_heightmap_data;
+		int m_alphamap_size;
+		Vector<Ref<Texture2D>> m_alphamaps;
+		Vector<TerrainSplatTexture> m_splat_textures;
 	};
 }

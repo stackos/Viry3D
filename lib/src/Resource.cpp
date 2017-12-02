@@ -36,6 +36,7 @@
 #include "renderer/SkinnedMeshRenderer.h"
 #include "renderer/ParticleSystemRenderer.h"
 #include "renderer/ParticleSystem.h"
+#include "renderer/Terrain.h"
 #include "thread/Thread.h"
 #include "animation/AnimationClip.h"
 #include "animation/Animation.h"
@@ -1262,6 +1263,57 @@ namespace Viry3D
 		read_renderer_materials(ms, com.get());
 	}
 
+	static void read_terrain(MemoryStream& ms, Ref<Terrain>& com)
+	{
+		int lightmap_index = ms.Read<int>();
+		Vector4 lightmap_scale_offset = ms.Read<Vector4>();
+		Vector3 terrain_size = ms.Read<Vector3>();
+		int heightmap_size = ms.Read<int>();
+
+		Vector<float> heightmap_data(heightmap_size * heightmap_size);
+		ms.Read(&heightmap_data[0], heightmap_data.SizeInBytes());
+
+		int alphamap_size = ms.Read<int>();
+		int alphamap_count = ms.Read<int>();
+
+		Vector<Ref<Texture2D>> alphamaps(alphamap_count);
+		for (int i = 0; i < alphamap_count; i++)
+		{
+			auto tex_path = read_string(ms);
+			if (!tex_path.Empty())
+			{
+				alphamaps[i] = RefCast<Texture2D>(read_texture(tex_path));
+			}
+		}
+
+		int splat_count = ms.Read<int>();
+		Vector<TerrainSplatTexture> splat_textures(splat_count);
+		for (int i = 0; i < splat_count; i++)
+		{
+			auto color_texture_path = read_string(ms);
+			if (!color_texture_path.Empty())
+			{
+				splat_textures[i].texture = RefCast<Texture2D>(read_texture(color_texture_path));
+			}
+			auto normal_texture_path = read_string(ms);
+			if (!normal_texture_path.Empty())
+			{
+				splat_textures[i].normal = RefCast<Texture2D>(read_texture(normal_texture_path));
+			}
+			splat_textures[i].tile_size = ms.Read<Vector2>();
+			splat_textures[i].tile_offset = ms.Read<Vector2>();
+		}
+
+		com->SetLightmapIndex(lightmap_index);
+		com->SetLightmapScaleOffset(lightmap_scale_offset);
+		com->SetTerrainSize(terrain_size);
+		com->SetHeightmapSize(heightmap_size);
+		com->SetHeightmapData(heightmap_data);
+		com->SetAlphamapSize(alphamap_size);
+		com->SetAlphamaps(alphamaps);
+		com->SetSplatTextures(splat_textures);
+	}
+
 	static Ref<Transform> read_transform(
 		MemoryStream& ms,
 		const Ref<Transform>& parent,
@@ -1336,6 +1388,12 @@ namespace Viry3D
 				auto com = obj->AddComponent<ParticleSystem>();
 
 				read_particle_system(ms, com);
+			}
+			else if (component_name == "Terrain")
+			{
+				auto com = obj->AddComponent<Terrain>();
+
+				read_terrain(ms, com);
 			}
 			else if (component_name == "Canvas")
 			{

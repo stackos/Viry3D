@@ -18,6 +18,7 @@
 #include "Main.h"
 #include "Application.h"
 #include "GameObject.h"
+#include "Resource.h"
 #include "graphics/Camera.h"
 #include "graphics/Graphics.h"
 #include "renderer/Terrain.h"
@@ -36,8 +37,10 @@ public:
 	virtual void Start()
 	{
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+		camera->GetTransform()->SetPosition(Vector3(250, 150, -150));
+		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
-		auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
+		/*auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
 		terrain->GenerateTile(0, 0);
 
 		camera->SetPostRenderFunc([=]() {
@@ -48,7 +51,9 @@ public:
 #endif
             Viry3D::Rect rect(0.5f, 0, 0.5f, 1);
 			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
-		});
+		});*/
+
+		Resource::LoadGameObject("Assets/AppTerrain/Terrain.prefab");
 	}
 };
 
