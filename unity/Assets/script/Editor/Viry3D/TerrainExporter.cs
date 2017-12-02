@@ -14,6 +14,8 @@ public partial class Exporter {
 		int alphamap_size = data.alphamapResolution;
 		Texture2D[] alphamaps = data.alphamapTextures;
 		int alphamap_count = alphamaps.Length;
+		var splats = data.splatPrototypes;
+		int splat_count = splats.Length;
 
 		WriteVector3(terrain_size);
 		m_writer.Write(heightmap_size);
@@ -31,6 +33,15 @@ public partial class Exporter {
 		for (int i = 0; i < alphamap_count; i++)
 		{
 			WriteTexture(alphamaps[i], i);
+		}
+
+		m_writer.Write(splat_count);
+		for (int i = 0; i < splat_count; i++)
+		{
+			WriteTexture(splats[i].texture);
+			WriteTexture(splats[i].normalMap);
+			WriteVector2(splats[i].tileSize);
+			WriteVector2(splats[i].tileOffset);
 		}
 	}
 }
