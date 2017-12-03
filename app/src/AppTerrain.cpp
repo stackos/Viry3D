@@ -21,6 +21,7 @@
 #include "Resource.h"
 #include "graphics/Camera.h"
 #include "graphics/Graphics.h"
+#include "graphics/Material.h"
 #include "renderer/Terrain.h"
 
 using namespace Viry3D;
@@ -54,7 +55,10 @@ public:
 			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
 		});*/
 
-		Resource::LoadGameObject("Assets/AppTerrain/Terrain.prefab");
+		auto terrain_mat = Material::Create("Diffuse");
+
+		auto terrain = Resource::LoadGameObject("Assets/AppTerrain/Terrain.prefab")->GetComponent<Terrain>();
+		terrain->SetSharedMaterial(terrain_mat);
 	}
 };
 

@@ -45,6 +45,17 @@ namespace Viry3D
 		Renderer::DeepCopy(source);
 
 		auto src = RefCast<Terrain>(source);
+		this->m_tile_noise_size = src->m_tile_noise_size;
+		this->m_noise_center = src->m_noise_center;
+		this->m_tile = src->m_tile;
+		this->m_vertex_buffer = src->m_vertex_buffer;
+		this->m_index_buffer = src->m_index_buffer;;
+		this->m_terrain_size = src->m_terrain_size;
+		this->m_heightmap_size = src->m_heightmap_size;
+		this->m_heightmap_data = src->m_heightmap_data;
+		this->m_alphamap_size = src->m_alphamap_size;
+		this->m_alphamaps = src->m_alphamaps;
+		this->m_splat_textures = src->m_splat_textures;
 	}
 
 	const VertexBuffer* Terrain::GetVertexBuffer() const
@@ -69,12 +80,13 @@ namespace Viry3D
 
 	void Terrain::GetIndexRange(int material_index, int& start, int& count) const
 	{
-
+		start = 0;
+		count = (m_heightmap_size - 1) * (m_heightmap_size - 1) * 2 * 3;
 	}
 
 	bool Terrain::IsValidPass(int material_index) const
 	{
-		return false;
+		return m_heightmap_size > 0;
 	}
 
 	void Terrain::Apply()
@@ -84,8 +96,11 @@ namespace Viry3D
 			return;
 		}
 
-		Vertex* vertices = Memory::Alloc<Vertex>(sizeof(Vertex) * m_heightmap_size * m_heightmap_size);
-		int* indices = Memory::Alloc<int>(sizeof(int) * (m_heightmap_size - 1) * (m_heightmap_size - 1) * 2 * 3);
+		int vertex_buffer_size = sizeof(Vertex) * m_heightmap_size * m_heightmap_size;
+		int index_buffer_size = sizeof(int) * (m_heightmap_size - 1) * (m_heightmap_size - 1) * 2 * 3;
+
+		Vertex* vertices = Memory::Alloc<Vertex>(vertex_buffer_size);
+		int* indices = Memory::Alloc<int>(index_buffer_size);
 
 		int k = 0;
 		for (int i = 0; i < m_heightmap_size; i++)
@@ -105,17 +120,27 @@ namespace Viry3D
 				if (i < m_heightmap_size - 1 && j < m_heightmap_size - 1)
 				{
 					indices[k++] = i * m_heightmap_size + j;
-					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
 					indices[k++] = (i + 1) * m_heightmap_size + j;
+					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
 
 					indices[k++] = i * m_heightmap_size + j;
-					indices[k++] = i * m_heightmap_size + (j + 1);
 					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
+					indices[k++] = i * m_heightmap_size + (j + 1);
 				}
 			}
 		}
 
 		this->CalculateNormals(vertices);
+
+		m_vertex_buffer = VertexBuffer::Create(vertex_buffer_size);
+		m_vertex_buffer->Fill(NULL, [=](void* param, const ByteBuffer& buffer) {
+			Memory::Copy(buffer.Bytes(), vertices, vertex_buffer_size);
+		});
+
+		m_index_buffer = IndexBuffer::Create(index_buffer_size);
+		m_index_buffer->Fill(NULL, [=](void* param, const ByteBuffer& buffer) {
+			Memory::Copy(buffer.Bytes(), indices, index_buffer_size);
+		});
 
 		Memory::Free(vertices);
 		Memory::Free(indices);
