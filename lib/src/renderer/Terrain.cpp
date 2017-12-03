@@ -111,7 +111,7 @@ namespace Viry3D
 				Vertex& v = vertices[i * m_heightmap_size + j];
 				float x = j / (m_heightmap_size - 1) * m_terrain_size.x;
 				float y = height * m_terrain_size.y;
-				float z = (m_heightmap_size - 1 - i) / (m_heightmap_size - 1) * m_terrain_size.z;
+				float z = i / (m_heightmap_size - 1) * m_terrain_size.z;
 
 				v.vertex = Vector3(x, y, z);
 				v.uv = Vector2(x, z);
@@ -120,12 +120,12 @@ namespace Viry3D
 				if (i < m_heightmap_size - 1 && j < m_heightmap_size - 1)
 				{
 					indices[k++] = i * m_heightmap_size + j;
-					indices[k++] = (i + 1) * m_heightmap_size + j;
 					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
+					indices[k++] = (i + 1) * m_heightmap_size + j;
 
 					indices[k++] = i * m_heightmap_size + j;
-					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
 					indices[k++] = i * m_heightmap_size + (j + 1);
+					indices[k++] = (i + 1) * m_heightmap_size + (j + 1);
 				}
 			}
 		}

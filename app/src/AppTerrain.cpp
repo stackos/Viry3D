@@ -55,9 +55,21 @@ public:
 			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
 		});*/
 
-		auto terrain_mat = Material::Create("Diffuse");
-
 		auto terrain = Resource::LoadGameObject("Assets/AppTerrain/Terrain.prefab")->GetComponent<Terrain>();
+		auto terrain_size = terrain->GetTerrainSize();
+		auto splats = terrain->GetSplatTextures();
+		auto alphamaps = terrain->GetAlphamaps();
+		auto terrain_mat = Material::Create("Terrain/Diffuse");
+		for (int i = 0; i < splats.Size(); i++)
+		{
+			terrain_mat->SetTexture(String::Format("_SplatTex%d", i), splats[i].texture);
+			terrain_mat->SetVector(String::Format("_SplatTex%dSizeOffset", i), Vector4(splats[i].tile_size.x, splats[i].tile_size.y, splats[i].tile_offset.x, splats[i].tile_offset.y));
+		}
+		for (int i = 0; i < alphamaps.Size(); i++)
+		{
+			terrain_mat->SetTexture(String::Format("_ControlTex%d", i), alphamaps[i]);
+			terrain_mat->SetVector(String::Format("_ControlTex%dSizeOffset", i), Vector4(terrain_size.x, terrain_size.z, 0, 0));
+		}
 		terrain->SetSharedMaterial(terrain_mat);
 	}
 };

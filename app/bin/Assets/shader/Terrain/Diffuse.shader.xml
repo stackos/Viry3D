@@ -1,0 +1,64 @@
+<Shader name="Terrain/Diffuse" queue="Geometry">
+	<VertexShader name="vs">
+		<UniformBuffer name="buf_vs" binding="2">
+			<Uniform name="_ViewProjection" size="64"/>
+		</UniformBuffer>
+		<VertexAttribute name="Vertex" location="0"/>
+		<VertexAttribute name="Texcoord" location="1"/>
+		<Include name="Base.in"/>
+		<Include name="Texture.vs"/>
+	</VertexShader>
+
+	<PixelShader name="ps">
+		<UniformBuffer name="buf_ps" binding="3">
+			<Uniform name="_SplatTex0SizeOffset" size="16"/>
+			<Uniform name="_SplatTex1SizeOffset" size="16"/>
+			<Uniform name="_SplatTex2SizeOffset" size="16"/>
+			<Uniform name="_SplatTex3SizeOffset" size="16"/>
+			<Uniform name="_ControlTex0SizeOffset" size="16"/>
+		</UniformBuffer>
+		<Sampler name="_SplatTex0" binding="4" default="white"/>
+		<Sampler name="_SplatTex1" binding="5" default="white"/>
+		<Sampler name="_SplatTex2" binding="6" default="white"/>
+		<Sampler name="_SplatTex3" binding="7" default="white"/>
+		<Sampler name="_ControlTex0" binding="8"/>
+		<Source>
+precision mediump float;
+
+UniformBuffer(0, 3) uniform buf_ps {
+	vec4 _SplatTex0SizeOffset;
+	vec4 _SplatTex1SizeOffset;
+	vec4 _SplatTex2SizeOffset;
+	vec4 _SplatTex3SizeOffset;
+	vec4 _ControlTex0SizeOffset;
+} u_buf;
+
+UniformTexture(0, 4) uniform sampler2D _SplatTex0;
+UniformTexture(0, 5) uniform sampler2D _SplatTex1;
+UniformTexture(0, 6) uniform sampler2D _SplatTex2;
+UniformTexture(0, 7) uniform sampler2D _SplatTex3;
+UniformTexture(0, 8) uniform sampler2D _ControlTex0;
+
+Varying(0) in vec2 v_uv;
+
+layout (location = 0) out vec4 o_frag;
+
+void main() {
+    vec4 color0 = texture(_SplatTex0, v_uv / u_buf._SplatTex0SizeOffset.xy);
+	vec4 color1 = texture(_SplatTex1, v_uv / u_buf._SplatTex1SizeOffset.xy);
+	vec4 color2 = texture(_SplatTex2, v_uv / u_buf._SplatTex2SizeOffset.xy);
+	vec4 color3 = texture(_SplatTex3, v_uv / u_buf._SplatTex3SizeOffset.xy);
+	vec4 control = texture(_ControlTex0, v_uv / u_buf._ControlTex0SizeOffset.xy);
+	o_frag = color0 * control.r + color1 * control.g + color2 * control.b + color3 * control.a;
+}
+		</Source>
+	</PixelShader>
+
+	<RenderState name="rs">
+	</RenderState>
+
+	<Pass name="pass"
+		  vs="vs"
+		  ps="ps"
+		  rs="rs"/>
+</Shader>

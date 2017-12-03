@@ -60,11 +60,14 @@ namespace Viry3D
 		void SetNoiseCenter(const Vector2& noise_center) { m_noise_center = noise_center; }
 		void GenerateTile(int x, int y);
 		const Ref<TerrainTile>& GetTile() const { return m_tile; }
+		const Vector3& GetTerrainSize() const { return m_terrain_size; }
 		void SetTerrainSize(const Vector3& size) { m_terrain_size = size; }
 		void SetHeightmapSize(int size) { m_heightmap_size = size; }
 		void SetHeightmapData(const Vector<float>& data) { m_heightmap_data = data; }
 		void SetAlphamapSize(int size) { m_alphamap_size = size; }
+		const Vector<Ref<Texture2D>>& GetAlphamaps() const { return m_alphamaps; }
 		void SetAlphamaps(const Vector<Ref<Texture2D>>& maps) { m_alphamaps = maps; }
+		const Vector<TerrainSplatTexture>& GetSplatTextures() const { return m_splat_textures; }
 		void SetSplatTextures(const Vector<TerrainSplatTexture>& textures) { m_splat_textures = textures; }
 		void Apply();
 
