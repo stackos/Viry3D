@@ -39,7 +39,7 @@ public:
 	virtual void Start()
 	{
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->GetTransform()->SetPosition(Vector3(250, 150, -150));
+		camera->GetTransform()->SetPosition(Vector3(253, 17, 140));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
 		/*auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
@@ -64,6 +64,7 @@ public:
 		for (int i = 0; i < splats.Size(); i++)
 		{
 			terrain_mat->SetTexture(String::Format("_SplatTex%d", i), splats[i].texture);
+			terrain_mat->SetTexture(String::Format("_SplatNormal%d", i), splats[i].normal);
 			terrain_mat->SetVector(String::Format("_SplatTex%dSizeOffset", i), Vector4(splats[i].tile_size.x, splats[i].tile_size.y, splats[i].tile_offset.x, splats[i].tile_offset.y));
 		}
 		if (alphamaps.Size() > 0)
