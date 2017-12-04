@@ -148,10 +148,11 @@ namespace Viry3D
 
 	void Terrain::CalculateNormals(Vertex* vertices)
 	{
-		// calculate normals and tangents
 		Vector3* face_normals = Memory::Alloc<Vector3>(sizeof(Vector3) * (m_heightmap_size - 1) * (m_heightmap_size - 1) * 2);
+		Vector3* face_tangents = Memory::Alloc<Vector3>(sizeof(Vector3) * (m_heightmap_size - 1) * (m_heightmap_size - 1) * 2);
 		
-		Vector3 face_shared[6];
+		Vector3 face_shared_normals[6];
+		Vector3 face_shared_tangents[6];
 		for (int i = 0; i < m_heightmap_size; i++)
 		{
 			for (int j = 0; j < m_heightmap_size; j++)
@@ -168,68 +169,130 @@ namespace Viry3D
 
 					face_normals[i * (m_heightmap_size - 1) * 2 + j * 2] = Vector3::Normalize(m);
 					face_normals[i * (m_heightmap_size - 1) * 2 + j * 2 + 1] = Vector3::Normalize(n);
+
+					// calculate tangent
+					Vector2 uva = vertices[i * m_heightmap_size + j].uv;
+					Vector2 uvb = vertices[(i + 1) * m_heightmap_size + j].uv;
+					Vector2 uvc = vertices[(i + 1) * m_heightmap_size + (j + 1)].uv;
+					Vector2 uvd = vertices[i * m_heightmap_size + (j + 1)].uv;
+
+					Vector3 e1 = a - b;
+					Vector3 e2 = c - b;
+					Vector2 d1 = uva - uvb;
+					Vector2 d2 = uvc - uvb;
+					float f = 1.0f / (d1.x * d2.y - d2.x * d1.y);
+					Vector3 t;
+					t.x = f * (d2.x * e1.x - d1.x * e2.x);
+					t.y = f * (d2.x * e1.y - d1.x * e2.y);
+					t.z = f * (d2.x * e1.z - d1.x * e2.z);
+					t = Vector3::Normalize(t);
+					face_tangents[i * (m_heightmap_size - 1) * 2 + j * 2] = t;
+
+					e1 = a - d;
+					e2 = c - d;
+					d1 = uva - uvd;
+					d2 = uvc - uvd;
+					f = 1.0f / (d1.x * d2.y - d2.x * d1.y);
+					t.x = f * (d2.x * e1.x - d1.x * e2.x);
+					t.y = f * (d2.x * e1.y - d1.x * e2.y);
+					t.z = f * (d2.x * e1.z - d1.x * e2.z);
+					t = Vector3::Normalize(t);
+					face_tangents[i * (m_heightmap_size - 1) * 2 + j * 2 + 1] = t;
 				}
 
-				int shared = 0;
+				int shared_normal = 0;
+				int shared_tangent = 0;
 				if (i < m_heightmap_size - 1 && j < m_heightmap_size - 1)
 				{
 					if (j > 0 && i > 0)
 					{
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
-						face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+						face_shared_normals[shared_normal++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+					
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+						face_shared_tangents[shared_tangent++] = face_tangents[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
 					}
 					else if (j > 0)
 					{
-						face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared_normals[shared_normal++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+
+						face_shared_tangents[shared_tangent++] = face_tangents[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
 					}
 					else if (i > 0)
 					{
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
 					}
-					face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + j * 2];
-					face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + j * 2 + 1];
+
+					face_shared_normals[shared_normal++] = face_normals[i * (m_heightmap_size - 1) * 2 + j * 2];
+					face_shared_normals[shared_normal++] = face_normals[i * (m_heightmap_size - 1) * 2 + j * 2 + 1];
+
+					face_shared_tangents[shared_tangent++] = face_tangents[i * (m_heightmap_size - 1) * 2 + j * 2];
+					face_shared_tangents[shared_tangent++] = face_tangents[i * (m_heightmap_size - 1) * 2 + j * 2 + 1];
 				}
 				else if (j == m_heightmap_size - 1) // right column
 				{
 					if (i > 0)
 					{
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+					
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
 					}
 
 					if (i < m_heightmap_size - 1)
 					{
-						face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared_normals[shared_normal++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+
+						face_shared_tangents[shared_tangent++] = face_tangents[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
 					}
 				}
 				else if (i == m_heightmap_size - 1) // bottom row
 				{
 					if (j > 0)
 					{
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
 					}
 
 					if (j < m_heightmap_size - 1)
 					{
-						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+						face_shared_normals[shared_normal++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+
+						face_shared_tangents[shared_tangent++] = face_tangents[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
 					}
 				}
 
 				Vector3 normal(0, 0, 0);
-				for (int k = 0; k < shared; k++)
+				for (int k = 0; k < shared_normal; k++)
 				{
-					normal += face_shared[k];
+					normal += face_shared_normals[k];
 				}
-				normal = normal * (1.0f / shared);
+				normal = Vector3::Normalize(normal * (1.0f / shared_normal));
 
-				vertices[i * m_heightmap_size + j].normal = Vector3::Normalize(normal);
+				Vector3 tangent(0, 0, 0);
+				for (int k = 0; k < shared_tangent; k++)
+				{
+					tangent += face_shared_tangents[k];
+				}
+				tangent = Vector3::Normalize(tangent * (1.0f / shared_tangent));
+
+				vertices[i * m_heightmap_size + j].normal = normal;
+				vertices[i * m_heightmap_size + j].tangent = Vector4(tangent.x, tangent.y, tangent.z, 1);
 			}
 		}
 		
 		Memory::Free(face_normals);
+		Memory::Free(face_tangents);
 	}
 
 	void Terrain::GenerateTile(int x, int y)
