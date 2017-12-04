@@ -107,14 +107,14 @@ namespace Viry3D
 		{
 			for (int j = 0; j < m_heightmap_size; j++)
 			{
-				float height = m_heightmap_data[i * m_heightmap_size + j];
+				float h = m_heightmap_data[i * m_heightmap_size + j];
 				Vertex& v = vertices[i * m_heightmap_size + j];
-				float x = j / (m_heightmap_size - 1) * m_terrain_size.x;
-				float y = height * m_terrain_size.y;
-				float z = i / (m_heightmap_size - 1) * m_terrain_size.z;
+				float x = j / (float) (m_heightmap_size - 1) * m_terrain_size.x;
+				float y = h * m_terrain_size.y;
+				float z = i / (float) (m_heightmap_size - 1) * m_terrain_size.z;
 
 				v.vertex = Vector3(x, y, z);
-				v.uv = Vector2(x, z);
+				v.uv = Vector2(x, m_terrain_size.z - z);
 				v.uv2 = Vector2(x / m_terrain_size.x, z / m_terrain_size.z);
 
 				if (i < m_heightmap_size - 1 && j < m_heightmap_size - 1)
@@ -149,7 +149,87 @@ namespace Viry3D
 	void Terrain::CalculateNormals(Vertex* vertices)
 	{
 		// calculate normals and tangents
+		Vector3* face_normals = Memory::Alloc<Vector3>(sizeof(Vector3) * (m_heightmap_size - 1) * (m_heightmap_size - 1) * 2);
+		
+		Vector3 face_shared[6];
+		for (int i = 0; i < m_heightmap_size; i++)
+		{
+			for (int j = 0; j < m_heightmap_size; j++)
+			{
+				if (i < m_heightmap_size - 1 && j < m_heightmap_size - 1)
+				{
+					Vector3 a = vertices[i * m_heightmap_size + j].vertex;
+					Vector3 b = vertices[(i + 1) * m_heightmap_size + j].vertex;
+					Vector3 c = vertices[(i + 1) * m_heightmap_size + (j + 1)].vertex;
+					Vector3 d = vertices[i * m_heightmap_size + (j + 1)].vertex;
 
+					Vector3 m = (b - a) * (c - a);
+					Vector3 n = (c - a) * (d - a);
+
+					face_normals[i * (m_heightmap_size - 1) * 2 + j * 2] = Vector3::Normalize(m);
+					face_normals[i * (m_heightmap_size - 1) * 2 + j * 2 + 1] = Vector3::Normalize(n);
+				}
+
+				int shared = 0;
+				if (i < m_heightmap_size - 1 && j < m_heightmap_size - 1)
+				{
+					if (j > 0 && i > 0)
+					{
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+						face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+					}
+					else if (j > 0)
+					{
+						face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+					}
+					else if (i > 0)
+					{
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+					}
+					face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + j * 2];
+					face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + j * 2 + 1];
+				}
+				else if (j == m_heightmap_size - 1) // right column
+				{
+					if (i > 0)
+					{
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+					}
+
+					if (i < m_heightmap_size - 1)
+					{
+						face_shared[shared++] = face_normals[i * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+					}
+				}
+				else if (i == m_heightmap_size - 1) // bottom row
+				{
+					if (j > 0)
+					{
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2];
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + (j - 1) * 2 + 1];
+					}
+
+					if (j < m_heightmap_size - 1)
+					{
+						face_shared[shared++] = face_normals[(i - 1) * (m_heightmap_size - 1) * 2 + j * 2];
+					}
+				}
+
+				Vector3 normal(0, 0, 0);
+				for (int k = 0; k < shared; k++)
+				{
+					normal += face_shared[k];
+				}
+				normal = normal * (1.0f / shared);
+
+				vertices[i * m_heightmap_size + j].normal = Vector3::Normalize(normal);
+			}
+		}
+		
+		Memory::Free(face_normals);
 	}
 
 	void Terrain::GenerateTile(int x, int y)
