@@ -22,6 +22,7 @@
 #include "graphics/Camera.h"
 #include "graphics/Graphics.h"
 #include "graphics/Material.h"
+#include "graphics/Light.h"
 #include "renderer/Terrain.h"
 
 using namespace Viry3D;
@@ -65,12 +66,16 @@ public:
 			terrain_mat->SetTexture(String::Format("_SplatTex%d", i), splats[i].texture);
 			terrain_mat->SetVector(String::Format("_SplatTex%dSizeOffset", i), Vector4(splats[i].tile_size.x, splats[i].tile_size.y, splats[i].tile_offset.x, splats[i].tile_offset.y));
 		}
-		for (int i = 0; i < alphamaps.Size(); i++)
+		if (alphamaps.Size() > 0)
 		{
-			terrain_mat->SetTexture(String::Format("_ControlTex%d", i), alphamaps[i]);
-			terrain_mat->SetVector(String::Format("_ControlTex%dSizeOffset", i), Vector4(terrain_size.x, terrain_size.z, 0, 0));
+			terrain_mat->SetTexture("_ControlTex0", alphamaps[0]);
+			terrain_mat->SetVector("_ControlTex0SizeOffset", Vector4(terrain_size.x, terrain_size.z, 0, 0));
 		}
 		terrain->SetSharedMaterial(terrain_mat);
+
+		auto light = GameObject::Create("light")->AddComponent<Light>();
+		light->GetTransform()->SetRotation(Quaternion::Euler(45, -45, 0));
+		Light::main = light;
 	}
 };
 

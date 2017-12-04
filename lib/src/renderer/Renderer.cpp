@@ -87,8 +87,7 @@ namespace Viry3D
 		{
 			auto light = Light::main.lock();
 			mat->SetVector("_WorldSpaceLightPos", -light->GetTransform()->GetForward());
-			mat->SetColor("_LightColor", light->color);
-			mat->SetVector("_LightIntensity", Vector4(light->intensity));
+			mat->SetColor("_LightColor", light->color * light->intensity);
 		}
 	}
 

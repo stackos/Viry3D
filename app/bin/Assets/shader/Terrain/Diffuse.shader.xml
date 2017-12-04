@@ -5,8 +5,40 @@
 		</UniformBuffer>
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>
+		<VertexAttribute name="Texcoord2" location="2"/>
+		<VertexAttribute name="Normal" location="3"/>
+		<VertexAttribute name="Tangent" location="4"/>
 		<Include name="Base.in"/>
-		<Include name="Texture.vs"/>
+		<Source>
+UniformBuffer(1, 0) uniform buf_vs_obj {
+	mat4 _World;
+} u_buf_obj;
+
+UniformBuffer(0, 2) uniform buf_vs {
+	mat4 _ViewProjection;
+} u_buf;
+
+layout (location = 0) in vec4 a_pos;
+layout (location = 1) in vec2 a_uv;
+layout (location = 2) in vec2 a_uv2;
+layout (location = 3) in vec3 a_normal;
+layout (location = 4) in vec4 a_tangent;
+
+Varying(0) out vec2 v_uv;
+Varying(1) out vec3 v_world_normal;
+Varying(2) out vec3 v_world_pos;
+
+void main() {
+	vec4 world_pos = a_pos * u_buf_obj._World;
+	gl_Position = world_pos * u_buf._ViewProjection;
+	v_uv = a_uv;
+	
+	v_world_normal = (vec4(a_normal, 0.0) * u_buf_obj._World).xyz;
+	v_world_pos = world_pos.xyz;
+	
+	vulkan_convert();
+}
+		</Source>
 	</VertexShader>
 
 	<PixelShader name="ps">
@@ -16,6 +48,8 @@
 			<Uniform name="_SplatTex2SizeOffset" size="16"/>
 			<Uniform name="_SplatTex3SizeOffset" size="16"/>
 			<Uniform name="_ControlTex0SizeOffset" size="16"/>
+			<Uniform name="_WorldSpaceLightPos" size="16"/>
+			<Uniform name="_LightColor" size="16"/>
 		</UniformBuffer>
 		<Sampler name="_SplatTex0" binding="4" default="white"/>
 		<Sampler name="_SplatTex1" binding="5" default="white"/>
@@ -31,6 +65,8 @@ UniformBuffer(0, 3) uniform buf_ps {
 	vec4 _SplatTex2SizeOffset;
 	vec4 _SplatTex3SizeOffset;
 	vec4 _ControlTex0SizeOffset;
+	vec4 _WorldSpaceLightPos;
+	vec4 _LightColor;
 } u_buf;
 
 UniformTexture(0, 4) uniform sampler2D _SplatTex0;
@@ -40,6 +76,8 @@ UniformTexture(0, 7) uniform sampler2D _SplatTex3;
 UniformTexture(0, 8) uniform sampler2D _ControlTex0;
 
 Varying(0) in vec2 v_uv;
+Varying(1) in vec3 v_world_normal;
+Varying(2) in vec3 v_world_pos;
 
 layout (location = 0) out vec4 o_frag;
 
@@ -49,7 +87,18 @@ void main() {
 	vec4 color2 = texture(_SplatTex2, v_uv / u_buf._SplatTex2SizeOffset.xy);
 	vec4 color3 = texture(_SplatTex3, v_uv / u_buf._SplatTex3SizeOffset.xy);
 	vec4 control = texture(_ControlTex0, v_uv / u_buf._ControlTex0SizeOffset.xy);
-	o_frag = color0 * control.r + color1 * control.g + color2 * control.b + color3 * control.a;
+	vec4 c = color0 * control.r + color1 * control.g + color2 * control.b + color3 * control.a;
+	
+	vec3 light_dir = normalize(u_buf._WorldSpaceLightPos.xyz - v_world_pos * u_buf._WorldSpaceLightPos.w);
+	vec3 light_color = u_buf._LightColor.rgb;
+	
+	vec3 N = v_world_normal;
+	vec3 L = light_dir;
+	float NdotL = max(dot(N, L), 0.0);
+	
+	c.rgb = c.rgb * light_color * NdotL;
+	
+	o_frag = c;
 }
 		</Source>
 	</PixelShader>
