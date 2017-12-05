@@ -32,6 +32,18 @@ namespace Viry3D
 		Renderer::DeepCopy(source);
 
 		auto src = RefCast<ParticleSystemRenderer>(source);
+		this->render_mode = src->render_mode;
+		this->camera_velocity_scale = src->camera_velocity_scale;
+		this->velocity_scale = src->velocity_scale;
+		this->length_scale = src->length_scale;
+		this->mesh = src->mesh;
+		this->normal_direction = src->normal_direction;
+		this->sort_mode = src->sort_mode;
+		this->sorting_fudge = src->sorting_fudge;
+		this->min_particle_size = src->min_particle_size;
+		this->max_particle_size = src->max_particle_size;
+		this->alignment = src->alignment;
+		this->pivot = src->pivot;
 	}
 
 	const VertexBuffer* ParticleSystemRenderer::GetVertexBuffer() const

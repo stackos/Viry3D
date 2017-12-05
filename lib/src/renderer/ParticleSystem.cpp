@@ -46,6 +46,21 @@ namespace Viry3D
 		Component::DeepCopy(source);
 
 		auto src = RefCast<ParticleSystem>(source);
+		this->main = src->main;
+		this->emission = src->emission;
+		this->shape = src->shape;
+		this->velocity_over_lifetime = src->velocity_over_lifetime;
+		this->limit_velocity_over_lifetime = src->limit_velocity_over_lifetime;
+		this->inherit_velocity = src->inherit_velocity;
+		this->force_over_lifetime = src->force_over_lifetime;
+		this->color_over_lifetime = src->color_over_lifetime;
+		this->color_by_speed = src->color_by_speed;
+		this->size_over_lifetime = src->size_over_lifetime;
+		this->size_by_speed = src->size_by_speed;
+		this->rotation_over_lifetime = src->rotation_over_lifetime;
+		this->rotation_by_speed = src->rotation_by_speed;
+		this->external_forces = src->external_forces;
+		this->texture_sheet_animation = src->texture_sheet_animation;
 	}
 
 	void ParticleSystem::Start()

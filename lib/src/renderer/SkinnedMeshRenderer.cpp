@@ -33,14 +33,7 @@ namespace Viry3D
 		Renderer::DeepCopy(source);
 
 		auto src = RefCast<SkinnedMeshRenderer>(source);
-		auto mats = src->GetSharedMaterials();
-		for (auto& i : mats)
-		{
-			auto mat_instance = Material::Create(i->GetShader()->GetName());
-			mat_instance->DeepCopy(i);
-			i = mat_instance;
-		}
-		this->SetSharedMaterials(mats);
+		this->SetSharedMaterials(src->GetSharedMaterials());
 		this->SetSharedMesh(src->GetSharedMesh());
 		this->SetBones(src->GetBones());
 	}
