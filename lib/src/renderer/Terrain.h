@@ -31,8 +31,7 @@ namespace Viry3D
 		int x;
 		int y;
 		Vector2 noise_pos;
-		Vector3 world_pos;
-		ByteBuffer height_map;
+		Vector<float> height_map_data;
 		Ref<Texture2D> debug_image;
 	};
 
@@ -56,7 +55,6 @@ namespace Viry3D
 		virtual IndexType GetIndexType() const { return IndexType::UnsignedInt; }
 
 		void SetTileNoiseSize(float size) { m_tile_noise_size = size; }
-		// noise pos in world pos (0, 0, 0)
 		void SetNoiseCenter(const Vector2& noise_center) { m_noise_center = noise_center; }
 		void GenerateTile(int x, int y);
 		const Ref<TerrainTile>& GetTile() const { return m_tile; }

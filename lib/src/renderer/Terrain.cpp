@@ -26,18 +26,16 @@ namespace Viry3D
 	DEFINE_COM_CLASS(Terrain);
 
 	Terrain::Terrain():
-		m_tile_noise_size(4),
+		m_tile_noise_size(1),
 		m_noise_center(0, 0),
 		m_terrain_size(500, 500, 500),
 		m_heightmap_size(0),
 		m_alphamap_size(512)
 	{
-		
 	}
 
 	Terrain::~Terrain()
 	{
-		
 	}
 
 	void Terrain::DeepCopy(const Ref<Object>& source)
@@ -302,10 +300,7 @@ namespace Viry3D
 		m_tile->y = y;
 		m_tile->noise_pos.x = m_noise_center.x + x * m_tile_noise_size;
 		m_tile->noise_pos.y = m_noise_center.y + y * m_tile_noise_size;
-		m_tile->world_pos.x = x * m_terrain_size.x;
-		m_tile->world_pos.y = 0;
-		m_tile->world_pos.z = y * m_terrain_size.z;
-		m_tile->height_map = ByteBuffer(m_heightmap_size * m_heightmap_size * 2);
+		m_tile->height_map_data.Resize(m_heightmap_size * m_heightmap_size);
 
 		GenerateTileHeightMap();
 
@@ -314,8 +309,8 @@ namespace Viry3D
 		{
 			for (int j = 0; j < m_heightmap_size; j++)
 			{
-				int us = *((unsigned short*) &m_tile->height_map[i * m_heightmap_size * 2 + j * 2]);
-				colors[i * m_heightmap_size + j] = us >> 8;
+				float h = m_tile->height_map_data[i * m_heightmap_size + j ];
+				colors[i * m_heightmap_size + j] = (byte) (Mathf::Clamp01(h) * 255);
 			}
 		}
 		m_tile->debug_image = Texture2D::Create(m_heightmap_size, m_heightmap_size, TextureFormat::R8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
@@ -323,8 +318,6 @@ namespace Viry3D
 
 	void Terrain::GenerateTileHeightMap()
 	{
-		ByteBuffer& buffer = m_tile->height_map;
-
 		module::RidgedMulti mountain;
 
 		module::Billow base;
@@ -368,9 +361,7 @@ namespace Viry3D
 			float* row = map.GetSlabPtr(i);
 			for (int j = 0; j < m_heightmap_size; j++)
 			{
-				unsigned short us = (unsigned short) (Mathf::Clamp01((row[j] + 1.0f) * 0.5f) * 65535);
-				unsigned short* p = (unsigned short*) &buffer[i * m_heightmap_size * 2 + j * 2];
-				*p = us;
+				m_tile->height_map_data[i * m_heightmap_size + j] = (row[j] + 1.0f) * 0.5f;
 			}
 		}
 	}

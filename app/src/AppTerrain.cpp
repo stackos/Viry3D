@@ -39,22 +39,8 @@ public:
 	virtual void Start()
 	{
 		auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->GetTransform()->SetPosition(Vector3(253, 17, 140));
+		camera->GetTransform()->SetPosition(Vector3(250, 200, -200));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
-
-		/*auto terrain = GameObject::Create("terrain")->AddComponent<Terrain>();
-		terrain->SetHeightmapSize(513);
-		terrain->GenerateTile(0, 0);
-
-		camera->SetPostRenderFunc([=]() {
-#if VR_GLES
-			bool reverse = true;
-#else
-			bool reverse = false;
-#endif
-			Viry3D::Rect rect(0.5f, 0, 0.5f, 1);
-			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
-		});*/
 
 		auto terrain = Resource::LoadGameObject("Assets/AppTerrain/Terrain.prefab")->GetComponent<Terrain>();
 		auto terrain_size = terrain->GetTerrainSize();
@@ -77,9 +63,24 @@ public:
 		auto light = GameObject::Create("light")->AddComponent<Light>();
 		light->GetTransform()->SetRotation(Quaternion::Euler(45, -45, 0));
 		Light::main = light;
+
+		terrain->GenerateTile(0, 0);
+		terrain->SetTerrainSize(Vector3(500, 50, 500));
+		terrain->SetHeightmapData(terrain->GetTile()->height_map_data);
+		terrain->Apply();
+
+		/*camera->SetPostRenderFunc([=]() {
+#if VR_GLES
+			bool reverse = true;
+#else
+			bool reverse = false;
+#endif
+			Viry3D::Rect rect(0.5f, 0, 0.5f, 1);
+			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
+		});*/
 	}
 };
 
-#if 0
+#if 1
 VR_MAIN(AppTerrain);
 #endif
