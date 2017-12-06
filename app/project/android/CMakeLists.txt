@@ -463,6 +463,7 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppClear.cpp
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
             ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppParticle.cpp
             ${VIRY3D_APP_SRC_DIR}/AppPBR.cpp
             ${VIRY3D_APP_SRC_DIR}/AppPhysics.cpp
             ${VIRY3D_APP_SRC_DIR}/AppShadow.cpp
