@@ -483,8 +483,7 @@ namespace Viry3D
 		MemoryStream ms(buffer);
 
 		int index_offset = 0;
-		int index = 0;
-		for (auto i = ps->m_partices.Begin(); i != ps->m_partices.End(); i = i->next, index++)
+		for (auto i = ps->m_partices.Begin(); i != ps->m_partices.End(); i = i->next)
 		{
 			if (ps->m_renderer->render_mode == ParticleSystemRenderMode::Mesh)
 			{
@@ -872,7 +871,7 @@ namespace Viry3D
 		p.remaining_lifetime = p.start_lifetime - (Time::GetTime() - p.emit_time) * main.simulation_speed;
 	}
 
-	void ParticleSystem::EmitShapeSphere(Vector3 &position, Vector3 &velocity, bool hemi)
+	void ParticleSystem::EmitShapeSphere(Vector3& position, Vector3& velocity, bool hemi)
 	{
 		Vector3 dir;
 		do
@@ -922,7 +921,7 @@ namespace Viry3D
 		}
 	}
 
-	void ParticleSystem::EmitShapeCone(Vector3 &position, Vector3 &velocity)
+	void ParticleSystem::EmitShapeCone(Vector3& position, Vector3& velocity)
 	{
 		float angle = Mathf::Clamp(shape.angle, 1.0f, 89.0f);
 		Vector3 origin = Vector3(0, 0, -shape.radius / tanf(angle * Mathf::Deg2Rad));
@@ -986,7 +985,7 @@ namespace Viry3D
 		}
 	}
 
-	void ParticleSystem::EmitShapeBox(Vector3 &position, Vector3 &velocity)
+	void ParticleSystem::EmitShapeBox(Vector3& position, Vector3& velocity)
 	{
 		float x = Mathf::RandomRange(-0.5f, 0.5f) * shape.box.x;
 		float y = Mathf::RandomRange(-0.5f, 0.5f) * shape.box.y;
@@ -1134,7 +1133,7 @@ namespace Viry3D
 		}
 	}
 
-	void ParticleSystem::EmitShapeCircle(Vector3 &position, Vector3 &velocity)
+	void ParticleSystem::EmitShapeCircle(Vector3& position, Vector3& velocity)
 	{
 		float arc = Mathf::RandomRange(0.0f, shape.arc);
 		float radius = 0;
@@ -1175,7 +1174,7 @@ namespace Viry3D
 		}
 	}
 
-	void ParticleSystem::EmitShapeEdge(Vector3 &position, Vector3 &velocity)
+	void ParticleSystem::EmitShapeEdge(Vector3& position, Vector3& velocity)
 	{
 		float x = Mathf::RandomRange(-1.0f, 1.0f) * shape.radius;
 
