@@ -227,9 +227,10 @@ namespace Viry3D
 
 	Quaternion Quaternion::LookRotation(const Vector3& forward, const Vector3& up)
 	{
-		Quaternion rot = Quaternion::FromToRotation(Vector3(0, 0, 1), forward);
-		rot = Quaternion::FromToRotation(rot * Vector3(0, 1, 0), up) * rot;
-		return rot;
+		Quaternion rot0 = Quaternion::FromToRotation(Vector3(0, 1, 0), up);
+		float deg = Vector3::Angle(rot0 * Vector3(0, 0, 1), forward);
+		Quaternion rot1 = Quaternion::AngleAxis(deg, rot0 * Vector3(0, 1, 0));
+		return rot1 * rot0;
 	}
 
 	void Quaternion::Normalize()
