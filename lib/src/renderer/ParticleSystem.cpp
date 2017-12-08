@@ -429,7 +429,7 @@ namespace Viry3D
 				auto& v3 = vs[index * 4 + 3];
 
 				auto cam_rot = Camera::Current()->GetTransform()->GetRotation().ToEulerAngles();
-				auto rot = Quaternion::Euler(Vector3(0, cam_rot.y, p.rotation.z) * Mathf::Rad2Deg);
+				auto rot = Quaternion::Euler(Vector3(0, cam_rot.y, p.rotation.z * Mathf::Rad2Deg));
 				v0.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, p.size.y * 0.5f, 0);
 				v1.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, -p.size.y * 0.5f, 0);
 				v2.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, -p.size.y * 0.5f, 0);
