@@ -1472,7 +1472,7 @@ namespace Viry3D
 			if (String(flag) == "VIRY")
 			{
 				unsigned int version = ms.Read<unsigned int>();
-				if (version >= 0x00010000)
+				if (version >= APP_VERSION)
 				{
 					obj = read_transform(ms, Ref<Transform>(), objs, transform_instances)->GetGameObject();
 				}

@@ -23,7 +23,8 @@
 #include "thread/Thread.h"
 #include <assert.h>
 
-#define APP_VERSION "1.0.0"
+#define APP_VERSION			0x00010000
+#define APP_VERSION_NAME	"1.0"
 
 namespace Viry3D
 {

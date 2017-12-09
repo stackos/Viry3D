@@ -588,7 +588,7 @@ static void extract_assets_if_needed(const String& package_path, const String& d
 		auto buffer = File::ReadAllBytes(version_file);
 		auto version = String(buffer);
 
-		if (version != APP_VERSION)
+		if (version != APP_VERSION_NAME)
 		{
 			extract = true;
 		}
