@@ -204,6 +204,23 @@ namespace Viry3D
 						}
 					}
 
+					Vector3 world_scale = this->GetTransform()->GetScale();
+					Vector3 local_scale = this->GetTransform()->GetLocalScale();
+
+					if (main.scaling_mode == ParticleSystemScalingMode::Hierarchy ||
+						main.scaling_mode == ParticleSystemScalingMode::Shape)
+					{
+						position.x *= world_scale.x;
+						position.y *= world_scale.y;
+						position.z *= world_scale.z;
+					}
+					else if (main.scaling_mode == ParticleSystemScalingMode::Local)
+					{
+						position.x *= local_scale.x;
+						position.y *= local_scale.y;
+						position.z *= local_scale.z;
+					}
+
 					Particle p;
 					p.emit_time = Time::GetTime();
 					p.start_lifetime = start_lifetime;
@@ -217,7 +234,8 @@ namespace Viry3D
 					{
 						auto& mat = this->GetTransform()->GetLocalToWorldMatrix();
 						p.velocity = mat.MultiplyDirection(velocity * start_speed);
-						p.position = mat.MultiplyPoint3x4(position);
+						auto mat_scale_invert = Matrix4x4::Scaling(Vector3(1.0f / world_scale.x, 1.0f / world_scale.y, 1.0f / world_scale.z));
+						p.position = (mat * mat_scale_invert).MultiplyPoint3x4(position);
 					}
 					else
 					{
@@ -762,6 +780,21 @@ namespace Viry3D
 	void ParticleSystem::UpdateParticleSize(Particle& p)
 	{
 		Vector3 s = p.start_size;
+
+		if (main.scaling_mode == ParticleSystemScalingMode::Hierarchy)
+		{
+			Vector3 scale = this->GetTransform()->GetScale();
+			s.x *= scale.x;
+			s.y *= scale.y;
+			s.z *= scale.z;
+		}
+		else if (main.scaling_mode == ParticleSystemScalingMode::Local)
+		{
+			Vector3 scale = this->GetTransform()->GetLocalScale();
+			s.x *= scale.x;
+			s.y *= scale.y;
+			s.z *= scale.z;
+		}
 
 		if (size_over_lifetime.enabled)
 		{
