@@ -26,6 +26,7 @@
 		BA5924A21D92F29400173EDC /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A11D92F29400173EDC /* GLKit.framework */; };
 		BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A31D92F2A200173EDC /* UIKit.framework */; };
 		BA5CD1591FC20856004C590A /* DebugUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5CD1571FC20856004C590A /* DebugUI.cpp */; };
+		BA87B5181FDC1BB90072868A /* AppParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA87B5161FDC1BB90072868A /* AppParticle.cpp */; };
 		BA8C136E1F9FC710003776D0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA8C136C1F9FC710003776D0 /* CoreGraphics.framework */; };
 		BA94EE511D9E95CF00254ABF /* AppMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */; };
 		BA94EEAD1D9E9C1200254ABF /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */; };
@@ -67,6 +68,7 @@
 		BA5924A11D92F29400173EDC /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		BA5924A31D92F2A200173EDC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		BA5CD1571FC20856004C590A /* DebugUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DebugUI.cpp; path = ../../src/DebugUI.cpp; sourceTree = "<group>"; };
+		BA87B5161FDC1BB90072868A /* AppParticle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppParticle.cpp; path = ../../src/AppParticle.cpp; sourceTree = "<group>"; };
 		BA8C136C1F9FC710003776D0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppMesh.cpp; path = ../../src/AppMesh.cpp; sourceTree = "<group>"; };
 		BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.5.tbd; path = usr/lib/libz.1.2.5.tbd; sourceTree = SDKROOT; };
@@ -138,6 +140,7 @@
 				BA5924801D90588800173EDC /* AppClear.cpp */,
 				BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */,
 				BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */,
+				BA87B5161FDC1BB90072868A /* AppParticle.cpp */,
 				BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */,
 				BA1795461FBB597800D0B77E /* AppPhysics.cpp */,
 				D1A6FA771FA2D3980081A94A /* AppShadow.cpp */,
@@ -271,6 +274,7 @@
 				BA94EE511D9E95CF00254ABF /* AppMesh.cpp in Sources */,
 				D1A6FA781FA2D3980081A94A /* AppShadow.cpp in Sources */,
 				BA4101DF1DC6021E003B50D6 /* AppBlur.cpp in Sources */,
+				BA87B5181FDC1BB90072868A /* AppParticle.cpp in Sources */,
 				BA5924811D90588800173EDC /* AppClear.cpp in Sources */,
 				BA0913C91DAFCF9500CA11BF /* AppAnim.cpp in Sources */,
 				BA0913B81DAA85C500CA11BF /* AppWatch.cpp in Sources */,

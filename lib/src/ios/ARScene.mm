@@ -279,7 +279,7 @@ namespace Viry3D
             0, 1, 2, 2, 1, 3
         };
         mesh->triangles.AddRange(triangles, 6);
-        mesh->Update();
+        mesh->Apply();
         
         auto mat = Material::Create("YUVToRGB");
         
@@ -382,7 +382,7 @@ namespace Viry3D
                         CGPoint uv_transformed = CGPointApplyAffineTransform(uv, uv_transform);
                         mesh->uv.Add(Vector2(uv_transformed.x, uv_transformed.y));
                     }
-                    mesh->Update();
+                    mesh->Apply();
                 }
                 
                 m_camera_view_matrix = matrix_float4x4_matrix([frame.camera viewMatrixForOrientation:orientation]);
