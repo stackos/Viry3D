@@ -13,6 +13,26 @@ Stack
 
 QQ交流群：428374717
 
+## Build
+### Windows
+* Visual Studio 2017
+* app/project/win/app.sln
+* Python
+
+### Android
+* Android Studio
+* app/project/android
+* 参照 [https://developer.android.google.cn/ndk/guides/graphics/getting-started.html](https://developer.android.google.cn/ndk/guides/graphics/getting-started.html) 编译shaderc, 使用gnustl_static和armeabi-v7a
+* Python
+
+### iOS
+* Xcode
+* app/project/ios/app.xcodeproj
+
+### macOS
+* Xcode
+* app/project/mac/app.xcodeproj
+
 ## 引擎功能
 编程语言
 
