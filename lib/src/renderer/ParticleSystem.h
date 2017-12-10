@@ -140,9 +140,10 @@ namespace Viry3D
 			AnimationCurve curve_max;
 			float constant_min;
 			float constant_max;
+			float curve_multiplier;
 
 			MinMaxCurve(): mode(ParticleSystemCurveMode::None) { }
-			float Evaluate(float time);
+			float Evaluate(float time, float lerp);
 		};
 
 		struct MinMaxGradient
@@ -156,7 +157,7 @@ namespace Viry3D
 			Gradient gradient_max;
 
 			MinMaxGradient(): mode(ParticleSystemGradientMode::None) { }
-			Color Evaluate(float time);
+			Color Evaluate(float time, float lerp);
 		};
 
 		struct MainModule
@@ -164,21 +165,33 @@ namespace Viry3D
 			float duration;
 			bool loop;
 			MinMaxCurve start_delay;
+			float start_delay_multiplier;
 			MinMaxCurve start_lifetime;
+			float start_lifetime_multiplier;
 			MinMaxCurve start_speed;
+			float start_speed_multiplier;
 			bool start_size_3d;
 			MinMaxCurve start_size_x;
+			float start_size_x_multiplier;
 			MinMaxCurve start_size_y;
+			float start_size_y_multiplier;
 			MinMaxCurve start_size_z;
+			float start_size_z_multiplier;
 			MinMaxCurve start_size;
+			float start_size_multiplier;
 			bool start_rotation_3d;
 			MinMaxCurve start_rotation_x;
+			float start_rotation_x_multiplier;
 			MinMaxCurve start_rotation_y;
+			float start_rotation_y_multiplier;
 			MinMaxCurve start_rotation_z;
+			float start_rotation_z_multiplier;
 			MinMaxCurve start_rotation;
+			float start_rotation_multiplier;
 			float randomize_rotation_direction;
 			MinMaxGradient start_color;
 			MinMaxCurve gravity_modifier;
+			float gravity_modifier_multiplier;
 			ParticleSystemSimulationSpace simulation_space;
 			float simulation_speed;
 			ParticleSystemScalingMode scaling_mode;
@@ -202,7 +215,9 @@ namespace Viry3D
 		{
 			bool enabled;
 			MinMaxCurve rate_over_time;
+			float rate_over_time_multiplier;
 			MinMaxCurve rate_over_distance;
+			float rate_over_distance_multiplier;
 			Vector<EmissionBurst> bursts;
 
 			void ResetBurstState()
@@ -225,11 +240,13 @@ namespace Viry3D
 			ParticleSystemShapeMultiModeValue arc_mode;
 			float arc_spread;
 			MinMaxCurve arc_speed;
+			float arc_speed_multiplier;
 			float length;
 			Vector3 box;
 			ParticleSystemShapeMultiModeValue radius_mode;
 			float radius_spread;
 			MinMaxCurve radius_speed;
+			float radius_speed_multiplier;
 			bool align_to_direction;
 			float random_direction_amount;
 			float spherical_direction_amount;
@@ -239,8 +256,11 @@ namespace Viry3D
 		{
 			bool enabled;
 			MinMaxCurve x;
+			float x_multiplier;
 			MinMaxCurve y;
+			float y_multiplier;
 			MinMaxCurve z;
+			float z_multiplier;
 			ParticleSystemSimulationSpace space;
 		};
 
@@ -249,10 +269,14 @@ namespace Viry3D
 			bool enabled;
 			bool separate_axes;
 			MinMaxCurve limit_x;
+			float limit_x_multiplier;
 			MinMaxCurve limit_y;
+			float limit_y_multiplier;
 			MinMaxCurve limit_z;
+			float limit_z_multiplier;
 			ParticleSystemSimulationSpace space;
 			MinMaxCurve limit;
+			float limit_multiplier;
 			float dampen;
 		};
 
@@ -261,14 +285,18 @@ namespace Viry3D
 			bool enabled;
 			ParticleSystemInheritVelocityMode mode;
 			MinMaxCurve curve;
+			float curve_multiplier;
 		};
 
 		struct ForceOverLifetimeModule
 		{
 			bool enabled;
 			MinMaxCurve x;
+			float x_multiplier;
 			MinMaxCurve y;
+			float y_multiplier;
 			MinMaxCurve z;
+			float z_multiplier;
 			ParticleSystemSimulationSpace space;
 			bool randomized;
 		};
@@ -291,9 +319,13 @@ namespace Viry3D
 			bool enabled;
 			bool separate_axes;
 			MinMaxCurve x;
+			float x_multiplier;
 			MinMaxCurve y;
+			float y_multiplier;
 			MinMaxCurve z;
+			float z_multiplier;
 			MinMaxCurve size;
+			float size_multiplier;
 		};
 
 		struct SizeBySpeedModule
@@ -301,9 +333,13 @@ namespace Viry3D
 			bool enabled;
 			bool separate_axes;
 			MinMaxCurve x;
+			float x_multiplier;
 			MinMaxCurve y;
+			float y_multiplier;
 			MinMaxCurve z;
+			float z_multiplier;
 			MinMaxCurve size;
+			float size_multiplier;
 			Vector2 range;
 		};
 
@@ -312,8 +348,11 @@ namespace Viry3D
 			bool enabled;
 			bool separate_axes;
 			MinMaxCurve x;
+			float x_multiplier;
 			MinMaxCurve y;
+			float y_multiplier;
 			MinMaxCurve z;
+			float z_multiplier;
 		};
 
 		struct RotationBySpeedModule
@@ -321,8 +360,11 @@ namespace Viry3D
 			bool enabled;
 			bool separate_axes;
 			MinMaxCurve x;
+			float x_multiplier;
 			MinMaxCurve y;
+			float y_multiplier;
 			MinMaxCurve z;
+			float z_multiplier;
 			Vector2 range;
 		};
 
@@ -341,7 +383,9 @@ namespace Viry3D
 			bool use_random_row;
 			int row_index;
 			MinMaxCurve frame_over_time;
+			float frame_over_time_multiplier;
 			MinMaxCurve start_frame;
+			float start_frame_multiplier;
 			int cycle_count;
 			float flip_u;
 			float flip_v;
@@ -363,12 +407,38 @@ namespace Viry3D
 			Vector3 position;
 			Vector3 rotation;
 
+			float velocity_over_lifetime_x_lerp = -1;
+			float velocity_over_lifetime_y_lerp = -1;
+			float velocity_over_lifetime_z_lerp = -1;
+			float force_over_lifetime_x_lerp = -1;
+			float force_over_lifetime_y_lerp = -1;
+			float force_over_lifetime_z_lerp = -1;
+			float limit_velocity_over_lifetime_limit_x_lerp = -1;
+			float limit_velocity_over_lifetime_limit_y_lerp = -1;
+			float limit_velocity_over_lifetime_limit_z_lerp = -1;
+			float limit_velocity_over_lifetime_limit_lerp = -1;
+			float rotation_over_lifetime_x_lerp = -1;
+			float rotation_over_lifetime_y_lerp = -1;
+			float rotation_over_lifetime_z_lerp = -1;
+			float rotation_by_speed_x_lerp = -1;
+			float rotation_by_speed_y_lerp = -1;
+			float rotation_by_speed_z_lerp = -1;
+			float color_over_lifetime_color_lerp = -1;
+			float color_by_speed_color_lerp = -1;
+			float size_over_lifetime_x_lerp = -1;
+			float size_over_lifetime_y_lerp = -1;
+			float size_over_lifetime_z_lerp = -1;
+			float size_over_lifetime_size_lerp = -1;
+			float size_by_speed_x_lerp = -1;
+			float size_by_speed_y_lerp = -1;
+			float size_by_speed_z_lerp = -1;
+			float size_by_speed_size_lerp = -1;
+			float texture_sheet_animation_start_frame_lerp = -1;
+			float texture_sheet_animation_frame_over_time_lerp = -1;
+
 			float emit_time;
-			Vector3 rotation_over_lifetime_random;
 			Vector4 uv_scale_offset;
 			int texture_sheet_animation_row;
-			int texture_sheet_animation_start_frame;
-			int texture_sheet_animation_frame;
 
 			Particle(): start_lifetime(0), remaining_lifetime(0) { }
 		};

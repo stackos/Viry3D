@@ -35,7 +35,7 @@ public:
 	virtual void Start()
     {
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->GetTransform()->SetPosition(Vector3(0, 1, -10));
+		camera->GetTransform()->SetPosition(Vector3(0, 0, -10));
 
 		Resource::LoadGameObject("Assets/AppParticle/fire.prefab");
     }

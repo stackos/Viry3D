@@ -29,6 +29,20 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(ParticleSystem);
 
+	float random01()
+	{
+		return Mathf::RandomRange(0.0f, 1.0f);
+	}
+
+	float get_min_max_curve_lerp(float& lerp)
+	{
+		if (lerp < 0)
+		{
+			lerp = random01();
+		}
+		return lerp;
+	}
+
 	ParticleSystem::ParticleSystem():
 		m_time_start(0),
 		m_start_delay(0),
@@ -65,7 +79,7 @@ namespace Viry3D
 
 	void ParticleSystem::Start()
 	{
-		m_start_delay = main.start_delay.Evaluate(0);
+		m_start_delay = main.start_delay.Evaluate(0, random01());
 		m_time_start = Time::GetTime() + m_start_delay;
 		m_renderer = this->GetGameObject()->GetComponent<ParticleSystemRenderer>();
 	}
@@ -103,7 +117,7 @@ namespace Viry3D
 		{
 			float now = Time::GetTime();
 			float t = m_time;
-			float rate = emission.rate_over_time.Evaluate(t);
+			float rate = emission.rate_over_time.Evaluate(t, random01());
 			int emit_count = 0;
 
 			for (auto& burst : emission.bursts)
@@ -134,9 +148,9 @@ namespace Viry3D
 
 				for (int i = 0; i < emit_count; i++)
 				{
-					float start_speed = main.start_speed.Evaluate(t);
-					Color start_color = main.start_color.Evaluate(t);
-					float start_lifetime = main.start_lifetime.Evaluate(t);
+					float start_speed = main.start_speed.Evaluate(t, random01());
+					Color start_color = main.start_color.Evaluate(t, random01());
+					float start_lifetime = main.start_lifetime.Evaluate(t, random01());
 					float remaining_lifetime = start_lifetime;
 					Vector3 start_size(0, 0, 0);
 					Vector3 position(0, 0, 0);
@@ -145,27 +159,27 @@ namespace Viry3D
 
 					if (main.start_size_3d)
 					{
-						start_size.x = main.start_size_x.Evaluate(t);
-						start_size.y = main.start_size_y.Evaluate(t);
-						start_size.z = main.start_size_z.Evaluate(t);
+						start_size.x = main.start_size_x.Evaluate(t, random01());
+						start_size.y = main.start_size_y.Evaluate(t, random01());
+						start_size.z = main.start_size_z.Evaluate(t, random01());
 					}
 					else
 					{
-						float size = main.start_size.Evaluate(t);
+						float size = main.start_size.Evaluate(t, random01());
 						start_size = Vector3(size, size, size);
 					}
 
 					if (main.start_rotation_3d)
 					{
-						rotation.x = main.start_rotation_x.Evaluate(t);
-						rotation.y = main.start_rotation_y.Evaluate(t);
-						rotation.z = main.start_rotation_z.Evaluate(t);
+						rotation.x = main.start_rotation_x.Evaluate(t, random01());
+						rotation.y = main.start_rotation_y.Evaluate(t, random01());
+						rotation.z = main.start_rotation_z.Evaluate(t, random01());
 					}
 					else
 					{
 						rotation.x = 0;
 						rotation.y = 0;
-						rotation.z = main.start_rotation.Evaluate(t);
+						rotation.z = main.start_rotation.Evaluate(t, random01());
 					}
 
 					if (shape.enabled)
@@ -245,50 +259,11 @@ namespace Viry3D
 					p.start_velocity = p.velocity;
 					p.force_velocity = Vector3::Zero();
 
-					// init random values
-					if (rotation_over_lifetime.enabled && rotation_over_lifetime.z.mode == ParticleSystemCurveMode::TwoConstants)
-					{
-						if (rotation_over_lifetime.separate_axes)
-						{
-							p.rotation_over_lifetime_random.x = rotation_over_lifetime.x.Evaluate(0);
-							p.rotation_over_lifetime_random.y = rotation_over_lifetime.y.Evaluate(0);
-							p.rotation_over_lifetime_random.z = rotation_over_lifetime.z.Evaluate(0);
-						}
-						else
-						{
-							p.rotation_over_lifetime_random.x = 0;
-							p.rotation_over_lifetime_random.y = 0;
-							p.rotation_over_lifetime_random.z = rotation_over_lifetime.z.Evaluate(0);
-						}
-
-					}
-
 					if (texture_sheet_animation.enabled)
 					{
 						if (texture_sheet_animation.animation == ParticleSystemAnimationType::SingleRow && texture_sheet_animation.use_random_row)
 						{
 							p.texture_sheet_animation_row = Mathf::RandomRange(0, texture_sheet_animation.num_tiles_y);
-						}
-
-						if (texture_sheet_animation.animation == ParticleSystemAnimationType::SingleRow)
-						{
-							p.texture_sheet_animation_start_frame = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.start_frame.Evaluate(0));
-						}
-						else
-						{
-							p.texture_sheet_animation_start_frame = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.num_tiles_y * texture_sheet_animation.start_frame.Evaluate(0));
-						}
-
-						if (texture_sheet_animation.frame_over_time.mode == ParticleSystemCurveMode::TwoConstants)
-						{
-							if (texture_sheet_animation.animation == ParticleSystemAnimationType::SingleRow)
-							{
-								p.texture_sheet_animation_frame = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.frame_over_time.Evaluate(0));
-							}
-							else
-							{
-								p.texture_sheet_animation_frame = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.num_tiles_y * texture_sheet_animation.frame_over_time.Evaluate(0));
-							}
 						}
 					}
 
@@ -580,9 +555,9 @@ namespace Viry3D
 
 		if (velocity_over_lifetime.enabled)
 		{
-			float x = velocity_over_lifetime.x.Evaluate(lifetime_t);
-			float y = velocity_over_lifetime.y.Evaluate(lifetime_t);
-			float z = velocity_over_lifetime.z.Evaluate(lifetime_t);
+			float x = velocity_over_lifetime.x.Evaluate(lifetime_t, get_min_max_curve_lerp(p.velocity_over_lifetime_x_lerp));
+			float y = velocity_over_lifetime.y.Evaluate(lifetime_t, get_min_max_curve_lerp(p.velocity_over_lifetime_y_lerp));
+			float z = velocity_over_lifetime.z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.velocity_over_lifetime_z_lerp));
 
 			if (main.simulation_space == ParticleSystemSimulationSpace::World)
 			{
@@ -610,9 +585,9 @@ namespace Viry3D
 
 		if (force_over_lifetime.enabled)
 		{
-			float x = force_over_lifetime.x.Evaluate(lifetime_t);
-			float y = force_over_lifetime.y.Evaluate(lifetime_t);
-			float z = force_over_lifetime.z.Evaluate(lifetime_t);
+			float x = force_over_lifetime.x.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_x_lerp));
+			float y = force_over_lifetime.y.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_y_lerp));
+			float z = force_over_lifetime.z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_z_lerp));
 
 			if (main.simulation_space == ParticleSystemSimulationSpace::World)
 			{
@@ -644,9 +619,9 @@ namespace Viry3D
 		{
 			if (limit_velocity_over_lifetime.separate_axes)
 			{
-				float x = limit_velocity_over_lifetime.limit_x.Evaluate(lifetime_t);
-				float y = limit_velocity_over_lifetime.limit_y.Evaluate(lifetime_t);
-				float z = limit_velocity_over_lifetime.limit_z.Evaluate(lifetime_t);
+				float x = limit_velocity_over_lifetime.limit_x.Evaluate(lifetime_t, get_min_max_curve_lerp(p.limit_velocity_over_lifetime_limit_x_lerp));
+				float y = limit_velocity_over_lifetime.limit_y.Evaluate(lifetime_t, get_min_max_curve_lerp(p.limit_velocity_over_lifetime_limit_y_lerp));
+				float z = limit_velocity_over_lifetime.limit_z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.limit_velocity_over_lifetime_limit_z_lerp));
 				Vector3 limit;
 
 				if (main.simulation_space == ParticleSystemSimulationSpace::World)
@@ -693,7 +668,7 @@ namespace Viry3D
 			}
 			else
 			{
-				float limit = limit_velocity_over_lifetime.limit.Evaluate(lifetime_t);
+				float limit = limit_velocity_over_lifetime.limit.Evaluate(lifetime_t, get_min_max_curve_lerp(p.limit_velocity_over_lifetime_limit_lerp));
 				float mag = v.Magnitude();
 				if (mag > limit)
 				{
@@ -713,24 +688,17 @@ namespace Viry3D
 
 		if (rotation_over_lifetime.enabled)
 		{
-			if (rotation_over_lifetime.z.mode == ParticleSystemCurveMode::TwoConstants)
+			float lifetime_t = Mathf::Clamp01((p.start_lifetime - p.remaining_lifetime) / p.start_lifetime);
+
+			if (rotation_over_lifetime.separate_axes)
 			{
-				v = p.rotation_over_lifetime_random;
+				v.x += rotation_over_lifetime.x.Evaluate(lifetime_t, get_min_max_curve_lerp(p.rotation_over_lifetime_x_lerp));
+				v.y += rotation_over_lifetime.y.Evaluate(lifetime_t, get_min_max_curve_lerp(p.rotation_over_lifetime_y_lerp));
+				v.z += rotation_over_lifetime.z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.rotation_over_lifetime_z_lerp));
 			}
 			else
 			{
-				float lifetime_t = Mathf::Clamp01((p.start_lifetime - p.remaining_lifetime) / p.start_lifetime);
-
-				if (rotation_over_lifetime.separate_axes)
-				{
-					v.x += rotation_over_lifetime.x.Evaluate(lifetime_t);
-					v.y += rotation_over_lifetime.y.Evaluate(lifetime_t);
-					v.z += rotation_over_lifetime.z.Evaluate(lifetime_t);
-				}
-				else
-				{
-					v.z += rotation_over_lifetime.z.Evaluate(lifetime_t);
-				}
+				v.z += rotation_over_lifetime.z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.rotation_over_lifetime_z_lerp));
 			}
 		}
 
@@ -742,13 +710,13 @@ namespace Viry3D
 
 			if (rotation_by_speed.separate_axes)
 			{
-				v.x += rotation_by_speed.x.Evaluate(speed_t);
-				v.y += rotation_by_speed.y.Evaluate(speed_t);
-				v.z += rotation_by_speed.z.Evaluate(speed_t);
+				v.x += rotation_by_speed.x.Evaluate(speed_t, get_min_max_curve_lerp(p.rotation_by_speed_x_lerp));
+				v.y += rotation_by_speed.y.Evaluate(speed_t, get_min_max_curve_lerp(p.rotation_by_speed_y_lerp));
+				v.z += rotation_by_speed.z.Evaluate(speed_t, get_min_max_curve_lerp(p.rotation_by_speed_z_lerp));
 			}
 			else
 			{
-				v.z += rotation_by_speed.z.Evaluate(speed_t);
+				v.z += rotation_by_speed.z.Evaluate(speed_t, get_min_max_curve_lerp(p.rotation_by_speed_z_lerp));
 			}
 		}
 
@@ -762,7 +730,7 @@ namespace Viry3D
 		if (color_over_lifetime.enabled)
 		{
 			float lifetime_t = Mathf::Clamp01((p.start_lifetime - p.remaining_lifetime) / p.start_lifetime);
-			c *= color_over_lifetime.color.Evaluate(lifetime_t);
+			c *= color_over_lifetime.color.Evaluate(lifetime_t, get_min_max_curve_lerp(p.color_over_lifetime_color_lerp));
 		}
 
 		if (color_by_speed.enabled)
@@ -771,7 +739,7 @@ namespace Viry3D
 			float speed_t = (speed - color_by_speed.range.x) / (color_by_speed.range.y - color_by_speed.range.x);
 			speed_t = Mathf::Clamp01(speed_t);
 
-			c *= color_by_speed.color.Evaluate(speed_t);
+			c *= color_by_speed.color.Evaluate(speed_t, get_min_max_curve_lerp(p.color_by_speed_color_lerp));
 		}
 
 		p.color = c;
@@ -802,13 +770,13 @@ namespace Viry3D
 
 			if (size_over_lifetime.separate_axes)
 			{
-				s.x *= size_over_lifetime.x.Evaluate(lifetime_t);
-				s.y *= size_over_lifetime.y.Evaluate(lifetime_t);
-				s.z *= size_over_lifetime.z.Evaluate(lifetime_t);
+				s.x *= size_over_lifetime.x.Evaluate(lifetime_t, get_min_max_curve_lerp(p.size_over_lifetime_x_lerp));
+				s.y *= size_over_lifetime.y.Evaluate(lifetime_t, get_min_max_curve_lerp(p.size_over_lifetime_y_lerp));
+				s.z *= size_over_lifetime.z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.size_over_lifetime_z_lerp));
 			}
 			else
 			{
-				s *= size_over_lifetime.size.Evaluate(lifetime_t);
+				s *= size_over_lifetime.size.Evaluate(lifetime_t, get_min_max_curve_lerp(p.size_over_lifetime_size_lerp));
 			}
 		}
 
@@ -820,13 +788,13 @@ namespace Viry3D
 
 			if (size_by_speed.separate_axes)
 			{
-				s.x *= size_by_speed.x.Evaluate(speed_t);
-				s.y *= size_by_speed.y.Evaluate(speed_t);
-				s.z *= size_by_speed.z.Evaluate(speed_t);
+				s.x *= size_by_speed.x.Evaluate(speed_t, get_min_max_curve_lerp(p.size_by_speed_x_lerp));
+				s.y *= size_by_speed.y.Evaluate(speed_t, get_min_max_curve_lerp(p.size_by_speed_y_lerp));
+				s.z *= size_by_speed.z.Evaluate(speed_t, get_min_max_curve_lerp(p.size_by_speed_z_lerp));
 			}
 			else
 			{
-				s *= size_by_speed.size.Evaluate(speed_t);
+				s *= size_by_speed.size.Evaluate(speed_t, get_min_max_curve_lerp(p.size_by_speed_size_lerp));
 			}
 		}
 
@@ -841,6 +809,7 @@ namespace Viry3D
 			p.uv_scale_offset.y = 1.0f / texture_sheet_animation.num_tiles_y;
 
 			int row = 0;
+			int start_frame;
 			int frame_over_time;
 
 			if (texture_sheet_animation.animation == ParticleSystemAnimationType::SingleRow)
@@ -855,24 +824,26 @@ namespace Viry3D
 				}
 			}
 
-			if (texture_sheet_animation.frame_over_time.mode == ParticleSystemCurveMode::TwoConstants)
+			if (texture_sheet_animation.animation == ParticleSystemAnimationType::SingleRow)
 			{
-				frame_over_time = p.texture_sheet_animation_frame;
+				start_frame = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.start_frame.Evaluate(0, get_min_max_curve_lerp(p.texture_sheet_animation_start_frame_lerp)));
 			}
 			else
 			{
-				float lifetime_t = Mathf::Clamp01((p.start_lifetime - p.remaining_lifetime) / p.start_lifetime);
-				if (texture_sheet_animation.animation == ParticleSystemAnimationType::SingleRow)
-				{
-					frame_over_time = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.frame_over_time.Evaluate(lifetime_t));
-				}
-				else
-				{
-					frame_over_time = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.num_tiles_y * texture_sheet_animation.frame_over_time.Evaluate(lifetime_t));
-				}
+				start_frame = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.num_tiles_y * texture_sheet_animation.start_frame.Evaluate(0, get_min_max_curve_lerp(p.texture_sheet_animation_start_frame_lerp)));
 			}
 
-			int frame = row * texture_sheet_animation.num_tiles_x + p.texture_sheet_animation_start_frame + frame_over_time;
+			float lifetime_t = Mathf::Clamp01((p.start_lifetime - p.remaining_lifetime) / p.start_lifetime);
+			if (texture_sheet_animation.animation == ParticleSystemAnimationType::SingleRow)
+			{
+				frame_over_time = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.frame_over_time.Evaluate(lifetime_t, get_min_max_curve_lerp(p.texture_sheet_animation_frame_over_time_lerp)));
+			}
+			else
+			{
+				frame_over_time = (int) (texture_sheet_animation.num_tiles_x * texture_sheet_animation.num_tiles_y * texture_sheet_animation.frame_over_time.Evaluate(lifetime_t, get_min_max_curve_lerp(p.texture_sheet_animation_frame_over_time_lerp)));
+			}
+
+			int frame = row * texture_sheet_animation.num_tiles_x + start_frame + frame_over_time;
 			frame = frame % (texture_sheet_animation.num_tiles_x * texture_sheet_animation.num_tiles_y);
 			int x = frame % texture_sheet_animation.num_tiles_x;
 			int y = frame / texture_sheet_animation.num_tiles_x;
@@ -1237,7 +1208,7 @@ namespace Viry3D
 		}
 	}
 
-	float ParticleSystem::MinMaxCurve::Evaluate(float time)
+	float ParticleSystem::MinMaxCurve::Evaluate(float time, float lerp)
 	{
 		time = Mathf::Clamp01(time);
 
@@ -1247,15 +1218,15 @@ namespace Viry3D
 		}
 		else if (mode == ParticleSystemCurveMode::TwoConstants)
 		{
-			return Mathf::RandomRange(constant_min, constant_max);
+			return Mathf::Lerp(constant_min, constant_max, lerp);
 		}
 		else if (mode == ParticleSystemCurveMode::Curve)
 		{
-			return curve.Evaluate(time);
+			return curve.Evaluate(time) * curve_multiplier;
 		}
 		else if (mode == ParticleSystemCurveMode::TwoCurves)
 		{
-			return Mathf::RandomRange(curve_min.Evaluate(time), curve_max.Evaluate(time));
+			return Mathf::Lerp(curve_min.Evaluate(time), curve_max.Evaluate(time), lerp) * curve_multiplier;
 		}
 
 		return 0;
@@ -1340,7 +1311,7 @@ namespace Viry3D
 		return c;
 	}
 
-	Color ParticleSystem::MinMaxGradient::Evaluate(float time)
+	Color ParticleSystem::MinMaxGradient::Evaluate(float time, float lerp)
 	{
 		time = Mathf::Clamp01(time);
 
@@ -1354,25 +1325,25 @@ namespace Viry3D
 		}
 		else if (mode == ParticleSystemGradientMode::TwoColors)
 		{
-			float r = Mathf::RandomRange(color_min.r, color_max.r);
-			float g = Mathf::RandomRange(color_min.g, color_max.g);
-			float b = Mathf::RandomRange(color_min.b, color_max.b);
-			float a = Mathf::RandomRange(color_min.a, color_max.a);
+			float r = Mathf::Lerp(color_min.r, color_max.r, lerp);
+			float g = Mathf::Lerp(color_min.g, color_max.g, lerp);
+			float b = Mathf::Lerp(color_min.b, color_max.b, lerp);
+			float a = Mathf::Lerp(color_min.a, color_max.a, lerp);
 			return Color(r, g, b, a);
 		}
 		else if (mode == ParticleSystemGradientMode::TwoGradients)
 		{
 			Color min = gradient_min.Evaluate(time);
 			Color max = gradient_max.Evaluate(time);
-			float r = Mathf::RandomRange(min.r, max.r);
-			float g = Mathf::RandomRange(min.g, max.g);
-			float b = Mathf::RandomRange(min.b, max.b);
-			float a = Mathf::RandomRange(min.a, max.a);
+			float r = Mathf::Lerp(min.r, max.r, lerp);
+			float g = Mathf::Lerp(min.g, max.g, lerp);
+			float b = Mathf::Lerp(min.b, max.b, lerp);
+			float a = Mathf::Lerp(min.a, max.a, lerp);
 			return Color(r, g, b, a);
 		}
 		else if (mode == ParticleSystemGradientMode::RandomColor)
 		{
-			return gradient.Evaluate(Mathf::RandomRange(0.0f, 1.0f));
+			return gradient.Evaluate(random01());
 		}
 
 		return Color();
