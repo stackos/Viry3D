@@ -889,49 +889,37 @@ namespace Viry3D
 		module.loop = ms.Read<bool>();
 
 		read_min_max_curve(ms, module.start_delay);
-		module.start_delay_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.start_lifetime);
-		module.start_lifetime_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.start_speed);
-		module.start_speed_multiplier = ms.Read<float>();
 
 		module.start_size_3d = ms.Read<bool>();
 		if (module.start_size_3d)
 		{
 			read_min_max_curve(ms, module.start_size_x);
-			module.start_size_x_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.start_size_y);
-			module.start_size_y_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.start_size_z);
-			module.start_size_z_multiplier = ms.Read<float>();
 		}
 		else
 		{
 			read_min_max_curve(ms, module.start_size);
-			module.start_size_multiplier = ms.Read<float>();
 		}
 
 		module.start_rotation_3d = ms.Read<bool>();
 		if (module.start_rotation_3d)
 		{
 			read_min_max_curve(ms, module.start_rotation_x);
-			module.start_rotation_x_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.start_rotation_y);
-			module.start_rotation_y_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.start_rotation_z);
-			module.start_rotation_z_multiplier = ms.Read<float>();
 		}
 		else
 		{
 			read_min_max_curve(ms, module.start_rotation);
-			module.start_rotation_multiplier = ms.Read<float>();
 		}
 
 		module.randomize_rotation_direction = ms.Read<float>();
 
 		read_min_max_gradient(ms, module.start_color);
 		read_min_max_curve(ms, module.gravity_modifier);
-		module.gravity_modifier_multiplier = ms.Read<float>();
 		module.simulation_space = (ParticleSystemSimulationSpace) ms.Read<int>();
 		module.simulation_speed = ms.Read<float>();
 		module.scaling_mode = (ParticleSystemScalingMode) ms.Read<int>();
@@ -947,9 +935,7 @@ namespace Viry3D
 		}
 
 		read_min_max_curve(ms, module.rate_over_time);
-		module.rate_over_time_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.rate_over_distance);
-		module.rate_over_distance_multiplier = ms.Read<float>();
 
 		auto burst_count = ms.Read<int>();
 		module.bursts.Resize(burst_count);
@@ -990,7 +976,6 @@ namespace Viry3D
 			module.arc_mode = (ParticleSystemShapeMultiModeValue) ms.Read<int>();
 			module.arc_spread = ms.Read<float>();
 			read_min_max_curve(ms, module.arc_speed);
-			module.arc_speed_multiplier = ms.Read<float>();
 			module.length = ms.Read<float>();
 		}
 		else if (module.shape_type == ParticleSystemShapeType::Box ||
@@ -1007,7 +992,6 @@ namespace Viry3D
 			module.arc_mode = (ParticleSystemShapeMultiModeValue) ms.Read<int>();
 			module.arc_spread = ms.Read<float>();
 			read_min_max_curve(ms, module.arc_speed);
-			module.arc_speed_multiplier = ms.Read<float>();
 		}
 		else if (module.shape_type == ParticleSystemShapeType::SingleSidedEdge)
 		{
@@ -1015,7 +999,6 @@ namespace Viry3D
 			module.radius_mode = (ParticleSystemShapeMultiModeValue) ms.Read<int>();
 			module.radius_spread = ms.Read<float>();
 			read_min_max_curve(ms, module.radius_speed);
-			module.radius_speed_multiplier = ms.Read<float>();
 		}
 
 		module.align_to_direction = ms.Read<bool>();
@@ -1032,11 +1015,8 @@ namespace Viry3D
 		}
 
 		read_min_max_curve(ms, module.x);
-		module.x_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.y);
-		module.y_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.z);
-		module.z_multiplier = ms.Read<float>();
 		module.space = (ParticleSystemSimulationSpace) ms.Read<int>();
 	}
 
@@ -1052,17 +1032,13 @@ namespace Viry3D
 		if (module.separate_axes)
 		{
 			read_min_max_curve(ms, module.limit_x);
-			module.limit_x_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.limit_y);
-			module.limit_y_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.limit_z);
-			module.limit_z_multiplier = ms.Read<float>();
 			module.space = (ParticleSystemSimulationSpace) ms.Read<int>();
 		}
 		else
 		{
 			read_min_max_curve(ms, module.limit);
-			module.limit_multiplier = ms.Read<float>();
 		}
 		module.dampen = ms.Read<float>();
 	}
@@ -1077,7 +1053,6 @@ namespace Viry3D
 
 		module.mode = (ParticleSystemInheritVelocityMode) ms.Read<int>();
 		read_min_max_curve(ms, module.curve);
-		module.curve_multiplier = ms.Read<float>();
 	}
 
 	static void read_particle_force_over_lifetime(MemoryStream& ms, ParticleSystem::ForceOverLifetimeModule& module)
@@ -1089,11 +1064,8 @@ namespace Viry3D
 		}
 
 		read_min_max_curve(ms, module.x);
-		module.x_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.y);
-		module.y_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.z);
-		module.z_multiplier = ms.Read<float>();
 		module.space = (ParticleSystemSimulationSpace) ms.Read<int>();
 		module.randomized = ms.Read<bool>();
 	}
@@ -1133,16 +1105,12 @@ namespace Viry3D
 		if (module.separate_axes)
 		{
 			read_min_max_curve(ms, module.x);
-			module.x_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.y);
-			module.y_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.z);
-			module.z_multiplier = ms.Read<float>();
 		}
 		else
 		{
 			read_min_max_curve(ms, module.size);
-			module.size_multiplier = ms.Read<float>();
 		}
 	}
 
@@ -1158,16 +1126,12 @@ namespace Viry3D
 		if (module.separate_axes)
 		{
 			read_min_max_curve(ms, module.x);
-			module.x_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.y);
-			module.y_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.z);
-			module.z_multiplier = ms.Read<float>();
 		}
 		else
 		{
 			read_min_max_curve(ms, module.size);
-			module.size_multiplier = ms.Read<float>();
 		}
 		module.range = ms.Read<Vector2>();
 	}
@@ -1184,16 +1148,12 @@ namespace Viry3D
 		if (module.separate_axes)
 		{
 			read_min_max_curve(ms, module.x);
-			module.x_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.y);
-			module.y_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.z);
-			module.z_multiplier = ms.Read<float>();
 		}
 		else
 		{
 			read_min_max_curve(ms, module.z);
-			module.z_multiplier = ms.Read<float>();
 		}
 	}
 
@@ -1209,16 +1169,12 @@ namespace Viry3D
 		if (module.separate_axes)
 		{
 			read_min_max_curve(ms, module.x);
-			module.x_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.y);
-			module.y_multiplier = ms.Read<float>();
 			read_min_max_curve(ms, module.z);
-			module.z_multiplier = ms.Read<float>();
 		}
 		else
 		{
 			read_min_max_curve(ms, module.z);
-			module.z_multiplier = ms.Read<float>();
 		}
 		module.range = ms.Read<Vector2>();
 	}
@@ -1252,9 +1208,7 @@ namespace Viry3D
 		}
 
 		read_min_max_curve(ms, module.frame_over_time);
-		module.frame_over_time_multiplier = ms.Read<float>();
 		read_min_max_curve(ms, module.start_frame);
-		module.start_frame_multiplier = ms.Read<float>();
 		module.cycle_count = ms.Read<int>();
 		module.flip_u = ms.Read<float>();
 		module.flip_v = ms.Read<float>();

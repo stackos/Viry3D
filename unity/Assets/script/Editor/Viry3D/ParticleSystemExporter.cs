@@ -56,43 +56,31 @@ public partial class Exporter {
 		m_writer.Write(module.loop);
 
 		WriteMinMaxCurve(module.startDelay);
-		m_writer.Write(module.startDelayMultiplier);
 		WriteMinMaxCurve(module.startLifetime);
-		m_writer.Write(module.startLifetimeMultiplier);
 		WriteMinMaxCurve(module.startSpeed);
-		m_writer.Write(module.startSpeedMultiplier);
 
 		m_writer.Write(module.startSize3D);
 		if(module.startSize3D) {
 			WriteMinMaxCurve(module.startSizeX);
-			m_writer.Write(module.startSizeXMultiplier);
 			WriteMinMaxCurve(module.startSizeY);
-			m_writer.Write(module.startSizeYMultiplier);
 			WriteMinMaxCurve(module.startSizeZ);
-			m_writer.Write(module.startSizeZMultiplier);
 		} else {
 			WriteMinMaxCurve(module.startSize);
-			m_writer.Write(module.startSizeMultiplier);
 		}
 
 		m_writer.Write(module.startRotation3D);
 		if(module.startRotation3D) {
 			WriteMinMaxCurve(module.startRotationX);
-			m_writer.Write(module.startRotationXMultiplier);
 			WriteMinMaxCurve(module.startRotationY);
-			m_writer.Write(module.startRotationYMultiplier);
 			WriteMinMaxCurve(module.startRotationZ);
-			m_writer.Write(module.startRotationZMultiplier);
 		} else {
 			WriteMinMaxCurve(module.startRotation);
-			m_writer.Write(module.startRotationMultiplier);
 		}
 
 		m_writer.Write(module.randomizeRotationDirection);
 
 		WriteMinMaxGradient(module.startColor);
 		WriteMinMaxCurve(module.gravityModifier);
-		m_writer.Write(module.gravityModifierMultiplier);
 		m_writer.Write((int) module.simulationSpace);
 		m_writer.Write(module.simulationSpeed);
 		m_writer.Write((int) module.scalingMode);
@@ -106,9 +94,7 @@ public partial class Exporter {
 		}
 
 		WriteMinMaxCurve(module.rateOverTime);
-		m_writer.Write(module.rateOverTimeMultiplier);
 		WriteMinMaxCurve(module.rateOverDistance);
-		m_writer.Write(module.rateOverDistanceMultiplier);
 
 		m_writer.Write(module.burstCount);
 		ParticleSystem.Burst[] bursts = new ParticleSystem.Burst[module.burstCount];
@@ -144,7 +130,6 @@ public partial class Exporter {
 			m_writer.Write((int) module.arcMode);
 			m_writer.Write(module.arcSpread);
 			WriteMinMaxCurve(module.arcSpeed);
-			m_writer.Write(module.arcSpeedMultiplier);
 			m_writer.Write(module.length);
 		} else if(module.shapeType == ParticleSystemShapeType.Box ||
 			module.shapeType == ParticleSystemShapeType.BoxShell ||
@@ -157,13 +142,11 @@ public partial class Exporter {
 			m_writer.Write((int) module.arcMode);
 			m_writer.Write(module.arcSpread);
 			WriteMinMaxCurve(module.arcSpeed);
-			m_writer.Write(module.arcSpeedMultiplier);
 		} else if(module.shapeType == ParticleSystemShapeType.SingleSidedEdge) {
 			m_writer.Write(module.radius);
 			m_writer.Write((int) module.radiusMode);
 			m_writer.Write(module.radiusSpread);
 			WriteMinMaxCurve(module.radiusSpeed);
-			m_writer.Write(module.radiusSpeedMultiplier);
 		}
 
 		m_writer.Write(module.alignToDirection);
@@ -178,11 +161,8 @@ public partial class Exporter {
 		}
 
 		WriteMinMaxCurve(module.x);
-		m_writer.Write(module.xMultiplier);
 		WriteMinMaxCurve(module.y);
-		m_writer.Write(module.yMultiplier);
 		WriteMinMaxCurve(module.z);
-		m_writer.Write(module.zMultiplier);
 		m_writer.Write((int) module.space);
 	}
 
@@ -195,15 +175,11 @@ public partial class Exporter {
 		m_writer.Write(module.separateAxes);
 		if(module.separateAxes) {
 			WriteMinMaxCurve(module.limitX);
-			m_writer.Write(module.limitXMultiplier);
 			WriteMinMaxCurve(module.limitY);
-			m_writer.Write(module.limitYMultiplier);
 			WriteMinMaxCurve(module.limitZ);
-			m_writer.Write(module.limitZMultiplier);
 			m_writer.Write((int) module.space);
 		} else {
 			WriteMinMaxCurve(module.limit);
-			m_writer.Write(module.limitMultiplier);
 		}
 		m_writer.Write(module.dampen);
 	}
@@ -216,7 +192,6 @@ public partial class Exporter {
 
 		m_writer.Write((int) module.mode);
 		WriteMinMaxCurve(module.curve);
-		m_writer.Write(module.curveMultiplier);
 	}
 
 	static void WriteParticleSystemForceOverLifetime(ParticleSystem.ForceOverLifetimeModule module) {
@@ -226,11 +201,8 @@ public partial class Exporter {
 		}
 
 		WriteMinMaxCurve(module.x);
-		m_writer.Write(module.xMultiplier);
 		WriteMinMaxCurve(module.y);
-		m_writer.Write(module.yMultiplier);
 		WriteMinMaxCurve(module.z);
-		m_writer.Write(module.zMultiplier);
 		m_writer.Write((int) module.space);
 		m_writer.Write(module.randomized);
 	}
@@ -263,14 +235,10 @@ public partial class Exporter {
 		m_writer.Write(module.separateAxes);
 		if(module.separateAxes) {
 			WriteMinMaxCurve(module.x);
-			m_writer.Write(module.xMultiplier);
 			WriteMinMaxCurve(module.y);
-			m_writer.Write(module.yMultiplier);
 			WriteMinMaxCurve(module.z);
-			m_writer.Write(module.zMultiplier);
 		} else {
 			WriteMinMaxCurve(module.size);
-			m_writer.Write(module.sizeMultiplier);
 		}
 	}
 
@@ -283,14 +251,10 @@ public partial class Exporter {
 		m_writer.Write(module.separateAxes);
 		if(module.separateAxes) {
 			WriteMinMaxCurve(module.x);
-			m_writer.Write(module.xMultiplier);
 			WriteMinMaxCurve(module.y);
-			m_writer.Write(module.yMultiplier);
 			WriteMinMaxCurve(module.z);
-			m_writer.Write(module.zMultiplier);
 		} else {
 			WriteMinMaxCurve(module.size);
-			m_writer.Write(module.sizeMultiplier);
 		}
 		WriteVector2(module.range);
 	}
@@ -304,14 +268,10 @@ public partial class Exporter {
 		m_writer.Write(module.separateAxes);
 		if(module.separateAxes) {
 			WriteMinMaxCurve(module.x);
-			m_writer.Write(module.xMultiplier);
 			WriteMinMaxCurve(module.y);
-			m_writer.Write(module.yMultiplier);
 			WriteMinMaxCurve(module.z);
-			m_writer.Write(module.zMultiplier);
 		} else {
 			WriteMinMaxCurve(module.z);
-			m_writer.Write(module.zMultiplier);
 		}
 	}
 
@@ -324,14 +284,10 @@ public partial class Exporter {
 		m_writer.Write(module.separateAxes);
 		if(module.separateAxes) {
 			WriteMinMaxCurve(module.x);
-			m_writer.Write(module.xMultiplier);
 			WriteMinMaxCurve(module.y);
-			m_writer.Write(module.yMultiplier);
 			WriteMinMaxCurve(module.z);
-			m_writer.Write(module.zMultiplier);
 		} else {
 			WriteMinMaxCurve(module.z);
-			m_writer.Write(module.zMultiplier);
 		}
 		WriteVector2(module.range);
 	}
@@ -360,9 +316,7 @@ public partial class Exporter {
 		}
 
 		WriteMinMaxCurve(module.frameOverTime);
-		m_writer.Write(module.frameOverTimeMultiplier);
 		WriteMinMaxCurve(module.startFrame);
-		m_writer.Write(module.startFrameMultiplier);
 		m_writer.Write(module.cycleCount);
 		m_writer.Write(module.flipU);
 		m_writer.Write(module.flipV);
