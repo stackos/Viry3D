@@ -29,12 +29,12 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(ParticleSystem);
 
-	float random01()
+	static float random01()
 	{
 		return Mathf::RandomRange(0.0f, 1.0f);
 	}
 
-	float get_min_max_curve_lerp(float& lerp)
+	static float get_min_max_curve_lerp(float& lerp)
 	{
 		if (lerp < 0)
 		{
