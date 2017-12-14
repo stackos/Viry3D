@@ -119,6 +119,7 @@ namespace Viry3D
 			float t = m_time;
 			float rate = emission.rate_over_time.Evaluate(t, random01());
 			int emit_count = 0;
+			Vector<float> emit_time_offsets;
 
 			for (auto& burst : emission.bursts)
 			{
@@ -136,9 +137,30 @@ namespace Viry3D
 				}
 			}
 
-			if (rate > 0 && (m_time_emit < 0 || (now - m_time_emit) * main.simulation_speed >= 1.0f / rate))
+			if (emit_count > 0)
 			{
-				emit_count += 1;
+				emit_time_offsets.Resize(emit_count, 0);
+			}
+
+			float delta = now - m_time_emit;
+			if (rate > 0 && (m_time_emit < 0 || delta * main.simulation_speed >= 1.0f / rate))
+			{
+				if (m_time_emit < 0)
+				{
+					emit_count += 1;
+
+					emit_time_offsets.Add(0);
+				}
+				else
+				{
+					int count = (int) (delta * main.simulation_speed * rate);
+					emit_count += count;
+
+					for (int i = 0; i < count; i++)
+					{
+						emit_time_offsets.Add(i * delta / count);
+					}
+				}
 			}
 
 			if (emit_count > 0)
@@ -236,7 +258,7 @@ namespace Viry3D
 					}
 
 					Particle p;
-					p.emit_time = Time::GetTime();
+					p.emit_time = Time::GetTime() - emit_time_offsets[i];
 					p.start_lifetime = start_lifetime;
 					p.remaining_lifetime = remaining_lifetime;
 					p.start_size = start_size;
@@ -332,6 +354,9 @@ namespace Viry3D
 
 		auto camera_to_world = Camera::Current()->GetTransform()->GetLocalToWorldMatrix();
 		auto world_to_camera = Camera::Current()->GetTransform()->GetWorldToLocalMatrix();
+		auto local_to_world = ps->GetTransform()->GetLocalToWorldMatrix();
+		auto world_scale = ps->GetTransform()->GetScale();
+		auto mat_scale_invert = Matrix4x4::Scaling(Vector3(1.0f / world_scale.x, 1.0f / world_scale.y, 1.0f / world_scale.z));
 
 		int index = 0;
 		for (auto i = ps->m_partices.Begin(); i != ps->m_partices.End(); i = i->next, index++)
@@ -348,11 +373,12 @@ namespace Viry3D
 			}
 			else
 			{
-				pos_world = ps->GetTransform()->GetLocalToWorldMatrix().MultiplyPoint3x4(p.position);
-				velocity_world = ps->GetTransform()->GetLocalToWorldMatrix().MultiplyDirection(p.velocity);
+				pos_world = (local_to_world * mat_scale_invert).MultiplyPoint3x4(p.position);
+				velocity_world = local_to_world.MultiplyDirection(p.velocity);
 			}
 
 			auto render_mode = ps->m_renderer->render_mode;
+
 			if (render_mode == ParticleSystemRenderMode::Stretch && Mathf::FloatEqual(p.velocity.SqrMagnitude(), 0))
 			{
 				render_mode = ParticleSystemRenderMode::Billboard;
@@ -552,6 +578,9 @@ namespace Viry3D
 		Vector3 v = p.start_velocity;
 		float delta_time = Time::GetDeltaTime() * main.simulation_speed;
 		float lifetime_t = Mathf::Clamp01((p.start_lifetime - p.remaining_lifetime) / p.start_lifetime);
+		auto mat_scale = Matrix4x4::Scaling(this->GetTransform()->GetScale());
+		auto local_to_world = this->GetTransform()->GetLocalToWorldMatrix();
+		auto world_to_local = this->GetTransform()->GetWorldToLocalMatrix();
 
 		if (velocity_over_lifetime.enabled)
 		{
@@ -563,22 +592,22 @@ namespace Viry3D
 			{
 				if (velocity_over_lifetime.space == ParticleSystemSimulationSpace::World)
 				{
-					v += Vector3(x, y, z);
+					v += mat_scale.MultiplyPoint3x4(Vector3(x, y, z));
 				}
 				else
 				{
-					v += this->GetTransform()->GetLocalToWorldMatrix().MultiplyDirection(Vector3(x, y, z));
+					v += local_to_world.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z)));
 				}
 			}
 			else
 			{
 				if (velocity_over_lifetime.space == ParticleSystemSimulationSpace::World)
 				{
-					v += this->GetTransform()->GetWorldToLocalMatrix().MultiplyDirection(Vector3(x, y, z));
+					v += world_to_local.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z)));
 				}
 				else
 				{
-					v += Vector3(x, y, z);
+					v += mat_scale.MultiplyPoint3x4(Vector3(x, y, z));
 				}
 			}
 		}
@@ -593,22 +622,22 @@ namespace Viry3D
 			{
 				if (force_over_lifetime.space == ParticleSystemSimulationSpace::World)
 				{
-					p.force_velocity += Vector3(x, y, z) * delta_time;
+					p.force_velocity += mat_scale.MultiplyPoint3x4(Vector3(x, y, z)) * delta_time;
 				}
 				else
 				{
-					p.force_velocity += this->GetTransform()->GetLocalToWorldMatrix().MultiplyDirection(Vector3(x, y, z)) * delta_time;
+					p.force_velocity += local_to_world.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z))) * delta_time;
 				}
 			}
 			else
 			{
 				if (force_over_lifetime.space == ParticleSystemSimulationSpace::World)
 				{
-					p.force_velocity += this->GetTransform()->GetWorldToLocalMatrix().MultiplyDirection(Vector3(x, y, z)) * delta_time;
+					p.force_velocity += world_to_local.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z))) * delta_time;
 				}
 				else
 				{
-					p.force_velocity += Vector3(x, y, z) * delta_time;
+					p.force_velocity += mat_scale.MultiplyPoint3x4(Vector3(x, y, z)) * delta_time;
 				}
 			}
 		}
@@ -628,22 +657,22 @@ namespace Viry3D
 				{
 					if (limit_velocity_over_lifetime.space == ParticleSystemSimulationSpace::World)
 					{
-						limit = Vector3(x, y, z);
+						limit = mat_scale.MultiplyPoint3x4(Vector3(x, y, z));
 					}
 					else
 					{
-						limit = this->GetTransform()->GetLocalToWorldMatrix().MultiplyDirection(Vector3(x, y, z));
+						limit = local_to_world.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z)));
 					}
 				}
 				else
 				{
 					if (limit_velocity_over_lifetime.space == ParticleSystemSimulationSpace::World)
 					{
-						limit = this->GetTransform()->GetWorldToLocalMatrix().MultiplyDirection(Vector3(x, y, z));
+						limit = world_to_local.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z)));
 					}
 					else
 					{
-						limit = Vector3(x, y, z);
+						limit = mat_scale.MultiplyPoint3x4(Vector3(x, y, z));
 					}
 				}
 

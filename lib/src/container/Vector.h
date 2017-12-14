@@ -35,6 +35,7 @@ namespace Viry3D
 		int Size() const;
 		bool Empty() const;
 		void Resize(int size);
+		void Resize(int size, const V& v);
 		byte* Bytes(int index = 0) const;
 		int SizeInBytes() const;
 
@@ -130,6 +131,12 @@ namespace Viry3D
 	void Vector<V>::Resize(int size)
 	{
 		m_vector.resize(size);
+	}
+
+	template<class V>
+	void Vector<V>::Resize(int size, const V& v)
+	{
+		m_vector.resize(size, v);
 	}
 
 	template<class V>
