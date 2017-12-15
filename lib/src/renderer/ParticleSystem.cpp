@@ -484,10 +484,21 @@ namespace Viry3D
 				auto& v2 = vs[index * 4 + 2];
 				auto& v3 = vs[index * 4 + 3];
 
-				v0.uv = Vector2(p.uv_scale_offset.z, p.uv_scale_offset.y + p.uv_scale_offset.w);
-				v1.uv = Vector2(p.uv_scale_offset.x + p.uv_scale_offset.z, p.uv_scale_offset.y + p.uv_scale_offset.w);
-				v2.uv = Vector2(p.uv_scale_offset.x + p.uv_scale_offset.z, p.uv_scale_offset.w);
-				v3.uv = Vector2(p.uv_scale_offset.z, p.uv_scale_offset.w);
+				if (render_mode == ParticleSystemRenderMode::Stretch)
+				{
+					v0.uv = Vector2(p.uv_scale_offset.z, p.uv_scale_offset.y + p.uv_scale_offset.w);
+					v1.uv = Vector2(p.uv_scale_offset.x + p.uv_scale_offset.z, p.uv_scale_offset.y + p.uv_scale_offset.w);
+					v2.uv = Vector2(p.uv_scale_offset.x + p.uv_scale_offset.z, p.uv_scale_offset.w);
+					v3.uv = Vector2(p.uv_scale_offset.z, p.uv_scale_offset.w);
+				}
+				else
+				{
+					v0.uv = Vector2(p.uv_scale_offset.z, p.uv_scale_offset.w);
+					v1.uv = Vector2(p.uv_scale_offset.z, p.uv_scale_offset.y + p.uv_scale_offset.w);
+					v2.uv = Vector2(p.uv_scale_offset.x + p.uv_scale_offset.z, p.uv_scale_offset.y + p.uv_scale_offset.w);
+					v3.uv = Vector2(p.uv_scale_offset.x + p.uv_scale_offset.z, p.uv_scale_offset.w);
+				}
+				
 				v0.color = p.color;
 				v1.color = p.color;
 				v2.color = p.color;
