@@ -24,10 +24,10 @@ namespace Viry3D
 	class Debug
 	{
 	public:
-		static void LogString(const String& str);
+		static void LogString(const String& str, bool end_line);
 	};
 
-#define Log(...) Viry3D::Debug::LogString(Viry3D::String::Format(__VA_ARGS__) + Viry3D::String::Format("\n<=[%s:%d]", __FILE__, __LINE__))
+#define Log(...) Viry3D::Debug::LogString(Viry3D::String::Format(__VA_ARGS__) + Viry3D::String::Format("\n<=[%s:%d]", __FILE__, __LINE__), true)
 
 #define LogGLError()						\
     {										\

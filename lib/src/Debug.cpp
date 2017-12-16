@@ -26,12 +26,19 @@
 namespace Viry3D
 {
 #if VR_ANDROID || VR_WINDOWS
-	void Debug::LogString(const String& str)
+	void Debug::LogString(const String& str, bool end_line)
 	{
 #if VR_ANDROID
 		__android_log_print(ANDROID_LOG_ERROR, "Viry3D", "%s", str.CString());
 #elif VR_WINDOWS
-		OutputDebugString((str + "\n").CString());
+		if (end_line)
+		{
+			OutputDebugString((str + "\n").CString());
+		}
+		else
+		{
+			OutputDebugString(str.CString());
+		}
 #endif
 	}
 #endif

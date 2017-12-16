@@ -20,7 +20,6 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "graphics/Camera.h"
-#include "graphics/Graphics.h"
 #include "graphics/Light.h"
 #include "renderer/Terrain.h"
 
@@ -58,6 +57,6 @@ public:
 	}
 };
 
-#if 1
+#if 0
 VR_MAIN(AppTerrain);
 #endif

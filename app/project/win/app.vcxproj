@@ -187,6 +187,7 @@
     <ClCompile Include="..\..\src\AppAR.cpp" />
     <ClCompile Include="..\..\src\AppClear.cpp" />
     <ClCompile Include="..\..\src\AppFlappyBird.cpp" />
+    <ClCompile Include="..\..\src\AppGameDeveloper.cpp" />
     <ClCompile Include="..\..\src\AppMesh.cpp" />
     <ClCompile Include="..\..\src\AppAnim.cpp" />
     <ClCompile Include="..\..\src\AppBlur.cpp" />
