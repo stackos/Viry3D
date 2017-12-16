@@ -32,7 +32,6 @@ namespace Viry3D
 		int y;
 		Vector2 noise_pos;
 		Vector<float> height_map_data;
-		Ref<Texture2D> debug_image;
 	};
 
 	struct TerrainSplatTexture
@@ -73,6 +72,7 @@ namespace Viry3D
 		Terrain();
 		void GenerateTileHeightMap();
 		void CalculateNormals(Vertex* vertices);
+		void CreateMaterial();
 
 	private:
 		float m_tile_noise_size;

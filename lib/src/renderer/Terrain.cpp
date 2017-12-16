@@ -19,6 +19,7 @@
 #include "noise/noise.h"
 #include "noise/noiseutils.h"
 #include "graphics/VertexAttribute.h"
+#include "graphics/Material.h"
 #include "memory/Memory.h"
 
 namespace Viry3D
@@ -142,6 +143,28 @@ namespace Viry3D
 
 		Memory::Free(vertices);
 		Memory::Free(indices);
+
+		this->CreateMaterial();
+	}
+
+	void Terrain::CreateMaterial()
+	{
+		auto terrain_size = this->GetTerrainSize();
+		auto splats = this->GetSplatTextures();
+		auto alphamaps = this->GetAlphamaps();
+		auto mat = Material::Create("Terrain/Diffuse");
+		for (int i = 0; i < splats.Size(); i++)
+		{
+			mat->SetTexture(String::Format("_SplatTex%d", i), splats[i].texture);
+			mat->SetTexture(String::Format("_SplatNormal%d", i), splats[i].normal);
+			mat->SetVector(String::Format("_SplatTex%dSizeOffset", i), Vector4(splats[i].tile_size.x, splats[i].tile_size.y, splats[i].tile_offset.x, splats[i].tile_offset.y));
+		}
+		for (int i = 0; i < alphamaps.Size(); i++)
+		{
+			mat->SetTexture(String::Format("_ControlTex%d", i), alphamaps[i]);
+			mat->SetVector(String::Format("_ControlTex%dSizeOffset", i), Vector4(terrain_size.x, terrain_size.z, 0, 0));
+		}
+		this->SetSharedMaterial(mat);
 	}
 
 	void Terrain::CalculateNormals(Vertex* vertices)
@@ -303,17 +326,6 @@ namespace Viry3D
 		m_tile->height_map_data.Resize(m_heightmap_size * m_heightmap_size);
 
 		GenerateTileHeightMap();
-
-		auto colors = ByteBuffer(m_heightmap_size * m_heightmap_size);
-		for (int i = 0; i < m_heightmap_size; i++)
-		{
-			for (int j = 0; j < m_heightmap_size; j++)
-			{
-				float h = m_tile->height_map_data[i * m_heightmap_size + j ];
-				colors[i * m_heightmap_size + j] = (byte) (Mathf::Clamp01(h) * 255);
-			}
-		}
-		m_tile->debug_image = Texture2D::Create(m_heightmap_size, m_heightmap_size, TextureFormat::R8, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
 	}
 
 	void Terrain::GenerateTileHeightMap()

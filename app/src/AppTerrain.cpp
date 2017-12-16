@@ -21,7 +21,6 @@
 #include "Resource.h"
 #include "graphics/Camera.h"
 #include "graphics/Graphics.h"
-#include "graphics/Material.h"
 #include "graphics/Light.h"
 #include "renderer/Terrain.h"
 
@@ -43,44 +42,22 @@ public:
 		camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
 
 		auto terrain = Resource::LoadGameObject("Assets/AppTerrain/Terrain.prefab")->GetComponent<Terrain>();
-		auto terrain_size = terrain->GetTerrainSize();
-		auto splats = terrain->GetSplatTextures();
-		auto alphamaps = terrain->GetAlphamaps();
-		auto terrain_mat = Material::Create("Terrain/Diffuse");
-		for (int i = 0; i < splats.Size(); i++)
-		{
-			terrain_mat->SetTexture(String::Format("_SplatTex%d", i), splats[i].texture);
-			terrain_mat->SetTexture(String::Format("_SplatNormal%d", i), splats[i].normal);
-			terrain_mat->SetVector(String::Format("_SplatTex%dSizeOffset", i), Vector4(splats[i].tile_size.x, splats[i].tile_size.y, splats[i].tile_offset.x, splats[i].tile_offset.y));
-		}
-		if (alphamaps.Size() > 0)
-		{
-			terrain_mat->SetTexture("_ControlTex0", alphamaps[0]);
-			terrain_mat->SetVector("_ControlTex0SizeOffset", Vector4(terrain_size.x, terrain_size.z, 0, 0));
-		}
-		terrain->SetSharedMaterial(terrain_mat);
 
 		auto light = GameObject::Create("light")->AddComponent<Light>();
 		light->GetTransform()->SetRotation(Quaternion::Euler(45, -45, 0));
 		Light::main = light;
 
-		terrain->GenerateTile(0, 0);
-		terrain->SetTerrainSize(Vector3(500, 50, 500));
-		terrain->SetHeightmapData(terrain->GetTile()->height_map_data);
-		terrain->Apply();
-
-		/*camera->SetPostRenderFunc([=]() {
-#if VR_GLES
-			bool reverse = true;
-#else
-			bool reverse = false;
-#endif
-			Viry3D::Rect rect(0.5f, 0, 0.5f, 1);
-			Graphics::DrawQuad(&rect, terrain->GetTile()->debug_image, reverse);
-		});*/
+		bool gen_noise_terrain = true;
+		if (gen_noise_terrain)
+		{
+			terrain->GenerateTile(0, 0);
+			terrain->SetTerrainSize(Vector3(500, 50, 500));
+			terrain->SetHeightmapData(terrain->GetTile()->height_map_data);
+			terrain->Apply();
+		}
 	}
 };
 
-#if 0
+#if 1
 VR_MAIN(AppTerrain);
 #endif
