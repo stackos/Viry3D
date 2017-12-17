@@ -5,6 +5,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="src\AppGameDeveloper">
+      <UniqueIdentifier>{781658e1-d7e3-47a2-841a-6c1443f6ce50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\AppClear.cpp">
@@ -55,10 +58,22 @@
     <ClCompile Include="..\..\src\AppGameDeveloper.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\AppGameDeveloper\CodeEditor.cpp">
+      <Filter>src\AppGameDeveloper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppGameDeveloper\LuaRunner.cpp">
+      <Filter>src\AppGameDeveloper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\DebugUI.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppGameDeveloper\CodeEditor.h">
+      <Filter>src\AppGameDeveloper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppGameDeveloper\LuaRunner.h">
+      <Filter>src\AppGameDeveloper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -83,6 +83,7 @@ namespace Viry3D
 		const Frustum& GetFrustum();
         void SetFrustumCulling(bool enable) { m_frustum_culling = enable; }
         bool IsFrustumCulling() const { return m_frustum_culling; }
+		const Ref<FrameBuffer>& GetFrameBuffer() const { return m_frame_buffer; }
 		void SetFrameBuffer(const Ref<FrameBuffer>& frame_buffer);
 		int GetTargetWidth() const;
 		int GetTargetHeight() const;
