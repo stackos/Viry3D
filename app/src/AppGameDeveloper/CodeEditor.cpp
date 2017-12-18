@@ -17,8 +17,12 @@
 
 #include "CodeEditor.h"
 #include "GameObject.h"
+#include "Resource.h"
 #include "graphics/Camera.h"
 #include "graphics/RenderTexture.h"
+#include "ui/UICanvasRenderer.h"
+#include "ui/UILabel.h"
+#include "ui/Font.h"
 
 namespace Viry3D
 {
@@ -32,7 +36,9 @@ namespace Viry3D
 	CodeEditor::CodeEditor():
 		m_target_screen_width(0),
 		m_target_screen_height(0),
-		m_render_depth(0)
+		m_render_depth(0),
+		m_font_size(17),
+		m_line_space(2)
 	{
 	}
 
@@ -55,8 +61,8 @@ namespace Viry3D
 			int layer = this->GetGameObject()->GetLayer();
 
 			auto camera = GameObject::Create("Camera")->AddComponent<Camera>();
-			camera->GetTransform()->SetParent(this->GetTransform());
 			camera->GetGameObject()->SetLayer(layer);
+			camera->GetTransform()->SetParent(this->GetTransform());
 			camera->SetCullingMask(1 << layer);
 			camera->SetDepth(m_render_depth);
 			camera->SetClearColor(Color(30, 30, 30, 255) / 255.0f);
@@ -72,6 +78,21 @@ namespace Viry3D
 			camera->SetClipFar(1);
 
 			m_camera = camera;
+
+			auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
+			canvas->GetGameObject()->SetLayer(layer);
+			canvas->GetTransform()->SetParent(this->GetTransform());
+			canvas->SetAnchors(Vector2(0, 0), Vector2(0, 0));
+			canvas->SetOffsets(Vector2(0, 0), Vector2((float) m_target_screen_width, (float) m_target_screen_height));
+			canvas->SetPivot(Vector2(0.5f, 0.5f));
+			canvas->SetSize(Vector2((float) m_target_screen_width, (float) m_target_screen_height));
+			canvas->OnAnchor();
+			canvas->SetSortingOrder(10000);
+			canvas->GetTransform()->SetPosition(Vector3::Zero());
+			canvas->GetTransform()->SetScale(Vector3::One());
+			canvas->SetCamera(camera);
+
+			m_canvas = canvas;
 		}
 	}
 
@@ -85,5 +106,71 @@ namespace Viry3D
 		}
 
 		return texture;
+	}
+
+	void CodeEditor::SetFontSize(int size)
+	{
+		m_font_size = size;
+	}
+
+	void CodeEditor::SetLineSpace(int space)
+	{
+		m_line_space = space;
+	}
+
+	void CodeEditor::LoadSource(const String& source)
+	{
+		m_source_code = source;
+		
+		if (!m_font)
+		{
+			m_font = Resource::LoadFont("Assets/font/consola.ttf");
+		}
+
+		auto lines = m_source_code.Split("\r\n", false);
+
+		m_lines.Resize(lines.Size());
+		for (int i = 0; i < m_lines.Size(); i++)
+		{
+			int layer = this->GetGameObject()->GetLayer();
+			int line_height = m_font_size + m_line_space;
+			const float border_x = 10;
+
+			auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
+			canvas->GetGameObject()->SetLayer(layer);
+			canvas->GetTransform()->SetParent(m_canvas->GetTransform());
+			canvas->SetAnchors(Vector2(0, 1), Vector2(1, 1));
+			canvas->SetOffsets(Vector2(border_x, -m_line_space - (float) line_height * (i + 1)), Vector2(-border_x, -m_line_space - (float) line_height * i));
+			canvas->SetPivot(Vector2(0.5f, 0.5f));
+			canvas->OnAnchor();
+			canvas->SetSortingOrder(1000);
+
+			String label_text = String::Format("%4d    %s", i + 1, lines[i].CString());
+
+			auto label = GameObject::Create("Label")->AddComponent<UILabel>();
+			label->GetGameObject()->SetLayer(layer);
+			label->GetTransform()->SetParent(canvas->GetTransform());
+			label->SetAnchors(Vector2(0, 0), Vector2(1, 1));
+			label->SetOffsets(Vector2(0, 0), Vector2(0, 0));
+			label->SetPivot(Vector2(0.5f, 0.5f));
+			label->OnAnchor();
+			label->SetFont(m_font);
+			label->SetFontStyle(FontStyle::Normal);
+			label->SetFontSize(m_font_size);
+			label->SetColor(Color(1, 1, 1, 1));
+			label->SetText(label_text);
+			label->SetLineSpace(1);
+			label->SetRich(true);
+			label->SetMono(false);
+			label->SetAlignment(TextAlignment::MiddleLeft);
+
+			CodeLine line;
+			line.text = lines[i];
+			line.line = i;
+			line.canvas = canvas;
+			line.label = label;
+
+			m_lines[i] = line;
+		}
 	}
 }

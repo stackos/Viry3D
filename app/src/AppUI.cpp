@@ -44,7 +44,8 @@ public:
 		camera->SetClearColor(Color::White());
 
 		DebugUI::RegisterComponent();
-		GameObject::Create("debug_ui")->AddComponent<DebugUI>();
+		auto ui = GameObject::Create("debug_ui")->AddComponent<DebugUI>();
+		ui->SetCamera(camera);
     }
 };
 

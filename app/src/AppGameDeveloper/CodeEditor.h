@@ -23,6 +23,17 @@ namespace Viry3D
 {
 	class Camera;
 	class RenderTexture;
+	class UICanvasRenderer;
+	class UILabel;
+	class Font;
+
+	struct CodeLine
+	{
+		String text;
+		int line;
+		Ref<UICanvasRenderer> canvas;
+		Ref<UILabel> label;
+	};
 
 	class CodeEditor: public Component
 	{
@@ -33,6 +44,9 @@ namespace Viry3D
 		void SetTargetScreenSize(int width, int height);
 		void CreateCamera();
 		Ref<RenderTexture> GetTargetRenderTexture() const;
+		void SetFontSize(int size);
+		void SetLineSpace(int space);
+		void LoadSource(const String& source);
 
 	protected:
 		CodeEditor();
@@ -42,5 +56,11 @@ namespace Viry3D
 		int m_target_screen_width;
 		int m_target_screen_height;
 		Ref<Camera> m_camera;
+		Ref<UICanvasRenderer> m_canvas;
+		String m_source_code;
+		Vector<CodeLine> m_lines;
+		Ref<Font> m_font;
+		int m_font_size;
+		int m_line_space;
 	};
 }

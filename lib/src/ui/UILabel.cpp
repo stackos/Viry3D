@@ -51,6 +51,7 @@ namespace Viry3D
 		m_font_size(20),
 		m_line_space(1),
 		m_rich(false),
+		m_mono(false),
 		m_alignment(TextAlignment::UpperLeft)
 	{
 	}
@@ -124,6 +125,16 @@ namespace Viry3D
 		if (m_rich != rich)
 		{
 			m_rich = rich;
+			m_dirty = true;
+			MarkRendererDirty();
+		}
+	}
+
+	void UILabel::SetMono(bool mono)
+	{
+		if (m_mono != mono)
+		{
+			m_mono = mono;
 			m_dirty = true;
 			MarkRendererDirty();
 		}
@@ -359,7 +370,7 @@ namespace Viry3D
 			Color color = m_color;
 			bool bold = m_font_style == FontStyle::Bold || m_font_style == FontStyle::BoldAndItalic;
 			bool italic = m_font_style == FontStyle::Italic || m_font_style == FontStyle::BoldAndItalic;
-			bool mono = font_size <= 16;
+			bool mono = m_mono;
 			Ref<Color> color_shadow;
 			Ref<Color> color_outline;
 			bool underline = false;

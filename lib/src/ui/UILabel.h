@@ -83,6 +83,7 @@ namespace Viry3D
 		void SetText(const String& text);
 		void SetLineSpace(int space);
 		void SetRich(bool rich);
+		void SetMono(bool mono);
 		void SetAlignment(TextAlignment alignment);
 
 		virtual void FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices);
@@ -98,6 +99,7 @@ namespace Viry3D
 		String m_text;
 		int m_line_space;
 		bool m_rich;
+		bool m_mono;
 		TextAlignment m_alignment;
 	};
 }
