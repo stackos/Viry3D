@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Component.h"
+#include "math/Vector2.h"
 
 namespace Viry3D
 {
@@ -48,6 +49,10 @@ namespace Viry3D
 		void SetFontSize(int size);
 		void SetLineSpace(int space);
 		void LoadSource(const String& source);
+
+		void OnTouchDown(const Vector2& pos);
+		void OnTouchMove(const Vector2& pos);
+		void OnTouchUp(const Vector2& pos);
 
 	protected:
 		CodeEditor();

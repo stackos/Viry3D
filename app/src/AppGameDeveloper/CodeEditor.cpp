@@ -183,4 +183,19 @@ namespace Viry3D
 			m_lines.AddLast(line);
 		}
 	}
+
+	void CodeEditor::OnTouchDown(const Vector2& pos)
+	{
+		
+	}
+
+	void CodeEditor::OnTouchMove(const Vector2& pos)
+	{
+		
+	}
+
+	void CodeEditor::OnTouchUp(const Vector2& pos)
+	{
+		
+	}
 }
