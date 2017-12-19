@@ -62,8 +62,8 @@ namespace Viry3D
 		}
 
 		m_ui = Resource::LoadGameObject(prefab);
-		m_ui->GetTransform()->SetPosition(Vector3(500, 0, 0));
-		m_ui->GetTransform()->SetScale(Vector3::One() * 0.5f);
+		m_ui->GetTransform()->SetPosition(Vector3::Zero());
+		m_ui->GetTransform()->SetScale(Vector3::One());
 
 		auto button_main = m_ui->GetTransform()->Find("button main")->GetGameObject();
 		auto window_menu = m_ui->GetTransform()->Find("window menu")->GetGameObject();
@@ -147,7 +147,6 @@ namespace Viry3D
 				Graphics::GetDisplay()->GetHeight(),
 				Graphics::draw_call,
 				Time::GetFPS());
-			//text = String::Format("FPS:%d", Time::GetFPS());
 			m_fps_text->SetText(text);
 		}
 	}

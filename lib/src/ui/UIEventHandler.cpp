@@ -41,10 +41,6 @@ namespace Viry3D
 				return hit_views;
 			}
 
-			Vector2 pos_world;
-			pos_world.x = position.x - Graphics::GetDisplay()->GetWidth() / 2;
-			pos_world.y = position.y - Graphics::GetDisplay()->GetHeight() / 2;
-
 			for (auto& i : views)
 			{
 				auto mat = i->GetRenderer().lock()->GetTransform()->GetLocalToWorldMatrix();
@@ -54,12 +50,14 @@ namespace Viry3D
 				{
 					// from canvas space to world space
 					vertices[j] = mat.MultiplyPoint3x4(vertices[j]);
+					// to screen space
+					vertices[j] = camera->WorldToScreenPoint(vertices[j]);
 				}
 
-				if (pos_world.x > vertices[0].x &&
-					pos_world.x < vertices[1].x &&
-					pos_world.y > vertices[1].y &&
-					pos_world.y < vertices[2].y)
+				if (position.x > vertices[0].x &&
+					position.x < vertices[1].x &&
+					position.y > vertices[1].y &&
+					position.y < vertices[2].y)
 				{
 					hit_views.Add(i);
 				}
