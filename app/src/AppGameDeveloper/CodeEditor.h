@@ -26,6 +26,7 @@ namespace Viry3D
 	class UICanvasRenderer;
 	class UILabel;
 	class Font;
+	class UIPointerEvent;
 
 	struct CodeLine
 	{
@@ -50,6 +51,7 @@ namespace Viry3D
 
 	protected:
 		CodeEditor();
+		void Clear();
 
 	protected:
 		int m_render_depth;
@@ -58,7 +60,7 @@ namespace Viry3D
 		Ref<Camera> m_camera;
 		Ref<UICanvasRenderer> m_canvas;
 		String m_source_code;
-		Vector<CodeLine> m_lines;
+		List<Ref<CodeLine>> m_lines;
 		Ref<Font> m_font;
 		int m_font_size;
 		int m_line_space;

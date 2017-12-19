@@ -62,8 +62,8 @@ namespace Viry3D
 		}
 
 		m_ui = Resource::LoadGameObject(prefab);
-		m_ui->GetTransform()->SetPosition(Vector3::Zero());
-		m_ui->GetTransform()->SetScale(Vector3::One());
+		m_ui->GetTransform()->SetPosition(Vector3(500, 0, 0));
+		m_ui->GetTransform()->SetScale(Vector3::One() * 0.5f);
 
 		auto button_main = m_ui->GetTransform()->Find("button main")->GetGameObject();
 		auto window_menu = m_ui->GetTransform()->Find("window menu")->GetGameObject();

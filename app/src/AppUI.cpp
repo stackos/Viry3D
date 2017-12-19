@@ -46,9 +46,11 @@ public:
 		DebugUI::RegisterComponent();
 		auto ui = GameObject::Create("debug_ui")->AddComponent<DebugUI>();
 		ui->SetCamera(camera);
+
+		//camera->GetTransform()->SetPosition(Vector3(0, 100, 0));
     }
 };
 
-#if 0
+#if 1
 VR_MAIN(AppUI);
 #endif

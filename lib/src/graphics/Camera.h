@@ -91,6 +91,7 @@ namespace Viry3D
 		void SetRenderMode(CameraRenderMode mode) { m_render_mode = mode; }
 		CameraRenderMode GetRenderMode() { return m_render_mode; }
 		Vector3 ScreenToViewportPoint(const Vector3& position);
+		Vector3 ScreenToWorldPoint(const Vector3& position);
 		Ray ScreenPointToRay(const Vector3& position);
 		void BeginRenderPass(bool post) const;
 		void EndRenderPass(bool post) const;

@@ -37,7 +37,7 @@ namespace Viry3D
 		m_target_screen_width(0),
 		m_target_screen_height(0),
 		m_render_depth(0),
-		m_font_size(17),
+		m_font_size(18),
 		m_line_space(2)
 	{
 	}
@@ -118,23 +118,33 @@ namespace Viry3D
 		m_line_space = space;
 	}
 
+	void CodeEditor::Clear()
+	{
+		for (auto& i : m_lines)
+		{
+			GameObject::Destroy(i->canvas->GetGameObject());
+		}
+		m_lines.Clear();
+	}
+
 	void CodeEditor::LoadSource(const String& source)
 	{
-		m_source_code = source;
-		
+		this->Clear();
+
 		if (!m_font)
 		{
 			m_font = Resource::LoadFont("Assets/font/consola.ttf");
 		}
 
+		m_source_code = source;
 		auto lines = m_source_code.Split("\r\n", false);
 
-		m_lines.Resize(lines.Size());
-		for (int i = 0; i < m_lines.Size(); i++)
+		for (int i = 0; i < lines.Size(); i++)
 		{
 			int layer = this->GetGameObject()->GetLayer();
 			int line_height = m_font_size + m_line_space;
 			const float border_x = 10;
+			int line_num = i + 1;
 
 			auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
 			canvas->GetGameObject()->SetLayer(layer);
@@ -145,7 +155,7 @@ namespace Viry3D
 			canvas->OnAnchor();
 			canvas->SetSortingOrder(1000);
 
-			String label_text = String::Format("%4d    %s", i + 1, lines[i].CString());
+			String label_text = String::Format("%4d    %s", line_num, lines[i].CString());
 
 			auto label = GameObject::Create("Label")->AddComponent<UILabel>();
 			label->GetGameObject()->SetLayer(layer);
@@ -164,13 +174,13 @@ namespace Viry3D
 			label->SetMono(false);
 			label->SetAlignment(TextAlignment::MiddleLeft);
 
-			CodeLine line;
-			line.text = lines[i];
-			line.line = i;
-			line.canvas = canvas;
-			line.label = label;
+			auto line = RefMake<CodeLine>();
+			line->text = lines[i];
+			line->line = line_num;
+			line->canvas = canvas;
+			line->label = label;
 
-			m_lines[i] = line;
+			m_lines.AddLast(line);
 		}
 	}
 }

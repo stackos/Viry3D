@@ -464,6 +464,11 @@ namespace Viry3D
 		return Vector3(x, y, 0);
 	}
 
+	Vector3 Camera::ScreenToWorldPoint(const Vector3& position)
+	{
+		return Vector3(0, 0, 0);
+	}
+
 	Ray Camera::ScreenPointToRay(const Vector3& position)
 	{
 		Vector3 pos_viewport = this->ScreenToViewportPoint(position);

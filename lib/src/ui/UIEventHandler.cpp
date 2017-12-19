@@ -20,37 +20,49 @@
 #include "UIView.h"
 #include "Input.h"
 #include "graphics/Graphics.h"
+#include "graphics/Camera.h"
 
 namespace Viry3D
 {
 	static Map<int, Vector<WeakRef<UIView>>> g_hit_views;
 	bool UIEventHandler::m_has_event;
 
-	static Vector<WeakRef<UIView>> hit_test(Vector2 position, const Vector<Ref<UIView>>& views)
+	static Vector<WeakRef<UIView>> hit_test(const Vector2& position, const Vector<Ref<UIView>>& views)
 	{
 		Vector<WeakRef<UIView>> hit_views;
 
-		Vector2 pos_world;
-		pos_world.x = position.x - Graphics::GetDisplay()->GetWidth() / 2;
-		pos_world.y = position.y - Graphics::GetDisplay()->GetHeight() / 2;
-
-		for (auto& i : views)
+		if (views.Size() > 0)
 		{
-			auto mat = i->GetRenderer().lock()->GetTransform()->GetLocalToWorldMatrix();
-			Vector<Vector3> vertices;
-			i->GetBoundsVertices(vertices);
-			for (int j = 0; j < vertices.Size(); j++)
+			auto camera = views[0]->GetRenderer().lock()->GetRootCanvas()->GetCamera();
+
+			// only handle default frame buffer
+			if (camera->GetFrameBuffer())
 			{
-				// from canvas space to world space
-				vertices[j] = mat.MultiplyPoint3x4(vertices[j]);
+				return hit_views;
 			}
 
-			if (pos_world.x > vertices[0].x &&
-				pos_world.x < vertices[1].x &&
-				pos_world.y > vertices[1].y &&
-				pos_world.y < vertices[2].y)
+			Vector2 pos_world;
+			pos_world.x = position.x - Graphics::GetDisplay()->GetWidth() / 2;
+			pos_world.y = position.y - Graphics::GetDisplay()->GetHeight() / 2;
+
+			for (auto& i : views)
 			{
-				hit_views.Add(i);
+				auto mat = i->GetRenderer().lock()->GetTransform()->GetLocalToWorldMatrix();
+				Vector<Vector3> vertices;
+				i->GetBoundsVertices(vertices);
+				for (int j = 0; j < vertices.Size(); j++)
+				{
+					// from canvas space to world space
+					vertices[j] = mat.MultiplyPoint3x4(vertices[j]);
+				}
+
+				if (pos_world.x > vertices[0].x &&
+					pos_world.x < vertices[1].x &&
+					pos_world.y > vertices[1].y &&
+					pos_world.y < vertices[2].y)
+				{
+					hit_views.Add(i);
+				}
 			}
 		}
 
