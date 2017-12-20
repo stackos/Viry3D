@@ -59,6 +59,7 @@ namespace Viry3D
 		void SetVectorArray(const String& name, const Vector<Vector4>& v);
 		const Vector<Vector4>& GetVectorArray(const String& name) const;
 		void SetMainTexture(const Ref<Texture>& v);
+		void SetMainTextureST(const Vector4& scale_offset);
 		bool HasMainTexture() const;
 		const Ref<Texture>& GetMainTexture() const;
 		void SetTexture(const String& name, const Ref<Texture>& v);

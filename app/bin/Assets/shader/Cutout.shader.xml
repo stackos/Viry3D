@@ -2,6 +2,7 @@
 	<VertexShader name="vs">
 		<UniformBuffer name="buf_vs" binding="2">
 			<Uniform name="_ViewProjection" size="64"/>
+			<Uniform name="_MainTex_ST" size="16"/>
 		</UniformBuffer>
 		<VertexAttribute name="Vertex" location="0"/>
 		<VertexAttribute name="Texcoord" location="1"/>

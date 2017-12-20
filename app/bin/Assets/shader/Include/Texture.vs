@@ -21,6 +21,7 @@ UniformBuffer(1, 0) uniform buf_vs_obj {
 
 UniformBuffer(0, 2) uniform buf_vs {
 	mat4 _ViewProjection;
+	vec4 _MainTex_ST;
 } u_buf;
 
 layout (location = 0) in vec4 a_pos;
@@ -30,7 +31,7 @@ Varying(0) out vec2 v_uv;
 
 void main() {
 	gl_Position = a_pos * u_buf_obj._World * u_buf._ViewProjection;
-	v_uv = a_uv;
+	v_uv = a_uv * u_buf._MainTex_ST.xy + u_buf._MainTex_ST.zw;
 
 	vulkan_convert();
 }

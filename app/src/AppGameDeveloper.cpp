@@ -18,9 +18,12 @@
 #include "Main.h"
 #include "Application.h"
 #include "GameObject.h"
-#include "graphics/Graphics.h"
+#include "Resource.h"
+#include "math/Mathf.h"
 #include "graphics/Camera.h"
 #include "graphics/RenderTexture.h"
+#include "graphics/Material.h"
+#include "renderer/MeshRenderer.h"
 #include "AppGameDeveloper/CodeEditor.h"
 #include "AppGameDeveloper/LuaRunner.h"
 
@@ -34,6 +37,8 @@ using namespace Viry3D;
 #define CODE_EDITOR_WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1600
 #define WINDOW_HEIGHT 900
+#define CODE_EDITOR_SCREEN_MODEL_WIDTH 0.48f
+#define CODE_EDITOR_SCREEN_MODEL_HEIGHT 0.27f
 
 class AppGameDeveloper: public Application
 {
@@ -67,18 +72,22 @@ public:
 		code_editor->CreateCamera();
 		code_editor->LoadSource(source);
 
+		auto quad_mesh = Resource::LoadMesh("Assets/Library/unity default resources.Quad.mesh");
+		auto quad_mat = Material::Create("Diffuse");
+		quad_mat->SetMainTexture(code_editor->GetTargetRenderTexture());
+		quad_mat->SetMainTextureST(Vector4(1, -1, 0, 1));
+
+		float code_editor_quad_z = (CODE_EDITOR_SCREEN_MODEL_HEIGHT / 2) / (CODE_EDITOR_WINDOW_HEIGHT / (float) WINDOW_HEIGHT * tan(Mathf::Deg2Rad * camera->GetFieldOfView() / 2));
+
+		auto code_editor_quad = GameObject::Create("CodeEditorQuad")->AddComponent<MeshRenderer>();
+		code_editor_quad->SetSharedMaterial(quad_mat);
+		code_editor_quad->SetSharedMesh(quad_mesh);
+		code_editor_quad->GetTransform()->SetPosition(Vector3(0, 0, code_editor_quad_z));
+		code_editor_quad->GetTransform()->SetScale(Vector3(CODE_EDITOR_SCREEN_MODEL_WIDTH, CODE_EDITOR_SCREEN_MODEL_HEIGHT, 1));
+
 		LuaRunner::RegisterComponent();
 		auto lua_runner = GameObject::Create("LuaRunner")->AddComponent<LuaRunner>();
 		lua_runner->RunSource(source);
-
-		camera->SetPostRenderFunc([=] () {
-			float w = CODE_EDITOR_WINDOW_WIDTH / (float) WINDOW_WIDTH;
-			float h = CODE_EDITOR_WINDOW_HEIGHT / (float) WINDOW_HEIGHT;
-			float x = (1.0f - w) / 2;
-			float y = (1.0f - h) / 2;
-			Rect rect(x, y, w, h);
-			Graphics::DrawQuad(&rect, code_editor->GetTargetRenderTexture(), true);
-		});
 	}
 };
 

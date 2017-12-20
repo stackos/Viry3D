@@ -21,6 +21,7 @@
 namespace Viry3D
 {
 	static const String MAIN_TEX_NAME = "_MainTex";
+	static const String MAIN_TEX_ST = "_MainTex_ST";
 	static const String MAIN_COLOR_NAME = "_Color";
 
 	Ref<Material> Material::Create(const String& shader_name)
@@ -155,6 +156,11 @@ namespace Viry3D
 	void Material::SetMainTexture(const Ref<Texture>& v)
 	{
 		this->SetTexture(MAIN_TEX_NAME, v);
+	}
+
+	void Material::SetMainTextureST(const Vector4& scale_offset)
+	{
+		this->SetVector(MAIN_TEX_ST, scale_offset);
 	}
 
 	bool Material::HasMainTexture() const
