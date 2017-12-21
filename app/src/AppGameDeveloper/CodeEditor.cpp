@@ -186,16 +186,16 @@ namespace Viry3D
 
 	void CodeEditor::OnTouchDown(const Vector2& pos)
 	{
-		
+		Log("OnTouchDown:%s", pos.ToString().CString());
 	}
 
 	void CodeEditor::OnTouchMove(const Vector2& pos)
 	{
-		
+		Log("OnTouchMove:%s", pos.ToString().CString());
 	}
 
 	void CodeEditor::OnTouchUp(const Vector2& pos)
 	{
-		
+		Log("OnTouchUp:%s", pos.ToString().CString());
 	}
 }
