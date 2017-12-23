@@ -139,11 +139,12 @@ namespace Viry3D
 		m_source_code = source;
 		auto lines = m_source_code.Split("\r\n", false);
 
+		int layer = this->GetGameObject()->GetLayer();
+		int line_height = m_font_size + m_line_space;
+		const float border_x = 10;
+
 		for (int i = 0; i < lines.Size(); i++)
 		{
-			int layer = this->GetGameObject()->GetLayer();
-			int line_height = m_font_size + m_line_space;
-			const float border_x = 10;
 			int line_num = i + 1;
 
 			auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
@@ -186,16 +187,32 @@ namespace Viry3D
 
 	void CodeEditor::OnTouchDown(const Vector2& pos)
 	{
-		Log("OnTouchDown:%s", pos.ToString().CString());
+		Log("OnTouchDown: pos:%s", pos.ToString().CString());
+
+		int line_height = m_font_size + m_line_space;
+		float x = pos.x;
+		float y = -(m_target_screen_height - 1 - pos.y);
+
+		for (auto& i : m_lines)
+		{
+			Vector2 offset_min = i->canvas->GetOffsetMin();
+			Vector2 offset_max = i->canvas->GetOffsetMax();
+
+			if (y <= offset_max.y && y > offset_min.y)
+			{
+				Log("OnTouchDown: line:%d", i->line);
+				break;
+			}
+		}
 	}
 
 	void CodeEditor::OnTouchMove(const Vector2& pos)
 	{
-		Log("OnTouchMove:%s", pos.ToString().CString());
+		//Log("OnTouchMove:%s", pos.ToString().CString());
 	}
 
 	void CodeEditor::OnTouchUp(const Vector2& pos)
 	{
-		Log("OnTouchUp:%s", pos.ToString().CString());
+		//Log("OnTouchUp:%s", pos.ToString().CString());
 	}
 }
