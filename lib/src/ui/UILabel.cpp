@@ -336,7 +336,7 @@ namespace Viry3D
 		return Color((float) r, (float) g, (float) b, (float) a) * div;
 	}
 
-	Vector<LabelLine> UILabel::ProcessText(int& actual_width, int& actual_height)
+	void UILabel::ProcessText(int& actual_width, int& actual_height)
 	{
 		auto chars = m_text.ToUnicode32();
 
@@ -359,8 +359,7 @@ namespace Viry3D
 		int y_max = INT_MIN;
 		int line_x_max = 0;
 		int line_y_min = 0;
-		Vector<LabelLine> lines;
-		static LabelLine line;
+		LabelLine line;
 
 		for (int i = 0; i < chars.Size(); i++)
 		{
@@ -384,7 +383,7 @@ namespace Viry3D
 				pen_x = 0;
 				pen_y += -(font_size + m_line_space);
 
-				lines.Add(line);
+				m_lines.Add(line);
 				line.Clear();
 
 				continue;
@@ -557,6 +556,9 @@ namespace Viry3D
 			line.indices.Add(vertex_count + 2);
 			line.indices.Add(vertex_count + 3);
 
+			line.chars.Add(c);
+			line.char_bounds.Add(Bounds(Vector3((float) x0, (float) y1, 0), Vector3((float) x1, (float) y0, 0)));
+
 			vertex_count += 4;
 			previous = info.glyph_index;
 
@@ -596,14 +598,52 @@ namespace Viry3D
 			line.width = line_x_max;
 			line.height = pen_y - line_y_min;
 
-			lines.Add(line);
-			line.Clear();
+			m_lines.Add(line);
 		}
 
 		actual_width = x_max;
 		actual_height = -y_min;
+	}
 
-		return lines;
+	void UILabel::ApplyAlignment(Vector3& v, const Vector2& min, const Vector2& max, const Vector2& size, int line_width, int actual_width, int actual_height)
+	{
+		switch (m_alignment)
+		{
+			case TextAlignment::UpperLeft:
+			case TextAlignment::MiddleLeft:
+			case TextAlignment::LowerLeft:
+				v.x += min.x;
+				break;
+			case TextAlignment::UpperCenter:
+			case TextAlignment::MiddleCenter:
+			case TextAlignment::LowerCenter:
+				v.x += min.x + (size.x - line_width) / 2;
+				break;
+			case TextAlignment::UpperRight:
+			case TextAlignment::MiddleRight:
+			case TextAlignment::LowerRight:
+				v.x += min.x + (size.x - line_width);
+				break;
+		}
+
+		switch (m_alignment)
+		{
+			case TextAlignment::UpperLeft:
+			case TextAlignment::UpperCenter:
+			case TextAlignment::UpperRight:
+				v.y += max.y;
+				break;
+			case TextAlignment::MiddleLeft:
+			case TextAlignment::MiddleCenter:
+			case TextAlignment::MiddleRight:
+				v.y += max.y - (size.y - actual_height) / 2;
+				break;
+			case TextAlignment::LowerLeft:
+			case TextAlignment::LowerCenter:
+			case TextAlignment::LowerRight:
+				v.y += max.y - (size.y - actual_height);
+				break;
+		}
 	}
 
 	void UILabel::FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices)
@@ -619,57 +659,22 @@ namespace Viry3D
 
 		int actual_width;
 		int actual_height;
-		auto lines = this->ProcessText(actual_width, actual_height);
+		m_lines.Clear();
+		this->ProcessText(actual_width, actual_height);
 
 		Matrix4x4 mat;
-		GetVertexMatrix(mat);
+		this->GetVertexMatrix(mat);
 		int index_begin = vertices.Size();
 
-		for (int i = 0; i < lines.Size(); i++)
+		for (int i = 0; i < m_lines.Size(); i++)
 		{
-			auto line = lines[i];
+			auto& line = m_lines[i];
 
 			for (int j = 0; j < line.vertices.Size(); j++)
 			{
-				auto v = line.vertices[j];
+				Vector3 v = line.vertices[j];
 
-				switch (m_alignment)
-				{
-					case TextAlignment::UpperLeft:
-					case TextAlignment::MiddleLeft:
-					case TextAlignment::LowerLeft:
-						v.x += min.x;
-						break;
-					case TextAlignment::UpperCenter:
-					case TextAlignment::MiddleCenter:
-					case TextAlignment::LowerCenter:
-						v.x += min.x + (size.x - line.width) / 2;
-						break;
-					case TextAlignment::UpperRight:
-					case TextAlignment::MiddleRight:
-					case TextAlignment::LowerRight:
-						v.x += min.x + (size.x - line.width);
-						break;
-				}
-
-				switch (m_alignment)
-				{
-					case TextAlignment::UpperLeft:
-					case TextAlignment::UpperCenter:
-					case TextAlignment::UpperRight:
-						v.y += max.y;
-						break;
-					case TextAlignment::MiddleLeft:
-					case TextAlignment::MiddleCenter:
-					case TextAlignment::MiddleRight:
-						v.y += max.y - (size.y - actual_height) / 2;
-						break;
-					case TextAlignment::LowerLeft:
-					case TextAlignment::LowerCenter:
-					case TextAlignment::LowerRight:
-						v.y += max.y - (size.y - actual_height);
-						break;
-				}
+				this->ApplyAlignment(v, min, max, size, line.width, actual_width, actual_height);
 
 				vertices.Add(mat.MultiplyPoint3x4(v));
 			}
@@ -683,6 +688,17 @@ namespace Viry3D
 			for (int j = 0; j < line.indices.Size(); j++)
 			{
 				indices.Add(line.indices[j] + index_begin);
+			}
+
+			for (int j = 0; j < line.char_bounds.Size(); j++)
+			{
+				Vector3 bounds_min = line.char_bounds[j].Min();
+				Vector3 bounds_max = line.char_bounds[j].Max();
+
+				this->ApplyAlignment(bounds_min, min, max, size, line.width, actual_width, actual_height);
+				this->ApplyAlignment(bounds_max, min, max, size, line.width, actual_width, actual_height);
+
+				line.char_bounds[j] = Bounds(mat.MultiplyPoint3x4(bounds_min), mat.MultiplyPoint3x4(bounds_max));
 			}
 		}
 	}

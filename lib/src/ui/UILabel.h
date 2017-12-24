@@ -19,6 +19,7 @@
 
 #include "UIView.h"
 #include "Font.h"
+#include "math/Bounds.h"
 
 namespace Viry3D
 {
@@ -51,6 +52,8 @@ namespace Viry3D
 		Vector<Vector2> uv;
 		Vector<Color> colors;
 		Vector<unsigned short> indices;
+		Vector<char32_t> chars;
+		Vector<Bounds> char_bounds;
 
 		void Clear()
 		{
@@ -58,6 +61,8 @@ namespace Viry3D
 			uv.Clear();
 			colors.Clear();
 			indices.Clear();
+			chars.Clear();
+			char_bounds.Clear();
 		}
 	};
 
@@ -85,13 +90,15 @@ namespace Viry3D
 		void SetRich(bool rich);
 		void SetMono(bool mono);
 		void SetAlignment(TextAlignment alignment);
+		const Vector<LabelLine>& GetLines() const { return m_lines; }
 
 		virtual void FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices);
 		virtual void FillMaterial(Ref<Material>& mat);
 
 	protected:
 		UILabel();
-		Vector<LabelLine> ProcessText(int& actual_width, int& actual_height);
+		void ProcessText(int& actual_width, int& actual_height);
+		void ApplyAlignment(Vector3& v, const Vector2& min, const Vector2& max, const Vector2& size, int line_width, int actual_width, int actual_height);
 
 		Ref<Font> m_font;
 		FontStyle m_font_style;
@@ -101,5 +108,6 @@ namespace Viry3D
 		bool m_rich;
 		bool m_mono;
 		TextAlignment m_alignment;
+		Vector<LabelLine> m_lines;
 	};
 }

@@ -56,6 +56,7 @@ namespace Viry3D
 
 	protected:
 		CodeEditor();
+		virtual void Update();
 		void Clear();
 		int GetLineHeight();
 		void SetSrollPosition(const Vector2& pos);

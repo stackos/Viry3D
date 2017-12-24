@@ -234,4 +234,9 @@ namespace Viry3D
 	{
 		//Log("OnTouchUp:%s", pos.ToString().CString());
 	}
+
+	void CodeEditor::Update()
+	{
+		
+	}
 }
