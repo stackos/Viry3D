@@ -38,7 +38,8 @@ namespace Viry3D
 		m_target_screen_height(0),
 		m_render_depth(0),
 		m_font_size(18),
-		m_line_space(2)
+		m_line_space(4),
+		m_scroll_position(0, 0)
 	{
 	}
 
@@ -88,8 +89,8 @@ namespace Viry3D
 			canvas->SetSize(Vector2((float) m_target_screen_width, (float) m_target_screen_height));
 			canvas->OnAnchor();
 			canvas->SetSortingOrder(10000);
-			canvas->GetTransform()->SetPosition(Vector3::Zero());
-			canvas->GetTransform()->SetScale(Vector3::One());
+			canvas->GetTransform()->SetLocalPosition(Vector3::Zero());
+			canvas->GetTransform()->SetLocalScale(Vector3::One());
 			canvas->SetCamera(camera);
 
 			m_canvas = canvas;
@@ -140,7 +141,7 @@ namespace Viry3D
 		auto lines = m_source_code.Split("\r\n", false);
 
 		int layer = this->GetGameObject()->GetLayer();
-		int line_height = m_font_size + m_line_space;
+		int line_height = this->GetLineHeight();
 		const float border_x = 10;
 
 		for (int i = 0; i < lines.Size(); i++)
@@ -151,7 +152,7 @@ namespace Viry3D
 			canvas->GetGameObject()->SetLayer(layer);
 			canvas->GetTransform()->SetParent(m_canvas->GetTransform());
 			canvas->SetAnchors(Vector2(0, 1), Vector2(1, 1));
-			canvas->SetOffsets(Vector2(border_x, -m_line_space - (float) line_height * (i + 1)), Vector2(-border_x, -m_line_space - (float) line_height * i));
+			canvas->SetOffsets(Vector2(border_x, - (float) line_height * (i + 1)), Vector2(-border_x, - (float) line_height * i));
 			canvas->SetPivot(Vector2(0.5f, 0.5f));
 			canvas->OnAnchor();
 			canvas->SetSortingOrder(1000);
@@ -185,13 +186,26 @@ namespace Viry3D
 		}
 	}
 
+	int CodeEditor::GetLineHeight()
+	{
+		return m_font_size + m_line_space;
+	}
+
+	void CodeEditor::SetSrollPosition(const Vector2& pos)
+	{
+		m_scroll_position = pos;
+
+		m_canvas->GetTransform()->SetLocalPosition(pos);
+	}
+
 	void CodeEditor::OnTouchDown(const Vector2& pos)
 	{
 		Log("OnTouchDown: pos:%s", pos.ToString().CString());
 
-		int line_height = m_font_size + m_line_space;
 		float x = pos.x;
-		float y = -(m_target_screen_height - 1 - pos.y);
+		float y = -(m_target_screen_height - 1 - pos.y) - m_scroll_position.y;
+
+		CodeLine* line = NULL;
 
 		for (auto& i : m_lines)
 		{
@@ -200,9 +214,14 @@ namespace Viry3D
 
 			if (y <= offset_max.y && y > offset_min.y)
 			{
-				Log("OnTouchDown: line:%d", i->line);
+				line = i.get();
 				break;
 			}
+		}
+
+		if (line)
+		{
+			Log("OnTouchDown: line:%d", line->line);
 		}
 	}
 

@@ -57,6 +57,8 @@ namespace Viry3D
 	protected:
 		CodeEditor();
 		void Clear();
+		int GetLineHeight();
+		void SetSrollPosition(const Vector2& pos);
 
 	protected:
 		int m_render_depth;
@@ -69,5 +71,6 @@ namespace Viry3D
 		Ref<Font> m_font;
 		int m_font_size;
 		int m_line_space;
+		Vector2 m_scroll_position;
 	};
 }
