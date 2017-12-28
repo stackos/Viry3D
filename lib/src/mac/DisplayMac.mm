@@ -368,7 +368,7 @@ void DisplayMac::OnWillResize(int width, int height)
     m_mutex.unlock();
 }
     
-void Debug::LogString(const String& str)
+void Debug::LogString(const String& str, bool end_line)
 {
     NSLog(@"\n%s", str.CString());
 }

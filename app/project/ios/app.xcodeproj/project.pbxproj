@@ -18,6 +18,9 @@
 		BA3599AD1F9B4C3200C0507C /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3599AB1F9B4C3100C0507C /* CoreVideo.framework */; };
 		BA4101DF1DC6021E003B50D6 /* AppBlur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */; };
 		BA410F8D1FAA3282005937F1 /* AppSky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA410F8B1FAA3282005937F1 /* AppSky.cpp */; };
+		BA42E6311FF5451C009C3C01 /* LuaRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E62D1FF5451C009C3C01 /* LuaRunner.cpp */; };
+		BA42E6321FF5451C009C3C01 /* CodeEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E62E1FF5451C009C3C01 /* CodeEditor.cpp */; };
+		BA42E6341FF5452E009C3C01 /* AppGameDeveloper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6331FF5452E009C3C01 /* AppGameDeveloper.cpp */; };
 		BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */; };
 		BA4A32601D7B34D400DEEE5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */; };
 		BA4A33451D7C1FE300DEEE5A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA4A33441D7C1FE300DEEE5A /* AppDelegate.mm */; };
@@ -58,6 +61,11 @@
 		BA3599AB1F9B4C3100C0507C /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppBlur.cpp; path = ../../src/AppBlur.cpp; sourceTree = "<group>"; };
 		BA410F8B1FAA3282005937F1 /* AppSky.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppSky.cpp; path = ../../src/AppSky.cpp; sourceTree = "<group>"; };
+		BA42E62C1FF5451C009C3C01 /* LuaRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaRunner.h; sourceTree = "<group>"; };
+		BA42E62D1FF5451C009C3C01 /* LuaRunner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LuaRunner.cpp; sourceTree = "<group>"; };
+		BA42E62E1FF5451C009C3C01 /* CodeEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditor.cpp; sourceTree = "<group>"; };
+		BA42E62F1FF5451C009C3C01 /* CodeEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeEditor.h; sourceTree = "<group>"; };
+		BA42E6331FF5452E009C3C01 /* AppGameDeveloper.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppGameDeveloper.cpp; path = ../../src/AppGameDeveloper.cpp; sourceTree = "<group>"; };
 		BA4A32491D7B34D400DEEE5A /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = app/Assets.xcassets; sourceTree = "<group>"; };
 		BA4A325F1D7B34D400DEEE5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -100,6 +108,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BA42E62B1FF5451C009C3C01 /* AppGameDeveloper */ = {
+			isa = PBXGroup;
+			children = (
+				BA42E62E1FF5451C009C3C01 /* CodeEditor.cpp */,
+				BA42E62F1FF5451C009C3C01 /* CodeEditor.h */,
+				BA42E62D1FF5451C009C3C01 /* LuaRunner.cpp */,
+				BA42E62C1FF5451C009C3C01 /* LuaRunner.h */,
+			);
+			name = AppGameDeveloper;
+			path = ../../src/AppGameDeveloper;
+			sourceTree = "<group>";
+		};
 		BA4A32401D7B34D400DEEE5A = {
 			isa = PBXGroup;
 			children = (
@@ -134,11 +154,13 @@
 		BA59247F1D90587200173EDC /* src */ = {
 			isa = PBXGroup;
 			children = (
+				BA42E62B1FF5451C009C3C01 /* AppGameDeveloper */,
 				BA0913C81DAFCF9500CA11BF /* AppAnim.cpp */,
 				BA2965581F9A6F6300C3FB87 /* AppAR.cpp */,
 				BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */,
 				BA5924801D90588800173EDC /* AppClear.cpp */,
 				BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */,
+				BA42E6331FF5452E009C3C01 /* AppGameDeveloper.cpp */,
 				BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */,
 				BA87B5161FDC1BB90072868A /* AppParticle.cpp */,
 				BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */,
@@ -268,13 +290,16 @@
 				BAA45E5F1FB752800049A867 /* AppPBR.cpp in Sources */,
 				BA5CD1591FC20856004C590A /* DebugUI.cpp in Sources */,
 				BA4A33451D7C1FE300DEEE5A /* AppDelegate.mm in Sources */,
+				BA42E6321FF5451C009C3C01 /* CodeEditor.cpp in Sources */,
 				BA2800661F69A41C00215483 /* AppTerrain.cpp in Sources */,
 				BA410F8D1FAA3282005937F1 /* AppSky.cpp in Sources */,
 				BA1795481FBB597800D0B77E /* AppPhysics.cpp in Sources */,
 				BA94EE511D9E95CF00254ABF /* AppMesh.cpp in Sources */,
+				BA42E6341FF5452E009C3C01 /* AppGameDeveloper.cpp in Sources */,
 				D1A6FA781FA2D3980081A94A /* AppShadow.cpp in Sources */,
 				BA4101DF1DC6021E003B50D6 /* AppBlur.cpp in Sources */,
 				BA87B5181FDC1BB90072868A /* AppParticle.cpp in Sources */,
+				BA42E6311FF5451C009C3C01 /* LuaRunner.cpp in Sources */,
 				BA5924811D90588800173EDC /* AppClear.cpp in Sources */,
 				BA0913C91DAFCF9500CA11BF /* AppAnim.cpp in Sources */,
 				BA0913B81DAA85C500CA11BF /* AppWatch.cpp in Sources */,
@@ -416,7 +441,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -442,7 +467,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};

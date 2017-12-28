@@ -336,7 +336,7 @@ void DisplayIOS::DestroySharedContext()
     g_shared_context = nil;
 }
 
-void Debug::LogString(const String& str)
+void Debug::LogString(const String& str, bool end_line)
 {
     NSLog(@"\n%s", str.CString());
 }

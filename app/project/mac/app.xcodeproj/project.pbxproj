@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA410F7D1FAA319A005937F1 /* AppSky.cpp */; };
+		BA42E6221FF5433B009C3C01 /* AppGameDeveloper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */; };
+		BA42E6281FF54359009C3C01 /* LuaRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6251FF54358009C3C01 /* LuaRunner.cpp */; };
+		BA42E6291FF54359009C3C01 /* CodeEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6261FF54358009C3C01 /* CodeEditor.cpp */; };
 		BA4FAC201FBB564200C1ADB7 /* AppPhysics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */; };
 		BA5CD1551FC1FF2C004C590A /* DebugUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */; };
 		BA7D82D11F9E4DC10085EEB7 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */; };
@@ -44,6 +47,11 @@
 
 /* Begin PBXFileReference section */
 		BA410F7D1FAA319A005937F1 /* AppSky.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppSky.cpp; path = ../../src/AppSky.cpp; sourceTree = "<group>"; };
+		BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppGameDeveloper.cpp; path = ../../src/AppGameDeveloper.cpp; sourceTree = "<group>"; };
+		BA42E6241FF54358009C3C01 /* LuaRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaRunner.h; sourceTree = "<group>"; };
+		BA42E6251FF54358009C3C01 /* LuaRunner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LuaRunner.cpp; sourceTree = "<group>"; };
+		BA42E6261FF54358009C3C01 /* CodeEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditor.cpp; sourceTree = "<group>"; };
+		BA42E6271FF54358009C3C01 /* CodeEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeEditor.h; sourceTree = "<group>"; };
 		BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPhysics.cpp; path = ../../src/AppPhysics.cpp; sourceTree = "<group>"; };
 		BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DebugUI.cpp; path = ../../src/DebugUI.cpp; sourceTree = "<group>"; };
 		BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
@@ -88,14 +96,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BA42E6231FF54358009C3C01 /* AppGameDeveloper */ = {
+			isa = PBXGroup;
+			children = (
+				BA42E6261FF54358009C3C01 /* CodeEditor.cpp */,
+				BA42E6271FF54358009C3C01 /* CodeEditor.h */,
+				BA42E6251FF54358009C3C01 /* LuaRunner.cpp */,
+				BA42E6241FF54358009C3C01 /* LuaRunner.h */,
+			);
+			name = AppGameDeveloper;
+			path = ../../src/AppGameDeveloper;
+			sourceTree = "<group>";
+		};
 		D1B6AD2F1F7E9C1F00082097 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				BA42E6231FF54358009C3C01 /* AppGameDeveloper */,
 				D1B6AD421F83E4CD00082097 /* AppAnim.cpp */,
 				BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */,
 				D1B6AD431F83E4CD00082097 /* AppBlur.cpp */,
 				D1B6AD441F83E4CD00082097 /* AppClear.cpp */,
 				D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */,
+				BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */,
 				D1B6AD461F83E4CD00082097 /* AppMesh.cpp */,
 				BA87B5121FDC1B820072868A /* AppParticle.cpp */,
 				BAA45E591FB752210049A867 /* AppPBR.cpp */,
@@ -251,7 +273,10 @@
 				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
 				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
 				BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */,
+				BA42E6291FF54359009C3C01 /* CodeEditor.cpp in Sources */,
+				BA42E6281FF54359009C3C01 /* LuaRunner.cpp in Sources */,
 				BA4FAC201FBB564200C1ADB7 /* AppPhysics.cpp in Sources */,
+				BA42E6221FF5433B009C3C01 /* AppGameDeveloper.cpp in Sources */,
 				D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */,
 				D1A6FA741FA2D2AA0081A94A /* AppShadow.cpp in Sources */,
 				D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */,
