@@ -32,9 +32,10 @@ namespace Viry3D
 	struct CodeLine
 	{
 		String text;
-		int line;
+		int line_num;
 		Ref<UICanvasRenderer> canvas;
-		Ref<UILabel> label;
+        Ref<UILabel> label_line_num;
+		Ref<UILabel> label_line_text;
 	};
 
 	class CodeEditor: public Component

@@ -157,30 +157,48 @@ namespace Viry3D
 			canvas->OnAnchor();
 			canvas->SetSortingOrder(1000);
 
-			String label_text = String::Format("%4d    %s", line_num, lines[i].CString());
+            String line_num_text = String::Format("%4d", line_num);
+            auto label_line_num = GameObject::Create("Label")->AddComponent<UILabel>();
+            label_line_num->GetGameObject()->SetLayer(layer);
+            label_line_num->GetTransform()->SetParent(canvas->GetTransform());
+            label_line_num->SetAnchors(Vector2(0, 0), Vector2(1, 1));
+            label_line_num->SetOffsets(Vector2(0, 0), Vector2(0, 0));
+            label_line_num->SetPivot(Vector2(0.5f, 0.5f));
+            label_line_num->OnAnchor();
+            label_line_num->SetFont(m_font);
+            label_line_num->SetFontStyle(FontStyle::Normal);
+            label_line_num->SetFontSize(m_font_size);
+            label_line_num->SetColor(Color(1, 1, 1, 1));
+            label_line_num->SetText(line_num_text);
+            label_line_num->SetLineSpace(1);
+            label_line_num->SetRich(true);
+            label_line_num->SetMono(false);
+            label_line_num->SetAlignment(TextAlignment::MiddleLeft);
 
-			auto label = GameObject::Create("Label")->AddComponent<UILabel>();
-			label->GetGameObject()->SetLayer(layer);
-			label->GetTransform()->SetParent(canvas->GetTransform());
-			label->SetAnchors(Vector2(0, 0), Vector2(1, 1));
-			label->SetOffsets(Vector2(0, 0), Vector2(0, 0));
-			label->SetPivot(Vector2(0.5f, 0.5f));
-			label->OnAnchor();
-			label->SetFont(m_font);
-			label->SetFontStyle(FontStyle::Normal);
-			label->SetFontSize(m_font_size);
-			label->SetColor(Color(1, 1, 1, 1));
-			label->SetText(label_text);
-			label->SetLineSpace(1);
-			label->SetRich(true);
-			label->SetMono(false);
-			label->SetAlignment(TextAlignment::MiddleLeft);
+            String line_text = lines[i];
+			auto label_line_text = GameObject::Create("Label")->AddComponent<UILabel>();
+            label_line_text->GetGameObject()->SetLayer(layer);
+            label_line_text->GetTransform()->SetParent(canvas->GetTransform());
+            label_line_text->SetAnchors(Vector2(0, 0), Vector2(1, 1));
+            label_line_text->SetOffsets(Vector2(80, 0), Vector2(0, 0));
+            label_line_text->SetPivot(Vector2(0.5f, 0.5f));
+            label_line_text->OnAnchor();
+            label_line_text->SetFont(m_font);
+            label_line_text->SetFontStyle(FontStyle::Normal);
+            label_line_text->SetFontSize(m_font_size);
+            label_line_text->SetColor(Color(1, 1, 1, 1));
+            label_line_text->SetText(line_text);
+            label_line_text->SetLineSpace(1);
+            label_line_text->SetRich(true);
+            label_line_text->SetMono(false);
+            label_line_text->SetAlignment(TextAlignment::MiddleLeft);
 
 			auto line = RefMake<CodeLine>();
 			line->text = lines[i];
-			line->line = line_num;
+			line->line_num = line_num;
 			line->canvas = canvas;
-			line->label = label;
+            line->label_line_num = label_line_num;
+			line->label_line_text = label_line_text;
 
 			m_lines.AddLast(line);
 		}
@@ -221,7 +239,7 @@ namespace Viry3D
 
 		if (line)
 		{
-			Log("OnTouchDown: line:%d", line->line);
+			Log("OnTouchDown: line:%d", line->line_num);
 		}
 	}
 
