@@ -39,7 +39,7 @@ struct TouchEvent
 };
 
 extern Ref<Application> viry3d_android_main();
-static void extract_assets_if_needed(const String& package_path, const String& data_path);
+static void extract_assets_if_needed(const String& package_path, const String& data_path, bool always_extract);
 static int call_activity_method_int(ANativeActivity* activity, const char* name, const char* sig, ...);
 static String call_activity_method_string(ANativeActivity* activity, const char* name, const char* sig, ...);
 
@@ -73,7 +73,7 @@ static void engine_create()
 	Log("data_files_path: %s", data_files_path.CString());
 
 	auto data_path = data_files_path + "/Assets";
-	extract_assets_if_needed(package_path, data_path);
+	extract_assets_if_needed(package_path, data_path, true);
 	Application::SetDataPath(data_path);
 
 	_viry3d_app = viry3d_android_main();
@@ -574,7 +574,7 @@ static void extract_assets(const String& source, const String& dest, bool direct
     }
 }
 
-static void extract_assets_if_needed(const String& package_path, const String& data_path)
+static void extract_assets_if_needed(const String& package_path, const String& data_path, bool always_extract)
 {
 	bool extract = false;
 
@@ -594,7 +594,7 @@ static void extract_assets_if_needed(const String& package_path, const String& d
 		}
 	}
 
-	if (extract)
+	if (extract || always_extract)
 	{
 		Log("extract Assets");
 

@@ -115,6 +115,39 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/json/json_reader.cpp
             ${VIRY3D_LIB_SRC_DIR}/json/json_value.cpp
             ${VIRY3D_LIB_SRC_DIR}/json/json_writer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/lua/lapi.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lauxlib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lbaselib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lbitlib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lcode.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lcorolib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lctype.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/ldblib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/ldebug.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/ldo.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/ldump.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lfunc.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lgc.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/linit.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/liolib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/llex.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lmathlib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lmem.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/loadlib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lobject.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lopcodes.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/loslib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lparser.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lstate.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lstring.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lstrlib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/ltable.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/ltablib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/ltm.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lundump.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lutf8lib.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lvm.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lzio.c
             ${VIRY3D_LIB_SRC_DIR}/mp3/mad/bit.c
             ${VIRY3D_LIB_SRC_DIR}/mp3/mad/decoder.c
             ${VIRY3D_LIB_SRC_DIR}/mp3/mad/fixed.c
@@ -462,6 +495,9 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppBlur.cpp
             ${VIRY3D_APP_SRC_DIR}/AppClear.cpp
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/CodeEditor.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/LuaRunner.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper.cpp
             ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
             ${VIRY3D_APP_SRC_DIR}/AppParticle.cpp
             ${VIRY3D_APP_SRC_DIR}/AppPBR.cpp
