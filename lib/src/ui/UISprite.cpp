@@ -65,6 +65,11 @@ namespace Viry3D
 		}
 	}
 
+    void UISprite::SetSingleTexture(const Ref<Texture2D>& texture)
+    {
+        m_single_texture = texture;
+    }
+
 	void UISprite::SetSpriteType(SpriteType type)
 	{
 		if (m_sprite_type != type)
@@ -172,5 +177,9 @@ namespace Viry3D
 		{
 			mat->SetMainTexture(m_atlas->GetTexture());
 		}
+        else if(m_single_texture)
+        {
+            mat->SetMainTexture(m_single_texture);
+        }
 	}
 }

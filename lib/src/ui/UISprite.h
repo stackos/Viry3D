@@ -80,6 +80,7 @@ namespace Viry3D
 	public:
 		void SetAtlas(const Ref<Atlas>& atlas);
 		void SetSpriteName(const String& name);
+        void SetSingleTexture(const Ref<Texture2D>& texture);
 		void SetSpriteType(SpriteType type);
 		void SetFillMethod(SpriteFillMethod fill_method);
 		void SetFillOrigin(int fill_origin);
@@ -106,5 +107,6 @@ namespace Viry3D
 		int m_fill_origin;
 		float m_fill_amount;
 		bool m_fill_clock_wise;
+        Ref<Texture2D> m_single_texture;
 	};
 }
