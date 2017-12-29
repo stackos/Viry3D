@@ -202,6 +202,7 @@
     <ClCompile Include="..\..\src\AppUI.cpp" />
     <ClCompile Include="..\..\src\AppWatch.cpp" />
     <ClCompile Include="..\..\src\DebugUI.cpp" />
+    <ClCompile Include="..\..\src\LaunchScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\lib\project\win\viry3d.vcxproj">
@@ -212,6 +213,7 @@
     <ClInclude Include="..\..\src\AppGameDeveloper\CodeEditor.h" />
     <ClInclude Include="..\..\src\AppGameDeveloper\LuaRunner.h" />
     <ClInclude Include="..\..\src\DebugUI.h" />
+    <ClInclude Include="..\..\src\LaunchScreen.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -27,6 +27,7 @@
 #include "renderer/MeshRenderer.h"
 #include "AppGameDeveloper/CodeEditor.h"
 #include "AppGameDeveloper/LuaRunner.h"
+#include "LaunchScreen.h"
 
 using namespace Viry3D;
 
@@ -91,6 +92,11 @@ public:
 		LuaRunner::RegisterComponent();
 		auto lua_runner = GameObject::Create("LuaRunner")->AddComponent<LuaRunner>();
 		lua_runner->RunSource(source);
+
+#if !VR_IOS && !VR_MAC
+        LaunchScreen::RegisterComponent();
+        GameObject::Create("LaunchScreen")->AddComponent<LaunchScreen>();
+#endif
 	}
 
 	virtual void Update()
