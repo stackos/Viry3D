@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA2749041FFA8FD30029ABB1 /* LaunchScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2749031FFA8FD30029ABB1 /* LaunchScreen.cpp */; };
 		BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA410F7D1FAA319A005937F1 /* AppSky.cpp */; };
 		BA42E6221FF5433B009C3C01 /* AppGameDeveloper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */; };
 		BA42E6281FF54359009C3C01 /* LuaRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6251FF54358009C3C01 /* LuaRunner.cpp */; };
@@ -46,6 +47,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BA2749031FFA8FD30029ABB1 /* LaunchScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LaunchScreen.cpp; path = ../../src/LaunchScreen.cpp; sourceTree = "<group>"; };
+		BA2749051FFA8FE60029ABB1 /* DebugUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DebugUI.h; path = ../../src/DebugUI.h; sourceTree = "<group>"; };
+		BA2749061FFA8FEB0029ABB1 /* LaunchScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LaunchScreen.h; path = ../../src/LaunchScreen.h; sourceTree = "<group>"; };
 		BA410F7D1FAA319A005937F1 /* AppSky.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppSky.cpp; path = ../../src/AppSky.cpp; sourceTree = "<group>"; };
 		BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppGameDeveloper.cpp; path = ../../src/AppGameDeveloper.cpp; sourceTree = "<group>"; };
 		BA42E6241FF54358009C3C01 /* LuaRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaRunner.h; sourceTree = "<group>"; };
@@ -127,6 +131,9 @@
 				D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */,
 				D1B6AD491F83E4CD00082097 /* AppWatch.cpp */,
 				BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */,
+				BA2749051FFA8FE60029ABB1 /* DebugUI.h */,
+				BA2749031FFA8FD30029ABB1 /* LaunchScreen.cpp */,
+				BA2749061FFA8FEB0029ABB1 /* LaunchScreen.h */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -269,6 +276,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BAA45E5B1FB752210049A867 /* AppPBR.cpp in Sources */,
+				BA2749041FFA8FD30029ABB1 /* LaunchScreen.cpp in Sources */,
 				BA5CD1551FC1FF2C004C590A /* DebugUI.cpp in Sources */,
 				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
 				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
