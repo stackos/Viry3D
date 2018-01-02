@@ -28,6 +28,39 @@ namespace Viry3D
 {
 	DEFINE_COM_CLASS(UICanvasRenderer);
 
+    static void make_pixel_perfect(Vector<Vector3>& vertices, const Matrix4x4& world_mat, const Matrix4x4& world_invert_mat, const Ref<Camera>& camera)
+    {
+        // todo: make pixel perfect in screen space, now is in world space
+
+        auto target_width = camera->GetTargetWidth();
+        auto target_height = camera->GetTargetHeight();
+
+        for (int i = 0; i < vertices.Size(); i++)
+        {
+            auto world_pos = world_mat.MultiplyPoint3x4(vertices[i]);
+
+            if (target_width % 2 == 1)
+            {
+                world_pos.x = floor(world_pos.x) + 0.5f;
+            }
+            else
+            {
+                world_pos.x = floor(world_pos.x);
+            }
+
+            if (target_height % 2 == 1)
+            {
+                world_pos.y = floor(world_pos.y) + 0.5f;
+            }
+            else
+            {
+                world_pos.y = floor(world_pos.y);
+            }
+
+            vertices[i] = world_invert_mat.MultiplyPoint3x4(world_pos);
+        }
+    }
+
 	UICanvasRenderer::UICanvasRenderer():
 		m_type(RenderType::BaseView),
 		m_color(Color::White())
@@ -218,37 +251,10 @@ namespace Viry3D
 
 			if (!vertices.Empty())
 			{
-				// make pixel perfect
-				auto world_mat = this->GetTransform()->GetLocalToWorldMatrix();
-				auto world_invert_mat = this->GetTransform()->GetWorldToLocalMatrix();
-				auto camera = this->GetRootCanvas()->GetCamera();
-				auto target_width = camera->GetTargetWidth();
-				auto target_height = camera->GetTargetHeight();
-
-				for (int i = 0; i < vertices.Size(); i++)
-				{
-					auto world_pos = world_mat.MultiplyPoint3x4(vertices[i]);
-					
-					if (target_width % 2 == 1)
-					{
-						world_pos.x = floor(world_pos.x) + 0.5f;
-					}
-					else
-					{
-						world_pos.x = floor(world_pos.x);
-					}
-
-					if (target_height % 2 == 1)
-					{
-						world_pos.y = floor(world_pos.y) + 0.5f;
-					}
-					else
-					{
-						world_pos.y = floor(world_pos.y);
-					}
-					
-					vertices[i] = world_invert_mat.MultiplyPoint3x4(world_pos);
-				}
+                make_pixel_perfect(vertices,
+                    this->GetTransform()->GetLocalToWorldMatrix(),
+                    this->GetTransform()->GetWorldToLocalMatrix(),
+                    this->GetRootCanvas()->GetCamera());
 
 				if (!m_mesh)
 				{
