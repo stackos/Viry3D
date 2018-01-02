@@ -220,8 +220,10 @@ namespace Viry3D
 	{
 		Log("OnTouchDown: pos:%s", pos.ToString().CString());
 
-		float x = pos.x;
-		float y = -(m_target_screen_height - 1 - pos.y) - m_scroll_position.y;
+        Vector3 pos_world = m_camera->ScreenToWorldPoint(pos);
+        Vector3 pos_canvas = m_canvas->GetTransform()->GetWorldToLocalMatrix().MultiplyPoint3x4(pos_world);
+
+		float offset_y = pos_canvas.y - m_target_screen_height / 2;
 
 		CodeLine* line = NULL;
 
@@ -230,7 +232,7 @@ namespace Viry3D
 			Vector2 offset_min = i->canvas->GetOffsetMin();
 			Vector2 offset_max = i->canvas->GetOffsetMax();
 
-			if (y <= offset_max.y && y > offset_min.y)
+			if (offset_y <= offset_max.y && offset_y > offset_min.y)
 			{
 				line = i.get();
 				break;
@@ -240,6 +242,30 @@ namespace Viry3D
 		if (line)
 		{
 			Log("OnTouchDown: line:%d", line->line_num);
+            
+            const auto& label_lines = line->label_line_text->GetLines();
+            if (label_lines.Size() > 0)
+            {
+                int char_index = -1;
+
+                const auto& label_line = label_lines[0];
+                for (int i = 0; i < label_line.chars.Size(); i++)
+                {
+                    const Bounds& bounds = label_line.char_bounds[i];
+
+                    if (pos_canvas.x >= bounds.Min().x &&
+                        pos_canvas.x <= bounds.Max().x)
+                    {
+                        char_index = i;
+                        break;
+                    }
+                }
+
+                if (char_index >= 0)
+                {
+                    Log("OnTouchDown: char:%c", label_line.chars[char_index]);
+                }
+            }
 		}
 	}
 
