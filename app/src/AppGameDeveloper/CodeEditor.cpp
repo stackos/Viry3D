@@ -239,34 +239,44 @@ namespace Viry3D
 			}
 		}
 
+        int char_index = -1;
+
 		if (line)
 		{
-			Log("OnTouchDown: line:%d", line->line_num);
-            
             const auto& label_lines = line->label_line_text->GetLines();
             if (label_lines.Size() > 0)
             {
-                int char_index = -1;
-
                 const auto& label_line = label_lines[0];
-                for (int i = 0; i < label_line.chars.Size(); i++)
-                {
-                    const Bounds& bounds = label_line.char_bounds[i];
 
-                    if (pos_canvas.x >= bounds.Min().x &&
-                        pos_canvas.x <= bounds.Max().x)
-                    {
-                        char_index = i;
-                        break;
-                    }
+                if (pos_canvas.x < label_line.char_bounds[0].Min().x)
+                {
+                    char_index = 0;
                 }
-
-                if (char_index >= 0)
+                else if(pos_canvas.x > label_line.char_bounds[label_line.char_bounds.Size() - 1].Max().x)
                 {
-                    Log("OnTouchDown: char:%c", label_line.chars[char_index]);
+                    char_index = -1;
+                }
+                else
+                {
+                    for (int i = label_line.chars.Size() - 1; i >= 0; i--)
+                    {
+                        const Bounds& bounds = label_line.char_bounds[i];
+
+                        if (pos_canvas.x >= bounds.Min().x)
+                        {
+                            char_index = i;
+                            break;
+                        }
+                    }
                 }
             }
 		}
+        else if (offset_y <= m_lines.Last()->canvas->GetOffsetMin().y)
+        {
+            line = m_lines.Last().get();
+        }
+
+        Log("OnTouchDown: line:%d char_index:%d", line->line_num, char_index);
 	}
 
 	void CodeEditor::OnTouchMove(const Vector2& pos)
