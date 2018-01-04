@@ -22,7 +22,11 @@
 #include "graphics/RenderTexture.h"
 #include "ui/UICanvasRenderer.h"
 #include "ui/UILabel.h"
+#include "ui/UISprite.h"
 #include "ui/Font.h"
+
+static const float CODE_CANVAS_BORDER_X = 10;
+static const float CODE_TEXT_BORDER_X = 80;
 
 namespace Viry3D
 {
@@ -94,6 +98,16 @@ namespace Viry3D
 			canvas->SetCamera(camera);
 
 			m_canvas = canvas;
+
+            auto cursor = GameObject::Create("Cursor")->AddComponent<UISprite>();
+            cursor->GetGameObject()->SetLayer(layer);
+            cursor->GetTransform()->SetParent(m_canvas->GetTransform());
+            cursor->SetAnchors(Vector2(0, 1), Vector2(0, 1));
+            cursor->SetOffsets(Vector2(CODE_CANVAS_BORDER_X + CODE_TEXT_BORDER_X - 1, 0), Vector2(CODE_CANVAS_BORDER_X + CODE_TEXT_BORDER_X, (float) -this->GetLineHeight()));
+            cursor->SetPivot(Vector2(0.5f, 0.5f));
+            cursor->OnAnchor();
+
+            m_cursor = cursor;
 		}
 	}
 
@@ -142,7 +156,6 @@ namespace Viry3D
 
 		int layer = this->GetGameObject()->GetLayer();
 		int line_height = this->GetLineHeight();
-		const float border_x = 10;
 
 		for (int i = 0; i < lines.Size(); i++)
 		{
@@ -152,7 +165,7 @@ namespace Viry3D
 			canvas->GetGameObject()->SetLayer(layer);
 			canvas->GetTransform()->SetParent(m_canvas->GetTransform());
 			canvas->SetAnchors(Vector2(0, 1), Vector2(1, 1));
-			canvas->SetOffsets(Vector2(border_x, - (float) line_height * (i + 1)), Vector2(-border_x, - (float) line_height * i));
+			canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, - (float) line_height * (i + 1)), Vector2(-CODE_CANVAS_BORDER_X, - (float) line_height * i));
 			canvas->SetPivot(Vector2(0.5f, 0.5f));
 			canvas->OnAnchor();
 			canvas->SetSortingOrder(1000);
@@ -180,7 +193,7 @@ namespace Viry3D
             label_line_text->GetGameObject()->SetLayer(layer);
             label_line_text->GetTransform()->SetParent(canvas->GetTransform());
             label_line_text->SetAnchors(Vector2(0, 0), Vector2(1, 1));
-            label_line_text->SetOffsets(Vector2(80, 0), Vector2(0, 0));
+            label_line_text->SetOffsets(Vector2(CODE_TEXT_BORDER_X, 0), Vector2(0, 0));
             label_line_text->SetPivot(Vector2(0.5f, 0.5f));
             label_line_text->OnAnchor();
             label_line_text->SetFont(m_font);
@@ -215,6 +228,35 @@ namespace Viry3D
 
 		m_canvas->GetTransform()->SetLocalPosition(pos);
 	}
+
+    void CodeEditor::UpdateCursorPosition(const CodeLine* line, int char_index)
+    {
+        Log("UpdateCursorPosition: line:%d char_index:%d", line->line_num, char_index);
+
+        const auto& lines = line->label_line_text->GetLines();
+        float x;
+        float y = line->label_line_text->GetTransform()->GetLocalPosition().y;
+
+        if (char_index >= 0)
+        {
+            x = lines[0].char_bounds[char_index].Min().x;
+        }
+        else
+        {
+            if (lines.Size() > 0)
+            {
+                const auto& bounds = lines[0].char_bounds;
+                x = bounds[bounds.Size() - 1].Max().x + 2;
+            }
+            else
+            {
+                x = - (float) m_target_screen_width / 2 + CODE_CANVAS_BORDER_X + CODE_TEXT_BORDER_X;
+            }
+        }
+
+        auto mat = line->canvas->GetTransform()->GetLocalToWorldMatrix();
+        m_cursor->GetTransform()->SetPosition(mat.MultiplyPoint3x4(Vector3(x, y, 0)));
+    }
 
 	void CodeEditor::OnTouchDown(const Vector2& pos)
 	{
@@ -276,7 +318,7 @@ namespace Viry3D
             line = m_lines.Last().get();
         }
 
-        Log("OnTouchDown: line:%d char_index:%d", line->line_num, char_index);
+        this->UpdateCursorPosition(line, char_index);
 	}
 
 	void CodeEditor::OnTouchMove(const Vector2& pos)

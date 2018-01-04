@@ -26,6 +26,7 @@ namespace Viry3D
 	class RenderTexture;
 	class UICanvasRenderer;
 	class UILabel;
+    class UISprite;
 	class Font;
 	class UIPointerEvent;
 
@@ -61,6 +62,7 @@ namespace Viry3D
 		void Clear();
 		int GetLineHeight();
 		void SetSrollPosition(const Vector2& pos);
+        void UpdateCursorPosition(const CodeLine* line, int char_index);
 
 	protected:
 		int m_render_depth;
@@ -68,6 +70,7 @@ namespace Viry3D
 		int m_target_screen_height;
 		Ref<Camera> m_camera;
 		Ref<UICanvasRenderer> m_canvas;
+        Ref<UISprite> m_cursor;
 		String m_source_code;
 		List<Ref<CodeLine>> m_lines;
 		Ref<Font> m_font;
