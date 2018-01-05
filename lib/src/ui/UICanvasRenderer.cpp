@@ -267,6 +267,13 @@ namespace Viry3D
 				m_mesh->Apply();
 			}
 		}
+        else
+        {
+            if (m_mesh)
+            {
+                m_mesh.reset();
+            }
+        }
 	}
 
 	const VertexBuffer* UICanvasRenderer::GetVertexBuffer() const

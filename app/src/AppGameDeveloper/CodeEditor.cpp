@@ -24,6 +24,8 @@
 #include "ui/UILabel.h"
 #include "ui/UISprite.h"
 #include "ui/Font.h"
+#include "time/Time.h"
+#include "math/Mathf.h"
 
 static const float CODE_CANVAS_BORDER_X = 10;
 static const float CODE_TEXT_BORDER_X = 80;
@@ -43,7 +45,10 @@ namespace Viry3D
 		m_render_depth(0),
 		m_font_size(18),
 		m_line_space(4),
-		m_scroll_position(0, 0)
+		m_scroll_position(0, 0),
+        m_cursor_line(NULL),
+        m_cursor_char_index(-1),
+        m_cursor_flash_time(-1)
 	{
 	}
 
@@ -231,7 +236,9 @@ namespace Viry3D
 
     void CodeEditor::UpdateCursorPosition(const CodeLine* line, int char_index)
     {
-        Log("UpdateCursorPosition: line:%d char_index:%d", line->line_num, char_index);
+        m_cursor_line = line;
+        m_cursor_char_index = char_index;
+        m_cursor_flash_time = -1;
 
         const auto& lines = line->label_line_text->GetLines();
         float x;
@@ -260,8 +267,6 @@ namespace Viry3D
 
 	void CodeEditor::OnTouchDown(const Vector2& pos)
 	{
-		Log("OnTouchDown: pos:%s", pos.ToString().CString());
-
         Vector3 pos_world = m_camera->ScreenToWorldPoint(pos);
         Vector3 pos_canvas = m_canvas->GetTransform()->GetWorldToLocalMatrix().MultiplyPoint3x4(pos_world);
 
@@ -323,16 +328,33 @@ namespace Viry3D
 
 	void CodeEditor::OnTouchMove(const Vector2& pos)
 	{
-		//Log("OnTouchMove:%s", pos.ToString().CString());
+        
 	}
 
 	void CodeEditor::OnTouchUp(const Vector2& pos)
 	{
-		//Log("OnTouchUp:%s", pos.ToString().CString());
+        
 	}
+
+    void CodeEditor::UpdateCursorFlash()
+    {
+        if (m_cursor_flash_time < 0)
+        {
+            m_cursor_flash_time = Time::GetTime();
+        }
+
+        if (fmod(Time::GetTime() - m_cursor_flash_time, 1.0f) < 0.5f)
+        {
+            m_cursor->SetColor(Color(1, 1, 1, 1));
+        }
+        else
+        {
+            m_cursor->SetColor(Color(1, 1, 1, 0));
+        }
+    }
 
 	void CodeEditor::Update()
 	{
-		
+        this->UpdateCursorFlash();
 	}
 }

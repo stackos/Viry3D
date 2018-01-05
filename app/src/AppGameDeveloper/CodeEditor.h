@@ -63,6 +63,7 @@ namespace Viry3D
 		int GetLineHeight();
 		void SetSrollPosition(const Vector2& pos);
         void UpdateCursorPosition(const CodeLine* line, int char_index);
+        void UpdateCursorFlash();
 
 	protected:
 		int m_render_depth;
@@ -77,5 +78,8 @@ namespace Viry3D
 		int m_font_size;
 		int m_line_space;
 		Vector2 m_scroll_position;
+        const CodeLine* m_cursor_line;
+        int m_cursor_char_index;
+        float m_cursor_flash_time;
 	};
 }
