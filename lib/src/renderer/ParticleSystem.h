@@ -203,6 +203,7 @@ namespace Viry3D
 		{
 			bool enabled;
 			MinMaxCurve rate_over_time;
+            float rate_over_time_lerp = -1;
 			MinMaxCurve rate_over_distance;
 			Vector<EmissionBurst> bursts;
 

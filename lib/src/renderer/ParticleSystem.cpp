@@ -117,7 +117,7 @@ namespace Viry3D
 		{
 			float now = Time::GetTime();
 			float t = m_time;
-			float rate = emission.rate_over_time.Evaluate(t, random01());
+			float rate = emission.rate_over_time.Evaluate(t, get_min_max_curve_lerp(emission.rate_over_time_lerp));
 			int emit_count = 0;
 			Vector<float> emit_time_offsets;
 
@@ -125,7 +125,7 @@ namespace Viry3D
 			{
 				if (m_time >= burst.time)
 				{
-					if (burst.cycle_count <= 0 || burst.cycle_count > burst.emit_count)
+					if (burst.cycle_count <= 0 || burst.emit_count < burst.cycle_count)
 					{
 						if (burst.emit_time < 0 || now - burst.emit_time >= burst.repeat_interval)
 						{
@@ -299,6 +299,7 @@ namespace Viry3D
 	{
 		float now = Time::GetTime();
 		float duration = main.duration;
+		
 		if (now >= m_time_start && duration > 0)
 		{
 			float play_time = (now - m_time_start) * main.simulation_speed;
@@ -327,6 +328,7 @@ namespace Viry3D
 
 			if (p.remaining_lifetime > 0)
 			{
+				UpdateParticleLifetime(p);
 				UpdateParticleVelocity(p);
 				UpdateParticleAngularVelocity(p);
 				UpdateParticleColor(p);
@@ -334,7 +336,6 @@ namespace Viry3D
 				UpdateParticleUV(p);
 				UpdateParticlePosition(p);
 				UpdateParticleRotation(p);
-				UpdateParticleLifetime(p);
 			}
 
 			if (p.remaining_lifetime <= 0)
@@ -1383,7 +1384,7 @@ namespace Viry3D
 		}
 		else if (mode == ParticleSystemGradientMode::RandomColor)
 		{
-			return gradient.Evaluate(random01());
+			return gradient.Evaluate(lerp);
 		}
 
 		return Color();
