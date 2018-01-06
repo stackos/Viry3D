@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "Resource.h"
 #include "Input.h"
+#include "io/File.h"
 #include "math/Mathf.h"
 #include "graphics/Camera.h"
 #include "graphics/RenderTexture.h"
@@ -58,13 +59,7 @@ public:
 
         m_camera = camera;
 
-        String source =
-            "print(\"Hello World!\")\r\n" \
-            "print(1 + 2)\r\n" \
-            "function func(a, b)\r\n" \
-            "    print(a + b)\r\n" \
-            "end\r\n" \
-            "func(3, 4)\r\n";
+        String source = File::ReadAllText(Application::DataPath() + "/lua/main.lua");
 
         CodeEditor::RegisterComponent();
         auto code_editor = GameObject::Create("CodeEditor")->AddComponent<CodeEditor>();
@@ -95,7 +90,7 @@ public:
 
 #if !VR_IOS
         LaunchScreen::RegisterComponent();
-        GameObject::Create("LaunchScreen")->AddComponent<LaunchScreen>();
+        //GameObject::Create("LaunchScreen")->AddComponent<LaunchScreen>();
 #endif
     }
 

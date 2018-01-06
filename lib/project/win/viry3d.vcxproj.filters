@@ -130,6 +130,9 @@
     <Filter Include="src\lua">
       <UniqueIdentifier>{1276c1d7-e3f4-44fd-b9a8-3ae3b7b4c0af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\lua\lpeg">
+      <UniqueIdentifier>{a6d870cd-5b74-4ead-a564-bf7ee8ef1e20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -1205,6 +1208,24 @@
     </ClInclude>
     <ClInclude Include="..\..\src\lua\lapi.h">
       <Filter>src\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lpeg\lpcap.h">
+      <Filter>src\lua\lpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lpeg\lpcode.h">
+      <Filter>src\lua\lpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lpeg\lpprint.h">
+      <Filter>src\lua\lpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lpeg\lptree.h">
+      <Filter>src\lua\lpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lpeg\lptypes.h">
+      <Filter>src\lua\lpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lpeg\lpvm.h">
+      <Filter>src\lua\lpeg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2701,6 +2722,21 @@
     </ClCompile>
     <ClCompile Include="..\..\src\lua\lapi.c">
       <Filter>src\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua\lpeg\lpcap.c">
+      <Filter>src\lua\lpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua\lpeg\lpcode.c">
+      <Filter>src\lua\lpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua\lpeg\lpprint.c">
+      <Filter>src\lua\lpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua\lpeg\lptree.c">
+      <Filter>src\lua\lpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua\lpeg\lpvm.c">
+      <Filter>src\lua\lpeg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
