@@ -17,12 +17,15 @@
 
 #include "LuaRunner.h"
 #include "Debug.h"
+#include "Application.h"
 #include "lua/lua.hpp"
 
 using namespace Viry3D;
 
 extern "C"
 {
+    extern int luaopen_lpeg(lua_State *L);
+
 	static int lua_print_log(lua_State* L)
 	{
 		int n = lua_gettop(L);  /* number of arguments */
@@ -51,9 +54,12 @@ extern "C"
 		Debug::LogString("\n", false);
 
 		// print call stack
-		luaL_traceback(L, L, NULL, 1);
+		/*luaL_traceback(L, L, NULL, 1);
 		Debug::LogString(lua_tostring(L, -1), false);
 		Debug::LogString("\n", false);
+        lua_pop(L, 1);*/
+
+        lua_settop(L, n);
 
 		return 0;
 	}
@@ -69,6 +75,28 @@ extern "C"
 		luaL_setfuncs(L, print_funcs, 0);
 		lua_pop(L, 1);
 	}
+
+    static void register_lpeg_model(lua_State* L)
+    {
+        luaL_requiref(L, "lpeg", luaopen_lpeg, 1);
+        lua_pop(L, 1);
+    }
+
+    static void set_package_path(lua_State* L)
+    {
+        lua_getglobal(L, "package");
+
+        lua_getfield(L, -1, "path");
+        String path = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        path += ";" + Application::DataPath() + "/lua/?.lua;"
+            + Application::DataPath() + "/lua/lexers/?.lua";
+        lua_pushstring(L, path.CString());
+        lua_setfield(L, -2, "path");
+
+        lua_pop(L, 1);
+    }
 }
 
 namespace Viry3D
@@ -83,10 +111,20 @@ namespace Viry3D
 	void LuaRunner::RunSource(const String& source)
 	{
 		lua_State* L = luaL_newstate();
+
 		luaL_openlibs(L);
 		register_print_func(L);
+        register_lpeg_model(L);
+        set_package_path(L);
 
-		luaL_dostring(L, source.CString());
+		auto error = luaL_dostring(L, source.CString());
+        if (error)
+        {
+            String error_str = lua_tostring(L, -1);
+            lua_pop(L, 1);
+
+            Log("LuaRunner::RunSource error:%s", error_str.CString());
+        }
 
 		lua_close(L);
 	}
