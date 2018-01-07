@@ -59,7 +59,7 @@ public:
 
         m_camera = camera;
 
-        String source = File::ReadAllText(Application::DataPath() + "/lua/main.lua");
+        String source = File::ReadAllText(Application::DataPath() + "/lua/app.lua");
 
         CodeEditor::RegisterComponent();
         auto code_editor = GameObject::Create("CodeEditor")->AddComponent<CodeEditor>();
