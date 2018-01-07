@@ -115,6 +115,11 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/json/json_reader.cpp
             ${VIRY3D_LIB_SRC_DIR}/json/json_value.cpp
             ${VIRY3D_LIB_SRC_DIR}/json/json_writer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpcap.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpcode.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpprint.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lptree.c
+            ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpvm.c
             ${VIRY3D_LIB_SRC_DIR}/lua/lapi.c
             ${VIRY3D_LIB_SRC_DIR}/lua/lauxlib.c
             ${VIRY3D_LIB_SRC_DIR}/lua/lbaselib.c
@@ -374,7 +379,8 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/openal/include
                            ${VIRY3D_LIB_SRC_DIR}/openal/android
                            ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
-                           ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src)
+                           ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src
+                           ${VIRY3D_LIB_SRC_DIR}/lua)
 
 add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/android/DisplayAndroid.cpp
