@@ -21,11 +21,30 @@
 
 namespace Viry3D
 {
+    enum class LuaTokenType
+    {
+        Comment,
+        Whitespace,
+        Function,
+        Operator,
+        String,
+        Number,
+        Keyword,
+        Identifier
+    };
+
+    struct LuaToken
+    {
+        LuaTokenType type;
+        int pos;
+    };
+
 	class LuaRunner: public Component
 	{
 		DECLARE_COM_CLASS(LuaRunner, Component);
 
 	public:
+        static Vector<LuaToken> Lex(const String& source);
 		void RunSource(const String& source);
 
 	private:

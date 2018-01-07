@@ -82,7 +82,7 @@ extern "C"
         lua_pop(L, 1);
     }
 
-    static void set_package_path(lua_State* L)
+    static void set_package_path(lua_State* L, const String& dir)
     {
         lua_getglobal(L, "package");
 
@@ -90,8 +90,7 @@ extern "C"
         String path = lua_tostring(L, -1);
         lua_pop(L, 1);
 
-        path += ";" + Application::DataPath() + "/lua/?.lua;"
-            + Application::DataPath() + "/lua/lexers/?.lua";
+        path += ";" + dir + "/?.lua";
         lua_pushstring(L, path.CString());
         lua_setfield(L, -2, "path");
 
@@ -102,6 +101,102 @@ extern "C"
 namespace Viry3D
 {
 	DEFINE_COM_CLASS(LuaRunner);
+
+    Vector<LuaToken> LuaRunner::Lex(const String& source)
+    {
+        Vector<LuaToken> tokens;
+
+        lua_State* L = luaL_newstate();
+
+        luaL_openlibs(L);
+        register_lpeg_model(L);
+        set_package_path(L, Application::DataPath() + "/lua/lexers");
+
+        /* do the same thing like this:
+            local lexer = require "lexer"
+            local lua_lexer = lexer.load("lua")
+            local tokens = lexer.lex(lua_lexer, source)
+        */
+        luaL_dofile(L, (Application::DataPath() + "/lua/lexers/lexer.lua").CString());
+        lua_getfield(L, 1, "load");
+        lua_pushstring(L, "lua");
+        lua_call(L, 1, 1);
+        lua_getfield(L, 1, "lex");
+        lua_pushvalue(L, 2);
+        lua_pushstring(L, source.CString());
+        lua_call(L, 2, 1);
+        
+        Vector<String> names;
+        Vector<String> indices;
+
+        lua_pushnil(L);
+        while (lua_next(L, -2) != 0)
+        {
+            String value = lua_tostring(L, -1);
+
+            if (names.Size() == indices.Size())
+            {
+                names.Add(value);
+            }
+            else
+            {
+                indices.Add(value);
+            }
+
+            lua_pop(L, 1);
+        }
+
+        lua_close(L);
+
+        assert(names.Size() == indices.Size());
+
+        tokens.Resize(names.Size());
+        for (int i = 0; i < names.Size(); i++)
+        {
+            const String& name = names[i];
+            if (name == "comment")
+            {
+                tokens[i].type = LuaTokenType::Comment;
+            }
+            else if(name == "whitespace")
+            {
+                tokens[i].type = LuaTokenType::Whitespace;
+            }
+            else if (name == "function")
+            {
+                tokens[i].type = LuaTokenType::Function;
+            }
+            else if (name == "operator")
+            {
+                tokens[i].type = LuaTokenType::Operator;
+            }
+            else if (name == "string")
+            {
+                tokens[i].type = LuaTokenType::String;
+            }
+            else if (name == "number")
+            {
+                tokens[i].type = LuaTokenType::Number;
+            }
+            else if (name == "keyword")
+            {
+                tokens[i].type = LuaTokenType::Keyword;
+            }
+            else if (name == "identifier")
+            {
+                tokens[i].type = LuaTokenType::Identifier;
+            }
+            else
+            {
+                Log("unknown lua token type: %s", name.CString());
+                assert(0);
+            }
+
+            tokens[i].pos = indices[i].To<int>();
+        }
+
+        return tokens;
+    }
 
 	void LuaRunner::DeepCopy(const Ref<Object>& source)
 	{
@@ -114,15 +209,12 @@ namespace Viry3D
 
 		luaL_openlibs(L);
 		register_print_func(L);
-        register_lpeg_model(L);
-        set_package_path(L);
+        set_package_path(L, Application::DataPath() + "/lua");
 
 		auto error = luaL_dostring(L, source.CString());
         if (error)
         {
             String error_str = lua_tostring(L, -1);
-            lua_pop(L, 1);
-
             Log("LuaRunner::RunSource error:%s", error_str.CString());
         }
 

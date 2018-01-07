@@ -16,6 +16,7 @@
 */
 
 #include "CodeEditor.h"
+#include "LuaRunner.h"
 #include "GameObject.h"
 #include "Resource.h"
 #include "graphics/Camera.h"
@@ -220,6 +221,8 @@ namespace Viry3D
 
 			m_lines.AddLast(line);
 		}
+
+        auto tokens = LuaRunner::Lex(source);
 	}
 
 	int CodeEditor::GetLineHeight()
