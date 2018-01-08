@@ -33,77 +33,77 @@ static const float CODE_TEXT_BORDER_X = 80;
 
 namespace Viry3D
 {
-	DEFINE_COM_CLASS(CodeEditor);
+    DEFINE_COM_CLASS(CodeEditor);
 
-	void CodeEditor::DeepCopy(const Ref<Object>& source)
-	{
-		Component::DeepCopy(source);
-	}
+    void CodeEditor::DeepCopy(const Ref<Object>& source)
+    {
+        Component::DeepCopy(source);
+    }
 
-	CodeEditor::CodeEditor():
-		m_target_screen_width(0),
-		m_target_screen_height(0),
-		m_render_depth(0),
-		m_font_size(18),
-		m_line_space(4),
-		m_scroll_position(0, 0),
+    CodeEditor::CodeEditor():
+        m_target_screen_width(0),
+        m_target_screen_height(0),
+        m_render_depth(0),
+        m_font_size(18),
+        m_line_space(4),
+        m_scroll_position(0, 0),
         m_cursor_line(NULL),
         m_cursor_char_index(-1),
         m_cursor_flash_time(-1)
-	{
-	}
+    {
+    }
 
-	void CodeEditor::SetRenderDepth(int depth)
-	{
-		m_render_depth = depth;
-	}
+    void CodeEditor::SetRenderDepth(int depth)
+    {
+        m_render_depth = depth;
+    }
 
-	void CodeEditor::SetTargetScreenSize(int width, int height)
-	{
-		m_target_screen_width = width;
-		m_target_screen_height = height;
-	}
+    void CodeEditor::SetTargetScreenSize(int width, int height)
+    {
+        m_target_screen_width = width;
+        m_target_screen_height = height;
+    }
 
-	void CodeEditor::CreateCamera()
-	{
-		if (m_target_screen_width > 0 &&
-			m_target_screen_height > 0)
-		{
-			int layer = this->GetGameObject()->GetLayer();
+    void CodeEditor::CreateCamera()
+    {
+        if (m_target_screen_width > 0 &&
+            m_target_screen_height > 0)
+        {
+            int layer = this->GetGameObject()->GetLayer();
 
-			auto camera = GameObject::Create("Camera")->AddComponent<Camera>();
-			camera->GetGameObject()->SetLayer(layer);
-			camera->GetTransform()->SetParent(this->GetTransform());
-			camera->SetCullingMask(1 << layer);
-			camera->SetDepth(m_render_depth);
-			camera->SetClearColor(Color(30, 30, 30, 255) / 255.0f);
+            auto camera = GameObject::Create("Camera")->AddComponent<Camera>();
+            camera->GetGameObject()->SetLayer(layer);
+            camera->GetTransform()->SetParent(this->GetTransform());
+            camera->SetCullingMask(1 << layer);
+            camera->SetDepth(m_render_depth);
+            camera->SetClearColor(Color(30, 30, 30, 255) / 255.0f);
 
-			auto render_target = RefMake<FrameBuffer>();
-			render_target->color_texture = RenderTexture::Create(m_target_screen_width, m_target_screen_height, RenderTextureFormat::RGBA32, DepthBuffer::Depth_0, FilterMode::Bilinear);
-			render_target->depth_texture = RenderTexture::Create(m_target_screen_width, m_target_screen_height, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
-			camera->SetFrameBuffer(render_target);
+            auto render_target = RefMake<FrameBuffer>();
+            render_target->color_texture = RenderTexture::Create(m_target_screen_width, m_target_screen_height, RenderTextureFormat::RGBA32, DepthBuffer::Depth_0, FilterMode::Bilinear);
+            render_target->depth_texture = RenderTexture::Create(m_target_screen_width, m_target_screen_height, RenderTextureFormat::Depth, DepthBuffer::Depth_24, FilterMode::Bilinear);
+            camera->SetFrameBuffer(render_target);
 
-			camera->SetOrthographic(true);
-			camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
-			camera->SetClipNear(-1);
-			camera->SetClipFar(1);
+            camera->SetOrthographic(true);
+            camera->SetOrthographicSize(camera->GetTargetHeight() / 2.0f);
+            camera->SetClipNear(-1);
+            camera->SetClipFar(1);
 
-			m_camera = camera;
+            m_camera = camera;
 
-			auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
-			canvas->GetGameObject()->SetLayer(layer);
-			canvas->GetTransform()->SetParent(this->GetTransform());
-			canvas->SetAnchors(Vector2(0, 0), Vector2(0, 0));
-			canvas->SetOffsets(Vector2(0, 0), Vector2((float) m_target_screen_width, (float) m_target_screen_height));
-			canvas->SetPivot(Vector2(0.5f, 0.5f));
-			canvas->SetSize(Vector2((float) m_target_screen_width, (float) m_target_screen_height));
-			canvas->OnAnchor();
-			canvas->SetSortingOrder(10000);
-			canvas->GetTransform()->SetLocalPosition(Vector3::Zero());
-			canvas->GetTransform()->SetLocalScale(Vector3::One());
-			canvas->SetCamera(camera);
+            auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
+            canvas->GetGameObject()->SetLayer(layer);
+            canvas->GetTransform()->SetParent(this->GetTransform());
+            canvas->SetAnchors(Vector2(0, 0), Vector2(0, 0));
+            canvas->SetOffsets(Vector2(0, 0), Vector2((float) m_target_screen_width, (float) m_target_screen_height));
+            canvas->SetPivot(Vector2(0.5f, 0.5f));
+            canvas->SetSize(Vector2((float) m_target_screen_width, (float) m_target_screen_height));
+            canvas->OnAnchor();
+            canvas->SetSortingOrder(10000);
+            canvas->GetTransform()->SetLocalPosition(Vector3::Zero());
+            canvas->GetTransform()->SetLocalScale(Vector3::One());
+            canvas->SetCamera(camera);
 
-			m_canvas = canvas;
+            m_canvas = canvas;
 
             auto cursor = GameObject::Create("Cursor")->AddComponent<UISprite>();
             cursor->GetGameObject()->SetLayer(layer);
@@ -114,30 +114,30 @@ namespace Viry3D
             cursor->OnAnchor();
 
             m_cursor = cursor;
-		}
-	}
+        }
+    }
 
-	Ref<RenderTexture> CodeEditor::GetTargetRenderTexture() const
-	{
-		Ref<RenderTexture> texture;
+    Ref<RenderTexture> CodeEditor::GetTargetRenderTexture() const
+    {
+        Ref<RenderTexture> texture;
 
-		if (m_camera)
-		{
-			texture = m_camera->GetFrameBuffer()->color_texture;
-		}
+        if (m_camera)
+        {
+            texture = m_camera->GetFrameBuffer()->color_texture;
+        }
 
-		return texture;
-	}
+        return texture;
+    }
 
-	void CodeEditor::SetFontSize(int size)
-	{
-		m_font_size = size;
-	}
+    void CodeEditor::SetFontSize(int size)
+    {
+        m_font_size = size;
+    }
 
-	void CodeEditor::SetLineSpace(int space)
-	{
-		m_line_space = space;
-	}
+    void CodeEditor::SetLineSpace(int space)
+    {
+        m_line_space = space;
+    }
 
     void CodeEditor::Clear()
     {
@@ -167,7 +167,7 @@ namespace Viry3D
         const String color_end = "</color>";
 
         auto tokens = LuaRunner::Lex(m_source_code);
-        
+
         String code_colored;
         int from = 0;
         for (int i = 0; i < tokens.Size(); i++)
@@ -181,7 +181,7 @@ namespace Viry3D
                 {
                     code_colored += token_colors[(int) tokens[i].type] + lines[j] + color_end;
                 }
-                
+
                 if (j < lines.Size() - 1)
                 {
                     code_colored += "\r\n";
@@ -194,35 +194,35 @@ namespace Viry3D
         m_source_code = code_colored;
     }
 
-	void CodeEditor::LoadSource(const String& source)
-	{
-		this->Clear();
+    void CodeEditor::LoadSource(const String& source)
+    {
+        this->Clear();
 
-		if (!m_font)
-		{
-			m_font = Resource::LoadFont("Assets/font/consola.ttf");
-		}
+        if (!m_font)
+        {
+            m_font = Resource::LoadFont("Assets/font/consola.ttf");
+        }
 
-		m_source_code = source;
+        m_source_code = source;
         this->ApplySyntaxColors();
 
-		auto lines = m_source_code.Split("\r\n", false);
+        auto lines = m_source_code.Split("\r\n", false);
 
-		int layer = this->GetGameObject()->GetLayer();
-		int line_height = this->GetLineHeight();
+        int layer = this->GetGameObject()->GetLayer();
+        int line_height = this->GetLineHeight();
 
-		for (int i = 0; i < lines.Size(); i++)
-		{
-			int line_num = i + 1;
+        for (int i = 0; i < lines.Size(); i++)
+        {
+            int line_num = i + 1;
 
-			auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
-			canvas->GetGameObject()->SetLayer(layer);
-			canvas->GetTransform()->SetParent(m_canvas->GetTransform());
-			canvas->SetAnchors(Vector2(0, 1), Vector2(1, 1));
-			canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, - (float) line_height * (i + 1)), Vector2(-CODE_CANVAS_BORDER_X, - (float) line_height * i));
-			canvas->SetPivot(Vector2(0.5f, 0.5f));
-			canvas->OnAnchor();
-			canvas->SetSortingOrder(1000);
+            auto canvas = GameObject::Create("Canvas")->AddComponent<UICanvasRenderer>();
+            canvas->GetGameObject()->SetLayer(layer);
+            canvas->GetTransform()->SetParent(m_canvas->GetTransform());
+            canvas->SetAnchors(Vector2(0, 1), Vector2(1, 1));
+            canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, -(float) line_height * (i + 1)), Vector2(-CODE_CANVAS_BORDER_X, -(float) line_height * i));
+            canvas->SetPivot(Vector2(0.5f, 0.5f));
+            canvas->OnAnchor();
+            canvas->SetSortingOrder(1000);
 
             String line_num_text = String::Format("%4d", line_num);
             auto label_line_num = GameObject::Create("Label")->AddComponent<UILabel>();
@@ -244,7 +244,7 @@ namespace Viry3D
             label_line_num->SetColor(Color(43, 145, 174, 255) / 255.0f);
 
             String line_text = lines[i];
-			auto label_line_text = GameObject::Create("Label")->AddComponent<UILabel>();
+            auto label_line_text = GameObject::Create("Label")->AddComponent<UILabel>();
             label_line_text->GetGameObject()->SetLayer(layer);
             label_line_text->GetTransform()->SetParent(canvas->GetTransform());
             label_line_text->SetAnchors(Vector2(0, 0), Vector2(1, 1));
@@ -261,28 +261,31 @@ namespace Viry3D
             label_line_text->SetMono(false);
             label_line_text->SetAlignment(TextAlignment::MiddleLeft);
 
-			auto line = RefMake<CodeLine>();
-			line->text = line_text;
-			line->line_num = line_num;
-			line->canvas = canvas;
+            auto line = RefMake<CodeLine>();
+            line->text = line_text;
+            line->line_num = line_num;
+            line->canvas = canvas;
             line->label_line_num = label_line_num;
-			line->label_line_text = label_line_text;
+            line->label_line_text = label_line_text;
 
-			m_lines.AddLast(line);
-		}
-	}
+            m_lines.AddLast(line);
+        }
+    }
 
-	int CodeEditor::GetLineHeight()
-	{
-		return m_font_size + m_line_space;
-	}
+    int CodeEditor::GetLineHeight()
+    {
+        return m_font_size + m_line_space;
+    }
 
-	void CodeEditor::SetSrollPosition(const Vector2& pos)
-	{
-		m_scroll_position = pos;
+    void CodeEditor::SetSrollPosition(const Vector2& pos)
+    {
+        m_scroll_position = pos;
 
-		m_canvas->GetTransform()->SetLocalPosition(pos);
-	}
+        if (m_canvas)
+        {
+            m_canvas->GetTransform()->SetLocalPosition(pos);
+        }
+    }
 
     void CodeEditor::UpdateCursorPosition(const CodeLine* line, int char_index)
     {
@@ -307,7 +310,7 @@ namespace Viry3D
             }
             else
             {
-                x = - (float) m_target_screen_width / 2 + CODE_CANVAS_BORDER_X + CODE_TEXT_BORDER_X;
+                x = -(float) m_target_screen_width / 2 + CODE_CANVAS_BORDER_X + CODE_TEXT_BORDER_X;
             }
         }
 
@@ -315,31 +318,31 @@ namespace Viry3D
         m_cursor->GetTransform()->SetPosition(mat.MultiplyPoint3x4(Vector3(x, y, 0)));
     }
 
-	void CodeEditor::OnTouchDown(const Vector2& pos)
-	{
+    void CodeEditor::OnTouchDown(const Vector2& pos)
+    {
         Vector3 pos_world = m_camera->ScreenToWorldPoint(pos);
         Vector3 pos_canvas = m_canvas->GetTransform()->GetWorldToLocalMatrix().MultiplyPoint3x4(pos_world);
 
-		float offset_y = pos_canvas.y - m_target_screen_height / 2;
+        float offset_y = pos_canvas.y - m_target_screen_height / 2;
 
-		CodeLine* line = NULL;
+        CodeLine* line = NULL;
 
-		for (auto& i : m_lines)
-		{
-			Vector2 offset_min = i->canvas->GetOffsetMin();
-			Vector2 offset_max = i->canvas->GetOffsetMax();
+        for (auto& i : m_lines)
+        {
+            Vector2 offset_min = i->canvas->GetOffsetMin();
+            Vector2 offset_max = i->canvas->GetOffsetMax();
 
-			if (offset_y <= offset_max.y && offset_y > offset_min.y)
-			{
-				line = i.get();
-				break;
-			}
-		}
+            if (offset_y <= offset_max.y && offset_y > offset_min.y)
+            {
+                line = i.get();
+                break;
+            }
+        }
 
         int char_index = -1;
 
-		if (line)
-		{
+        if (line)
+        {
             const auto& label_lines = line->label_line_text->GetLines();
             if (label_lines.Size() > 0)
             {
@@ -349,7 +352,7 @@ namespace Viry3D
                 {
                     char_index = 0;
                 }
-                else if(pos_canvas.x > label_line.char_bounds[label_line.char_bounds.Size() - 1].Max().x)
+                else if (pos_canvas.x > label_line.char_bounds[label_line.char_bounds.Size() - 1].Max().x)
                 {
                     char_index = -1;
                 }
@@ -367,24 +370,24 @@ namespace Viry3D
                     }
                 }
             }
-		}
+        }
         else if (offset_y <= m_lines.Last()->canvas->GetOffsetMin().y)
         {
             line = m_lines.Last().get();
         }
 
         this->UpdateCursorPosition(line, char_index);
-	}
+    }
 
-	void CodeEditor::OnTouchMove(const Vector2& pos)
-	{
-        
-	}
+    void CodeEditor::OnTouchMove(const Vector2& pos)
+    {
 
-	void CodeEditor::OnTouchUp(const Vector2& pos)
-	{
-        
-	}
+    }
+
+    void CodeEditor::OnTouchUp(const Vector2& pos)
+    {
+
+    }
 
     void CodeEditor::UpdateCursorFlash()
     {
@@ -403,8 +406,8 @@ namespace Viry3D
         }
     }
 
-	void CodeEditor::Update()
-	{
+    void CodeEditor::Update()
+    {
         this->UpdateCursorFlash();
-	}
+    }
 }
