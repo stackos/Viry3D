@@ -32,6 +32,9 @@ namespace Viry3D
         Keyword,
         Identifier,
         Default,
+        Library,
+        Constant,
+        Label,
     };
 
     struct LuaToken

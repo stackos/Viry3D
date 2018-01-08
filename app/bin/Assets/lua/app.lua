@@ -1,5 +1,4 @@
---[[
-/*
+--[[/*
 * Viry3D
 * Copyright 2014-2018 by Stack - stackos@qq.com
 *
@@ -14,12 +13,17 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-*/
-]]
+*/]]
 
-print("Hello World!")
-print(1 + 2)
+::label::
 function func_add(a, b)
     return a + b
 end
 print(func_add(3, 4))
+local str = 'i am stack'
+print(string.len(str))
+local tab = { c = 0.1, d = func_add }
+for k, v in pairs(tab) do
+    print(k, v)
+end
+print(_G)

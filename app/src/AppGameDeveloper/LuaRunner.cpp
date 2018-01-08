@@ -190,6 +190,18 @@ namespace Viry3D
             {
                 tokens[i].type = LuaTokenType::Default;
             }
+            else if (name == "library")
+            {
+                tokens[i].type = LuaTokenType::Library;
+            }
+            else if (name == "constant")
+            {
+                tokens[i].type = LuaTokenType::Constant;
+            }
+            else if (name == "label")
+            {
+                tokens[i].type = LuaTokenType::Label;
+            }
             else
             {
                 Log("unknown lua token type: %s", name.CString());

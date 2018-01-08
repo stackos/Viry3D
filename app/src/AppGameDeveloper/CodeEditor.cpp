@@ -150,8 +150,20 @@ namespace Viry3D
 
     void CodeEditor::ApplySyntaxColors()
     {
-        const String color_comment = "<color=#57A64AFF>";
-        const String color_default = "<color=#FFFFFFFF>";
+        const String token_colors[] = {
+            "<color=#57A64AFF>", // Comment
+            "<color=#FFFFFFFF>", // Whitespace
+            "<color=#FF8000FF>", // Function
+            "<color=#B4B4B4FF>", // Operator
+            "<color=#D69D85FF>", // String
+            "<color=#B5CEA8FF>", // Number
+            "<color=#569CD6FF>", // Keyword
+            "<color=#BDB76BFF>", // Identifier
+            "<color=#FF0000FF>", // Default
+            "<color=#FFD700FF>", // Library
+            "<color=#BD63C5FF>", // Constant
+            "<color=#FFFFFFFF>", // Label
+        };
         const String color_end = "</color>";
 
         auto tokens = LuaRunner::Lex(m_source_code);
@@ -167,7 +179,7 @@ namespace Viry3D
             {
                 if (lines[j].Size() > 0)
                 {
-                    code_colored += color_comment + lines[j] + color_end;
+                    code_colored += token_colors[(int) tokens[i].type] + lines[j] + color_end;
                 }
                 
                 if (j < lines.Size() - 1)
