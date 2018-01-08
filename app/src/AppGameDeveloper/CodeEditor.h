@@ -64,6 +64,7 @@ namespace Viry3D
 		void SetSrollPosition(const Vector2& pos);
         void UpdateCursorPosition(const CodeLine* line, int char_index);
         void UpdateCursorFlash();
+        void ApplySyntaxColors();
 
 	protected:
 		int m_render_depth;

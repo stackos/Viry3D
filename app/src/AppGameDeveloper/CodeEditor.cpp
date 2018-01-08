@@ -139,14 +139,48 @@ namespace Viry3D
 		m_line_space = space;
 	}
 
-	void CodeEditor::Clear()
-	{
-		for (auto& i : m_lines)
-		{
-			GameObject::Destroy(i->canvas->GetGameObject());
-		}
-		m_lines.Clear();
-	}
+    void CodeEditor::Clear()
+    {
+        for (auto& i : m_lines)
+        {
+            GameObject::Destroy(i->canvas->GetGameObject());
+        }
+        m_lines.Clear();
+    }
+
+    void CodeEditor::ApplySyntaxColors()
+    {
+        const String color_comment = "<color=#57A64AFF>";
+        const String color_default = "<color=#FFFFFFFF>";
+        const String color_end = "</color>";
+
+        auto tokens = LuaRunner::Lex(m_source_code);
+        
+        String code_colored;
+        int from = 0;
+        for (int i = 0; i < tokens.Size(); i++)
+        {
+            int to = tokens[i].pos;
+            String range = m_source_code.Substring(from, to - from - 1);
+            auto lines = range.Split("\r\n", false);
+            for (int j = 0; j < lines.Size(); j++)
+            {
+                if (lines[j].Size() > 0)
+                {
+                    code_colored += color_comment + lines[j] + color_end;
+                }
+                
+                if (j < lines.Size() - 1)
+                {
+                    code_colored += "\r\n";
+                }
+            }
+
+            from = to - 1;
+        }
+
+        m_source_code = code_colored;
+    }
 
 	void CodeEditor::LoadSource(const String& source)
 	{
@@ -158,6 +192,8 @@ namespace Viry3D
 		}
 
 		m_source_code = source;
+        this->ApplySyntaxColors();
+
 		auto lines = m_source_code.Split("\r\n", false);
 
 		int layer = this->GetGameObject()->GetLayer();
@@ -193,6 +229,7 @@ namespace Viry3D
             label_line_num->SetRich(true);
             label_line_num->SetMono(false);
             label_line_num->SetAlignment(TextAlignment::MiddleLeft);
+            label_line_num->SetColor(Color(43, 145, 174, 255) / 255.0f);
 
             String line_text = lines[i];
 			auto label_line_text = GameObject::Create("Label")->AddComponent<UILabel>();
@@ -213,7 +250,7 @@ namespace Viry3D
             label_line_text->SetAlignment(TextAlignment::MiddleLeft);
 
 			auto line = RefMake<CodeLine>();
-			line->text = lines[i];
+			line->text = line_text;
 			line->line_num = line_num;
 			line->canvas = canvas;
             line->label_line_num = label_line_num;
@@ -221,8 +258,6 @@ namespace Viry3D
 
 			m_lines.AddLast(line);
 		}
-
-        auto tokens = LuaRunner::Lex(source);
 	}
 
 	int CodeEditor::GetLineHeight()

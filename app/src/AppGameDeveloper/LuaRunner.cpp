@@ -186,6 +186,10 @@ namespace Viry3D
             {
                 tokens[i].type = LuaTokenType::Identifier;
             }
+            else if (name == "default")
+            {
+                tokens[i].type = LuaTokenType::Default;
+            }
             else
             {
                 Log("unknown lua token type: %s", name.CString());
