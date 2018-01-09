@@ -311,11 +311,6 @@ namespace Viry3D
 
 	Vector3 Matrix4x4::MultiplyDirection(const Vector3& v) const
 	{
-		if (Mathf::FloatEqual(v.SqrMagnitude(), 0))
-		{
-			return Vector3::Zero();
-		}
-
 		float x = v.x;
 		float y = v.y;
 		float z = v.z;
@@ -325,7 +320,7 @@ namespace Viry3D
 		vy = x*m10 + y*m11 + z*m12;
 		vz = x*m20 + y*m21 + z*m22;
 
-		return Vector3::Normalize(Vector3(vx, vy, vz)) * v.Magnitude();
+		return Vector3(vx, vy, vz);
 	}
 
 #define SWAP(a, b, temp) \
