@@ -348,6 +348,11 @@
 		BA4FAC1A1FBB55E800C1ADB7 /* Collider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAB9D1FBB54E400C1ADB7 /* Collider.cpp */; };
 		BA4FAC1B1FBB55E800C1ADB7 /* MeshCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAB9F1FBB54E400C1ADB7 /* MeshCollider.cpp */; };
 		BA4FAC1C1FBB55E800C1ADB7 /* Physics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FABA51FBB54E400C1ADB7 /* Physics.cpp */; };
+		BA8AA36F2005213500B7FDC2 /* lpprint.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3642005213500B7FDC2 /* lpprint.c */; };
+		BA8AA3702005213500B7FDC2 /* lpvm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3652005213500B7FDC2 /* lpvm.c */; };
+		BA8AA3712005213500B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3672005213500B7FDC2 /* lpcap.c */; };
+		BA8AA3722005213500B7FDC2 /* lptree.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA36D2005213500B7FDC2 /* lptree.c */; };
+		BA8AA3732005213500B7FDC2 /* lpcode.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA36E2005213500B7FDC2 /* lpcode.c */; };
 		BB393E15187A98506C06C966 /* jcmainct.c in Sources */ = {isa = PBXBuildFile; fileRef = BC003CC8AB58FC7D8985EEED /* jcmainct.c */; };
 		BE23953337BFCC13007C42B8 /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4906D5BC63457FF760B44 /* type1cid.c */; };
 		C22DF12CCC26CE22FCC7C86C /* pngread.c in Sources */ = {isa = PBXBuildFile; fileRef = 0BBF6630E36DDBFC3236E770 /* pngread.c */; };
@@ -1001,6 +1006,17 @@
 		BA4FABA01FBB54E400C1ADB7 /* MeshCollider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeshCollider.h; sourceTree = "<group>"; };
 		BA4FABA51FBB54E400C1ADB7 /* Physics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Physics.cpp; sourceTree = "<group>"; };
 		BA4FABA61FBB54E400C1ADB7 /* Physics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Physics.h; sourceTree = "<group>"; };
+		BA8AA3642005213500B7FDC2 /* lpprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpprint.c; sourceTree = "<group>"; };
+		BA8AA3652005213500B7FDC2 /* lpvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpvm.c; sourceTree = "<group>"; };
+		BA8AA3662005213500B7FDC2 /* lptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptypes.h; sourceTree = "<group>"; };
+		BA8AA3672005213500B7FDC2 /* lpcap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpcap.c; sourceTree = "<group>"; };
+		BA8AA3682005213500B7FDC2 /* lptree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptree.h; sourceTree = "<group>"; };
+		BA8AA3692005213500B7FDC2 /* lpcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpcode.h; sourceTree = "<group>"; };
+		BA8AA36A2005213500B7FDC2 /* lpcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpcap.h; sourceTree = "<group>"; };
+		BA8AA36B2005213500B7FDC2 /* lpvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpvm.h; sourceTree = "<group>"; };
+		BA8AA36C2005213500B7FDC2 /* lpprint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpprint.h; sourceTree = "<group>"; };
+		BA8AA36D2005213500B7FDC2 /* lptree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lptree.c; sourceTree = "<group>"; };
+		BA8AA36E2005213500B7FDC2 /* lpcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpcode.c; sourceTree = "<group>"; };
 		BBF3E277255739195AB32F6C /* UISprite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UISprite.h; sourceTree = "<group>"; };
 		BC003CC8AB58FC7D8985EEED /* jcmainct.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcmainct.c; sourceTree = "<group>"; };
 		BD6590FCB01711D4A7A154E8 /* jcparam.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcparam.c; sourceTree = "<group>"; };
@@ -1726,6 +1742,7 @@
 		BA42E5BF1FF54250009C3C01 /* lua */ = {
 			isa = PBXGroup;
 			children = (
+				BA8AA3632005213500B7FDC2 /* lpeg */,
 				BA42E5C01FF54250009C3C01 /* lauxlib.c */,
 				BA42E5C61FF54250009C3C01 /* liolib.c */,
 				BA42E5C71FF54250009C3C01 /* lopcodes.c */,
@@ -2147,6 +2164,24 @@
 			path = LinearMath;
 			sourceTree = "<group>";
 		};
+		BA8AA3632005213500B7FDC2 /* lpeg */ = {
+			isa = PBXGroup;
+			children = (
+				BA8AA3642005213500B7FDC2 /* lpprint.c */,
+				BA8AA3652005213500B7FDC2 /* lpvm.c */,
+				BA8AA3662005213500B7FDC2 /* lptypes.h */,
+				BA8AA3672005213500B7FDC2 /* lpcap.c */,
+				BA8AA3682005213500B7FDC2 /* lptree.h */,
+				BA8AA3692005213500B7FDC2 /* lpcode.h */,
+				BA8AA36A2005213500B7FDC2 /* lpcap.h */,
+				BA8AA36B2005213500B7FDC2 /* lpvm.h */,
+				BA8AA36C2005213500B7FDC2 /* lpprint.h */,
+				BA8AA36D2005213500B7FDC2 /* lptree.c */,
+				BA8AA36E2005213500B7FDC2 /* lpcode.c */,
+			);
+			path = lpeg;
+			sourceTree = "<group>";
+		};
 		C8959F715DC647DA449D735B /* base */ = {
 			isa = PBXGroup;
 			children = (
@@ -2451,6 +2486,7 @@
 				BA4FABF01FBB558500C1ADB7 /* btUniformScalingShape.cpp in Sources */,
 				BA4FABF11FBB558500C1ADB7 /* btContinuousConvexCollision.cpp in Sources */,
 				BA4FABF21FBB558500C1ADB7 /* btConvexCast.cpp in Sources */,
+				BA8AA3732005213500B7FDC2 /* lpcode.c in Sources */,
 				BA4FABF31FBB558500C1ADB7 /* btGjkConvexCast.cpp in Sources */,
 				BA4FABF41FBB558500C1ADB7 /* btGjkEpa2.cpp in Sources */,
 				BA4FABF51FBB558500C1ADB7 /* btGjkEpaPenetrationDepthSolver.cpp in Sources */,
@@ -2571,6 +2607,7 @@
 				B45C9216530B87E4D2EBE2DB /* jcmarker.c in Sources */,
 				D952565A8CB94067412D653F /* jcmaster.c in Sources */,
 				BA42E6121FF54251009C3C01 /* ldblib.c in Sources */,
+				BA8AA3722005213500B7FDC2 /* lptree.c in Sources */,
 				BA4FAC1A1FBB55E800C1ADB7 /* Collider.cpp in Sources */,
 				C82FDC3071D4509FC2BA019F /* jcomapi.c in Sources */,
 				BA42E60B1FF54251009C3C01 /* lctype.c in Sources */,
@@ -2610,6 +2647,7 @@
 				41F85ABF104DCCA081A046EB /* jmemnobs.c in Sources */,
 				BA2800D51F69A59F00215483 /* ridgedmulti.cpp in Sources */,
 				D8933E9E381E1DAC3A9823E3 /* jquant1.c in Sources */,
+				BA8AA3702005213500B7FDC2 /* lpvm.c in Sources */,
 				4ABE7655F9581671228D4C5F /* jquant2.c in Sources */,
 				DA37D760D0E23F30D9CA0C90 /* jutils.c in Sources */,
 				C27066E5737C005B76F97A0E /* json_reader.cpp in Sources */,
@@ -2679,6 +2717,7 @@
 				EC0567C1C04F2CD2E0921E41 /* AudioManager.cpp in Sources */,
 				2184A86E5D45D38C1725070D /* AudioSource.cpp in Sources */,
 				8D9480EFE59445563D2CFF41 /* BufferGLES.cpp in Sources */,
+				BA8AA3712005213500B7FDC2 /* lpcap.c in Sources */,
 				1E2327F9C8B18DED8DF614D9 /* DisplayGLES.cpp in Sources */,
 				C5F67EA5B5C6A56A7F584D25 /* MaterialGLES.cpp in Sources */,
 				BA4FAC1B1FBB55E800C1ADB7 /* MeshCollider.cpp in Sources */,
@@ -2738,6 +2777,7 @@
 				BA2800DA1F69A59F00215483 /* spheres.cpp in Sources */,
 				4F01B564F677D44758AE79C5 /* ParticleSystem.cpp in Sources */,
 				66D6FA70EE0AAA357863B9BF /* ParticleSystemRenderer.cpp in Sources */,
+				BA8AA36F2005213500B7FDC2 /* lpprint.c in Sources */,
 				0341D8C33C01B913317FCC11 /* Renderer.cpp in Sources */,
 				BA2800C21F69A59F00215483 /* abs.cpp in Sources */,
 				58673DC35FB77FB5F52343CC /* SkinnedMeshRenderer.cpp in Sources */,
@@ -2875,6 +2915,7 @@
 					../../src/freetype/include,
 					../../src/mp3/mad,
 					../../src/physics/bullet/src,
+					../../src/lua,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2909,6 +2950,7 @@
 					../../src/freetype/include,
 					../../src/mp3/mad,
 					../../src/physics/bullet/src,
+					../../src/lua,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = viry3d;

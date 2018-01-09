@@ -349,6 +349,11 @@
 		BA42E6931FF5455E009C3C01 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = BA42E66D1FF5455D009C3C01 /* llex.c */; };
 		BA42E6941FF5455E009C3C01 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA42E66F1FF5455D009C3C01 /* ltm.c */; };
 		BA42E6951FF5455E009C3C01 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6711FF5455D009C3C01 /* ldo.c */; };
+		BA8AA381200523BD00B7FDC2 /* lpprint.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA376200523BC00B7FDC2 /* lpprint.c */; };
+		BA8AA382200523BD00B7FDC2 /* lpvm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA377200523BC00B7FDC2 /* lpvm.c */; };
+		BA8AA383200523BD00B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA379200523BC00B7FDC2 /* lpcap.c */; };
+		BA8AA384200523BD00B7FDC2 /* lptree.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA37F200523BC00B7FDC2 /* lptree.c */; };
+		BA8AA385200523BD00B7FDC2 /* lpcode.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA380200523BC00B7FDC2 /* lpcode.c */; };
 		BB393E15187A98506C06C966 /* jcmainct.c in Sources */ = {isa = PBXBuildFile; fileRef = BC003CC8AB58FC7D8985EEED /* jcmainct.c */; };
 		BE23953337BFCC13007C42B8 /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4906D5BC63457FF760B44 /* type1cid.c */; };
 		C22DF12CCC26CE22FCC7C86C /* pngread.c in Sources */ = {isa = PBXBuildFile; fileRef = 0BBF6630E36DDBFC3236E770 /* pngread.c */; };
@@ -1009,6 +1014,17 @@
 		BA42E66D1FF5455D009C3C01 /* llex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = llex.c; sourceTree = "<group>"; };
 		BA42E66F1FF5455D009C3C01 /* ltm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltm.c; sourceTree = "<group>"; };
 		BA42E6711FF5455D009C3C01 /* ldo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldo.c; sourceTree = "<group>"; };
+		BA8AA376200523BC00B7FDC2 /* lpprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpprint.c; sourceTree = "<group>"; };
+		BA8AA377200523BC00B7FDC2 /* lpvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpvm.c; sourceTree = "<group>"; };
+		BA8AA378200523BC00B7FDC2 /* lptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptypes.h; sourceTree = "<group>"; };
+		BA8AA379200523BC00B7FDC2 /* lpcap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpcap.c; sourceTree = "<group>"; };
+		BA8AA37A200523BC00B7FDC2 /* lptree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptree.h; sourceTree = "<group>"; };
+		BA8AA37B200523BC00B7FDC2 /* lpcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpcode.h; sourceTree = "<group>"; };
+		BA8AA37C200523BC00B7FDC2 /* lpcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpcap.h; sourceTree = "<group>"; };
+		BA8AA37D200523BC00B7FDC2 /* lpvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpvm.h; sourceTree = "<group>"; };
+		BA8AA37E200523BC00B7FDC2 /* lpprint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpprint.h; sourceTree = "<group>"; };
+		BA8AA37F200523BC00B7FDC2 /* lptree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lptree.c; sourceTree = "<group>"; };
+		BA8AA380200523BC00B7FDC2 /* lpcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpcode.c; sourceTree = "<group>"; };
 		BBF3E277255739195AB32F6C /* UISprite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UISprite.h; sourceTree = "<group>"; };
 		BC003CC8AB58FC7D8985EEED /* jcmainct.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcmainct.c; sourceTree = "<group>"; };
 		BD6590FCB01711D4A7A154E8 /* jcparam.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcparam.c; sourceTree = "<group>"; };
@@ -2138,6 +2154,7 @@
 		BA42E6351FF5455D009C3C01 /* lua */ = {
 			isa = PBXGroup;
 			children = (
+				BA8AA375200523BC00B7FDC2 /* lpeg */,
 				BA42E6361FF5455D009C3C01 /* lauxlib.c */,
 				BA42E63C1FF5455D009C3C01 /* liolib.c */,
 				BA42E63D1FF5455D009C3C01 /* lopcodes.c */,
@@ -2173,6 +2190,24 @@
 				BA42E6711FF5455D009C3C01 /* ldo.c */,
 			);
 			path = lua;
+			sourceTree = "<group>";
+		};
+		BA8AA375200523BC00B7FDC2 /* lpeg */ = {
+			isa = PBXGroup;
+			children = (
+				BA8AA376200523BC00B7FDC2 /* lpprint.c */,
+				BA8AA377200523BC00B7FDC2 /* lpvm.c */,
+				BA8AA378200523BC00B7FDC2 /* lptypes.h */,
+				BA8AA379200523BC00B7FDC2 /* lpcap.c */,
+				BA8AA37A200523BC00B7FDC2 /* lptree.h */,
+				BA8AA37B200523BC00B7FDC2 /* lpcode.h */,
+				BA8AA37C200523BC00B7FDC2 /* lpcap.h */,
+				BA8AA37D200523BC00B7FDC2 /* lpvm.h */,
+				BA8AA37E200523BC00B7FDC2 /* lpprint.h */,
+				BA8AA37F200523BC00B7FDC2 /* lptree.c */,
+				BA8AA380200523BC00B7FDC2 /* lpcode.c */,
+			);
+			path = lpeg;
 			sourceTree = "<group>";
 		};
 		C8959F715DC647DA449D735B /* base */ = {
@@ -2581,6 +2616,7 @@
 				0B5185171C4472225AE7BD0B /* jccoefct.c in Sources */,
 				4A965043D510EF6977A6AE81 /* jccolor.c in Sources */,
 				BA42E67A1FF5455E009C3C01 /* lvm.c in Sources */,
+				BA8AA385200523BD00B7FDC2 /* lpcode.c in Sources */,
 				BA2800D21F69A59F00215483 /* multiply.cpp in Sources */,
 				BA2800CB1F69A59F00215483 /* cylinders.cpp in Sources */,
 				B7F992C9053E2A6FE7964ECC /* jcdctmgr.c in Sources */,
@@ -2628,6 +2664,7 @@
 				CD0C4489A674F1C6A432E2E4 /* jidctint.c in Sources */,
 				DC02AA90A4AD9DA91B8403AF /* jmemmgr.c in Sources */,
 				41F85ABF104DCCA081A046EB /* jmemnobs.c in Sources */,
+				BA8AA384200523BD00B7FDC2 /* lptree.c in Sources */,
 				BA2800D51F69A59F00215483 /* ridgedmulti.cpp in Sources */,
 				D8933E9E381E1DAC3A9823E3 /* jquant1.c in Sources */,
 				4ABE7655F9581671228D4C5F /* jquant2.c in Sources */,
@@ -2652,6 +2689,7 @@
 				BA2800C51F69A59F00215483 /* blend.cpp in Sources */,
 				0F8F7B2908791413BDA780EB /* latin1.c in Sources */,
 				4B081B1280FD0D7E9CED6204 /* parse.c in Sources */,
+				BA8AA381200523BD00B7FDC2 /* lpprint.c in Sources */,
 				5AC98A403C55683058EDD8E5 /* render.c in Sources */,
 				5B66E1A914BC5D30A88B6AFE /* tag.c in Sources */,
 				C8D3D80DDCFDEFE5E72BA2C8 /* ucs4.c in Sources */,
@@ -2704,6 +2742,7 @@
 				BA42E6811FF5455E009C3C01 /* lctype.c in Sources */,
 				68DFC8A43EF7DBE74FD78840 /* AudioClip.cpp in Sources */,
 				CEE669B262B3B3C10392AC5D /* AudioListener.cpp in Sources */,
+				BA8AA383200523BD00B7FDC2 /* lpcap.c in Sources */,
 				EC0567C1C04F2CD2E0921E41 /* AudioManager.cpp in Sources */,
 				BA42E6851FF5455E009C3C01 /* loslib.c in Sources */,
 				2184A86E5D45D38C1725070D /* AudioSource.cpp in Sources */,
@@ -2728,6 +2767,7 @@
 				97503187878A44F02A4C2371 /* IndexBuffer.cpp in Sources */,
 				75A4FCA8AE12C8BEACE6E265 /* Light.cpp in Sources */,
 				6645FAAC4270175CB6FE6B67 /* LightmapSettings.cpp in Sources */,
+				BA8AA382200523BD00B7FDC2 /* lpvm.c in Sources */,
 				2CB8DA08B12B75DB9857948F /* Material.cpp in Sources */,
 				A1196E63D75D20B096724AB0 /* Mesh.cpp in Sources */,
 				33237207D98C50AC521BEA7E /* RenderPass.cpp in Sources */,
@@ -2893,6 +2933,7 @@
 					../../src/freetype/include,
 					../../src/mp3/mad,
 					../../src/physics/bullet/src,
+					../../src/lua,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = viry3d;
@@ -2928,6 +2969,7 @@
 					../../src/freetype/include,
 					../../src/mp3/mad,
 					../../src/physics/bullet/src,
+					../../src/lua,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = viry3d;
