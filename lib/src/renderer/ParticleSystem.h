@@ -180,6 +180,7 @@ namespace Viry3D
 			float randomize_rotation_direction;
 			MinMaxGradient start_color;
 			MinMaxCurve gravity_modifier;
+            float gravity_modifier_lerp = -1;
 			ParticleSystemSimulationSpace simulation_space;
 			float simulation_speed;
 			ParticleSystemScalingMode scaling_mode;

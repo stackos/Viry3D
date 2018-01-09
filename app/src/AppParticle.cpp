@@ -35,12 +35,13 @@ public:
 	virtual void Start()
     {
         auto camera = GameObject::Create("camera")->AddComponent<Camera>();
-		camera->GetTransform()->SetPosition(Vector3(0, 0, -20));
+		camera->GetTransform()->SetPosition(Vector3(0, 0, -2000));
+        camera->SetClipFar(3000);
 
 		Resource::LoadGameObject("Assets/AppParticle/particles.prefab");
     }
 };
 
-#if 0
+#if 1
 VR_MAIN(AppParticle);
 #endif

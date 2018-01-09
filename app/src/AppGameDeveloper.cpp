@@ -141,6 +141,6 @@ public:
     bool m_mouse_down_in_code_editor = false;
 };
 
-#if 1
+#if 0
 VR_MAIN(AppGameDeveloper);
 #endif

@@ -374,8 +374,9 @@ namespace Viry3D
 			}
 			else
 			{
-				pos_world = (local_to_world * mat_scale_invert).MultiplyPoint3x4(p.position);
-				velocity_world = local_to_world.MultiplyDirection(p.velocity);
+                Matrix4x4 to_world = local_to_world * mat_scale_invert;
+				pos_world = to_world.MultiplyPoint3x4(p.position);
+				velocity_world = to_world.MultiplyDirection(p.velocity);
 			}
 
 			auto render_mode = ps->m_renderer->render_mode;
@@ -409,9 +410,9 @@ namespace Viry3D
 				auto& v1 = vs[index * 4 + 1];
 				auto& v2 = vs[index * 4 + 2];
 				auto& v3 = vs[index * 4 + 3];
-
-				Vector3 forward = velocity_world;
-				Vector3 right = velocity_world * Camera::Current()->GetTransform()->GetForward();
+                
+				Vector3 forward = Vector3::Normalize(velocity_world);
+				Vector3 right = forward * Camera::Current()->GetTransform()->GetForward();
 				Quaternion rot;
 				if (Mathf::FloatEqual(right.SqrMagnitude(), 0))
 				{
@@ -626,33 +627,56 @@ namespace Viry3D
 
 		if (force_over_lifetime.enabled)
 		{
-			float x = force_over_lifetime.x.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_x_lerp));
-			float y = force_over_lifetime.y.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_y_lerp));
-			float z = force_over_lifetime.z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_z_lerp));
+            float x = force_over_lifetime.x.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_x_lerp));
+            float y = force_over_lifetime.y.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_y_lerp));
+            float z = force_over_lifetime.z.Evaluate(lifetime_t, get_min_max_curve_lerp(p.force_over_lifetime_z_lerp));
+
+            Vector3 force = Vector3(x, y, z);
 
 			if (main.simulation_space == ParticleSystemSimulationSpace::World)
 			{
 				if (force_over_lifetime.space == ParticleSystemSimulationSpace::World)
 				{
-					p.force_velocity += mat_scale.MultiplyPoint3x4(Vector3(x, y, z)) * delta_time;
+                    p.force_velocity += mat_scale.MultiplyPoint3x4(force) * delta_time;
 				}
 				else
 				{
-					p.force_velocity += local_to_world.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z))) * delta_time;
+                    Vector3 local_v = mat_scale.MultiplyPoint3x4(force);
+                    float len = local_v.Magnitude();
+                    Vector3 world_v = local_to_world.MultiplyDirection(local_v);
+                    if (len > 0)
+                    {
+                        world_v = Vector3::Normalize(world_v) * len;
+                    }
+					p.force_velocity += world_v * delta_time;
 				}
 			}
 			else
 			{
 				if (force_over_lifetime.space == ParticleSystemSimulationSpace::World)
 				{
-					p.force_velocity += world_to_local.MultiplyDirection(mat_scale.MultiplyPoint3x4(Vector3(x, y, z))) * delta_time;
+                    Vector3 world_v = mat_scale.MultiplyPoint3x4(force);
+                    float len = world_v.Magnitude();
+                    Vector3 local_v = world_to_local.MultiplyDirection(world_v);
+                    if (len > 0)
+                    {
+                        local_v = Vector3::Normalize(local_v) * len;
+                    }
+					p.force_velocity += local_v * delta_time;
 				}
 				else
 				{
-					p.force_velocity += mat_scale.MultiplyPoint3x4(Vector3(x, y, z)) * delta_time;
+					p.force_velocity += mat_scale.MultiplyPoint3x4(force) * delta_time;
 				}
 			}
 		}
+
+        // apply gravity
+        {
+            float gravity = -10.0f * main.gravity_modifier.Evaluate(lifetime_t, get_min_max_curve_lerp(main.gravity_modifier_lerp));
+
+            p.force_velocity += Vector3(0, gravity, 0) * delta_time;
+        }
 
 		v += p.force_velocity;
 
