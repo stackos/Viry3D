@@ -465,8 +465,11 @@ namespace Viry3D
 				for (int j = 0; j < vertex_count; j++)
 				{
 					auto& v = vs[index * vertex_count + j];
-					auto local_to_world = Matrix4x4::TRS(Vector3::Zero(), ps->GetTransform()->GetRotation(), ps->GetTransform()->GetScale()) * Matrix4x4::TRS(Vector3::Zero(), rot, p.size);
-					v.vertex = pos_world + local_to_world.MultiplyPoint3x4(mesh->vertices[j]);
+
+                    Vector3 pos_view = world_to_camera.MultiplyPoint3x4(pos_world);
+                    v.vertex = pos_view + Matrix4x4::TRS(Vector3(0, 0, 0), rot, p.size).MultiplyPoint3x4(mesh->vertices[j]);
+                    v.vertex = camera_to_world.MultiplyPoint3x4(v.vertex);
+
 					v.uv = mesh->uv[j];
 					if (mesh->colors.Size() > 0)
 					{
