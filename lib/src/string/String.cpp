@@ -215,7 +215,7 @@ namespace Viry3D
 
 	bool String::operator !=(const String& right) const
 	{
-		return m_string != right.m_string;
+		return !(*this == right);
 	}
 
 	bool operator ==(const char* left, const String& right)
@@ -268,7 +268,15 @@ namespace Viry3D
 
 	int String::IndexOf(const String& str, int start) const
 	{
-		return (int) m_string.find(str.m_string, start);
+        size_t pos = m_string.find(str.m_string, start);
+        if (pos != std::string::npos)
+        {
+            return (int) pos;
+        }
+        else
+        {
+            return -1;
+        }
 	}
 
 	bool String::Contains(const String& str) const
@@ -278,7 +286,15 @@ namespace Viry3D
 
 	int String::LastIndexOf(const String& str, int start) const
 	{
-		return (int) m_string.rfind(str.m_string, start);
+        size_t pos = m_string.rfind(str.m_string, start);
+        if (pos != std::string::npos)
+        {
+            return (int) pos;
+        }
+        else
+        {
+            return -1;
+        }
 	}
 
 	String String::Replace(const String& old, const String& to) const

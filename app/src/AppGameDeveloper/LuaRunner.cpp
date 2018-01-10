@@ -129,6 +129,7 @@ namespace Viry3D
         Vector<String> names;
         Vector<String> indices;
 
+        // get result tokens
         lua_pushnil(L);
         while (lua_next(L, -2) != 0)
         {

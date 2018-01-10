@@ -148,50 +148,95 @@ namespace Viry3D
         m_lines.Clear();
     }
 
-    void CodeEditor::ApplySyntaxColors()
-    {
-        const String token_colors[] = {
-            "<color=#57A64AFF>", // Comment
-            "<color=#FFFFFFFF>", // Whitespace
-            "<color=#FF8000FF>", // Function
-            "<color=#B4B4B4FF>", // Operator
-            "<color=#D69D85FF>", // String
-            "<color=#B5CEA8FF>", // Number
-            "<color=#569CD6FF>", // Keyword
-            "<color=#BDB76BFF>", // Identifier
-            "<color=#FF0000FF>", // Default
-            "<color=#FFD700FF>", // Library
-            "<color=#BD63C5FF>", // Constant
-            "<color=#FFFFFFFF>", // Label
-        };
-        const String color_end = "</color>";
+    static const String g_token_colors[] = {
+        "<color=#57A64AFF>", // Comment
+        "<color=#FFFFFFFF>", // Whitespace
+        "<color=#FF8000FF>", // Function
+        "<color=#B4B4B4FF>", // Operator
+        "<color=#D69D85FF>", // String
+        "<color=#B5CEA8FF>", // Number
+        "<color=#569CD6FF>", // Keyword
+        "<color=#BDB76BFF>", // Identifier
+        "<color=#FF0000FF>", // Default
+        "<color=#FFD700FF>", // Library
+        "<color=#BD63C5FF>", // Constant
+        "<color=#FFFFFFFF>", // Label
+    };
+    static const String g_token_color_end = "</color>";
 
-        auto tokens = LuaRunner::Lex(m_source_code);
+    String CodeEditor::ApplySyntaxColors(const String& source)
+    {
+        auto tokens = LuaRunner::Lex(source);
 
         String code_colored;
         int from = 0;
         for (int i = 0; i < tokens.Size(); i++)
         {
             int to = tokens[i].pos;
-            String range = m_source_code.Substring(from, to - from - 1);
-            auto lines = range.Split("\r\n", false);
+            String range = source.Substring(from, to - from - 1);
+            auto lines = range.Split("\n", false);
             for (int j = 0; j < lines.Size(); j++)
             {
                 if (lines[j].Size() > 0)
                 {
-                    code_colored += token_colors[(int) tokens[i].type] + lines[j] + color_end;
+                    code_colored += g_token_colors[(int) tokens[i].type] + lines[j] + g_token_color_end;
                 }
 
                 if (j < lines.Size() - 1)
                 {
-                    code_colored += "\r\n";
+                    code_colored += "\n";
                 }
             }
 
             from = to - 1;
         }
 
-        m_source_code = code_colored;
+        return code_colored;
+    }
+
+    String CodeEditor::ApplyLineSyntaxColors(const String& line, bool& in_comment_block)
+    {
+        String code_colored;
+
+        const String& token_color_comment = g_token_colors[(int) LuaTokenType::Comment];
+
+        if (in_comment_block)
+        {
+            int block_end = line.IndexOf("]]");
+            if (block_end >= 0)
+            {
+                String left = line.Substring(0, block_end + 2);
+                code_colored = token_color_comment + left + g_token_color_end;
+
+                in_comment_block = false;
+                String right = line.Substring(block_end + 2);
+                code_colored += CodeEditor::ApplyLineSyntaxColors(right, in_comment_block);
+            }
+            else
+            {
+                code_colored = token_color_comment + line + g_token_color_end;
+            }
+        }
+        else
+        {
+            int block_begin = line.IndexOf("--[[");
+            if (block_begin >= 0)
+            {
+                String left = line.Substring(0, block_begin);
+                code_colored = CodeEditor::ApplySyntaxColors(left);
+                code_colored += token_color_comment + "--[[" + g_token_color_end;
+
+                in_comment_block = true;
+                String right = line.Substring(block_begin + 4);
+                code_colored += CodeEditor::ApplyLineSyntaxColors(right, in_comment_block);
+            }
+            else
+            {
+                code_colored = CodeEditor::ApplySyntaxColors(line);
+            }
+        }
+
+        return code_colored;
     }
 
     void CodeEditor::LoadSource(const String& source)
@@ -203,13 +248,13 @@ namespace Viry3D
             m_font = Resource::LoadFont("Assets/font/consola.ttf");
         }
 
-        m_source_code = source;
-        this->ApplySyntaxColors();
+        m_source_code = source.Replace("\r\n", "\n").Replace("\r", "\n");
 
-        auto lines = m_source_code.Split("\r\n", false);
+        auto lines = m_source_code.Split("\n", false);
 
         int layer = this->GetGameObject()->GetLayer();
         int line_height = this->GetLineHeight();
+        bool in_comment_block = false;
 
         for (int i = 0; i < lines.Size(); i++)
         {
@@ -243,7 +288,8 @@ namespace Viry3D
             label_line_num->SetAlignment(TextAlignment::MiddleLeft);
             label_line_num->SetColor(Color(43, 145, 174, 255) / 255.0f);
 
-            String line_text = lines[i];
+            String line_text = CodeEditor::ApplyLineSyntaxColors(lines[i], in_comment_block);
+            
             auto label_line_text = GameObject::Create("Label")->AddComponent<UILabel>();
             label_line_text->GetGameObject()->SetLayer(layer);
             label_line_text->GetTransform()->SetParent(canvas->GetTransform());
