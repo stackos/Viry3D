@@ -194,7 +194,7 @@ namespace Viry3D
         return code_colored;
     }
 
-    String CodeEditor::ApplyLineSyntaxColors(const String& line, bool& in_comment_block)
+    String CodeEditor::ApplyLineSyntaxColors(const String& line, bool& in_comment_block, bool& is_comment_block)
     {
         String code_colored;
 
@@ -210,7 +210,7 @@ namespace Viry3D
 
                 in_comment_block = false;
                 String right = line.Substring(block_end + 2);
-                code_colored += CodeEditor::ApplyLineSyntaxColors(right, in_comment_block);
+                code_colored += CodeEditor::ApplyLineSyntaxColors(right, in_comment_block, is_comment_block);
             }
             else
             {
@@ -227,8 +227,9 @@ namespace Viry3D
                 code_colored += token_color_comment + "--[[" + g_token_color_end;
 
                 in_comment_block = true;
+                is_comment_block = true;
                 String right = line.Substring(block_begin + 4);
-                code_colored += CodeEditor::ApplyLineSyntaxColors(right, in_comment_block);
+                code_colored += CodeEditor::ApplyLineSyntaxColors(right, in_comment_block, is_comment_block);
             }
             else
             {
@@ -255,7 +256,7 @@ namespace Viry3D
         int layer = this->GetGameObject()->GetLayer();
         int line_height = this->GetLineHeight();
         bool in_comment_block = false;
-
+        
         for (int i = 0; i < lines.Size(); i++)
         {
             int line_num = i + 1;
@@ -288,7 +289,12 @@ namespace Viry3D
             label_line_num->SetAlignment(TextAlignment::MiddleLeft);
             label_line_num->SetColor(Color(43, 145, 174, 255) / 255.0f);
 
-            String line_text = CodeEditor::ApplyLineSyntaxColors(lines[i], in_comment_block);
+            bool is_comment_block = false;
+            if (in_comment_block)
+            {
+                is_comment_block = true;
+            }
+            String line_text = CodeEditor::ApplyLineSyntaxColors(lines[i], in_comment_block, is_comment_block);
             
             auto label_line_text = GameObject::Create("Label")->AddComponent<UILabel>();
             label_line_text->GetGameObject()->SetLayer(layer);
@@ -313,6 +319,7 @@ namespace Viry3D
             line->canvas = canvas;
             line->label_line_num = label_line_num;
             line->label_line_text = label_line_text;
+            line->is_comment_block = is_comment_block;
 
             m_lines.AddLast(line);
         }

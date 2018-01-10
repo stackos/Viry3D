@@ -37,6 +37,7 @@ namespace Viry3D
 		Ref<UICanvasRenderer> canvas;
         Ref<UILabel> label_line_num;
 		Ref<UILabel> label_line_text;
+        bool is_comment_block;
 	};
 
 	class CodeEditor: public Component
@@ -58,7 +59,7 @@ namespace Viry3D
 
 	protected:
         static String ApplySyntaxColors(const String& source);
-        static String ApplyLineSyntaxColors(const String& line, bool& in_comment_block);
+        static String ApplyLineSyntaxColors(const String& line, bool& in_comment_block, bool& is_comment_block);
 		CodeEditor();
 		virtual void Update();
 		void Clear();
