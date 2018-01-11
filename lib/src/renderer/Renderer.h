@@ -47,6 +47,7 @@ namespace Viry3D
 		static void SetRenderersDirty(bool dirty);
 		static void ClearPasses();
 		static void SetCullingDirty(Camera* cam);
+        static void SetRendererDirty(Renderer* renderer);
 		static List<Renderer*>& GetRenderers();
 		static void PrepareAllPass();
 		static void RenderAllPass();
@@ -137,7 +138,6 @@ namespace Viry3D
 		static Map<Camera*, Passes> m_passes;
 		static bool m_renderers_dirty;
 		static Mutex m_mutex;
-		static bool m_passes_dirty;
 		static Ref<VertexBuffer> m_static_vertex_buffer;
 		static Ref<IndexBuffer> m_static_index_buffer;
 		static bool m_static_buffers_binding;

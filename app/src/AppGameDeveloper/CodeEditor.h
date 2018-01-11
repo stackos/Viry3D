@@ -19,6 +19,7 @@
 
 #include "Component.h"
 #include "math/Vector2.h"
+#include "container/FastList.h"
 
 namespace Viry3D
 {
@@ -65,8 +66,11 @@ namespace Viry3D
 		void Clear();
 		int GetLineHeight();
 		void SetSrollPosition(const Vector2& pos);
-        void UpdateCursorPosition(const CodeLine* line, int char_index);
+        void UpdateCursorPosition(FastListNode<Ref<CodeLine>>* line, int char_index);
         void UpdateCursorFlash();
+        void UpdateInput();
+        void InsertLine();
+        Ref<CodeLine> NewLine(int line_num, const String& line_text, bool& in_comment_block);
 
 	protected:
 		int m_render_depth;
@@ -76,12 +80,12 @@ namespace Viry3D
 		Ref<UICanvasRenderer> m_canvas;
         Ref<UISprite> m_cursor;
 		String m_source_code;
-		List<Ref<CodeLine>> m_lines;
+        FastList<Ref<CodeLine>> m_lines;
 		Ref<Font> m_font;
 		int m_font_size;
 		int m_line_space;
 		Vector2 m_scroll_position;
-        const CodeLine* m_cursor_line;
+        FastListNode<Ref<CodeLine>>* m_cursor_line;
         int m_cursor_char_index;
         float m_cursor_flash_time;
 	};

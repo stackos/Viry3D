@@ -45,6 +45,8 @@ namespace Viry3D
 		void Clear();
 		int Size() const { return m_size; }
 		bool Empty() const { return m_size == 0; }
+        FastListNode<V>* AddBefore(FastListNode<V>* node, const V& v);
+        FastListNode<V>* AddAfter(FastListNode<V>* node, const V& v);
 		bool Remove(const V& v);
 		void RemoveAll(const V& v);
 		FastListNode<V>* Remove(FastListNode<V>* n);
@@ -156,6 +158,35 @@ namespace Viry3D
 		m_first = m_last;
 		m_size = 0;
 	}
+
+    template<class V>
+    FastListNode<V>* FastList<V>::AddBefore(FastListNode<V>* node, const V& v)
+    {
+        FastListNode<V>* n = new FastListNode<V>();
+        n->value = v;
+        n->prev = node->prev;
+        n->next = node;
+        if (node->prev)
+        {
+            node->prev->next = n;
+        }
+        node->prev = n;
+        m_size++;
+        return n;
+    }
+
+    template<class V>
+    FastListNode<V>* FastList<V>::AddAfter(FastListNode<V>* node, const V& v)
+    {
+        FastListNode<V>* n = new FastListNode<V>();
+        n->value = v;
+        n->prev = node;
+        n->next = node->next;
+        node->next->prev = n;
+        node->next = n;
+        m_size++;
+        return n;
+    }
 
 	template<class V>
 	bool FastList<V>::Remove(const V& v)

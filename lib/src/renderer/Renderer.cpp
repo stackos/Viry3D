@@ -41,7 +41,6 @@ namespace Viry3D
 	Map<Camera*, Renderer::Passes> Renderer::m_passes;
 	bool Renderer::m_renderers_dirty = true;
 	Mutex Renderer::m_mutex;
-	bool Renderer::m_passes_dirty = true;
 	Ref<VertexBuffer> Renderer::m_static_vertex_buffer;
 	Ref<IndexBuffer> Renderer::m_static_index_buffer;
 	bool Renderer::m_static_buffers_binding = false;
@@ -57,7 +56,6 @@ namespace Viry3D
 		m_renderers.Clear();
 		m_passes.Clear();
 		m_renderers_dirty = true;
-		m_passes_dirty = true;
 		m_static_vertex_buffer.reset();
 		m_static_index_buffer.reset();
 		m_static_buffers_binding = false;
@@ -412,6 +410,28 @@ namespace Viry3D
 			m_passes[cam].culling_dirty = true;
 		}
 	}
+
+    void Renderer::SetRendererDirty(Renderer* renderer)
+    {
+        for (auto& i : m_passes)
+        {
+            bool has_renderer = false;
+
+            for (auto j : i.second.culled_renderers)
+            {
+                if (j == renderer)
+                {
+                    has_renderer = true;
+                    break;
+                }
+            }
+
+            if (has_renderer)
+            {
+                i.second.passes_dirty = true;
+            }
+        }
+    }
 
 	List<Renderer*>& Renderer::GetRenderers()
 	{

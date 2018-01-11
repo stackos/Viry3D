@@ -229,6 +229,8 @@ namespace Viry3D
 				}
 
 				mat->SetMainColor(m_color);
+
+                Renderer::SetRendererDirty(this);
 			}
 
 			Vector<Vector3> vertices;
