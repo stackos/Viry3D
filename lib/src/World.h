@@ -33,6 +33,7 @@ namespace Viry3D
 		static void Init();
 		static void Deinit();
 		static void Update();
+        static void OnFrameEnd();
 		static void OnPause();
 		static void OnResume();
 

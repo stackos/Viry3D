@@ -474,4 +474,17 @@ namespace Viry3D
 			i->OnPostRender();
 		}
 	}
+
+    void GameObject::OnFrameEnd()
+    {
+        for (const auto& i : m_components)
+        {
+            i->OnFrameEnd();
+        }
+
+        for (const auto& i : m_components_new)
+        {
+            i->OnFrameEnd();
+        }
+    }
 }

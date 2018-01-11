@@ -143,6 +143,21 @@ namespace Viry3D
 		}
 	}
 
+    void World::OnFrameEnd()
+    {
+        for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); i = i->next)
+        {
+            auto& obj = i->value;
+            if (!obj->m_deleted)
+            {
+                if (obj->IsActiveInHierarchy())
+                {
+                    obj->OnFrameEnd();
+                }
+            }
+        }
+    }
+
 	void World::FindAllRenders(const FastList<Ref<GameObject>>& objs, List<Renderer*>& renderers, bool include_inactive, bool include_disable, bool static_only)
 	{
 		auto i = objs.Begin();

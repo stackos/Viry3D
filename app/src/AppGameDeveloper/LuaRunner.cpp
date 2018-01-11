@@ -203,6 +203,10 @@ namespace Viry3D
             {
                 tokens[i].type = LuaTokenType::Label;
             }
+            else if (name == "longstring")
+            {
+                tokens[i].type = LuaTokenType::String;
+            }
             else
             {
                 Log("unknown lua token type: %s", name.CString());

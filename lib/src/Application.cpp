@@ -213,6 +213,7 @@ namespace Viry3D
 		Profiler::SampleBegin("Application::OnDraw");
 
 		Graphics::Render();
+        World::OnFrameEnd();
 
 		Profiler::SampleEnd();
 	}

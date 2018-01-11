@@ -127,12 +127,12 @@ namespace Viry3D
 
 	void UICanvasRenderer::LateUpdate()
 	{
-		UpdateViews();
+		this->UpdateViews();
 	}
 
 	void UICanvasRenderer::OnTranformHierarchyChanged()
 	{
-		MarkDirty();
+		this->MarkDirty();
 	}
 
 	void UICanvasRenderer::MarkDirty()
@@ -210,7 +210,7 @@ namespace Viry3D
 
 		m_dirty = false;
 
-		FindViews();
+		this->FindViews();
 
 		if (!m_views.Empty())
 		{
