@@ -294,7 +294,8 @@ namespace Viry3D
             {
                 is_comment_block = true;
             }
-            String line_text = CodeEditor::ApplyLineSyntaxColors(lines[i], in_comment_block, is_comment_block);
+            String line_text = lines[i];
+            String line_text_colored = CodeEditor::ApplyLineSyntaxColors(line_text, in_comment_block, is_comment_block);
             
             auto label_line_text = GameObject::Create("Label")->AddComponent<UILabel>();
             label_line_text->GetGameObject()->SetLayer(layer);
@@ -307,7 +308,7 @@ namespace Viry3D
             label_line_text->SetFontStyle(FontStyle::Normal);
             label_line_text->SetFontSize(m_font_size);
             label_line_text->SetColor(Color(1, 1, 1, 1));
-            label_line_text->SetText(line_text);
+            label_line_text->SetText(line_text_colored);
             label_line_text->SetLineSpace(1);
             label_line_text->SetRich(true);
             label_line_text->SetMono(false);

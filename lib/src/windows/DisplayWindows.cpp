@@ -44,7 +44,7 @@ namespace Viry3D
 
 		if (wParam >= 48 && wParam < 48 + 10)
 		{
-			key = (int) KeyCode::Alpha0 + wParam - 48;
+            key = (int) KeyCode::Alpha0 + wParam - 48;
 		}
 		else if (wParam >= 96 && wParam < 96 + 10)
 		{
@@ -54,22 +54,117 @@ namespace Viry3D
 		{
 			key = (int) KeyCode::A + wParam - 65;
 		}
-		else if (wParam == VK_BACK)
-		{
-			key = (int) KeyCode::Backspace;
-		}
-		else if (wParam == VK_SPACE)
-		{
-			key = (int) KeyCode::Space;
-		}
-		else if (wParam == VK_ESCAPE)
-		{
-			key = (int) KeyCode::Escape;
-		}
-		else if (wParam == VK_RETURN)
-		{
-			key = (int) KeyCode::Return;
-		}
+        else
+        {
+            switch (wParam)
+            {
+                case VK_CONTROL:
+                {
+                    short state_l = ((unsigned short) GetKeyState(VK_LCONTROL)) >> 15;
+                    short state_r = ((unsigned short) GetKeyState(VK_RCONTROL)) >> 15;
+                    if (state_l)
+                    {
+                        key = (int) KeyCode::LeftControl;
+                    }
+                    else if (state_r)
+                    {
+                        key = (int) KeyCode::RightControl;
+                    }
+                    break;
+                }
+                case VK_SHIFT:
+                {
+                    short state_l = ((unsigned short) GetKeyState(VK_LSHIFT)) >> 15;
+                    short state_r = ((unsigned short) GetKeyState(VK_RSHIFT)) >> 15;
+                    if (state_l)
+                    {
+                        key = (int) KeyCode::LeftShift;
+                    }
+                    else if (state_r)
+                    {
+                        key = (int) KeyCode::RightShift;
+                    }
+                    break;
+                }
+                case VK_MENU:
+                {
+                    short state_l = ((unsigned short) GetKeyState(VK_LMENU)) >> 15;
+                    short state_r = ((unsigned short) GetKeyState(VK_RMENU)) >> 15;
+                    if (state_l)
+                    {
+                        key = (int) KeyCode::LeftAlt;
+                    }
+                    else if (state_r)
+                    {
+                        key = (int) KeyCode::RightAlt;
+                    }
+                    break;
+                }
+                case VK_UP:
+                    key = (int) KeyCode::UpArrow;
+                    break;
+                case VK_DOWN:
+                    key = (int) KeyCode::DownArrow;
+                    break;
+                case VK_LEFT:
+                    key = (int) KeyCode::LeftArrow;
+                    break;
+                case VK_RIGHT:
+                    key = (int) KeyCode::RightArrow;
+                    break;
+                case VK_BACK:
+                    key = (int) KeyCode::Backspace;
+                    break;
+                case VK_TAB:
+                    key = (int) KeyCode::Tab;
+                    break;
+                case VK_CAPITAL:
+                    key = (int) KeyCode::CapsLock;
+                    break;
+                case VK_SPACE:
+                    key = (int) KeyCode::Space;
+                    break;
+                case VK_ESCAPE:
+                    key = (int) KeyCode::Escape;
+                    break;
+                case VK_RETURN:
+                    key = (int) KeyCode::Return;
+                    break;
+                case VK_OEM_3:
+                    key = (int) KeyCode::BackQuote;
+                    break;
+                case VK_OEM_MINUS:
+                    key = (int) KeyCode::Minus;
+                    break;
+                case VK_OEM_PLUS:
+                    key = (int) KeyCode::Equals;
+                    break;
+                case VK_OEM_4:
+                    key = (int) KeyCode::LeftBracket;
+                    break;
+                case VK_OEM_6:
+                    key = (int) KeyCode::RightBracket;
+                    break;
+                case VK_OEM_5:
+                    key = (int) KeyCode::Backslash;
+                    break;
+                case VK_OEM_1:
+                    key = (int) KeyCode::Semicolon;
+                    break;
+                case VK_OEM_7:
+                    key = (int) KeyCode::Quote;
+                    break;
+                case VK_OEM_COMMA:
+                    key = (int) KeyCode::Comma;
+                    break;
+                case VK_OEM_PERIOD:
+                    key = (int) KeyCode::Period;
+                    break;
+                case VK_OEM_2:
+                    key = (int) KeyCode::Slash;
+                    break;
+            }
+        }
 
 		return key;
 	}
@@ -125,6 +220,7 @@ namespace Viry3D
 				}
 				break;
 
+            case WM_SYSKEYDOWN:
 			case WM_KEYDOWN:
 			{
 				int key = get_key_code((int) wParam);
@@ -138,9 +234,10 @@ namespace Viry3D
 						g_key[key] = true;
 					}
 				}
+                break;
 			}
-			break;
 
+            case WM_SYSKEYUP:
 			case WM_KEYUP:
 			{
 				int key = get_key_code((int) wParam);
@@ -151,13 +248,13 @@ namespace Viry3D
 					g_key_held[key] = false;
 					g_key[key] = false;
 				}
+                break;
 			}
-			break;
 
 			case WM_SYSCHAR:
 				if (wParam == VK_RETURN)
 				{
-					//Alt + Enter
+					// Alt + Enter
 					switch_full_screen(hWnd);
 				}
 				break;
@@ -194,8 +291,9 @@ namespace Viry3D
 				g_mouse_position.x = (float) x;
 				g_mouse_position.y = (float) Graphics::GetDisplay()->GetHeight() - y - 1;
 				g_mouse_button_held[0] = true;
+
+                break;
 			}
-			break;
 
 			case WM_RBUTTONDOWN:
 			{
@@ -206,8 +304,9 @@ namespace Viry3D
 				g_mouse_position.x = (float) x;
 				g_mouse_position.y = (float) Graphics::GetDisplay()->GetHeight() - y - 1;
 				g_mouse_button_held[1] = true;
+
+                break;
 			}
-			break;
 
 			case WM_MBUTTONDOWN:
 			{
@@ -218,8 +317,9 @@ namespace Viry3D
 				g_mouse_position.x = (float) x;
 				g_mouse_position.y = (float) Graphics::GetDisplay()->GetHeight() - y - 1;
 				g_mouse_button_held[2] = true;
+
+                break;
 			}
-			break;
 
 			case WM_MOUSEMOVE:
 			{
@@ -263,8 +363,9 @@ namespace Viry3D
 
 				g_mouse_position.x = (float) x;
 				g_mouse_position.y = (float) Graphics::GetDisplay()->GetHeight() - y - 1;
+
+                break;
 			}
-			break;
 
 			case WM_LBUTTONUP:
 			{
@@ -298,8 +399,9 @@ namespace Viry3D
 				g_mouse_position.x = (float) x;
 				g_mouse_position.y = (float) Graphics::GetDisplay()->GetHeight() - y - 1;
 				g_mouse_button_held[0] = false;
+
+                break;
 			}
-			break;
 
 			case WM_RBUTTONUP:
 			{
@@ -310,8 +412,9 @@ namespace Viry3D
 				g_mouse_position.x = (float) x;
 				g_mouse_position.y = (float) Graphics::GetDisplay()->GetHeight() - y - 1;
 				g_mouse_button_held[1] = false;
+
+                break;
 			}
-			break;
 
 			case WM_MBUTTONUP:
 			{
@@ -322,8 +425,9 @@ namespace Viry3D
 				g_mouse_position.x = (float) x;
 				g_mouse_position.y = (float) Graphics::GetDisplay()->GetHeight() - y - 1;
 				g_mouse_button_held[2] = false;
+
+                break;
 			}
-			break;
 
 			default:
 				break;
