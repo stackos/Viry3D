@@ -26,25 +26,16 @@ namespace Viry3D
 	class Array
 	{
 	public:
-		Array() { }
+		Array():m_size(S) { }
 
-		int Size() const { return (int) m_array.size(); }
-		byte* Bytes(int index = 0) const { return (byte*) &m_array[index]; }
-		int SizeInBytes() const { return sizeof(V) * Size(); }
+		int Size() const { return (int) m_size; }
+		int SizeInBytes() const { return sizeof(V) * m_size; }
 
 		V& operator [](int index) { return m_array[index]; }
 		const V& operator [](int index) const { return m_array[index]; }
 
-		typedef typename std::array<V, S>::iterator Iterator;
-		typedef typename std::array<V, S>::const_iterator ConstIterator;
-
-		Iterator begin() { return m_array.begin(); }
-		Iterator end() { return m_array.end(); }
-		ConstIterator begin() const { return m_array.begin(); }
-		ConstIterator end() const { return m_array.end(); }
-
 	private:
-
-		std::array<V, S> m_array;
+        V m_array[S];
+        const size_t m_size;
 	};
 }

@@ -63,7 +63,6 @@ namespace Viry3D
         static String ApplyLineSyntaxColors(const String& line, bool& in_comment_block, bool& is_comment_block);
 		CodeEditor();
 		virtual void Update();
-        virtual void OnFrameEnd();
 		void Clear();
 		int GetLineHeight();
 		void SetSrollPosition(const Vector2& pos);
@@ -89,7 +88,5 @@ namespace Viry3D
         FastListNode<Ref<CodeLine>>* m_cursor_line;
         int m_cursor_char_index;
         float m_cursor_flash_time;
-        bool m_insert_line;
-        FastListNode<Ref<CodeLine>>* m_update_cursor_line;
 	};
 }

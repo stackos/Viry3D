@@ -77,7 +77,6 @@ namespace Viry3D
 		void OnTranformHierarchyChanged();
 		void OnLayerChanged();
 		void OnPostRender(); // 仅带摄像机的对象
-        void OnFrameEnd();
 
 		int m_layer;
 		List<Ref<Component>> m_components;
@@ -87,8 +86,6 @@ namespace Viry3D
 		bool m_deleted;
 		WeakRef<Transform> m_transform;
 		bool m_static;
-		bool m_in_world;
-		bool m_in_world_update;
 	};
 
 	template<class T> Ref<T> GameObject::AddComponent()

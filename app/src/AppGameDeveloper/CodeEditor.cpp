@@ -50,9 +50,7 @@ namespace Viry3D
         m_scroll_position(0, 0),
         m_cursor_line(NULL),
         m_cursor_char_index(-1),
-        m_cursor_flash_time(-1),
-        m_insert_line(false),
-        m_update_cursor_line(NULL)
+        m_cursor_flash_time(-1)
     {
     }
 
@@ -117,7 +115,6 @@ namespace Viry3D
             cursor->OnAnchor();
             
             m_cursor = cursor;
-            m_cursor->GetGameObject()->SetActive(false);
         }
     }
 
@@ -265,8 +262,7 @@ namespace Viry3D
             m_lines.AddLast(line);
         }
 
-        m_update_cursor_line = m_lines.Begin();
-        m_cursor->GetGameObject()->SetActive(false);
+        this->UpdateCursorPosition(m_lines.Begin(), m_lines.Begin()->value->text.Size() > 0 ? 0 : -1);
     }
 
     Ref<CodeLine> CodeEditor::NewLine(int line_num, const String& line_text, bool& in_comment_block)
@@ -326,6 +322,8 @@ namespace Viry3D
         label_line_text->SetMono(false);
         label_line_text->SetAlignment(TextAlignment::MiddleLeft);
 
+        canvas->UpdateViews();
+
         auto line = RefMake<CodeLine>();
         line->text = line_text;
         line->line_num = line_num;
@@ -360,11 +358,6 @@ namespace Viry3D
 
         if (char_index >= 0)
         {
-            if (lines.Size() == 0)
-            {
-                return;
-            }
-
             x = lines[0].char_bounds[char_index].Min().x;
         }
         else
@@ -503,7 +496,7 @@ namespace Viry3D
         {
             if (Input::GetKeyDown(KeyCode::Return))
             {
-                m_insert_line = true;
+                this->InsertLine();
             }
         }
         else
@@ -567,19 +560,17 @@ namespace Viry3D
             m_cursor_line->value->is_comment_block = is_comment_block;
         }
         
-        FastListNode<Ref<CodeLine>>* new_line = NULL;
-
         // right new line
         {
             auto line = this->NewLine(m_cursor_line->value->line_num + 1, right, in_comment_block);
-            new_line = m_lines.AddAfter(m_cursor_line, line);
-            m_update_cursor_line = new_line;
-            m_cursor->GetGameObject()->SetActive(false);
+            auto new_line = m_lines.AddAfter(m_cursor_line, line);
+            
+            this->UpdateCursorPosition(new_line, new_line->value->text.Size() > 0 ? 0 : -1);
         }
 
         // update below lines
         {
-            auto line = new_line->next;
+            auto line = m_cursor_line->next;
             while (line != m_lines.End())
             {
                 int line_num = line->value->line_num + 1;
@@ -597,29 +588,7 @@ namespace Viry3D
 
     void CodeEditor::Update()
     {
-        if (m_update_cursor_line)
-        {
-            this->UpdateCursorPosition(m_update_cursor_line, m_update_cursor_line->value->text.Size() > 0 ? 0 : -1);
-            if (m_cursor_line == m_update_cursor_line)
-            {
-                m_update_cursor_line = NULL;
-                m_cursor->GetGameObject()->SetActive(true);
-            }
-        }
-        else
-        {
-            this->UpdateCursorFlash();
-            this->UpdateInput();
-        }
-    }
-
-    void CodeEditor::OnFrameEnd()
-    {
-        if (m_insert_line)
-        {
-            m_insert_line = false;
-
-            this->InsertLine();
-        }
+        this->UpdateCursorFlash();
+        this->UpdateInput();
     }
 }

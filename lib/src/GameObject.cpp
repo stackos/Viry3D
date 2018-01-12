@@ -28,7 +28,6 @@ namespace Viry3D
 
 		if (add_to_world)
 		{
-			obj->m_in_world = true;
 			World::AddGameObject(obj);
 		}
 
@@ -124,9 +123,7 @@ namespace Viry3D
 		m_active_in_hierarchy(true),
 		m_active_self(true),
 		m_deleted(false),
-		m_static(false),
-		m_in_world(false),
-		m_in_world_update(false)
+		m_static(false)
 	{
 		this->SetName(name);
 	}
@@ -329,11 +326,6 @@ namespace Viry3D
 		com->m_gameobject = m_transform.lock()->m_gameobject;
 		com->SetName(GetName());
 		com->Awake();
-
-		if (m_in_world)
-		{
-			World::AddGameObject(this->GetTransform()->GetGameObject());
-		}
 	}
 
 	void GameObject::SetActive(bool active)
@@ -353,11 +345,6 @@ namespace Viry3D
 					t->GetParent().lock()->NotifyParentHierarchyChange();
 				}
 				t->NotifyChildHierarchyChange();
-			}
-
-			if (m_active_self && m_in_world)
-			{
-				World::AddGameObject(this->GetTransform()->GetGameObject());
 			}
 
 			auto renderer = GetComponent<Renderer>();
@@ -474,17 +461,4 @@ namespace Viry3D
 			i->OnPostRender();
 		}
 	}
-
-    void GameObject::OnFrameEnd()
-    {
-        for (const auto& i : m_components)
-        {
-            i->OnFrameEnd();
-        }
-
-        for (const auto& i : m_components_new)
-        {
-            i->OnFrameEnd();
-        }
-    }
 }

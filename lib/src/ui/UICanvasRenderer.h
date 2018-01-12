@@ -56,6 +56,7 @@ namespace Viry3D
 		void SetCamera(const Ref<Camera>& camera) { m_camera = camera; }
 		const Color& GetColor() const { return m_color; }
 		void SetColor(const Color& color);
+        void UpdateViews();
 
 	protected:
 		virtual void LateUpdate();
@@ -64,7 +65,6 @@ namespace Viry3D
 	private:
 		UICanvasRenderer();
 		void FindViews();
-		void UpdateViews();
 
 		RenderType m_type;
 		Ref<Mesh> m_mesh;

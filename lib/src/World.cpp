@@ -56,80 +56,90 @@ namespace Viry3D
 	{
 		Physics::Update();
 
-		//	start
-		int start_count = 0;
-		do
-		{
-			List<Ref<GameObject>> starts;
-			m_mutex.lock();
-			starts = m_gameobjects_start;
-			m_gameobjects_start.Clear();
-			m_mutex.unlock();
+        for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); )
+        {
+            auto& obj = i->value;
+            if (!obj->m_deleted)
+            {
+                if (obj->IsActiveInHierarchy())
+                {
+                    obj->Start();
+                    obj->Update();
+                }
+            }
+            else
+            {
+                i = m_gameobjects.Remove(i);
+                continue;
+            }
 
-			for (auto& i : starts)
-			{
-				auto& obj = i;
-				if (!obj->m_deleted)
-				{
-					if (obj->IsActiveInHierarchy())
-					{
-						obj->Start();
-					}
+            i = i->next;
+        }
 
-					if (!obj->m_in_world_update)
-					{
-						obj->m_in_world_update = true;
-						m_gameobjects.AddLast(obj);
-					}
-				}
-			}
-			starts.Clear();
+        for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); )
+        {
+            auto& obj = i->value;
+            if (!obj->m_deleted)
+            {
+                if (obj->IsActiveInHierarchy())
+                {
+                    obj->LateUpdate();
+                }
+            }
+            else
+            {
+                i = m_gameobjects.Remove(i);
+                continue;
+            }
 
-			m_mutex.lock();
-			start_count = m_gameobjects_start.Size();
-			m_mutex.unlock();
-		} while (start_count > 0);
+            i = i->next;
+        }
 
-		//	update
-		for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); )
-		{
-			auto& obj = i->value;
-			if (!obj->m_deleted)
-			{
-				if (obj->IsActiveInHierarchy())
-				{
-					obj->Start();
-					obj->Update();
-				}
-			}
-			else
-			{
-				i = m_gameobjects.Remove(i);
-				continue;
-			}
+        List<Ref<GameObject>> starts;
+        do
+        {
+            for (auto& i : starts)
+            {
+                auto& obj = i;
+                if (!obj->m_deleted)
+                {
+                    if (obj->IsActiveInHierarchy())
+                    {
+                        obj->Start();
+                        obj->Update();
+                    }
+                }
+            }
 
-			i = i->next;
-		}
+            for (auto& i : starts)
+            {
+                auto& obj = i;
+                if (!obj->m_deleted)
+                {
+                    if (obj->IsActiveInHierarchy())
+                    {
+                        obj->LateUpdate();
+                    }
+                }
+            }
 
-		//	late update
-		for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); )
-		{
-			auto& obj = i->value;
-			if (!obj->m_deleted)
-			{
-				if (obj->IsActiveInHierarchy())
-				{
-					obj->LateUpdate();
-				}
-			}
-			else
-			{
-				i = m_gameobjects.Remove(i);
-				continue;
-			}
+            for (auto& i : starts)
+            {
+                auto& obj = i;
+                if (!obj->m_deleted)
+                {
+                    if (obj->IsActiveInHierarchy())
+                    {
+                        m_gameobjects.AddLast(obj);
+                    }
+                }
+            }
 
-			i = i->next;
-		}
+            m_mutex.lock();
+            starts = m_gameobjects_start;
+            m_gameobjects_start.Clear();
+            m_mutex.unlock();
+        } while (starts.Size() > 0);
 
 		if (Renderer::IsRenderersDirty())
 		{
@@ -142,21 +152,6 @@ namespace Viry3D
 			FindAllRenders(m_gameobjects, renderers, false, false, false);
 		}
 	}
-
-    void World::OnFrameEnd()
-    {
-        for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); i = i->next)
-        {
-            auto& obj = i->value;
-            if (!obj->m_deleted)
-            {
-                if (obj->IsActiveInHierarchy())
-                {
-                    obj->OnFrameEnd();
-                }
-            }
-        }
-    }
 
 	void World::FindAllRenders(const FastList<Ref<GameObject>>& objs, List<Renderer*>& renderers, bool include_inactive, bool include_disable, bool static_only)
 	{
@@ -218,7 +213,11 @@ namespace Viry3D
 		LightmapSettings::Clear();
 		Resource::Deinit();
 		m_gameobjects.Clear();
-		m_gameobjects_start.Clear();
+
+        m_mutex.lock();
+        m_gameobjects_start.Clear();
+        m_mutex.unlock();
+
 		Physics::Deinit();
 		Renderer::Deinit();
 		AudioManager::Deinit();
