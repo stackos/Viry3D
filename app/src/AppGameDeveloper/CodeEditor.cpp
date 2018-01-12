@@ -566,6 +566,11 @@ namespace Viry3D
             auto new_line = m_lines.AddAfter(m_cursor_line, line);
             
             this->UpdateCursorPosition(new_line, new_line->value->text.Size() > 0 ? 0 : -1);
+
+            if (line->canvas->GetOffsetMin().y + m_scroll_position.y < -m_target_screen_height)
+            {
+                this->SetSrollPosition(m_scroll_position + Vector2(0, -m_target_screen_height - line->canvas->GetOffsetMin().y - m_scroll_position.y));
+            }
         }
 
         // update below lines
