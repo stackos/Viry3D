@@ -67,6 +67,9 @@
     <ClCompile Include="..\..\src\LaunchScreen.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\AppGameDeveloper\InputHandler.cpp">
+      <Filter>src\AppGameDeveloper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\DebugUI.h">
@@ -80,6 +83,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\LaunchScreen.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppGameDeveloper\InputHandler.h">
+      <Filter>src\AppGameDeveloper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

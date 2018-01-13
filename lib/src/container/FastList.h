@@ -31,6 +31,8 @@ namespace Viry3D
         };
 
     public:
+        class ConstIterator;
+
         class Iterator
         {
             friend class FastList;
@@ -63,6 +65,16 @@ namespace Viry3D
             }
 
             bool operator !=(const Iterator& i) const
+            {
+                return node != i.node;
+            }
+
+            bool operator ==(const ConstIterator& i) const
+            {
+                return node == i.node;
+            }
+
+            bool operator !=(const ConstIterator& i) const
             {
                 return node != i.node;
             }
@@ -112,6 +124,16 @@ namespace Viry3D
             }
 
             bool operator !=(const ConstIterator& i) const
+            {
+                return node != i.node;
+            }
+
+            bool operator ==(const Iterator& i) const
+            {
+                return node == i.node;
+            }
+
+            bool operator !=(const Iterator& i) const
             {
                 return node != i.node;
             }

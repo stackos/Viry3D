@@ -189,6 +189,7 @@
     <ClCompile Include="..\..\src\AppFlappyBird.cpp" />
     <ClCompile Include="..\..\src\AppGameDeveloper.cpp" />
     <ClCompile Include="..\..\src\AppGameDeveloper\CodeEditor.cpp" />
+    <ClCompile Include="..\..\src\AppGameDeveloper\InputHandler.cpp" />
     <ClCompile Include="..\..\src\AppGameDeveloper\LuaRunner.cpp" />
     <ClCompile Include="..\..\src\AppMesh.cpp" />
     <ClCompile Include="..\..\src\AppAnim.cpp" />
@@ -211,6 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\AppGameDeveloper\CodeEditor.h" />
+    <ClInclude Include="..\..\src\AppGameDeveloper\InputHandler.h" />
     <ClInclude Include="..\..\src\AppGameDeveloper\LuaRunner.h" />
     <ClInclude Include="..\..\src\DebugUI.h" />
     <ClInclude Include="..\..\src\LaunchScreen.h" />

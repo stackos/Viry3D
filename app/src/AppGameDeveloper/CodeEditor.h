@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Component.h"
+#include "InputHandler.h"
 #include "math/Vector2.h"
 #include "container/FastList.h"
 
@@ -58,18 +59,23 @@ namespace Viry3D
 		void OnTouchMove(const Vector2& pos);
 		void OnTouchUp(const Vector2& pos);
 
+        void UpdateCursorPosition(const FastList<Ref<CodeLine>>::Iterator& line, int char_index);
+        void InsertLine();
+        const FastList<Ref<CodeLine>>::Iterator& GetCursorLine() const { return m_cursor_line; }
+        int GetCursorCharIndex() const { return m_cursor_char_index; }
+        const FastList<Ref<CodeLine>>& GetLines() const { return m_lines; }
+
 	protected:
         static String ApplySyntaxColors(const String& source);
         static String ApplyLineSyntaxColors(const String& line, bool& in_comment_block, bool& is_comment_block);
+
 		CodeEditor();
 		virtual void Update();
+
 		void Clear();
 		int GetLineHeight();
 		void SetSrollPosition(const Vector2& pos);
-        void UpdateCursorPosition(const FastList<Ref<CodeLine>>::Iterator& line, int char_index);
         void UpdateCursorFlash();
-        void UpdateInput();
-        void InsertLine();
         Ref<CodeLine> NewLine(int line_num, const String& line_text, bool& in_comment_block);
 
 	protected:
@@ -88,5 +94,6 @@ namespace Viry3D
         FastList<Ref<CodeLine>>::Iterator m_cursor_line;
         int m_cursor_char_index;
         float m_cursor_flash_time;
+        InputHandler m_input_handler;
 	};
 }
