@@ -561,9 +561,14 @@ namespace Viry3D
         }
     }
 
+    void CodeEditor::RemoveChar()
+    {
+        
+    }
+
     void CodeEditor::Update()
     {
         this->UpdateCursorFlash();
-        m_input_handler.HandleInput(this);
+        m_input_handler.HandleKeyEvents(this);
     }
 }

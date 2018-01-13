@@ -24,6 +24,9 @@ namespace Viry3D
     class InputHandler
     {
     public:
-        void HandleInput(CodeEditor* editor);
+        void HandleKeyEvents(CodeEditor* editor);
+
+    private:
+        void OnKeyArrow(CodeEditor* editor);
     };
 }
