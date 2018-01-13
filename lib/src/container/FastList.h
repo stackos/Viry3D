@@ -20,242 +20,324 @@
 namespace Viry3D
 {
 	template<class V>
-	struct FastListNode
-	{
-		V value;
-		FastListNode* prev;
-		FastListNode* next;
-	};
-
-	template<class V>
 	class FastList
 	{
-	public:
-		FastList();
-		~FastList();
+    private:
+        struct Node
+        {
+            V value;
+            Node* prev;
+            Node* next;
+        };
 
-		void AddFirst(const V& v);
-		void AddLast(const V& v);
-		FastListNode<V>* Begin() { return m_first; }
-		FastListNode<V>* End() { return m_last; }
-		const FastListNode<V>* Begin() const { return m_first; }
-		const FastListNode<V>* End() const { return m_last; }
-		void RemoveFirst();
-		void RemoveLast();
-		void Clear();
-		int Size() const { return m_size; }
-		bool Empty() const { return m_size == 0; }
-        FastListNode<V>* AddBefore(FastListNode<V>* node, const V& v);
-        FastListNode<V>* AddAfter(FastListNode<V>* node, const V& v);
-		bool Remove(const V& v);
-		void RemoveAll(const V& v);
-		FastListNode<V>* Remove(FastListNode<V>* n);
+    public:
+        class Iterator
+        {
+            friend class FastList;
+            Node* node;
+
+        public:
+            Iterator(Node* node):
+                node(node)
+            {
+            }
+
+            Iterator Prev() const
+            {
+                return Iterator(node->prev);
+            }
+
+            Iterator Next() const
+            {
+                return Iterator(node->next);
+            }
+
+            V& operator *() const
+            {
+                return node->value;
+            }
+
+            bool operator ==(const Iterator& i) const
+            {
+                return node == i.node;
+            }
+
+            bool operator !=(const Iterator& i) const
+            {
+                return node != i.node;
+            }
+
+            Iterator& operator ++()
+            {
+                node = node->next;
+                return *this;
+            }
+
+            Iterator& operator --()
+            {
+                node = node->prev;
+                return *this;
+            }
+        };
+
+        class ConstIterator
+        {
+            friend class FastList;
+            const Node* node;
+
+        public:
+            ConstIterator(const Node* node):
+                node(node)
+            {
+            }
+
+            ConstIterator Prev() const
+            {
+                return ConstIterator(node->prev);
+            }
+
+            ConstIterator Next() const
+            {
+                return ConstIterator(node->next);
+            }
+
+            const V& operator *() const
+            {
+                return node->value;
+            }
+
+            bool operator ==(const ConstIterator& i) const
+            {
+                return node == i.node;
+            }
+
+            bool operator !=(const ConstIterator& i) const
+            {
+                return node != i.node;
+            }
+
+            ConstIterator& operator ++()
+            {
+                node = node->next;
+                return *this;
+            }
+
+            ConstIterator& operator --()
+            {
+                node = node->prev;
+                return *this;
+            }
+        };
+
+	public:
+		FastList():
+            m_last(new Node()),
+            m_first(m_last),
+            m_size(0),
+            m_last_iter(m_last),
+            m_last_const_iter(m_last)
+        {
+            m_last->prev = NULL;
+            m_last->next = NULL;
+        }
+
+		~FastList()
+        {
+            Node* p = m_first;
+            Node* t;
+            while (p != NULL)
+            {
+                t = p;
+                p = p->next;
+                delete t;
+            }
+        }
+
+		void AddFirst(const V& v)
+        {
+            Node* n = new Node();
+            n->value = v;
+            n->prev = NULL;
+            n->next = m_first;
+            m_first->prev = n;
+            m_first = n;
+            m_size++;
+        }
+
+		void AddLast(const V& v)
+        {
+            Node* n = new Node();
+            n->value = v;
+            n->prev = m_last->prev;
+            n->next = m_last;
+            if (m_size > 0)
+            {
+                m_last->prev->next = n;
+            }
+            m_last->prev = n;
+            if (m_size == 0)
+            {
+                m_first = n;
+            }
+            m_size++;
+        }
+
+		void RemoveFirst()
+        {
+            if (m_size > 0)
+            {
+                Node* t = m_first;
+                m_first->next->prev = NULL;
+                m_first = m_first->next;
+                delete t;
+                m_size--;
+            }
+        }
+
+		void RemoveLast()
+        {
+            if (m_size > 0)
+            {
+                Node* t = m_last->prev;
+                if (m_last->prev->prev != NULL)
+                {
+                    m_last->prev->prev->next = m_last;
+                }
+                m_last->prev = m_last->prev->prev;
+                if (m_size == 1)
+                {
+                    m_first = m_last;
+                }
+                delete t;
+                m_size--;
+            }
+        }
+        
+		void Clear()
+        {
+            Node* p = m_first;
+            Node* t;
+            while (p->next != NULL)
+            {
+                t = p;
+                p = p->next;
+                delete t;
+            }
+            m_first = m_last;
+            m_size = 0;
+        }
+
+		bool Remove(const V& v)
+        {
+            for (Node* i = m_first; i != m_last; i = i->next)
+            {
+                if (i->value == v)
+                {
+                    if (i->prev != NULL)
+                    {
+                        i->prev->next = i->next;
+                    }
+                    i->next->prev = i->prev;
+                    if (m_first == i)
+                    {
+                        m_first = i->next;
+                    }
+                    delete i;
+                    m_size--;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+		void RemoveAll(const V& v)
+        {
+            Node* t;
+            for (Node* i = m_first; i != m_last; )
+            {
+                t = i;
+                i = i->next;
+
+                if (t->value == v)
+                {
+                    if (t->prev != NULL)
+                    {
+                        t->prev->next = t->next;
+                    }
+                    t->next->prev = t->prev;
+                    if (m_first == t)
+                    {
+                        m_first = t->next;
+                    }
+                    delete t;
+                    m_size--;
+                }
+            }
+        }
+
+        Iterator AddBefore(const Iterator& i, const V& v)
+        {
+            Node* node = i.node;
+            Node* n = new Node();
+            n->value = v;
+            n->prev = node->prev;
+            n->next = node;
+            if (node->prev)
+            {
+                node->prev->next = n;
+            }
+            node->prev = n;
+            m_size++;
+            return Iterator(n);
+        }
+
+        Iterator AddAfter(const Iterator& i, const V& v)
+        {
+            Node* node = i.node;
+            Node* n = new Node();
+            n->value = v;
+            n->prev = node;
+            n->next = node->next;
+            node->next->prev = n;
+            node->next = n;
+            m_size++;
+            return Iterator(n);
+        }
+
+        Iterator Remove(const Iterator& i)
+        {
+            Node* n = i.node;
+            Node* next = n->next;
+
+            if (n->prev != NULL)
+            {
+                n->prev->next = n->next;
+            }
+            n->next->prev = n->prev;
+            if (m_first == n)
+            {
+                m_first = n->next;
+            }
+            delete n;
+            m_size--;
+
+            return Iterator(next);
+        }
+
+        int Size() const { return m_size; }
+        bool Empty() const { return m_size == 0; }
+
+        Iterator begin() { return Iterator(m_first); }
+        const Iterator& end() { return m_last_iter; }
+        ConstIterator begin() const { return ConstIterator(m_first); }
+        const ConstIterator& end() const { return m_last_const_iter; }
 
 	private:
-		FastListNode<V>* m_first;
-		FastListNode<V>* m_last;
+        Node* m_last;
+        Node* m_first;
 		int m_size;
+        Iterator m_last_iter;
+        ConstIterator m_last_const_iter;
 	};
-
-	template<class V>
-	FastList<V>::FastList():
-		m_size(0)
-	{
-		m_last = new FastListNode<V>();
-		m_last->prev = NULL;
-		m_last->next = NULL;
-		m_first = m_last;
-	}
-
-	template<class V>
-	FastList<V>::~FastList()
-	{
-		FastListNode<V>* p = m_first;
-		FastListNode<V>* t;
-		while (p != NULL)
-		{
-			t = p;
-			p = p->next;
-			delete t;
-		}
-	}
-
-	template<class V>
-	void FastList<V>::AddFirst(const V& v)
-	{
-		FastListNode<V>* n = new FastListNode<V>();
-		n->value = v;
-		n->prev = NULL;
-		n->next = m_first;
-		m_first->prev = n;
-		m_first = n;
-		m_size++;
-	}
-
-	template<class V>
-	void FastList<V>::AddLast(const V& v)
-	{
-		FastListNode<V>* n = new FastListNode<V>();
-		n->value = v;
-		n->prev = m_last->prev;
-		n->next = m_last;
-		if (m_size > 0)
-		{
-			m_last->prev->next = n;
-		}
-		m_last->prev = n;
-		if (m_size == 0)
-		{
-			m_first = n;
-		}
-		m_size++;
-	}
-
-	template<class V>
-	void FastList<V>::RemoveFirst()
-	{
-		if (m_size > 0)
-		{
-			FastListNode<V>* t = m_first;
-			m_first->next->prev = NULL;
-			m_first = m_first->next;
-			delete t;
-			m_size--;
-		}
-	}
-
-	template<class V>
-	void FastList<V>::RemoveLast()
-	{
-		if (m_size > 0)
-		{
-			FastListNode<V>* t = m_last->prev;
-			if (m_last->prev->prev != NULL)
-			{
-				m_last->prev->prev->next = m_last;
-			}
-			m_last->prev = m_last->prev->prev;
-			if (m_size == 1)
-			{
-				m_first = m_last;
-			}
-			delete t;
-			m_size--;
-		}
-	}
-
-	template<class V>
-	void FastList<V>::Clear()
-	{
-		FastListNode<V>* p = m_first;
-		FastListNode<V>* t;
-		while (p->next != NULL)
-		{
-			t = p;
-			p = p->next;
-			delete t;
-		}
-		m_first = m_last;
-		m_size = 0;
-	}
-
-    template<class V>
-    FastListNode<V>* FastList<V>::AddBefore(FastListNode<V>* node, const V& v)
-    {
-        FastListNode<V>* n = new FastListNode<V>();
-        n->value = v;
-        n->prev = node->prev;
-        n->next = node;
-        if (node->prev)
-        {
-            node->prev->next = n;
-        }
-        node->prev = n;
-        m_size++;
-        return n;
-    }
-
-    template<class V>
-    FastListNode<V>* FastList<V>::AddAfter(FastListNode<V>* node, const V& v)
-    {
-        FastListNode<V>* n = new FastListNode<V>();
-        n->value = v;
-        n->prev = node;
-        n->next = node->next;
-        node->next->prev = n;
-        node->next = n;
-        m_size++;
-        return n;
-    }
-
-	template<class V>
-	bool FastList<V>::Remove(const V& v)
-	{
-		for (FastListNode<V>* i = m_first; i != m_last; i = i->next)
-		{
-			if (i->value == v)
-			{
-				if (i->prev != NULL)
-				{
-					i->prev->next = i->next;
-				}
-				i->next->prev = i->prev;
-				if (m_first == i)
-				{
-					m_first = i->next;
-				}
-				delete i;
-				m_size--;
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	template<class V>
-	void FastList<V>::RemoveAll(const V& v)
-	{
-		FastListNode<V>* t;
-		for (FastListNode<V>* i = m_first; i != m_last; )
-		{
-			t = i;
-			i = i->next;
-
-			if (t->value == v)
-			{
-				if (t->prev != NULL)
-				{
-					t->prev->next = t->next;
-				}
-				t->next->prev = t->prev;
-				if (m_first == t)
-				{
-					m_first = t->next;
-				}
-				delete t;
-				m_size--;
-			}
-		}
-	}
-
-	template<class V>
-	FastListNode<V>* FastList<V>::Remove(FastListNode<V>* n)
-	{
-		FastListNode<V>* next = n->next;
-
-		if (n->prev != NULL)
-		{
-			n->prev->next = n->next;
-		}
-		n->next->prev = n->prev;
-		if (m_first == n)
-		{
-			m_first = n->next;
-		}
-		delete n;
-		m_size--;
-
-		return next;
-	}
 }

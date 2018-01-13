@@ -458,7 +458,7 @@ namespace Viry3D
 		void UpdateBuffer();
 
 	private:
-		FastList<Particle> m_partices;
+		FastList<Particle> m_particles;
 		float m_time_start;
 		float m_start_delay;
 		float m_time;

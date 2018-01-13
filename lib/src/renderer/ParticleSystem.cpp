@@ -97,12 +97,12 @@ namespace Viry3D
 
 	int ParticleSystem::GetParticleCount() const
 	{
-		return m_partices.Size();
+		return m_particles.Size();
 	}
 
 	void ParticleSystem::Emit(Particle& p)
 	{
-		m_partices.AddLast(p);
+        m_particles.AddLast(p);
 		m_time_emit = Time::GetTime();
 	}
 
@@ -322,9 +322,9 @@ namespace Viry3D
 
 	void ParticleSystem::UpdateParticles()
 	{
-		for (auto i = m_partices.Begin(); i != m_partices.End(); )
+		for (auto i = m_particles.begin(); i != m_particles.end(); )
 		{
-			auto& p = i->value;
+			auto& p = *i;
 
 			if (p.remaining_lifetime > 0)
 			{
@@ -340,11 +340,11 @@ namespace Viry3D
 
 			if (p.remaining_lifetime <= 0)
 			{
-				i = m_partices.Remove(i);
+				i = m_particles.Remove(i);
 				continue;
 			}
 
-			i = i->next;
+			++i;
 		}
 	}
 
@@ -360,9 +360,9 @@ namespace Viry3D
 		auto mat_scale_invert = Matrix4x4::Scaling(Vector3(1.0f / world_scale.x, 1.0f / world_scale.y, 1.0f / world_scale.z));
 
 		int index = 0;
-		for (auto i = ps->m_partices.Begin(); i != ps->m_partices.End(); i = i->next, index++)
+		for (auto i = ps->m_particles.begin(); i != ps->m_particles.end(); ++i, ++index)
 		{
-			const auto& p = i->value;
+			const auto& p = *i;
 
 			Vector3 pos_world;
 			Vector3 velocity_world;
@@ -518,7 +518,7 @@ namespace Viry3D
 		MemoryStream ms(buffer);
 
 		int index_offset = 0;
-		for (auto i = ps->m_partices.Begin(); i != ps->m_partices.End(); i = i->next)
+		for (const auto& i : ps->m_particles)
 		{
 			if (ps->m_renderer->render_mode == ParticleSystemRenderMode::Mesh)
 			{
@@ -545,7 +545,7 @@ namespace Viry3D
 
 	void ParticleSystem::UpdateBuffer()
 	{
-		if (m_partices.Size() == 0)
+		if (m_particles.Size() == 0)
 		{
 			return;
 		}
@@ -559,7 +559,7 @@ namespace Viry3D
 			index_count_per_particle = m_renderer->mesh->triangles.Size();
 		}
 
-		int vertex_count = m_partices.Size() * vertex_count_per_particle;
+		int vertex_count = m_particles.Size() * vertex_count_per_particle;
 		assert(vertex_count < 65536);
 		int vertex_buffer_size = vertex_count * VERTEX_STRIDE;
 		if (!m_vertex_buffer || m_vertex_buffer->GetSize() < vertex_buffer_size)
@@ -568,7 +568,7 @@ namespace Viry3D
 		}
 		m_vertex_buffer->Fill(this, ParticleSystem::FillVertexBuffer);
 
-		int index_count = m_partices.Size() * index_count_per_particle;
+		int index_count = m_particles.Size() * index_count_per_particle;
 		int index_buffer_size = index_count * sizeof(unsigned short);
 		if (!m_index_buffer || m_index_buffer->GetSize() < index_buffer_size)
 		{
@@ -586,7 +586,7 @@ namespace Viry3D
 		}
 
 		start = 0;
-		count = m_partices.Size() * index_count_per_particle;
+		count = m_particles.Size() * index_count_per_particle;
 	}
 
 	void ParticleSystem::UpdateParticleVelocity(Particle& p)

@@ -45,10 +45,10 @@ namespace Viry3D
 	void World::AddGameObjects(const FastList<Ref<GameObject>>& objs)
 	{
 		m_mutex.lock();
-		for (auto i = objs.Begin(); i != objs.End(); i = i->next)
-		{
-			m_gameobjects_start.AddLast(i->value);
-		}
+        for (const auto& i : objs)
+        {
+            m_gameobjects_start.AddLast(i);
+        }
 		m_mutex.unlock();
 	}
 
@@ -56,9 +56,9 @@ namespace Viry3D
 	{
 		Physics::Update();
 
-        for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); )
+        for (auto i = m_gameobjects.begin(); i != m_gameobjects.end(); )
         {
-            auto& obj = i->value;
+            auto& obj = *i;
             if (!obj->m_deleted)
             {
                 if (obj->IsActiveInHierarchy())
@@ -73,12 +73,12 @@ namespace Viry3D
                 continue;
             }
 
-            i = i->next;
+            ++i;
         }
 
-        for (auto i = m_gameobjects.Begin(); i != m_gameobjects.End(); )
+        for (auto i = m_gameobjects.begin(); i != m_gameobjects.end(); )
         {
-            auto& obj = i->value;
+            auto& obj = *i;
             if (!obj->m_deleted)
             {
                 if (obj->IsActiveInHierarchy())
@@ -92,7 +92,7 @@ namespace Viry3D
                 continue;
             }
 
-            i = i->next;
+            ++i;
         }
 
         List<Ref<GameObject>> starts;
@@ -155,30 +155,26 @@ namespace Viry3D
 
 	void World::FindAllRenders(const FastList<Ref<GameObject>>& objs, List<Renderer*>& renderers, bool include_inactive, bool include_disable, bool static_only)
 	{
-		auto i = objs.Begin();
-		while (i != objs.End())
-		{
-			auto& obj = i->value;
-			if (!obj->m_deleted)
-			{
-				if (include_inactive || obj->IsActiveInHierarchy())
-				{
-					if (!static_only || obj->IsStatic())
-					{
-						auto rs = obj->GetComponents<Renderer>();
-						for (auto& i : rs)
-						{
-							if (include_disable || i->IsEnable())
-							{
-								renderers.AddLast(i.get());
-							}
-						}
-					}
-				}
-			}
-
-			i = i->next;
-		}
+        for (auto& i : objs)
+        {
+            if (!i->m_deleted)
+            {
+                if (include_inactive || i->IsActiveInHierarchy())
+                {
+                    if (!static_only || i->IsStatic())
+                    {
+                        auto rs = i->GetComponents<Renderer>();
+                        for (auto& j : rs)
+                        {
+                            if (include_disable || j->IsEnable())
+                            {
+                                renderers.AddLast(j.get());
+                            }
+                        }
+                    }
+                }
+            }
+        }
 	}
 
 	void World::OnPause()

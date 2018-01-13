@@ -142,9 +142,9 @@ namespace Viry3D
 
     void CodeEditor::Clear()
     {
-        for (auto i = m_lines.Begin(); i != m_lines.End(); i = i->next)
+        for (auto& i : m_lines)
         {
-            GameObject::Destroy(i->value->canvas->GetGameObject());
+            GameObject::Destroy(i->canvas->GetGameObject());
         }
         m_lines.Clear();
     }
@@ -262,7 +262,7 @@ namespace Viry3D
             m_lines.AddLast(line);
         }
 
-        this->UpdateCursorPosition(m_lines.Begin(), m_lines.Begin()->value->text.Size() > 0 ? 0 : -1);
+        this->UpdateCursorPosition(m_lines.begin(), (*m_lines.begin())->text.Size() > 0 ? 0 : -1);
     }
 
     Ref<CodeLine> CodeEditor::NewLine(int line_num, const String& line_text, bool& in_comment_block)
@@ -350,11 +350,11 @@ namespace Viry3D
         }
     }
 
-    void CodeEditor::UpdateCursorPosition(FastListNode<Ref<CodeLine>>* line, int char_index)
+    void CodeEditor::UpdateCursorPosition(const FastList<Ref<CodeLine>>::Iterator& line, int char_index)
     {
-        const auto& lines = line->value->label_line_text->GetLines();
+        const auto& lines = (*line)->label_line_text->GetLines();
         float x;
-        float y = line->value->label_line_text->GetTransform()->GetLocalPosition().y;
+        float y = (*line)->label_line_text->GetTransform()->GetLocalPosition().y;
 
         if (char_index >= 0)
         {
@@ -373,7 +373,7 @@ namespace Viry3D
             }
         }
 
-        auto mat = line->value->canvas->GetTransform()->GetLocalToWorldMatrix();
+        auto mat = (*line)->canvas->GetTransform()->GetLocalToWorldMatrix();
         m_cursor->GetTransform()->SetPosition(mat.MultiplyPoint3x4(Vector3(x, y, 0)));
 
         m_cursor_line = line;
@@ -381,8 +381,8 @@ namespace Viry3D
         m_cursor_flash_time = -1;
 
         // scroll canvas if cursor outside screen
-        float line_top = m_cursor_line->value->canvas->GetOffsetMax().y + m_scroll_position.y;
-        float line_bottom = m_cursor_line->value->canvas->GetOffsetMin().y + m_scroll_position.y;
+        float line_top = (*m_cursor_line)->canvas->GetOffsetMax().y + m_scroll_position.y;
+        float line_bottom = (*m_cursor_line)->canvas->GetOffsetMin().y + m_scroll_position.y;
         if (line_bottom < -m_target_screen_height)
         {
             this->SetSrollPosition(m_scroll_position + Vector2(0, -m_target_screen_height - line_bottom));
@@ -400,12 +400,12 @@ namespace Viry3D
 
         float offset_y = pos_canvas.y - m_target_screen_height / 2;
 
-        FastListNode<Ref<CodeLine>>* line = NULL;
+        FastList<Ref<CodeLine>>::Iterator line = m_lines.end();
 
-        for (auto i = m_lines.Begin(); i != m_lines.End(); i = i->next)
+        for (auto i = m_lines.begin(); i != m_lines.end(); ++i)
         {
-            Vector2 offset_min = i->value->canvas->GetOffsetMin();
-            Vector2 offset_max = i->value->canvas->GetOffsetMax();
+            Vector2 offset_min = (*i)->canvas->GetOffsetMin();
+            Vector2 offset_max = (*i)->canvas->GetOffsetMax();
 
             if (offset_y <= offset_max.y && offset_y > offset_min.y)
             {
@@ -416,9 +416,9 @@ namespace Viry3D
 
         int char_index = -1;
 
-        if (line)
+        if (line != m_lines.end())
         {
-            const auto& label_lines = line->value->label_line_text->GetLines();
+            const auto& label_lines = (*line)->label_line_text->GetLines();
             if (label_lines.Size() > 0)
             {
                 const auto& label_line = label_lines[0];
@@ -446,9 +446,9 @@ namespace Viry3D
                 }
             }
         }
-        else if (offset_y <= m_lines.End()->prev->value->canvas->GetOffsetMin().y)
+        else if (offset_y <= (*(m_lines.end().Prev()))->canvas->GetOffsetMin().y)
         {
-            line = m_lines.End()->prev;
+            line = m_lines.end().Prev();
         }
 
         this->UpdateCursorPosition(line, char_index);
@@ -488,27 +488,27 @@ namespace Viry3D
 
         if (m_cursor_char_index >= 0)
         {
-            left = m_cursor_line->value->text.Substring(0, m_cursor_char_index);
-            right = m_cursor_line->value->text.Substring(m_cursor_char_index);
+            left = (*m_cursor_line)->text.Substring(0, m_cursor_char_index);
+            right = (*m_cursor_line)->text.Substring(m_cursor_char_index);
         }
         else
         {
-            left = m_cursor_line->value->text;
+            left = (*m_cursor_line)->text;
             right = "";
         }
 
-        FastListNode<Ref<CodeLine>>* first_not_comment_line = m_cursor_line;
-        if (m_cursor_line->value->is_comment_block)
+        FastList<Ref<CodeLine>>::Iterator first_not_comment_line = m_cursor_line;
+        if ((*m_cursor_line)->is_comment_block)
         {
-            while (first_not_comment_line != m_lines.Begin())
+            while (first_not_comment_line != m_lines.begin())
             {
-                if (!first_not_comment_line->value->is_comment_block)
+                if (!(*first_not_comment_line)->is_comment_block)
                 {
                     break;
                 }
                 else
                 {
-                    first_not_comment_line = first_not_comment_line->prev;
+                    --first_not_comment_line;
                 }
             }
         }
@@ -516,10 +516,10 @@ namespace Viry3D
         bool in_comment_block = false;
         while (first_not_comment_line != m_cursor_line)
         {
-            const String& line_text = first_not_comment_line->value->text;
+            const String& line_text = (*first_not_comment_line)->text;
             bool is_comment_block = false;
             String line_text_colored = CodeEditor::ApplyLineSyntaxColors(line_text, in_comment_block, is_comment_block);
-            first_not_comment_line = first_not_comment_line->next;
+            ++first_not_comment_line;
         }
 
         // left line
@@ -529,34 +529,34 @@ namespace Viry3D
             {
                 is_comment_block = true;
             }
-            m_cursor_line->value->text = left;
+            (*m_cursor_line)->text = left;
             String left_colored = CodeEditor::ApplyLineSyntaxColors(left, in_comment_block, is_comment_block);
-            m_cursor_line->value->label_line_text->SetText(left_colored);
-            m_cursor_line->value->is_comment_block = is_comment_block;
+            (*m_cursor_line)->label_line_text->SetText(left_colored);
+            (*m_cursor_line)->is_comment_block = is_comment_block;
         }
         
         // right new line
         {
-            auto line = this->NewLine(m_cursor_line->value->line_num + 1, right, in_comment_block);
+            auto line = this->NewLine((*m_cursor_line)->line_num + 1, right, in_comment_block);
             auto new_line = m_lines.AddAfter(m_cursor_line, line);
             
-            this->UpdateCursorPosition(new_line, new_line->value->text.Size() > 0 ? 0 : -1);
+            this->UpdateCursorPosition(new_line, (*new_line)->text.Size() > 0 ? 0 : -1);
         }
 
         // update below lines
         {
-            auto line = m_cursor_line->next;
-            while (line != m_lines.End())
+            auto line = m_cursor_line.Next();
+            while (line != m_lines.end())
             {
-                int line_num = line->value->line_num + 1;
+                int line_num = (*line)->line_num + 1;
                 int line_height = this->GetLineHeight();
 
-                line->value->line_num = line_num;
-                line->value->label_line_num->SetText(String::Format("%4d", line_num));
-                line->value->canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, -(float) line_height * line_num), Vector2(-CODE_CANVAS_BORDER_X, -(float) line_height * (line_num - 1)));
-                line->value->canvas->OnAnchor();
+                (*line)->line_num = line_num;
+                (*line)->label_line_num->SetText(String::Format("%4d", line_num));
+                (*line)->canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, -(float) line_height * line_num), Vector2(-CODE_CANVAS_BORDER_X, -(float) line_height * (line_num - 1)));
+                (*line)->canvas->OnAnchor();
 
-                line = line->next;
+                ++line;
             }
         }
     }
@@ -586,11 +586,6 @@ namespace Viry3D
 
         if (!ctrl)
         {
-            if (Input::GetKeyDown(KeyCode::Return))
-            {
-                this->InsertLine();
-            }
-
             if (Input::GetKeyDown(KeyCode::LeftArrow))
             {
                 if (m_cursor_char_index > 0)
@@ -599,23 +594,25 @@ namespace Viry3D
                 }
                 else if (m_cursor_char_index == 0)
                 {
-                    if (m_cursor_line->prev != NULL)
+                    if (m_cursor_line != m_lines.begin())
                     {
-                        this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                        auto prev = m_cursor_line.Prev();
+                        this->UpdateCursorPosition(prev, -1);
                     }
                 }
                 else if (m_cursor_char_index == -1)
                 {
-                    int text_size = m_cursor_line->value->text.Size();
+                    int text_size = (*m_cursor_line)->text.Size();
                     if (text_size > 0)
                     {
                         this->UpdateCursorPosition(m_cursor_line, text_size - 1);
                     }
                     else
                     {
-                        if (m_cursor_line->prev != NULL)
+                        if (m_cursor_line != m_lines.begin())
                         {
-                            this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                            auto prev = m_cursor_line.Prev();
+                            this->UpdateCursorPosition(prev, -1);
                         }
                     }
                 }
@@ -624,7 +621,7 @@ namespace Viry3D
             {
                 if (m_cursor_char_index >= 0)
                 {
-                    int text_size = m_cursor_line->value->text.Size();
+                    int text_size = (*m_cursor_line)->text.Size();
                     if (m_cursor_char_index < text_size - 1)
                     {
                         this->UpdateCursorPosition(m_cursor_line, m_cursor_char_index + 1);
@@ -636,74 +633,85 @@ namespace Viry3D
                 }
                 else if(m_cursor_char_index == -1)
                 {
-                    if (m_cursor_line->next != m_lines.End())
+                    auto next = m_cursor_line.Next();
+                    if (next != m_lines.end())
                     {
-                        if (m_cursor_line->next->value->text.Size() > 0)
+                        if ((*next)->text.Size() > 0)
                         {
-                            this->UpdateCursorPosition(m_cursor_line->next, 0);
+                            this->UpdateCursorPosition(next, 0);
                         }
                         else
                         {
-                            this->UpdateCursorPosition(m_cursor_line->next, -1);
+                            this->UpdateCursorPosition(next, -1);
                         }
                     }
                 }
             }
             else if (Input::GetKeyDown(KeyCode::UpArrow))
             {
-                if (m_cursor_line->prev != NULL)
+                if (m_cursor_line != m_lines.begin())
                 {
+                    auto prev = m_cursor_line.Prev();
                     if (m_cursor_char_index >= 0)
                     {
-                        if (m_cursor_char_index <= m_cursor_line->prev->value->text.Size() - 1)
+                        if (m_cursor_char_index <= (*prev)->text.Size() - 1)
                         {
-                            this->UpdateCursorPosition(m_cursor_line->prev, m_cursor_char_index);
+                            this->UpdateCursorPosition(prev, m_cursor_char_index);
                         }
                         else
                         {
-                            this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                            this->UpdateCursorPosition(prev, -1);
                         }
                     }
                     else if(m_cursor_char_index == -1)
                     {
-                        if (m_cursor_line->value->text.Size() < m_cursor_line->prev->value->text.Size())
+                        if ((*m_cursor_line)->text.Size() < (*prev)->text.Size())
                         {
-                            this->UpdateCursorPosition(m_cursor_line->prev, m_cursor_line->value->text.Size());
+                            this->UpdateCursorPosition(prev, (*m_cursor_line)->text.Size());
                         }
                         else
                         {
-                            this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                            this->UpdateCursorPosition(prev, -1);
                         }
                     }
                 }
             }
             else if (Input::GetKeyDown(KeyCode::DownArrow))
             {
-                if (m_cursor_line->next != m_lines.End())
+                auto next = m_cursor_line.Next();
+                if (next != m_lines.end())
                 {
                     if (m_cursor_char_index >= 0)
                     {
-                        if (m_cursor_char_index <= m_cursor_line->next->value->text.Size() - 1)
+                        if (m_cursor_char_index <= (*next)->text.Size() - 1)
                         {
-                            this->UpdateCursorPosition(m_cursor_line->next, m_cursor_char_index);
+                            this->UpdateCursorPosition(next, m_cursor_char_index);
                         }
                         else
                         {
-                            this->UpdateCursorPosition(m_cursor_line->next, -1);
+                            this->UpdateCursorPosition(next, -1);
                         }
                     }
                     else if (m_cursor_char_index == -1)
                     {
-                        if (m_cursor_line->value->text.Size() < m_cursor_line->next->value->text.Size())
+                        if ((*m_cursor_line)->text.Size() < (*next)->text.Size())
                         {
-                            this->UpdateCursorPosition(m_cursor_line->next, m_cursor_line->value->text.Size());
+                            this->UpdateCursorPosition(next, (*m_cursor_line)->text.Size());
                         }
                         else
                         {
-                            this->UpdateCursorPosition(m_cursor_line->next, -1);
+                            this->UpdateCursorPosition(next, -1);
                         }
                     }
                 }
+            }
+            else if (Input::GetKeyDown(KeyCode::Return))
+            {
+                this->InsertLine();
+            }
+            else if (Input::GetKeyDown(KeyCode::Backspace))
+            {
+                
             }
         }
         else

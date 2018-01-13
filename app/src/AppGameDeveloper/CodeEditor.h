@@ -66,7 +66,7 @@ namespace Viry3D
 		void Clear();
 		int GetLineHeight();
 		void SetSrollPosition(const Vector2& pos);
-        void UpdateCursorPosition(FastListNode<Ref<CodeLine>>* line, int char_index);
+        void UpdateCursorPosition(const FastList<Ref<CodeLine>>::Iterator& line, int char_index);
         void UpdateCursorFlash();
         void UpdateInput();
         void InsertLine();
@@ -85,7 +85,7 @@ namespace Viry3D
 		int m_font_size;
 		int m_line_space;
 		Vector2 m_scroll_position;
-        FastListNode<Ref<CodeLine>>* m_cursor_line;
+        FastList<Ref<CodeLine>>::Iterator m_cursor_line;
         int m_cursor_char_index;
         float m_cursor_flash_time;
 	};
