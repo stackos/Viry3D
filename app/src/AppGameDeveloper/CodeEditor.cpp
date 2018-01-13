@@ -379,6 +379,18 @@ namespace Viry3D
         m_cursor_line = line;
         m_cursor_char_index = char_index;
         m_cursor_flash_time = -1;
+
+        // scroll canvas if cursor outside screen
+        float line_top = m_cursor_line->value->canvas->GetOffsetMax().y + m_scroll_position.y;
+        float line_bottom = m_cursor_line->value->canvas->GetOffsetMin().y + m_scroll_position.y;
+        if (line_bottom < -m_target_screen_height)
+        {
+            this->SetSrollPosition(m_scroll_position + Vector2(0, -m_target_screen_height - line_bottom));
+        }
+        else if(line_top > 0)
+        {
+            this->SetSrollPosition(m_scroll_position - Vector2(0, line_top - 0));
+        }
     }
 
     void CodeEditor::OnTouchDown(const Vector2& pos)
@@ -469,43 +481,6 @@ namespace Viry3D
         }
     }
 
-    void CodeEditor::UpdateInput()
-    {
-        if (Input::GetKey(KeyCode::LeftAlt) ||
-            Input::GetKey(KeyCode::RightAlt))
-        {
-            return;
-        }
-
-        bool ctrl = false;
-        bool shift = false;
-
-        if (Input::GetKey(KeyCode::LeftControl) ||
-            Input::GetKey(KeyCode::RightControl))
-        {
-            ctrl = true;
-        }
-
-        if (Input::GetKey(KeyCode::LeftShift) ||
-            Input::GetKey(KeyCode::RightShift))
-        {
-            shift = true;
-        }
-
-        if (!ctrl)
-        {
-            if (Input::GetKeyDown(KeyCode::Return))
-            {
-                this->InsertLine();
-            }
-        }
-        else
-        {
-            // ctrl + c
-            // ctrl + v
-        }
-    }
-
     void CodeEditor::InsertLine()
     {
         String left;
@@ -566,11 +541,6 @@ namespace Viry3D
             auto new_line = m_lines.AddAfter(m_cursor_line, line);
             
             this->UpdateCursorPosition(new_line, new_line->value->text.Size() > 0 ? 0 : -1);
-
-            if (line->canvas->GetOffsetMin().y + m_scroll_position.y < -m_target_screen_height)
-            {
-                this->SetSrollPosition(m_scroll_position + Vector2(0, -m_target_screen_height - line->canvas->GetOffsetMin().y - m_scroll_position.y));
-            }
         }
 
         // update below lines
@@ -588,6 +558,158 @@ namespace Viry3D
 
                 line = line->next;
             }
+        }
+    }
+
+    void CodeEditor::UpdateInput()
+    {
+        if (Input::GetKey(KeyCode::LeftAlt) ||
+            Input::GetKey(KeyCode::RightAlt))
+        {
+            return;
+        }
+
+        bool ctrl = false;
+        bool shift = false;
+
+        if (Input::GetKey(KeyCode::LeftControl) ||
+            Input::GetKey(KeyCode::RightControl))
+        {
+            ctrl = true;
+        }
+
+        if (Input::GetKey(KeyCode::LeftShift) ||
+            Input::GetKey(KeyCode::RightShift))
+        {
+            shift = true;
+        }
+
+        if (!ctrl)
+        {
+            if (Input::GetKeyDown(KeyCode::Return))
+            {
+                this->InsertLine();
+            }
+
+            if (Input::GetKeyDown(KeyCode::LeftArrow))
+            {
+                if (m_cursor_char_index > 0)
+                {
+                    this->UpdateCursorPosition(m_cursor_line, m_cursor_char_index - 1);
+                }
+                else if (m_cursor_char_index == 0)
+                {
+                    if (m_cursor_line->prev != NULL)
+                    {
+                        this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                    }
+                }
+                else if (m_cursor_char_index == -1)
+                {
+                    int text_size = m_cursor_line->value->text.Size();
+                    if (text_size > 0)
+                    {
+                        this->UpdateCursorPosition(m_cursor_line, text_size - 1);
+                    }
+                    else
+                    {
+                        if (m_cursor_line->prev != NULL)
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                        }
+                    }
+                }
+            }
+            else if (Input::GetKeyDown(KeyCode::RightArrow))
+            {
+                if (m_cursor_char_index >= 0)
+                {
+                    int text_size = m_cursor_line->value->text.Size();
+                    if (m_cursor_char_index < text_size - 1)
+                    {
+                        this->UpdateCursorPosition(m_cursor_line, m_cursor_char_index + 1);
+                    }
+                    else
+                    {
+                        this->UpdateCursorPosition(m_cursor_line, -1);
+                    }
+                }
+                else if(m_cursor_char_index == -1)
+                {
+                    if (m_cursor_line->next != m_lines.End())
+                    {
+                        if (m_cursor_line->next->value->text.Size() > 0)
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->next, 0);
+                        }
+                        else
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->next, -1);
+                        }
+                    }
+                }
+            }
+            else if (Input::GetKeyDown(KeyCode::UpArrow))
+            {
+                if (m_cursor_line->prev != NULL)
+                {
+                    if (m_cursor_char_index >= 0)
+                    {
+                        if (m_cursor_char_index <= m_cursor_line->prev->value->text.Size() - 1)
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->prev, m_cursor_char_index);
+                        }
+                        else
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                        }
+                    }
+                    else if(m_cursor_char_index == -1)
+                    {
+                        if (m_cursor_line->value->text.Size() < m_cursor_line->prev->value->text.Size())
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->prev, m_cursor_line->value->text.Size());
+                        }
+                        else
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->prev, -1);
+                        }
+                    }
+                }
+            }
+            else if (Input::GetKeyDown(KeyCode::DownArrow))
+            {
+                if (m_cursor_line->next != m_lines.End())
+                {
+                    if (m_cursor_char_index >= 0)
+                    {
+                        if (m_cursor_char_index <= m_cursor_line->next->value->text.Size() - 1)
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->next, m_cursor_char_index);
+                        }
+                        else
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->next, -1);
+                        }
+                    }
+                    else if (m_cursor_char_index == -1)
+                    {
+                        if (m_cursor_line->value->text.Size() < m_cursor_line->next->value->text.Size())
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->next, m_cursor_line->value->text.Size());
+                        }
+                        else
+                        {
+                            this->UpdateCursorPosition(m_cursor_line->next, -1);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            // ctrl + c
+            // ctrl + v
         }
     }
 
