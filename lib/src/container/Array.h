@@ -17,9 +17,6 @@
 
 #pragma once
 
-#include "memory/ByteBuffer.h"
-#include <array>
-
 namespace Viry3D
 {
 	template<class V, size_t S>

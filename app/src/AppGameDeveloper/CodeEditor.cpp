@@ -295,7 +295,7 @@ namespace Viry3D
         label_line_num->SetLineSpace(1);
         label_line_num->SetRich(true);
         label_line_num->SetMono(false);
-        label_line_num->SetAlignment(TextAlignment::MiddleLeft);
+        label_line_num->SetAlignment(TextAlignment::UpperLeft);
         label_line_num->SetColor(Color(43, 145, 174, 255) / 255.0f);
 
         bool is_comment_block = false;
@@ -320,7 +320,7 @@ namespace Viry3D
         label_line_text->SetLineSpace(1);
         label_line_text->SetRich(true);
         label_line_text->SetMono(false);
-        label_line_text->SetAlignment(TextAlignment::MiddleLeft);
+        label_line_text->SetAlignment(TextAlignment::UpperLeft);
 
         canvas->UpdateViews();
 
