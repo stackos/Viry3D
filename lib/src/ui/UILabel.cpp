@@ -442,10 +442,15 @@ namespace Viry3D
 			int base_y0 = base_info.bearing_y;
 			int base_y1 = base_info.bearing_y - base_info.uv_pixel_h;
 			int baseline = Mathf::RoundToInt(base_y0 + (font_size - base_y0 + base_y1) * 0.5f);
+            const int char_space = 0;
 
 			int x0 = pen_x + info.bearing_x;
 			int y0 = pen_y + info.bearing_y - baseline;
 			int x1 = x0 + info.uv_pixel_w;
+            if (c == ' ')
+            {
+                x1 = pen_x + info.advance_x + char_space;
+            }
 			int y1 = y0 - info.uv_pixel_h;
 
 			if (x_max < x1)
@@ -470,7 +475,6 @@ namespace Viry3D
 				line_y_min = y1;
 			}
 
-			int char_space = 0;
 			pen_x += info.advance_x + char_space;
 
 			int uv_x0 = info.uv_pixel_x;

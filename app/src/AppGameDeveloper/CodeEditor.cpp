@@ -250,9 +250,8 @@ namespace Viry3D
             m_font = Resource::LoadFont("Assets/font/consola.ttf");
         }
 
-        m_source_code = source.Replace("\r\n", "\n").Replace("\r", "\n");
-
-        auto lines = m_source_code.Split("\n", false);
+        String source_code = source.Replace("\r\n", "\n").Replace("\r", "\n");
+        auto lines = source_code.Split("\n", false);
         bool in_comment_block = false;
         
         for (int i = 0; i < lines.Size(); i++)
@@ -481,6 +480,43 @@ namespace Viry3D
         }
     }
 
+    void CodeEditor::ApplyLineSyntaxColors(const FastList<Ref<CodeLine>>::Iterator& line, bool& in_comment_block)
+    {
+        FastList<Ref<CodeLine>>::Iterator first_not_comment_line = line;
+        if ((*line)->is_comment_block)
+        {
+            while (first_not_comment_line != m_lines.begin())
+            {
+                if (!(*first_not_comment_line)->is_comment_block)
+                {
+                    break;
+                }
+                else
+                {
+                    --first_not_comment_line;
+                }
+            }
+        }
+
+        while (first_not_comment_line != line)
+        {
+            const String& line_text = (*first_not_comment_line)->text;
+            bool is_comment_block = false;
+            String line_text_colored = CodeEditor::ApplyLineSyntaxColors(line_text, in_comment_block, is_comment_block);
+            ++first_not_comment_line;
+        }
+
+        bool is_comment_block = false;
+        if (in_comment_block)
+        {
+            is_comment_block = true;
+        }
+
+        String left_colored = CodeEditor::ApplyLineSyntaxColors((*line)->text, in_comment_block, is_comment_block);
+        (*line)->label_line_text->SetText(left_colored);
+        (*line)->is_comment_block = is_comment_block;
+    }
+
     void CodeEditor::InsertLine()
     {
         String left;
@@ -497,42 +533,12 @@ namespace Viry3D
             right = "";
         }
 
-        FastList<Ref<CodeLine>>::Iterator first_not_comment_line = m_cursor_line;
-        if ((*m_cursor_line)->is_comment_block)
-        {
-            while (first_not_comment_line != m_lines.begin())
-            {
-                if (!(*first_not_comment_line)->is_comment_block)
-                {
-                    break;
-                }
-                else
-                {
-                    --first_not_comment_line;
-                }
-            }
-        }
-
         bool in_comment_block = false;
-        while (first_not_comment_line != m_cursor_line)
-        {
-            const String& line_text = (*first_not_comment_line)->text;
-            bool is_comment_block = false;
-            String line_text_colored = CodeEditor::ApplyLineSyntaxColors(line_text, in_comment_block, is_comment_block);
-            ++first_not_comment_line;
-        }
-
+        
         // left line
         {
-            bool is_comment_block = false;
-            if (in_comment_block)
-            {
-                is_comment_block = true;
-            }
             (*m_cursor_line)->text = left;
-            String left_colored = CodeEditor::ApplyLineSyntaxColors(left, in_comment_block, is_comment_block);
-            (*m_cursor_line)->label_line_text->SetText(left_colored);
-            (*m_cursor_line)->is_comment_block = is_comment_block;
+            this->ApplyLineSyntaxColors(m_cursor_line, in_comment_block);
         }
         
         // right new line
@@ -563,7 +569,39 @@ namespace Viry3D
 
     void CodeEditor::RemoveChar()
     {
-        
+        const String& line_text = (*m_cursor_line)->text;
+
+        if (m_cursor_char_index > 0 ||
+            (m_cursor_char_index == -1 && line_text.Size() > 0))
+        {
+            if (m_cursor_char_index > 0)
+            {
+                String text = line_text.Substring(0, m_cursor_char_index) + line_text.Substring(m_cursor_char_index + 1);
+                (*m_cursor_line)->text = text;
+
+                bool in_comment_block = false;
+                this->ApplyLineSyntaxColors(m_cursor_line, in_comment_block);
+                (*m_cursor_line)->canvas->UpdateViews();
+
+                this->UpdateCursorPosition(m_cursor_line, m_cursor_char_index - 1);
+            }
+            else
+            {
+                String text = line_text.Substring(0, line_text.Size() - 1);
+                (*m_cursor_line)->text = text;
+
+                bool in_comment_block = false;
+                this->ApplyLineSyntaxColors(m_cursor_line, in_comment_block);
+                (*m_cursor_line)->canvas->UpdateViews();
+
+                this->UpdateCursorPosition(m_cursor_line, -1);
+            }
+        }
+        else if (m_cursor_char_index == 0 ||
+            (m_cursor_char_index == -1 && line_text.Size() == 0))
+        {
+            
+        }
     }
 
     void CodeEditor::Update()

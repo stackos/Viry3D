@@ -69,6 +69,7 @@ namespace Viry3D
 	protected:
         static String ApplySyntaxColors(const String& source);
         static String ApplyLineSyntaxColors(const String& line, bool& in_comment_block, bool& is_comment_block);
+        void ApplyLineSyntaxColors(const FastList<Ref<CodeLine>>::Iterator& line, bool& in_comment_block);
 
 		CodeEditor();
 		virtual void Update();
@@ -86,7 +87,6 @@ namespace Viry3D
 		Ref<Camera> m_camera;
 		Ref<UICanvasRenderer> m_canvas;
         Ref<UISprite> m_cursor;
-		String m_source_code;
         FastList<Ref<CodeLine>> m_lines;
 		Ref<Font> m_font;
 		int m_font_size;
