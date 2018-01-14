@@ -13,6 +13,7 @@
 		BA42E6281FF54359009C3C01 /* LuaRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6251FF54358009C3C01 /* LuaRunner.cpp */; };
 		BA42E6291FF54359009C3C01 /* CodeEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6261FF54358009C3C01 /* CodeEditor.cpp */; };
 		BA4FAC201FBB564200C1ADB7 /* AppPhysics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */; };
+		BA547C5D200B6DAA00C0D325 /* InputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA547C5A200B6DAA00C0D325 /* InputHandler.cpp */; };
 		BA5CD1551FC1FF2C004C590A /* DebugUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */; };
 		BA7D82D11F9E4DC10085EEB7 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */; };
 		BA87B5141FDC1B820072868A /* AppParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA87B5121FDC1B820072868A /* AppParticle.cpp */; };
@@ -57,6 +58,8 @@
 		BA42E6261FF54358009C3C01 /* CodeEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditor.cpp; sourceTree = "<group>"; };
 		BA42E6271FF54358009C3C01 /* CodeEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeEditor.h; sourceTree = "<group>"; };
 		BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPhysics.cpp; path = ../../src/AppPhysics.cpp; sourceTree = "<group>"; };
+		BA547C5A200B6DAA00C0D325 /* InputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputHandler.cpp; sourceTree = "<group>"; };
+		BA547C5C200B6DAA00C0D325 /* InputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputHandler.h; sourceTree = "<group>"; };
 		BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DebugUI.cpp; path = ../../src/DebugUI.cpp; sourceTree = "<group>"; };
 		BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
 		BA87B5121FDC1B820072868A /* AppParticle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppParticle.cpp; path = ../../src/AppParticle.cpp; sourceTree = "<group>"; };
@@ -105,6 +108,8 @@
 			children = (
 				BA42E6261FF54358009C3C01 /* CodeEditor.cpp */,
 				BA42E6271FF54358009C3C01 /* CodeEditor.h */,
+				BA547C5A200B6DAA00C0D325 /* InputHandler.cpp */,
+				BA547C5C200B6DAA00C0D325 /* InputHandler.h */,
 				BA42E6251FF54358009C3C01 /* LuaRunner.cpp */,
 				BA42E6241FF54358009C3C01 /* LuaRunner.h */,
 			);
@@ -278,6 +283,7 @@
 				BAA45E5B1FB752210049A867 /* AppPBR.cpp in Sources */,
 				BA2749041FFA8FD30029ABB1 /* LaunchScreen.cpp in Sources */,
 				BA5CD1551FC1FF2C004C590A /* DebugUI.cpp in Sources */,
+				BA547C5D200B6DAA00C0D325 /* InputHandler.cpp in Sources */,
 				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
 				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
 				BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */,

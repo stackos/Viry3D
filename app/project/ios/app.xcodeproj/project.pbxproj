@@ -24,6 +24,7 @@
 		BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */; };
 		BA4A32601D7B34D400DEEE5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */; };
 		BA4A33451D7C1FE300DEEE5A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA4A33441D7C1FE300DEEE5A /* AppDelegate.mm */; };
+		BA547C62200B6E0300C0D325 /* InputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA547C5F200B6E0300C0D325 /* InputHandler.cpp */; };
 		BA5924811D90588800173EDC /* AppClear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5924801D90588800173EDC /* AppClear.cpp */; };
 		BA5924A01D92F26700173EDC /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA59249F1D92F26700173EDC /* OpenGLES.framework */; };
 		BA5924A21D92F29400173EDC /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A11D92F29400173EDC /* GLKit.framework */; };
@@ -71,6 +72,8 @@
 		BA4A325F1D7B34D400DEEE5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BA4A32611D7B34D400DEEE5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = app/Info.plist; sourceTree = "<group>"; };
 		BA4A33441D7C1FE300DEEE5A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = app/AppDelegate.mm; sourceTree = "<group>"; };
+		BA547C5F200B6E0300C0D325 /* InputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputHandler.cpp; sourceTree = "<group>"; };
+		BA547C61200B6E0300C0D325 /* InputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputHandler.h; sourceTree = "<group>"; };
 		BA5924801D90588800173EDC /* AppClear.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppClear.cpp; path = ../../src/AppClear.cpp; sourceTree = "<group>"; };
 		BA59249F1D92F26700173EDC /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		BA5924A11D92F29400173EDC /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
@@ -113,6 +116,8 @@
 			children = (
 				BA42E62E1FF5451C009C3C01 /* CodeEditor.cpp */,
 				BA42E62F1FF5451C009C3C01 /* CodeEditor.h */,
+				BA547C5F200B6E0300C0D325 /* InputHandler.cpp */,
+				BA547C61200B6E0300C0D325 /* InputHandler.h */,
 				BA42E62D1FF5451C009C3C01 /* LuaRunner.cpp */,
 				BA42E62C1FF5451C009C3C01 /* LuaRunner.h */,
 			);
@@ -304,6 +309,7 @@
 				BA0913C91DAFCF9500CA11BF /* AppAnim.cpp in Sources */,
 				BA0913B81DAA85C500CA11BF /* AppWatch.cpp in Sources */,
 				BA29655A1F9A6F6300C3FB87 /* AppAR.cpp in Sources */,
+				BA547C62200B6E0300C0D325 /* InputHandler.cpp in Sources */,
 				BAD39DF01E926D220021B013 /* AppFlappyBird.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
