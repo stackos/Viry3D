@@ -320,6 +320,7 @@ namespace Viry3D
         label_line_text->SetRich(true);
         label_line_text->SetMono(false);
         label_line_text->SetAlignment(TextAlignment::UpperLeft);
+        label_line_text->SetHorizontalOverflow(HorizontalWrapMode::Overflow);
 
         canvas->UpdateViews();
 
@@ -576,7 +577,7 @@ namespace Viry3D
         {
             if (m_cursor_char_index > 0)
             {
-                String text = line_text.Substring(0, m_cursor_char_index) + line_text.Substring(m_cursor_char_index + 1);
+                String text = line_text.Substring(0, m_cursor_char_index - 1) + line_text.Substring(m_cursor_char_index);
                 (*m_cursor_line)->text = text;
 
                 bool in_comment_block = false;
@@ -600,7 +601,47 @@ namespace Viry3D
         else if (m_cursor_char_index == 0 ||
             (m_cursor_char_index == -1 && line_text.Size() == 0))
         {
-            
+            if (m_cursor_line != m_lines.begin())
+            {
+                auto prev = m_cursor_line.Prev();
+
+                if (line_text.Size() == 0)
+                {
+                    this->UpdateCursorPosition(prev, -1);
+                }
+                else
+                {
+                    int prev_size = (*prev)->text.Size();
+                    String text = (*prev)->text + line_text;
+                    (*prev)->text = text;
+
+                    bool in_comment_block = false;
+                    this->ApplyLineSyntaxColors(prev, in_comment_block);
+                    (*prev)->canvas->UpdateViews();
+
+                    this->UpdateCursorPosition(prev, prev_size);
+                }
+
+                // update below lines
+                {
+                    auto line = m_cursor_line.Next();
+                    GameObject::Destroy((*line)->canvas->GetGameObject());
+                    line = m_lines.Remove(line);
+
+                    while (line != m_lines.end())
+                    {
+                        int line_num = (*line)->line_num - 1;
+                        int line_height = this->GetLineHeight();
+
+                        (*line)->line_num = line_num;
+                        (*line)->label_line_num->SetText(String::Format("%4d", line_num));
+                        (*line)->canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, -(float) line_height * line_num), Vector2(-CODE_CANVAS_BORDER_X, -(float) line_height * (line_num - 1)));
+                        (*line)->canvas->OnAnchor();
+
+                        ++line;
+                    }
+                }
+            }
         }
     }
 
