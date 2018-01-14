@@ -52,7 +52,9 @@ namespace Viry3D
 		m_line_space(1),
 		m_rich(false),
 		m_mono(false),
-		m_alignment(TextAlignment::UpperLeft)
+		m_alignment(TextAlignment::UpperLeft),
+        m_horizontal_overflow(HorizontalWrapMode::Wrap),
+        m_vertical_overflow(VerticalWrapMode::Overflow)
 	{
 	}
 
@@ -149,6 +151,26 @@ namespace Viry3D
 			MarkRendererDirty();
 		}
 	}
+
+    void UILabel::SetHorizontalOverflow(HorizontalWrapMode mode)
+    {
+        if (m_horizontal_overflow != mode)
+        {
+            m_horizontal_overflow = mode;
+            m_dirty = true;
+            MarkRendererDirty();
+        }
+    }
+
+    void UILabel::SetVerticalOverflow(VerticalWrapMode mode)
+    {
+        if (m_vertical_overflow != mode)
+        {
+            m_vertical_overflow = mode;
+            m_dirty = true;
+            MarkRendererDirty();
+        }
+    }
 
 	static bool check_tag_begin(Vector<char32_t>& str, int& char_index, const String& tag_str, int value_length, TagInfo& tag)
 	{
@@ -423,12 +445,15 @@ namespace Viry3D
 			GlyphInfo info = m_font->GetGlyph(c, font_size, bold, italic, mono);
 
 			//	limit width
-			if (pen_x + info.bearing_x + info.uv_pixel_w > label_size.x)
-			{
-				pen_x = 0;
-				pen_y += -(font_size + m_line_space);
-				previous = 0;
-			}
+            if (m_horizontal_overflow == HorizontalWrapMode::Wrap)
+            {
+                if (pen_x + info.bearing_x + info.uv_pixel_w > label_size.x)
+                {
+                    pen_x = 0;
+                    pen_y += -(font_size + m_line_space);
+                    previous = 0;
+                }
+            }
 
 			//	kerning
 			if (has_kerning && previous && info.glyph_index)

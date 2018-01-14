@@ -44,6 +44,18 @@ namespace Viry3D
 		LowerRight
 	};
 
+    enum class HorizontalWrapMode
+    {
+        Wrap,
+        Overflow,
+    };
+
+    enum class VerticalWrapMode
+    {
+        Truncate,
+        Overflow,
+    };
+
 	struct LabelLine
 	{
 		int width;
@@ -90,6 +102,8 @@ namespace Viry3D
 		void SetRich(bool rich);
 		void SetMono(bool mono);
 		void SetAlignment(TextAlignment alignment);
+        void SetHorizontalOverflow(HorizontalWrapMode mode);
+        void SetVerticalOverflow(VerticalWrapMode mode);
 		const Vector<LabelLine>& GetLines() const { return m_lines; }
 
 		virtual void FillVertices(Vector<Vector3>& vertices, Vector<Vector2>& uv, Vector<Color>& colors, Vector<unsigned short>& indices);
@@ -109,5 +123,7 @@ namespace Viry3D
 		bool m_mono;
 		TextAlignment m_alignment;
 		Vector<LabelLine> m_lines;
+        HorizontalWrapMode m_horizontal_overflow;
+        VerticalWrapMode m_vertical_overflow;
 	};
 }
