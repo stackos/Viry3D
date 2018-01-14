@@ -268,12 +268,12 @@ static void process_events()
 {
     _mutex.lock();
 
-    for (auto i = _events.Begin(); i != _events.End(); i = i->next)
+    for (auto i : _events)
     {
-		if (i->value)
-		{
-			i->value();
-		}
+        if (i)
+        {
+            i();
+        }
     }
 	_events.Clear();
 

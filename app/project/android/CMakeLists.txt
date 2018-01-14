@@ -502,6 +502,7 @@ add_library(Viry3DApp SHARED
             ${VIRY3D_APP_SRC_DIR}/AppClear.cpp
             ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
             ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/CodeEditor.cpp
+            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/InputHandler.cpp
             ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/LuaRunner.cpp
             ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper.cpp
             ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
