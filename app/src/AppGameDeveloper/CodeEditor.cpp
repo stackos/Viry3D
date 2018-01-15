@@ -645,6 +645,37 @@ namespace Viry3D
         }
     }
 
+    void CodeEditor::InsertString(const String& str)
+    {
+        const String& line_text = (*m_cursor_line)->text;
+
+        String text;
+
+        if (m_cursor_char_index >= 0)
+        {
+            text = line_text.Substring(0, m_cursor_char_index) + str + line_text.Substring(m_cursor_char_index);
+        }
+        else
+        {
+            text = line_text + str;
+        }
+
+        (*m_cursor_line)->text = text;
+
+        bool in_comment_block = false;
+        this->ApplyLineSyntaxColors(m_cursor_line, in_comment_block);
+        (*m_cursor_line)->canvas->UpdateViews();
+
+        if (m_cursor_char_index >= 0)
+        {
+            this->UpdateCursorPosition(m_cursor_line, m_cursor_char_index + str.Size());
+        }
+        else
+        {
+            this->UpdateCursorPosition(m_cursor_line, -1);
+        }
+    }
+
     void CodeEditor::Update()
     {
         this->UpdateCursorFlash();

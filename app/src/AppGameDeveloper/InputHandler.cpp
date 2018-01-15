@@ -49,20 +49,31 @@ namespace Viry3D
 
         if (!ctrl)
         {
-            if (Input::GetKeyDown(KeyCode::LeftArrow) ||
-                Input::GetKeyDown(KeyCode::RightArrow) || 
-                Input::GetKeyDown(KeyCode::UpArrow) || 
-                Input::GetKeyDown(KeyCode::DownArrow))
+            if (!shift)
             {
-                this->OnKeyArrow(editor);
-            }
-            else if (Input::GetKeyDown(KeyCode::Return))
-            {
-                editor->InsertLine();
-            }
-            else if (Input::GetKeyDown(KeyCode::Backspace))
-            {
-                editor->RemoveChar();
+                if (Input::GetKeyDown(KeyCode::LeftArrow) ||
+                    Input::GetKeyDown(KeyCode::RightArrow) ||
+                    Input::GetKeyDown(KeyCode::UpArrow) ||
+                    Input::GetKeyDown(KeyCode::DownArrow))
+                {
+                    this->OnKeyArrow(editor);
+                }
+                else if (Input::GetKeyDown(KeyCode::Return))
+                {
+                    editor->InsertLine();
+                }
+                else if (Input::GetKeyDown(KeyCode::Backspace))
+                {
+                    editor->RemoveChar();
+                }
+                else if (Input::GetKeyDown(KeyCode::Tab))
+                {
+                    editor->InsertString("    "); // insert 4 space instead \t
+                }
+                else if (Input::GetKeyDown(KeyCode::Space))
+                {
+                    editor->InsertString(" ");
+                }
             }
         }
         else
