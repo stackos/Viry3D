@@ -209,17 +209,13 @@ namespace Viry3D
 						switch (shape.shape_type)
 						{
 							case ParticleSystemShapeType::Sphere:
-							case ParticleSystemShapeType::SphereShell:
 								EmitShapeSphere(position, velocity, false);
 								break;
 							case ParticleSystemShapeType::Hemisphere:
-							case ParticleSystemShapeType::HemisphereShell:
 								EmitShapeSphere(position, velocity, true);
 								break;
 							case ParticleSystemShapeType::Cone:
-							case ParticleSystemShapeType::ConeShell:
 							case ParticleSystemShapeType::ConeVolume:
-							case ParticleSystemShapeType::ConeVolumeShell:
 								EmitShapeCone(position, velocity);
 								break;
 							case ParticleSystemShapeType::Box:
@@ -228,7 +224,6 @@ namespace Viry3D
 								EmitShapeBox(position, velocity);
 								break;
 							case ParticleSystemShapeType::Circle:
-							case ParticleSystemShapeType::CircleEdge:
 								EmitShapeCircle(position, velocity);
 								break;
 							case ParticleSystemShapeType::SingleSidedEdge:
@@ -961,20 +956,7 @@ namespace Viry3D
 		} while (Mathf::FloatEqual(dir.SqrMagnitude(), 0));
 		dir.Normalize();
 
-		float radius = 0;
-		switch (shape.shape_type)
-		{
-			case ParticleSystemShapeType::Sphere:
-			case ParticleSystemShapeType::Hemisphere:
-				radius = Mathf::RandomRange(0.0f, shape.radius);
-				break;
-			case ParticleSystemShapeType::SphereShell:
-			case ParticleSystemShapeType::HemisphereShell:
-				radius = shape.radius;
-				break;
-            default:
-                break;
-		}
+		float radius = Mathf::RandomRange(shape.radius * (1.0f - shape.radius_thickness), shape.radius);
 		position = dir * radius;
 		velocity = dir;
 
@@ -1006,26 +988,14 @@ namespace Viry3D
 			case ParticleSystemShapeType::Cone:
 			{
 				z = 0;
-				radius = Mathf::RandomRange(0.0f, shape.radius);
-				break;
-			}
-			case ParticleSystemShapeType::ConeShell:
-			{
-				z = 0;
-				radius = shape.radius;
+				radius = Mathf::RandomRange(shape.radius * (1.0f - shape.radius_thickness), shape.radius);
 				break;
 			}
 			case ParticleSystemShapeType::ConeVolume:
 			{
 				z = Mathf::RandomRange(0.0f, shape.length);
 				radius = tanf(angle * Mathf::Deg2Rad) / (fabsf(origin.z) + z);
-				radius = Mathf::RandomRange(0.0f, radius);
-				break;
-			}
-			case ParticleSystemShapeType::ConeVolumeShell:
-			{
-				z = Mathf::RandomRange(0.0f, shape.length);
-				radius = tanf(angle * Mathf::Deg2Rad) / (fabsf(origin.z) + z);
+				radius = Mathf::RandomRange(radius * (1.0f - shape.radius_thickness), radius);
 				break;
 			}
             default:
@@ -1059,9 +1029,9 @@ namespace Viry3D
 
 	void ParticleSystem::EmitShapeBox(Vector3& position, Vector3& velocity)
 	{
-		float x = Mathf::RandomRange(-0.5f, 0.5f) * shape.box.x;
-		float y = Mathf::RandomRange(-0.5f, 0.5f) * shape.box.y;
-		float z = Mathf::RandomRange(-0.5f, 0.5f) * shape.box.z;
+		float x = Mathf::RandomRange(-0.5f, 0.5f) * shape.scale.x;
+		float y = Mathf::RandomRange(-0.5f, 0.5f) * shape.scale.y;
+		float z = Mathf::RandomRange(-0.5f, 0.5f) * shape.scale.z;
 
 		switch (shape.shape_type)
 		{
@@ -1078,34 +1048,34 @@ namespace Viry3D
 				switch (side)
 				{
 					case 0:
-						position.x = -0.5f * shape.box.x;
+						position.x = -0.5f * shape.scale.x;
 						position.y = y;
 						position.z = z;
 						break;
 					case 1:
-						position.x = 0.5f * shape.box.x;
+						position.x = 0.5f * shape.scale.x;
 						position.y = y;
 						position.z = z;
 						break;
 					case 2:
 						position.x = x;
-						position.y = -0.5f * shape.box.y;
+						position.y = -0.5f * shape.scale.y;
 						position.z = z;
 						break;
 					case 3:
 						position.x = x;
-						position.y = 0.5f * shape.box.y;
+						position.y = 0.5f * shape.scale.y;
 						position.z = z;
 						break;
 					case 4:
 						position.x = x;
 						position.y = y;
-						position.z = -0.5f * shape.box.z;
+						position.z = -0.5f * shape.scale.z;
 						break;
 					case 5:
 						position.x = x;
 						position.y = y;
-						position.z = 0.5f * shape.box.z;
+						position.z = 0.5f * shape.scale.z;
 						break;
 				}
 				break;
@@ -1116,64 +1086,64 @@ namespace Viry3D
 				switch (edge)
 				{
 					case 0:
-						position.x = -0.5f * shape.box.x;
-						position.y = -0.5f * shape.box.y;
+						position.x = -0.5f * shape.scale.x;
+						position.y = -0.5f * shape.scale.y;
 						position.z = z;
 						break;
 					case 1:
-						position.x = -0.5f * shape.box.x;
-						position.y = 0.5f * shape.box.y;
+						position.x = -0.5f * shape.scale.x;
+						position.y = 0.5f * shape.scale.y;
 						position.z = z;
 						break;
 					case 2:
-						position.x = 0.5f * shape.box.x;
-						position.y = -0.5f * shape.box.y;
+						position.x = 0.5f * shape.scale.x;
+						position.y = -0.5f * shape.scale.y;
 						position.z = z;
 						break;
 					case 3:
-						position.x = 0.5f * shape.box.x;
-						position.y = 0.5f * shape.box.y;
+						position.x = 0.5f * shape.scale.x;
+						position.y = 0.5f * shape.scale.y;
 						position.z = z;
 						break;
 					case 4:
 						position.x = x;
-						position.y = -0.5f * shape.box.y;
-						position.z = -0.5f * shape.box.z;
+						position.y = -0.5f * shape.scale.y;
+						position.z = -0.5f * shape.scale.z;
 						break;
 					case 5:
 						position.x = x;
-						position.y = -0.5f * shape.box.y;
-						position.z = 0.5f * shape.box.z;
+						position.y = -0.5f * shape.scale.y;
+						position.z = 0.5f * shape.scale.z;
 						break;
 					case 6:
 						position.x = x;
-						position.y = 0.5f * shape.box.y;
-						position.z = -0.5f * shape.box.z;
+						position.y = 0.5f * shape.scale.y;
+						position.z = -0.5f * shape.scale.z;
 						break;
 					case 7:
 						position.x = x;
-						position.y = 0.5f * shape.box.y;
-						position.z = 0.5f * shape.box.z;
+						position.y = 0.5f * shape.scale.y;
+						position.z = 0.5f * shape.scale.z;
 						break;
 					case 8:
-						position.x = -0.5f * shape.box.x;
+						position.x = -0.5f * shape.scale.x;
 						position.y = y;
-						position.z = -0.5f * shape.box.z;
+						position.z = -0.5f * shape.scale.z;
 						break;
 					case 9:
-						position.x = -0.5f * shape.box.x;
+						position.x = -0.5f * shape.scale.x;
 						position.y = y;
-						position.z = 0.5f * shape.box.z;
+						position.z = 0.5f * shape.scale.z;
 						break;
 					case 10:
-						position.x = 0.5f * shape.box.x;
+						position.x = 0.5f * shape.scale.x;
 						position.y = y;
-						position.z = -0.5f * shape.box.z;
+						position.z = -0.5f * shape.scale.z;
 						break;
 					case 11:
-						position.x = 0.5f * shape.box.x;
+						position.x = 0.5f * shape.scale.x;
 						position.y = y;
-						position.z = 0.5f * shape.box.z;
+						position.z = 0.5f * shape.scale.z;
 						break;
 				}
 				break;
@@ -1208,23 +1178,7 @@ namespace Viry3D
 	void ParticleSystem::EmitShapeCircle(Vector3& position, Vector3& velocity)
 	{
 		float arc = Mathf::RandomRange(0.0f, shape.arc);
-		float radius = 0;
-
-		switch (shape.shape_type)
-		{
-			case ParticleSystemShapeType::Circle:
-			{
-				radius = Mathf::RandomRange(0.0f, shape.radius);
-				break;
-			}
-			case ParticleSystemShapeType::CircleEdge:
-			{
-				radius = shape.radius;
-				break;
-			}
-            default:
-                break;
-		}
+		float radius = Mathf::RandomRange(shape.radius * (1.0f - shape.radius_thickness), shape.radius);
 
 		float x = radius * cosf(arc * Mathf::Deg2Rad);
 		float y = radius * sinf(arc * Mathf::Deg2Rad);

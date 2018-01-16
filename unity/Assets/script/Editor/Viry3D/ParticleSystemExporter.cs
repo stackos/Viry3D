@@ -133,17 +133,15 @@ public partial class Exporter {
 
 		m_writer.Write((int) module.shapeType);
 		if(module.shapeType == ParticleSystemShapeType.Sphere ||
-			module.shapeType == ParticleSystemShapeType.SphereShell ||
-			module.shapeType == ParticleSystemShapeType.Hemisphere ||
-			module.shapeType == ParticleSystemShapeType.HemisphereShell) {
+			module.shapeType == ParticleSystemShapeType.Hemisphere) {
 			m_writer.Write(module.radius);
-		} else if(module.shapeType == ParticleSystemShapeType.Cone ||
-			module.shapeType == ParticleSystemShapeType.ConeShell ||
-			module.shapeType == ParticleSystemShapeType.ConeVolume ||
-			module.shapeType == ParticleSystemShapeType.ConeVolumeShell) {
+            m_writer.Write(module.radiusThickness);
+        } else if(module.shapeType == ParticleSystemShapeType.Cone ||
+			module.shapeType == ParticleSystemShapeType.ConeVolume) {
 			m_writer.Write(module.angle);
 			m_writer.Write(module.radius);
-			m_writer.Write(module.arc);
+            m_writer.Write(module.radiusThickness);
+            m_writer.Write(module.arc);
 			m_writer.Write((int) module.arcMode);
 			m_writer.Write(module.arcSpread);
 			WriteMinMaxCurve(module.arcSpeed);
@@ -152,10 +150,11 @@ public partial class Exporter {
 			module.shapeType == ParticleSystemShapeType.BoxShell ||
 			module.shapeType == ParticleSystemShapeType.BoxEdge) {
 			WriteVector3(module.scale);
-		} else if(module.shapeType == ParticleSystemShapeType.Circle ||
-			module.shapeType == ParticleSystemShapeType.CircleEdge) {
+            WriteVector3(module.boxThickness);
+        } else if(module.shapeType == ParticleSystemShapeType.Circle) {
 			m_writer.Write(module.radius);
-			m_writer.Write(module.arc);
+            m_writer.Write(module.radiusThickness);
+            m_writer.Write(module.arc);
 			m_writer.Write((int) module.arcMode);
 			m_writer.Write(module.arcSpread);
 			WriteMinMaxCurve(module.arcSpeed);

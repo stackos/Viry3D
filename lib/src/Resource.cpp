@@ -959,19 +959,17 @@ namespace Viry3D
 
 		module.shape_type = (ParticleSystemShapeType) ms.Read<int>();
 		if (module.shape_type == ParticleSystemShapeType::Sphere ||
-			module.shape_type == ParticleSystemShapeType::SphereShell ||
-			module.shape_type == ParticleSystemShapeType::Hemisphere ||
-			module.shape_type == ParticleSystemShapeType::HemisphereShell)
+			module.shape_type == ParticleSystemShapeType::Hemisphere)
 		{
 			module.radius = ms.Read<float>();
+            module.radius_thickness = ms.Read<float>();
 		}
 		else if (module.shape_type == ParticleSystemShapeType::Cone ||
-			module.shape_type == ParticleSystemShapeType::ConeShell ||
-			module.shape_type == ParticleSystemShapeType::ConeVolume ||
-			module.shape_type == ParticleSystemShapeType::ConeVolumeShell)
+			module.shape_type == ParticleSystemShapeType::ConeVolume)
 		{
 			module.angle = ms.Read<float>();
 			module.radius = ms.Read<float>();
+            module.radius_thickness = ms.Read<float>();
 			module.arc = ms.Read<float>();
 			module.arc_mode = (ParticleSystemShapeMultiModeValue) ms.Read<int>();
 			module.arc_spread = ms.Read<float>();
@@ -982,12 +980,13 @@ namespace Viry3D
 			module.shape_type == ParticleSystemShapeType::BoxShell ||
 			module.shape_type == ParticleSystemShapeType::BoxEdge)
 		{
-			module.box = ms.Read<Vector3>();
+			module.scale = ms.Read<Vector3>();
+            module.boxThickness = ms.Read<Vector3>();
 		}
-		else if (module.shape_type == ParticleSystemShapeType::Circle ||
-			module.shape_type == ParticleSystemShapeType::CircleEdge)
+		else if (module.shape_type == ParticleSystemShapeType::Circle)
 		{
 			module.radius = ms.Read<float>();
+            module.radius_thickness = ms.Read<float>();
 			module.arc = ms.Read<float>();
 			module.arc_mode = (ParticleSystemShapeMultiModeValue) ms.Read<int>();
 			module.arc_spread = ms.Read<float>();

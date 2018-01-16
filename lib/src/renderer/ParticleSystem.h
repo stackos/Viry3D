@@ -66,17 +66,12 @@ namespace Viry3D
 	enum class ParticleSystemShapeType
 	{
 		Sphere = 0,
-		SphereShell = 1,
 		Hemisphere = 2,
-		HemisphereShell = 3,
 		Cone = 4,
 		Box = 5,
 		Mesh = 6,
-		ConeShell = 7,
 		ConeVolume = 8,
-		ConeVolumeShell = 9,
 		Circle = 10,
-		CircleEdge = 11,
 		SingleSidedEdge = 12,
 		MeshRenderer = 13,
 		SkinnedMeshRenderer = 14,
@@ -223,13 +218,15 @@ namespace Viry3D
 			bool enabled;
 			ParticleSystemShapeType shape_type;
 			float radius;
+            float radius_thickness;
 			float angle;
 			float arc;
 			ParticleSystemShapeMultiModeValue arc_mode;
 			float arc_spread;
 			MinMaxCurve arc_speed;
 			float length;
-			Vector3 box;
+			Vector3 scale;
+            Vector3 boxThickness;
 			ParticleSystemShapeMultiModeValue radius_mode;
 			float radius_spread;
 			MinMaxCurve radius_speed;
