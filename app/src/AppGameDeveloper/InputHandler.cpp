@@ -68,7 +68,18 @@ namespace Viry3D
                 }
                 else if (Input::GetKeyDown(KeyCode::Tab))
                 {
-                    editor->InsertString("    "); // insert 4 space instead \t
+                    int space_count;
+                    int char_index = editor->GetCursorCharIndex();
+                    if (char_index >= 0)
+                    {
+                        space_count = 4 - char_index % 4;
+                    }
+                    else
+                    {
+                        space_count = 4 - (*editor->GetCursorLine())->text.Size() % 4;
+                    }
+                    Vector<char> spaces(space_count, ' ');
+                    editor->InsertString(String(&spaces[0], space_count));
                 }
                 else if (Input::GetKeyDown(KeyCode::Space))
                 {

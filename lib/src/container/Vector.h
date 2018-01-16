@@ -28,6 +28,7 @@ namespace Viry3D
 	public:
 		Vector() { }
 		Vector(int size);
+        Vector(int size, const V& v);
 
 		void Add(const V& v);
 		void AddRange(const V* vs, int count);
@@ -63,6 +64,12 @@ namespace Viry3D
 		m_vector(size)
 	{
 	}
+
+    template<class V>
+    Vector<V>::Vector(int size, const V& v):
+        m_vector(size, v)
+    {
+    }
 
 	template<class V>
 	void Vector<V>::Add(const V& v)
