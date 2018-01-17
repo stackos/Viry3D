@@ -534,6 +534,25 @@ namespace Viry3D
             right = "";
         }
 
+        int space_count = 0;
+        for (int i = 0; i < left.Size(); ++i)
+        {
+            if (left[i] == ' ')
+            {
+                ++space_count;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (space_count > 0)
+        {
+            Vector<char> spaces(space_count, ' ');
+            right = String(&spaces[0], space_count) + right;
+        }
+
         bool in_comment_block = false;
         
         // left line
@@ -547,7 +566,24 @@ namespace Viry3D
             auto line = this->NewLine((*m_cursor_line)->line_num + 1, right, in_comment_block);
             auto new_line = m_lines.AddAfter(m_cursor_line, line);
             
-            this->UpdateCursorPosition(new_line, (*new_line)->text.Size() > 0 ? 0 : -1);
+            int new_index;
+            if ((*new_line)->text.Size() > 0)
+            {
+                if ((*new_line)->text.Size() > space_count)
+                {
+                    new_index = space_count;
+                }
+                else
+                {
+                    new_index = -1;
+                }
+            }
+            else
+            {
+                new_index = -1;
+            }
+
+            this->UpdateCursorPosition(new_line, new_index);
         }
 
         // update below lines
