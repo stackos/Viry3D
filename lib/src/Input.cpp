@@ -24,7 +24,6 @@ Viry3D::List<Viry3D::Touch> g_input_touch_buffer;
 bool g_key_down[(int) Viry3D::KeyCode::COUNT];
 bool g_key[(int) Viry3D::KeyCode::COUNT];
 bool g_key_up[(int) Viry3D::KeyCode::COUNT];
-bool g_key_held[(int) Viry3D::KeyCode::COUNT];
 bool g_mouse_button_down[3];
 bool g_mouse_button_up[3];
 Viry3D::Vector3 g_mouse_position;

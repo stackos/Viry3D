@@ -48,7 +48,6 @@ extern Viry3D::List<Viry3D::Touch> g_input_touch_buffer;
 extern bool g_key_down[(int) Viry3D::KeyCode::COUNT];
 extern bool g_key[(int) Viry3D::KeyCode::COUNT];
 extern bool g_key_up[(int) Viry3D::KeyCode::COUNT];
-extern bool g_key_held[(int) Viry3D::KeyCode::COUNT];
 extern bool g_mouse_button_down[3];
 extern bool g_mouse_button_up[3];
 extern Viry3D::Vector3 g_mouse_position;
@@ -140,10 +139,10 @@ static void on_key_down(int key_code)
     int key = get_key(key_code);
 	if (key >= 0)
 	{
-		if (!g_key_held[key])
+		if (!g_key[key])
 		{
 			g_key_down[key] = true;
-			g_key_held[key] = true;
+			g_key[key] = true;
 		}
 	}
 }
@@ -154,7 +153,6 @@ static void on_key_up(int key_code)
 	if (key >= 0)
 	{
 		g_key_up[key] = true;
-		g_key_held[key] = false;
 		g_key[key] = false;
 	}
 }

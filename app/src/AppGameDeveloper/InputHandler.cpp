@@ -31,6 +31,7 @@ namespace Viry3D
 
         bool ctrl = false;
         bool shift = false;
+        bool caps_on = Input::GetKey(KeyCode::CapsLock);
 
         if (Input::GetKey(KeyCode::LeftControl) ||
             Input::GetKey(KeyCode::RightControl))
@@ -84,6 +85,25 @@ namespace Viry3D
                 else if (Input::GetKeyDown(KeyCode::Space))
                 {
                     editor->InsertString(" ");
+                }
+            }
+            
+            for (int i = (int) KeyCode::A; i <= (int) KeyCode::Z; ++i)
+            {
+                if (Input::GetKeyDown((KeyCode) i))
+                {
+                    char c;
+                    if ((caps_on && !shift) ||
+                        (!caps_on && shift))
+                    {
+                        c = 'A' + i - (int) KeyCode::A;
+                    }
+                    else
+                    {
+                        c = 'a' + i - (int) KeyCode::A;
+                    }
+                    
+                    editor->InsertString(String(&c, 1));
                 }
             }
         }

@@ -28,7 +28,6 @@ extern Viry3D::List<Viry3D::Touch> g_input_touch_buffer;
 extern bool g_key_down[(int) Viry3D::KeyCode::COUNT];
 extern bool g_key[(int) Viry3D::KeyCode::COUNT];
 extern bool g_key_up[(int) Viry3D::KeyCode::COUNT];
-extern bool g_key_held[(int) Viry3D::KeyCode::COUNT];
 extern bool g_mouse_button_down[3];
 extern bool g_mouse_button_up[3];
 extern Viry3D::Vector3 g_mouse_position;
@@ -117,9 +116,6 @@ namespace Viry3D
                     break;
                 case VK_TAB:
                     key = (int) KeyCode::Tab;
-                    break;
-                case VK_CAPITAL:
-                    key = (int) KeyCode::CapsLock;
                     break;
                 case VK_SPACE:
                     key = (int) KeyCode::Space;
@@ -227,13 +223,20 @@ namespace Viry3D
 
 				if (key >= 0)
 				{
-					if (!g_key_held[key])
+					if (!g_key[key])
 					{
 						g_key_down[key] = true;
-						g_key_held[key] = true;
 						g_key[key] = true;
 					}
 				}
+                else
+                {
+                    if (wParam == VK_CAPITAL)
+                    {
+                        short caps_on = ((unsigned short) GetKeyState(VK_CAPITAL)) & 1;
+                        g_key[(int) KeyCode::CapsLock] = caps_on == 1;
+                    }
+                }
                 break;
 			}
 
@@ -245,9 +248,56 @@ namespace Viry3D
 				if (key >= 0)
 				{
 					g_key_up[key] = true;
-					g_key_held[key] = false;
 					g_key[key] = false;
 				}
+                else
+                {
+                    switch (wParam)
+                    {
+                        case VK_CONTROL:
+                        {
+                            if (g_key[(int) KeyCode::LeftControl])
+                            {
+                                g_key_up[(int) KeyCode::LeftControl] = true;
+                                g_key[(int) KeyCode::LeftControl] = false;
+                            }
+                            if (g_key[(int) KeyCode::RightControl])
+                            {
+                                g_key_up[(int) KeyCode::RightControl] = true;
+                                g_key[(int) KeyCode::RightControl] = false;
+                            }
+                            break;
+                        }
+                        case VK_SHIFT:
+                        {
+                            if (g_key[(int) KeyCode::LeftShift])
+                            {
+                                g_key_up[(int) KeyCode::LeftShift] = true;
+                                g_key[(int) KeyCode::LeftShift] = false;
+                            }
+                            if (g_key[(int) KeyCode::RightShift])
+                            {
+                                g_key_up[(int) KeyCode::RightShift] = true;
+                                g_key[(int) KeyCode::RightShift] = false;
+                            }
+                            break;
+                        }
+                        case VK_MENU:
+                        {
+                            if (g_key[(int) KeyCode::LeftAlt])
+                            {
+                                g_key_up[(int) KeyCode::LeftAlt] = true;
+                                g_key[(int) KeyCode::LeftAlt] = false;
+                            }
+                            if (g_key[(int) KeyCode::RightAlt])
+                            {
+                                g_key_up[(int) KeyCode::RightAlt] = true;
+                                g_key[(int) KeyCode::RightAlt] = false;
+                            }
+                            break;
+                        }
+                    }
+                }
                 break;
 			}
 
