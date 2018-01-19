@@ -18,9 +18,42 @@
 #include "InputHandler.h"
 #include "CodeEditor.h"
 #include "Input.h"
+#include <array>
 
 namespace Viry3D
 {
+    struct KeyMap
+    {
+        KeyCode key;
+        char c;
+        char c_shift;
+    };
+
+    static KeyMap g_key_maps[] =
+    {
+        { KeyCode::BackQuote, '`', '~' },
+        { KeyCode::Alpha1, '1', '!' },
+        { KeyCode::Alpha2, '2', '@' },
+        { KeyCode::Alpha3, '3', '#' },
+        { KeyCode::Alpha4, '4', '$' },
+        { KeyCode::Alpha5, '5', '%' },
+        { KeyCode::Alpha6, '6', '^' },
+        { KeyCode::Alpha7, '7', '&' },
+        { KeyCode::Alpha8, '8', '*' },
+        { KeyCode::Alpha9, '9', '(' },
+        { KeyCode::Alpha0, '0', ')' },
+        { KeyCode::Minus, '-', '_' },
+        { KeyCode::Equals, '=', '+' },
+        { KeyCode::LeftBracket, '[', '{' },
+        { KeyCode::RightBracket, ']', '}' },
+        { KeyCode::Backslash, '\\', '|' },
+        { KeyCode::Semicolon, ';', ':' },
+        { KeyCode::Quote, '\'', '"' },
+        { KeyCode::Comma, ',', '<' },
+        { KeyCode::Period, '.', '>' },
+        { KeyCode::Slash, '/', '?' },
+    };
+
     void InputHandler::HandleKeyEvents(CodeEditor* editor)
     {
         if (Input::GetKey(KeyCode::LeftAlt) ||
@@ -103,6 +136,26 @@ namespace Viry3D
                         c = 'a' + i - (int) KeyCode::A;
                     }
                     
+                    editor->InsertString(String(&c, 1));
+                }
+            }
+
+            int key_map_size = sizeof(g_key_maps) / sizeof(g_key_maps[0]);
+            for (int i = 0; i <= key_map_size; ++i)
+            {
+                if (Input::GetKeyDown(g_key_maps[i].key))
+                {
+                    char c;
+                    if ((caps_on && !shift) ||
+                        (!caps_on && shift))
+                    {
+                        c = g_key_maps[i].c_shift;
+                    }
+                    else
+                    {
+                        c = g_key_maps[i].c;
+                    }
+
                     editor->InsertString(String(&c, 1));
                 }
             }
