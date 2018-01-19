@@ -63,6 +63,7 @@ namespace Viry3D
         void InsertLine();
         void RemoveChar();
         void InsertString(const String& str);
+        void ScrollLine(int line);
         const FastList<Ref<CodeLine>>::Iterator& GetCursorLine() const { return m_cursor_line; }
         int GetCursorCharIndex() const { return m_cursor_char_index; }
         const FastList<Ref<CodeLine>>& GetLines() const { return m_lines; }

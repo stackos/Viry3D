@@ -712,6 +712,14 @@ namespace Viry3D
         }
     }
 
+    void CodeEditor::ScrollLine(int line)
+    {
+        Vector2 pos = m_scroll_position - Vector2(0, (float) this->GetLineHeight() * line);
+        pos.y = Mathf::Max(pos.y, 0.0f);
+        pos.y = Mathf::Min(pos.y, (float) (m_lines.Size() - 1) * this->GetLineHeight());
+        this->SetSrollPosition(pos);
+    }
+
     void CodeEditor::Update()
     {
         this->UpdateCursorFlash();
