@@ -125,14 +125,7 @@ namespace Viry3D
 
             for (auto& i : starts)
             {
-                auto& obj = i;
-                if (!obj->m_deleted)
-                {
-                    if (obj->IsActiveInHierarchy())
-                    {
-                        m_gameobjects.AddLast(obj);
-                    }
-                }
+                m_gameobjects.AddLast(i);
             }
 
             m_mutex.lock();
