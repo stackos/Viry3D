@@ -27,9 +27,8 @@ bool g_key_up[(int) Viry3D::KeyCode::COUNT];
 bool g_mouse_button_down[3];
 bool g_mouse_button_up[3];
 Viry3D::Vector3 g_mouse_position;
-Viry3D::Vector3 g_mouse_position_scale(1, 1, 1);
-Viry3D::Vector3 g_mouse_position_offset(0, 0, 0);
 bool g_mouse_button_held[3];
+float g_mouse_scroll_wheel = 0;
 
 namespace Viry3D
 {
@@ -52,17 +51,13 @@ namespace Viry3D
 
 	Vector3 Input::GetMousePosition()
 	{
-		return Vector3(
-			g_mouse_position.x * g_mouse_position_scale.x + g_mouse_position_offset.x,
-			g_mouse_position.y * g_mouse_position_scale.y + g_mouse_position_offset.y,
-			0);
+		return g_mouse_position;
 	}
 
-	void Input::SetMousePositionScaleOffset(const Vector3& scale, const Vector3& offset)
-	{
-		g_mouse_position_scale = scale;
-		g_mouse_position_offset = offset;
-	}
+    float Input::GetMouseScrollWheel()
+    {
+        return g_mouse_scroll_wheel;
+    }
 
 	int Input::GetTouchCount()
 	{
@@ -107,6 +102,7 @@ namespace Viry3D
 		Memory::Zero(g_key_up, sizeof(g_key_up));
 		Memory::Zero(g_mouse_button_down, sizeof(g_mouse_button_down));
 		Memory::Zero(g_mouse_button_up, sizeof(g_mouse_button_up));
+        g_mouse_scroll_wheel = 0;
 	}
 
 	void Input::EnableMultiTouch(bool value)

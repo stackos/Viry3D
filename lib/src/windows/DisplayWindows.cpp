@@ -32,6 +32,7 @@ extern bool g_mouse_button_down[3];
 extern bool g_mouse_button_up[3];
 extern Viry3D::Vector3 g_mouse_position;
 extern bool g_mouse_button_held[3];
+extern float g_mouse_scroll_wheel;
 
 namespace Viry3D
 {
@@ -478,6 +479,13 @@ namespace Viry3D
 
                 break;
 			}
+
+            case WM_MOUSEWHEEL:
+            {
+                int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+                g_mouse_scroll_wheel = delta / 120.0f;
+                break;
+            }
 
 			default:
 				break;
