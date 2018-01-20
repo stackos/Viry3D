@@ -512,7 +512,6 @@ namespace Viry3D
         {
             is_comment_block = true;
         }
-
         String left_colored = CodeEditor::ApplyLineSyntaxColors((*line)->text, in_comment_block, is_comment_block);
         (*line)->label_line_text->SetText(left_colored);
         (*line)->is_comment_block = is_comment_block;
@@ -599,6 +598,15 @@ namespace Viry3D
                 (*line)->canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, -(float) line_height * line_num), Vector2(-CODE_CANVAS_BORDER_X, -(float) line_height * (line_num - 1)));
                 (*line)->canvas->OnAnchor();
 
+                bool is_comment_block = false;
+                if (in_comment_block)
+                {
+                    is_comment_block = true;
+                }
+                String colored = CodeEditor::ApplyLineSyntaxColors((*line)->text, in_comment_block, is_comment_block);
+                (*line)->label_line_text->SetText(colored);
+                (*line)->is_comment_block = is_comment_block;
+
                 ++line;
             }
         }
@@ -611,12 +619,13 @@ namespace Viry3D
         if (m_cursor_char_index > 0 ||
             (m_cursor_char_index == -1 && line_text.Size() > 0))
         {
+            bool in_comment_block = false;
+
             if (m_cursor_char_index > 0)
             {
                 String text = line_text.Substring(0, m_cursor_char_index - 1) + line_text.Substring(m_cursor_char_index);
                 (*m_cursor_line)->text = text;
 
-                bool in_comment_block = false;
                 this->ApplyLineSyntaxColors(m_cursor_line, in_comment_block);
                 (*m_cursor_line)->canvas->UpdateViews();
 
@@ -627,11 +636,28 @@ namespace Viry3D
                 String text = line_text.Substring(0, line_text.Size() - 1);
                 (*m_cursor_line)->text = text;
 
-                bool in_comment_block = false;
                 this->ApplyLineSyntaxColors(m_cursor_line, in_comment_block);
                 (*m_cursor_line)->canvas->UpdateViews();
 
                 this->UpdateCursorPosition(m_cursor_line, -1);
+            }
+
+            // update below lines
+            {
+                auto line = m_cursor_line.Next();
+                while (line != m_lines.end())
+                {
+                    bool is_comment_block = false;
+                    if (in_comment_block)
+                    {
+                        is_comment_block = true;
+                    }
+                    String colored = CodeEditor::ApplyLineSyntaxColors((*line)->text, in_comment_block, is_comment_block);
+                    (*line)->label_line_text->SetText(colored);
+                    (*line)->is_comment_block = is_comment_block;
+
+                    ++line;
+                }
             }
         }
         else if (m_cursor_char_index == 0 ||
@@ -640,6 +666,8 @@ namespace Viry3D
             if (m_cursor_line != m_lines.begin())
             {
                 auto prev = m_cursor_line.Prev();
+
+                bool in_comment_block = false;
 
                 if (line_text.Size() == 0)
                 {
@@ -651,7 +679,6 @@ namespace Viry3D
                     String text = (*prev)->text + line_text;
                     (*prev)->text = text;
 
-                    bool in_comment_block = false;
                     this->ApplyLineSyntaxColors(prev, in_comment_block);
                     (*prev)->canvas->UpdateViews();
 
@@ -673,6 +700,15 @@ namespace Viry3D
                         (*line)->label_line_num->SetText(String::Format("%4d", line_num));
                         (*line)->canvas->SetOffsets(Vector2(CODE_CANVAS_BORDER_X, -(float) line_height * line_num), Vector2(-CODE_CANVAS_BORDER_X, -(float) line_height * (line_num - 1)));
                         (*line)->canvas->OnAnchor();
+
+                        bool is_comment_block = false;
+                        if (in_comment_block)
+                        {
+                            is_comment_block = true;
+                        }
+                        String colored = CodeEditor::ApplyLineSyntaxColors((*line)->text, in_comment_block, is_comment_block);
+                        (*line)->label_line_text->SetText(colored);
+                        (*line)->is_comment_block = is_comment_block;
 
                         ++line;
                     }
@@ -709,6 +745,24 @@ namespace Viry3D
         else
         {
             this->UpdateCursorPosition(m_cursor_line, -1);
+        }
+
+        // update below lines
+        {
+            auto line = m_cursor_line.Next();
+            while (line != m_lines.end())
+            {
+                bool is_comment_block = false;
+                if (in_comment_block)
+                {
+                    is_comment_block = true;
+                }
+                String colored = CodeEditor::ApplyLineSyntaxColors((*line)->text, in_comment_block, is_comment_block);
+                (*line)->label_line_text->SetText(colored);
+                (*line)->is_comment_block = is_comment_block;
+
+                ++line;
+            }
         }
     }
 
