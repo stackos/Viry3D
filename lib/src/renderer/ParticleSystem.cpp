@@ -768,7 +768,7 @@ namespace Viry3D
 		if (rotation_by_speed.enabled)
 		{
 			float speed = p.velocity.Magnitude();
-			float speed_t = (speed - color_by_speed.range.x) / (color_by_speed.range.y - color_by_speed.range.x);
+			float speed_t = (speed - rotation_by_speed.range.x) / (rotation_by_speed.range.y - rotation_by_speed.range.x);
 			speed_t = Mathf::Clamp01(speed_t);
 
 			if (rotation_by_speed.separate_axes)
