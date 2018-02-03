@@ -586,12 +586,21 @@ namespace Viry3D
 
 	void ParticleSystem::UpdateParticleVelocity(Particle& p)
 	{
-		Vector3 v = p.start_velocity;
+		Vector3 v = Vector3(0, 0, 0);
 		float delta_time = Time::GetDeltaTime() * main.simulation_speed;
 		float lifetime_t = Mathf::Clamp01((p.start_lifetime - p.remaining_lifetime) / p.start_lifetime);
 		auto mat_scale = Matrix4x4::Scaling(this->GetTransform()->GetScale());
 		auto local_to_world = this->GetTransform()->GetLocalToWorldMatrix();
 		auto world_to_local = this->GetTransform()->GetWorldToLocalMatrix();
+
+        if (main.simulation_space == ParticleSystemSimulationSpace::World)
+        {
+            v += p.start_velocity;
+        }
+        else
+        {
+            v += mat_scale.MultiplyPoint3x4(p.start_velocity);
+        }
 
 		if (velocity_over_lifetime.enabled)
 		{
