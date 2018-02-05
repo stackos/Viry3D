@@ -419,10 +419,10 @@ namespace Viry3D
 					rot = Quaternion::LookRotation(forward, up);
 				}
 				float length = p.size.y * ps->m_renderer->length_scale + velocity_world.Magnitude() * ps->m_renderer->velocity_scale;
-				v0.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, 0.0f, length * 0.5f);
-				v1.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, 0.0f, -length * 0.5f);
-				v2.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0.0f, -length * 0.5f);
-				v3.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0.0f, length * 0.5f);
+                v0.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, 0.0f, 0);
+                v1.vertex = pos_world + rot * Vector3(-p.size.x * 0.5f, 0.0f, -length);
+                v2.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0.0f, -length);
+                v3.vertex = pos_world + rot * Vector3(p.size.x * 0.5f, 0.0f, 0);
 			}
 			else if (render_mode == ParticleSystemRenderMode::HorizontalBillboard)
 			{
