@@ -59,6 +59,7 @@ namespace Viry3D
 	Material::Material()
 	{
 		this->SetMainColor(Color(1, 1, 1, 1));
+        this->SetMainTextureST(Vector4(1, 1, 0, 0));
 	}
 
 	void Material::SetShader(const Ref<Shader>& shader)
