@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <stdlib.h>
+#include <malloc.h>
 #include <string.h>
 
 namespace Viry3D
@@ -27,10 +27,29 @@ namespace Viry3D
 	public:
 		template<class T>
 		inline static T* Alloc(int size) { return (T*) malloc(size); }
+        template<class T>
+        inline static T* Realloc(T* block, int size) { return (T*) realloc(block, size); }
 		inline static void Free(void* block) { free(block); }
 		inline static void Zero(void* dest, int size) { memset(dest, 0, size); }
 		inline static void Set(void* dest, int value, int size) { memset(dest, value, size); }
 		inline static void Copy(void* dest, const void* src, int size) { memcpy(dest, src, size); }
 		inline static int Compare(const void* dest, const void* src, int size) { return memcmp(dest, src, size); }
+
+        template<class T>
+        inline static void SafeFree(T*& block)
+        {
+            if (block)
+            {
+                Memory::Free(block);
+                block = nullptr;
+            }
+        }
 	};
 }
+
+#define SafeDelete(p) \
+    if (p) \
+    { \
+        delete p; \
+        p = nullptr; \
+    }

@@ -17,25 +17,28 @@
 
 #pragma once
 
-#include "string/String.h"
-#include <assert.h>
-
 namespace Viry3D
 {
-	class Debug
-	{
-	public:
-		static void LogString(const String& str, bool end_line);
-	};
+    struct Vector2i
+    {
+        Vector2i(int x = 0, int y = 0): x(x), y(y) { }
 
-#define Log(...) Viry3D::Debug::LogString(Viry3D::String::Format(__VA_ARGS__) + Viry3D::String::Format("\n<=[%s:%d]", __FILE__, __LINE__), true)
+        Vector2i operator -(const Vector2i& right) const
+        {
+            return Vector2i(x - right.x, y - right.y);
+        }
 
-#define LogGLError()						\
-    {										\
-        int err = glGetError();				\
-		if(err != 0)						\
-		{									\
-            Log("glGetError: %d", err);		\
-        }									\
-    }
+        static int Dot(const Vector2i& left, const Vector2i& right)
+        {
+            return left.x * right.x + left.y * right.y;
+        }
+
+        static int Cross(const Vector2i& left, const Vector2i& right)
+        {
+            return left.x * right.y - left.y * right.x;
+        }
+
+        int x;
+        int y;
+    };
 }

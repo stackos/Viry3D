@@ -82,6 +82,11 @@ namespace Viry3D
 			return Vector4(x - v.x, y - v.y, z - v.z, w - v.w);
 		}
 
+        Vector4 operator /(float v) const
+        {
+            return Vector4(x / v, y / v, z / v, w / v);
+        }
+
 		float x;
 		float y;
 		float z;
