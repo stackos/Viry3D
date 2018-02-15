@@ -89,7 +89,7 @@ public:
         m_cube = obj;
         m_rotate_deg = 0;
         
-        Resource::LoadGameObjectAsync("Assets/AppMesh/plane.prefab");
+        //Resource::LoadGameObjectAsync("Assets/AppMesh/plane.prefab");
     }
     
 	virtual void Update()
