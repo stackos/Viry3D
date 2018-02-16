@@ -710,12 +710,6 @@ namespace Viry3D
 
 		m_mutex.lock();
 
-		err = vkQueueWaitIdle(m_queue);
-		assert(!err);
-
-		err = vkDeviceWaitIdle(m_device);
-		assert(!err);
-
 		if (m_image_acquired_semaphore != VK_NULL_HANDLE)
 		{
 			vkDestroySemaphore(m_device, m_image_acquired_semaphore, NULL);
@@ -754,12 +748,6 @@ namespace Viry3D
 		Profiler::SampleBegin("DisplayVulkan::EndFrame");
 
 		m_mutex.lock();
-
-		err = vkQueueWaitIdle(m_queue);
-		assert(!err);
-
-		err = vkDeviceWaitIdle(m_device);
-		assert(!err);
 
 		VkPresentInfoKHR present;
 		Memory::Zero(&present, sizeof(present));
