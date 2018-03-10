@@ -38,7 +38,7 @@ namespace Viry3D
 			m30(m30), m31(m31), m32(m32), m33(m33)
 		{
 		}
-		Matrix4x4 operator *(const Matrix4x4& quat) const;
+		Matrix4x4 operator *(const Matrix4x4& mat) const;
 		Vector4 operator *(const Vector4& v) const;
 		Vector3 MultiplyPoint(const Vector3& v) const;
 		Vector3 MultiplyPoint3x4(const Vector3& v) const;
@@ -56,8 +56,8 @@ namespace Viry3D
 		static Matrix4x4 Rotation(const Quaternion& r);
 		static Matrix4x4 Scaling(const Vector3& s);
 		static Matrix4x4 TRS(const Vector3& t, const Quaternion& r, const Vector3& s);
+        static Matrix4x4 LookTo(const Vector3& eye_position, const Vector3& to_direction, const Vector3& up_direction);
 		static Matrix4x4 Perspective(float fov, float aspect, float zNear, float zFar);
-		static Matrix4x4 LookTo(const Vector3& eye_position, const Vector3& to_direction, const Vector3& up_direction);
 		static Matrix4x4 Ortho(float left, float right, float bottom, float top, float zNear, float zFar);
 
 		float m00;

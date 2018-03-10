@@ -136,24 +136,24 @@ namespace Viry3D
 		return m;
 	}
 
-	Matrix4x4 Matrix4x4::Rotation(const Quaternion& r)
-	{
-		Matrix4x4 m = Identity();
+    Matrix4x4 Matrix4x4::Rotation(const Quaternion& r)
+    {
+        Matrix4x4 m = Identity();
 
-		m.m00 = 1 - 2 * r.y*r.y - 2 * r.z*r.z;
-		m.m10 = 2 * r.x*r.y + 2 * r.w*r.z;
-		m.m20 = 2 * r.x*r.z - 2 * r.w*r.y;
+        m.m00 = 1 - 2 * r.y * r.y - 2 * r.z * r.z;
+        m.m10 = 2 * r.x * r.y + 2 * r.w * r.z;
+        m.m20 = 2 * r.x * r.z - 2 * r.w * r.y;
 
-		m.m01 = 2 * r.x*r.y - 2 * r.w*r.z;
-		m.m11 = 1 - 2 * r.x*r.x - 2 * r.z*r.z;
-		m.m21 = 2 * r.y*r.z + 2 * r.w*r.x;
+        m.m01 = 2 * r.x * r.y - 2 * r.w * r.z;
+        m.m11 = 1 - 2 * r.x * r.x - 2 * r.z * r.z;
+        m.m21 = 2 * r.y * r.z + 2 * r.w * r.x;
 
-		m.m02 = 2 * r.x*r.z + 2 * r.w*r.y;
-		m.m12 = 2 * r.y*r.z - 2 * r.w*r.x;
-		m.m22 = 1 - 2 * r.x*r.x - 2 * r.y*r.y;
+        m.m02 = 2 * r.x * r.z + 2 * r.w * r.y;
+        m.m12 = 2 * r.y * r.z - 2 * r.w * r.x;
+        m.m22 = 1 - 2 * r.x * r.x - 2 * r.y * r.y;
 
-		return m;
-	}
+        return m;
+    }
 
 	Matrix4x4 Matrix4x4::Scaling(const Vector3& s)
 	{
@@ -241,25 +241,25 @@ namespace Viry3D
 	{
 		Matrix4x4 m = Identity();
 
-		m.m00 = m00*mat.m00 + m01*mat.m10 + m02*mat.m20 + m03*mat.m30;
-		m.m01 = m00*mat.m01 + m01*mat.m11 + m02*mat.m21 + m03*mat.m31;
-		m.m02 = m00*mat.m02 + m01*mat.m12 + m02*mat.m22 + m03*mat.m32;
-		m.m03 = m00*mat.m03 + m01*mat.m13 + m02*mat.m23 + m03*mat.m33;
+        m.m00 = m00 * mat.m00 + m01 * mat.m10 + m02 * mat.m20 + m03 * mat.m30;
+        m.m01 = m00 * mat.m01 + m01 * mat.m11 + m02 * mat.m21 + m03 * mat.m31;
+        m.m02 = m00 * mat.m02 + m01 * mat.m12 + m02 * mat.m22 + m03 * mat.m32;
+        m.m03 = m00 * mat.m03 + m01 * mat.m13 + m02 * mat.m23 + m03 * mat.m33;
 
-		m.m10 = m10*mat.m00 + m11*mat.m10 + m12*mat.m20 + m13*mat.m30;
-		m.m11 = m10*mat.m01 + m11*mat.m11 + m12*mat.m21 + m13*mat.m31;
-		m.m12 = m10*mat.m02 + m11*mat.m12 + m12*mat.m22 + m13*mat.m32;
-		m.m13 = m10*mat.m03 + m11*mat.m13 + m12*mat.m23 + m13*mat.m33;
+        m.m10 = m10 * mat.m00 + m11 * mat.m10 + m12 * mat.m20 + m13 * mat.m30;
+        m.m11 = m10 * mat.m01 + m11 * mat.m11 + m12 * mat.m21 + m13 * mat.m31;
+        m.m12 = m10 * mat.m02 + m11 * mat.m12 + m12 * mat.m22 + m13 * mat.m32;
+        m.m13 = m10 * mat.m03 + m11 * mat.m13 + m12 * mat.m23 + m13 * mat.m33;
 
-		m.m20 = m20*mat.m00 + m21*mat.m10 + m22*mat.m20 + m23*mat.m30;
-		m.m21 = m20*mat.m01 + m21*mat.m11 + m22*mat.m21 + m23*mat.m31;
-		m.m22 = m20*mat.m02 + m21*mat.m12 + m22*mat.m22 + m23*mat.m32;
-		m.m23 = m20*mat.m03 + m21*mat.m13 + m22*mat.m23 + m23*mat.m33;
+        m.m20 = m20 * mat.m00 + m21 * mat.m10 + m22 * mat.m20 + m23 * mat.m30;
+        m.m21 = m20 * mat.m01 + m21 * mat.m11 + m22 * mat.m21 + m23 * mat.m31;
+        m.m22 = m20 * mat.m02 + m21 * mat.m12 + m22 * mat.m22 + m23 * mat.m32;
+        m.m23 = m20 * mat.m03 + m21 * mat.m13 + m22 * mat.m23 + m23 * mat.m33;
 
-		m.m30 = m30*mat.m00 + m31*mat.m10 + m32*mat.m20 + m33*mat.m30;
-		m.m31 = m30*mat.m01 + m31*mat.m11 + m32*mat.m21 + m33*mat.m31;
-		m.m32 = m30*mat.m02 + m31*mat.m12 + m32*mat.m22 + m33*mat.m32;
-		m.m33 = m30*mat.m03 + m31*mat.m13 + m32*mat.m23 + m33*mat.m33;
+        m.m30 = m30 * mat.m00 + m31 * mat.m10 + m32 * mat.m20 + m33 * mat.m30;
+        m.m31 = m30 * mat.m01 + m31 * mat.m11 + m32 * mat.m21 + m33 * mat.m31;
+        m.m32 = m30 * mat.m02 + m31 * mat.m12 + m32 * mat.m22 + m33 * mat.m32;
+        m.m33 = m30 * mat.m03 + m31 * mat.m13 + m32 * mat.m23 + m33 * mat.m33;
 
 		return m;
 	}
