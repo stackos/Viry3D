@@ -23,7 +23,7 @@
 /* #undef HAVE_SNDIO */
 
 /* Define if we have the XAudio2 backend */
-#define HAVE_XAUDIO2
+//#define HAVE_XAUDIO2
 
 /* Define if we have the WASAPIDevApi backend */
 //#define HAVE_WASAPIDEVAPI
