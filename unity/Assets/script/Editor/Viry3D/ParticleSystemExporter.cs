@@ -94,7 +94,7 @@ public partial class Exporter {
 			WriteMinMaxCurve(module.startRotation);
 		}
 
-		m_writer.Write(module.randomizeRotationDirection);
+		m_writer.Write(module.flipRotation);
 
 		WriteMinMaxGradient(module.startColor);
 		WriteMinMaxCurve(module.gravityModifier);
