@@ -79,17 +79,11 @@ public:
         renderer->SetSharedMesh(mesh);
         renderer->SetSharedMaterial(mat);
         
-        Resource::LoadTextureAsync("Assets/AppMesh/wow.png.tex",
-                                   [=] (Ref<Object> obj)
-                                   {
-                                       auto tex = RefCast<Texture>(obj);
-                                       mat->SetMainTexture(tex);
-                                   });
-        
+        Ref<Texture> tex = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");
+        mat->SetMainTexture(tex);
+
         m_cube = obj;
         m_rotate_deg = 0;
-        
-        //Resource::LoadGameObjectAsync("Assets/AppMesh/plane.prefab");
     }
     
 	virtual void Update()
