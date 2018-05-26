@@ -39,7 +39,7 @@ public:
     
 	virtual void Start()
     {
-        auto camera = GameObject::Create("camera")->AddComponent<Camera>();
+        auto camera = GameObject::Create("camera_obj")->AddComponent<Camera>();
         camera->GetTransform()->SetPosition(Vector3(0, 6, -10));
         camera->GetTransform()->SetRotation(Quaternion::Euler(30, 0, 0));
         camera->SetCullingMask(1 << 0);
@@ -70,18 +70,18 @@ public:
             1, 5, 6, 1, 6, 2
         };
         mesh->triangles.AddRange(triangles, 36);
-        
-        auto mat = Material::Create("Diffuse");
         mesh->Apply();
-        
-        auto obj = GameObject::Create("mesh");
+
+        auto tex = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");
+
+        auto mat = Material::Create("Diffuse");
+        mat->SetMainTexture(tex);
+
+        auto obj = GameObject::Create("mesh_obj");
         auto renderer = obj->AddComponent<MeshRenderer>();
         renderer->SetSharedMesh(mesh);
         renderer->SetSharedMaterial(mat);
         
-        Ref<Texture> tex = Resource::LoadTexture("Assets/AppMesh/wow.png.tex");
-        mat->SetMainTexture(tex);
-
         m_cube = obj;
         m_rotate_deg = 0;
     }
