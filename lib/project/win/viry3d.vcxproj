@@ -373,6 +373,7 @@
     <ClInclude Include="..\..\src\ui\UISprite.h" />
     <ClInclude Include="..\..\src\ui\UIView.h" />
     <ClInclude Include="..\..\src\vulkan\DescriptorSetVulkan.h" />
+    <ClInclude Include="..\..\src\vulkan\DeviceVulkan.h" />
     <ClInclude Include="..\..\src\vulkan\DisplayVulkan.h" />
     <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\glslang_tab.cpp.h" />
     <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\gl_types.h" />
@@ -891,6 +892,7 @@
     <ClCompile Include="..\..\src\ui\UISprite.cpp" />
     <ClCompile Include="..\..\src\ui\UIView.cpp" />
     <ClCompile Include="..\..\src\vulkan\BufferVulkan.cpp" />
+    <ClCompile Include="..\..\src\vulkan\DeviceVulkan.cpp" />
     <ClCompile Include="..\..\src\vulkan\DisplayVulkan.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />

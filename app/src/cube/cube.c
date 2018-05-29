@@ -3678,7 +3678,7 @@ static void demo_init_connection(struct demo *demo) {
 #endif
 }
 
-static void demo_init(struct demo *demo, int argc, char **argv) {
+static void demo_init(struct demo *demo) {
     vec3 eye = {0.0f, 3.0f, 10.0f};
     vec3 origin = {0, 0, 0};
     vec3 up = {0.0f, 1.0f, 0.0};
@@ -3689,69 +3689,6 @@ static void demo_init(struct demo *demo, int argc, char **argv) {
     memset(demo, 0, sizeof(*demo));
     demo->presentMode = VK_PRESENT_MODE_FIFO_KHR;
     demo->frameCount = INT32_MAX;
-
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--use_staging") == 0) {
-            demo->use_staging_buffer = true;
-            continue;
-        }
-        if ((strcmp(argv[i], "--present_mode") == 0) && (i < argc - 1)) {
-            demo->presentMode = atoi(argv[i + 1]);
-            i++;
-            continue;
-        }
-        if (strcmp(argv[i], "--break") == 0) {
-            demo->use_break = true;
-            continue;
-        }
-        if (strcmp(argv[i], "--validate") == 0) {
-            demo->validate = true;
-            continue;
-        }
-        if (strcmp(argv[i], "--validate-checks-disabled") == 0) {
-            demo->validate = true;
-            demo->validate_checks_disabled = true;
-            continue;
-        }
-        if (strcmp(argv[i], "--xlib") == 0) {
-            fprintf(stderr, "--xlib is deprecated and no longer does anything");
-            continue;
-        }
-        if (strcmp(argv[i], "--c") == 0 && demo->frameCount == INT32_MAX && i < argc - 1 &&
-            sscanf(argv[i + 1], "%d", &demo->frameCount) == 1 && demo->frameCount >= 0) {
-            i++;
-            continue;
-        }
-        if (strcmp(argv[i], "--suppress_popups") == 0) {
-            demo->suppress_popups = true;
-            continue;
-        }
-        if (strcmp(argv[i], "--display_timing") == 0) {
-            demo->VK_GOOGLE_display_timing_enabled = true;
-            continue;
-        }
-        if (strcmp(argv[i], "--incremental_present") == 0) {
-            demo->VK_KHR_incremental_present_enabled = true;
-            continue;
-        }
-
-#if defined(ANDROID)
-        ERR_EXIT("Usage: cube [--validate]\n", "Usage");
-#else
-        fprintf(stderr,
-                "Usage:\n  %s\t[--use_staging] [--validate] [--validate-checks-disabled] [--break]\n"
-                "\t[--c <framecount>] [--suppress_popups] [--incremental_present] [--display_timing]\n"
-                "\t[--present_mode <present mode enum>]\n"
-                "\t <present_mode_enum>\tVK_PRESENT_MODE_IMMEDIATE_KHR = %d\n"
-                "\t\t\t\tVK_PRESENT_MODE_MAILBOX_KHR = %d\n"
-                "\t\t\t\tVK_PRESENT_MODE_FIFO_KHR = %d\n"
-                "\t\t\t\tVK_PRESENT_MODE_FIFO_RELAXED_KHR = %d\n",
-                APP_SHORT_NAME, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_FIFO_KHR,
-                VK_PRESENT_MODE_FIFO_RELAXED_KHR);
-        fflush(stderr);
-        exit(1);
-#endif
-    }
 
     demo_init_connection(demo);
 
@@ -3780,65 +3717,20 @@ static void demo_init(struct demo *demo, int argc, char **argv) {
 }
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-// Include header required for parsing the command line options.
-#include <shellapi.h>
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
     MSG msg;    // message
     bool done;  // flag saying when app is complete
-    int argc;
-    char **argv;
-
+    
     // Ensure wParam is initialized.
     msg.wParam = 0;
 
-    // Use the CommandLine functions to get the command line arguments.
-    // Unfortunately, Microsoft outputs
-    // this information as wide characters for Unicode, and we simply want the
-    // Ascii version to be compatible
-    // with the non-Windows side.  So, we have to convert the information to
-    // Ascii character strings.
-    LPWSTR *commandLineArgs = CommandLineToArgvW(GetCommandLineW(), &argc);
-    if (NULL == commandLineArgs) {
-        argc = 0;
-    }
-
-    if (argc > 0) {
-        argv = (char **)malloc(sizeof(char *) * argc);
-        if (argv == NULL) {
-            argc = 0;
-        } else {
-            for (int iii = 0; iii < argc; iii++) {
-                size_t wideCharLen = wcslen(commandLineArgs[iii]);
-                size_t numConverted = 0;
-
-                argv[iii] = (char *)malloc(sizeof(char) * (wideCharLen + 1));
-                if (argv[iii] != NULL) {
-                    wcstombs_s(&numConverted, argv[iii], wideCharLen + 1, commandLineArgs[iii], wideCharLen + 1);
-                }
-            }
-        }
-    } else {
-        argv = NULL;
-    }
-
-    demo_init(&demo, argc, argv);
-
-    // Free up the items we had to allocate for the command line arguments.
-    if (argc > 0 && argv != NULL) {
-        for (int iii = 0; iii < argc; iii++) {
-            if (argv[iii] != NULL) {
-                free(argv[iii]);
-            }
-        }
-        free(argv);
-    }
+    demo_init(&demo);
 
     demo.connection = hInstance;
     strncpy(demo.name, "cube", APP_NAME_STR_LEN);
+
     demo_create_window(&demo);
     demo_init_vk_swapchain(&demo);
-
     demo_prepare(&demo);
 
     done = false;  // initialize loop condition variable

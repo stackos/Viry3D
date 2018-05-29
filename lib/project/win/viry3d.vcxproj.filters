@@ -1227,6 +1227,9 @@
     <ClInclude Include="..\..\src\lua\lpeg\lpvm.h">
       <Filter>src\lua\lpeg</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\DeviceVulkan.h">
+      <Filter>src\vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">
@@ -2734,6 +2737,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\lua\lpeg\lpvm.c">
       <Filter>src\lua\lpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\DeviceVulkan.cpp">
+      <Filter>src\vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
