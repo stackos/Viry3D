@@ -64,7 +64,7 @@ namespace Viry3D
             vec.Clear();
         }
 
-        void CheckLayers()
+        void CheckInstanceLayers()
         {
             uint32_t instance_layer_count;
             VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
@@ -286,7 +286,7 @@ namespace Viry3D
 
     void DeviceVulkan::Init(int width, int height)
     {
-        m_private->CheckLayers();
+        m_private->CheckInstanceLayers();
         m_private->CheckInstanceExtensions();
         m_private->CreateInstance();
     }
