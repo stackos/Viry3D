@@ -28,9 +28,6 @@
 
 namespace Viry3D
 {
-	class UILabel;
-	struct FrameBuffer;
-
 	class Application
 	{
 	public:
@@ -38,8 +35,8 @@ namespace Viry3D
 		static void Quit();
 		static void RunTaskInPreLoop(const RunLoop::Task& task);
 		static void RunTaskInPostLoop(const RunLoop::Task& task);
-		static String DataPath();
-		static String SavePath();
+		static const String& DataPath();
+		static const String& SavePath();
 		static void SetDataPath(const String& path);
 
 		virtual ~Application();
@@ -47,7 +44,7 @@ namespace Viry3D
 		void SetInitSize(int width, int height);
 		void SetInitFPS(int fps);
 		void SetName(const String& name);
-		String GetName();
+		const String& GetName();
 
 		void Run();
 		void OnInit();

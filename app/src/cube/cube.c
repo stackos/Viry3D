@@ -3717,7 +3717,7 @@ static void demo_init(struct demo *demo) {
 }
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
+int WINAPI WinMain2(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
     MSG msg;    // message
     bool done;  // flag saying when app is complete
     

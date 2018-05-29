@@ -41,7 +41,7 @@ namespace Viry3D
 	}
 
 #if VR_WINDOWS || VR_ANDROID
-	String Application::DataPath()
+    const String& Application::DataPath()
 	{
 		static Mutex s_mutex;
 
@@ -61,7 +61,7 @@ namespace Viry3D
 		return m_data_path;
 	}
 
-	String Application::SavePath()
+    const String& Application::SavePath()
 	{
 		static String s_path;
 
@@ -130,7 +130,7 @@ namespace Viry3D
 		m_name = name;
 	}
 
-	String Application::GetName()
+    const String& Application::GetName()
 	{
 		return m_name;
 	}
