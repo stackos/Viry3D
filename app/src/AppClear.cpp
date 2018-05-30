@@ -20,8 +20,6 @@
 #include "GameObject.h"
 #include "graphics/Camera.h"
 
-#include "vulkan/DeviceVulkan.h"
-
 using namespace Viry3D;
 
 class AppClear : public Application
@@ -31,10 +29,6 @@ public:
     {
         this->SetName("Viry3D::AppClear");
         this->SetInitSize(1280, 720);
-
-        auto device = new DeviceVulkan();
-        device->Init(1280, 720);
-        delete device;
     }
     
 	virtual void Start()
@@ -44,6 +38,6 @@ public:
     }
 };
 
-#if 1
+#if 0
 VR_MAIN(AppClear);
 #endif

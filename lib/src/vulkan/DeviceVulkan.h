@@ -24,10 +24,8 @@ namespace Viry3D
     class DeviceVulkan
     {
     public:
-        DeviceVulkan();
+        DeviceVulkan(void* window, int width, int height);
         virtual ~DeviceVulkan();
-        void Init(int width, int height);
-        void Deinit();
 
     private:
         DeviceVulkanPrivate* m_private;

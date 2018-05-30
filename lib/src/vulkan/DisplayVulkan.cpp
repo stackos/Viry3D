@@ -27,6 +27,8 @@
 #include "thread/Thread.h"
 #include "Profiler.h"
 
+#include "DeviceVulkan.h"
+
 #if VR_VULKAN
 
 #if VR_ANDROID
@@ -103,6 +105,9 @@ namespace Viry3D
 		int success = InitVulkan();
 		Log("android vulkan so load success: %s", success ? "true" : "false");
 #endif
+
+        auto device = new DeviceVulkan(m_window, width, height);
+        delete device;
 
 		this->CreateInstance();
 		get_instance_proc_addrs(m_instance);
