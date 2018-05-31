@@ -1227,7 +1227,7 @@
     <ClInclude Include="..\..\src\lua\lpeg\lpvm.h">
       <Filter>src\lua\lpeg</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\vulkan\DeviceVulkan.h">
+    <ClInclude Include="..\..\src\vulkan\VulkanDisplay.h">
       <Filter>src\vulkan</Filter>
     </ClInclude>
   </ItemGroup>
@@ -2738,7 +2738,7 @@
     <ClCompile Include="..\..\src\lua\lpeg\lpvm.c">
       <Filter>src\lua\lpeg</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\DeviceVulkan.cpp">
+    <ClCompile Include="..\..\src\vulkan\VulkanDisplay.cpp">
       <Filter>src\vulkan</Filter>
     </ClCompile>
   </ItemGroup>

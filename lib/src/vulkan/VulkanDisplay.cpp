@@ -15,7 +15,7 @@
 * limitations under the License.
 */
 
-#include "DeviceVulkan.h"
+#include "VulkanDisplay.h"
 #include "vulkan_include.h"
 #include "container/Vector.h"
 #include "string/String.h"
@@ -49,10 +49,10 @@ namespace Viry3D
         VkImageView image_view;
     };
 
-    class DeviceVulkanPrivate
+    class VulkanDisplayPrivate
     {
     public:
-        DeviceVulkan* m_public;
+        VulkanDisplay * m_public;
         void* m_window;
         int m_width;
         int m_height;
@@ -95,7 +95,7 @@ namespace Viry3D
         Ref<RenderTexture> m_depth_texture;
         VkPipelineCache m_pipeline_cache = nullptr;
 
-        DeviceVulkanPrivate(DeviceVulkan* device, void* window, int width, int height):
+        VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
             m_window(window),
             m_width(width),
@@ -107,7 +107,7 @@ namespace Viry3D
             Memory::Zero(m_image_ownership_semaphores, sizeof(m_image_ownership_semaphores));
         }
 
-        ~DeviceVulkanPrivate()
+        ~VulkanDisplayPrivate()
         {
             vkDeviceWaitIdle(m_device);
 
@@ -832,8 +832,8 @@ namespace Viry3D
         }
     };
 
-    DeviceVulkan::DeviceVulkan(void* window, int width, int height):
-        m_private(new DeviceVulkanPrivate(this, window, width, height))
+    VulkanDisplay::VulkanDisplay(void* window, int width, int height):
+        m_private(new VulkanDisplayPrivate(this, window, width, height))
     {
         m_private->CheckInstanceLayers();
         m_private->CheckInstanceExtensions();
@@ -844,12 +844,12 @@ namespace Viry3D
         m_private->CreateSizeDependentResources();
     }
 
-    DeviceVulkan::~DeviceVulkan()
+    VulkanDisplay::~VulkanDisplay()
     {
         delete m_private;
     }
 
-    void DeviceVulkan::OnResize(int width, int height)
+    void VulkanDisplay::OnResize(int width, int height)
     {
         m_private->OnResize(width, height);
     }

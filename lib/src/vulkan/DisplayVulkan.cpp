@@ -27,7 +27,7 @@
 #include "thread/Thread.h"
 #include "Profiler.h"
 
-#include "DeviceVulkan.h"
+#include "VulkanDisplay.h"
 
 #if VR_VULKAN
 
@@ -96,7 +96,7 @@ namespace Viry3D
 		vkDestroyCommandPool(m_device, m_cmd_pool, NULL);
 	}
 
-    DeviceVulkan* g_test_device;
+    VulkanDisplay* g_test_device;
 
     static LRESULT CALLBACK win_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -181,7 +181,7 @@ namespace Viry3D
 
         ShowWindow(hwnd, SW_SHOW);
 
-        g_test_device = new DeviceVulkan(hwnd, width, height);
+        g_test_device = new VulkanDisplay(hwnd, width, height);
 
         bool exit = false;
         MSG msg;
@@ -332,8 +332,8 @@ namespace Viry3D
 			NULL,
 			0,
 			&app,
-			instance_layer_count,
-			instance_validation_layers,
+			0,//instance_layer_count,
+            NULL,//instance_validation_layers,
 			extension_count,
 			(const char* const*) extension_names,
 		};

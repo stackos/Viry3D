@@ -19,16 +19,16 @@
 
 namespace Viry3D
 {
-    class DeviceVulkanPrivate;
+    class VulkanDisplayPrivate;
 
-    class DeviceVulkan
+    class VulkanDisplay
     {
     public:
-        DeviceVulkan(void* window, int width, int height);
-        virtual ~DeviceVulkan();
+        VulkanDisplay(void* window, int width, int height);
+        virtual ~VulkanDisplay();
         void OnResize(int width, int height);
 
     private:
-        DeviceVulkanPrivate* m_private;
+        VulkanDisplayPrivate* m_private;
     };
 }
