@@ -96,6 +96,117 @@ namespace Viry3D
 		vkDestroyCommandPool(m_device, m_cmd_pool, NULL);
 	}
 
+    DeviceVulkan* g_test_device;
+
+    static LRESULT CALLBACK win_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        switch (uMsg)
+        {
+            case WM_CLOSE:
+                PostQuitMessage(0);
+                break;
+
+            case WM_SIZE:
+                if (wParam != SIZE_MINIMIZED)
+                {
+                    int width = lParam & 0xffff;
+                    int height = (lParam & 0xffff0000) >> 16;
+
+                    if (g_test_device)
+                    {
+                        g_test_device->OnResize(width, height);
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    static void test_vulkan(HWND win, int width, int height)
+    {
+        const char* name = "vulkan demo";
+
+        HINSTANCE inst = GetModuleHandle(NULL);
+
+        WNDCLASSEX win_class;
+        ZeroMemory(&win_class, sizeof(win_class));
+
+        win_class.cbSize = sizeof(WNDCLASSEX);
+        win_class.style = CS_HREDRAW | CS_VREDRAW;
+        win_class.lpfnWndProc = win_proc;
+        win_class.cbClsExtra = 0;
+        win_class.cbWndExtra = 0;
+        win_class.hInstance = inst;
+        win_class.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
+        win_class.lpszMenuName = NULL;
+        win_class.lpszClassName = name;
+        win_class.hCursor = LoadCursor(NULL, IDC_ARROW);
+        win_class.hIcon = (HICON) LoadImage(NULL, "icon.ico", IMAGE_ICON, SM_CXICON, SM_CYICON, LR_LOADFROMFILE);
+        win_class.hIconSm = win_class.hIcon;
+
+        if (!RegisterClassEx(&win_class))
+        {
+            return;
+        }
+
+        DWORD style = WS_OVERLAPPEDWINDOW;
+        DWORD style_ex = 0;
+
+        RECT wr = { 0, 0, width, height };
+        AdjustWindowRect(&wr, style, FALSE);
+
+        int x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2 + wr.left;
+        int y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2 + wr.top;
+
+        HWND hwnd = CreateWindowEx(
+            style_ex,			// window ex style
+            name,				// class name
+            name,				// app name
+            style,			    // window style
+            x, y,				// x, y
+            wr.right - wr.left, // width
+            wr.bottom - wr.top, // height
+            NULL,				// handle to parent
+            NULL,               // handle to menu
+            inst,				// hInstance
+            NULL);              // no extra parameters
+        if (!hwnd)
+        {
+            return;
+        }
+
+        ShowWindow(hwnd, SW_SHOW);
+
+        g_test_device = new DeviceVulkan(hwnd, width, height);
+
+        bool exit = false;
+        MSG msg;
+        while (!exit)
+        {
+            while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+            {
+                if (WM_QUIT == msg.message)
+                {
+                    exit = true;
+                    break;
+                }
+                else
+                {
+                    ::TranslateMessage(&msg);
+                    ::DispatchMessage(&msg);
+                }
+            }
+
+            ::Sleep(1);
+        }
+
+        delete g_test_device;
+    }
+
 	void DisplayVulkan::Init(int width, int height, int fps)
 	{
 #if VR_WINDOWS
@@ -105,9 +216,6 @@ namespace Viry3D
 		int success = InitVulkan();
 		Log("android vulkan so load success: %s", success ? "true" : "false");
 #endif
-
-        auto device = new DeviceVulkan(m_window, width, height);
-        delete device;
 
 		this->CreateInstance();
 		get_instance_proc_addrs(m_instance);
@@ -132,6 +240,9 @@ namespace Viry3D
 		this->CreateSizeDependentResources();
 
 		Log("display vulkan init success");
+
+        std::thread thread(test_vulkan, m_window, width, height);
+        thread.detach();
 	}
 
 	void DisplayVulkan::OnResize(int width, int height)

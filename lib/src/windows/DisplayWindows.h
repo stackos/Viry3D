@@ -35,7 +35,6 @@ namespace Viry3D
 		void Deinit() { }
 		void ProcessSystemEvents();
 		void KeepScreenOn(bool enable) { }
-        HWND GetWindow() const { return m_window; }
 
 	private:
 		void CreateSystemWindow();

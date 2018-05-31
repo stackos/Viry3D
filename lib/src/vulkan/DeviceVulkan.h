@@ -26,6 +26,7 @@ namespace Viry3D
     public:
         DeviceVulkan(void* window, int width, int height);
         virtual ~DeviceVulkan();
+        void OnResize(int width, int height);
 
     private:
         DeviceVulkanPrivate* m_private;

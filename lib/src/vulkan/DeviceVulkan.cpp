@@ -20,6 +20,7 @@
 #include "container/Vector.h"
 #include "string/String.h"
 #include "memory/Memory.h"
+#include "graphics/RenderTexture.h"
 #include "Application.h"
 #include "Debug.h"
 #include <assert.h>
@@ -38,9 +39,16 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
     }
 
 #define FRAME_LAG 2
+#define VSYNC 0
 
 namespace Viry3D
 {
+    struct SwapchainImageResources
+    {
+        VkImage image;
+        VkImageView image_view;
+    };
+
     class DeviceVulkanPrivate
     {
     public:
@@ -70,14 +78,22 @@ namespace Viry3D
         PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR = nullptr;
         PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR = nullptr;
         PFN_vkQueuePresentKHR fpQueuePresentKHR = nullptr;
-        int m_graphics_queue_index = -1;
-        int m_present_queue_index = -1;
+        int m_graphics_queue_family_index = -1;
+        int m_present_queue_family_index = -1;
         bool m_separate_present_queue = false;
         VkSurfaceFormatKHR m_surface_format;
         VkFence m_fences[FRAME_LAG];
         VkSemaphore m_image_acquired_semaphores[FRAME_LAG];
         VkSemaphore m_draw_complete_semaphores[FRAME_LAG];
         VkSemaphore m_image_ownership_semaphores[FRAME_LAG];
+        VkSwapchainKHR m_swapchain = nullptr;
+        Vector<SwapchainImageResources> m_swapchain_image_resources;
+        VkCommandPool m_cmd_pool = nullptr;
+        VkCommandBuffer m_cmd = nullptr;
+        VkCommandPool m_present_cmd_pool = nullptr;
+        VkCommandBuffer m_present_cmd = nullptr;
+        Ref<RenderTexture> m_depth_texture;
+        VkPipelineCache m_pipeline_cache = nullptr;
 
         DeviceVulkanPrivate(DeviceVulkan* device, void* window, int width, int height):
             m_public(device),
@@ -94,6 +110,8 @@ namespace Viry3D
         ~DeviceVulkanPrivate()
         {
             vkDeviceWaitIdle(m_device);
+
+            this->DestroySizeDependentResources();
 
             for (int i = 0; i < FRAME_LAG; ++i)
             {
@@ -299,6 +317,7 @@ namespace Viry3D
             VkInstanceCreateInfo inst_info;
             inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
             inst_info.pNext = nullptr;
+            inst_info.flags = 0;
             inst_info.pApplicationInfo = &app_info;
             inst_info.enabledLayerCount = m_enabled_layers.Size();
             inst_info.ppEnabledLayerNames = &m_enabled_layers[0];
@@ -440,22 +459,23 @@ namespace Viry3D
 
             assert(graphics_queue_index >= 0 && present_queue_index >= 0);
 
-            m_graphics_queue_index = graphics_queue_index;
-            m_present_queue_index = present_queue_index;
-            m_separate_present_queue = m_graphics_queue_index != m_present_queue_index;
+            m_graphics_queue_family_index = graphics_queue_index;
+            m_present_queue_family_index = present_queue_index;
+            m_separate_present_queue = m_graphics_queue_family_index != m_present_queue_family_index;
 
             float queue_priorities[1] = { 0.0 };
             VkDeviceQueueCreateInfo queue_infos[2];
             queue_infos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             queue_infos[0].pNext = nullptr;
-            queue_infos[0].queueFamilyIndex = m_graphics_queue_index;
+            queue_infos[0].flags = 0;
+            queue_infos[0].queueFamilyIndex = m_graphics_queue_family_index;
             queue_infos[0].queueCount = 1;
             queue_infos[0].pQueuePriorities = queue_priorities;
-            queue_infos[0].flags = 0;
 
             VkDeviceCreateInfo device_info;
             device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
             device_info.pNext = nullptr;
+            device_info.flags = 0;
             device_info.queueCreateInfoCount = 1;
             device_info.pQueueCreateInfos = queue_infos;
             device_info.enabledLayerCount = m_enabled_layers.Size();
@@ -468,10 +488,10 @@ namespace Viry3D
             {
                 queue_infos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
                 queue_infos[1].pNext = nullptr;
-                queue_infos[1].queueFamilyIndex = m_present_queue_index;
+                queue_infos[1].flags = 0;
+                queue_infos[1].queueFamilyIndex = m_present_queue_family_index;
                 queue_infos[1].queueCount = 1;
                 queue_infos[1].pQueuePriorities = queue_priorities;
-                queue_infos[1].flags = 0;
 
                 device_info.queueCreateInfoCount = 2;
             }
@@ -485,11 +505,11 @@ namespace Viry3D
             GET_DEVICE_PROC_ADDR(m_device, AcquireNextImageKHR);
             GET_DEVICE_PROC_ADDR(m_device, QueuePresentKHR);
 
-            vkGetDeviceQueue(m_device, m_graphics_queue_index, 0, &m_graphics_queue);
+            vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
 
             if (m_separate_present_queue)
             {
-                vkGetDeviceQueue(m_device, m_present_queue_index, 0, &m_present_queue);
+                vkGetDeviceQueue(m_device, m_present_queue_family_index, 0, &m_present_queue);
             }
             else
             {
@@ -547,6 +567,269 @@ namespace Viry3D
                 }
             }
         }
+
+        void CreateSizeDependentResources()
+        {
+            this->CreateSwapChain();
+            this->CreateCommandBuffer();
+            this->CreatePipelineCache();
+
+            m_depth_texture = RenderTexture::Create(
+                m_width, m_height,
+                RenderTextureFormat::Depth,
+                DepthBuffer::Depth_24_Stencil_8,
+                FilterMode::Point);
+        }
+
+        void DestroySizeDependentResources()
+        {
+            m_depth_texture.reset();
+
+            vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
+
+            vkFreeCommandBuffers(m_device, m_cmd_pool, 1, &m_cmd);
+            vkDestroyCommandPool(m_device, m_cmd_pool, nullptr);
+            if (m_separate_present_queue)
+            {
+                vkFreeCommandBuffers(m_device, m_present_cmd_pool, 1, &m_present_cmd);
+                vkDestroyCommandPool(m_device, m_present_cmd_pool, nullptr);
+            }
+
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                vkDestroyImageView(m_device, m_swapchain_image_resources[i].image_view, nullptr);
+            }
+            m_swapchain_image_resources.Clear();
+            fpDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+        }
+
+        void OnResize(int width, int height)
+        {
+            m_width = width;
+            m_height = height;
+
+            vkDeviceWaitIdle(m_device);
+
+            this->DestroySizeDependentResources();
+            this->CreateSizeDependentResources();
+        }
+
+        void CreateSwapChain()
+        {
+            VkResult err;
+
+            VkSurfaceCapabilitiesKHR surface_caps;
+            err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(m_gpu, m_surface, &surface_caps);
+            assert(!err);
+
+            VkExtent2D swapchain_size;
+            if (surface_caps.currentExtent.width == 0xFFFFFFFF)
+            {
+                swapchain_size.width = m_width;
+                swapchain_size.height = m_height;
+
+                if (swapchain_size.width < surface_caps.minImageExtent.width)
+                {
+                    swapchain_size.width = surface_caps.minImageExtent.width;
+                }
+                else if (swapchain_size.width > surface_caps.maxImageExtent.width)
+                {
+                    swapchain_size.width = surface_caps.maxImageExtent.width;
+                }
+
+                if (swapchain_size.height < surface_caps.minImageExtent.height)
+                {
+                    swapchain_size.height = surface_caps.minImageExtent.height;
+                }
+                else if (swapchain_size.height > surface_caps.maxImageExtent.height)
+                {
+                    swapchain_size.height = surface_caps.maxImageExtent.height;
+                }
+            }
+            else
+            {
+                swapchain_size = surface_caps.currentExtent;
+            }
+            assert(swapchain_size.width > 0 && swapchain_size.height > 0);
+
+            uint32_t present_mode_count;
+            err = fpGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, m_surface, &present_mode_count, nullptr);
+            assert(!err);
+            assert(present_mode_count > 0);
+
+            Vector<VkPresentModeKHR> present_modes(present_mode_count);
+            err = fpGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, m_surface, &present_mode_count, &present_modes[0]);
+            assert(!err);
+
+#if VSYNC || VR_ANDROID
+            VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
+#else
+            VkPresentModeKHR present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
+#endif
+           
+            uint32_t swapchain_image_count = 3;
+            if (swapchain_image_count < surface_caps.minImageCount)
+            {
+                swapchain_image_count = surface_caps.minImageCount;
+            }
+
+            if ((surface_caps.maxImageCount > 0) && (swapchain_image_count > surface_caps.maxImageCount))
+            {
+                swapchain_image_count = surface_caps.maxImageCount;
+            }
+
+            VkSurfaceTransformFlagBitsKHR transform_flag;
+            if (surface_caps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+            {
+                transform_flag = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+            }
+            else
+            {
+                transform_flag = surface_caps.currentTransform;
+            }
+
+            VkCompositeAlphaFlagBitsKHR composite_alpha_flag = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+            const int composite_alpha_flag_count = 4;
+            VkCompositeAlphaFlagBitsKHR composite_alpha_flags[composite_alpha_flag_count] = {
+                VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+                VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+                VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+                VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+            };
+            for (int i = 0; i < composite_alpha_flag_count; ++i)
+            {
+                if (surface_caps.supportedCompositeAlpha & composite_alpha_flags[i])
+                {
+                    composite_alpha_flag = composite_alpha_flags[i];
+                    break;
+                }
+            }
+
+            VkSwapchainKHR old_swapchain = m_swapchain;
+
+            VkSwapchainCreateInfoKHR swapchain_info;
+            swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+            swapchain_info.pNext = nullptr;
+            swapchain_info.flags = 0;
+            swapchain_info.surface = m_surface;
+            swapchain_info.minImageCount = swapchain_image_count;
+            swapchain_info.imageFormat = m_surface_format.format;
+            swapchain_info.imageColorSpace = m_surface_format.colorSpace;
+            swapchain_info.imageExtent = swapchain_size;
+            swapchain_info.imageArrayLayers = 1;
+            swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            swapchain_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            swapchain_info.queueFamilyIndexCount = 0;
+            swapchain_info.pQueueFamilyIndices = nullptr;
+            swapchain_info.preTransform = transform_flag;
+            swapchain_info.compositeAlpha = composite_alpha_flag;
+            swapchain_info.presentMode = present_mode;
+            swapchain_info.clipped = true;
+            swapchain_info.oldSwapchain = old_swapchain;
+
+            err = fpCreateSwapchainKHR(m_device, &swapchain_info, nullptr, &m_swapchain);
+            assert(!err);
+
+            if (old_swapchain != nullptr)
+            {
+                fpDestroySwapchainKHR(m_device, old_swapchain, nullptr);
+            }
+
+            err = fpGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, nullptr);
+            assert(!err);
+            assert(swapchain_image_count > 0);
+
+            Vector<VkImage> swapchain_images(swapchain_image_count);
+            err = fpGetSwapchainImagesKHR(m_device, m_swapchain, &swapchain_image_count, &swapchain_images[0]);
+            assert(!err);
+
+            m_swapchain_image_resources.Resize(swapchain_image_count);
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                VkImageViewCreateInfo view_info;
+                view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+                view_info.pNext = nullptr;
+                view_info.flags = 0;
+                view_info.image = swapchain_images[i];
+                view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+                view_info.format = m_surface_format.format;
+                view_info.components = {
+                    VK_COMPONENT_SWIZZLE_R,
+                    VK_COMPONENT_SWIZZLE_G,
+                    VK_COMPONENT_SWIZZLE_B,
+                    VK_COMPONENT_SWIZZLE_A,
+                };
+                view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                view_info.subresourceRange.baseMipLevel = 0;
+                view_info.subresourceRange.levelCount = 1;
+                view_info.subresourceRange.baseArrayLayer = 0;
+                view_info.subresourceRange.layerCount = 1;
+
+                m_swapchain_image_resources[i].image = swapchain_images[i];
+
+                err = vkCreateImageView(m_device, &view_info, nullptr, &m_swapchain_image_resources[i].image_view);
+                assert(!err);
+            }
+        }
+
+        void CreateCommandBuffer()
+        {
+            VkResult err;
+
+            {
+                VkCommandPoolCreateInfo pool_info;
+                pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+                pool_info.pNext = nullptr;
+                pool_info.queueFamilyIndex = m_graphics_queue_family_index;
+                pool_info.flags = 0;
+
+                err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_cmd_pool);
+                assert(!err);
+
+                VkCommandBufferAllocateInfo cmd_info;
+                cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                cmd_info.pNext = nullptr;
+                cmd_info.commandPool = m_cmd_pool;
+                cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+                cmd_info.commandBufferCount = 1;
+                
+                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_cmd);
+                assert(!err);
+            }
+
+            if (m_separate_present_queue)
+            {
+                VkCommandPoolCreateInfo pool_info;
+                pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+                pool_info.pNext = nullptr;
+                pool_info.queueFamilyIndex = m_present_queue_family_index;
+                pool_info.flags = 0;
+
+                err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_present_cmd_pool);
+                assert(!err);
+
+                VkCommandBufferAllocateInfo cmd_info;
+                cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                cmd_info.pNext = nullptr;
+                cmd_info.commandPool = m_present_cmd_pool;
+                cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+                cmd_info.commandBufferCount = 1;
+
+                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_present_cmd);
+                assert(!err);
+            }
+        }
+
+        void CreatePipelineCache()
+        {
+            VkPipelineCacheCreateInfo pipeline_cache;
+            Memory::Zero(&pipeline_cache, sizeof(pipeline_cache));
+            pipeline_cache.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+            
+            VkResult err;
+            err = vkCreatePipelineCache(m_device, &pipeline_cache, nullptr, &m_pipeline_cache);
+            assert(!err);
+        }
     };
 
     DeviceVulkan::DeviceVulkan(void* window, int width, int height):
@@ -558,11 +841,16 @@ namespace Viry3D
         m_private->InitPhysicalDevice();
         m_private->CreateDevice();
         m_private->CreateSemaphores();
-        //demo_prepare
+        m_private->CreateSizeDependentResources();
     }
 
     DeviceVulkan::~DeviceVulkan()
     {
         delete m_private;
+    }
+
+    void DeviceVulkan::OnResize(int width, int height)
+    {
+        m_private->OnResize(width, height);
     }
 }
