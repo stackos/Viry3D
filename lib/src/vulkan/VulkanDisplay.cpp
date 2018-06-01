@@ -60,6 +60,7 @@ namespace Viry3D
         Vector<char*> m_instance_extension_names;
         Vector<char*> m_device_extension_names;
         VkInstance m_instance = nullptr;
+        VkDebugReportCallbackEXT m_debug_callback = nullptr;
         VkPhysicalDevice m_gpu = nullptr;
         VkSurfaceKHR m_surface = nullptr;
         VkDevice m_device = nullptr;
@@ -69,6 +70,8 @@ namespace Viry3D
         Vector<VkQueueFamilyProperties> m_queue_properties;
         VkPhysicalDeviceFeatures m_gpu_features;
         VkPhysicalDeviceMemoryProperties m_memory_properties;
+        PFN_vkCreateDebugReportCallbackEXT fpCreateDebugReportCallbackEXT = nullptr;
+        PFN_vkDestroyDebugReportCallbackEXT fpDestroyDebugReportCallbackEXT = nullptr;
         PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR = nullptr;
         PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fpGetPhysicalDeviceSurfaceCapabilitiesKHR = nullptr;
         PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fpGetPhysicalDeviceSurfaceFormatsKHR = nullptr;
@@ -128,6 +131,7 @@ namespace Viry3D
             vkDestroyDevice(m_device, nullptr);
             vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
             m_gpu = nullptr;
+            fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
             vkDestroyInstance(m_instance, nullptr);
             StringVectorClear(m_enabled_layers);
             StringVectorClear(m_instance_extension_names);
@@ -326,6 +330,56 @@ namespace Viry3D
 
             VkResult err = vkCreateInstance(&inst_info, nullptr, &m_instance);
             assert(!err);
+
+            GET_INSTANCE_PROC_ADDR(m_instance, CreateDebugReportCallbackEXT);
+            GET_INSTANCE_PROC_ADDR(m_instance, DestroyDebugReportCallbackEXT);
+            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfaceSupportKHR);
+            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfaceCapabilitiesKHR);
+            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfaceFormatsKHR);
+            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfacePresentModesKHR);
+            GET_INSTANCE_PROC_ADDR(m_instance, GetSwapchainImagesKHR);
+        }
+
+        static VKAPI_ATTR VkBool32 VKAPI_CALL
+            DebugFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
+                uint64_t srcObject, size_t location, int32_t msgCode,
+                const char *pLayerPrefix, const char *pMsg, void *pUserData)
+        {
+            Log("[%s] %d : %s", pLayerPrefix, msgCode, pMsg);
+
+            String message;
+
+            if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+            {
+                message = String::Format("ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+            }
+            else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+            {
+                message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+            }
+            else
+            {
+                return false;
+            }
+
+#if VR_WINDOWS
+            MessageBox(NULL, message.CString(), "Alert", MB_OK);
+#endif
+
+            return false;
+        }
+
+        void CreateDebugReportCallback()
+        {
+            VkDebugReportCallbackCreateInfoEXT create_info;
+            create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+            create_info.pNext = nullptr;
+            create_info.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+            create_info.pfnCallback = DebugFunc;
+            create_info.pUserData = nullptr;
+
+            VkResult err = fpCreateDebugReportCallbackEXT(m_instance, &create_info, nullptr, &m_debug_callback);
+            assert(!err);
         }
 
         void InitPhysicalDevice()
@@ -371,12 +425,6 @@ namespace Viry3D
             vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &queue_family_count, &m_queue_properties[0]);
             vkGetPhysicalDeviceFeatures(m_gpu, &m_gpu_features);
             vkGetPhysicalDeviceMemoryProperties(m_gpu, &m_memory_properties);
-            
-            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfaceSupportKHR);
-            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfaceCapabilitiesKHR);
-            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfaceFormatsKHR);
-            GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfacePresentModesKHR);
-            GET_INSTANCE_PROC_ADDR(m_instance, GetSwapchainImagesKHR);
         }
 
         void CreateDevice()
@@ -838,6 +886,7 @@ namespace Viry3D
         m_private->CheckInstanceLayers();
         m_private->CheckInstanceExtensions();
         m_private->CreateInstance();
+        m_private->CreateDebugReportCallback();
         m_private->InitPhysicalDevice();
         m_private->CreateDevice();
         m_private->CreateSemaphores();
