@@ -49,6 +49,9 @@ namespace Viry3D
     {
         VkImage image;
         VkImageView image_view;
+        VkFormat format;
+        int width;
+        int height;
     };
 
     class VulkanDisplayPrivate
@@ -99,6 +102,11 @@ namespace Viry3D
         VkCommandBuffer m_present_cmd = nullptr;
         Ref<RenderTexture> m_depth_texture;
         VkPipelineCache m_pipeline_cache = nullptr;
+
+        // for test
+        Vector<VkRenderPass> m_test_render_passes;
+        Vector<VkFramebuffer> m_test_framebuffers;
+        //
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -312,6 +320,7 @@ namespace Viry3D
             String name = Application::Current()->GetName();
 
             VkApplicationInfo app_info;
+            Memory::Zero(&app_info, sizeof(app_info));
             app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
             app_info.pNext = nullptr;
             app_info.pApplicationName = name.CString();
@@ -321,6 +330,7 @@ namespace Viry3D
             app_info.apiVersion = VK_API_VERSION_1_0;
 
             VkInstanceCreateInfo inst_info;
+            Memory::Zero(&inst_info, sizeof(inst_info));
             inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
             inst_info.pNext = nullptr;
             inst_info.flags = 0;
@@ -374,6 +384,7 @@ namespace Viry3D
         void CreateDebugReportCallback()
         {
             VkDebugReportCallbackCreateInfoEXT create_info;
+            Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
             create_info.pNext = nullptr;
             create_info.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
@@ -435,6 +446,7 @@ namespace Viry3D
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
             VkWin32SurfaceCreateInfoKHR create_info;
+            Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
             create_info.pNext = nullptr;
             create_info.flags = 0;
@@ -444,6 +456,7 @@ namespace Viry3D
             err = vkCreateWin32SurfaceKHR(m_instance, &create_info, nullptr, &m_surface);
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
             VkAndroidSurfaceCreateInfoKHR create_info;
+            Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
             create_info.pNext = nullptr;
             create_info.flags = 0;
@@ -452,6 +465,7 @@ namespace Viry3D
             err = vkCreateAndroidSurfaceKHR(m_instance, &create_info, nullptr, &m_surface);
 #elif defined(VK_USE_PLATFORM_IOS_MVK)
             VkIOSSurfaceCreateInfoMVK create_info;
+            Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK;
             create_info.pNext = nullptr;
             create_info.flags = 0;
@@ -460,6 +474,7 @@ namespace Viry3D
             err = vkCreateIOSSurfaceMVK(m_instance, &create_info, nullptr, &m_surface);
 #elif defined(VK_USE_PLATFORM_MACOS_MVK)
             VkMacOSSurfaceCreateInfoMVK create_info;
+            Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
             create_info.pNext = nullptr;
             create_info.flags = 0;
@@ -515,6 +530,7 @@ namespace Viry3D
 
             float queue_priorities[1] = { 0.0 };
             VkDeviceQueueCreateInfo queue_infos[2];
+            Memory::Zero(queue_infos, sizeof(queue_infos));
             queue_infos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             queue_infos[0].pNext = nullptr;
             queue_infos[0].flags = 0;
@@ -523,6 +539,7 @@ namespace Viry3D
             queue_infos[0].pQueuePriorities = queue_priorities;
 
             VkDeviceCreateInfo device_info;
+            Memory::Zero(&device_info, sizeof(device_info));
             device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
             device_info.pNext = nullptr;
             device_info.flags = 0;
@@ -589,11 +606,13 @@ namespace Viry3D
         void CreateSemaphores()
         {
             VkFenceCreateInfo fence_info;
+            Memory::Zero(&fence_info, sizeof(fence_info));
             fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
             fence_info.pNext = nullptr;
             fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
             VkSemaphoreCreateInfo semaphore_info;
+            Memory::Zero(&semaphore_info, sizeof(semaphore_info));
             semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
             semaphore_info.pNext = nullptr;
             semaphore_info.flags = 0;
@@ -629,10 +648,20 @@ namespace Viry3D
                 RenderTextureFormat::Depth,
                 DepthBuffer::Depth_24_Stencil_8,
                 FilterMode::Point);
+
+            this->TestCreateRenderPasses();
         }
 
         void DestroySizeDependentResources()
         {
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                vkDestroyFramebuffer(m_device, m_test_framebuffers[i], nullptr);
+                vkDestroyRenderPass(m_device, m_test_render_passes[i], nullptr);
+            }
+            m_test_framebuffers.Clear();
+            m_test_render_passes.Clear();
+
             m_depth_texture.reset();
 
             vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
@@ -758,6 +787,7 @@ namespace Viry3D
             VkSwapchainKHR old_swapchain = m_swapchain;
 
             VkSwapchainCreateInfoKHR swapchain_info;
+            Memory::Zero(&swapchain_info, sizeof(swapchain_info));
             swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
             swapchain_info.pNext = nullptr;
             swapchain_info.flags = 0;
@@ -797,6 +827,7 @@ namespace Viry3D
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 VkImageViewCreateInfo view_info;
+                Memory::Zero(&view_info, sizeof(view_info));
                 view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
                 view_info.pNext = nullptr;
                 view_info.flags = 0;
@@ -819,6 +850,10 @@ namespace Viry3D
 
                 err = vkCreateImageView(m_device, &view_info, nullptr, &m_swapchain_image_resources[i].image_view);
                 assert(!err);
+
+                m_swapchain_image_resources[i].format = m_surface_format.format;
+                m_swapchain_image_resources[i].width = swapchain_size.width;
+                m_swapchain_image_resources[i].height = swapchain_size.height;
             }
         }
 
@@ -828,15 +863,17 @@ namespace Viry3D
 
             {
                 VkCommandPoolCreateInfo pool_info;
+                Memory::Zero(&pool_info, sizeof(pool_info));
                 pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
                 pool_info.pNext = nullptr;
-                pool_info.queueFamilyIndex = m_graphics_queue_family_index;
                 pool_info.flags = 0;
+                pool_info.queueFamilyIndex = m_graphics_queue_family_index;
 
                 err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_cmd_pool);
                 assert(!err);
 
                 VkCommandBufferAllocateInfo cmd_info;
+                Memory::Zero(&cmd_info, sizeof(cmd_info));
                 cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 cmd_info.pNext = nullptr;
                 cmd_info.commandPool = m_cmd_pool;
@@ -850,15 +887,17 @@ namespace Viry3D
             if (m_separate_present_queue)
             {
                 VkCommandPoolCreateInfo pool_info;
+                Memory::Zero(&pool_info, sizeof(pool_info));
                 pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
                 pool_info.pNext = nullptr;
-                pool_info.queueFamilyIndex = m_present_queue_family_index;
                 pool_info.flags = 0;
+                pool_info.queueFamilyIndex = m_present_queue_family_index;
 
                 err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_present_cmd_pool);
                 assert(!err);
 
                 VkCommandBufferAllocateInfo cmd_info;
+                Memory::Zero(&cmd_info, sizeof(cmd_info));
                 cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 cmd_info.pNext = nullptr;
                 cmd_info.commandPool = m_present_cmd_pool;
@@ -886,12 +925,12 @@ namespace Viry3D
             VkFormat color_format,
             VkImageView depth_image_view,
             VkFormat depth_format,
-            int image_witdh,
+            int image_width,
             int image_height,
             CameraClearFlags clear_flag,
-            const Rect& rect,
             bool present,
-            VkRenderPass* render_pass)
+            VkRenderPass* render_pass,
+            VkFramebuffer* framebuffer)
         {
             VkAttachmentLoadOp color_load;
             VkAttachmentLoadOp depth_load;
@@ -937,6 +976,7 @@ namespace Viry3D
             Vector<VkAttachmentDescription> attachments;
 
             attachments.Add(VkAttachmentDescription());
+            Memory::Zero(&attachments[0], sizeof(attachments[0]));
             attachments[0].flags = 0;
             attachments[0].format = color_format;
             attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -950,6 +990,7 @@ namespace Viry3D
             if (depth_image_view != nullptr)
             {
                 attachments.Add(VkAttachmentDescription());
+                Memory::Zero(&attachments[1], sizeof(attachments[1]));
                 attachments[1].flags = 0;
                 attachments[1].format = depth_format;
                 attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -971,6 +1012,7 @@ namespace Viry3D
             };
 
             VkSubpassDescription subpass;
+            Memory::Zero(&subpass, sizeof(subpass));
             subpass.flags = 0;
             subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
             subpass.inputAttachmentCount = 0;
@@ -990,6 +1032,8 @@ namespace Viry3D
             subpass.pPreserveAttachments = nullptr;
 
             VkSubpassDependency dependencies[2];
+            Memory::Zero(dependencies, sizeof(dependencies));
+
             dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
             dependencies[0].dstSubpass = 0;
             dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -1007,6 +1051,7 @@ namespace Viry3D
             dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
             VkRenderPassCreateInfo rp_info;
+            Memory::Zero(&rp_info, sizeof(rp_info));
             rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
             rp_info.pNext = nullptr;
             rp_info.flags = 0;
@@ -1017,10 +1062,53 @@ namespace Viry3D
             rp_info.dependencyCount = 2;
             rp_info.pDependencies = dependencies;
 
-            VkResult err = vkCreateRenderPass(m_device, &rp_info, NULL, render_pass);
+            VkResult err = vkCreateRenderPass(m_device, &rp_info, nullptr, render_pass);
             assert(!err);
 
-            //create framebuffer
+            // create framebuffer
+            Vector<VkImageView> attachments_view;
+            attachments_view.Add(color_image_view);
+            if (depth_image_view != nullptr)
+            {
+                attachments_view.Add(depth_image_view);
+            }
+
+            VkFramebufferCreateInfo fb_info;
+            Memory::Zero(&fb_info, sizeof(fb_info));
+            fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            fb_info.pNext = nullptr;
+            fb_info.flags = 0;
+            fb_info.renderPass = *render_pass;
+            fb_info.attachmentCount = attachments_view.Size();
+            fb_info.pAttachments = &attachments_view[0];
+            fb_info.width = (uint32_t) image_width;
+            fb_info.height = (uint32_t) image_height;
+            fb_info.layers = 1;
+
+            err = vkCreateFramebuffer(m_device, &fb_info, nullptr, framebuffer);
+            assert(!err);
+        }
+
+        void TestCreateRenderPasses()
+        {
+            m_test_render_passes.Resize(m_swapchain_image_resources.Size());
+            m_test_framebuffers.Resize(m_swapchain_image_resources.Size());
+
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                this->CreateRenderPass(
+                    m_swapchain_image_resources[i].image_view,
+                    m_swapchain_image_resources[i].format,
+                    m_depth_texture->GetImageView(),
+                    m_depth_texture->GetVkFormat(),
+                    m_swapchain_image_resources[i].width,
+                    m_swapchain_image_resources[i].height,
+                    CameraClearFlags::Color,
+                    true,
+                    &m_test_render_passes[i],
+                    &m_test_framebuffers[i]
+                    );
+            }
         }
     };
 
