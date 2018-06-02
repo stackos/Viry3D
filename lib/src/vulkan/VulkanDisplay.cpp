@@ -21,6 +21,8 @@
 #include "string/String.h"
 #include "memory/Memory.h"
 #include "graphics/RenderTexture.h"
+#include "graphics/CameraClearFlags.h"
+#include "math/Rect.h"
 #include "Application.h"
 #include "Debug.h"
 #include <assert.h>
@@ -877,6 +879,148 @@ namespace Viry3D
             VkResult err;
             err = vkCreatePipelineCache(m_device, &pipeline_cache, nullptr, &m_pipeline_cache);
             assert(!err);
+        }
+
+        void CreateRenderPass(
+            VkImageView color_image_view,
+            VkFormat color_format,
+            VkImageView depth_image_view,
+            VkFormat depth_format,
+            int image_witdh,
+            int image_height,
+            CameraClearFlags clear_flag,
+            const Rect& rect,
+            bool present,
+            VkRenderPass* render_pass)
+        {
+            VkAttachmentLoadOp color_load;
+            VkAttachmentLoadOp depth_load;
+            VkImageLayout color_final_layout;
+
+            switch (clear_flag)
+            {
+                case CameraClearFlags::Color:
+                {
+                    color_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                    depth_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                    break;
+                }
+                case CameraClearFlags::Depth:
+                {
+                    color_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+                    depth_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                    break;
+                }
+                case CameraClearFlags::Invalidate:
+                {
+                    color_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                    depth_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                    break;
+                }
+                default:
+                {
+                    color_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+                    depth_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+                    break;
+                }
+            }
+
+            if (present)
+            {
+                color_final_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            }
+            else
+            {
+                color_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            }
+
+            Vector<VkAttachmentDescription> attachments;
+
+            attachments.Add(VkAttachmentDescription());
+            attachments[0].flags = 0;
+            attachments[0].format = color_format;
+            attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+            attachments[0].loadOp = color_load;
+            attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachments[0].finalLayout = color_final_layout;
+
+            if (depth_image_view != nullptr)
+            {
+                attachments.Add(VkAttachmentDescription());
+                attachments[1].flags = 0;
+                attachments[1].format = depth_format;
+                attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+                attachments[1].loadOp = depth_load;
+                attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachments[1].stencilLoadOp = depth_load;
+                attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            }
+
+            VkAttachmentReference color_reference = {
+                0,
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            };
+            VkAttachmentReference depth_reference = {
+                1,
+                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+            };
+
+            VkSubpassDescription subpass;
+            subpass.flags = 0;
+            subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+            subpass.inputAttachmentCount = 0;
+            subpass.pInputAttachments = nullptr;
+            subpass.colorAttachmentCount = 1;
+            subpass.pColorAttachments = &color_reference;
+            subpass.pResolveAttachments = nullptr;
+            if (depth_image_view != nullptr)
+            {
+                subpass.pDepthStencilAttachment = &depth_reference;
+            }
+            else
+            {
+                subpass.pDepthStencilAttachment = nullptr;
+            }
+            subpass.preserveAttachmentCount = 0;
+            subpass.pPreserveAttachments = nullptr;
+
+            VkSubpassDependency dependencies[2];
+            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[0].dstSubpass = 0;
+            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+            dependencies[1].srcSubpass = 0;
+            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+            VkRenderPassCreateInfo rp_info;
+            rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+            rp_info.pNext = nullptr;
+            rp_info.flags = 0;
+            rp_info.attachmentCount = attachments.Size();
+            rp_info.pAttachments = &attachments[0];
+            rp_info.subpassCount = 1;
+            rp_info.pSubpasses = &subpass;
+            rp_info.dependencyCount = 2;
+            rp_info.pDependencies = dependencies;
+
+            VkResult err = vkCreateRenderPass(m_device, &rp_info, NULL, render_pass);
+            assert(!err);
+
+            //create framebuffer
         }
     };
 

@@ -295,7 +295,6 @@ namespace Viry3D
 
 	void RenderPassVulkan::Begin(const Color& clear_color)
 	{
-		VkImage image;
 		int width;
 		int height;
 		VkFramebuffer framebuffer;
@@ -312,7 +311,6 @@ namespace Viry3D
 
 		if (is_default)
 		{
-			image = display->GetSwapchainBufferImage(swap_index);
 			auto depth_texture = display->GetDepthTexture();
 			width = depth_texture->GetWidth();
 			height = depth_texture->GetHeight();
@@ -321,7 +319,6 @@ namespace Viry3D
 		else
 		{
 			auto frame_buffer = pass->m_frame_buffer;
-			image = frame_buffer.color_texture->GetImage();
 			width = frame_buffer.color_texture->GetWidth();
 			height = frame_buffer.color_texture->GetHeight();
 			framebuffer = m_framebuffers[0].frame_buffer;
