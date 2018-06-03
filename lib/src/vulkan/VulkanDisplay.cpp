@@ -52,6 +52,19 @@ namespace Viry3D
         VkFormat format;
         int width;
         int height;
+        VkCommandBuffer cmd;
+        VkCommandBuffer present_cmd;
+
+        SwapchainImageResources():
+            image(nullptr),
+            image_view(nullptr),
+            format(VK_FORMAT_UNDEFINED),
+            width(0),
+            height(0),
+            cmd(nullptr),
+            present_cmd(nullptr)
+        {
+        }
     };
 
     class VulkanDisplayPrivate
@@ -96,17 +109,14 @@ namespace Viry3D
         VkSemaphore m_image_ownership_semaphores[FRAME_LAG];
         VkSwapchainKHR m_swapchain = nullptr;
         Vector<SwapchainImageResources> m_swapchain_image_resources;
-        VkCommandPool m_cmd_pool = nullptr;
-        VkCommandBuffer m_cmd = nullptr;
+        VkCommandPool m_graphics_cmd_pool = nullptr;
+        VkCommandBuffer m_image_cmd = nullptr;
         VkCommandPool m_present_cmd_pool = nullptr;
-        VkCommandBuffer m_present_cmd = nullptr;
         Ref<RenderTexture> m_depth_texture;
         VkPipelineCache m_pipeline_cache = nullptr;
 
-        // for test
-        Vector<VkRenderPass> m_test_render_passes;
-        Vector<VkFramebuffer> m_test_framebuffers;
-        //
+        Vector<VkRenderPass> m_render_passes;
+        Vector<VkFramebuffer> m_framebuffers;
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -649,28 +659,35 @@ namespace Viry3D
                 DepthBuffer::Depth_24_Stencil_8,
                 FilterMode::Point);
 
-            this->TestCreateRenderPasses();
+            this->CreateRenderPasses();
         }
 
         void DestroySizeDependentResources()
         {
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
-                vkDestroyFramebuffer(m_device, m_test_framebuffers[i], nullptr);
-                vkDestroyRenderPass(m_device, m_test_render_passes[i], nullptr);
+                vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
+                vkDestroyRenderPass(m_device, m_render_passes[i], nullptr);
             }
-            m_test_framebuffers.Clear();
-            m_test_render_passes.Clear();
+            m_framebuffers.Clear();
+            m_render_passes.Clear();
 
             m_depth_texture.reset();
 
             vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
 
-            vkFreeCommandBuffers(m_device, m_cmd_pool, 1, &m_cmd);
-            vkDestroyCommandPool(m_device, m_cmd_pool, nullptr);
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_swapchain_image_resources[i].cmd);
+            }
+            vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_image_cmd);
+            vkDestroyCommandPool(m_device, m_graphics_cmd_pool, nullptr);
             if (m_separate_present_queue)
             {
-                vkFreeCommandBuffers(m_device, m_present_cmd_pool, 1, &m_present_cmd);
+                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+                {
+                    vkFreeCommandBuffers(m_device, m_present_cmd_pool, 1, &m_swapchain_image_resources[i].present_cmd);
+                }
                 vkDestroyCommandPool(m_device, m_present_cmd_pool, nullptr);
             }
 
@@ -869,19 +886,25 @@ namespace Viry3D
                 pool_info.flags = 0;
                 pool_info.queueFamilyIndex = m_graphics_queue_family_index;
 
-                err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_cmd_pool);
+                err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_graphics_cmd_pool);
                 assert(!err);
 
                 VkCommandBufferAllocateInfo cmd_info;
                 Memory::Zero(&cmd_info, sizeof(cmd_info));
                 cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 cmd_info.pNext = nullptr;
-                cmd_info.commandPool = m_cmd_pool;
+                cmd_info.commandPool = m_graphics_cmd_pool;
                 cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
                 cmd_info.commandBufferCount = 1;
                 
-                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_cmd);
+                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_image_cmd);
                 assert(!err);
+
+                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+                {
+                    err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_swapchain_image_resources[i].cmd);
+                    assert(!err);
+                }
             }
 
             if (m_separate_present_queue)
@@ -904,8 +927,11 @@ namespace Viry3D
                 cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
                 cmd_info.commandBufferCount = 1;
 
-                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_present_cmd);
-                assert(!err);
+                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+                {
+                    err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_swapchain_image_resources[i].present_cmd);
+                    assert(!err);
+                }
             }
         }
 
@@ -1089,10 +1115,10 @@ namespace Viry3D
             assert(!err);
         }
 
-        void TestCreateRenderPasses()
+        void CreateRenderPasses()
         {
-            m_test_render_passes.Resize(m_swapchain_image_resources.Size());
-            m_test_framebuffers.Resize(m_swapchain_image_resources.Size());
+            m_render_passes.Resize(m_swapchain_image_resources.Size());
+            m_framebuffers.Resize(m_swapchain_image_resources.Size());
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
@@ -1105,8 +1131,8 @@ namespace Viry3D
                     m_swapchain_image_resources[i].height,
                     CameraClearFlags::Color,
                     true,
-                    &m_test_render_passes[i],
-                    &m_test_framebuffers[i]
+                    &m_render_passes[i],
+                    &m_framebuffers[i]
                     );
             }
         }
