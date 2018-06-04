@@ -53,7 +53,6 @@ namespace Viry3D
         int width;
         int height;
         VkCommandBuffer cmd;
-        VkCommandBuffer present_cmd;
 
         SwapchainImageResources():
             image(nullptr),
@@ -61,8 +60,7 @@ namespace Viry3D
             format(VK_FORMAT_UNDEFINED),
             width(0),
             height(0),
-            cmd(nullptr),
-            present_cmd(nullptr)
+            cmd(nullptr)
         {
         }
     };
@@ -83,7 +81,6 @@ namespace Viry3D
         VkSurfaceKHR m_surface = nullptr;
         VkDevice m_device = nullptr;
         VkQueue m_graphics_queue = nullptr;
-        VkQueue m_present_queue = nullptr;
         VkPhysicalDeviceProperties m_gpu_properties;
         Vector<VkQueueFamilyProperties> m_queue_properties;
         VkPhysicalDeviceFeatures m_gpu_features;
@@ -100,18 +97,14 @@ namespace Viry3D
         PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR = nullptr;
         PFN_vkQueuePresentKHR fpQueuePresentKHR = nullptr;
         int m_graphics_queue_family_index = -1;
-        int m_present_queue_family_index = -1;
-        bool m_separate_present_queue = false;
         VkSurfaceFormatKHR m_surface_format;
         VkFence m_fences[FRAME_LAG];
         VkSemaphore m_image_acquired_semaphores[FRAME_LAG];
         VkSemaphore m_draw_complete_semaphores[FRAME_LAG];
-        VkSemaphore m_image_ownership_semaphores[FRAME_LAG];
         VkSwapchainKHR m_swapchain = nullptr;
         Vector<SwapchainImageResources> m_swapchain_image_resources;
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
-        VkCommandPool m_present_cmd_pool = nullptr;
         Ref<RenderTexture> m_depth_texture;
         VkPipelineCache m_pipeline_cache = nullptr;
 
@@ -127,7 +120,6 @@ namespace Viry3D
             Memory::Zero(m_fences, sizeof(m_fences));
             Memory::Zero(m_image_acquired_semaphores, sizeof(m_image_acquired_semaphores));
             Memory::Zero(m_draw_complete_semaphores, sizeof(m_draw_complete_semaphores));
-            Memory::Zero(m_image_ownership_semaphores, sizeof(m_image_ownership_semaphores));
         }
 
         ~VulkanDisplayPrivate()
@@ -142,10 +134,6 @@ namespace Viry3D
                 vkDestroyFence(m_device, m_fences[i], nullptr);
                 vkDestroySemaphore(m_device, m_image_acquired_semaphores[i], nullptr);
                 vkDestroySemaphore(m_device, m_draw_complete_semaphores[i], nullptr);
-                if (m_separate_present_queue)
-                {
-                    vkDestroySemaphore(m_device, m_image_ownership_semaphores[i], nullptr);
-                }
             }
 
             vkDestroyDevice(m_device, nullptr);
@@ -533,10 +521,9 @@ namespace Viry3D
             }
 
             assert(graphics_queue_index >= 0 && present_queue_index >= 0);
+            assert(graphics_queue_index == present_queue_index);
 
             m_graphics_queue_family_index = graphics_queue_index;
-            m_present_queue_family_index = present_queue_index;
-            m_separate_present_queue = m_graphics_queue_family_index != m_present_queue_family_index;
 
             float queue_priorities[1] = { 0.0 };
             VkDeviceQueueCreateInfo queue_infos[2];
@@ -561,18 +548,6 @@ namespace Viry3D
             device_info.ppEnabledExtensionNames = &m_device_extension_names[0];
             device_info.pEnabledFeatures = nullptr;
 
-            if (m_separate_present_queue)
-            {
-                queue_infos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                queue_infos[1].pNext = nullptr;
-                queue_infos[1].flags = 0;
-                queue_infos[1].queueFamilyIndex = m_present_queue_family_index;
-                queue_infos[1].queueCount = 1;
-                queue_infos[1].pQueuePriorities = queue_priorities;
-
-                device_info.queueCreateInfoCount = 2;
-            }
-
             err = vkCreateDevice(m_gpu, &device_info, nullptr, &m_device);
             assert(!err);
 
@@ -583,15 +558,6 @@ namespace Viry3D
             GET_DEVICE_PROC_ADDR(m_device, QueuePresentKHR);
 
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
-
-            if (m_separate_present_queue)
-            {
-                vkGetDeviceQueue(m_device, m_present_queue_family_index, 0, &m_present_queue);
-            }
-            else
-            {
-                m_present_queue = m_graphics_queue;
-            }
 
             uint32_t surface_format_count;
             err = fpGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, m_surface, &surface_format_count, nullptr);
@@ -638,12 +604,6 @@ namespace Viry3D
 
                 err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_draw_complete_semaphores[i]);
                 assert(!err);
-
-                if (m_separate_present_queue)
-                {
-                    err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_image_ownership_semaphores[i]);
-                    assert(!err);
-                }
             }
         }
 
@@ -682,14 +642,6 @@ namespace Viry3D
             }
             vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_image_cmd);
             vkDestroyCommandPool(m_device, m_graphics_cmd_pool, nullptr);
-            if (m_separate_present_queue)
-            {
-                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-                {
-                    vkFreeCommandBuffers(m_device, m_present_cmd_pool, 1, &m_swapchain_image_resources[i].present_cmd);
-                }
-                vkDestroyCommandPool(m_device, m_present_cmd_pool, nullptr);
-            }
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
@@ -697,6 +649,7 @@ namespace Viry3D
             }
             m_swapchain_image_resources.Clear();
             fpDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+            m_swapchain = nullptr;
         }
 
         void OnResize(int width, int height)
@@ -876,62 +829,31 @@ namespace Viry3D
 
         void CreateCommandBuffer()
         {
-            VkResult err;
+            VkCommandPoolCreateInfo pool_info;
+            Memory::Zero(&pool_info, sizeof(pool_info));
+            pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            pool_info.pNext = nullptr;
+            pool_info.flags = 0;
+            pool_info.queueFamilyIndex = m_graphics_queue_family_index;
 
+            VkResult err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_graphics_cmd_pool);
+            assert(!err);
+
+            VkCommandBufferAllocateInfo cmd_info;
+            Memory::Zero(&cmd_info, sizeof(cmd_info));
+            cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            cmd_info.pNext = nullptr;
+            cmd_info.commandPool = m_graphics_cmd_pool;
+            cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            cmd_info.commandBufferCount = 1;
+
+            err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_image_cmd);
+            assert(!err);
+
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
-                VkCommandPoolCreateInfo pool_info;
-                Memory::Zero(&pool_info, sizeof(pool_info));
-                pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-                pool_info.pNext = nullptr;
-                pool_info.flags = 0;
-                pool_info.queueFamilyIndex = m_graphics_queue_family_index;
-
-                err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_graphics_cmd_pool);
+                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_swapchain_image_resources[i].cmd);
                 assert(!err);
-
-                VkCommandBufferAllocateInfo cmd_info;
-                Memory::Zero(&cmd_info, sizeof(cmd_info));
-                cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-                cmd_info.pNext = nullptr;
-                cmd_info.commandPool = m_graphics_cmd_pool;
-                cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                cmd_info.commandBufferCount = 1;
-                
-                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_image_cmd);
-                assert(!err);
-
-                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-                {
-                    err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_swapchain_image_resources[i].cmd);
-                    assert(!err);
-                }
-            }
-
-            if (m_separate_present_queue)
-            {
-                VkCommandPoolCreateInfo pool_info;
-                Memory::Zero(&pool_info, sizeof(pool_info));
-                pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-                pool_info.pNext = nullptr;
-                pool_info.flags = 0;
-                pool_info.queueFamilyIndex = m_present_queue_family_index;
-
-                err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_present_cmd_pool);
-                assert(!err);
-
-                VkCommandBufferAllocateInfo cmd_info;
-                Memory::Zero(&cmd_info, sizeof(cmd_info));
-                cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-                cmd_info.pNext = nullptr;
-                cmd_info.commandPool = m_present_cmd_pool;
-                cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                cmd_info.commandBufferCount = 1;
-
-                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-                {
-                    err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_swapchain_image_resources[i].present_cmd);
-                    assert(!err);
-                }
             }
         }
 
@@ -1125,8 +1047,8 @@ namespace Viry3D
                 this->CreateRenderPass(
                     m_swapchain_image_resources[i].image_view,
                     m_swapchain_image_resources[i].format,
-                    m_depth_texture->GetImageView(),
-                    m_depth_texture->GetVkFormat(),
+                    nullptr,
+                    VK_FORMAT_UNDEFINED,
                     m_swapchain_image_resources[i].width,
                     m_swapchain_image_resources[i].height,
                     CameraClearFlags::Color,
