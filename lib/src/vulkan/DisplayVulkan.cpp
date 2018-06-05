@@ -201,6 +201,8 @@ namespace Viry3D
                 }
             }
 
+            g_test_device->OnDraw();
+
             ::Sleep(1);
         }
 

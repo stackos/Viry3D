@@ -27,6 +27,7 @@ namespace Viry3D
         VulkanDisplay(void* window, int width, int height);
         virtual ~VulkanDisplay();
         void OnResize(int width, int height);
+        void OnDraw();
 
     private:
         VulkanDisplayPrivate* m_private;

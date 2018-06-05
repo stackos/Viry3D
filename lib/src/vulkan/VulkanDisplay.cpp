@@ -52,8 +52,8 @@ namespace Viry3D
         VkFormat format;
         VkImage image;
         VkImageView image_view;
-        VkMemoryAllocateInfo memory_info;
         VkDeviceMemory memory;
+        VkMemoryAllocateInfo memory_info;
         bool is_ref_image;
 
         VkTexture():
@@ -636,13 +636,21 @@ namespace Viry3D
         {
             this->CreateSwapChain();
             this->CreateCommandBuffer();
-            this->CreatePipelineCache();
             m_depth_texture = this->CreateTexture(
                 VK_IMAGE_TYPE_2D,
                 VK_IMAGE_VIEW_TYPE_2D,
-                m_width, m_height,
+                m_width,
+                m_height,
                 VK_FORMAT_D32_SFLOAT,
-                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                VK_IMAGE_ASPECT_DEPTH_BIT,
+                {
+                    VK_COMPONENT_SWIZZLE_IDENTITY,
+                    VK_COMPONENT_SWIZZLE_IDENTITY,
+                    VK_COMPONENT_SWIZZLE_IDENTITY,
+                    VK_COMPONENT_SWIZZLE_IDENTITY
+                });
+            this->CreatePipelineCache();
             this->CreateRenderPasses();
         }
 
@@ -656,10 +664,10 @@ namespace Viry3D
             m_framebuffers.Clear();
             m_render_passes.Clear();
 
+            vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
+
             m_depth_texture->Destroy(m_device);
             m_depth_texture.reset();
-
-            vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
@@ -1064,15 +1072,39 @@ namespace Viry3D
             assert(!err);
         }
 
+        bool CheckMemoryType(uint32_t mem_type_bits, VkFlags requirements_mask, uint32_t* type_index)
+        {
+            for (int i = 0; i < VK_MAX_MEMORY_TYPES; ++i)
+            {
+                if ((mem_type_bits & 1) == 1)
+                {
+                    if ((m_memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask)
+                    {
+                        *type_index = i;
+                        return true;
+                    }
+                }
+                mem_type_bits >>= 1;
+            }
+
+            return false;
+        }
+
         Ref<VkTexture> CreateTexture(
             VkImageType type,
             VkImageViewType view_type,
             int width,
             int height,
             VkFormat format,
-            VkImageUsageFlags usage)
+            VkImageUsageFlags usage,
+            VkImageAspectFlags aspect_flag,
+            const VkComponentMapping& component)
         {
             Ref<VkTexture> texture = RefMake<VkTexture>();
+            texture->is_ref_image = false;
+            texture->width = width;
+            texture->height = height;
+            texture->format = format;
 
             VkImageCreateInfo image_info;
             Memory::Zero(&image_info, sizeof(image_info));
@@ -1092,17 +1124,41 @@ namespace Viry3D
             image_info.pQueueFamilyIndices = nullptr;
             image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
+            VkResult err = vkCreateImage(m_device, &image_info, nullptr, &texture->image);
+            assert(!err);
+
+            VkMemoryRequirements mem_reqs;
+            vkGetImageMemoryRequirements(m_device, texture->image, &mem_reqs);
+
+            Memory::Zero(&texture->memory_info, sizeof(texture->memory_info));
+            texture->memory_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            texture->memory_info.pNext = nullptr;
+            texture->memory_info.allocationSize = mem_reqs.size;
+            texture->memory_info.memoryTypeIndex = 0;
+
+            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture->memory_info.memoryTypeIndex);
+            assert(pass);
+
+            err = vkAllocateMemory(m_device, &texture->memory_info, nullptr, &texture->memory);
+            assert(!err);
+
+            err = vkBindImageMemory(m_device, texture->image, texture->memory, 0);
+            assert(!err);
+
             VkImageViewCreateInfo view_info;
             Memory::Zero(&view_info, sizeof(view_info));
             view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             view_info.pNext = nullptr;
             view_info.flags = 0;
-            view_info.image = nullptr;
+            view_info.image = texture->image;
             view_info.viewType = view_type;
             view_info.format = format;
-            //view_info.components = ;
-            view_info.subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
+            view_info.components = component;
+            view_info.subresourceRange = { aspect_flag, 0, 1, 0, 1 };
             
+            err = vkCreateImageView(m_device, &view_info, nullptr, &texture->image_view);
+            assert(!err);
+
             return texture;
         }
 
@@ -1116,16 +1172,20 @@ namespace Viry3D
                 this->CreateRenderPass(
                     m_swapchain_image_resources[i].texture->image_view,
                     m_swapchain_image_resources[i].texture->format,
-                    nullptr,
-                    VK_FORMAT_UNDEFINED,
+                    m_depth_texture->image_view,
+                    m_depth_texture->format,
                     m_swapchain_image_resources[i].texture->width,
                     m_swapchain_image_resources[i].texture->height,
                     CameraClearFlags::Color,
                     true,
                     &m_render_passes[i],
-                    &m_framebuffers[i]
-                    );
+                    &m_framebuffers[i]);
             }
+        }
+
+        void OnDraw()
+        {
+            
         }
     };
 
@@ -1150,5 +1210,10 @@ namespace Viry3D
     void VulkanDisplay::OnResize(int width, int height)
     {
         m_private->OnResize(width, height);
+    }
+
+    void VulkanDisplay::OnDraw()
+    {
+        m_private->OnDraw();
     }
 }
