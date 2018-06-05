@@ -126,8 +126,10 @@ namespace Viry3D
         VkFence m_fences[FRAME_LAG];
         VkSemaphore m_image_acquired_semaphores[FRAME_LAG];
         VkSemaphore m_draw_complete_semaphores[FRAME_LAG];
+        int m_frame_index = 0;
         VkSwapchainKHR m_swapchain = nullptr;
         Vector<SwapchainImageResources> m_swapchain_image_resources;
+        uint32_t m_image_index = 0;
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
         Ref<VkTexture> m_depth_texture;
@@ -651,6 +653,7 @@ namespace Viry3D
                     VK_COMPONENT_SWIZZLE_IDENTITY
                 });
             this->CreatePipelineCache();
+
             this->CreateRenderPasses();
         }
 
@@ -1185,7 +1188,44 @@ namespace Viry3D
 
         void OnDraw()
         {
-            
+            vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
+            vkResetFences(m_device, 1, &m_fences[m_frame_index]);
+
+            VkResult err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphores[m_frame_index], nullptr, &m_image_index);
+            assert(!err);
+
+            VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            VkSubmitInfo submit_info;
+            Memory::Zero(&submit_info, sizeof(submit_info));
+            submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submit_info.pNext = nullptr;
+            submit_info.waitSemaphoreCount = 1;
+            submit_info.pWaitSemaphores = &m_image_acquired_semaphores[m_frame_index];
+            submit_info.pWaitDstStageMask = &pipe_stage_flags;
+            submit_info.commandBufferCount = 1;
+            submit_info.pCommandBuffers = &m_swapchain_image_resources[m_image_index].cmd;
+            submit_info.signalSemaphoreCount = 1;
+            submit_info.pSignalSemaphores = &m_draw_complete_semaphores[m_frame_index];
+
+            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_fences[m_frame_index]);
+            assert(!err);
+
+            VkPresentInfoKHR present_info;
+            Memory::Zero(&present_info, sizeof(present_info));
+            present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+            present_info.pNext = nullptr;
+            present_info.waitSemaphoreCount = 1;
+            present_info.pWaitSemaphores = &m_draw_complete_semaphores[m_frame_index];
+            present_info.swapchainCount = 1;
+            present_info.pSwapchains = &m_swapchain;
+            present_info.pImageIndices = &m_image_index;
+            present_info.pResults = nullptr;
+
+            err = fpQueuePresentKHR(m_graphics_queue, &present_info);
+            assert(!err);
+
+            m_frame_index += 1;
+            m_frame_index %= FRAME_LAG;
         }
     };
 
