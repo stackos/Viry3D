@@ -871,9 +871,9 @@ namespace Viry3D
             Memory::Zero(&pool_info, sizeof(pool_info));
             pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
             pool_info.pNext = nullptr;
-            pool_info.flags = 0;
+            pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
             pool_info.queueFamilyIndex = m_graphics_queue_family_index;
-
+            
             VkResult err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_graphics_cmd_pool);
             assert(!err);
 
@@ -1186,6 +1186,65 @@ namespace Viry3D
             }
         }
 
+        void BuildCmd(VkCommandBuffer cmd, VkRenderPass render_pass, VkFramebuffer framebuffer)
+        {
+            VkCommandBufferBeginInfo cmd_begin;
+            Memory::Zero(&cmd_begin, sizeof(cmd_begin));
+            cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmd_begin.pNext = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+            cmd_begin.pInheritanceInfo = nullptr;
+
+            VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
+            assert(!err);
+
+            VkClearValue clear_values[2];
+            clear_values[0].color.float32[0] = 0.0f;
+            clear_values[0].color.float32[1] = 0.0f;
+            clear_values[0].color.float32[2] = 0.0f;
+            clear_values[0].color.float32[3] = 1.0f;
+            clear_values[1].depthStencil.depth = 1.0f;
+            clear_values[1].depthStencil.stencil = 0;
+
+            VkRenderPassBeginInfo rp_begin;
+            Memory::Zero(&rp_begin, sizeof(rp_begin));
+            rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            rp_begin.pNext = nullptr;
+            rp_begin.renderPass = render_pass;
+            rp_begin.framebuffer = framebuffer;
+            rp_begin.renderArea.offset.x = 0;
+            rp_begin.renderArea.offset.y = 0;
+            rp_begin.renderArea.extent.width = m_width;
+            rp_begin.renderArea.extent.height = m_height;
+            rp_begin.clearValueCount = 2;
+            rp_begin.pClearValues = clear_values;
+
+            vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+
+            VkViewport viewport;
+            Memory::Zero(&viewport, sizeof(viewport));
+            viewport.x = 0;
+            viewport.y = 0;
+            viewport.width = (float) m_width;
+            viewport.height = (float) m_height;
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            vkCmdSetViewport(cmd, 0, 1, &viewport);
+
+            VkRect2D scissor;
+            Memory::Zero(&scissor, sizeof(scissor));
+            scissor.offset.x = 0;
+            scissor.offset.y = 0;
+            scissor.extent.width = m_width;
+            scissor.extent.height = m_height;
+            vkCmdSetScissor(cmd, 0, 1, &scissor);
+
+            vkCmdEndRenderPass(cmd);
+
+            err = vkEndCommandBuffer(cmd);
+            assert(!err);
+        }
+
         void OnDraw()
         {
             vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
@@ -1193,6 +1252,11 @@ namespace Viry3D
 
             VkResult err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphores[m_frame_index], nullptr, &m_image_index);
             assert(!err);
+
+            this->BuildCmd(
+                m_swapchain_image_resources[m_image_index].cmd,
+                m_render_passes[m_image_index],
+                m_framebuffers[m_image_index]);
 
             VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             VkSubmitInfo submit_info;
