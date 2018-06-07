@@ -17,15 +17,23 @@
 
 #include "VulkanDisplay.h"
 #include "vulkan_include.h"
+#include "vulkan_shader_compiler.h"
+#include "Application.h"
+#include "Debug.h"
 #include "container/Vector.h"
 #include "string/String.h"
 #include "memory/Memory.h"
 #include "graphics/RenderTexture.h"
 #include "graphics/CameraClearFlags.h"
+#include "graphics/Color.h"
 #include "math/Rect.h"
-#include "Application.h"
-#include "Debug.h"
+#include "io/File.h"
 #include <assert.h>
+
+extern "C"
+{
+#include "crypto/md5/md5.h"
+}
 
 static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
@@ -168,9 +176,9 @@ namespace Viry3D
             m_gpu = nullptr;
             fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
             vkDestroyInstance(m_instance, nullptr);
-            StringVectorClear(m_enabled_layers);
-            StringVectorClear(m_instance_extension_names);
-            StringVectorClear(m_device_extension_names);
+            VulkanDisplayPrivate::StringVectorClear(m_enabled_layers);
+            VulkanDisplayPrivate::StringVectorClear(m_instance_extension_names);
+            VulkanDisplayPrivate::StringVectorClear(m_device_extension_names);
             m_public = nullptr;
         }
 
@@ -189,6 +197,63 @@ namespace Viry3D
                 Memory::Free(vec[i]);
             }
             vec.Clear();
+        }
+
+        static void GlslToSpirvCached(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
+        {
+            unsigned char hash_bytes[16];
+            MD5_CTX md5_context;
+            MD5_Init(&md5_context);
+            MD5_Update(&md5_context, (void*) glsl.CString(), glsl.Size());
+            MD5_Final(hash_bytes, &md5_context);
+            String md5_str;
+            for (int i = 0; i < sizeof(hash_bytes); i++)
+            {
+                md5_str += String::Format("%02x", hash_bytes[i]);
+            }
+
+            String cache_path = Application::SavePath() + "/" + md5_str + ".cache";
+            if (File::Exist(cache_path))
+            {
+                auto buffer = File::ReadAllBytes(cache_path);
+                spirv.Resize(buffer.Size() / 4);
+                Memory::Copy(&spirv[0], buffer.Bytes(), buffer.Size());
+            }
+            else
+            {
+                String error;
+                bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
+                assert(success);
+
+                ByteBuffer buffer(spirv.SizeInBytes());
+                Memory::Copy(buffer.Bytes(), &spirv[0], buffer.Size());
+                File::WriteAllBytes(cache_path, buffer);
+            }
+        }
+
+        static String ProcessShaderSource(const String& glsl, const Vector<String>& includes)
+        {
+            static const String s_shader_header =
+                "#version 310 es\n"
+                "#extension GL_ARB_separate_shader_objects : enable\n"
+                "#extension GL_ARB_shading_language_420pack : enable\n"
+                "#define VR_VULKAN 1\n"
+                "#define UniformBuffer(set_index, binding_index) layout(std140, set = set_index, binding = binding_index)\n"
+                "#define UniformTexture(set_index, binding_index) layout(set = set_index, binding = binding_index)\n"
+                "#define Input(location_index) layout(location = location_index) in\n"
+                "#define Output(location_index) layout(location = location_index) out\n";
+
+            String source = s_shader_header;
+            for (const auto& i : includes)
+            {
+                auto include_path = Application::DataPath() + "/shader/Include/" + i;
+                auto bytes = File::ReadAllBytes(include_path);
+                auto include_str = String(bytes);
+                source += include_str + "\n";
+            }
+            source += glsl;
+
+            return source;
         }
 
         void CheckInstanceLayers()
@@ -278,7 +343,7 @@ namespace Viry3D
             {
                 for (int i = 0; i < instance_validation_layer_count; ++i)
                 {
-                    StringVectorAdd(m_enabled_layers, instance_validation_layers[i]);
+                    VulkanDisplayPrivate::StringVectorAdd(m_enabled_layers, instance_validation_layers[i]);
                 }
             }
         }
@@ -302,37 +367,37 @@ namespace Viry3D
                 if (strcmp(VK_KHR_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     surface_ext_found = true;
-                    StringVectorAdd(m_instance_extension_names, VK_KHR_SURFACE_EXTENSION_NAME);
+                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_KHR_SURFACE_EXTENSION_NAME);
                 }
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
                 if (strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    StringVectorAdd(m_instance_extension_names, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
                 }
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
                 if (strcmp(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    StringVectorAdd(m_instance_extension_names, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
                 }
 #elif defined(VK_USE_PLATFORM_IOS_MVK)
                 if (strcmp(VK_MVK_IOS_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    StringVectorAdd(m_instance_extension_names, VK_MVK_IOS_SURFACE_EXTENSION_NAME);
+                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_MVK_IOS_SURFACE_EXTENSION_NAME);
                 }
 #elif defined(VK_USE_PLATFORM_MACOS_MVK)
                 if (strcmp(VK_MVK_MACOS_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    StringVectorAdd(m_instance_extension_names, VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
                 }
 #endif
                 if (strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    StringVectorAdd(m_instance_extension_names, VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
                 }
             }
 
@@ -448,7 +513,7 @@ namespace Viry3D
                 if (strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[i].extensionName) == 0)
                 {
                     swapchain_ext_found = true;
-                    StringVectorAdd(m_device_extension_names, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+                    VulkanDisplayPrivate::StringVectorAdd(m_device_extension_names, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
                 }
             }
             assert(swapchain_ext_found);
@@ -655,6 +720,7 @@ namespace Viry3D
             this->CreatePipelineCache();
 
             this->CreateRenderPasses();
+            this->CreatePipeline();
         }
 
         void DestroySizeDependentResources()
@@ -1186,7 +1252,141 @@ namespace Viry3D
             }
         }
 
-        void BuildCmd(VkCommandBuffer cmd, VkRenderPass render_pass, VkFramebuffer framebuffer)
+        void CreateSpirvShaderModule(const Vector<unsigned int>& spirv, VkShaderModule* module)
+        {
+            VkShaderModuleCreateInfo create_info;
+            Memory::Zero(&create_info, sizeof(create_info));
+            create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            create_info.pNext = nullptr;
+            create_info.flags = 0;
+            create_info.codeSize = spirv.SizeInBytes();
+            create_info.pCode = &spirv[0];
+
+            VkResult err = vkCreateShaderModule(m_device, &create_info, nullptr, module);
+            assert(!err);
+        }
+
+        void CreateGlslShaderModule(const String& glsl, VkShaderStageFlagBits shader_type, VkShaderModule* module)
+        {
+            Vector<unsigned int> spirv;
+            VulkanDisplayPrivate::GlslToSpirvCached(glsl, shader_type, spirv);
+            this->CreateSpirvShaderModule(spirv, module);
+        }
+
+        void CreatePipeline()
+        {
+            Vector<String> vs_includes;
+            vs_includes.Add("Base.in");
+
+            String vs = R"(
+UniformBuffer(0, 0) uniform UniformBuffer00
+{
+	mat4 mvp;
+} u_buf_0_0;
+
+Input(0) vec4 a_pos;
+Input(1) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+
+void main()
+{
+	gl_Position = a_pos * u_buf_0_0.mvp;
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+)";
+            String fs = R"(
+precision mediump float;
+      
+UniformTexture(0, 1) uniform sampler2D u_texture;
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    o_frag = texture(u_texture, v_uv);
+}
+)";
+            vs = VulkanDisplayPrivate::ProcessShaderSource(vs, vs_includes);
+            fs = VulkanDisplayPrivate::ProcessShaderSource(fs, Vector<String>());
+
+            VkShaderModule vs_module;
+            VkShaderModule fs_module;
+            this->CreateGlslShaderModule(vs, VK_SHADER_STAGE_VERTEX_BIT, &vs_module);
+            this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, &fs_module);
+
+            Vector<VkPipelineShaderStageCreateInfo> shader_stages(2);
+            Memory::Zero(&shader_stages[0], shader_stages.SizeInBytes());
+            shader_stages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shader_stages[0].pNext = nullptr;
+            shader_stages[0].flags = 0;
+            shader_stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+            shader_stages[0].module = vs_module;
+            shader_stages[0].pName = "main";
+            shader_stages[0].pSpecializationInfo = nullptr;
+
+            shader_stages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shader_stages[1].pNext = nullptr;
+            shader_stages[1].flags = 0;
+            shader_stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+            shader_stages[1].module = fs_module;
+            shader_stages[1].pName = "main";
+            shader_stages[1].pSpecializationInfo = nullptr;
+
+            VkPipelineVertexInputStateCreateInfo vi;
+            Memory::Zero(&vi, sizeof(vi));
+            vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vi.pNext = nullptr;
+            vi.flags = 0;
+            //vi.vertexBindingDescriptionCount;
+            //vi.pVertexBindingDescriptions;
+            //vi.vertexAttributeDescriptionCount;
+            //vi.pVertexAttributeDescriptions;
+
+            VkPipelineInputAssemblyStateCreateInfo ia;
+            Memory::Zero(&ia, sizeof(ia));
+            ia.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+            ia.pNext = nullptr;
+            ia.flags = 0;
+            ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            ia.primitiveRestartEnable = VK_FALSE;
+
+            VkGraphicsPipelineCreateInfo pipeline_info;
+            Memory::Zero(&pipeline_info, sizeof(pipeline_info));
+            pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+            pipeline_info.pNext = nullptr;
+            pipeline_info.flags = 0;
+            pipeline_info.stageCount = (uint32_t) shader_stages.Size();
+            pipeline_info.pStages = &shader_stages[0];
+            pipeline_info.pVertexInputState = &vi;
+            pipeline_info.pInputAssemblyState = &ia;
+            pipeline_info.pTessellationState = nullptr;
+            //pipeline_info.pViewportState;
+            //pipeline_info.pRasterizationState;
+            //pipeline_info.pMultisampleState;
+            //pipeline_info.pDepthStencilState;
+            //pipeline_info.pColorBlendState;
+            //pipeline_info.pDynamicState;
+            //pipeline_info.layout;
+            //pipeline_info.renderPass;
+            pipeline_info.subpass = 0;
+            pipeline_info.basePipelineHandle = nullptr;
+            pipeline_info.basePipelineIndex = 0;
+
+            vkDestroyShaderModule(m_device, vs_module, nullptr);
+            vkDestroyShaderModule(m_device, fs_module, nullptr);
+        }
+
+        void BuildCmd(
+            VkCommandBuffer cmd,
+            VkRenderPass render_pass,
+            VkFramebuffer framebuffer,
+            const Color& clear_color,
+            const Rect& view_rect)
         {
             VkCommandBufferBeginInfo cmd_begin;
             Memory::Zero(&cmd_begin, sizeof(cmd_begin));
@@ -1199,10 +1399,10 @@ namespace Viry3D
             assert(!err);
 
             VkClearValue clear_values[2];
-            clear_values[0].color.float32[0] = 0.0f;
-            clear_values[0].color.float32[1] = 0.0f;
-            clear_values[0].color.float32[2] = 0.0f;
-            clear_values[0].color.float32[3] = 1.0f;
+            clear_values[0].color.float32[0] = clear_color.r;
+            clear_values[0].color.float32[1] = clear_color.g;
+            clear_values[0].color.float32[2] = clear_color.b;
+            clear_values[0].color.float32[3] = clear_color.a;
             clear_values[1].depthStencil.depth = 1.0f;
             clear_values[1].depthStencil.stencil = 0;
 
@@ -1223,10 +1423,10 @@ namespace Viry3D
 
             VkViewport viewport;
             Memory::Zero(&viewport, sizeof(viewport));
-            viewport.x = 0;
-            viewport.y = 0;
-            viewport.width = (float) m_width;
-            viewport.height = (float) m_height;
+            viewport.x = m_width * view_rect.x;
+            viewport.y = m_height * view_rect.y;
+            viewport.width = (float) m_width * view_rect.width;
+            viewport.height = (float) m_height * view_rect.height;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(cmd, 0, 1, &viewport);
@@ -1256,7 +1456,9 @@ namespace Viry3D
             this->BuildCmd(
                 m_swapchain_image_resources[m_image_index].cmd,
                 m_render_passes[m_image_index],
-                m_framebuffers[m_image_index]);
+                m_framebuffers[m_image_index],
+                Color(0, 0, 0, 1),
+                Rect(0, 0, 1, 1));
 
             VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             VkSubmitInfo submit_info;
