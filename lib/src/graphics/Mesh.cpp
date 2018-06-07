@@ -169,7 +169,7 @@ namespace Viry3D
 
 	int Mesh::VertexBufferSize() const
 	{
-		return VERTEX_STRIDE * vertices.Size();
+		return sizeof(Vertex) * vertices.Size();
 	}
 
 	int Mesh::IndexBufferSize() const

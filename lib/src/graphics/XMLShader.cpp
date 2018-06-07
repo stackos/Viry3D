@@ -60,8 +60,6 @@ namespace Viry3D
 		0, 12, 28, 36, 44, 56, 72, 88
 	};
 
-	const int VERTEX_STRIDE = 104;
-
 	void XMLShader::Clear()
 	{
 		passes.Clear();
@@ -191,7 +189,7 @@ namespace Viry3D
 						}
 					}
 
-					vs.stride = VERTEX_STRIDE;
+					vs.stride = sizeof(Vertex);
 
 					vss.Add(vs);
 				}

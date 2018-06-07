@@ -887,7 +887,7 @@ namespace Viry3D
 			index_count += count;
 		}
 
-		m_static_vertex_buffer = VertexBuffer::Create(vertex_count * VERTEX_STRIDE, false);
+		m_static_vertex_buffer = VertexBuffer::Create(vertex_count * sizeof(Vertex), false);
 		m_static_vertex_buffer->Fill(NULL,
 			[&](void* param, const ByteBuffer& buffer) {
 			MemoryStream ms(buffer);

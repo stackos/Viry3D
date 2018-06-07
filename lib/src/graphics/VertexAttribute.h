@@ -55,5 +55,4 @@ namespace Viry3D
 	extern const char* VERTEX_ATTR_TYPES[(int) VertexAttributeType::Count];
 	extern const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count];
 	extern const int VERTEX_ATTR_OFFSETS[(int) VertexAttributeType::Count];
-	extern const int VERTEX_STRIDE;
 }

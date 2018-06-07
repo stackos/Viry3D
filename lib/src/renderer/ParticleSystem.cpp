@@ -556,7 +556,7 @@ namespace Viry3D
 
 		int vertex_count = m_particles.Size() * vertex_count_per_particle;
 		assert(vertex_count < 65536);
-		int vertex_buffer_size = vertex_count * VERTEX_STRIDE;
+		int vertex_buffer_size = vertex_count * sizeof(Vertex);
 		if (!m_vertex_buffer || m_vertex_buffer->GetSize() < vertex_buffer_size)
 		{
 			m_vertex_buffer = VertexBuffer::Create(vertex_buffer_size, true);

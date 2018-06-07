@@ -26,6 +26,7 @@
 #include "graphics/RenderTexture.h"
 #include "graphics/CameraClearFlags.h"
 #include "graphics/Color.h"
+#include "graphics/VertexAttribute.h"
 #include "math/Rect.h"
 #include "io/File.h"
 #include <assert.h>
@@ -141,10 +142,9 @@ namespace Viry3D
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
         Ref<VkTexture> m_depth_texture;
-        VkPipelineCache m_pipeline_cache = nullptr;
-
-        Vector<VkRenderPass> m_render_passes;
+        VkRenderPass m_render_pass = nullptr;
         Vector<VkFramebuffer> m_framebuffers;
+        VkPipelineCache m_pipeline_cache = nullptr;
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -717,23 +717,22 @@ namespace Viry3D
                     VK_COMPONENT_SWIZZLE_IDENTITY,
                     VK_COMPONENT_SWIZZLE_IDENTITY
                 });
-            this->CreatePipelineCache();
-
+            
             this->CreateRenderPasses();
+            this->CreatePipelineCache();
             this->CreatePipeline();
         }
 
         void DestroySizeDependentResources()
         {
+            vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
+
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
-                vkDestroyRenderPass(m_device, m_render_passes[i], nullptr);
             }
             m_framebuffers.Clear();
-            m_render_passes.Clear();
-
-            vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
+            vkDestroyRenderPass(m_device, m_render_pass, nullptr);
 
             m_depth_texture->Destroy(m_device);
             m_depth_texture.reset();
@@ -961,28 +960,12 @@ namespace Viry3D
             }
         }
 
-        void CreatePipelineCache()
-        {
-            VkPipelineCacheCreateInfo pipeline_cache;
-            Memory::Zero(&pipeline_cache, sizeof(pipeline_cache));
-            pipeline_cache.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-            
-            VkResult err;
-            err = vkCreatePipelineCache(m_device, &pipeline_cache, nullptr, &m_pipeline_cache);
-            assert(!err);
-        }
-
         void CreateRenderPass(
-            VkImageView color_image_view,
             VkFormat color_format,
-            VkImageView depth_image_view,
             VkFormat depth_format,
-            int image_width,
-            int image_height,
             CameraClearFlags clear_flag,
             bool present,
-            VkRenderPass* render_pass,
-            VkFramebuffer* framebuffer)
+            VkRenderPass* render_pass)
         {
             VkAttachmentLoadOp color_load;
             VkAttachmentLoadOp depth_load;
@@ -1039,7 +1022,7 @@ namespace Viry3D
             attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             attachments[0].finalLayout = color_final_layout;
 
-            if (depth_image_view != nullptr)
+            if (depth_format != VK_FORMAT_UNDEFINED)
             {
                 attachments.Add(VkAttachmentDescription());
                 Memory::Zero(&attachments[1], sizeof(attachments[1]));
@@ -1072,7 +1055,7 @@ namespace Viry3D
             subpass.colorAttachmentCount = 1;
             subpass.pColorAttachments = &color_reference;
             subpass.pResolveAttachments = nullptr;
-            if (depth_image_view != nullptr)
+            if (depth_format != VK_FORMAT_UNDEFINED)
             {
                 subpass.pDepthStencilAttachment = &depth_reference;
             }
@@ -1116,8 +1099,16 @@ namespace Viry3D
 
             VkResult err = vkCreateRenderPass(m_device, &rp_info, nullptr, render_pass);
             assert(!err);
+        }
 
-            // create framebuffer
+        void CreateFramebuffer(
+            VkImageView color_image_view,
+            VkImageView depth_image_view,
+            int image_width,
+            int image_height,
+            VkRenderPass render_pass,
+            VkFramebuffer* framebuffer)
+        {
             Vector<VkImageView> attachments_view;
             attachments_view.Add(color_image_view);
             if (depth_image_view != nullptr)
@@ -1130,14 +1121,14 @@ namespace Viry3D
             fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             fb_info.pNext = nullptr;
             fb_info.flags = 0;
-            fb_info.renderPass = *render_pass;
+            fb_info.renderPass = render_pass;
             fb_info.attachmentCount = attachments_view.Size();
             fb_info.pAttachments = &attachments_view[0];
             fb_info.width = (uint32_t) image_width;
             fb_info.height = (uint32_t) image_height;
             fb_info.layers = 1;
 
-            err = vkCreateFramebuffer(m_device, &fb_info, nullptr, framebuffer);
+            VkResult err = vkCreateFramebuffer(m_device, &fb_info, nullptr, framebuffer);
             assert(!err);
         }
 
@@ -1233,21 +1224,22 @@ namespace Viry3D
 
         void CreateRenderPasses()
         {
-            m_render_passes.Resize(m_swapchain_image_resources.Size());
-            m_framebuffers.Resize(m_swapchain_image_resources.Size());
+            this->CreateRenderPass(
+                m_swapchain_image_resources[0].texture->format,
+                m_depth_texture->format,
+                CameraClearFlags::Color,
+                true,
+                &m_render_pass);
 
+            m_framebuffers.Resize(m_swapchain_image_resources.Size());
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
-                this->CreateRenderPass(
+                this->CreateFramebuffer(
                     m_swapchain_image_resources[i].texture->image_view,
-                    m_swapchain_image_resources[i].texture->format,
                     m_depth_texture->image_view,
-                    m_depth_texture->format,
                     m_swapchain_image_resources[i].texture->width,
                     m_swapchain_image_resources[i].texture->height,
-                    CameraClearFlags::Color,
-                    true,
-                    &m_render_passes[i],
+                    m_render_pass,
                     &m_framebuffers[i]);
             }
         }
@@ -1271,6 +1263,17 @@ namespace Viry3D
             Vector<unsigned int> spirv;
             VulkanDisplayPrivate::GlslToSpirvCached(glsl, shader_type, spirv);
             this->CreateSpirvShaderModule(spirv, module);
+        }
+
+        void CreatePipelineCache()
+        {
+            VkPipelineCacheCreateInfo pipeline_cache;
+            Memory::Zero(&pipeline_cache, sizeof(pipeline_cache));
+            pipeline_cache.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+
+            VkResult err;
+            err = vkCreatePipelineCache(m_device, &pipeline_cache, nullptr, &m_pipeline_cache);
+            assert(!err);
         }
 
         void CreatePipeline()
@@ -1337,15 +1340,64 @@ void main()
             shader_stages[1].pName = "main";
             shader_stages[1].pSpecializationInfo = nullptr;
 
+            VkVertexInputBindingDescription vi_bind;
+            Memory::Zero(&vi_bind, sizeof(vi_bind));
+            vi_bind.binding = 0;
+            vi_bind.stride = sizeof(Vertex);
+            vi_bind.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            Vector<VkVertexInputAttributeDescription> vi_attrs((int) VertexAttributeType::Count);
+            Memory::Zero(&vi_attrs[0], vi_attrs.SizeInBytes());
+            int location = (int) VertexAttributeType::Vertex;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32B32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            location = (int) VertexAttributeType::Color;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            location = (int) VertexAttributeType::Texcoord;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            location = (int) VertexAttributeType::Texcoord2;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            location = (int) VertexAttributeType::Normal;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32B32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            location = (int) VertexAttributeType::Tangent;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            location = (int) VertexAttributeType::BlendWeight;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            location = (int) VertexAttributeType::BlendIndices;
+            vi_attrs[location].location = location;
+            vi_attrs[location].binding = 0;
+            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+
             VkPipelineVertexInputStateCreateInfo vi;
             Memory::Zero(&vi, sizeof(vi));
             vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             vi.pNext = nullptr;
             vi.flags = 0;
-            //vi.vertexBindingDescriptionCount;
-            //vi.pVertexBindingDescriptions;
-            //vi.vertexAttributeDescriptionCount;
-            //vi.pVertexAttributeDescriptions;
+            vi.vertexBindingDescriptionCount = 1;
+            vi.pVertexBindingDescriptions = &vi_bind;
+            vi.vertexAttributeDescriptionCount = (uint32_t) vi_attrs.Size();
+            vi.pVertexAttributeDescriptions = &vi_attrs[0];
 
             VkPipelineInputAssemblyStateCreateInfo ia;
             Memory::Zero(&ia, sizeof(ia));
@@ -1354,6 +1406,100 @@ void main()
             ia.flags = 0;
             ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             ia.primitiveRestartEnable = VK_FALSE;
+
+            VkPipelineViewportStateCreateInfo vp;
+            Memory::Zero(&vp, sizeof(vp));
+            vp.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+            vp.pNext = nullptr;
+            vp.flags = 0;
+            vp.viewportCount = 1;
+            vp.pViewports = nullptr;
+            vp.scissorCount = 1;
+            vp.pScissors = nullptr;
+
+            Vector<VkDynamicState> dynamic_states;
+            dynamic_states.Add(VK_DYNAMIC_STATE_VIEWPORT);
+            dynamic_states.Add(VK_DYNAMIC_STATE_SCISSOR);
+
+            VkPipelineDynamicStateCreateInfo dynamic_info;
+            Memory::Zero(&dynamic_info, sizeof(dynamic_info));
+            dynamic_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+            dynamic_info.pNext = nullptr;
+            dynamic_info.flags = 0;
+            dynamic_info.dynamicStateCount = (uint32_t) dynamic_states.Size();
+            dynamic_info.pDynamicStates = &dynamic_states[0];
+
+            VkPipelineRasterizationStateCreateInfo rs;
+            Memory::Zero(&rs, sizeof(rs));
+            rs.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+            rs.pNext = nullptr;
+            rs.flags = 0;
+            rs.depthClampEnable = VK_FALSE;
+            rs.rasterizerDiscardEnable = VK_FALSE;
+            rs.polygonMode = VK_POLYGON_MODE_FILL;
+            rs.cullMode = VK_CULL_MODE_BACK_BIT;
+            rs.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+            rs.depthBiasEnable = VK_FALSE;
+            rs.depthBiasConstantFactor = 0;
+            rs.depthBiasClamp = 0;
+            rs.depthBiasSlopeFactor = 0;
+            rs.lineWidth = 1.0f;
+
+            VkPipelineMultisampleStateCreateInfo ms;
+            Memory::Zero(&ms, sizeof(ms));
+            ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+            ms.pNext = nullptr;
+            ms.flags = 0;
+            ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+            ms.sampleShadingEnable = VK_FALSE;
+            ms.minSampleShading = 0;
+            ms.pSampleMask = nullptr;
+            ms.alphaToCoverageEnable = VK_FALSE;
+            ms.alphaToOneEnable = VK_FALSE;
+
+            VkPipelineDepthStencilStateCreateInfo ds;
+            Memory::Zero(&ds, sizeof(ds));
+            ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+            ds.pNext = nullptr;
+            ds.flags = 0;
+            ds.depthTestEnable = VK_TRUE;
+            ds.depthWriteEnable = VK_TRUE;
+            ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+            ds.depthBoundsTestEnable = VK_FALSE;
+            ds.stencilTestEnable = VK_FALSE;
+            ds.front = { VK_STENCIL_OP_KEEP, VK_STENCIL_OP_KEEP, VK_STENCIL_OP_KEEP, VK_COMPARE_OP_NEVER, 0, 0, 0 };
+            ds.back = ds.front;
+            ds.minDepthBounds = 0;
+            ds.maxDepthBounds = 0;
+
+            Vector<VkPipelineColorBlendAttachmentState> att_state(1);
+            Memory::Zero(&att_state[0], att_state.SizeInBytes());
+            att_state[0].blendEnable = VK_FALSE;
+            att_state[0].srcColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            att_state[0].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            att_state[0].colorBlendOp = VK_BLEND_OP_ADD;
+            att_state[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            att_state[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            att_state[0].alphaBlendOp = VK_BLEND_OP_ADD;
+            att_state[0].colorWriteMask =
+                VK_COLOR_COMPONENT_R_BIT |
+                VK_COLOR_COMPONENT_G_BIT |
+                VK_COLOR_COMPONENT_B_BIT |
+                VK_COLOR_COMPONENT_A_BIT;
+
+            VkPipelineColorBlendStateCreateInfo cb;
+            Memory::Zero(&cb, sizeof(cb));
+            cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+            cb.pNext = nullptr;
+            cb.flags = 0;
+            cb.logicOpEnable = VK_FALSE;
+            cb.logicOp = VK_LOGIC_OP_CLEAR;
+            cb.attachmentCount = (uint32_t) att_state.Size();
+            cb.pAttachments = &att_state[0];
+            cb.blendConstants[0] = 0;
+            cb.blendConstants[1] = 0;
+            cb.blendConstants[2] = 0;
+            cb.blendConstants[3] = 0;
 
             VkGraphicsPipelineCreateInfo pipeline_info;
             Memory::Zero(&pipeline_info, sizeof(pipeline_info));
@@ -1365,14 +1511,14 @@ void main()
             pipeline_info.pVertexInputState = &vi;
             pipeline_info.pInputAssemblyState = &ia;
             pipeline_info.pTessellationState = nullptr;
-            //pipeline_info.pViewportState;
-            //pipeline_info.pRasterizationState;
-            //pipeline_info.pMultisampleState;
-            //pipeline_info.pDepthStencilState;
-            //pipeline_info.pColorBlendState;
-            //pipeline_info.pDynamicState;
+            pipeline_info.pViewportState = &vp;
+            pipeline_info.pRasterizationState = &rs;
+            pipeline_info.pMultisampleState = &ms;
+            pipeline_info.pDepthStencilState = &ds;
+            pipeline_info.pColorBlendState = &cb;
+            pipeline_info.pDynamicState = &dynamic_info;
             //pipeline_info.layout;
-            //pipeline_info.renderPass;
+            pipeline_info.renderPass = m_render_pass;
             pipeline_info.subpass = 0;
             pipeline_info.basePipelineHandle = nullptr;
             pipeline_info.basePipelineIndex = 0;
@@ -1455,7 +1601,7 @@ void main()
 
             this->BuildCmd(
                 m_swapchain_image_resources[m_image_index].cmd,
-                m_render_passes[m_image_index],
+                m_render_pass,
                 m_framebuffers[m_image_index],
                 Color(0, 0, 0, 1),
                 Rect(0, 0, 1, 1));
