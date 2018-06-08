@@ -145,6 +145,9 @@ namespace Viry3D
         VkRenderPass m_render_pass = nullptr;
         Vector<VkFramebuffer> m_framebuffers;
         VkPipelineCache m_pipeline_cache = nullptr;
+        VkDescriptorSetLayout m_desc_layout = nullptr;
+        VkPipelineLayout m_pipeline_layout = nullptr;
+        VkPipeline m_pipeline = nullptr;
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -725,6 +728,9 @@ namespace Viry3D
 
         void DestroySizeDependentResources()
         {
+            vkDestroyPipeline(m_device, m_pipeline, nullptr);
+            vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
+            vkDestroyDescriptorSetLayout(m_device, m_desc_layout, nullptr);
             vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
@@ -1501,6 +1507,43 @@ void main()
             cb.blendConstants[2] = 0;
             cb.blendConstants[3] = 0;
 
+            Vector<VkDescriptorSetLayoutBinding> layout_bindings(2);
+            Memory::Zero(&layout_bindings[0], layout_bindings.SizeInBytes());
+            layout_bindings[0].binding = 0;
+            layout_bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            layout_bindings[0].descriptorCount = 1;
+            layout_bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            layout_bindings[0].pImmutableSamplers = nullptr;
+            layout_bindings[1].binding = 1;
+            layout_bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layout_bindings[1].descriptorCount = 1;
+            layout_bindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layout_bindings[1].pImmutableSamplers = nullptr;
+
+            VkDescriptorSetLayoutCreateInfo descriptor_layout;
+            Memory::Zero(&descriptor_layout, sizeof(descriptor_layout));
+            descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            descriptor_layout.pNext = nullptr;
+            descriptor_layout.flags = 0;
+            descriptor_layout.bindingCount = layout_bindings.Size();
+            descriptor_layout.pBindings = &layout_bindings[0];
+
+            VkResult err = vkCreateDescriptorSetLayout(m_device, &descriptor_layout, nullptr, &m_desc_layout);
+            assert(!err);
+
+            VkPipelineLayoutCreateInfo pipeline_layout_info;
+            Memory::Zero(&pipeline_layout_info, sizeof(pipeline_layout_info));
+            pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipeline_layout_info.pNext = nullptr;
+            pipeline_layout_info.flags = 0;
+            pipeline_layout_info.setLayoutCount = 1;
+            pipeline_layout_info.pSetLayouts = &m_desc_layout;
+            pipeline_layout_info.pushConstantRangeCount = 0;
+            pipeline_layout_info.pPushConstantRanges = nullptr;
+
+            err = vkCreatePipelineLayout(m_device, &pipeline_layout_info, nullptr, &m_pipeline_layout);
+            assert(!err);
+
             VkGraphicsPipelineCreateInfo pipeline_info;
             Memory::Zero(&pipeline_info, sizeof(pipeline_info));
             pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1517,11 +1560,14 @@ void main()
             pipeline_info.pDepthStencilState = &ds;
             pipeline_info.pColorBlendState = &cb;
             pipeline_info.pDynamicState = &dynamic_info;
-            //pipeline_info.layout;
+            pipeline_info.layout = m_pipeline_layout;
             pipeline_info.renderPass = m_render_pass;
             pipeline_info.subpass = 0;
             pipeline_info.basePipelineHandle = nullptr;
             pipeline_info.basePipelineIndex = 0;
+
+            err = vkCreateGraphicsPipelines(m_device, m_pipeline_cache, 1, &pipeline_info, nullptr, &m_pipeline);
+            assert(!err);
 
             vkDestroyShaderModule(m_device, vs_module, nullptr);
             vkDestroyShaderModule(m_device, fs_module, nullptr);
