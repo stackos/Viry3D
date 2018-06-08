@@ -88,6 +88,28 @@ namespace Viry3D
         }
     };
 
+    struct VkBufferObject
+    {
+        VkBuffer buffer;
+        VkDeviceMemory memory;
+        VkMemoryAllocateInfo memory_info;
+        int size;
+
+        VkBufferObject():
+            buffer(nullptr),
+            memory(nullptr),
+            size(0)
+        {
+            Memory::Zero(&memory_info, sizeof(memory_info));
+        }
+
+        void Destroy(VkDevice device)
+        {
+            vkDestroyBuffer(device, buffer, nullptr);
+            vkFreeMemory(device, memory, nullptr);
+        }
+    };
+
     struct SwapchainImageResources
     {
         Ref<VkTexture> texture;
@@ -148,6 +170,8 @@ namespace Viry3D
         VkDescriptorSetLayout m_desc_layout = nullptr;
         VkPipelineLayout m_pipeline_layout = nullptr;
         VkPipeline m_pipeline = nullptr;
+        Ref<VkBufferObject> m_vertex_buffer;
+        Ref<VkBufferObject> m_index_buffer;
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -724,10 +748,16 @@ namespace Viry3D
             this->CreateRenderPasses();
             this->CreatePipelineCache();
             this->CreatePipeline();
+            this->CreateVertexBuffer();
         }
 
         void DestroySizeDependentResources()
         {
+            m_vertex_buffer->Destroy(m_device);
+            m_vertex_buffer.reset();
+            m_index_buffer->Destroy(m_device);
+            m_index_buffer.reset();
+
             vkDestroyPipeline(m_device, m_pipeline, nullptr);
             vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
             vkDestroyDescriptorSetLayout(m_device, m_desc_layout, nullptr);
@@ -1228,6 +1258,54 @@ namespace Viry3D
             return texture;
         }
 
+        Ref<VkBufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
+        {
+            Ref<VkBufferObject> buffer = RefMake<VkBufferObject>();
+            buffer->size = size;
+
+            VkBufferCreateInfo buffer_info;
+            Memory::Zero(&buffer_info, sizeof(buffer_info));
+            buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            buffer_info.pNext = nullptr;
+            buffer_info.flags = 0;
+            buffer_info.size = (VkDeviceSize) size;
+            buffer_info.usage = usage;
+            buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            buffer_info.queueFamilyIndexCount = 0;
+            buffer_info.pQueueFamilyIndices = nullptr;
+
+            VkResult err = vkCreateBuffer(m_device, &buffer_info, nullptr, &buffer->buffer);
+            assert(!err);
+
+            VkMemoryRequirements mem_reqs;
+            vkGetBufferMemoryRequirements(m_device, buffer->buffer, &mem_reqs);
+
+            Memory::Zero(&buffer->memory_info, sizeof(buffer->memory_info));
+            buffer->memory_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            buffer->memory_info.pNext = nullptr;
+            buffer->memory_info.allocationSize = mem_reqs.size;
+            buffer->memory_info.memoryTypeIndex = 0;
+
+            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer->memory_info.memoryTypeIndex);
+            assert(pass);
+
+            err = vkAllocateMemory(m_device, &buffer->memory_info, nullptr, &buffer->memory);
+            assert(!err);
+
+            void* map_data = nullptr;
+            err = vkMapMemory(m_device, buffer->memory, 0, VK_WHOLE_SIZE, 0, (void**) &map_data);
+            assert(!err);
+
+            Memory::Copy(map_data, data, size);
+
+            vkUnmapMemory(m_device, buffer->memory);
+
+            err = vkBindBufferMemory(m_device, buffer->buffer, buffer->memory, 0);
+            assert(!err);
+
+            return buffer;
+        }
+
         void CreateRenderPasses()
         {
             this->CreateRenderPass(
@@ -1300,7 +1378,8 @@ Output(0) vec2 v_uv;
 
 void main()
 {
-	gl_Position = a_pos * u_buf_0_0.mvp;
+	//gl_Position = a_pos * u_buf_0_0.mvp;
+    gl_Position = a_pos;
 	v_uv = a_uv;
 
 	vulkan_convert();
@@ -1317,7 +1396,8 @@ Output(0) vec4 o_frag;
 
 void main()
 {
-    o_frag = texture(u_texture, v_uv);
+    //o_frag = texture(u_texture, v_uv);
+    o_frag = vec4(1, 1, 1, 1);
 }
 )";
             vs = VulkanDisplayPrivate::ProcessShaderSource(vs, vs_includes);
@@ -1573,6 +1653,22 @@ void main()
             vkDestroyShaderModule(m_device, fs_module, nullptr);
         }
 
+        void CreateVertexBuffer()
+        {
+            Vertex vertices[3];
+            Memory::Zero(vertices, sizeof(vertices));
+            vertices[0].vertex = Vector3(0, 0, 0);
+            vertices[1].vertex = Vector3(0, -0.5f, 0);
+            vertices[2].vertex = Vector3(0.5f, -0.5f, 0);
+
+            unsigned short indices[] = {
+                0, 1, 2
+            };
+
+            m_vertex_buffer = this->CreateBuffer(&vertices[0], sizeof(vertices), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+            m_index_buffer = this->CreateBuffer(&indices[0], sizeof(indices), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        }
+
         void BuildCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
@@ -1613,6 +1709,9 @@ void main()
 
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
+            vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+            //vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &m_descriptor_set, 0, nullptr);
+
             VkViewport viewport;
             Memory::Zero(&viewport, sizeof(viewport));
             viewport.x = m_width * view_rect.x;
@@ -1630,6 +1729,11 @@ void main()
             scissor.extent.width = m_width;
             scissor.extent.height = m_height;
             vkCmdSetScissor(cmd, 0, 1, &scissor);
+
+            VkDeviceSize offset = 0;
+            vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertex_buffer->buffer, &offset);
+            vkCmdBindIndexBuffer(cmd, m_index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdDrawIndexed(cmd, 3, 1, 0, 0, 0);
 
             vkCmdEndRenderPass(cmd);
 

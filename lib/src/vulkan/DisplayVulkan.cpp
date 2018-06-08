@@ -185,7 +185,8 @@ namespace Viry3D
 
         bool exit = false;
         MSG msg;
-        while (!exit)
+
+        while (true)
         {
             while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
             {
@@ -199,6 +200,11 @@ namespace Viry3D
                     ::TranslateMessage(&msg);
                     ::DispatchMessage(&msg);
                 }
+            }
+
+            if (exit)
+            {
+                break;
             }
 
             g_test_device->OnDraw();
@@ -218,6 +224,9 @@ namespace Viry3D
 		int success = InitVulkan();
 		Log("android vulkan so load success: %s", success ? "true" : "false");
 #endif
+
+        std::thread thread(test_vulkan, m_window, width, height);
+        thread.join();
 
 		this->CreateInstance();
 		get_instance_proc_addrs(m_instance);
@@ -242,9 +251,6 @@ namespace Viry3D
 		this->CreateSizeDependentResources();
 
 		Log("display vulkan init success");
-
-        std::thread thread(test_vulkan, m_window, width, height);
-        thread.detach();
 	}
 
 	void DisplayVulkan::OnResize(int width, int height)
