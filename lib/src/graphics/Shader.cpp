@@ -62,7 +62,7 @@ namespace Viry3D
 	void Shader::Init()
 	{
 #if VR_VULKAN
-		init_compiler();
+        init_shader_compiler();
 #endif
 	}
 
@@ -74,7 +74,7 @@ namespace Viry3D
 		m_default_textures.Clear();
 
 #if VR_VULKAN
-		deinit_compiler();
+        deinit_shader_compiler();
 #endif
 	}
 

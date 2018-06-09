@@ -203,9 +203,9 @@ namespace Viry3D
             m_gpu = nullptr;
             fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
             vkDestroyInstance(m_instance, nullptr);
-            VulkanDisplayPrivate::StringVectorClear(m_enabled_layers);
-            VulkanDisplayPrivate::StringVectorClear(m_instance_extension_names);
-            VulkanDisplayPrivate::StringVectorClear(m_device_extension_names);
+            StringVectorClear(m_enabled_layers);
+            StringVectorClear(m_instance_extension_names);
+            StringVectorClear(m_device_extension_names);
             m_public = nullptr;
         }
 
@@ -370,7 +370,7 @@ namespace Viry3D
             {
                 for (int i = 0; i < instance_validation_layer_count; ++i)
                 {
-                    VulkanDisplayPrivate::StringVectorAdd(m_enabled_layers, instance_validation_layers[i]);
+                    StringVectorAdd(m_enabled_layers, instance_validation_layers[i]);
                 }
             }
         }
@@ -394,37 +394,37 @@ namespace Viry3D
                 if (strcmp(VK_KHR_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     surface_ext_found = true;
-                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_KHR_SURFACE_EXTENSION_NAME);
+                    StringVectorAdd(m_instance_extension_names, VK_KHR_SURFACE_EXTENSION_NAME);
                 }
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
                 if (strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+                    StringVectorAdd(m_instance_extension_names, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
                 }
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
                 if (strcmp(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+                    StringVectorAdd(m_instance_extension_names, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
                 }
 #elif defined(VK_USE_PLATFORM_IOS_MVK)
                 if (strcmp(VK_MVK_IOS_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_MVK_IOS_SURFACE_EXTENSION_NAME);
+                    StringVectorAdd(m_instance_extension_names, VK_MVK_IOS_SURFACE_EXTENSION_NAME);
                 }
 #elif defined(VK_USE_PLATFORM_MACOS_MVK)
                 if (strcmp(VK_MVK_MACOS_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+                    StringVectorAdd(m_instance_extension_names, VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
                 }
 #endif
                 if (strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
-                    VulkanDisplayPrivate::StringVectorAdd(m_instance_extension_names, VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+                    StringVectorAdd(m_instance_extension_names, VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
                 }
             }
 
@@ -540,7 +540,7 @@ namespace Viry3D
                 if (strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[i].extensionName) == 0)
                 {
                     swapchain_ext_found = true;
-                    VulkanDisplayPrivate::StringVectorAdd(m_device_extension_names, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+                    StringVectorAdd(m_device_extension_names, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
                 }
             }
             assert(swapchain_ext_found);
@@ -1345,7 +1345,7 @@ namespace Viry3D
         void CreateGlslShaderModule(const String& glsl, VkShaderStageFlagBits shader_type, VkShaderModule* module)
         {
             Vector<unsigned int> spirv;
-            VulkanDisplayPrivate::GlslToSpirvCached(glsl, shader_type, spirv);
+            GlslToSpirvCached(glsl, shader_type, spirv);
             this->CreateSpirvShaderModule(spirv, module);
         }
 
@@ -1400,8 +1400,8 @@ void main()
     o_frag = vec4(1, 1, 1, 1);
 }
 )";
-            vs = VulkanDisplayPrivate::ProcessShaderSource(vs, vs_includes);
-            fs = VulkanDisplayPrivate::ProcessShaderSource(fs, Vector<String>());
+            vs = ProcessShaderSource(vs, vs_includes);
+            fs = ProcessShaderSource(fs, Vector<String>());
 
             VkShaderModule vs_module;
             VkShaderModule fs_module;
@@ -1794,6 +1794,8 @@ void main()
     VulkanDisplay::VulkanDisplay(void* window, int width, int height):
         m_private(new VulkanDisplayPrivate(this, window, width, height))
     {
+        init_shader_compiler();
+
         m_private->CheckInstanceLayers();
         m_private->CheckInstanceExtensions();
         m_private->CreateInstance();
@@ -1807,6 +1809,8 @@ void main()
     VulkanDisplay::~VulkanDisplay()
     {
         delete m_private;
+
+        deinit_shader_compiler();
     }
 
     void VulkanDisplay::OnResize(int width, int height)

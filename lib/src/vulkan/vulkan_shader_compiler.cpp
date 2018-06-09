@@ -55,14 +55,14 @@ shaderc_shader_kind MapShadercType(VkShaderStageFlagBits vkShader)
 
 namespace Viry3D
 {
-	void init_compiler()
+	void init_shader_compiler()
 	{
 #if VR_WINDOWS
 		glslang::InitializeProcess();
 #endif
 	}
 
-	void deinit_compiler()
+	void deinit_shader_compiler()
 	{
 #if VR_WINDOWS
 		glslang::FinalizeProcess();

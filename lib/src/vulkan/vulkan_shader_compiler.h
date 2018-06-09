@@ -23,7 +23,7 @@
 
 namespace Viry3D
 {
-	void init_compiler();
+	void init_shader_compiler();
 	bool glsl_to_spv(const VkShaderStageFlagBits shader_type, const char* src, Vector<unsigned int>& spirv, String& error);
-	void deinit_compiler();
+	void deinit_shader_compiler();
 }
