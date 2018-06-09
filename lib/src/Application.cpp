@@ -145,7 +145,10 @@ namespace Viry3D
 		{
 			this->EnsureFPS();
 			this->OnUpdate();
-			this->OnDraw();
+            if (!m_quit)
+            {
+                this->OnDraw();
+            }
 		}
 	}
 

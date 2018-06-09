@@ -1687,14 +1687,15 @@ void main()
 
         void CreateVertexBuffer()
         {
-            Vertex vertices[3];
+            Vertex vertices[4];
             Memory::Zero(vertices, sizeof(vertices));
             vertices[0].vertex = Vector3(0, 0, 0);
-            vertices[1].vertex = Vector3(0, -0.5f, 0);
-            vertices[2].vertex = Vector3(0.5f, -0.5f, 0);
+            vertices[1].vertex = Vector3(0, -1, 0);
+            vertices[2].vertex = Vector3(1, -1, 0);
+            vertices[3].vertex = Vector3(1, 0, 0);
 
             unsigned short indices[] = {
-                0, 1, 2
+                0, 1, 2, 0, 2, 3
             };
 
             m_vertex_buffer = this->CreateBuffer(&vertices[0], sizeof(vertices), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
@@ -1820,7 +1821,7 @@ void main()
             VkDeviceSize offset = 0;
             vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertex_buffer->buffer, &offset);
             vkCmdBindIndexBuffer(cmd, m_index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
-            vkCmdDrawIndexed(cmd, 3, 1, 0, 0, 0);
+            vkCmdDrawIndexed(cmd, 6, 1, 0, 0, 0);
 
             vkCmdEndRenderPass(cmd);
 
@@ -1832,7 +1833,10 @@ void main()
         {
             static float s_deg = 0;
             s_deg += 1;
-            Matrix4x4 mvp = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, s_deg)));
+            Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, s_deg)));
+            Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
+            Matrix4x4 projection = Matrix4x4::Perspective(45, m_width / (float) m_height, 1, 1000);
+            Matrix4x4 mvp = projection * view * model;
             this->UpdateBuffer(m_uniform_buffer, &mvp, sizeof(mvp));
 
             vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
