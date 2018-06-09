@@ -176,6 +176,7 @@ namespace Viry3D
         VkDescriptorPool m_desc_pool = nullptr;
         Vector<VkDescriptorSet> m_desc_sets;
         Vector<Ref<VkBufferObject>> m_uniform_buffers;
+        Vector<VkCommandBuffer> m_instance_cmds;
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -754,21 +755,30 @@ namespace Viry3D
             this->CreatePipeline();
             this->CreateVertexBuffer();
             this->CreateDescriptorSet();
+            this->CreateInstanceCmd();
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
+                this->BuildInstanceCmd(
+                    m_instance_cmds[i],
+                    m_desc_sets[i],
+                    Rect(0, 0, 1, 1));
+
                 this->BuildCmd(
                     m_swapchain_image_resources[i].cmd,
+                    m_instance_cmds[i],
                     m_render_pass,
                     m_framebuffers[i],
-                    m_desc_sets[i],
-                    Color(0, 0, 0, 1),
-                    Rect(0, 0, 1, 1));
+                    Color(0, 0, 0, 1));
             }
         }
 
         void DestroySizeDependentResources()
         {
+            for (int i = 0; i < m_instance_cmds.Size(); ++i)
+            {
+                vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_instance_cmds[i]);
+            }
             for (int i = 0; i < m_uniform_buffers.Size(); ++i)
             {
                 m_uniform_buffers[i]->Destroy(m_device);
@@ -1767,13 +1777,32 @@ void main()
             }
         }
 
+        void CreateInstanceCmd()
+        {
+            VkCommandBufferAllocateInfo cmd_info;
+            Memory::Zero(&cmd_info, sizeof(cmd_info));
+            cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            cmd_info.pNext = nullptr;
+            cmd_info.commandPool = m_graphics_cmd_pool;
+            cmd_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+            cmd_info.commandBufferCount = 1;
+
+            m_instance_cmds.Resize(m_swapchain_image_resources.Size());
+
+            VkResult err;
+            for (int i = 0; i < m_instance_cmds.Size(); ++i)
+            {
+                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_instance_cmds[i]);
+                assert(!err);
+            }
+        }
+
         void BuildCmd(
             VkCommandBuffer cmd,
+            VkCommandBuffer instance_cmd,
             VkRenderPass render_pass,
             VkFramebuffer framebuffer,
-            VkDescriptorSet desc_set,
-            const Color& clear_color,
-            const Rect& view_rect)
+            const Color& clear_color)
         {
             VkCommandBufferBeginInfo cmd_begin;
             Memory::Zero(&cmd_begin, sizeof(cmd_begin));
@@ -1806,7 +1835,30 @@ void main()
             rp_begin.clearValueCount = 2;
             rp_begin.pClearValues = clear_values;
 
-            vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+            vkCmdExecuteCommands(cmd, 1, &instance_cmd);
+
+            vkCmdEndRenderPass(cmd);
+
+            err = vkEndCommandBuffer(cmd);
+            assert(!err);
+        }
+
+        void BuildInstanceCmd(
+            VkCommandBuffer cmd,
+            VkDescriptorSet desc_set,
+            const Rect& view_rect)
+        {
+            VkCommandBufferBeginInfo cmd_begin;
+            Memory::Zero(&cmd_begin, sizeof(cmd_begin));
+            cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmd_begin.pNext = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+            cmd_begin.pInheritanceInfo = nullptr;
+
+            VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
+            assert(!err);
 
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
             vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &desc_set, 0, nullptr);
@@ -1833,8 +1885,6 @@ void main()
             vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertex_buffer->buffer, &offset);
             vkCmdBindIndexBuffer(cmd, m_index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
             vkCmdDrawIndexed(cmd, 6, 1, 0, 0, 0);
-
-            vkCmdEndRenderPass(cmd);
 
             err = vkEndCommandBuffer(cmd);
             assert(!err);
