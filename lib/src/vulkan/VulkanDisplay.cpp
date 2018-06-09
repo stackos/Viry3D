@@ -28,6 +28,7 @@
 #include "graphics/Color.h"
 #include "graphics/VertexAttribute.h"
 #include "math/Rect.h"
+#include "math/Matrix4x4.h"
 #include "io/File.h"
 #include <assert.h>
 
@@ -172,6 +173,9 @@ namespace Viry3D
         VkPipeline m_pipeline = nullptr;
         Ref<VkBufferObject> m_vertex_buffer;
         Ref<VkBufferObject> m_index_buffer;
+        VkDescriptorPool m_desc_pool = nullptr;
+        VkDescriptorSet m_desc_set = nullptr;
+        Ref<VkBufferObject> m_uniform_buffer;
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -749,10 +753,25 @@ namespace Viry3D
             this->CreatePipelineCache();
             this->CreatePipeline();
             this->CreateVertexBuffer();
+            this->CreateDescriptorSet();
+
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                this->BuildCmd(
+                    m_swapchain_image_resources[i].cmd,
+                    m_render_pass,
+                    m_framebuffers[i],
+                    Color(0, 0, 0, 1),
+                    Rect(0, 0, 1, 1));
+            }
         }
 
         void DestroySizeDependentResources()
         {
+            m_uniform_buffer->Destroy(m_device);
+            m_uniform_buffer.reset();
+            vkDestroyDescriptorPool(m_device, m_desc_pool, nullptr);
+
             m_vertex_buffer->Destroy(m_device);
             m_vertex_buffer.reset();
             m_index_buffer->Destroy(m_device);
@@ -1292,18 +1311,32 @@ namespace Viry3D
             err = vkAllocateMemory(m_device, &buffer->memory_info, nullptr, &buffer->memory);
             assert(!err);
 
+            err = vkBindBufferMemory(m_device, buffer->buffer, buffer->memory, 0);
+            assert(!err);
+
+            if (data)
+            {
+                void* map_data = nullptr;
+                err = vkMapMemory(m_device, buffer->memory, 0, size, 0, (void**) &map_data);
+                assert(!err);
+
+                Memory::Copy(map_data, data, size);
+
+                vkUnmapMemory(m_device, buffer->memory);
+            }
+
+            return buffer;
+        }
+
+        void UpdateBuffer(const Ref<VkBufferObject>& buffer, const void* data, int size)
+        {
             void* map_data = nullptr;
-            err = vkMapMemory(m_device, buffer->memory, 0, VK_WHOLE_SIZE, 0, (void**) &map_data);
+            VkResult err = vkMapMemory(m_device, buffer->memory, 0, size, 0, (void**) &map_data);
             assert(!err);
 
             Memory::Copy(map_data, data, size);
 
             vkUnmapMemory(m_device, buffer->memory);
-
-            err = vkBindBufferMemory(m_device, buffer->buffer, buffer->memory, 0);
-            assert(!err);
-
-            return buffer;
         }
 
         void CreateRenderPasses()
@@ -1378,8 +1411,7 @@ Output(0) vec2 v_uv;
 
 void main()
 {
-	//gl_Position = a_pos * u_buf_0_0.mvp;
-    gl_Position = a_pos;
+	gl_Position = a_pos * u_buf_0_0.mvp;
 	v_uv = a_uv;
 
 	vulkan_convert();
@@ -1669,6 +1701,61 @@ void main()
             m_index_buffer = this->CreateBuffer(&indices[0], sizeof(indices), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
         }
 
+        void CreateDescriptorSet()
+        {
+            Vector<VkDescriptorPoolSize> pool_sizes(2);
+            Memory::Zero(&pool_sizes[0], pool_sizes.SizeInBytes());
+            pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            pool_sizes[0].descriptorCount = 1;
+            pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            pool_sizes[1].descriptorCount = 1;
+
+            VkDescriptorPoolCreateInfo pool_info;
+            Memory::Zero(&pool_info, sizeof(pool_info));
+            pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            pool_info.pNext = nullptr;
+            pool_info.flags = 0;
+            pool_info.maxSets = 1;
+            pool_info.poolSizeCount = (uint32_t) pool_sizes.Size();
+            pool_info.pPoolSizes = &pool_sizes[0];
+
+            VkResult err = vkCreateDescriptorPool(m_device, &pool_info, nullptr, &m_desc_pool);
+            assert(!err);
+
+            VkDescriptorSetAllocateInfo desc_info;
+            desc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            desc_info.pNext = nullptr;
+            desc_info.descriptorPool = m_desc_pool;
+            desc_info.descriptorSetCount = 1;
+            desc_info.pSetLayouts = &m_desc_layout;
+
+            err = vkAllocateDescriptorSets(m_device, &desc_info, &m_desc_set);
+            assert(!err);
+
+            Matrix4x4 mvp = Matrix4x4::Identity();
+            m_uniform_buffer = this->CreateBuffer(&mvp, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+
+            VkDescriptorBufferInfo buffer_info;
+            buffer_info.buffer = m_uniform_buffer->buffer;
+            buffer_info.offset = 0;
+            buffer_info.range = sizeof(mvp);
+
+            Vector<VkWriteDescriptorSet> desc_writes(1);
+            Memory::Zero(&desc_writes[0], desc_writes.SizeInBytes());
+            desc_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            desc_writes[0].pNext = nullptr;
+            desc_writes[0].dstSet = m_desc_set;
+            desc_writes[0].dstBinding = 0;
+            desc_writes[0].dstArrayElement = 0;
+            desc_writes[0].descriptorCount = 1;
+            desc_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            desc_writes[0].pImageInfo = nullptr;
+            desc_writes[0].pBufferInfo = &buffer_info;
+            desc_writes[0].pTexelBufferView = nullptr;
+
+            vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
+        }
+
         void BuildCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
@@ -1710,7 +1797,7 @@ void main()
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-            //vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &m_descriptor_set, 0, nullptr);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &m_desc_set, 0, nullptr);
 
             VkViewport viewport;
             Memory::Zero(&viewport, sizeof(viewport));
@@ -1743,18 +1830,16 @@ void main()
 
         void OnDraw()
         {
+            static float s_deg = 0;
+            s_deg += 1;
+            Matrix4x4 mvp = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, s_deg)));
+            this->UpdateBuffer(m_uniform_buffer, &mvp, sizeof(mvp));
+
             vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
             vkResetFences(m_device, 1, &m_fences[m_frame_index]);
 
             VkResult err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphores[m_frame_index], nullptr, &m_image_index);
             assert(!err);
-
-            this->BuildCmd(
-                m_swapchain_image_resources[m_image_index].cmd,
-                m_render_pass,
-                m_framebuffers[m_image_index],
-                Color(0, 0, 0, 1),
-                Rect(0, 0, 1, 1));
 
             VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             VkSubmitInfo submit_info;
