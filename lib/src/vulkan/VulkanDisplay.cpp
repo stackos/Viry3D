@@ -174,8 +174,8 @@ namespace Viry3D
         Ref<VkBufferObject> m_vertex_buffer;
         Ref<VkBufferObject> m_index_buffer;
         VkDescriptorPool m_desc_pool = nullptr;
-        VkDescriptorSet m_desc_set = nullptr;
-        Ref<VkBufferObject> m_uniform_buffer;
+        Vector<VkDescriptorSet> m_desc_sets;
+        Vector<Ref<VkBufferObject>> m_uniform_buffers;
 
         VulkanDisplayPrivate(VulkanDisplay* device, void* window, int width, int height):
             m_public(device),
@@ -761,6 +761,7 @@ namespace Viry3D
                     m_swapchain_image_resources[i].cmd,
                     m_render_pass,
                     m_framebuffers[i],
+                    m_desc_sets[i],
                     Color(0, 0, 0, 1),
                     Rect(0, 0, 1, 1));
             }
@@ -768,8 +769,11 @@ namespace Viry3D
 
         void DestroySizeDependentResources()
         {
-            m_uniform_buffer->Destroy(m_device);
-            m_uniform_buffer.reset();
+            for (int i = 0; i < m_uniform_buffers.Size(); ++i)
+            {
+                m_uniform_buffers[i]->Destroy(m_device);
+            }
+            m_uniform_buffers.Clear();
             vkDestroyDescriptorPool(m_device, m_desc_pool, nullptr);
 
             m_vertex_buffer->Destroy(m_device);
@@ -1707,16 +1711,16 @@ void main()
             Vector<VkDescriptorPoolSize> pool_sizes(2);
             Memory::Zero(&pool_sizes[0], pool_sizes.SizeInBytes());
             pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            pool_sizes[0].descriptorCount = 1;
+            pool_sizes[0].descriptorCount = (uint32_t) m_swapchain_image_resources.Size();
             pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            pool_sizes[1].descriptorCount = 1;
+            pool_sizes[1].descriptorCount = (uint32_t) m_swapchain_image_resources.Size();
 
             VkDescriptorPoolCreateInfo pool_info;
             Memory::Zero(&pool_info, sizeof(pool_info));
             pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             pool_info.pNext = nullptr;
             pool_info.flags = 0;
-            pool_info.maxSets = 1;
+            pool_info.maxSets = (uint32_t) m_swapchain_image_resources.Size();
             pool_info.poolSizeCount = (uint32_t) pool_sizes.Size();
             pool_info.pPoolSizes = &pool_sizes[0];
 
@@ -1730,37 +1734,44 @@ void main()
             desc_info.descriptorSetCount = 1;
             desc_info.pSetLayouts = &m_desc_layout;
 
-            err = vkAllocateDescriptorSets(m_device, &desc_info, &m_desc_set);
-            assert(!err);
+            m_desc_sets.Resize(m_swapchain_image_resources.Size());
+            m_uniform_buffers.Resize(m_swapchain_image_resources.Size());
 
             Matrix4x4 mvp = Matrix4x4::Identity();
-            m_uniform_buffer = this->CreateBuffer(&mvp, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                err = vkAllocateDescriptorSets(m_device, &desc_info, &m_desc_sets[i]);
+                assert(!err);
 
-            VkDescriptorBufferInfo buffer_info;
-            buffer_info.buffer = m_uniform_buffer->buffer;
-            buffer_info.offset = 0;
-            buffer_info.range = sizeof(mvp);
+                m_uniform_buffers[i] = this->CreateBuffer(&mvp, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-            Vector<VkWriteDescriptorSet> desc_writes(1);
-            Memory::Zero(&desc_writes[0], desc_writes.SizeInBytes());
-            desc_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            desc_writes[0].pNext = nullptr;
-            desc_writes[0].dstSet = m_desc_set;
-            desc_writes[0].dstBinding = 0;
-            desc_writes[0].dstArrayElement = 0;
-            desc_writes[0].descriptorCount = 1;
-            desc_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            desc_writes[0].pImageInfo = nullptr;
-            desc_writes[0].pBufferInfo = &buffer_info;
-            desc_writes[0].pTexelBufferView = nullptr;
+                VkDescriptorBufferInfo buffer_info;
+                buffer_info.buffer = m_uniform_buffers[i]->buffer;
+                buffer_info.offset = 0;
+                buffer_info.range = sizeof(mvp);
 
-            vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
+                Vector<VkWriteDescriptorSet> desc_writes(1);
+                Memory::Zero(&desc_writes[0], desc_writes.SizeInBytes());
+                desc_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                desc_writes[0].pNext = nullptr;
+                desc_writes[0].dstSet = m_desc_sets[i];
+                desc_writes[0].dstBinding = 0;
+                desc_writes[0].dstArrayElement = 0;
+                desc_writes[0].descriptorCount = 1;
+                desc_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                desc_writes[0].pImageInfo = nullptr;
+                desc_writes[0].pBufferInfo = &buffer_info;
+                desc_writes[0].pTexelBufferView = nullptr;
+
+                vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
+            }
         }
 
         void BuildCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
             VkFramebuffer framebuffer,
+            VkDescriptorSet desc_set,
             const Color& clear_color,
             const Rect& view_rect)
         {
@@ -1798,7 +1809,7 @@ void main()
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &m_desc_set, 0, nullptr);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 
             VkViewport viewport;
             Memory::Zero(&viewport, sizeof(viewport));
@@ -1831,19 +1842,19 @@ void main()
 
         void OnDraw()
         {
+            vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
+            vkResetFences(m_device, 1, &m_fences[m_frame_index]);
+
+            VkResult err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphores[m_frame_index], nullptr, &m_image_index);
+            assert(!err);
+
             static float s_deg = 0;
             s_deg += 1;
             Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, s_deg)));
             Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
             Matrix4x4 projection = Matrix4x4::Perspective(45, m_width / (float) m_height, 1, 1000);
             Matrix4x4 mvp = projection * view * model;
-            this->UpdateBuffer(m_uniform_buffer, &mvp, sizeof(mvp));
-
-            vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
-            vkResetFences(m_device, 1, &m_fences[m_frame_index]);
-
-            VkResult err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphores[m_frame_index], nullptr, &m_image_index);
-            assert(!err);
+            this->UpdateBuffer(m_uniform_buffers[m_image_index], &mvp, sizeof(mvp));
 
             VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             VkSubmitInfo submit_info;
