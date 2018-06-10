@@ -8,9 +8,6 @@
     <Filter Include="src\AppGameDeveloper">
       <UniqueIdentifier>{781658e1-d7e3-47a2-841a-6c1443f6ce50}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\cube">
-      <UniqueIdentifier>{14531c49-e721-4b26-a256-76ae4d87b3c3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\AppClear.cpp">
@@ -73,9 +70,6 @@
     <ClCompile Include="..\..\src\AppGameDeveloper\InputHandler.cpp">
       <Filter>src\AppGameDeveloper</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\cube\cube.c">
-      <Filter>src\cube</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\DebugUI.h">
@@ -92,15 +86,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\AppGameDeveloper\InputHandler.h">
       <Filter>src\AppGameDeveloper</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\cube\gettime.h">
-      <Filter>src\cube</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\cube\linmath.h">
-      <Filter>src\cube</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\cube\vk_enum_string_helper.h">
-      <Filter>src\cube</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

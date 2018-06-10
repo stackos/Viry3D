@@ -202,7 +202,6 @@
     <ClCompile Include="..\..\src\AppTerrain.cpp" />
     <ClCompile Include="..\..\src\AppUI.cpp" />
     <ClCompile Include="..\..\src\AppWatch.cpp" />
-    <ClCompile Include="..\..\src\cube\cube.c" />
     <ClCompile Include="..\..\src\DebugUI.cpp" />
     <ClCompile Include="..\..\src\LaunchScreen.cpp" />
   </ItemGroup>
@@ -215,9 +214,6 @@
     <ClInclude Include="..\..\src\AppGameDeveloper\CodeEditor.h" />
     <ClInclude Include="..\..\src\AppGameDeveloper\InputHandler.h" />
     <ClInclude Include="..\..\src\AppGameDeveloper\LuaRunner.h" />
-    <ClInclude Include="..\..\src\cube\gettime.h" />
-    <ClInclude Include="..\..\src\cube\linmath.h" />
-    <ClInclude Include="..\..\src\cube\vk_enum_string_helper.h" />
     <ClInclude Include="..\..\src\DebugUI.h" />
     <ClInclude Include="..\..\src\LaunchScreen.h" />
   </ItemGroup>
