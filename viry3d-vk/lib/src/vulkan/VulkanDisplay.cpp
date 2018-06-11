@@ -765,6 +765,8 @@ namespace Viry3D
             {
                 this->BuildInstanceCmd(
                     m_instance_cmds[i],
+                    m_render_pass,
+                    m_framebuffers[i],
                     m_desc_sets[i],
                     Rect(0, 0, 1, 1));
 
@@ -1851,15 +1853,28 @@ void main()
 
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
+            VkRenderPass render_pass,
+            VkFramebuffer framebuffer,
             VkDescriptorSet desc_set,
             const Rect& view_rect)
         {
+            VkCommandBufferInheritanceInfo inheritance_info;
+            Memory::Zero(&inheritance_info, sizeof(inheritance_info));
+            inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+            inheritance_info.pNext = NULL;
+            inheritance_info.renderPass = render_pass;
+            inheritance_info.subpass = 0;
+            inheritance_info.framebuffer = framebuffer;
+            inheritance_info.occlusionQueryEnable = VK_FALSE;
+            inheritance_info.queryFlags = 0;
+            inheritance_info.pipelineStatistics = 0;
+
             VkCommandBufferBeginInfo cmd_begin;
             Memory::Zero(&cmd_begin, sizeof(cmd_begin));
             cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             cmd_begin.pNext = nullptr;
-            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-            cmd_begin.pInheritanceInfo = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+            cmd_begin.pInheritanceInfo = &inheritance_info;
 
             VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
             assert(!err);

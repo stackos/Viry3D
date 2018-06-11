@@ -5,10 +5,16 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="src\cube">
+      <UniqueIdentifier>{ffa4a02c-be51-448b-9ebc-53ff26d4d86a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Main.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cube\cube.c">
+      <Filter>src\cube</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
