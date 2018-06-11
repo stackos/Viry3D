@@ -17,13 +17,31 @@
 
 #include "Application.h"
 #include "vulkan/VulkanDisplay.h"
+#include "graphics/Camera.h"
 
 using namespace Viry3D;
+
+class App
+{
+public:
+    Ref<Camera> m_camera;
+
+    void Start()
+    {
+        m_camera = RefMake<Camera>();
+    }
+
+    void Update()
+    {
+        m_camera->Update();
+    }
+};
+
 
 #if VR_WINDOWS
 #include <Windows.h>
 
-static LRESULT CALLBACK win_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
@@ -64,7 +82,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     win_class.cbSize = sizeof(WNDCLASSEX);
     win_class.style = CS_HREDRAW | CS_VREDRAW;
-    win_class.lpfnWndProc = win_proc;
+    win_class.lpfnWndProc = WindowProc;
     win_class.cbClsExtra = 0;
     win_class.cbWndExtra = 0;
     win_class.hInstance = hInstance;
@@ -110,6 +128,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     VulkanDisplay* display = new VulkanDisplay(hwnd, width, height);
 
+    Ref<App> app = RefMake<App>();
+    app->Start();
+
     bool exit = false;
     MSG msg;
 
@@ -134,10 +155,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break;
         }
 
+        app->Update();
+
         display->OnDraw();
 
         ::Sleep(1);
     }
+
+    app.reset();
 
     delete display;
 

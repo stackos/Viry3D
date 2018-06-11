@@ -801,6 +801,12 @@
     <ClInclude Include="..\..\src\vulkan\vulkan_shader_compiler.h">
       <Filter>src\vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Image.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Camera.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2076,6 +2082,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\VertexAttribute.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Image.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Camera.cpp">
       <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
