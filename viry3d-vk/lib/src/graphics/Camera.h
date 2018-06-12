@@ -39,6 +39,7 @@ namespace Viry3D
 
     private:
         bool m_render_pass_dirty;
+        bool m_instance_cmds_dirty;
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;

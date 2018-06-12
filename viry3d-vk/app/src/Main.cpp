@@ -16,7 +16,7 @@
 */
 
 #include "Application.h"
-#include "vulkan/VulkanDisplay.h"
+#include "graphics/Display.h"
 #include "graphics/Camera.h"
 
 using namespace Viry3D;
@@ -24,16 +24,14 @@ using namespace Viry3D;
 class App
 {
 public:
-    Ref<Camera> m_camera;
-
     void Start()
     {
-        m_camera = RefMake<Camera>();
+        Camera* camera = Display::GetDisplay()->CreateCamera();
     }
 
     void Update()
     {
-        m_camera->Update();
+        
     }
 };
 
@@ -55,9 +53,9 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                 int width = lParam & 0xffff;
                 int height = (lParam & 0xffff0000) >> 16;
 
-                if (VulkanDisplay::GetDisplay())
+                if (Display::GetDisplay())
                 {
-                    VulkanDisplay::GetDisplay()->OnResize(width, height);
+                    Display::GetDisplay()->OnResize(width, height);
                 }
             }
             break;
@@ -126,7 +124,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     ShowWindow(hwnd, SW_SHOW);
 
-    VulkanDisplay* display = new VulkanDisplay(hwnd, width, height);
+    Display* display = new Display(hwnd, width, height);
 
     Ref<App> app = RefMake<App>();
     app->Start();

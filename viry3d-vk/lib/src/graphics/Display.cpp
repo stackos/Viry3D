@@ -15,17 +15,19 @@
 * limitations under the License.
 */
 
-#include "VulkanDisplay.h"
-#include "vulkan_include.h"
-#include "vulkan_shader_compiler.h"
+#include "Display.h"
 #include "Application.h"
 #include "Debug.h"
+#include "vulkan/vulkan_include.h"
+#include "vulkan/vulkan_shader_compiler.h"
 #include "container/Vector.h"
+#include "container/List.h"
 #include "string/String.h"
 #include "memory/Memory.h"
 #include "graphics/CameraClearFlags.h"
 #include "graphics/Color.h"
 #include "graphics/VertexAttribute.h"
+#include "graphics/Camera.h"
 #include "math/Rect.h"
 #include "math/Matrix4x4.h"
 #include "io/File.h"
@@ -121,11 +123,11 @@ namespace Viry3D
         }
     };
 
-    class VulkanDisplayPrivate
+    class DisplayPrivate
     {
     public:
-        static VulkanDisplay* m_current_display;
-        VulkanDisplay* m_public;
+        static Display* m_current_display;
+        Display* m_public;
         void* m_window;
         int m_width;
         int m_height;
@@ -165,6 +167,10 @@ namespace Viry3D
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
         Ref<VkTexture> m_depth_texture;
+
+        List<Camera*> m_cameras;
+        bool m_primary_cmd_dirty = true;
+
         VkRenderPass m_render_pass = nullptr;
         Vector<VkFramebuffer> m_framebuffers;
         VkPipelineCache m_pipeline_cache = nullptr;
@@ -178,7 +184,7 @@ namespace Viry3D
         Vector<Ref<VkBufferObject>> m_uniform_buffers;
         Vector<VkCommandBuffer> m_instance_cmds;
 
-        VulkanDisplayPrivate(VulkanDisplay* display, void* window, int width, int height):
+        DisplayPrivate(Display* display, void* window, int width, int height):
             m_public(display),
             m_window(window),
             m_width(width),
@@ -191,7 +197,7 @@ namespace Viry3D
             m_current_display = m_public;
         }
 
-        ~VulkanDisplayPrivate()
+        ~DisplayPrivate()
         {
             vkDeviceWaitIdle(m_device);
 
@@ -775,6 +781,8 @@ namespace Viry3D
                     m_instance_cmds[i],
                     m_render_pass,
                     m_framebuffers[i],
+                    m_width,
+                    m_height,
                     Color(0, 0, 0, 1));
             }
         }
@@ -1808,6 +1816,8 @@ void main()
             VkCommandBuffer instance_cmd,
             VkRenderPass render_pass,
             VkFramebuffer framebuffer,
+            int image_width,
+            int image_height,
             const Color& clear_color)
         {
             VkCommandBufferBeginInfo cmd_begin;
@@ -1836,15 +1846,13 @@ void main()
             rp_begin.framebuffer = framebuffer;
             rp_begin.renderArea.offset.x = 0;
             rp_begin.renderArea.offset.y = 0;
-            rp_begin.renderArea.extent.width = m_width;
-            rp_begin.renderArea.extent.height = m_height;
+            rp_begin.renderArea.extent.width = image_width;
+            rp_begin.renderArea.extent.height = image_height;
             rp_begin.clearValueCount = 2;
             rp_begin.pClearValues = clear_values;
 
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
             vkCmdExecuteCommands(cmd, 1, &instance_cmd);
-
             vkCmdEndRenderPass(cmd);
 
             err = vkEndCommandBuffer(cmd);
@@ -1909,6 +1917,14 @@ void main()
             assert(!err);
         }
 
+        void Update()
+        {
+            for (auto i : m_cameras)
+            {
+                i->Update();
+            }
+        }
+
         void OnDraw()
         {
             vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
@@ -1960,15 +1976,15 @@ void main()
         }
     };
 
-    VulkanDisplay* VulkanDisplayPrivate::m_current_display;
+    Display* DisplayPrivate::m_current_display;
 
-    VulkanDisplay* VulkanDisplay::GetDisplay()
+    Display* Display::GetDisplay()
     {
-        return VulkanDisplayPrivate::m_current_display;
+        return DisplayPrivate::m_current_display;
     }
 
-    VulkanDisplay::VulkanDisplay(void* window, int width, int height):
-        m_private(new VulkanDisplayPrivate(this, window, width, height))
+    Display::Display(void* window, int width, int height):
+        m_private(new DisplayPrivate(this, window, width, height))
     {
         init_shader_compiler();
 
@@ -1982,20 +1998,47 @@ void main()
         m_private->CreateSizeDependentResources();
     }
 
-    VulkanDisplay::~VulkanDisplay()
+    Display::~Display()
     {
-        delete m_private;
+        for (auto i : m_private->m_cameras)
+        {
+            delete i;
+        }
+        m_private->m_cameras.Clear();
 
         deinit_shader_compiler();
+
+        delete m_private;
     }
 
-    void VulkanDisplay::OnResize(int width, int height)
+    void Display::OnResize(int width, int height)
     {
         m_private->OnResize(width, height);
     }
 
-    void VulkanDisplay::OnDraw()
+    void Display::OnDraw()
     {
+        m_private->Update();
         m_private->OnDraw();
+    }
+
+    Camera* Display::CreateCamera()
+    {
+        Camera* camera = new Camera();
+        m_private->m_cameras.AddLast(camera);
+        this->MarkPrimaryCmdDirty();
+        return camera;
+    }
+
+    void Display::DestroyCamera(Camera* camera)
+    {
+        m_private->m_cameras.Remove(camera);
+        delete camera;
+        this->MarkPrimaryCmdDirty();
+    }
+
+    void Display::MarkPrimaryCmdDirty()
+    {
+        m_private->m_primary_cmd_dirty = true;
     }
 }

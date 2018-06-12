@@ -780,9 +780,6 @@
     <ClInclude Include="..\..\src\Debug.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\vulkan\VulkanDisplay.h">
-      <Filter>src\vulkan</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
@@ -805,6 +802,9 @@
       <Filter>src\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\graphics\Camera.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Display.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
   </ItemGroup>
@@ -2072,9 +2072,6 @@
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Versions.cpp">
       <Filter>src\vulkan\glslang</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\VulkanDisplay.cpp">
-      <Filter>src\vulkan</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\graphics\Color.cpp">
       <Filter>src\graphics</Filter>
     </ClCompile>
@@ -2088,6 +2085,9 @@
       <Filter>src\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Camera.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Display.cpp">
       <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>

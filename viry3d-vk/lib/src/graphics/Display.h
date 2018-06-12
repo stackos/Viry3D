@@ -19,18 +19,22 @@
 
 namespace Viry3D
 {
-    class VulkanDisplayPrivate;
+    class Camera;
+    class DisplayPrivate;
 
-    class VulkanDisplay
+    class Display
     {
     public:
-        static VulkanDisplay* GetDisplay();
-        VulkanDisplay(void* window, int width, int height);
-        virtual ~VulkanDisplay();
+        static Display* GetDisplay();
+        Display(void* window, int width, int height);
+        virtual ~Display();
         void OnResize(int width, int height);
         void OnDraw();
+        Camera* CreateCamera();
+        void DestroyCamera(Camera* camera);
+        void MarkPrimaryCmdDirty();
 
     private:
-        VulkanDisplayPrivate* m_private;
+        DisplayPrivate* m_private;
     };
 }

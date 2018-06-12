@@ -16,11 +16,13 @@
 */
 
 #include "Camera.h"
+#include "graphics/Display.h"
 
 namespace Viry3D
 {
     Camera::Camera():
         m_render_pass_dirty(true),
+        m_instance_cmds_dirty(true),
         m_clear_flags(CameraClearFlags::ColorAndDepth),
         m_clear_color(0, 0, 0, 1),
         m_viewport_rect(0, 0, 1, 1)
@@ -42,11 +44,13 @@ namespace Viry3D
     void Camera::SetClearColor(const Color& color)
     {
         m_clear_color = color;
+        Display::GetDisplay()->MarkPrimaryCmdDirty();
     }
 
     void Camera::SetViewportRect(const Rect& rect)
     {
         m_viewport_rect = rect;
+        m_instance_cmds_dirty = true;
     }
 
     void Camera::Update()
