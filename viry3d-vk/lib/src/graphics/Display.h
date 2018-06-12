@@ -17,9 +17,15 @@
 
 #pragma once
 
+#include "vulkan/vulkan_include.h"
+#include "memory/Ref.h"
+#include "container/Vector.h"
+#include "CameraClearFlags.h"
+
 namespace Viry3D
 {
     class Camera;
+    class Texture;
     class DisplayPrivate;
 
     class Display
@@ -33,6 +39,12 @@ namespace Viry3D
         Camera* CreateCamera();
         void DestroyCamera(Camera* camera);
         void MarkPrimaryCmdDirty();
+        void CreateRenderPass(
+            const Ref<Texture>& color_texture,
+            const Ref<Texture>& depth_texture,
+            CameraClearFlags clear_flag,
+            VkRenderPass* render_pass,
+            Vector<VkFramebuffer>& framebuffers);
 
     private:
         DisplayPrivate* m_private;

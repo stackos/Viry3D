@@ -17,12 +17,15 @@
 
 #pragma once
 
+#include "Display.h"
 #include "CameraClearFlags.h"
 #include "Color.h"
 #include "math/Rect.h"
 
 namespace Viry3D
 {
+    class Texture;
+
     class Camera
     {
     public:
@@ -35,7 +38,15 @@ namespace Viry3D
         void SetClearColor(const Color& color);
         const Rect& GetViewportRect() const { return m_viewport_rect; }
         void SetViewportRect(const Rect& rect);
+        bool HasRenderTarget() const { return m_render_target_color || m_render_target_depth; }
+        const Ref<Texture>& GetRenderTargetColor() const { return m_render_target_color; }
+        const Ref<Texture>& GetRenderTargetDepth() const { return m_render_target_depth; }
+        void SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture);
         void Update();
+
+    private:
+        void UpdateRenderPass();
+        void UpdateInstanceCmds();
 
     private:
         bool m_render_pass_dirty;
@@ -43,5 +54,7 @@ namespace Viry3D
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;
+        Ref<Texture> m_render_target_color;
+        Ref<Texture> m_render_target_depth;
     };
 }

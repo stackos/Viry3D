@@ -16,7 +16,6 @@
 */
 
 #include "Camera.h"
-#include "graphics/Display.h"
 
 namespace Viry3D
 {
@@ -39,6 +38,8 @@ namespace Viry3D
     {
         m_clear_flags = flags;
         m_render_pass_dirty = true;
+        m_instance_cmds_dirty = true;
+        Display::GetDisplay()->MarkPrimaryCmdDirty();
     }
 
     void Camera::SetClearColor(const Color& color)
@@ -53,7 +54,36 @@ namespace Viry3D
         m_instance_cmds_dirty = true;
     }
 
+    void Camera::SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture)
+    {
+        m_render_target_color = color_texture;
+        m_render_target_depth = depth_texture;
+        m_render_pass_dirty = true;
+        m_instance_cmds_dirty = true;
+        Display::GetDisplay()->MarkPrimaryCmdDirty();
+    }
+
     void Camera::Update()
+    {
+        if (m_render_pass_dirty)
+        {
+            m_render_pass_dirty = false;
+            this->UpdateRenderPass();
+        }
+
+        if (m_instance_cmds_dirty)
+        {
+            m_instance_cmds_dirty = false;
+            this->UpdateInstanceCmds();
+        }
+    }
+
+    void Camera::UpdateRenderPass()
+    {
+
+    }
+
+    void Camera::UpdateInstanceCmds()
     {
         
     }

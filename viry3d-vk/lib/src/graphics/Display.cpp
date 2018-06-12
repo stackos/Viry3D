@@ -18,13 +18,10 @@
 #include "Display.h"
 #include "Application.h"
 #include "Debug.h"
-#include "vulkan/vulkan_include.h"
 #include "vulkan/vulkan_shader_compiler.h"
-#include "container/Vector.h"
 #include "container/List.h"
 #include "string/String.h"
 #include "memory/Memory.h"
-#include "graphics/CameraClearFlags.h"
 #include "graphics/Color.h"
 #include "graphics/VertexAttribute.h"
 #include "graphics/Camera.h"
@@ -760,7 +757,7 @@ namespace Viry3D
                     VK_COMPONENT_SWIZZLE_IDENTITY
                 });
             
-            this->CreateRenderPasses();
+            this->CreateRenderPass();
             this->CreatePipelineCache();
             this->CreatePipeline();
             this->CreateVertexBuffer();
@@ -1367,7 +1364,7 @@ namespace Viry3D
             vkUnmapMemory(m_device, buffer->memory);
         }
 
-        void CreateRenderPasses()
+        void CreateRenderPass()
         {
             this->CreateRenderPass(
                 m_swapchain_image_resources[0].texture->format,
@@ -2040,5 +2037,15 @@ void main()
     void Display::MarkPrimaryCmdDirty()
     {
         m_private->m_primary_cmd_dirty = true;
+    }
+
+    void Display::CreateRenderPass(
+        const Ref<Texture>& color_texture,
+        const Ref<Texture>& depth_texture,
+        CameraClearFlags clear_flag,
+        VkRenderPass* render_pass,
+        Vector<VkFramebuffer>& framebuffers)
+    {
+        bool present = !(color_texture || depth_texture);
     }
 }

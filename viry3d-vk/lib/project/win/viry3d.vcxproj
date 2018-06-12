@@ -32,6 +32,7 @@
     <ClInclude Include="..\..\src\graphics\Color.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\Image.h" />
+    <ClInclude Include="..\..\src\graphics\Texture.h" />
     <ClInclude Include="..\..\src\graphics\VertexAttribute.h" />
     <ClInclude Include="..\..\src\io\Directory.h" />
     <ClInclude Include="..\..\src\io\File.h" />
@@ -302,6 +303,7 @@
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
+    <ClCompile Include="..\..\src\graphics\Texture.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexAttribute.cpp" />
     <ClCompile Include="..\..\src\io\Directory.cpp" />
     <ClCompile Include="..\..\src\io\File.cpp" />

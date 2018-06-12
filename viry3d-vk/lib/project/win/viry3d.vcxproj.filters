@@ -807,6 +807,9 @@
     <ClInclude Include="..\..\src\graphics\Display.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Texture.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2088,6 +2091,9 @@
       <Filter>src\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Display.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Texture.cpp">
       <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
