@@ -21,6 +21,7 @@
 #include "CameraClearFlags.h"
 #include "Color.h"
 #include "math/Rect.h"
+#include "container/Vector.h"
 
 namespace Viry3D
 {
@@ -43,10 +44,13 @@ namespace Viry3D
         const Ref<Texture>& GetRenderTargetDepth() const { return m_render_target_depth; }
         void SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture);
         void Update();
+        void OnResize(int width, int height);
 
     private:
-        void UpdateRenderPass();
+        void UpdateRenderPass();   
+        void ClearRenderPass();
         void UpdateInstanceCmds();
+        void ClearInstanceCmds();
 
     private:
         bool m_render_pass_dirty;
@@ -56,5 +60,7 @@ namespace Viry3D
         Rect m_viewport_rect;
         Ref<Texture> m_render_target_color;
         Ref<Texture> m_render_target_depth;
+        VkRenderPass m_render_pass = nullptr;
+        Vector<VkFramebuffer> m_framebuffers;
     };
 }

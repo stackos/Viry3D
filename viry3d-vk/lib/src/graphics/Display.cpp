@@ -198,6 +198,12 @@ namespace Viry3D
         {
             vkDeviceWaitIdle(m_device);
 
+            for (auto i : m_cameras)
+            {
+                delete i;
+            }
+            m_cameras.Clear();
+
             this->DestroySizeDependentResources();
 
             for (int i = 0; i < FRAME_LAG; ++i)
@@ -773,9 +779,12 @@ namespace Viry3D
                     m_desc_sets[i],
                     Rect(0, 0, 1, 1));
 
-                this->BuildCmd(
+                Vector<VkCommandBuffer> instance_cmds;
+                instance_cmds.Add(m_instance_cmds[i]);
+
+                this->BuildPrimaryCmd(
                     m_swapchain_image_resources[i].cmd,
-                    m_instance_cmds[i],
+                    instance_cmds,
                     m_render_pass,
                     m_framebuffers[i],
                     m_width,
@@ -839,6 +848,11 @@ namespace Viry3D
             m_height = height;
 
             vkDeviceWaitIdle(m_device);
+
+            for (auto i : m_cameras)
+            {
+                i->OnResize(width, height);
+            }
 
             this->DestroySizeDependentResources();
             this->CreateSizeDependentResources();
@@ -1808,9 +1822,9 @@ void main()
             }
         }
 
-        void BuildCmd(
+        void BuildPrimaryCmd(
             VkCommandBuffer cmd,
-            VkCommandBuffer instance_cmd,
+            const Vector<VkCommandBuffer>& instance_cmds,
             VkRenderPass render_pass,
             VkFramebuffer framebuffer,
             int image_width,
@@ -1849,7 +1863,7 @@ void main()
             rp_begin.pClearValues = clear_values;
 
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-            vkCmdExecuteCommands(cmd, 1, &instance_cmd);
+            vkCmdExecuteCommands(cmd, (uint32_t) instance_cmds.Size(), &instance_cmds[0]);
             vkCmdEndRenderPass(cmd);
 
             err = vkEndCommandBuffer(cmd);
@@ -1919,6 +1933,12 @@ void main()
             for (auto i : m_cameras)
             {
                 i->Update();
+            }
+
+            if (m_primary_cmd_dirty)
+            {
+                m_primary_cmd_dirty = false;
+                // build primary cmd
             }
         }
 
@@ -2019,6 +2039,11 @@ void main()
         m_private->OnDraw();
     }
 
+    VkDevice Display::GetDevice() const
+    {
+        return m_private->m_device;
+    }
+
     Camera* Display::CreateCamera()
     {
         Camera* camera = new Camera();
@@ -2047,5 +2072,31 @@ void main()
         Vector<VkFramebuffer>& framebuffers)
     {
         bool present = !(color_texture || depth_texture);
+
+        if (present)
+        {
+            m_private->CreateRenderPass(
+                m_private->m_swapchain_image_resources[0].texture->format,
+                m_private->m_depth_texture->format,
+                clear_flag,
+                true,
+                render_pass);
+
+            framebuffers.Resize(m_private->m_swapchain_image_resources.Size());
+            for (int i = 0; i < framebuffers.Size(); ++i)
+            {
+                m_private->CreateFramebuffer(
+                    m_private->m_swapchain_image_resources[i].texture->image_view,
+                    m_private->m_depth_texture->image_view,
+                    m_private->m_swapchain_image_resources[i].texture->width,
+                    m_private->m_swapchain_image_resources[i].texture->height,
+                    *render_pass,
+                    &framebuffers[i]);
+            }
+        }
+        else
+        {
+            
+        }
     }
 }

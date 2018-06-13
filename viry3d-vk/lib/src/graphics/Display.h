@@ -36,6 +36,7 @@ namespace Viry3D
         virtual ~Display();
         void OnResize(int width, int height);
         void OnDraw();
+        VkDevice GetDevice() const;
         Camera* CreateCamera();
         void DestroyCamera(Camera* camera);
         void MarkPrimaryCmdDirty();

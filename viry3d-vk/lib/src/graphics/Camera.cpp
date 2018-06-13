@@ -31,7 +31,8 @@ namespace Viry3D
 
     Camera::~Camera()
     {
-    
+        this->ClearRenderPass();
+        this->ClearInstanceCmds();
     }
 
     void Camera::SetClearFlags(CameraClearFlags flags)
@@ -78,12 +79,50 @@ namespace Viry3D
         }
     }
 
+    void Camera::OnResize(int width, int height)
+    {
+        this->ClearRenderPass();
+        this->ClearInstanceCmds();
+
+        m_render_pass_dirty = true;
+        m_instance_cmds_dirty = true;
+    }
+
     void Camera::UpdateRenderPass()
     {
+        this->ClearRenderPass();
 
+        Display::GetDisplay()->CreateRenderPass(
+            m_render_target_color,
+            m_render_target_depth,
+            m_clear_flags,
+            &m_render_pass,
+            m_framebuffers);
+    }
+
+    void Camera::ClearRenderPass()
+    {
+        VkDevice device = Display::GetDisplay()->GetDevice();
+
+        for (int i = 0; i < m_framebuffers.Size(); ++i)
+        {
+            vkDestroyFramebuffer(device, m_framebuffers[i], nullptr);
+        }
+        m_framebuffers.Clear();
+
+        if (m_render_pass)
+        {
+            vkDestroyRenderPass(device, m_render_pass, nullptr);
+            m_render_pass = nullptr;
+        }
     }
 
     void Camera::UpdateInstanceCmds()
+    {
+        this->ClearInstanceCmds();
+    }
+
+    void Camera::ClearInstanceCmds()
     {
         
     }
