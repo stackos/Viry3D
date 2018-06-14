@@ -45,6 +45,11 @@ namespace Viry3D
         void SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture);
         void Update();
         void OnResize(int width, int height);
+        VkRenderPass GetRenderPass() const { return m_render_pass; }
+        VkFramebuffer GetFramebuffer(int index) const { return m_framebuffers[index]; }
+        const Vector<VkCommandBuffer>& GetInstanceCmds() const { return m_instance_cmds; }
+        int GetTargetWidth() const;
+        int GetTargetHeight() const;
 
     private:
         void UpdateRenderPass();   
@@ -62,5 +67,6 @@ namespace Viry3D
         Ref<Texture> m_render_target_depth;
         VkRenderPass m_render_pass = nullptr;
         Vector<VkFramebuffer> m_framebuffers;
+        Vector<VkCommandBuffer> m_instance_cmds;
     };
 }

@@ -26,7 +26,11 @@ namespace Viry3D
     public:
         Texture();
         ~Texture();
+        int GetWidth() const { return m_width; }
+        int GetHeight() const { return m_height; }
 
     private:
+        int m_width;
+        int m_height;
     };
 }

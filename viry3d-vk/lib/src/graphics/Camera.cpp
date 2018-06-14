@@ -16,6 +16,7 @@
 */
 
 #include "Camera.h"
+#include "Texture.h"
 
 namespace Viry3D
 {
@@ -125,5 +126,37 @@ namespace Viry3D
     void Camera::ClearInstanceCmds()
     {
         
+    }
+
+    int Camera::GetTargetWidth() const
+    {
+        if (m_render_target_color)
+        {
+            return m_render_target_color->GetWidth();
+        }
+        else if (m_render_target_depth)
+        {
+            return m_render_target_depth->GetWidth();
+        }
+        else
+        {
+            return Display::GetDisplay()->GetWidth();
+        }
+    }
+    
+    int Camera::GetTargetHeight() const
+    {
+        if (m_render_target_color)
+        {
+            return m_render_target_color->GetHeight();
+        }
+        else if (m_render_target_depth)
+        {
+            return m_render_target_depth->GetHeight();
+        }
+        else
+        {
+            return Display::GetDisplay()->GetHeight();
+        }
     }
 }

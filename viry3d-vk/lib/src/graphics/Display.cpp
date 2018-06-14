@@ -782,6 +782,7 @@ namespace Viry3D
                 Vector<VkCommandBuffer> instance_cmds;
                 instance_cmds.Add(m_instance_cmds[i]);
 
+                this->BuildPrimaryCmdBegin(m_swapchain_image_resources[i].cmd);
                 this->BuildPrimaryCmd(
                     m_swapchain_image_resources[i].cmd,
                     instance_cmds,
@@ -790,6 +791,7 @@ namespace Viry3D
                     m_width,
                     m_height,
                     Color(0, 0, 0, 1));
+                this->BuildPrimaryCmdEnd(m_swapchain_image_resources[i].cmd);
             }
         }
 
@@ -799,6 +801,7 @@ namespace Viry3D
             {
                 vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_instance_cmds[i]);
             }
+            m_instance_cmds.Clear();
             for (int i = 0; i < m_uniform_buffers.Size(); ++i)
             {
                 m_uniform_buffers[i]->Destroy(m_device);
@@ -1812,62 +1815,13 @@ void main()
             cmd_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
             cmd_info.commandBufferCount = 1;
 
-            m_instance_cmds.Resize(m_swapchain_image_resources.Size());
-
             VkResult err;
+            m_instance_cmds.Resize(m_swapchain_image_resources.Size());
             for (int i = 0; i < m_instance_cmds.Size(); ++i)
             {
                 err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_instance_cmds[i]);
                 assert(!err);
             }
-        }
-
-        void BuildPrimaryCmd(
-            VkCommandBuffer cmd,
-            const Vector<VkCommandBuffer>& instance_cmds,
-            VkRenderPass render_pass,
-            VkFramebuffer framebuffer,
-            int image_width,
-            int image_height,
-            const Color& clear_color)
-        {
-            VkCommandBufferBeginInfo cmd_begin;
-            Memory::Zero(&cmd_begin, sizeof(cmd_begin));
-            cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            cmd_begin.pNext = nullptr;
-            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-            cmd_begin.pInheritanceInfo = nullptr;
-
-            VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
-            assert(!err);
-
-            VkClearValue clear_values[2];
-            clear_values[0].color.float32[0] = clear_color.r;
-            clear_values[0].color.float32[1] = clear_color.g;
-            clear_values[0].color.float32[2] = clear_color.b;
-            clear_values[0].color.float32[3] = clear_color.a;
-            clear_values[1].depthStencil.depth = 1.0f;
-            clear_values[1].depthStencil.stencil = 0;
-
-            VkRenderPassBeginInfo rp_begin;
-            Memory::Zero(&rp_begin, sizeof(rp_begin));
-            rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            rp_begin.pNext = nullptr;
-            rp_begin.renderPass = render_pass;
-            rp_begin.framebuffer = framebuffer;
-            rp_begin.renderArea.offset.x = 0;
-            rp_begin.renderArea.offset.y = 0;
-            rp_begin.renderArea.extent.width = image_width;
-            rp_begin.renderArea.extent.height = image_height;
-            rp_begin.clearValueCount = 2;
-            rp_begin.pClearValues = clear_values;
-
-            vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-            vkCmdExecuteCommands(cmd, (uint32_t) instance_cmds.Size(), &instance_cmds[0]);
-            vkCmdEndRenderPass(cmd);
-
-            err = vkEndCommandBuffer(cmd);
-            assert(!err);
         }
 
         void BuildInstanceCmd(
@@ -1928,6 +1882,63 @@ void main()
             assert(!err);
         }
 
+        void BuildPrimaryCmdBegin(VkCommandBuffer cmd)
+        {
+            VkCommandBufferBeginInfo cmd_begin;
+            Memory::Zero(&cmd_begin, sizeof(cmd_begin));
+            cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmd_begin.pNext = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+            cmd_begin.pInheritanceInfo = nullptr;
+
+            VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
+            assert(!err);
+        }
+
+        void BuildPrimaryCmdEnd(VkCommandBuffer cmd)
+        {
+            VkResult err = vkEndCommandBuffer(cmd);
+            assert(!err);
+        }
+
+        void BuildPrimaryCmd(
+            VkCommandBuffer cmd,
+            const Vector<VkCommandBuffer>& instance_cmds,
+            VkRenderPass render_pass,
+            VkFramebuffer framebuffer,
+            int image_width,
+            int image_height,
+            const Color& clear_color)
+        {
+            VkClearValue clear_values[2];
+            clear_values[0].color.float32[0] = clear_color.r;
+            clear_values[0].color.float32[1] = clear_color.g;
+            clear_values[0].color.float32[2] = clear_color.b;
+            clear_values[0].color.float32[3] = clear_color.a;
+            clear_values[1].depthStencil.depth = 1.0f;
+            clear_values[1].depthStencil.stencil = 0;
+
+            VkRenderPassBeginInfo rp_begin;
+            Memory::Zero(&rp_begin, sizeof(rp_begin));
+            rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            rp_begin.pNext = nullptr;
+            rp_begin.renderPass = render_pass;
+            rp_begin.framebuffer = framebuffer;
+            rp_begin.renderArea.offset.x = 0;
+            rp_begin.renderArea.offset.y = 0;
+            rp_begin.renderArea.extent.width = image_width;
+            rp_begin.renderArea.extent.height = image_height;
+            rp_begin.clearValueCount = 2;
+            rp_begin.pClearValues = clear_values;
+
+            vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+            if (instance_cmds.Size() > 0)
+            {
+                vkCmdExecuteCommands(cmd, (uint32_t) instance_cmds.Size(), &instance_cmds[0]);
+            }
+            vkCmdEndRenderPass(cmd);
+        }
+
         void Update()
         {
             for (auto i : m_cameras)
@@ -1938,7 +1949,26 @@ void main()
             if (m_primary_cmd_dirty)
             {
                 m_primary_cmd_dirty = false;
+
                 // build primary cmd
+                /*for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+                {
+                    this->BuildPrimaryCmdBegin(m_swapchain_image_resources[i].cmd);
+
+                    for (auto j : m_cameras)
+                    {
+                        this->BuildPrimaryCmd(
+                            m_swapchain_image_resources[i].cmd,
+                            j->GetInstanceCmds(),
+                            j->GetRenderPass(),
+                            j->GetFramebuffer(i),
+                            j->GetTargetWidth(),
+                            j->GetTargetHeight(),
+                            j->GetClearColor());
+                    }
+
+                    this->BuildPrimaryCmdEnd(m_swapchain_image_resources[i].cmd);
+                }*/
             }
         }
 
@@ -2017,15 +2047,9 @@ void main()
 
     Display::~Display()
     {
-        for (auto i : m_private->m_cameras)
-        {
-            delete i;
-        }
-        m_private->m_cameras.Clear();
+        delete m_private;
 
         deinit_shader_compiler();
-
-        delete m_private;
     }
 
     void Display::OnResize(int width, int height)
@@ -2037,6 +2061,16 @@ void main()
     {
         m_private->Update();
         m_private->OnDraw();
+    }
+
+    int Display::GetWidth() const
+    {
+        return m_private->m_width;
+    }
+
+    int Display::GetHeight() const
+    {
+        return m_private->m_height;
     }
 
     VkDevice Display::GetDevice() const
