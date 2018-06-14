@@ -30,7 +30,7 @@ namespace Viry3D
 		int pos = m_position;
 		int read = Stream::Read(buffer, size);
 
-		if (read > 0 && buffer != NULL)
+		if (read > 0 && buffer != nullptr)
 		{
 			Memory::Copy(buffer, &m_buffer[pos], read);
 		}
@@ -43,7 +43,7 @@ namespace Viry3D
 		int pos = m_position;
 		int write = Stream::Write(buffer, size);
 
-		if (write > 0 && buffer != NULL)
+		if (write > 0 && buffer != nullptr)
 		{
 			Memory::Copy(&m_buffer[pos], buffer, write);
 		}

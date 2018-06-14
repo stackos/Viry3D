@@ -51,7 +51,7 @@ namespace Viry3D
         if (ApplicationPrivate::m_data_path.Empty())
         {
             char buffer[MAX_PATH];
-            ::GetModuleFileName(NULL, buffer, MAX_PATH);
+            ::GetModuleFileName(nullptr, buffer, MAX_PATH);
             String path = buffer;
             path = path.Replace("\\", "/").Substring(0, path.LastIndexOf("\\")) + "/Assets";
             ApplicationPrivate::m_data_path = path;

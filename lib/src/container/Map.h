@@ -115,7 +115,7 @@ namespace Viry3D
 			return true;
 		}
 
-		*v = NULL;
+		*v = nullptr;
 		return false;
 	}
 
@@ -129,7 +129,7 @@ namespace Viry3D
 			return true;
 		}
 
-		*v = NULL;
+		*v = nullptr;
 		return false;
 	}
 

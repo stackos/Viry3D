@@ -39,7 +39,7 @@ namespace Viry3D
 		intptr_t find_handle = _findfirst(find_file.CString(), &find_data);
 		intptr_t find = find_handle;
 
-		if (exist != NULL)
+		if (exist != nullptr)
 		{
 			if (find_handle != -1 && (find_data.attrib & _A_SUBDIR) != 0)
 			{
@@ -91,7 +91,7 @@ namespace Viry3D
 			for (auto& i : dirs)
 			{
 				auto sub_dir = path + "/" + i;
-				auto sub_files = get_files(sub_dir, true, NULL, false);
+				auto sub_files = get_files(sub_dir, true, nullptr, false);
 
 				for (auto& j : sub_files)
 				{
@@ -110,9 +110,9 @@ namespace Viry3D
 
 		DIR *dir = opendir(path.CString());
 
-		if (exist != NULL)
+		if (exist != nullptr)
 		{
-			if (dir != NULL && (readdir(dir)->d_type & DT_DIR) != 0)
+			if (dir != nullptr && (readdir(dir)->d_type & DT_DIR) != 0)
 			{
 				*exist = true;
 			}
@@ -121,17 +121,17 @@ namespace Viry3D
 				*exist = false;
 			}
 
-			if (dir != NULL)
+			if (dir != nullptr)
 			{
 				closedir(dir);
 			}
 			return files;
 		}
 
-		if (dir != NULL)
+		if (dir != nullptr)
 		{
 			dirent* p;
-			while ((p = readdir(dir)) != NULL)
+			while ((p = readdir(dir)) != nullptr)
 			{
 				String name = p->d_name;
 				if (p->d_type & DT_DIR)
@@ -161,7 +161,7 @@ namespace Viry3D
 			for (auto& i : dirs)
 			{
 				auto sub_dir = path + "/" + i;
-				auto sub_files = get_files(sub_dir, true, NULL);
+				auto sub_files = get_files(sub_dir, true, nullptr);
 
 				for (auto& j : sub_files)
 				{
@@ -183,7 +183,7 @@ namespace Viry3D
 
 	Vector<String> Directory::GetDirectorys(const String& path)
 	{
-		auto dirs = get_files(path, false, NULL, true);
+		auto dirs = get_files(path, false, nullptr, true);
 
 		for (auto& i : dirs)
 		{
@@ -195,7 +195,7 @@ namespace Viry3D
 
 	Vector<String> Directory::GetFiles(const String& path, bool recursive)
 	{
-		auto files = get_files(path, recursive, NULL);
+		auto files = get_files(path, recursive, nullptr);
 
 		for (auto& i : files)
 		{
@@ -220,7 +220,7 @@ namespace Viry3D
 			folder += "/" + splits[i];
 
 #if VR_WINDOWS
-			CreateDirectoryA(folder.CString(), NULL);
+			CreateDirectoryA(folder.CString(), nullptr);
 #else
 			mkdir(folder.CString(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif

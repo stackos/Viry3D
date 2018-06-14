@@ -76,7 +76,7 @@ namespace Viry3D
 		t = mktime(&tm) * (long long) 1000 + sys_time.wMilliseconds;
 #elif VR_IOS || VR_ANDROID || VR_MAC
 		struct timeval tv;
-		gettimeofday(&tv, NULL);
+		gettimeofday(&tv, nullptr);
 		t = tv.tv_sec;
 		t *= 1000;
 		t += tv.tv_usec / 1000;

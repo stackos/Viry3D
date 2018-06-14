@@ -95,7 +95,7 @@ namespace Viry3D
 		auto dir = path.Substring(0, path.LastIndexOf("/"));
 		Directory::Create(dir);
 
-		int result = unzOpenCurrentFilePassword(file, NULL);
+		int result = unzOpenCurrentFilePassword(file, nullptr);
 
 		ByteBuffer buffer(8192);
 
@@ -129,7 +129,7 @@ namespace Viry3D
 			auto result = unzGoToFirstFile(file);
 			while (result == UNZ_OK)
 			{
-				result = unzGetCurrentFileInfo64(file, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
+				result = unzGetCurrentFileInfo64(file, &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
 				if (result != UNZ_OK)
 				{
 					break;

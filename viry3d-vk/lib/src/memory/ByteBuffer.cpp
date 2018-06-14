@@ -22,7 +22,7 @@ namespace Viry3D
 {
 	ByteBuffer::ByteBuffer(int size):
 		m_size(size),
-		m_bytes(NULL),
+		m_bytes(nullptr),
 		m_weak_ref(false)
 	{
 		if (m_size > 0)
@@ -74,7 +74,7 @@ namespace Viry3D
 		{
 			if (m_ref_count && m_ref_count.use_count() == 1)
 			{
-				if (m_bytes != NULL)
+				if (m_bytes != nullptr)
 				{
 					Memory::Free(m_bytes);
 				}

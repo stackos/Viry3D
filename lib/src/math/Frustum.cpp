@@ -182,7 +182,7 @@ namespace Viry3D
 		corners[6] = Vector3(max.x, min.y, min.z);
 		corners[7] = min;
 
-		return ContainsPoints(corners, NULL);
+		return ContainsPoints(corners, nullptr);
 	}
 
 	ContainsResult Frustum::ContainsPoints(const Vector<Vector3>& points, const Matrix4x4* matrix) const
@@ -190,7 +190,7 @@ namespace Viry3D
 		Vector<Vector3> ps(points.Size());
 		for (int i = 0; i < points.Size(); i++)
 		{
-			if (matrix != NULL)
+			if (matrix != nullptr)
 			{
 				ps[i] = matrix->MultiplyPoint3x4(points[i]);
 			}

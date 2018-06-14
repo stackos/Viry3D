@@ -159,15 +159,15 @@ namespace Viry3D
             m_last_iter(m_last),
             m_last_const_iter(m_last)
         {
-            m_last->prev = NULL;
-            m_last->next = NULL;
+            m_last->prev = nullptr;
+            m_last->next = nullptr;
         }
 
 		~FastList()
         {
             Node* p = m_first;
             Node* t;
-            while (p != NULL)
+            while (p != nullptr)
             {
                 t = p;
                 p = p->next;
@@ -179,7 +179,7 @@ namespace Viry3D
         {
             Node* n = new Node();
             n->value = v;
-            n->prev = NULL;
+            n->prev = nullptr;
             n->next = m_first;
             m_first->prev = n;
             m_first = n;
@@ -209,7 +209,7 @@ namespace Viry3D
             if (m_size > 0)
             {
                 Node* t = m_first;
-                m_first->next->prev = NULL;
+                m_first->next->prev = nullptr;
                 m_first = m_first->next;
                 delete t;
                 m_size--;
@@ -221,7 +221,7 @@ namespace Viry3D
             if (m_size > 0)
             {
                 Node* t = m_last->prev;
-                if (m_last->prev->prev != NULL)
+                if (m_last->prev->prev != nullptr)
                 {
                     m_last->prev->prev->next = m_last;
                 }
@@ -239,7 +239,7 @@ namespace Viry3D
         {
             Node* p = m_first;
             Node* t;
-            while (p->next != NULL)
+            while (p->next != nullptr)
             {
                 t = p;
                 p = p->next;
@@ -255,7 +255,7 @@ namespace Viry3D
             {
                 if (i->value == v)
                 {
-                    if (i->prev != NULL)
+                    if (i->prev != nullptr)
                     {
                         i->prev->next = i->next;
                     }
@@ -283,7 +283,7 @@ namespace Viry3D
 
                 if (t->value == v)
                 {
-                    if (t->prev != NULL)
+                    if (t->prev != nullptr)
                     {
                         t->prev->next = t->next;
                     }
@@ -332,7 +332,7 @@ namespace Viry3D
             Node* n = i.node;
             Node* next = n->next;
 
-            if (n->prev != NULL)
+            if (n->prev != nullptr)
             {
                 n->prev->next = n->next;
             }

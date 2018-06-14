@@ -85,10 +85,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     win_class.cbWndExtra = 0;
     win_class.hInstance = hInstance;
     win_class.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
-    win_class.lpszMenuName = NULL;
+    win_class.lpszMenuName = nullptr;
     win_class.lpszClassName = name.CString();
-    win_class.hCursor = LoadCursor(NULL, IDC_ARROW);
-    win_class.hIcon = (HICON) LoadImage(NULL, "icon.ico", IMAGE_ICON, SM_CXICON, SM_CYICON, LR_LOADFROMFILE);
+    win_class.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    win_class.hIcon = (HICON) LoadImage(nullptr, "icon.ico", IMAGE_ICON, SM_CXICON, SM_CYICON, LR_LOADFROMFILE);
     win_class.hIconSm = win_class.hIcon;
 
     if (!RegisterClassEx(&win_class))
@@ -113,10 +113,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         x, y,				// x, y
         wr.right - wr.left, // width
         wr.bottom - wr.top, // height
-        NULL,				// handle to parent
-        NULL,               // handle to menu
+        nullptr,		    // handle to parent
+        nullptr,            // handle to menu
         hInstance,			// hInstance
-        NULL);              // no extra parameters
+        nullptr);           // no extra parameters
     if (!hwnd)
     {
         return 0;
@@ -134,7 +134,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     while (true)
     {
-        while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        while (::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if (WM_QUIT == msg.message)
             {

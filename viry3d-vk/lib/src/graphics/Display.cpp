@@ -177,9 +177,9 @@ namespace Viry3D
         Ref<VkBufferObject> m_vertex_buffer;
         Ref<VkBufferObject> m_index_buffer;
         VkDescriptorPool m_desc_pool = nullptr;
-        Vector<VkDescriptorSet> m_desc_sets;
-        Vector<Ref<VkBufferObject>> m_uniform_buffers;
-        Vector<VkCommandBuffer> m_instance_cmds;
+        VkDescriptorSet m_desc_set;
+        Ref<VkBufferObject> m_uniform_buffer;
+        VkCommandBuffer m_instance_cmd;
 
         DisplayPrivate(Display* display, void* window, int width, int height):
             m_public(display),
@@ -510,7 +510,7 @@ namespace Viry3D
             }
 
 #if VR_WINDOWS
-            MessageBox(NULL, message.CString(), "Alert", MB_OK);
+            MessageBox(nullptr, message.CString(), "Alert", MB_OK);
 #endif
 
             return false;
@@ -770,43 +770,18 @@ namespace Viry3D
             this->CreateDescriptorSet();
             this->CreateInstanceCmd();
 
-            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-            {
-                this->BuildInstanceCmd(
-                    m_instance_cmds[i],
-                    m_render_pass,
-                    m_framebuffers[i],
-                    m_desc_sets[i],
-                    Rect(0, 0, 1, 1));
-
-                Vector<VkCommandBuffer> instance_cmds;
-                instance_cmds.Add(m_instance_cmds[i]);
-
-                this->BuildPrimaryCmdBegin(m_swapchain_image_resources[i].cmd);
-                this->BuildPrimaryCmd(
-                    m_swapchain_image_resources[i].cmd,
-                    instance_cmds,
-                    m_render_pass,
-                    m_framebuffers[i],
-                    m_width,
-                    m_height,
-                    Color(0, 0, 0, 1));
-                this->BuildPrimaryCmdEnd(m_swapchain_image_resources[i].cmd);
-            }
+            this->BuildInstanceCmd(
+                m_instance_cmd,
+                m_render_pass,
+                m_desc_set,
+                Rect(0, 0, 1, 1));
         }
 
         void DestroySizeDependentResources()
         {
-            for (int i = 0; i < m_instance_cmds.Size(); ++i)
-            {
-                vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_instance_cmds[i]);
-            }
-            m_instance_cmds.Clear();
-            for (int i = 0; i < m_uniform_buffers.Size(); ++i)
-            {
-                m_uniform_buffers[i]->Destroy(m_device);
-            }
-            m_uniform_buffers.Clear();
+            vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_instance_cmd);
+            m_uniform_buffer->Destroy(m_device);
+            m_uniform_buffer.reset();
             vkDestroyDescriptorPool(m_device, m_desc_pool, nullptr);
 
             m_vertex_buffer->Destroy(m_device);
@@ -913,7 +888,7 @@ namespace Viry3D
 #else
             VkPresentModeKHR present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
 #endif
-           
+
             uint32_t swapchain_image_count = 3;
             if (swapchain_image_count < surface_caps.minImageCount)
             {
@@ -1772,37 +1747,31 @@ void main()
             desc_info.descriptorSetCount = 1;
             desc_info.pSetLayouts = &m_desc_layout;
 
-            m_desc_sets.Resize(m_swapchain_image_resources.Size());
-            m_uniform_buffers.Resize(m_swapchain_image_resources.Size());
-
             Matrix4x4 mvp = Matrix4x4::Identity();
-            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-            {
-                err = vkAllocateDescriptorSets(m_device, &desc_info, &m_desc_sets[i]);
-                assert(!err);
+            err = vkAllocateDescriptorSets(m_device, &desc_info, &m_desc_set);
+            assert(!err);
 
-                m_uniform_buffers[i] = this->CreateBuffer(&mvp, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+            m_uniform_buffer = this->CreateBuffer(&mvp, sizeof(mvp), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-                VkDescriptorBufferInfo buffer_info;
-                buffer_info.buffer = m_uniform_buffers[i]->buffer;
-                buffer_info.offset = 0;
-                buffer_info.range = sizeof(mvp);
+            VkDescriptorBufferInfo buffer_info;
+            buffer_info.buffer = m_uniform_buffer->buffer;
+            buffer_info.offset = 0;
+            buffer_info.range = sizeof(mvp);
 
-                Vector<VkWriteDescriptorSet> desc_writes(1);
-                Memory::Zero(&desc_writes[0], desc_writes.SizeInBytes());
-                desc_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                desc_writes[0].pNext = nullptr;
-                desc_writes[0].dstSet = m_desc_sets[i];
-                desc_writes[0].dstBinding = 0;
-                desc_writes[0].dstArrayElement = 0;
-                desc_writes[0].descriptorCount = 1;
-                desc_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                desc_writes[0].pImageInfo = nullptr;
-                desc_writes[0].pBufferInfo = &buffer_info;
-                desc_writes[0].pTexelBufferView = nullptr;
+            Vector<VkWriteDescriptorSet> desc_writes(1);
+            Memory::Zero(&desc_writes[0], desc_writes.SizeInBytes());
+            desc_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            desc_writes[0].pNext = nullptr;
+            desc_writes[0].dstSet = m_desc_set;
+            desc_writes[0].dstBinding = 0;
+            desc_writes[0].dstArrayElement = 0;
+            desc_writes[0].descriptorCount = 1;
+            desc_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            desc_writes[0].pImageInfo = nullptr;
+            desc_writes[0].pBufferInfo = &buffer_info;
+            desc_writes[0].pTexelBufferView = nullptr;
 
-                vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
-            }
+            vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
         }
 
         void CreateInstanceCmd()
@@ -1815,29 +1784,23 @@ void main()
             cmd_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
             cmd_info.commandBufferCount = 1;
 
-            VkResult err;
-            m_instance_cmds.Resize(m_swapchain_image_resources.Size());
-            for (int i = 0; i < m_instance_cmds.Size(); ++i)
-            {
-                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_instance_cmds[i]);
-                assert(!err);
-            }
+            VkResult err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_instance_cmd);
+            assert(!err);
         }
 
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
-            VkFramebuffer framebuffer,
             VkDescriptorSet desc_set,
             const Rect& view_rect)
         {
             VkCommandBufferInheritanceInfo inheritance_info;
             Memory::Zero(&inheritance_info, sizeof(inheritance_info));
             inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-            inheritance_info.pNext = NULL;
+            inheritance_info.pNext = nullptr;
             inheritance_info.renderPass = render_pass;
             inheritance_info.subpass = 0;
-            inheritance_info.framebuffer = framebuffer;
+            inheritance_info.framebuffer = nullptr;
             inheritance_info.occlusionQueryEnable = VK_FALSE;
             inheritance_info.queryFlags = 0;
             inheritance_info.pipelineStatistics = 0;
@@ -1951,15 +1914,18 @@ void main()
                 m_primary_cmd_dirty = false;
 
                 // build primary cmd
-                /*for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
                 {
                     this->BuildPrimaryCmdBegin(m_swapchain_image_resources[i].cmd);
 
                     for (auto j : m_cameras)
                     {
+                        Vector<VkCommandBuffer> instance_cmds;
+                        instance_cmds.Add(m_instance_cmd);
+
                         this->BuildPrimaryCmd(
                             m_swapchain_image_resources[i].cmd,
-                            j->GetInstanceCmds(),
+                            instance_cmds,//j->GetInstanceCmds(),
                             j->GetRenderPass(),
                             j->GetFramebuffer(i),
                             j->GetTargetWidth(),
@@ -1968,7 +1934,7 @@ void main()
                     }
 
                     this->BuildPrimaryCmdEnd(m_swapchain_image_resources[i].cmd);
-                }*/
+                }
             }
         }
 
@@ -1986,7 +1952,7 @@ void main()
             Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
             Matrix4x4 projection = Matrix4x4::Perspective(45, m_width / (float) m_height, 1, 1000);
             Matrix4x4 mvp = projection * view * model;
-            this->UpdateBuffer(m_uniform_buffers[m_image_index], &mvp, sizeof(mvp));
+            this->UpdateBuffer(m_uniform_buffer, &mvp, sizeof(mvp));
 
             VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             VkSubmitInfo submit_info;

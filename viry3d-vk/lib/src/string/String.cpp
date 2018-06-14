@@ -33,7 +33,7 @@ namespace Viry3D
 
 		va_list vs;
 		va_start(vs, format);
-		int size = vsnprintf(NULL, 0, format, vs);
+		int size = vsnprintf(nullptr, 0, format, vs);
 		va_end(vs);
 
 		char* buffer = Memory::Alloc<char>(size + 1);
@@ -91,13 +91,13 @@ namespace Viry3D
 	String String::Utf8ToGb2312(const String& str)
 	{
 #if VR_WINDOWS
-		int size = MultiByteToWideChar(CP_UTF8, 0, str.CString(), str.Size(), NULL, 0);
+		int size = MultiByteToWideChar(CP_UTF8, 0, str.CString(), str.Size(), nullptr, 0);
 		wchar_t* wstr = (wchar_t*) calloc(1, (size + 1) * 2);
 		MultiByteToWideChar(CP_UTF8, 0, str.CString(), str.Size(), wstr, size);
 
-		size = WideCharToMultiByte(CP_ACP, 0, wstr, size, NULL, 0, NULL, false);
+		size = WideCharToMultiByte(CP_ACP, 0, wstr, size, nullptr, 0, nullptr, false);
 		char* cstr = (char*) calloc(1, size + 1);
-		WideCharToMultiByte(CP_ACP, 0, wstr, size, cstr, size, NULL, false);
+		WideCharToMultiByte(CP_ACP, 0, wstr, size, cstr, size, nullptr, false);
 
 		String ret = cstr;
 
@@ -113,13 +113,13 @@ namespace Viry3D
 	String String::Gb2312ToUtf8(const String& str)
 	{
 #if VR_WINDOWS
-		int size = MultiByteToWideChar(CP_ACP, 0, str.CString(), str.Size(), NULL, 0);
+		int size = MultiByteToWideChar(CP_ACP, 0, str.CString(), str.Size(), nullptr, 0);
 		wchar_t* wstr = (wchar_t*) calloc(1, (size + 1) * 2);
 		MultiByteToWideChar(CP_ACP, 0, str.CString(), str.Size(), wstr, size);
 
-		size = WideCharToMultiByte(CP_UTF8, 0, wstr, size, NULL, 0, NULL, false);
+		size = WideCharToMultiByte(CP_UTF8, 0, wstr, size, nullptr, 0, nullptr, false);
 		char* cstr = (char*) calloc(1, size + 1);
-		WideCharToMultiByte(CP_UTF8, 0, wstr, size, cstr, size, NULL, false);
+		WideCharToMultiByte(CP_UTF8, 0, wstr, size, cstr, size, nullptr, false);
 
 		String ret = cstr;
 
@@ -154,7 +154,7 @@ namespace Viry3D
 					while (i + 2 < size && c == '%')
 					{
 						auto sub = str.Substring(i + 1, 2);
-						char v = (char) strtol(sub.CString(), NULL, 16);
+						char v = (char) strtol(sub.CString(), nullptr, 16);
 						dest[j++] = v;
 						i += 3;
 						if (i < size)
