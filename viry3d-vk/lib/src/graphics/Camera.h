@@ -22,11 +22,13 @@
 #include "Color.h"
 #include "math/Rect.h"
 #include "container/Vector.h"
+#include "container/List.h"
 
 namespace Viry3D
 {
     class Texture;
-
+    class Renderer;
+    
     class Camera
     {
     public:
@@ -50,9 +52,11 @@ namespace Viry3D
         const Vector<VkCommandBuffer>& GetInstanceCmds() const { return m_instance_cmds; }
         int GetTargetWidth() const;
         int GetTargetHeight() const;
+        void AddRenderer(Renderer* renderer);
+        void RemoveRenderer(Renderer* renderer);
 
     private:
-        void UpdateRenderPass();   
+        void UpdateRenderPass();
         void ClearRenderPass();
         void UpdateInstanceCmds();
         void ClearInstanceCmds();
@@ -68,5 +72,6 @@ namespace Viry3D
         VkRenderPass m_render_pass = nullptr;
         Vector<VkFramebuffer> m_framebuffers;
         Vector<VkCommandBuffer> m_instance_cmds;
+        List<Renderer*> m_renderers;
     };
 }

@@ -24,9 +24,16 @@ using namespace Viry3D;
 class App
 {
 public:
+    Camera* m_camera;
+
+    ~App()
+    {
+        Display::GetDisplay()->DestroyCamera(m_camera);
+    }
+
     void Start()
     {
-        Camera* camera = Display::GetDisplay()->CreateCamera();
+        m_camera = Display::GetDisplay()->CreateCamera();
     }
 
     void Update()

@@ -159,4 +159,22 @@ namespace Viry3D
             return Display::GetDisplay()->GetHeight();
         }
     }
+
+    void Camera::AddRenderer(Renderer* renderer)
+    {
+        if (!m_renderers.Contains(renderer))
+        {
+            m_renderers.AddLast(renderer);
+            m_renderers.Sort([](const Renderer* a, const Renderer* b) {
+                return false;
+            });
+            m_instance_cmds_dirty = true;
+        }
+    }
+
+    void Camera::RemoveRenderer(Renderer* renderer)
+    {
+        m_renderers.Remove(renderer);
+        m_instance_cmds_dirty = true;
+    }
 }

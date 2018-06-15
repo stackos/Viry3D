@@ -48,7 +48,6 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
         fp##entrypoint = (PFN_vk##entrypoint) g_gdpa(dev, "vk" #entrypoint);                                     \
     }
 
-#define FRAME_LAG 2
 #define VSYNC 0
 
 namespace Viry3D
@@ -112,12 +111,7 @@ namespace Viry3D
     struct SwapchainImageResources
     {
         Ref<VkTexture> texture;
-        VkCommandBuffer cmd;
-
-        SwapchainImageResources():
-            cmd(nullptr)
-        {
-        }
+        VkCommandBuffer cmd = nullptr;
     };
 
     class DisplayPrivate
@@ -154,13 +148,12 @@ namespace Viry3D
         PFN_vkQueuePresentKHR fpQueuePresentKHR = nullptr;
         int m_graphics_queue_family_index = -1;
         VkSurfaceFormatKHR m_surface_format;
-        VkFence m_fences[FRAME_LAG];
-        VkSemaphore m_image_acquired_semaphores[FRAME_LAG];
-        VkSemaphore m_draw_complete_semaphores[FRAME_LAG];
-        int m_frame_index = 0;
         VkSwapchainKHR m_swapchain = nullptr;
         Vector<SwapchainImageResources> m_swapchain_image_resources;
-        uint32_t m_image_index = 0;
+        VkFence m_draw_complete_fence = nullptr;
+        VkSemaphore m_image_acquired_semaphore = nullptr;
+        VkSemaphore m_draw_complete_semaphore = nullptr;
+        int m_image_index = 0;
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
         Ref<VkTexture> m_depth_texture;
@@ -169,7 +162,6 @@ namespace Viry3D
         bool m_primary_cmd_dirty = true;
 
         VkRenderPass m_render_pass = nullptr;
-        Vector<VkFramebuffer> m_framebuffers;
         VkPipelineCache m_pipeline_cache = nullptr;
         VkDescriptorSetLayout m_desc_layout = nullptr;
         VkPipelineLayout m_pipeline_layout = nullptr;
@@ -187,10 +179,6 @@ namespace Viry3D
             m_width(width),
             m_height(height)
         {
-            Memory::Zero(m_fences, sizeof(m_fences));
-            Memory::Zero(m_image_acquired_semaphores, sizeof(m_image_acquired_semaphores));
-            Memory::Zero(m_draw_complete_semaphores, sizeof(m_draw_complete_semaphores));
-
             m_current_display = m_public;
         }
 
@@ -206,14 +194,9 @@ namespace Viry3D
 
             this->DestroySizeDependentResources();
 
-            for (int i = 0; i < FRAME_LAG; ++i)
-            {
-                vkWaitForFences(m_device, 1, &m_fences[i], VK_TRUE, UINT64_MAX);
-                vkDestroyFence(m_device, m_fences[i], nullptr);
-                vkDestroySemaphore(m_device, m_image_acquired_semaphores[i], nullptr);
-                vkDestroySemaphore(m_device, m_draw_complete_semaphores[i], nullptr);
-            }
-
+            vkDestroyFence(m_device, m_draw_complete_fence, nullptr);
+            vkDestroySemaphore(m_device, m_image_acquired_semaphore, nullptr);
+            vkDestroySemaphore(m_device, m_draw_complete_semaphore, nullptr);
             vkDestroyDevice(m_device, nullptr);
             vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
             m_gpu = nullptr;
@@ -299,6 +282,47 @@ namespace Viry3D
             source += glsl;
 
             return source;
+        }
+
+        static VKAPI_ATTR VkBool32 VKAPI_CALL
+            DebugFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
+                uint64_t srcObject, size_t location, int32_t msgCode,
+                const char *pLayerPrefix, const char *pMsg, void *pUserData)
+        {
+            String message;
+
+            if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+            {
+                message = String::Format("ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+
+#if VR_WINDOWS
+                MessageBox(nullptr, message.CString(), "Alert", MB_OK);
+#endif
+            }
+            else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+            {
+                if (msgCode == 62)
+                {
+                    // known warning, avoid secondary instance cmd depending framebuffer
+                    return false;
+                }
+                else
+                {
+                    message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+                }
+            }
+            else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+            {
+                message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+            }
+            else if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+            {
+                message = String::Format("INFO: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+            }
+
+            Log("%s", message.CString());
+
+            return false;
         }
 
         void CheckInstanceLayers()
@@ -485,35 +509,6 @@ namespace Viry3D
             GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfaceFormatsKHR);
             GET_INSTANCE_PROC_ADDR(m_instance, GetPhysicalDeviceSurfacePresentModesKHR);
             GET_INSTANCE_PROC_ADDR(m_instance, GetSwapchainImagesKHR);
-        }
-
-        static VKAPI_ATTR VkBool32 VKAPI_CALL
-            DebugFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
-                uint64_t srcObject, size_t location, int32_t msgCode,
-                const char *pLayerPrefix, const char *pMsg, void *pUserData)
-        {
-            Log("[%s] %d : %s", pLayerPrefix, msgCode, pMsg);
-
-            String message;
-
-            if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
-            {
-                message = String::Format("ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-            }
-            else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
-            {
-                message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-            }
-            else
-            {
-                return false;
-            }
-
-#if VR_WINDOWS
-            MessageBox(nullptr, message.CString(), "Alert", MB_OK);
-#endif
-
-            return false;
         }
 
         void CreateDebugReportCallback()
@@ -716,7 +711,7 @@ namespace Viry3D
             m_surface_format.colorSpace = surface_formats[0].colorSpace;
         }
 
-        void CreateSemaphores()
+        void CreateSignals()
         {
             VkFenceCreateInfo fence_info;
             Memory::Zero(&fence_info, sizeof(fence_info));
@@ -730,18 +725,12 @@ namespace Viry3D
             semaphore_info.pNext = nullptr;
             semaphore_info.flags = 0;
 
-            VkResult err;
-            for (int i = 0; i < FRAME_LAG; ++i)
-            {
-                err = vkCreateFence(m_device, &fence_info, nullptr, &m_fences[i]);
-                assert(!err);
-
-                err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_image_acquired_semaphores[i]);
-                assert(!err);
-
-                err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_draw_complete_semaphores[i]);
-                assert(!err);
-            }
+            VkResult err = vkCreateFence(m_device, &fence_info, nullptr, &m_draw_complete_fence);
+            assert(!err);
+            err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_image_acquired_semaphore);
+            assert(!err);
+            err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_draw_complete_semaphore);
+            assert(!err);
         }
 
         void CreateSizeDependentResources()
@@ -765,7 +754,7 @@ namespace Viry3D
             
             this->CreateRenderPass();
             this->CreatePipelineCache();
-            this->CreatePipeline();
+            this->CreatePipeline(m_render_pass);
             this->CreateVertexBuffer();
             this->CreateDescriptorSet();
             this->CreateInstanceCmd();
@@ -773,8 +762,14 @@ namespace Viry3D
             this->BuildInstanceCmd(
                 m_instance_cmd,
                 m_render_pass,
+                m_pipeline_layout,
+                m_pipeline,
                 m_desc_set,
-                Rect(0, 0, 1, 1));
+                m_width,
+                m_height,
+                Rect(0, 0, 1, 1),
+                m_vertex_buffer,
+                m_index_buffer);
         }
 
         void DestroySizeDependentResources()
@@ -793,12 +788,6 @@ namespace Viry3D
             vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
             vkDestroyDescriptorSetLayout(m_device, m_desc_layout, nullptr);
             vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
-
-            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-            {
-                vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
-            }
-            m_framebuffers.Clear();
             vkDestroyRenderPass(m_device, m_render_pass, nullptr);
 
             m_depth_texture->Destroy(m_device);
@@ -834,6 +823,8 @@ namespace Viry3D
 
             this->DestroySizeDependentResources();
             this->CreateSizeDependentResources();
+
+            m_primary_cmd_dirty = true;
         }
 
         void CreateSwapChain()
@@ -1364,18 +1355,6 @@ namespace Viry3D
                 CameraClearFlags::ColorAndDepth,
                 true,
                 &m_render_pass);
-
-            m_framebuffers.Resize(m_swapchain_image_resources.Size());
-            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-            {
-                this->CreateFramebuffer(
-                    m_swapchain_image_resources[i].texture->image_view,
-                    m_depth_texture->image_view,
-                    m_swapchain_image_resources[i].texture->width,
-                    m_swapchain_image_resources[i].texture->height,
-                    m_render_pass,
-                    &m_framebuffers[i]);
-            }
         }
 
         void CreateSpirvShaderModule(const Vector<unsigned int>& spirv, VkShaderModule* module)
@@ -1410,7 +1389,7 @@ namespace Viry3D
             assert(!err);
         }
 
-        void CreatePipeline()
+        void CreatePipeline(VkRenderPass render_pass)
         {
             Vector<String> vs_includes;
             vs_includes.Add("Base.in");
@@ -1690,7 +1669,7 @@ void main()
             pipeline_info.pColorBlendState = &cb;
             pipeline_info.pDynamicState = &dynamic_info;
             pipeline_info.layout = m_pipeline_layout;
-            pipeline_info.renderPass = m_render_pass;
+            pipeline_info.renderPass = render_pass;
             pipeline_info.subpass = 0;
             pipeline_info.basePipelineHandle = nullptr;
             pipeline_info.basePipelineIndex = 0;
@@ -1791,8 +1770,14 @@ void main()
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
+            VkPipelineLayout pipeline_layout,
+            VkPipeline pipeline,
             VkDescriptorSet desc_set,
-            const Rect& view_rect)
+            int image_width,
+            int image_height,
+            const Rect& view_rect,
+            const Ref<VkBufferObject>& vertex_buffer,
+            const Ref<VkBufferObject>& index_buffer)
         {
             VkCommandBufferInheritanceInfo inheritance_info;
             Memory::Zero(&inheritance_info, sizeof(inheritance_info));
@@ -1815,15 +1800,15 @@ void main()
             VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
             assert(!err);
 
-            vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline_layout, 0, 1, &desc_set, 0, nullptr);
+            vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 
             VkViewport viewport;
             Memory::Zero(&viewport, sizeof(viewport));
-            viewport.x = m_width * view_rect.x;
-            viewport.y = m_height * view_rect.y;
-            viewport.width = (float) m_width * view_rect.width;
-            viewport.height = (float) m_height * view_rect.height;
+            viewport.x = image_width * view_rect.x;
+            viewport.y = image_height * view_rect.y;
+            viewport.width = (float) image_width * view_rect.width;
+            viewport.height = (float) image_height * view_rect.height;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(cmd, 0, 1, &viewport);
@@ -1832,13 +1817,13 @@ void main()
             Memory::Zero(&scissor, sizeof(scissor));
             scissor.offset.x = 0;
             scissor.offset.y = 0;
-            scissor.extent.width = m_width;
-            scissor.extent.height = m_height;
+            scissor.extent.width = image_width;
+            scissor.extent.height = image_height;
             vkCmdSetScissor(cmd, 0, 1, &scissor);
 
             VkDeviceSize offset = 0;
-            vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertex_buffer->buffer, &offset);
-            vkCmdBindIndexBuffer(cmd, m_index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdBindVertexBuffers(cmd, 0, 1, &vertex_buffer->buffer, &offset);
+            vkCmdBindIndexBuffer(cmd, index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
             vkCmdDrawIndexed(cmd, 6, 1, 0, 0, 0);
 
             err = vkEndCommandBuffer(cmd);
@@ -1902,6 +1887,42 @@ void main()
             vkCmdEndRenderPass(cmd);
         }
 
+        void BuildPrimaryCmds()
+        {
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                this->BuildPrimaryCmdBegin(m_swapchain_image_resources[i].cmd);
+
+                for (auto j : m_cameras)
+                {
+                    Vector<VkCommandBuffer> instance_cmds;
+                    instance_cmds.Add(m_instance_cmd);
+
+                    this->BuildPrimaryCmd(
+                        m_swapchain_image_resources[i].cmd,
+                        instance_cmds,//j->GetInstanceCmds(),
+                        j->GetRenderPass(),
+                        j->GetFramebuffer(i),
+                        j->GetTargetWidth(),
+                        j->GetTargetHeight(),
+                        j->GetClearColor());
+                }
+
+                this->BuildPrimaryCmdEnd(m_swapchain_image_resources[i].cmd);
+            }
+        }
+
+        void UpdateUniformBuffers()
+        {
+            static float s_deg = 0;
+            s_deg += 1;
+            Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, s_deg)));
+            Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
+            Matrix4x4 projection = Matrix4x4::Perspective(45, m_width / (float) m_height, 1, 1000);
+            Matrix4x4 mvp = projection * view * model;
+            this->UpdateBuffer(m_uniform_buffer, &mvp, sizeof(mvp));
+        }
+
         void Update()
         {
             for (auto i : m_cameras)
@@ -1913,46 +1934,24 @@ void main()
             {
                 m_primary_cmd_dirty = false;
 
-                // build primary cmd
-                for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-                {
-                    this->BuildPrimaryCmdBegin(m_swapchain_image_resources[i].cmd);
-
-                    for (auto j : m_cameras)
-                    {
-                        Vector<VkCommandBuffer> instance_cmds;
-                        instance_cmds.Add(m_instance_cmd);
-
-                        this->BuildPrimaryCmd(
-                            m_swapchain_image_resources[i].cmd,
-                            instance_cmds,//j->GetInstanceCmds(),
-                            j->GetRenderPass(),
-                            j->GetFramebuffer(i),
-                            j->GetTargetWidth(),
-                            j->GetTargetHeight(),
-                            j->GetClearColor());
-                    }
-
-                    this->BuildPrimaryCmdEnd(m_swapchain_image_resources[i].cmd);
-                }
+                this->BuildPrimaryCmds();
             }
+
+            this->UpdateUniformBuffers();
         }
 
         void OnDraw()
         {
-            vkWaitForFences(m_device, 1, &m_fences[m_frame_index], VK_TRUE, UINT64_MAX);
-            vkResetFences(m_device, 1, &m_fences[m_frame_index]);
-
-            VkResult err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphores[m_frame_index], nullptr, &m_image_index);
+            // wait for previous frame draw complete
+            VkResult err = vkWaitForFences(m_device, 1, &m_draw_complete_fence, VK_TRUE, UINT64_MAX);
+            assert(!err);
+            err = vkResetFences(m_device, 1, &m_draw_complete_fence);
             assert(!err);
 
-            static float s_deg = 0;
-            s_deg += 1;
-            Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, s_deg)));
-            Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
-            Matrix4x4 projection = Matrix4x4::Perspective(45, m_width / (float) m_height, 1, 1000);
-            Matrix4x4 mvp = projection * view * model;
-            this->UpdateBuffer(m_uniform_buffer, &mvp, sizeof(mvp));
+            this->Update();
+
+            err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphore, nullptr, (uint32_t*) &m_image_index);
+            assert(!err);
 
             VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             VkSubmitInfo submit_info;
@@ -1960,14 +1959,14 @@ void main()
             submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submit_info.pNext = nullptr;
             submit_info.waitSemaphoreCount = 1;
-            submit_info.pWaitSemaphores = &m_image_acquired_semaphores[m_frame_index];
+            submit_info.pWaitSemaphores = &m_image_acquired_semaphore;
             submit_info.pWaitDstStageMask = &pipe_stage_flags;
             submit_info.commandBufferCount = 1;
             submit_info.pCommandBuffers = &m_swapchain_image_resources[m_image_index].cmd;
             submit_info.signalSemaphoreCount = 1;
-            submit_info.pSignalSemaphores = &m_draw_complete_semaphores[m_frame_index];
+            submit_info.pSignalSemaphores = &m_draw_complete_semaphore;
 
-            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_fences[m_frame_index]);
+            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_draw_complete_fence);
             assert(!err);
 
             VkPresentInfoKHR present_info;
@@ -1975,17 +1974,14 @@ void main()
             present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
             present_info.pNext = nullptr;
             present_info.waitSemaphoreCount = 1;
-            present_info.pWaitSemaphores = &m_draw_complete_semaphores[m_frame_index];
+            present_info.pWaitSemaphores = &m_draw_complete_semaphore;
             present_info.swapchainCount = 1;
             present_info.pSwapchains = &m_swapchain;
-            present_info.pImageIndices = &m_image_index;
+            present_info.pImageIndices = (uint32_t*) &m_image_index;
             present_info.pResults = nullptr;
 
             err = fpQueuePresentKHR(m_graphics_queue, &present_info);
             assert(!err);
-
-            m_frame_index += 1;
-            m_frame_index %= FRAME_LAG;
         }
     };
 
@@ -2007,7 +2003,7 @@ void main()
         m_private->CreateDebugReportCallback();
         m_private->InitPhysicalDevice();
         m_private->CreateDevice();
-        m_private->CreateSemaphores();
+        m_private->CreateSignals();
         m_private->CreateSizeDependentResources();
     }
 
@@ -2025,7 +2021,6 @@ void main()
 
     void Display::OnDraw()
     {
-        m_private->Update();
         m_private->OnDraw();
     }
 
@@ -2054,6 +2049,7 @@ void main()
 
     void Display::DestroyCamera(Camera* camera)
     {
+        vkDeviceWaitIdle(m_private->m_device);
         m_private->m_cameras.Remove(camera);
         delete camera;
         this->MarkPrimaryCmdDirty();
