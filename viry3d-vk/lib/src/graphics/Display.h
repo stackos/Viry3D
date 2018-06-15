@@ -39,8 +39,8 @@ namespace Viry3D
         int GetWidth() const;
         int GetHeight() const;
         VkDevice GetDevice() const;
-        Camera* CreateCamera();
-        void DestroyCamera(Camera* camera);
+        Ref<Camera> CreateCamera();
+        void DestroyCamera(Ref<Camera>& camera);
         void MarkPrimaryCmdDirty();
         void CreateRenderPass(
             const Ref<Texture>& color_texture,

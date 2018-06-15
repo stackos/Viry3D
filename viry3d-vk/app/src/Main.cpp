@@ -24,16 +24,16 @@ using namespace Viry3D;
 class App
 {
 public:
-    Camera* m_camera;
+    Ref<Camera> m_camera;
+
+    App()
+    {
+        m_camera = Display::GetDisplay()->CreateCamera();
+    }
 
     ~App()
     {
         Display::GetDisplay()->DestroyCamera(m_camera);
-    }
-
-    void Start()
-    {
-        m_camera = Display::GetDisplay()->CreateCamera();
     }
 
     void Update()
@@ -134,7 +134,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Display* display = new Display(hwnd, width, height);
 
     Ref<App> app = RefMake<App>();
-    app->Start();
 
     bool exit = false;
     MSG msg;

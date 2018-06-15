@@ -17,11 +17,14 @@
 
 #include "Camera.h"
 #include "Texture.h"
+#include "Renderer.h"
+#include "Material.h"
 
 namespace Viry3D
 {
     Camera::Camera():
         m_render_pass_dirty(true),
+        m_renderer_order_dirty(true),
         m_instance_cmds_dirty(true),
         m_clear_flags(CameraClearFlags::ColorAndDepth),
         m_clear_color(0, 0, 0, 1),
@@ -40,8 +43,6 @@ namespace Viry3D
     {
         m_clear_flags = flags;
         m_render_pass_dirty = true;
-        m_instance_cmds_dirty = true;
-        Display::GetDisplay()->MarkPrimaryCmdDirty();
     }
 
     void Camera::SetClearColor(const Color& color)
@@ -61,8 +62,6 @@ namespace Viry3D
         m_render_target_color = color_texture;
         m_render_target_depth = depth_texture;
         m_render_pass_dirty = true;
-        m_instance_cmds_dirty = true;
-        Display::GetDisplay()->MarkPrimaryCmdDirty();
     }
 
     void Camera::Update()
@@ -71,12 +70,25 @@ namespace Viry3D
         {
             m_render_pass_dirty = false;
             this->UpdateRenderPass();
+
+            m_instance_cmds_dirty = true;
+            Display::GetDisplay()->MarkPrimaryCmdDirty();
+        }
+
+        if (m_renderer_order_dirty)
+        {
+            m_renderer_order_dirty = false;
+            this->SortRenderers();
+
+            Display::GetDisplay()->MarkPrimaryCmdDirty();
         }
 
         if (m_instance_cmds_dirty)
         {
             m_instance_cmds_dirty = false;
             this->UpdateInstanceCmds();
+
+            Display::GetDisplay()->MarkPrimaryCmdDirty();
         }
     }
 
@@ -118,9 +130,31 @@ namespace Viry3D
         }
     }
 
+    void Camera::SortRenderers()
+    {
+        m_renderers.Sort([](const Ref<Renderer>& a, const Ref<Renderer>& b) {
+            const Ref<Material>& ma = a->GetMaterial();
+            const Ref<Material>& mb = b->GetMaterial();
+            if (ma && mb)
+            {
+                return ma->GetQueue() < mb->GetQueue();
+            }
+            else if (!ma && mb)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        });
+    }
+
     void Camera::UpdateInstanceCmds()
     {
         this->ClearInstanceCmds();
+
+        // rebuild all renderer instance cmds
     }
 
     void Camera::ClearInstanceCmds()
@@ -160,21 +194,23 @@ namespace Viry3D
         }
     }
 
-    void Camera::AddRenderer(Renderer* renderer)
+    void Camera::AddRenderer(const Ref<Renderer>& renderer)
     {
         if (!m_renderers.Contains(renderer))
         {
             m_renderers.AddLast(renderer);
-            m_renderers.Sort([](const Renderer* a, const Renderer* b) {
-                return false;
-            });
-            m_instance_cmds_dirty = true;
+            this->MarkRendererOrderDirty();
         }
     }
 
-    void Camera::RemoveRenderer(Renderer* renderer)
+    void Camera::RemoveRenderer(const Ref<Renderer>& renderer)
     {
         m_renderers.Remove(renderer);
-        m_instance_cmds_dirty = true;
+        Display::GetDisplay()->MarkPrimaryCmdDirty();
+    }
+
+    void Camera::MarkRendererOrderDirty()
+    {
+        m_renderer_order_dirty = true;
     }
 }

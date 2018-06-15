@@ -32,6 +32,7 @@
     <ClInclude Include="..\..\src\graphics\Color.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\Image.h" />
+    <ClInclude Include="..\..\src\graphics\Material.h" />
     <ClInclude Include="..\..\src\graphics\MeshRenderer.h" />
     <ClInclude Include="..\..\src\graphics\Renderer.h" />
     <ClInclude Include="..\..\src\graphics\Texture.h" />
@@ -305,6 +306,7 @@
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
+    <ClCompile Include="..\..\src\graphics\Material.cpp" />
     <ClCompile Include="..\..\src\graphics\MeshRenderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Texture.cpp" />

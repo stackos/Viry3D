@@ -816,6 +816,9 @@
     <ClInclude Include="..\..\src\graphics\MeshRenderer.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Material.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2106,6 +2109,9 @@
       <Filter>src\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\MeshRenderer.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Material.cpp">
       <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>

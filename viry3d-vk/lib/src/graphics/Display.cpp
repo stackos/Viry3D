@@ -157,8 +157,8 @@ namespace Viry3D
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
         Ref<VkTexture> m_depth_texture;
-
-        List<Camera*> m_cameras;
+        
+        List<Ref<Camera>> m_cameras;
         bool m_primary_cmd_dirty = true;
 
         VkRenderPass m_render_pass = nullptr;
@@ -186,10 +186,6 @@ namespace Viry3D
         {
             vkDeviceWaitIdle(m_device);
 
-            for (auto i : m_cameras)
-            {
-                delete i;
-            }
             m_cameras.Clear();
 
             this->DestroySizeDependentResources();
@@ -2039,19 +2035,19 @@ void main()
         return m_private->m_device;
     }
 
-    Camera* Display::CreateCamera()
+    Ref<Camera> Display::CreateCamera()
     {
-        Camera* camera = new Camera();
+        Ref<Camera> camera = RefMake<Camera>();
         m_private->m_cameras.AddLast(camera);
         this->MarkPrimaryCmdDirty();
         return camera;
     }
 
-    void Display::DestroyCamera(Camera* camera)
+    void Display::DestroyCamera(Ref<Camera>& camera)
     {
         vkDeviceWaitIdle(m_private->m_device);
         m_private->m_cameras.Remove(camera);
-        delete camera;
+        camera.reset();
         this->MarkPrimaryCmdDirty();
     }
 

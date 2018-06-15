@@ -17,10 +17,21 @@
 
 #pragma once
 
+#include "memory/Ref.h"
+
 namespace Viry3D
 {
+    class Material;
+
     class Renderer
     {
-        
+    public:
+        Renderer();
+        virtual ~Renderer();
+        const Ref<Material>& GetMaterial() const { return m_material; }
+        void SetMaterial(const Ref<Material>& material);
+
+    private:
+        Ref<Material> m_material;
     };
 }

@@ -15,24 +15,34 @@
 * limitations under the License.
 */
 
-#include "Renderer.h"
+#include "Material.h"
 
 namespace Viry3D
 {
-    Renderer::Renderer()
-    {
-    
-    }
-    
-    Renderer::~Renderer()
+    Material::Material()
     {
     
     }
 
-    void Renderer::SetMaterial(const Ref<Material>& material)
+    Material::~Material()
     {
-        m_material = material;
+    
+    }
+    
+    int Material::GetQueue() const
+    {
+        if (m_queue)
+        {
+            return *m_queue;
+        }
+
+        //return m_shader->GetQueue();
+        return 0;
+    }
+    
+    void Material::SetQueue(int queue)
+    {
+        m_queue = RefMake<int>(queue);
         //mark camera renderer order dirty
-        //mark renderer instance cmd dirty
     }
 }

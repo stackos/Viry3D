@@ -52,17 +52,20 @@ namespace Viry3D
         const Vector<VkCommandBuffer>& GetInstanceCmds() const { return m_instance_cmds; }
         int GetTargetWidth() const;
         int GetTargetHeight() const;
-        void AddRenderer(Renderer* renderer);
-        void RemoveRenderer(Renderer* renderer);
+        void AddRenderer(const Ref<Renderer>& renderer);
+        void RemoveRenderer(const Ref<Renderer>& renderer);
+        void MarkRendererOrderDirty();
 
     private:
         void UpdateRenderPass();
         void ClearRenderPass();
+        void SortRenderers();
         void UpdateInstanceCmds();
         void ClearInstanceCmds();
 
     private:
         bool m_render_pass_dirty;
+        bool m_renderer_order_dirty;
         bool m_instance_cmds_dirty;
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
@@ -72,6 +75,6 @@ namespace Viry3D
         VkRenderPass m_render_pass = nullptr;
         Vector<VkFramebuffer> m_framebuffers;
         Vector<VkCommandBuffer> m_instance_cmds;
-        List<Renderer*> m_renderers;
+        List<Ref<Renderer>> m_renderers;
     };
 }
