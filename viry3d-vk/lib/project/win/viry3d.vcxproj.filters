@@ -100,6 +100,9 @@
     <Filter Include="src\graphics">
       <UniqueIdentifier>{ec724322-d984-4969-8b65-9bceea13ac07}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\vulkan\spirv_cross">
+      <UniqueIdentifier>{2c19104b-9fab-4983-b54c-1449a52f77ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -818,6 +821,39 @@
     </ClInclude>
     <ClInclude Include="..\..\src\graphics\Material.h">
       <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Shader.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cfg.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_common.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cpp.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cross.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cross_util.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_glsl.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_hlsl.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_msl.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv.hpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2113,6 +2149,30 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Material.cpp">
       <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Shader.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cpp.cpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cross.cpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cross_util.cpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_glsl.cpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_hlsl.cpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_msl.cpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cfg.cpp">
+      <Filter>src\vulkan\spirv_cross</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

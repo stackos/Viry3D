@@ -15,34 +15,18 @@
 * limitations under the License.
 */
 
-#include "Material.h"
 #include "Shader.h"
 
 namespace Viry3D
 {
-    Material::Material()
+    Shader::Shader(const String& vertex_shader, const String& fragment_shader, const RenderState& render_state):
+        m_render_state(render_state)
     {
-    
+        
     }
 
-    Material::~Material()
+    Shader::~Shader()
     {
-    
-    }
-    
-    int Material::GetQueue() const
-    {
-        if (m_queue)
-        {
-            return *m_queue;
-        }
-
-        return m_shader->GetRenderState().queue;
-    }
-    
-    void Material::SetQueue(int queue)
-    {
-        m_queue = RefMake<int>(queue);
-        //mark camera renderer order dirty
+        
     }
 }

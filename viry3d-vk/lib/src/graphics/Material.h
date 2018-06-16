@@ -21,6 +21,8 @@
 
 namespace Viry3D
 {
+    class Shader;
+
     class Material
     {
     public:
@@ -30,6 +32,7 @@ namespace Viry3D
         void SetQueue(int queue);
 
     private:
+        Ref<Shader> m_shader;
         Ref<int> m_queue;
     };
 }

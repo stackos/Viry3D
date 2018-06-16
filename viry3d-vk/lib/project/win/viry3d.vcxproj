@@ -35,6 +35,7 @@
     <ClInclude Include="..\..\src\graphics\Material.h" />
     <ClInclude Include="..\..\src\graphics\MeshRenderer.h" />
     <ClInclude Include="..\..\src\graphics\Renderer.h" />
+    <ClInclude Include="..\..\src\graphics\Shader.h" />
     <ClInclude Include="..\..\src\graphics\Texture.h" />
     <ClInclude Include="..\..\src\graphics\VertexAttribute.h" />
     <ClInclude Include="..\..\src\io\Directory.h" />
@@ -255,6 +256,16 @@
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btVector3.h" />
     <ClInclude Include="..\..\src\string\String.h" />
     <ClInclude Include="..\..\src\time\Time.h" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cfg.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_common.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cpp.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cross.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cross_util.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_glsl.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_hlsl.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_msl.hpp" />
     <ClInclude Include="..\..\src\vulkan\vulkan_include.h" />
     <ClInclude Include="..\..\src\vulkan\vulkan_shader_compiler.h" />
     <ClInclude Include="..\..\src\xml\tinyxml2.h" />
@@ -309,6 +320,7 @@
     <ClCompile Include="..\..\src\graphics\Material.cpp" />
     <ClCompile Include="..\..\src\graphics\MeshRenderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Renderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\Shader.cpp" />
     <ClCompile Include="..\..\src\graphics\Texture.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexAttribute.cpp" />
     <ClCompile Include="..\..\src\io\Directory.cpp" />
@@ -672,6 +684,13 @@
     <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\Logger.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SpvBuilder.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SPVRemapper.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cfg.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cpp.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cross.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cross_util.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_glsl.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_hlsl.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_msl.cpp" />
     <ClCompile Include="..\..\src\vulkan\vulkan_shader_compiler.cpp" />
     <ClCompile Include="..\..\src\xml\tinyxml2.cpp" />
     <ClCompile Include="..\..\src\zlib\adler32.c" />

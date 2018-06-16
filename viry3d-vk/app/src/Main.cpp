@@ -24,7 +24,7 @@ using namespace Viry3D;
 class App
 {
 public:
-    Ref<Camera> m_camera;
+    Camera* m_camera;
 
     App()
     {

@@ -35,6 +35,12 @@ extern "C"
 #include "crypto/md5/md5.h"
 }
 
+#ifdef max
+#undef max
+#endif
+
+#include "vulkan/spirv_cross/spirv_glsl.hpp"
+
 static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                              \
@@ -976,16 +982,17 @@ namespace Viry3D
                 view_info.subresourceRange.baseArrayLayer = 0;
                 view_info.subresourceRange.layerCount = 1;
 
-                m_swapchain_image_resources[i].texture = RefMake<VkTexture>();
-                m_swapchain_image_resources[i].texture->is_ref_image = true;
-                m_swapchain_image_resources[i].texture->image = swapchain_images[i];
+                Ref<VkTexture> texture = RefMake<VkTexture>();
+                texture->is_ref_image = true;
+                texture->image = swapchain_images[i];
+                texture->format = m_surface_format.format;
+                texture->width = swapchain_size.width;
+                texture->height = swapchain_size.height;
 
-                err = vkCreateImageView(m_device, &view_info, nullptr, &m_swapchain_image_resources[i].texture->image_view);
+                err = vkCreateImageView(m_device, &view_info, nullptr, &texture->image_view);
                 assert(!err);
 
-                m_swapchain_image_resources[i].texture->format = m_surface_format.format;
-                m_swapchain_image_resources[i].texture->width = swapchain_size.width;
-                m_swapchain_image_resources[i].texture->height = swapchain_size.height;
+                m_swapchain_image_resources[i].texture = texture;
             }
         }
 
@@ -1372,6 +1379,38 @@ namespace Viry3D
             Vector<unsigned int> spirv;
             GlslToSpirvCached(glsl, shader_type, spirv);
             this->CreateSpirvShaderModule(spirv, module);
+
+            // reflect spirv
+            spirv_cross::CompilerGLSL compiler(&spirv[0], spirv.Size());
+            spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+            for (const auto& resource : resources.uniform_buffers)
+            {
+                uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+                uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+                const std::string& name = compiler.get_name(resource.id);
+
+                Log("Uniform Buffer %s %s at set = %u, binding = %u", resource.name.c_str(), name.c_str(), set, binding);
+
+                const spirv_cross::SPIRType& type = compiler.get_type(resource.base_type_id);
+
+                for (uint32_t i = 0; i < type.member_types.size(); ++i)
+                {
+                    const std::string& member_name = compiler.get_member_name(type.self, i);
+                    int member_offset = (int) compiler.type_struct_member_offset(type, i);
+                    int member_size = (int) compiler.get_declared_struct_member_size(type, i);
+
+                    Log("struct member name:%s offset:%d size:%d", member_name.c_str(), member_offset, member_size);
+                }
+            }
+
+            for (const auto& resource : resources.sampled_images)
+            {
+                uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+                uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+
+                Log("Image %s at set = %u, binding = %u", resource.name.c_str(), set, binding);
+            }
         }
 
         void CreatePipelineCache()
@@ -1699,16 +1738,16 @@ void main()
             Vector<VkDescriptorPoolSize> pool_sizes(2);
             Memory::Zero(&pool_sizes[0], pool_sizes.SizeInBytes());
             pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            pool_sizes[0].descriptorCount = (uint32_t) m_swapchain_image_resources.Size();
+            pool_sizes[0].descriptorCount = 1;
             pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            pool_sizes[1].descriptorCount = (uint32_t) m_swapchain_image_resources.Size();
+            pool_sizes[1].descriptorCount = 1;
 
             VkDescriptorPoolCreateInfo pool_info;
             Memory::Zero(&pool_info, sizeof(pool_info));
             pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             pool_info.pNext = nullptr;
             pool_info.flags = 0;
-            pool_info.maxSets = (uint32_t) m_swapchain_image_resources.Size();
+            pool_info.maxSets = 1;
             pool_info.poolSizeCount = (uint32_t) pool_sizes.Size();
             pool_info.pPoolSizes = &pool_sizes[0];
 
@@ -1887,7 +1926,9 @@ void main()
         {
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
-                this->BuildPrimaryCmdBegin(m_swapchain_image_resources[i].cmd);
+                VkCommandBuffer cmd = m_swapchain_image_resources[i].cmd;
+
+                this->BuildPrimaryCmdBegin(cmd);
 
                 for (auto j : m_cameras)
                 {
@@ -1895,7 +1936,7 @@ void main()
                     instance_cmds.Add(m_instance_cmd);
 
                     this->BuildPrimaryCmd(
-                        m_swapchain_image_resources[i].cmd,
+                        cmd,
                         instance_cmds,//j->GetInstanceCmds(),
                         j->GetRenderPass(),
                         j->GetFramebuffer(i),
@@ -1904,7 +1945,7 @@ void main()
                         j->GetClearColor());
                 }
 
-                this->BuildPrimaryCmdEnd(m_swapchain_image_resources[i].cmd);
+                this->BuildPrimaryCmdEnd(cmd);
             }
         }
 
@@ -2035,19 +2076,25 @@ void main()
         return m_private->m_device;
     }
 
-    Ref<Camera> Display::CreateCamera()
+    Camera* Display::CreateCamera()
     {
         Ref<Camera> camera = RefMake<Camera>();
         m_private->m_cameras.AddLast(camera);
         this->MarkPrimaryCmdDirty();
-        return camera;
+        return camera.get();
     }
 
-    void Display::DestroyCamera(Ref<Camera>& camera)
+    void Display::DestroyCamera(Camera* camera)
     {
         vkDeviceWaitIdle(m_private->m_device);
-        m_private->m_cameras.Remove(camera);
-        camera.reset();
+        for (const auto& i : m_private->m_cameras)
+        {
+            if (i.get() == camera)
+            {
+                m_private->m_cameras.Remove(i);
+                break;
+            }
+        }
         this->MarkPrimaryCmdDirty();
     }
 
@@ -2077,11 +2124,13 @@ void main()
             framebuffers.Resize(m_private->m_swapchain_image_resources.Size());
             for (int i = 0; i < framebuffers.Size(); ++i)
             {
+                const Ref<VkTexture>& texture = m_private->m_swapchain_image_resources[i].texture;
+
                 m_private->CreateFramebuffer(
-                    m_private->m_swapchain_image_resources[i].texture->image_view,
+                    texture->image_view,
                     m_private->m_depth_texture->image_view,
-                    m_private->m_swapchain_image_resources[i].texture->width,
-                    m_private->m_swapchain_image_resources[i].texture->height,
+                    texture->width,
+                    texture->height,
                     *render_pass,
                     &framebuffers[i]);
             }
