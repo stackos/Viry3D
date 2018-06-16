@@ -17,10 +17,12 @@
 
 #include "Material.h"
 #include "Shader.h"
+#include "Renderer.h"
 
 namespace Viry3D
 {
-    Material::Material()
+    Material::Material(const Ref<Shader>& shader):
+        m_shader(shader)
     {
     
     }
@@ -43,6 +45,20 @@ namespace Viry3D
     void Material::SetQueue(int queue)
     {
         m_queue = RefMake<int>(queue);
-        //mark camera renderer order dirty
+
+        for (auto i : m_renderers)
+        {
+            i->MarkRendererOrderDirty();
+        }
+    }
+
+    void Material::OnSetRenderer(Renderer* renderer)
+    {
+        m_renderers.AddLast(renderer);
+    }
+
+    void Material::OnUnSetRenderer(Renderer* renderer)
+    {
+        m_renderers.Remove(renderer);
     }
 }

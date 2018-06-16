@@ -18,21 +18,27 @@
 #pragma once
 
 #include "Display.h"
+#include "container/List.h"
 
 namespace Viry3D
 {
     class Shader;
+    class Renderer;
 
     class Material
     {
     public:
-        Material();
+        Material(const Ref<Shader>& shader);
         ~Material();
+        const Ref<Shader>& GetShader() const { return m_shader; }
         int GetQueue() const;
         void SetQueue(int queue);
+        void OnSetRenderer(Renderer* renderer);
+        void OnUnSetRenderer(Renderer* renderer);
 
     private:
         Ref<Shader> m_shader;
         Ref<int> m_queue;
+        List<Renderer*> m_renderers;
     };
 }

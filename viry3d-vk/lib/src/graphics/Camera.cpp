@@ -25,10 +25,10 @@ namespace Viry3D
     Camera::Camera():
         m_render_pass_dirty(true),
         m_renderer_order_dirty(true),
-        m_instance_cmds_dirty(true),
         m_clear_flags(CameraClearFlags::ColorAndDepth),
         m_clear_color(0, 0, 0, 1),
-        m_viewport_rect(0, 0, 1, 1)
+        m_viewport_rect(0, 0, 1, 1),
+        m_render_pass(nullptr)
     {
     
     }
@@ -36,7 +36,6 @@ namespace Viry3D
     Camera::~Camera()
     {
         this->ClearRenderPass();
-        this->ClearInstanceCmds();
     }
 
     void Camera::SetClearFlags(CameraClearFlags flags)
@@ -54,7 +53,7 @@ namespace Viry3D
     void Camera::SetViewportRect(const Rect& rect)
     {
         m_viewport_rect = rect;
-        m_instance_cmds_dirty = true;
+        //m_instance_cmds_dirty = true;
     }
 
     void Camera::SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture)
@@ -71,7 +70,7 @@ namespace Viry3D
             m_render_pass_dirty = false;
             this->UpdateRenderPass();
 
-            m_instance_cmds_dirty = true;
+            //m_instance_cmds_dirty = true;
             Display::GetDisplay()->MarkPrimaryCmdDirty();
         }
 
@@ -82,23 +81,14 @@ namespace Viry3D
 
             Display::GetDisplay()->MarkPrimaryCmdDirty();
         }
-
-        if (m_instance_cmds_dirty)
-        {
-            m_instance_cmds_dirty = false;
-            this->UpdateInstanceCmds();
-
-            Display::GetDisplay()->MarkPrimaryCmdDirty();
-        }
     }
 
     void Camera::OnResize(int width, int height)
     {
         this->ClearRenderPass();
-        this->ClearInstanceCmds();
 
         m_render_pass_dirty = true;
-        m_instance_cmds_dirty = true;
+        //m_instance_cmds_dirty = true;
     }
 
     void Camera::UpdateRenderPass()
@@ -150,18 +140,6 @@ namespace Viry3D
         });
     }
 
-    void Camera::UpdateInstanceCmds()
-    {
-        this->ClearInstanceCmds();
-
-        // rebuild all renderer instance cmds
-    }
-
-    void Camera::ClearInstanceCmds()
-    {
-        
-    }
-
     int Camera::GetTargetWidth() const
     {
         if (m_render_target_color)
@@ -200,6 +178,8 @@ namespace Viry3D
         {
             m_renderers.AddLast(renderer);
             this->MarkRendererOrderDirty();
+
+            renderer->OnAddToCamera(this);
         }
     }
 
@@ -207,10 +187,17 @@ namespace Viry3D
     {
         m_renderers.Remove(renderer);
         Display::GetDisplay()->MarkPrimaryCmdDirty();
+
+        renderer->OnRemoveFromCamera(this);
     }
 
     void Camera::MarkRendererOrderDirty()
     {
         m_renderer_order_dirty = true;
+    }
+
+    void Camera::MarkInstanceCmdDirty(Renderer* renderer)
+    {
+
     }
 }

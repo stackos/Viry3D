@@ -18,10 +18,12 @@
 #pragma once
 
 #include "memory/Ref.h"
+#include "container/List.h"
 
 namespace Viry3D
 {
     class Material;
+    class Camera;
 
     class Renderer
     {
@@ -30,8 +32,12 @@ namespace Viry3D
         virtual ~Renderer();
         const Ref<Material>& GetMaterial() const { return m_material; }
         void SetMaterial(const Ref<Material>& material);
+        void OnAddToCamera(Camera* camera);
+        void OnRemoveFromCamera(Camera* camera);
+        void MarkRendererOrderDirty();
 
     private:
         Ref<Material> m_material;
+        List<Camera*> m_cameras;
     };
 }

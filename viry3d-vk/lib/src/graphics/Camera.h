@@ -28,7 +28,7 @@ namespace Viry3D
 {
     class Texture;
     class Renderer;
-    
+
     class Camera
     {
     public:
@@ -55,24 +55,22 @@ namespace Viry3D
         void AddRenderer(const Ref<Renderer>& renderer);
         void RemoveRenderer(const Ref<Renderer>& renderer);
         void MarkRendererOrderDirty();
+        void MarkInstanceCmdDirty(Renderer* renderer);
 
     private:
         void UpdateRenderPass();
         void ClearRenderPass();
         void SortRenderers();
-        void UpdateInstanceCmds();
-        void ClearInstanceCmds();
 
     private:
         bool m_render_pass_dirty;
         bool m_renderer_order_dirty;
-        bool m_instance_cmds_dirty;
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;
         Ref<Texture> m_render_target_color;
         Ref<Texture> m_render_target_depth;
-        VkRenderPass m_render_pass = nullptr;
+        VkRenderPass m_render_pass;
         Vector<VkFramebuffer> m_framebuffers;
         Vector<VkCommandBuffer> m_instance_cmds;
         List<Ref<Renderer>> m_renderers;

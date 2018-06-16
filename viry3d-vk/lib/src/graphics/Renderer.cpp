@@ -16,6 +16,8 @@
 */
 
 #include "Renderer.h"
+#include "Camera.h"
+#include "Material.h"
 
 namespace Viry3D
 {
@@ -31,8 +33,37 @@ namespace Viry3D
 
     void Renderer::SetMaterial(const Ref<Material>& material)
     {
+        if (m_material)
+        {
+            m_material->OnUnSetRenderer(this);
+        }
+
         m_material = material;
-        //mark camera renderer order dirty
-        //mark renderer instance cmd dirty
+        this->MarkRendererOrderDirty();
+
+        m_material->OnSetRenderer(this);
+
+        for (auto i : m_cameras)
+        {
+            i->MarkInstanceCmdDirty(this);
+        }
+    }
+
+    void Renderer::OnAddToCamera(Camera* camera)
+    {
+        m_cameras.AddLast(camera);
+    }
+
+    void Renderer::OnRemoveFromCamera(Camera* camera)
+    {
+        m_cameras.Remove(camera);
+    }
+
+    void Renderer::MarkRendererOrderDirty()
+    {
+        for (auto i : m_cameras)
+        {
+            i->MarkRendererOrderDirty();
+        }
     }
 }
