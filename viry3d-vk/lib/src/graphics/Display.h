@@ -39,6 +39,7 @@ namespace Viry3D
         int GetWidth() const;
         int GetHeight() const;
         VkDevice GetDevice() const;
+        void WaitDevice() const;
         Camera* CreateCamera();
         void DestroyCamera(Camera* camera);
         void MarkPrimaryCmdDirty();
@@ -48,6 +49,8 @@ namespace Viry3D
             CameraClearFlags clear_flag,
             VkRenderPass* render_pass,
             Vector<VkFramebuffer>& framebuffers);
+        void CreateCommandPool(VkCommandPool* cmd_pool);
+        void CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd);
 
     private:
         DisplayPrivate* m_private;

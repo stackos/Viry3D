@@ -29,6 +29,18 @@ namespace Viry3D
     class Texture;
     class Renderer;
 
+    struct RendererInstance
+    {
+        Ref<Renderer> renderer;
+        bool cmd_dirty = true;
+        VkCommandBuffer cmd = nullptr;
+
+        bool operator ==(const RendererInstance& a) const
+        {
+            return this->renderer == a.renderer;
+        }
+    };
+
     class Camera
     {
     public:
@@ -49,22 +61,26 @@ namespace Viry3D
         void OnResize(int width, int height);
         VkRenderPass GetRenderPass() const { return m_render_pass; }
         VkFramebuffer GetFramebuffer(int index) const { return m_framebuffers[index]; }
-        const Vector<VkCommandBuffer>& GetInstanceCmds() const { return m_instance_cmds; }
         int GetTargetWidth() const;
         int GetTargetHeight() const;
         void AddRenderer(const Ref<Renderer>& renderer);
         void RemoveRenderer(const Ref<Renderer>& renderer);
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty(Renderer* renderer);
+        Vector<VkCommandBuffer> GetInstanceCmds() const;
 
     private:
         void UpdateRenderPass();
         void ClearRenderPass();
         void SortRenderers();
+        void UpdateInstanceCmds();
+        void ClearInstanceCmds();
+        void BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer);
 
     private:
         bool m_render_pass_dirty;
         bool m_renderer_order_dirty;
+        bool m_instance_cmds_dirty;
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;
@@ -72,7 +88,7 @@ namespace Viry3D
         Ref<Texture> m_render_target_depth;
         VkRenderPass m_render_pass;
         Vector<VkFramebuffer> m_framebuffers;
-        Vector<VkCommandBuffer> m_instance_cmds;
-        List<Ref<Renderer>> m_renderers;
+        List<RendererInstance> m_renderers;
+        VkCommandPool m_cmd_pool;
     };
 }

@@ -25,10 +25,12 @@ namespace Viry3D
     Camera::Camera():
         m_render_pass_dirty(true),
         m_renderer_order_dirty(true),
+        m_instance_cmds_dirty(true),
         m_clear_flags(CameraClearFlags::ColorAndDepth),
         m_clear_color(0, 0, 0, 1),
         m_viewport_rect(0, 0, 1, 1),
-        m_render_pass(nullptr)
+        m_render_pass(nullptr),
+        m_cmd_pool(nullptr)
     {
     
     }
@@ -36,6 +38,7 @@ namespace Viry3D
     Camera::~Camera()
     {
         this->ClearRenderPass();
+        this->ClearInstanceCmds();
     }
 
     void Camera::SetClearFlags(CameraClearFlags flags)
@@ -53,7 +56,7 @@ namespace Viry3D
     void Camera::SetViewportRect(const Rect& rect)
     {
         m_viewport_rect = rect;
-        //m_instance_cmds_dirty = true;
+        m_instance_cmds_dirty = true;
     }
 
     void Camera::SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture)
@@ -70,7 +73,7 @@ namespace Viry3D
             m_render_pass_dirty = false;
             this->UpdateRenderPass();
 
-            //m_instance_cmds_dirty = true;
+            m_instance_cmds_dirty = true;
             Display::GetDisplay()->MarkPrimaryCmdDirty();
         }
 
@@ -81,14 +84,17 @@ namespace Viry3D
 
             Display::GetDisplay()->MarkPrimaryCmdDirty();
         }
+
+        this->UpdateInstanceCmds();
     }
 
     void Camera::OnResize(int width, int height)
     {
         this->ClearRenderPass();
+        this->ClearInstanceCmds();
 
         m_render_pass_dirty = true;
-        //m_instance_cmds_dirty = true;
+        m_instance_cmds_dirty = true;
     }
 
     void Camera::UpdateRenderPass()
@@ -122,9 +128,9 @@ namespace Viry3D
 
     void Camera::SortRenderers()
     {
-        m_renderers.Sort([](const Ref<Renderer>& a, const Ref<Renderer>& b) {
-            const Ref<Material>& ma = a->GetMaterial();
-            const Ref<Material>& mb = b->GetMaterial();
+        m_renderers.Sort([](const RendererInstance& a, const RendererInstance& b) {
+            const Ref<Material>& ma = a.renderer->GetMaterial();
+            const Ref<Material>& mb = b.renderer->GetMaterial();
             if (ma && mb)
             {
                 return ma->GetQueue() < mb->GetQueue();
@@ -138,6 +144,63 @@ namespace Viry3D
                 return false;
             }
         });
+    }
+
+    void Camera::UpdateInstanceCmds()
+    {
+        for (auto& i : m_renderers)
+        {
+            if (i.cmd == nullptr)
+            {
+                if (m_cmd_pool == nullptr)
+                {
+                    Display::GetDisplay()->CreateCommandPool(&m_cmd_pool);
+                }
+                
+                Display::GetDisplay()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
+            }
+
+            if (i.cmd_dirty || m_instance_cmds_dirty)
+            {
+                i.cmd_dirty = false;
+
+                this->BuildInstanceCmd(i.cmd, i.renderer);
+            }
+        }
+
+        m_instance_cmds_dirty = false;
+    }
+
+    void Camera::ClearInstanceCmds()
+    {
+        VkDevice device = Display::GetDisplay()->GetDevice();
+
+        for (auto& i : m_renderers)
+        {
+            if (i.cmd)
+            {
+                vkFreeCommandBuffers(device, m_cmd_pool, 1, &i.cmd);
+                i.cmd = nullptr;
+            }
+        }
+
+        if (m_cmd_pool)
+        {
+            vkDestroyCommandPool(device, m_cmd_pool, nullptr);
+            m_cmd_pool = nullptr;
+        }
+    }
+
+    Vector<VkCommandBuffer> Camera::GetInstanceCmds() const
+    {
+        Vector<VkCommandBuffer> cmds;
+
+        for (const auto& i : m_renderers)
+        {
+            cmds.Add(i.cmd);
+        }
+
+        return cmds;
     }
 
     int Camera::GetTargetWidth() const
@@ -174,9 +237,12 @@ namespace Viry3D
 
     void Camera::AddRenderer(const Ref<Renderer>& renderer)
     {
-        if (!m_renderers.Contains(renderer))
+        RendererInstance instance;
+        instance.renderer = renderer;
+
+        if (!m_renderers.Contains(instance))
         {
-            m_renderers.AddLast(renderer);
+            m_renderers.AddLast(instance);
             this->MarkRendererOrderDirty();
 
             renderer->OnAddToCamera(this);
@@ -185,7 +251,23 @@ namespace Viry3D
 
     void Camera::RemoveRenderer(const Ref<Renderer>& renderer)
     {
-        m_renderers.Remove(renderer);
+        VkDevice device = Display::GetDisplay()->GetDevice();
+
+        Display::GetDisplay()->WaitDevice();
+
+        for (auto i = m_renderers.begin(); i != m_renderers.end(); ++i)
+        {
+            if (i->renderer == renderer)
+            {
+                if (i->cmd)
+                {
+                    vkFreeCommandBuffers(device, m_cmd_pool, 1, &i->cmd);
+                }
+                m_renderers.Remove(i);
+                break;
+            }
+        }
+
         Display::GetDisplay()->MarkPrimaryCmdDirty();
 
         renderer->OnRemoveFromCamera(this);
@@ -197,6 +279,18 @@ namespace Viry3D
     }
 
     void Camera::MarkInstanceCmdDirty(Renderer* renderer)
+    {
+        for (auto& i : m_renderers)
+        {
+            if (i.renderer.get() == renderer)
+            {
+                i.cmd_dirty = true;
+                break;
+            }
+        }
+    }
+
+    void Camera::BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer)
     {
 
     }

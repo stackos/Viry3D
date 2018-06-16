@@ -738,7 +738,12 @@ namespace Viry3D
         void CreateSizeDependentResources()
         {
             this->CreateSwapChain();
-            this->CreateCommandBuffer();
+            this->CreateCommandPool(&m_graphics_cmd_pool);
+            this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_image_cmd);
+            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
+            {
+                this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_swapchain_image_resources[i].cmd);
+            }
             m_depth_texture = this->CreateTexture(
                 VK_IMAGE_TYPE_2D,
                 VK_IMAGE_VIEW_TYPE_2D,
@@ -759,7 +764,7 @@ namespace Viry3D
             this->CreatePipeline(m_render_pass);
             this->CreateVertexBuffer();
             this->CreateDescriptorSet();
-            this->CreateInstanceCmd();
+            this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &m_instance_cmd);
 
             this->BuildInstanceCmd(
                 m_instance_cmd,
@@ -996,7 +1001,7 @@ namespace Viry3D
             }
         }
 
-        void CreateCommandBuffer()
+        void CreateCommandPool(VkCommandPool* cmd_pool)
         {
             VkCommandPoolCreateInfo pool_info;
             Memory::Zero(&pool_info, sizeof(pool_info));
@@ -1004,26 +1009,23 @@ namespace Viry3D
             pool_info.pNext = nullptr;
             pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
             pool_info.queueFamilyIndex = m_graphics_queue_family_index;
-            
-            VkResult err = vkCreateCommandPool(m_device, &pool_info, nullptr, &m_graphics_cmd_pool);
-            assert(!err);
 
+            VkResult err = vkCreateCommandPool(m_device, &pool_info, nullptr, cmd_pool);
+            assert(!err);
+        }
+
+        void CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd)
+        {
             VkCommandBufferAllocateInfo cmd_info;
             Memory::Zero(&cmd_info, sizeof(cmd_info));
             cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             cmd_info.pNext = nullptr;
-            cmd_info.commandPool = m_graphics_cmd_pool;
+            cmd_info.commandPool = cmd_pool;
             cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             cmd_info.commandBufferCount = 1;
 
-            err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_image_cmd);
+            VkResult err = vkAllocateCommandBuffers(m_device, &cmd_info, cmd);
             assert(!err);
-
-            for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
-            {
-                err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_swapchain_image_resources[i].cmd);
-                assert(!err);
-            }
         }
 
         void CreateRenderPass(
@@ -1788,20 +1790,6 @@ void main()
             vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
         }
 
-        void CreateInstanceCmd()
-        {
-            VkCommandBufferAllocateInfo cmd_info;
-            Memory::Zero(&cmd_info, sizeof(cmd_info));
-            cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            cmd_info.pNext = nullptr;
-            cmd_info.commandPool = m_graphics_cmd_pool;
-            cmd_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-            cmd_info.commandBufferCount = 1;
-
-            VkResult err = vkAllocateCommandBuffers(m_device, &cmd_info, &m_instance_cmd);
-            assert(!err);
-        }
-
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
@@ -2076,6 +2064,11 @@ void main()
         return m_private->m_device;
     }
 
+    void Display::WaitDevice() const
+    {
+        vkDeviceWaitIdle(m_private->m_device);
+    }
+
     Camera* Display::CreateCamera()
     {
         Ref<Camera> camera = RefMake<Camera>();
@@ -2086,7 +2079,8 @@ void main()
 
     void Display::DestroyCamera(Camera* camera)
     {
-        vkDeviceWaitIdle(m_private->m_device);
+        this->WaitDevice();
+
         for (const auto& i : m_private->m_cameras)
         {
             if (i.get() == camera)
@@ -2139,5 +2133,15 @@ void main()
         {
             
         }
+    }
+
+    void Display::CreateCommandPool(VkCommandPool* cmd_pool)
+    {
+        m_private->CreateCommandPool(cmd_pool);
+    }
+
+    void Display::CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd)
+    {
+        m_private->CreateCommandBuffer(cmd_pool, level, cmd);
     }
 }
