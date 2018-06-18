@@ -18,6 +18,7 @@
 #include "Display.h"
 #include "Application.h"
 #include "Debug.h"
+#include "RenderState.h"
 #include "vulkan/vulkan_shader_compiler.h"
 #include "container/List.h"
 #include "string/String.h"
@@ -759,10 +760,69 @@ namespace Viry3D
                     VK_COMPONENT_SWIZZLE_IDENTITY
                 });
             
-            this->CreateRenderPass();
-            this->CreatePipelineCache();
-            this->CreatePipeline(m_render_pass);
-            this->CreateDescriptorSet();
+            this->CreateRenderPass(
+                m_swapchain_image_resources[0].texture->format,
+                m_depth_texture->format,
+                CameraClearFlags::ColorAndDepth,
+                true,
+                &m_render_pass);
+            VkShaderModule vs_module;
+            VkShaderModule fs_module;
+            Vector<UniformSet> uniform_sets;
+            String vs = R"(
+UniformBuffer(0, 0) uniform UniformBuffer00
+{
+	mat4 mvp;
+} u_buf_0_0;
+
+Input(0) vec4 a_pos;
+Input(1) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+
+void main()
+{
+	gl_Position = a_pos * u_buf_0_0.mvp;
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+)";
+            String fs = R"(
+precision mediump float;
+      
+UniformTexture(0, 1) uniform sampler2D u_texture;
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    //o_frag = texture(u_texture, v_uv);
+    o_frag = vec4(1, 1, 1, 1);
+}
+)";
+            RenderState render_state;
+            this->CreateShaderModule(
+                vs, Vector<String>(),
+                fs, Vector<String>(),
+                &vs_module,
+                &fs_module,
+                uniform_sets);
+            this->CreatePipelineCache(&m_pipeline_cache);
+            this->CreatePipelineLayout(uniform_sets, &m_desc_layout, &m_pipeline_layout);//by uniform_sets
+            this->CreatePipeline(
+                m_render_pass,
+                vs_module,
+                fs_module,
+                render_state,
+                m_pipeline_layout,
+                m_pipeline_cache,
+                &m_pipeline);//by render_state
+            vkDestroyShaderModule(m_device, vs_module, nullptr);
+            vkDestroyShaderModule(m_device, fs_module, nullptr);
+            this->CreateDescriptorSet();//by uniform_sets
             this->CreateVertexBuffer();
             this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &m_instance_cmd);
 
@@ -1352,16 +1412,6 @@ namespace Viry3D
             vkUnmapMemory(m_device, buffer->memory);
         }
 
-        void CreateRenderPass()
-        {
-            this->CreateRenderPass(
-                m_swapchain_image_resources[0].texture->format,
-                m_depth_texture->format,
-                CameraClearFlags::ColorAndDepth,
-                true,
-                &m_render_pass);
-        }
-
         void CreateSpirvShaderModule(const Vector<unsigned int>& spirv, VkShaderModule* module)
         {
             VkShaderModuleCreateInfo create_info;
@@ -1396,37 +1446,69 @@ namespace Viry3D
                 uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
                 const std::string& name = compiler.get_name(resource.id);
 
-                Log("Uniform Buffer %s %s at set = %u, binding = %u", resource.name.c_str(), name.c_str(), set, binding);
+                if (set >= (uint32_t) uniform_sets.Size())
+                {
+                    uniform_sets.Resize(set + 1);
+                }
+                UniformSet& uniform_set = uniform_sets[set];
+                uniform_set.set = (int) set;
+
+                UniformBuffer buffer;
+                buffer.name = name.c_str();
+                buffer.binding = (int) binding;
 
                 const spirv_cross::SPIRType& type = compiler.get_type(resource.base_type_id);
 
-                for (uint32_t i = 0; i < type.member_types.size(); ++i)
+                for (size_t i = 0; i < type.member_types.size(); ++i)
                 {
-                    const std::string& member_name = compiler.get_member_name(type.self, i);
-                    int member_offset = (int) compiler.type_struct_member_offset(type, i);
-                    int member_size = (int) compiler.get_declared_struct_member_size(type, i);
+                    const std::string& member_name = compiler.get_member_name(type.self, (uint32_t) i);
+                    int member_offset = (int) compiler.type_struct_member_offset(type, (uint32_t) i);
+                    int member_size = (int) compiler.get_declared_struct_member_size(type, (uint32_t) i);
 
-                    Log("struct member name:%s offset:%d size:%d", member_name.c_str(), member_offset, member_size);
+                    UniformMember member;
+                    member.name = member_name.c_str();
+                    member.offset = member_offset;
+                    member.size = member_size;
+
+                    buffer.members.Add(member);
                 }
+
+                uniform_set.buffers.Add(buffer);
             }
 
             for (const auto& resource : resources.sampled_images)
             {
                 uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
                 uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+                const std::string& name = resource.name;
 
-                Log("Image %s at set = %u, binding = %u", resource.name.c_str(), set, binding);
+                if (set >= (uint32_t) uniform_sets.Size())
+                {
+                    uniform_sets.Resize(set + 1);
+                }
+                UniformSet& uniform_set = uniform_sets[set];
+                uniform_set.set = (int) set;
+
+                UniformTexture texture;
+                texture.name = name.c_str();
+                texture.binding = (int) binding;
+
+                uniform_set.textures.Add(texture);
             }
         }
 
-        void CreatePipelineCache()
+        void CreatePipelineCache(VkPipelineCache* pipeline_cache)
         {
-            VkPipelineCacheCreateInfo pipeline_cache;
-            Memory::Zero(&pipeline_cache, sizeof(pipeline_cache));
-            pipeline_cache.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+            VkPipelineCacheCreateInfo create_info;
+            Memory::Zero(&create_info, sizeof(create_info));
+            create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+            create_info.pNext = nullptr;
+            create_info.flags = 0;
+            create_info.initialDataSize = 0;
+            create_info.pInitialData = nullptr;
 
             VkResult err;
-            err = vkCreatePipelineCache(m_device, &pipeline_cache, nullptr, &m_pipeline_cache);
+            err = vkCreatePipelineCache(m_device, &create_info, nullptr, pipeline_cache);
             assert(!err);
         }
 
@@ -1452,53 +1534,58 @@ namespace Viry3D
             this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, fs_module, uniform_sets);
         }
 
-        void CreatePipeline(VkRenderPass render_pass)
+        void CreatePipelineLayout(
+            const Vector<UniformSet>& uniform_sets,
+            VkDescriptorSetLayout* desc_layout,
+            VkPipelineLayout* pipeline_layout)
         {
-            String vs = R"(
-UniformBuffer(0, 0) uniform UniformBuffer00
-{
-	mat4 mvp;
-} u_buf_0_0;
+            Vector<VkDescriptorSetLayoutBinding> layout_bindings(2);
+            Memory::Zero(&layout_bindings[0], layout_bindings.SizeInBytes());
+            layout_bindings[0].binding = 0;
+            layout_bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            layout_bindings[0].descriptorCount = 1;
+            layout_bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            layout_bindings[0].pImmutableSamplers = nullptr;
+            layout_bindings[1].binding = 1;
+            layout_bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layout_bindings[1].descriptorCount = 1;
+            layout_bindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layout_bindings[1].pImmutableSamplers = nullptr;
 
-Input(0) vec4 a_pos;
-Input(1) vec2 a_uv;
+            VkDescriptorSetLayoutCreateInfo descriptor_layout;
+            Memory::Zero(&descriptor_layout, sizeof(descriptor_layout));
+            descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            descriptor_layout.pNext = nullptr;
+            descriptor_layout.flags = 0;
+            descriptor_layout.bindingCount = layout_bindings.Size();
+            descriptor_layout.pBindings = &layout_bindings[0];
 
-Output(0) vec2 v_uv;
+            VkResult err = vkCreateDescriptorSetLayout(m_device, &descriptor_layout, nullptr, desc_layout);
+            assert(!err);
 
-void main()
-{
-	gl_Position = a_pos * u_buf_0_0.mvp;
-	v_uv = a_uv;
+            VkPipelineLayoutCreateInfo pipeline_layout_info;
+            Memory::Zero(&pipeline_layout_info, sizeof(pipeline_layout_info));
+            pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipeline_layout_info.pNext = nullptr;
+            pipeline_layout_info.flags = 0;
+            pipeline_layout_info.setLayoutCount = 1;
+            pipeline_layout_info.pSetLayouts = &m_desc_layout;
+            pipeline_layout_info.pushConstantRangeCount = 0;
+            pipeline_layout_info.pPushConstantRanges = nullptr;
 
-	vulkan_convert();
-}
-)";
-            String fs = R"(
-precision mediump float;
-      
-UniformTexture(0, 1) uniform sampler2D u_texture;
+            err = vkCreatePipelineLayout(m_device, &pipeline_layout_info, nullptr, pipeline_layout);
+            assert(!err);
+        }
 
-Input(0) vec2 v_uv;
-
-Output(0) vec4 o_frag;
-
-void main()
-{
-    //o_frag = texture(u_texture, v_uv);
-    o_frag = vec4(1, 1, 1, 1);
-}
-)";
-            VkShaderModule vs_module;
-            VkShaderModule fs_module;
-            Vector<UniformSet> uniform_sets;
-
-            this->CreateShaderModule(
-                vs, Vector<String>(),
-                fs, Vector<String>(),
-                &vs_module,
-                &fs_module,
-                uniform_sets);
-
+        void CreatePipeline(
+            VkRenderPass render_pass,
+            VkShaderModule vs_module,
+            VkShaderModule fs_module,
+            const RenderState& render_state,
+            VkPipelineLayout pipeline_layout,
+            VkPipelineCache pipeline_cache,
+            VkPipeline* pipeline)
+        {
             Vector<VkPipelineShaderStageCreateInfo> shader_stages(2);
             Memory::Zero(&shader_stages[0], shader_stages.SizeInBytes());
             shader_stages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -1678,43 +1765,6 @@ void main()
             cb.blendConstants[2] = 0;
             cb.blendConstants[3] = 0;
 
-            Vector<VkDescriptorSetLayoutBinding> layout_bindings(2);
-            Memory::Zero(&layout_bindings[0], layout_bindings.SizeInBytes());
-            layout_bindings[0].binding = 0;
-            layout_bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            layout_bindings[0].descriptorCount = 1;
-            layout_bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-            layout_bindings[0].pImmutableSamplers = nullptr;
-            layout_bindings[1].binding = 1;
-            layout_bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            layout_bindings[1].descriptorCount = 1;
-            layout_bindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            layout_bindings[1].pImmutableSamplers = nullptr;
-
-            VkDescriptorSetLayoutCreateInfo descriptor_layout;
-            Memory::Zero(&descriptor_layout, sizeof(descriptor_layout));
-            descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            descriptor_layout.pNext = nullptr;
-            descriptor_layout.flags = 0;
-            descriptor_layout.bindingCount = layout_bindings.Size();
-            descriptor_layout.pBindings = &layout_bindings[0];
-
-            VkResult err = vkCreateDescriptorSetLayout(m_device, &descriptor_layout, nullptr, &m_desc_layout);
-            assert(!err);
-
-            VkPipelineLayoutCreateInfo pipeline_layout_info;
-            Memory::Zero(&pipeline_layout_info, sizeof(pipeline_layout_info));
-            pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipeline_layout_info.pNext = nullptr;
-            pipeline_layout_info.flags = 0;
-            pipeline_layout_info.setLayoutCount = 1;
-            pipeline_layout_info.pSetLayouts = &m_desc_layout;
-            pipeline_layout_info.pushConstantRangeCount = 0;
-            pipeline_layout_info.pPushConstantRanges = nullptr;
-
-            err = vkCreatePipelineLayout(m_device, &pipeline_layout_info, nullptr, &m_pipeline_layout);
-            assert(!err);
-
             VkGraphicsPipelineCreateInfo pipeline_info;
             Memory::Zero(&pipeline_info, sizeof(pipeline_info));
             pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1731,17 +1781,14 @@ void main()
             pipeline_info.pDepthStencilState = &ds;
             pipeline_info.pColorBlendState = &cb;
             pipeline_info.pDynamicState = &dynamic_info;
-            pipeline_info.layout = m_pipeline_layout;
+            pipeline_info.layout = pipeline_layout;
             pipeline_info.renderPass = render_pass;
             pipeline_info.subpass = 0;
             pipeline_info.basePipelineHandle = nullptr;
             pipeline_info.basePipelineIndex = 0;
 
-            err = vkCreateGraphicsPipelines(m_device, m_pipeline_cache, 1, &pipeline_info, nullptr, &m_pipeline);
+            VkResult err = vkCreateGraphicsPipelines(m_device, pipeline_cache, 1, &pipeline_info, nullptr, pipeline);
             assert(!err);
-
-            vkDestroyShaderModule(m_device, vs_module, nullptr);
-            vkDestroyShaderModule(m_device, fs_module, nullptr);
         }
 
         void CreateVertexBuffer()

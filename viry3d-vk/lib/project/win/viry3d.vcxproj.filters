@@ -858,6 +858,9 @@
     <ClInclude Include="..\..\src\graphics\UniformSet.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\RenderState.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">

@@ -29,6 +29,7 @@ namespace Viry3D
     class Camera;
     class Texture;
     class DisplayPrivate;
+    struct RenderState;
 
     class Display
     {

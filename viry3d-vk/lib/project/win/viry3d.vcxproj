@@ -35,6 +35,7 @@
     <ClInclude Include="..\..\src\graphics\Material.h" />
     <ClInclude Include="..\..\src\graphics\MeshRenderer.h" />
     <ClInclude Include="..\..\src\graphics\Renderer.h" />
+    <ClInclude Include="..\..\src\graphics\RenderState.h" />
     <ClInclude Include="..\..\src\graphics\Shader.h" />
     <ClInclude Include="..\..\src\graphics\Texture.h" />
     <ClInclude Include="..\..\src\graphics\UniformSet.h" />
