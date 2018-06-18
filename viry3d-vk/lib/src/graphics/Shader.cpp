@@ -16,17 +16,36 @@
 */
 
 #include "Shader.h"
+#include "Application.h"
+#include "io/File.h"
 
 namespace Viry3D
 {
-    Shader::Shader(const String& vertex_shader, const String& fragment_shader, const RenderState& render_state):
-        m_render_state(render_state)
+    Shader::Shader(
+        const String& vs_source,
+        const Vector<String>& vs_includes,
+        const String& fs_source,
+        const Vector<String>& fs_includes,
+        const RenderState& render_state):
+        m_render_state(render_state),
+        m_vs_module(nullptr),
+        m_fs_module(nullptr)
     {
-        
+        Display::GetDisplay()->CreateShaderModule(
+            vs_source,
+            vs_includes,
+            fs_source,
+            fs_includes,
+            &m_vs_module,
+            &m_fs_module,
+            m_uniform_sets);
     }
 
     Shader::~Shader()
     {
-        
+        VkDevice device = Display::GetDisplay()->GetDevice();
+
+        vkDestroyShaderModule(device, m_vs_module, nullptr);
+        vkDestroyShaderModule(device, m_fs_module, nullptr);
     }
 }

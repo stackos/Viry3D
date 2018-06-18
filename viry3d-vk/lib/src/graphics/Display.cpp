@@ -762,8 +762,8 @@ namespace Viry3D
             this->CreateRenderPass();
             this->CreatePipelineCache();
             this->CreatePipeline(m_render_pass);
-            this->CreateVertexBuffer();
             this->CreateDescriptorSet();
+            this->CreateVertexBuffer();
             this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &m_instance_cmd);
 
             this->BuildInstanceCmd(
@@ -1376,7 +1376,11 @@ namespace Viry3D
             assert(!err);
         }
 
-        void CreateGlslShaderModule(const String& glsl, VkShaderStageFlagBits shader_type, VkShaderModule* module)
+        void CreateGlslShaderModule(
+            const String& glsl,
+            VkShaderStageFlagBits shader_type,
+            VkShaderModule* module,
+            Vector<UniformSet>& uniform_sets)
         {
             Vector<unsigned int> spirv;
             GlslToSpirvCached(glsl, shader_type, spirv);
@@ -1426,11 +1430,30 @@ namespace Viry3D
             assert(!err);
         }
 
+        void CreateShaderModule(
+            const String& vs_source,
+            const Vector<String>& vs_includes,
+            const String& fs_source,
+            const Vector<String>& fs_includes,
+            VkShaderModule* vs_module,
+            VkShaderModule* fs_module,
+            Vector<UniformSet>& uniform_sets)
+        {
+            Vector<String> includes;
+            includes.Add("Base.in");
+            if (vs_includes.Size() > 0)
+            {
+                includes.AddRange(&vs_includes[0], vs_includes.Size());
+            }
+            String vs = ProcessShaderSource(vs_source, includes);
+            String fs = ProcessShaderSource(fs_source, fs_includes);
+
+            this->CreateGlslShaderModule(vs, VK_SHADER_STAGE_VERTEX_BIT, vs_module, uniform_sets);
+            this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, fs_module, uniform_sets);
+        }
+
         void CreatePipeline(VkRenderPass render_pass)
         {
-            Vector<String> vs_includes;
-            vs_includes.Add("Base.in");
-
             String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
@@ -1465,13 +1488,16 @@ void main()
     o_frag = vec4(1, 1, 1, 1);
 }
 )";
-            vs = ProcessShaderSource(vs, vs_includes);
-            fs = ProcessShaderSource(fs, Vector<String>());
-
             VkShaderModule vs_module;
             VkShaderModule fs_module;
-            this->CreateGlslShaderModule(vs, VK_SHADER_STAGE_VERTEX_BIT, &vs_module);
-            this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, &fs_module);
+            Vector<UniformSet> uniform_sets;
+
+            this->CreateShaderModule(
+                vs, Vector<String>(),
+                fs, Vector<String>(),
+                &vs_module,
+                &fs_module,
+                uniform_sets);
 
             Vector<VkPipelineShaderStageCreateInfo> shader_stages(2);
             Memory::Zero(&shader_stages[0], shader_stages.SizeInBytes());
@@ -2143,5 +2169,24 @@ void main()
     void Display::CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd)
     {
         m_private->CreateCommandBuffer(cmd_pool, level, cmd);
+    }
+
+    void Display::CreateShaderModule(
+        const String& vs_source,
+        const Vector<String>& vs_includes,
+        const String& fs_source,
+        const Vector<String>& fs_includes,
+        VkShaderModule* vs_module,
+        VkShaderModule* fs_module,
+        Vector<UniformSet>& uniform_sets)
+    {
+        m_private->CreateShaderModule(
+            vs_source,
+            vs_includes,
+            fs_source,
+            fs_includes,
+            vs_module,
+            fs_module,
+            uniform_sets);
     }
 }

@@ -101,11 +101,19 @@ namespace Viry3D
     class Shader
     {
     public:
-        Shader(const String& vertex_shader, const String& fragment_shader, const RenderState& render_state);
+        Shader(
+            const String& vs_source,
+            const Vector<String>& vs_includes,
+            const String& fs_source,
+            const Vector<String>& fs_includes,
+            const RenderState& render_state);
         ~Shader();
         const RenderState& GetRenderState() const { return m_render_state; }
 
     private:
         RenderState m_render_state;
+        VkShaderModule m_vs_module;
+        VkShaderModule m_fs_module;
+        Vector<UniformSet> m_uniform_sets;
     };
 }

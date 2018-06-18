@@ -855,6 +855,9 @@
     <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv.hpp">
       <Filter>src\vulkan\spirv_cross</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\UniformSet.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">

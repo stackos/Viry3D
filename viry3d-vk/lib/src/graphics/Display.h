@@ -21,6 +21,8 @@
 #include "memory/Ref.h"
 #include "container/Vector.h"
 #include "CameraClearFlags.h"
+#include "string/String.h"
+#include "UniformSet.h"
 
 namespace Viry3D
 {
@@ -51,6 +53,14 @@ namespace Viry3D
             Vector<VkFramebuffer>& framebuffers);
         void CreateCommandPool(VkCommandPool* cmd_pool);
         void CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd);
+        void CreateShaderModule(
+            const String& vs_source,
+            const Vector<String>& vs_includes,
+            const String& fs_source,
+            const Vector<String>& fs_includes,
+            VkShaderModule* vs_module,
+            VkShaderModule* fs_module,
+            Vector<UniformSet>& uniform_sets);
 
     private:
         DisplayPrivate* m_private;
