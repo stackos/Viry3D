@@ -170,7 +170,7 @@ namespace Viry3D
 
         VkRenderPass m_render_pass = nullptr;
         VkPipelineCache m_pipeline_cache = nullptr;
-        VkDescriptorSetLayout m_desc_layout = nullptr;
+        Vector<VkDescriptorSetLayout> m_desc_layouts;
         VkPipelineLayout m_pipeline_layout = nullptr;
         VkPipeline m_pipeline = nullptr;
         Ref<VkBufferObject> m_vertex_buffer;
@@ -760,12 +760,6 @@ namespace Viry3D
                     VK_COMPONENT_SWIZZLE_IDENTITY
                 });
             
-            this->CreateRenderPass(
-                m_swapchain_image_resources[0].texture->format,
-                m_depth_texture->format,
-                CameraClearFlags::ColorAndDepth,
-                true,
-                &m_render_pass);
             VkShaderModule vs_module;
             VkShaderModule fs_module;
             Vector<UniformSet> uniform_sets;
@@ -804,6 +798,12 @@ void main()
 }
 )";
             RenderState render_state;
+            this->CreateRenderPass(
+                m_swapchain_image_resources[0].texture->format,
+                m_depth_texture->format,
+                CameraClearFlags::ColorAndDepth,
+                true,
+                &m_render_pass);
             this->CreateShaderModule(
                 vs, Vector<String>(),
                 fs, Vector<String>(),
@@ -811,7 +811,7 @@ void main()
                 &fs_module,
                 uniform_sets);
             this->CreatePipelineCache(&m_pipeline_cache);
-            this->CreatePipelineLayout(uniform_sets, &m_desc_layout, &m_pipeline_layout);//by uniform_sets
+            this->CreatePipelineLayout(uniform_sets, m_desc_layouts, &m_pipeline_layout);
             this->CreatePipeline(
                 m_render_pass,
                 vs_module,
@@ -853,7 +853,11 @@ void main()
 
             vkDestroyPipeline(m_device, m_pipeline, nullptr);
             vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
-            vkDestroyDescriptorSetLayout(m_device, m_desc_layout, nullptr);
+            for (int i = 0; i < m_desc_layouts.Size(); ++i)
+            {
+                vkDestroyDescriptorSetLayout(m_device, m_desc_layouts[i], nullptr);
+            }
+            m_desc_layouts.Clear();
             vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
             vkDestroyRenderPass(m_device, m_render_pass, nullptr);
 
@@ -1456,6 +1460,7 @@ void main()
                 UniformBuffer buffer;
                 buffer.name = name.c_str();
                 buffer.binding = (int) binding;
+                buffer.stage = shader_type;
 
                 const spirv_cross::SPIRType& type = compiler.get_type(resource.base_type_id);
 
@@ -1492,6 +1497,7 @@ void main()
                 UniformTexture texture;
                 texture.name = name.c_str();
                 texture.binding = (int) binding;
+                texture.stage = shader_type;
 
                 uniform_set.textures.Add(texture);
             }
@@ -1536,40 +1542,65 @@ void main()
 
         void CreatePipelineLayout(
             const Vector<UniformSet>& uniform_sets,
-            VkDescriptorSetLayout* desc_layout,
+            Vector<VkDescriptorSetLayout>& desc_layouts,
             VkPipelineLayout* pipeline_layout)
         {
-            Vector<VkDescriptorSetLayoutBinding> layout_bindings(2);
-            Memory::Zero(&layout_bindings[0], layout_bindings.SizeInBytes());
-            layout_bindings[0].binding = 0;
-            layout_bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            layout_bindings[0].descriptorCount = 1;
-            layout_bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-            layout_bindings[0].pImmutableSamplers = nullptr;
-            layout_bindings[1].binding = 1;
-            layout_bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            layout_bindings[1].descriptorCount = 1;
-            layout_bindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            layout_bindings[1].pImmutableSamplers = nullptr;
+            VkResult err;
 
-            VkDescriptorSetLayoutCreateInfo descriptor_layout;
-            Memory::Zero(&descriptor_layout, sizeof(descriptor_layout));
-            descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            descriptor_layout.pNext = nullptr;
-            descriptor_layout.flags = 0;
-            descriptor_layout.bindingCount = layout_bindings.Size();
-            descriptor_layout.pBindings = &layout_bindings[0];
+            desc_layouts.Resize(uniform_sets.Size());
+            for (int i = 0; i < uniform_sets.Size(); ++i)
+            {
+                Vector<VkDescriptorSetLayoutBinding> layout_bindings;
 
-            VkResult err = vkCreateDescriptorSetLayout(m_device, &descriptor_layout, nullptr, desc_layout);
-            assert(!err);
+                for (int j = 0; j < uniform_sets[i].buffers.Size(); ++j)
+                {
+                    const auto& buffer = uniform_sets[i].buffers[j];
+
+                    VkDescriptorSetLayoutBinding layout_binding;
+                    Memory::Zero(&layout_binding, sizeof(layout_binding));
+                    layout_binding.binding = buffer.binding;
+                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    layout_binding.descriptorCount = 1;
+                    layout_binding.stageFlags = buffer.stage;
+                    layout_binding.pImmutableSamplers = nullptr;
+
+                    layout_bindings.Add(layout_binding);
+                }
+
+                for (int j = 0; j < uniform_sets[i].textures.Size(); ++j)
+                {
+                    const auto& texture = uniform_sets[i].textures[j];
+
+                    VkDescriptorSetLayoutBinding layout_binding;
+                    Memory::Zero(&layout_binding, sizeof(layout_binding));
+                    layout_binding.binding = texture.binding;
+                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    layout_binding.descriptorCount = 1;
+                    layout_binding.stageFlags = texture.stage;
+                    layout_binding.pImmutableSamplers = nullptr;
+
+                    layout_bindings.Add(layout_binding);
+                }
+
+                VkDescriptorSetLayoutCreateInfo descriptor_layout;
+                Memory::Zero(&descriptor_layout, sizeof(descriptor_layout));
+                descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+                descriptor_layout.pNext = nullptr;
+                descriptor_layout.flags = 0;
+                descriptor_layout.bindingCount = layout_bindings.Size();
+                descriptor_layout.pBindings = &layout_bindings[0];
+
+                err = vkCreateDescriptorSetLayout(m_device, &descriptor_layout, nullptr, &desc_layouts[i]);
+                assert(!err);
+            }
 
             VkPipelineLayoutCreateInfo pipeline_layout_info;
             Memory::Zero(&pipeline_layout_info, sizeof(pipeline_layout_info));
             pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             pipeline_layout_info.pNext = nullptr;
             pipeline_layout_info.flags = 0;
-            pipeline_layout_info.setLayoutCount = 1;
-            pipeline_layout_info.pSetLayouts = &m_desc_layout;
+            pipeline_layout_info.setLayoutCount = desc_layouts.Size();
+            pipeline_layout_info.pSetLayouts = &desc_layouts[0];
             pipeline_layout_info.pushConstantRangeCount = 0;
             pipeline_layout_info.pPushConstantRanges = nullptr;
 
@@ -1833,8 +1864,8 @@ void main()
             desc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             desc_info.pNext = nullptr;
             desc_info.descriptorPool = m_desc_pool;
-            desc_info.descriptorSetCount = 1;
-            desc_info.pSetLayouts = &m_desc_layout;
+            desc_info.descriptorSetCount = m_desc_layouts.Size();
+            desc_info.pSetLayouts = &m_desc_layouts[0];
 
             Matrix4x4 mvp = Matrix4x4::Identity();
             err = vkAllocateDescriptorSets(m_device, &desc_info, &m_desc_set);

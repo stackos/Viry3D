@@ -33,6 +33,7 @@ namespace Viry3D
     {
         String name;
         int binding;
+        int stage;
         Vector<UniformMember> members;
     };
 
@@ -40,6 +41,7 @@ namespace Viry3D
     {
         String name;
         int binding;
+        int stage;
     };
 
     struct UniformSet
