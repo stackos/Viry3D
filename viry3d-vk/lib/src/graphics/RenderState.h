@@ -25,14 +25,14 @@ namespace Viry3D
     {
         enum class Cull
         {
-            Off = 0,
+            Off = VK_CULL_MODE_NONE,
             Back = VK_CULL_MODE_BACK_BIT,
             Front = VK_CULL_MODE_FRONT_BIT,
         };
 
         enum class ZTest
         {
-            Never = VK_COMPARE_OP_NEVER,
+            Off = 0,
             Less = VK_COMPARE_OP_LESS,
             Greater = VK_COMPARE_OP_GREATER,
             LEqual = VK_COMPARE_OP_LESS_OR_EQUAL,

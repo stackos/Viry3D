@@ -819,7 +819,7 @@ void main()
                 render_state,
                 m_pipeline_layout,
                 m_pipeline_cache,
-                &m_pipeline);//by render_state
+                &m_pipeline);
             vkDestroyShaderModule(m_device, vs_module, nullptr);
             vkDestroyShaderModule(m_device, fs_module, nullptr);
             this->CreateDescriptorSet();//by uniform_sets
@@ -1732,7 +1732,7 @@ void main()
             rs.depthClampEnable = VK_FALSE;
             rs.rasterizerDiscardEnable = VK_FALSE;
             rs.polygonMode = VK_POLYGON_MODE_FILL;
-            rs.cullMode = VK_CULL_MODE_BACK_BIT;
+            rs.cullMode = (VkCullModeFlags) render_state.cull;
             rs.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
             rs.depthBiasEnable = VK_FALSE;
             rs.depthBiasConstantFactor = 0;
@@ -1757,9 +1757,9 @@ void main()
             ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
             ds.pNext = nullptr;
             ds.flags = 0;
-            ds.depthTestEnable = VK_TRUE;
-            ds.depthWriteEnable = VK_TRUE;
-            ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+            ds.depthTestEnable = render_state.zTest != RenderState::ZTest::Off;
+            ds.depthWriteEnable = (VkBool32) render_state.zWrite;
+            ds.depthCompareOp = render_state.zTest == RenderState::ZTest::Off ? VK_COMPARE_OP_ALWAYS : (VkCompareOp) render_state.zTest;
             ds.depthBoundsTestEnable = VK_FALSE;
             ds.stencilTestEnable = VK_FALSE;
             ds.front = { VK_STENCIL_OP_KEEP, VK_STENCIL_OP_KEEP, VK_STENCIL_OP_KEEP, VK_COMPARE_OP_NEVER, 0, 0, 0 };
@@ -1769,12 +1769,12 @@ void main()
 
             Vector<VkPipelineColorBlendAttachmentState> att_state(1);
             Memory::Zero(&att_state[0], att_state.SizeInBytes());
-            att_state[0].blendEnable = VK_FALSE;
-            att_state[0].srcColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-            att_state[0].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            att_state[0].blendEnable = (VkBool32) render_state.blend;
+            att_state[0].srcColorBlendFactor = (VkBlendFactor) render_state.srcBlendMode;
+            att_state[0].dstColorBlendFactor = (VkBlendFactor) render_state.dstBlendMode;
             att_state[0].colorBlendOp = VK_BLEND_OP_ADD;
-            att_state[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-            att_state[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            att_state[0].srcAlphaBlendFactor = (VkBlendFactor) render_state.srcBlendMode;
+            att_state[0].dstAlphaBlendFactor = (VkBlendFactor) render_state.dstBlendMode;
             att_state[0].alphaBlendOp = VK_BLEND_OP_ADD;
             att_state[0].colorWriteMask =
                 VK_COLOR_COMPONENT_R_BIT |
