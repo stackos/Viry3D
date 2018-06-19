@@ -1081,7 +1081,7 @@ void main()
             cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             cmd_info.pNext = nullptr;
             cmd_info.commandPool = cmd_pool;
-            cmd_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            cmd_info.level = level;
             cmd_info.commandBufferCount = 1;
 
             VkResult err = vkAllocateCommandBuffers(m_device, &cmd_info, cmd);
@@ -1998,7 +1998,7 @@ void main()
 
                     this->BuildPrimaryCmd(
                         cmd,
-                        instance_cmds,//j->GetInstanceCmds(),
+                        instance_cmds,//j->GetInstanceCmds(),//
                         j->GetRenderPass(),
                         j->GetFramebuffer(i),
                         j->GetTargetWidth(),
