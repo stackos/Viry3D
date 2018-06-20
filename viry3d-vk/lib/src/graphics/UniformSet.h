@@ -19,9 +19,12 @@
 
 #include "container/Vector.h"
 #include "string/String.h"
+#include "memory/Ref.h"
 
 namespace Viry3D
 {
+    struct BufferObject;
+
     struct UniformMember
     {
         String name;
@@ -35,6 +38,8 @@ namespace Viry3D
         int binding;
         int stage;
         Vector<UniformMember> members;
+        int size;
+        Ref<BufferObject> buffer;
     };
 
     struct UniformTexture
