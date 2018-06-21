@@ -18,6 +18,9 @@
 #include "Application.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
+#include "graphics/Shader.h"
+#include "graphics/Material.h"
+#include "graphics/MeshRenderer.h"
 
 using namespace Viry3D;
 
@@ -25,15 +28,63 @@ class App
 {
 public:
     Camera* m_camera;
+    Ref<Material> m_material;
 
     App()
     {
         m_camera = Display::GetDisplay()->CreateCamera();
+
+        String vs = R"(
+UniformBuffer(0, 0) uniform UniformBuffer00
+{
+	mat4 mvp;
+} u_buf_0_0;
+
+Input(0) vec4 a_pos;
+Input(1) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+
+void main()
+{
+	gl_Position = a_pos * u_buf_0_0.mvp;
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+)";
+        String fs = R"(
+precision mediump float;
+      
+UniformTexture(0, 1) uniform sampler2D u_texture;
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    //o_frag = texture(u_texture, v_uv);
+    o_frag = vec4(1, 1, 1, 1);
+}
+)";
+        RenderState render_state;
+        auto shader = RefMake<Shader>(
+            vs,
+            Vector<String>(),
+            fs,
+            Vector<String>(),
+            render_state);
+        m_material = RefMake<Material>(shader);
+        auto renderer = RefMake<MeshRenderer>();
+        renderer->SetMaterial(m_material);
     }
 
     ~App()
     {
+        m_material.reset();
         Display::GetDisplay()->DestroyCamera(m_camera);
+        m_camera = nullptr;
     }
 
     void Update()
