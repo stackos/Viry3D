@@ -777,6 +777,7 @@ void main()
 }
 )";
             RenderState render_state;
+            Vector<UniformSet> uniform_sets;
             this->CreateRenderPass(
                 m_swapchain_image_resources[0].texture->format,
                 m_depth_texture->format,
@@ -788,9 +789,9 @@ void main()
                 fs, Vector<String>(),
                 &vs_module,
                 &fs_module,
-                m_uniform_sets);
+                uniform_sets);
             this->CreatePipelineCache(&m_pipeline_cache);
-            this->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
+            this->CreatePipelineLayout(uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
             this->CreatePipeline(
                 m_render_pass,
                 vs_module,
@@ -801,8 +802,8 @@ void main()
                 &m_pipeline);
             vkDestroyShaderModule(m_device, vs_module, nullptr);
             vkDestroyShaderModule(m_device, fs_module, nullptr);
-            this->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
-            this->CreateDescriptorSets(m_uniform_sets, m_descriptor_pool, m_descriptor_layouts, m_descriptor_sets);
+            this->CreateDescriptorSetPool(uniform_sets, &m_descriptor_pool);
+            this->CreateDescriptorSets(uniform_sets, m_descriptor_pool, m_descriptor_layouts, m_descriptor_sets, m_uniform_sets);
             this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &m_instance_cmd);
 
             {
@@ -1873,10 +1874,11 @@ void main()
         }
 
         void CreateDescriptorSets(
-            Vector<UniformSet>& uniform_sets,
+            const Vector<UniformSet>& uniform_sets,
             VkDescriptorPool descriptor_pool,
             const Vector<VkDescriptorSetLayout>& descriptor_layouts,
-            Vector<VkDescriptorSet>& descriptor_sets)
+            Vector<VkDescriptorSet>& descriptor_sets,
+            Vector<UniformSet>& uniform_sets_out)
         {
             VkDescriptorSetAllocateInfo desc_info;
             desc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -1889,15 +1891,17 @@ void main()
             VkResult err = vkAllocateDescriptorSets(m_device, &desc_info, &descriptor_sets[0]);
             assert(!err);
 
+            uniform_sets_out = uniform_sets;
+
             Vector<VkWriteDescriptorSet> desc_writes;
 
-            for (int i = 0; i < uniform_sets.Size(); ++i)
+            for (int i = 0; i < uniform_sets_out.Size(); ++i)
             {
                 Vector<VkDescriptorSetLayoutBinding> layout_bindings;
 
-                for (int j = 0; j < uniform_sets[i].buffers.Size(); ++j)
+                for (int j = 0; j < uniform_sets_out[i].buffers.Size(); ++j)
                 {
-                    auto& buffer = uniform_sets[i].buffers[j];
+                    auto& buffer = uniform_sets_out[i].buffers[j];
 
                     buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
@@ -2363,15 +2367,17 @@ void main()
     }
 
     void Display::CreateDescriptorSets(
-        Vector<UniformSet>& uniform_sets,
+        const Vector<UniformSet>& uniform_sets,
         VkDescriptorPool descriptor_pool,
         const Vector<VkDescriptorSetLayout>& descriptor_layouts,
-        Vector<VkDescriptorSet>& descriptor_sets)
+        Vector<VkDescriptorSet>& descriptor_sets,
+        Vector<UniformSet>& uniform_sets_out)
     {
         m_private->CreateDescriptorSets(
             uniform_sets,
             descriptor_pool,
             descriptor_layouts,
-            descriptor_sets);
+            descriptor_sets,
+            uniform_sets_out);
     }
 }

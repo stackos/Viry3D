@@ -70,15 +70,6 @@ namespace Viry3D
         }
         m_descriptor_layouts.Clear();
         vkDestroyPipelineCache(device, m_pipeline_cache, nullptr);
-        for (int i = 0; i < m_uniform_sets.Size(); ++i)
-        {
-            for (int j = 0; j < m_uniform_sets[i].buffers.Size(); j++)
-            {
-                m_uniform_sets[i].buffers[j].buffer->Destroy(device);
-                m_uniform_sets[i].buffers[j].buffer.reset();
-            }
-        }
-        m_uniform_sets.Clear();
         vkDestroyShaderModule(device, m_vs_module, nullptr);
         vkDestroyShaderModule(device, m_fs_module, nullptr);
 
@@ -120,7 +111,7 @@ namespace Viry3D
         }
     }
 
-    void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets)
+    void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets)
     {
         VkDevice device = Display::GetDisplay()->GetDevice();
 
@@ -128,6 +119,7 @@ namespace Viry3D
             m_uniform_sets,
             m_descriptor_pool,
             m_descriptor_layouts,
-            descriptor_sets);
+            descriptor_sets,
+            uniform_sets);
     }
 }

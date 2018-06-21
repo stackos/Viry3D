@@ -38,7 +38,7 @@ namespace Viry3D
         ~Shader();
         const RenderState& GetRenderState() const { return m_render_state; }
         VkPipeline GetPipeline(VkRenderPass render_pass);
-        void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets);
+        void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
         VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
 
     private:

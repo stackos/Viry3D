@@ -77,10 +77,11 @@ namespace Viry3D
             VkPipeline* pipeline);
         void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool);
         void CreateDescriptorSets(
-            Vector<UniformSet>& uniform_sets,
+            const Vector<UniformSet>& uniform_sets,
             VkDescriptorPool descriptor_pool,
             const Vector<VkDescriptorSetLayout>& descriptor_layouts,
-            Vector<VkDescriptorSet>& descriptor_sets);
+            Vector<VkDescriptorSet>& descriptor_sets,
+            Vector<UniformSet>& uniform_sets_out);
 
     private:
         DisplayPrivate* m_private;
