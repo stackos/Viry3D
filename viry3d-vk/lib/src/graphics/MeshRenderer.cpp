@@ -16,8 +16,23 @@
 */
 
 #include "MeshRenderer.h"
+#include "Mesh.h"
 
 namespace Viry3D
 {
+    MeshRenderer::MeshRenderer()
+    {
 
+    }
+
+    MeshRenderer::~MeshRenderer()
+    {
+
+    }
+
+    void MeshRenderer::SetMesh(const Ref<Mesh>& mesh)
+    {
+        m_mesh = mesh;
+        this->MarkInstanceCmdDirty();
+    }
 }

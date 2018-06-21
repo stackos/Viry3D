@@ -15,23 +15,18 @@
 * limitations under the License.
 */
 
-#pragma once
-
-#include "Renderer.h"
+#include "Mesh.h"
+#include "Display.h"
 
 namespace Viry3D
 {
-    class Mesh;
-
-    class MeshRenderer: public Renderer
+    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices)
     {
-    public:
-        MeshRenderer();
-        virtual ~MeshRenderer();
-        const Ref<Mesh>& GetMesh() const { return m_mesh; }
-        void SetMesh(const Ref<Mesh>& mesh);
-
-    private:
-        Ref<Mesh> m_mesh;
-    };
+        
+    }
+    
+    Mesh::~Mesh()
+    {
+    
+    }
 }

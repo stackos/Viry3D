@@ -864,6 +864,9 @@
     <ClInclude Include="..\..\src\graphics\BufferObject.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Mesh.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2182,6 +2185,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cfg.cpp">
       <Filter>src\vulkan\spirv_cross</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Mesh.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -43,10 +43,7 @@ namespace Viry3D
 
         m_material->OnSetRenderer(this);
 
-        for (auto i : m_cameras)
-        {
-            i->MarkInstanceCmdDirty(this);
-        }
+        this->MarkInstanceCmdDirty();
     }
 
     void Renderer::OnAddToCamera(Camera* camera)
@@ -64,6 +61,14 @@ namespace Viry3D
         for (auto i : m_cameras)
         {
             i->MarkRendererOrderDirty();
+        }
+    }
+
+    void Renderer::MarkInstanceCmdDirty()
+    {
+        for (auto i : m_cameras)
+        {
+            i->MarkInstanceCmdDirty(this);
         }
     }
 }

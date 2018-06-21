@@ -35,6 +35,7 @@ namespace Viry3D
         void OnAddToCamera(Camera* camera);
         void OnRemoveFromCamera(Camera* camera);
         void MarkRendererOrderDirty();
+        void MarkInstanceCmdDirty();
 
     private:
         Ref<Material> m_material;
