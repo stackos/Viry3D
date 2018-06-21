@@ -19,6 +19,7 @@
 #include "Application.h"
 #include "Debug.h"
 #include "RenderState.h"
+#include "BufferObject.h"
 #include "vulkan/vulkan_shader_compiler.h"
 #include "container/List.h"
 #include "string/String.h"
@@ -91,28 +92,6 @@ namespace Viry3D
                 vkDestroyImageView(device, image_view, nullptr);
                 vkFreeMemory(device, memory, nullptr);
             }
-        }
-    };
-
-    struct BufferObject
-    {
-        VkBuffer buffer;
-        VkDeviceMemory memory;
-        VkMemoryAllocateInfo memory_info;
-        int size;
-
-        BufferObject():
-            buffer(nullptr),
-            memory(nullptr),
-            size(0)
-        {
-            Memory::Zero(&memory_info, sizeof(memory_info));
-        }
-
-        void Destroy(VkDevice device)
-        {
-            vkDestroyBuffer(device, buffer, nullptr);
-            vkFreeMemory(device, memory, nullptr);
         }
     };
 
@@ -824,8 +803,23 @@ void main()
             vkDestroyShaderModule(m_device, fs_module, nullptr);
             this->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
             this->CreateDescriptorSets(m_uniform_sets, m_descriptor_pool, m_descriptor_layouts, m_descriptor_sets);
-            this->CreateVertexBuffer();//by vertices
             this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &m_instance_cmd);
+
+            {
+                Vertex vertices[4];
+                Memory::Zero(vertices, sizeof(vertices));
+                vertices[0].vertex = Vector3(0, 0, 0);
+                vertices[1].vertex = Vector3(0, -1, 0);
+                vertices[2].vertex = Vector3(1, -1, 0);
+                vertices[3].vertex = Vector3(1, 0, 0);
+
+                unsigned short indices[] = {
+                    0, 1, 2, 0, 2, 3
+                };
+
+                m_vertex_buffer = this->CreateBuffer(&vertices[0], sizeof(vertices), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+                m_index_buffer = this->CreateBuffer(&indices[0], sizeof(indices), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+            }
 
             this->BuildInstanceCmd(
                 m_instance_cmd,
@@ -1560,12 +1554,12 @@ void main()
 
         void CreatePipelineLayout(
             const Vector<UniformSet>& uniform_sets,
-            Vector<VkDescriptorSetLayout>& desc_layouts,
+            Vector<VkDescriptorSetLayout>& descriptor_layouts,
             VkPipelineLayout* pipeline_layout)
         {
             VkResult err;
 
-            desc_layouts.Resize(uniform_sets.Size());
+            descriptor_layouts.Resize(uniform_sets.Size());
             for (int i = 0; i < uniform_sets.Size(); ++i)
             {
                 Vector<VkDescriptorSetLayoutBinding> layout_bindings;
@@ -1608,7 +1602,7 @@ void main()
                 descriptor_layout.bindingCount = layout_bindings.Size();
                 descriptor_layout.pBindings = &layout_bindings[0];
 
-                err = vkCreateDescriptorSetLayout(m_device, &descriptor_layout, nullptr, &desc_layouts[i]);
+                err = vkCreateDescriptorSetLayout(m_device, &descriptor_layout, nullptr, &descriptor_layouts[i]);
                 assert(!err);
             }
 
@@ -1617,8 +1611,8 @@ void main()
             pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             pipeline_layout_info.pNext = nullptr;
             pipeline_layout_info.flags = 0;
-            pipeline_layout_info.setLayoutCount = desc_layouts.Size();
-            pipeline_layout_info.pSetLayouts = &desc_layouts[0];
+            pipeline_layout_info.setLayoutCount = descriptor_layouts.Size();
+            pipeline_layout_info.pSetLayouts = &descriptor_layouts[0];
             pipeline_layout_info.pushConstantRangeCount = 0;
             pipeline_layout_info.pPushConstantRanges = nullptr;
 
@@ -1840,23 +1834,6 @@ void main()
             assert(!err);
         }
 
-        void CreateVertexBuffer()
-        {
-            Vertex vertices[4];
-            Memory::Zero(vertices, sizeof(vertices));
-            vertices[0].vertex = Vector3(0, 0, 0);
-            vertices[1].vertex = Vector3(0, -1, 0);
-            vertices[2].vertex = Vector3(1, -1, 0);
-            vertices[3].vertex = Vector3(1, 0, 0);
-
-            unsigned short indices[] = {
-                0, 1, 2, 0, 2, 3
-            };
-
-            m_vertex_buffer = this->CreateBuffer(&vertices[0], sizeof(vertices), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-            m_index_buffer = this->CreateBuffer(&indices[0], sizeof(indices), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-        }
-
         void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)
         {
             int buffer_count = 0;
@@ -1898,17 +1875,17 @@ void main()
         void CreateDescriptorSets(
             Vector<UniformSet>& uniform_sets,
             VkDescriptorPool descriptor_pool,
-            const Vector<VkDescriptorSetLayout>& desc_layouts,
+            const Vector<VkDescriptorSetLayout>& descriptor_layouts,
             Vector<VkDescriptorSet>& descriptor_sets)
         {
             VkDescriptorSetAllocateInfo desc_info;
             desc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             desc_info.pNext = nullptr;
             desc_info.descriptorPool = descriptor_pool;
-            desc_info.descriptorSetCount = desc_layouts.Size();
-            desc_info.pSetLayouts = &desc_layouts[0];
+            desc_info.descriptorSetCount = descriptor_layouts.Size();
+            desc_info.pSetLayouts = &descriptor_layouts[0];
 
-            descriptor_sets.Resize(desc_layouts.Size());
+            descriptor_sets.Resize(descriptor_layouts.Size());
             VkResult err = vkAllocateDescriptorSets(m_device, &desc_info, &descriptor_sets[0]);
             assert(!err);
 
@@ -2120,7 +2097,7 @@ void main()
             }
         }
 
-        void UpdateUniformBuffers()
+        void UpdateUniform()
         {
             static float s_deg = 0;
             s_deg += 1;
@@ -2146,7 +2123,7 @@ void main()
                 this->BuildPrimaryCmds();
             }
 
-            this->UpdateUniformBuffers();
+            this->UpdateUniform();
         }
 
         void OnDraw()
@@ -2346,5 +2323,55 @@ void main()
             vs_module,
             fs_module,
             uniform_sets);
+    }
+
+    void Display::CreatePipelineCache(VkPipelineCache* pipeline_cache)
+    {
+        m_private->CreatePipelineCache(pipeline_cache);
+    }
+
+    void Display::CreatePipelineLayout(
+        const Vector<UniformSet>& uniform_sets,
+        Vector<VkDescriptorSetLayout>& descriptor_layouts,
+        VkPipelineLayout* pipeline_layout)
+    {
+        m_private->CreatePipelineLayout(uniform_sets, descriptor_layouts, pipeline_layout);
+    }
+
+    void Display::CreatePipeline(
+        VkRenderPass render_pass,
+        VkShaderModule vs_module,
+        VkShaderModule fs_module,
+        const RenderState& render_state,
+        VkPipelineLayout pipeline_layout,
+        VkPipelineCache pipeline_cache,
+        VkPipeline* pipeline)
+    {
+        m_private->CreatePipeline(
+            render_pass,
+            vs_module,
+            fs_module,
+            render_state,
+            pipeline_layout,
+            pipeline_cache,
+            pipeline);
+    }
+
+    void Display::CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)
+    {
+        m_private->CreateDescriptorSetPool(uniform_sets, descriptor_pool);
+    }
+
+    void Display::CreateDescriptorSets(
+        Vector<UniformSet>& uniform_sets,
+        VkDescriptorPool descriptor_pool,
+        const Vector<VkDescriptorSetLayout>& descriptor_layouts,
+        Vector<VkDescriptorSet>& descriptor_sets)
+    {
+        m_private->CreateDescriptorSets(
+            uniform_sets,
+            descriptor_pool,
+            descriptor_layouts,
+            descriptor_sets);
     }
 }

@@ -18,14 +18,17 @@
 #pragma once
 
 #include "Display.h"
-#include "string/String.h"
 #include "RenderState.h"
+#include "string/String.h"
+#include "container/List.h"
+#include "container/Map.h"
 
 namespace Viry3D
 {
     class Shader
     {
     public:
+        static void OnCameraDestroy(Camera* camera);
         Shader(
             const String& vs_source,
             const Vector<String>& vs_includes,
@@ -34,11 +37,20 @@ namespace Viry3D
             const RenderState& render_state);
         ~Shader();
         const RenderState& GetRenderState() const { return m_render_state; }
+        VkPipeline GetPipeline(VkRenderPass render_pass);
+        void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets);
+        VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
 
     private:
+        static List<Shader*> m_shaders;
         RenderState m_render_state;
         VkShaderModule m_vs_module;
         VkShaderModule m_fs_module;
         Vector<UniformSet> m_uniform_sets;
+        VkPipelineCache m_pipeline_cache;
+        Vector<VkDescriptorSetLayout> m_descriptor_layouts;
+        VkPipelineLayout m_pipeline_layout;
+        VkDescriptorPool m_descriptor_pool;
+        Map<VkRenderPass, VkPipeline> m_pipelines;
     };
 }

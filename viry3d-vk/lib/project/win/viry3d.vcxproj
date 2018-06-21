@@ -27,6 +27,7 @@
     <ClInclude Include="..\..\src\container\Vector.h" />
     <ClInclude Include="..\..\src\crypto\md5\md5.h" />
     <ClInclude Include="..\..\src\Debug.h" />
+    <ClInclude Include="..\..\src\graphics\BufferObject.h" />
     <ClInclude Include="..\..\src\graphics\Camera.h" />
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
     <ClInclude Include="..\..\src\graphics\Color.h" />

@@ -19,6 +19,7 @@
 #include "Texture.h"
 #include "Renderer.h"
 #include "Material.h"
+#include "Shader.h"
 
 namespace Viry3D
 {
@@ -37,6 +38,7 @@ namespace Viry3D
 
     Camera::~Camera()
     {
+        Shader::OnCameraDestroy(this);
         this->ClearRenderPass();
         this->ClearInstanceCmds();
     }

@@ -62,6 +62,25 @@ namespace Viry3D
             VkShaderModule* vs_module,
             VkShaderModule* fs_module,
             Vector<UniformSet>& uniform_sets);
+        void CreatePipelineCache(VkPipelineCache* pipeline_cache);
+        void CreatePipelineLayout(
+            const Vector<UniformSet>& uniform_sets,
+            Vector<VkDescriptorSetLayout>& descriptor_layouts,
+            VkPipelineLayout* pipeline_layout);
+        void CreatePipeline(
+            VkRenderPass render_pass,
+            VkShaderModule vs_module,
+            VkShaderModule fs_module,
+            const RenderState& render_state,
+            VkPipelineLayout pipeline_layout,
+            VkPipelineCache pipeline_cache,
+            VkPipeline* pipeline);
+        void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool);
+        void CreateDescriptorSets(
+            Vector<UniformSet>& uniform_sets,
+            VkDescriptorPool descriptor_pool,
+            const Vector<VkDescriptorSetLayout>& descriptor_layouts,
+            Vector<VkDescriptorSet>& descriptor_sets);
 
     private:
         DisplayPrivate* m_private;
