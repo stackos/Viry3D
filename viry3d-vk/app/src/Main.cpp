@@ -21,6 +21,9 @@
 #include "graphics/Shader.h"
 #include "graphics/Material.h"
 #include "graphics/MeshRenderer.h"
+#include "graphics/VertexAttribute.h"
+#include "graphics/Mesh.h"
+#include "memory/Memory.h"
 
 using namespace Viry3D;
 
@@ -29,6 +32,7 @@ class App
 public:
     Camera* m_camera;
     Ref<Material> m_material;
+    float m_deg = 0;
 
     App()
     {
@@ -68,6 +72,9 @@ void main()
     o_frag = vec4(1, 1, 1, 1);
 }
 )";
+        
+        auto renderer = RefMake<MeshRenderer>();
+
         RenderState render_state;
         auto shader = RefMake<Shader>(
             vs,
@@ -76,8 +83,20 @@ void main()
             Vector<String>(),
             render_state);
         m_material = RefMake<Material>(shader);
-        auto renderer = RefMake<MeshRenderer>();
         renderer->SetMaterial(m_material);
+        
+        Vector<Vertex> vertices(4);
+        Memory::Zero(&vertices[0], vertices.SizeInBytes());
+        vertices[0].vertex = Vector3(0, 0, 0);
+        vertices[1].vertex = Vector3(0, -1, 0);
+        vertices[2].vertex = Vector3(1, -1, 0);
+        vertices[3].vertex = Vector3(1, 0, 0);
+
+        Vector<unsigned short> indices({ 0, 1, 2, 0, 2, 3 });
+        auto mesh = RefMake<Mesh>(vertices, indices);
+        renderer->SetMesh(mesh);
+
+        m_camera->AddRenderer(renderer);
     }
 
     ~App()
@@ -89,7 +108,13 @@ void main()
 
     void Update()
     {
-        
+        m_deg += 1;
+        Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, m_deg)));
+        Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
+        Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);
+        Matrix4x4 mvp = projection * view * model;
+
+        m_material->SetMatrix("mvp", mvp);
     }
 };
 

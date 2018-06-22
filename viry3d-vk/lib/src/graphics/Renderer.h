@@ -24,12 +24,17 @@ namespace Viry3D
 {
     class Material;
     class Camera;
+    struct BufferObject;
 
     class Renderer
     {
     public:
         Renderer();
         virtual ~Renderer();
+        virtual Ref<BufferObject> GetVertexBuffer() const = 0;
+        virtual Ref<BufferObject> GetIndexBuffer() const = 0;
+        virtual void GetIndexRange(int& index_offset, int& index_count) const = 0;
+        virtual void Update();
         const Ref<Material>& GetMaterial() const { return m_material; }
         void SetMaterial(const Ref<Material>& material);
         void OnAddToCamera(Camera* camera);

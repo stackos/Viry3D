@@ -76,6 +76,7 @@ namespace Viry3D
         void UpdateInstanceCmds();
         void ClearInstanceCmds();
         void BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer);
+        void UpdateRenderers();
 
     private:
         bool m_render_pass_dirty;

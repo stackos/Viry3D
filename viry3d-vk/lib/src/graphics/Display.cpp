@@ -27,7 +27,6 @@
 #include "graphics/Color.h"
 #include "graphics/VertexAttribute.h"
 #include "graphics/Camera.h"
-#include "math/Rect.h"
 #include "math/Matrix4x4.h"
 #include "io/File.h"
 #include <assert.h>
@@ -45,9 +44,9 @@ extern "C"
 
 static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
-#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                              \
-    {                                                                                                         \
-        fp##entrypoint = (PFN_vk##entrypoint) vkGetInstanceProcAddr(inst, "vk" #entrypoint);                  \
+#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                \
+    {                                                                                                           \
+        fp##entrypoint = (PFN_vk##entrypoint) vkGetInstanceProcAddr(inst, "vk" #entrypoint);                    \
     }
 
 #define GET_DEVICE_PROC_ADDR(dev, entrypoint)                                                                    \
@@ -144,21 +143,8 @@ namespace Viry3D
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
         Ref<TextureObject> m_depth_texture;
-        
         List<Ref<Camera>> m_cameras;
         bool m_primary_cmd_dirty = true;
-
-        VkRenderPass m_render_pass = nullptr;
-        VkPipelineCache m_pipeline_cache = nullptr;
-        Vector<VkDescriptorSetLayout> m_descriptor_layouts;
-        VkPipelineLayout m_pipeline_layout = nullptr;
-        VkPipeline m_pipeline = nullptr;
-        Ref<BufferObject> m_vertex_buffer;
-        Ref<BufferObject> m_index_buffer;
-        VkDescriptorPool m_descriptor_pool = nullptr;
-        Vector<VkDescriptorSet> m_descriptor_sets;
-        Vector<UniformSet> m_uniform_sets;
-        VkCommandBuffer m_instance_cmd;
 
         DisplayPrivate(Display* display, void* window, int width, int height):
             m_public(display),
@@ -739,131 +725,10 @@ namespace Viry3D
                     VK_COMPONENT_SWIZZLE_IDENTITY,
                     VK_COMPONENT_SWIZZLE_IDENTITY
                 });
-            
-            VkShaderModule vs_module;
-            VkShaderModule fs_module;
-            String vs = R"(
-UniformBuffer(0, 0) uniform UniformBuffer00
-{
-	mat4 mvp;
-} u_buf_0_0;
-
-Input(0) vec4 a_pos;
-Input(1) vec2 a_uv;
-
-Output(0) vec2 v_uv;
-
-void main()
-{
-	gl_Position = a_pos * u_buf_0_0.mvp;
-	v_uv = a_uv;
-
-	vulkan_convert();
-}
-)";
-            String fs = R"(
-precision mediump float;
-      
-UniformTexture(0, 1) uniform sampler2D u_texture;
-
-Input(0) vec2 v_uv;
-
-Output(0) vec4 o_frag;
-
-void main()
-{
-    //o_frag = texture(u_texture, v_uv);
-    o_frag = vec4(1, 1, 1, 1);
-}
-)";
-            RenderState render_state;
-            Vector<UniformSet> uniform_sets;
-            this->CreateRenderPass(
-                m_swapchain_image_resources[0].texture->format,
-                m_depth_texture->format,
-                CameraClearFlags::ColorAndDepth,
-                true,
-                &m_render_pass);
-            this->CreateShaderModule(
-                vs, Vector<String>(),
-                fs, Vector<String>(),
-                &vs_module,
-                &fs_module,
-                uniform_sets);
-            this->CreatePipelineCache(&m_pipeline_cache);
-            this->CreatePipelineLayout(uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
-            this->CreatePipeline(
-                m_render_pass,
-                vs_module,
-                fs_module,
-                render_state,
-                m_pipeline_layout,
-                m_pipeline_cache,
-                &m_pipeline);
-            vkDestroyShaderModule(m_device, vs_module, nullptr);
-            vkDestroyShaderModule(m_device, fs_module, nullptr);
-            this->CreateDescriptorSetPool(uniform_sets, &m_descriptor_pool);
-            this->CreateDescriptorSets(uniform_sets, m_descriptor_pool, m_descriptor_layouts, m_descriptor_sets, m_uniform_sets);
-            this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &m_instance_cmd);
-
-            {
-                Vertex vertices[4];
-                Memory::Zero(vertices, sizeof(vertices));
-                vertices[0].vertex = Vector3(0, 0, 0);
-                vertices[1].vertex = Vector3(0, -1, 0);
-                vertices[2].vertex = Vector3(1, -1, 0);
-                vertices[3].vertex = Vector3(1, 0, 0);
-
-                unsigned short indices[] = {
-                    0, 1, 2, 0, 2, 3
-                };
-
-                m_vertex_buffer = this->CreateBuffer(&vertices[0], sizeof(vertices), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-                m_index_buffer = this->CreateBuffer(&indices[0], sizeof(indices), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-            }
-
-            this->BuildInstanceCmd(
-                m_instance_cmd,
-                m_render_pass,
-                m_pipeline_layout,
-                m_pipeline,
-                m_descriptor_sets,
-                m_width,
-                m_height,
-                Rect(0, 0, 1, 1),
-                m_vertex_buffer,
-                m_index_buffer);
         }
 
         void DestroySizeDependentResources()
         {
-            vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_instance_cmd);
-            for (int i = 0; i < m_uniform_sets.Size(); ++i)
-            {
-                for (int j = 0; j < m_uniform_sets[i].buffers.Size(); j++)
-                {
-                    m_uniform_sets[i].buffers[j].buffer->Destroy(m_device);
-                    m_uniform_sets[i].buffers[j].buffer.reset();
-                }
-            }
-            m_uniform_sets.Clear();
-            vkDestroyDescriptorPool(m_device, m_descriptor_pool, nullptr);
-
-            m_vertex_buffer->Destroy(m_device);
-            m_vertex_buffer.reset();
-            m_index_buffer->Destroy(m_device);
-            m_index_buffer.reset();
-
-            vkDestroyPipeline(m_device, m_pipeline, nullptr);
-            vkDestroyPipelineLayout(m_device, m_pipeline_layout, nullptr);
-            for (int i = 0; i < m_descriptor_layouts.Size(); ++i)
-            {
-                vkDestroyDescriptorSetLayout(m_device, m_descriptor_layouts[i], nullptr);
-            }
-            m_descriptor_layouts.Clear();
-            vkDestroyPipelineCache(m_device, m_pipeline_cache, nullptr);
-            vkDestroyRenderPass(m_device, m_render_pass, nullptr);
-
             m_depth_texture->Destroy(m_device);
             m_depth_texture.reset();
 
@@ -1930,41 +1795,19 @@ void main()
             vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
         }
 
-        void UpdateUniformMember(const Vector<UniformSet>& uniform_sets, const String& name, const void* data, int size)
-        {
-            for (int i = 0; i < uniform_sets.Size(); ++i)
-            {
-                Vector<VkDescriptorSetLayoutBinding> layout_bindings;
-
-                for (int j = 0; j < uniform_sets[i].buffers.Size(); ++j)
-                {
-                    const auto& buffer = uniform_sets[i].buffers[j];
-
-                    for (int k = 0; k < buffer.members.Size(); ++k)
-                    {
-                        const auto& member = buffer.members[k];
-
-                        if (member.name == name && size <= member.size)
-                        {
-                            this->UpdateBuffer(buffer.buffer, member.offset, data, size);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
             VkPipelineLayout pipeline_layout,
             VkPipeline pipeline,
-            Vector<VkDescriptorSet>& descriptor_sets,
+            const Vector<VkDescriptorSet>& descriptor_sets,
             int image_width,
             int image_height,
             const Rect& view_rect,
             const Ref<BufferObject>& vertex_buffer,
-            const Ref<BufferObject>& index_buffer)
+            const Ref<BufferObject>& index_buffer,
+            int index_offset,
+            int index_count)
         {
             VkCommandBufferInheritanceInfo inheritance_info;
             Memory::Zero(&inheritance_info, sizeof(inheritance_info));
@@ -2011,7 +1854,7 @@ void main()
             VkDeviceSize offset = 0;
             vkCmdBindVertexBuffers(cmd, 0, 1, &vertex_buffer->buffer, &offset);
             vkCmdBindIndexBuffer(cmd, index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
-            vkCmdDrawIndexed(cmd, 6, 1, 0, 0, 0);
+            vkCmdDrawIndexed(cmd, index_count, 1, index_offset, 0, 0);
 
             err = vkEndCommandBuffer(cmd);
             assert(!err);
@@ -2084,12 +1927,9 @@ void main()
 
                 for (auto j : m_cameras)
                 {
-                    Vector<VkCommandBuffer> instance_cmds;
-                    instance_cmds.Add(m_instance_cmd);
-
                     this->BuildPrimaryCmd(
                         cmd,
-                        instance_cmds,//j->GetInstanceCmds(),//
+                        j->GetInstanceCmds(),
                         j->GetRenderPass(),
                         j->GetFramebuffer(i),
                         j->GetTargetWidth(),
@@ -2099,18 +1939,6 @@ void main()
 
                 this->BuildPrimaryCmdEnd(cmd);
             }
-        }
-
-        void UpdateUniform()
-        {
-            static float s_deg = 0;
-            s_deg += 1;
-            Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, s_deg)));
-            Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
-            Matrix4x4 projection = Matrix4x4::Perspective(45, m_width / (float) m_height, 1, 1000);
-            Matrix4x4 mvp = projection * view * model;
-
-            this->UpdateUniformMember(m_uniform_sets, "mvp", &mvp, sizeof(mvp));
         }
 
         void Update()
@@ -2126,8 +1954,6 @@ void main()
 
                 this->BuildPrimaryCmds();
             }
-
-            this->UpdateUniform();
         }
 
         void OnDraw()
@@ -2379,5 +2205,44 @@ void main()
             descriptor_layouts,
             descriptor_sets,
             uniform_sets_out);
+    }
+
+    Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
+    {
+        return m_private->CreateBuffer(data, size, usage);
+    }
+
+    void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
+    {
+        m_private->UpdateBuffer(buffer, buffer_offset, data, size);
+    }
+
+    void Display::BuildInstanceCmd(
+        VkCommandBuffer cmd,
+        VkRenderPass render_pass,
+        VkPipelineLayout pipeline_layout,
+        VkPipeline pipeline,
+        const Vector<VkDescriptorSet>& descriptor_sets,
+        int image_width,
+        int image_height,
+        const Rect& view_rect,
+        const Ref<BufferObject>& vertex_buffer,
+        const Ref<BufferObject>& index_buffer,
+        int index_offset,
+        int index_count)
+    {
+        m_private->BuildInstanceCmd(
+            cmd,
+            render_pass,
+            pipeline_layout,
+            pipeline,
+            descriptor_sets,
+            image_width,
+            image_height,
+            view_rect,
+            vertex_buffer,
+            index_buffer,
+            index_offset,
+            index_count);
     }
 }

@@ -71,4 +71,12 @@ namespace Viry3D
             i->MarkInstanceCmdDirty(this);
         }
     }
+
+    void Renderer::Update()
+    {
+        if (m_material)
+        {
+            m_material->UpdateUniformSets();
+        }
+    }
 }

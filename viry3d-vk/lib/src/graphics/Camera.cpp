@@ -87,6 +87,7 @@ namespace Viry3D
             Display::GetDisplay()->MarkPrimaryCmdDirty();
         }
 
+        this->UpdateRenderers();
         this->UpdateInstanceCmds();
     }
 
@@ -294,6 +295,33 @@ namespace Viry3D
 
     void Camera::BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer)
     {
+        const Ref<Material>& material = renderer->GetMaterial();
+        const Ref<Shader>& shader = material->GetShader();
 
+        int index_offset;
+        int index_count;
+        renderer->GetIndexRange(index_offset, index_count);
+
+        Display::GetDisplay()->BuildInstanceCmd(
+            cmd,
+            m_render_pass,
+            shader->GetPipelineLayout(),
+            shader->GetPipeline(m_render_pass),
+            material->GetDescriptorSets(),
+            this->GetTargetWidth(),
+            this->GetTargetHeight(),
+            m_viewport_rect,
+            renderer->GetVertexBuffer(),
+            renderer->GetIndexBuffer(),
+            index_offset,
+            index_count);
+    }
+
+    void Camera::UpdateRenderers()
+    {
+        for (auto& i : m_renderers)
+        {
+            i.renderer->Update();
+        }
     }
 }

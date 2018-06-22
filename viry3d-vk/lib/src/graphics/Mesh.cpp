@@ -17,16 +17,28 @@
 
 #include "Mesh.h"
 #include "Display.h"
+#include "BufferObject.h"
 
 namespace Viry3D
 {
-    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices)
+    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices):
+        m_vertex_count(0),
+        m_index_count(0)
     {
-        
+        m_vertex_buffer = Display::GetDisplay()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        m_index_buffer = Display::GetDisplay()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+    
+        m_vertex_count = vertices.Size();
+        m_index_count = indices.Size();
     }
     
     Mesh::~Mesh()
     {
-    
+        VkDevice device = Display::GetDisplay()->GetDevice();
+
+        m_vertex_buffer->Destroy(device);
+        m_vertex_buffer.reset();
+        m_index_buffer->Destroy(device);
+        m_index_buffer.reset();
     }
 }

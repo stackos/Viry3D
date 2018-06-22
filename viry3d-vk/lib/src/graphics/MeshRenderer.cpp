@@ -30,6 +30,44 @@ namespace Viry3D
 
     }
 
+    Ref<BufferObject> MeshRenderer::GetVertexBuffer() const
+    {
+        Ref<BufferObject> buffer;
+
+        if (m_mesh)
+        {
+            buffer = m_mesh->GetVertexBuffer();
+        }
+
+        return buffer;
+    }
+
+    Ref<BufferObject> MeshRenderer::GetIndexBuffer() const
+    {
+        Ref<BufferObject> buffer;
+
+        if (m_mesh)
+        {
+            buffer = m_mesh->GetIndexBuffer();
+        }
+
+        return buffer;
+    }
+
+    void MeshRenderer::GetIndexRange(int& index_offset, int& index_count) const
+    {
+        if (m_mesh)
+        {
+            index_offset = 0;
+            index_count = m_mesh->GetIndexCount();
+        }
+        else
+        {
+            index_offset = 0;
+            index_count = 0;
+        }
+    }
+
     void MeshRenderer::SetMesh(const Ref<Mesh>& mesh)
     {
         m_mesh = mesh;

@@ -16,10 +16,7 @@
 */
 
 #include "Shader.h"
-#include "Application.h"
-#include "BufferObject.h"
 #include "Camera.h"
-#include "io/File.h"
 
 namespace Viry3D
 {
@@ -78,9 +75,14 @@ namespace Viry3D
 
     VkPipeline Shader::GetPipeline(VkRenderPass render_pass)
     {
-        VkPipeline* pipeline = nullptr;
-        if (!m_pipelines.TryGet(render_pass, &pipeline))
+        VkPipeline* pipeline_ptr;
+        if (m_pipelines.TryGet(render_pass, &pipeline_ptr))
         {
+            return *pipeline_ptr;
+        }
+        else
+        {
+            VkPipeline pipeline;
             Display::GetDisplay()->CreatePipeline(
                 render_pass,
                 m_vs_module,
@@ -88,11 +90,11 @@ namespace Viry3D
                 m_render_state,
                 m_pipeline_layout,
                 m_pipeline_cache,
-                pipeline);
-            m_pipelines.Add(render_pass, *pipeline);
-        }
+                &pipeline);
+            m_pipelines.Add(render_pass, pipeline);
 
-        return *pipeline;
+            return pipeline;
+        }
     }
 
     void Shader::OnCameraDestroy(Camera* camera)
