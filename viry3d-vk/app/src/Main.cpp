@@ -23,9 +23,14 @@
 #include "graphics/MeshRenderer.h"
 #include "graphics/VertexAttribute.h"
 #include "graphics/Mesh.h"
+#include "graphics/Texture.h"
 #include "memory/Memory.h"
 
 using namespace Viry3D;
+
+// TODO:
+// - load texture
+// - per instance uniform buffer
 
 class App
 {
@@ -97,6 +102,8 @@ void main()
         renderer->SetMesh(mesh);
 
         m_camera->AddRenderer(renderer);
+
+        auto texture = Texture::LoadFromFile(Application::DataPath() + "/texture/logo.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
     }
 
     ~App()
@@ -238,8 +245,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         app->Update();
 
         display->OnDraw();
-
-        ::Sleep(1);
     }
 
     app.reset();

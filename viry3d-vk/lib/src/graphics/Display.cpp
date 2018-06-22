@@ -20,13 +20,14 @@
 #include "Debug.h"
 #include "RenderState.h"
 #include "BufferObject.h"
+#include "Color.h"
+#include "VertexAttribute.h"
+#include "Camera.h"
+#include "Texture.h"
 #include "vulkan/vulkan_shader_compiler.h"
 #include "container/List.h"
 #include "string/String.h"
 #include "memory/Memory.h"
-#include "graphics/Color.h"
-#include "graphics/VertexAttribute.h"
-#include "graphics/Camera.h"
 #include "math/Matrix4x4.h"
 #include "io/File.h"
 #include <assert.h>
@@ -60,43 +61,13 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
 namespace Viry3D
 {
-    struct TextureObject
+    struct SwapchainImageResources
     {
         int width;
         int height;
         VkFormat format;
         VkImage image;
         VkImageView image_view;
-        VkDeviceMemory memory;
-        VkMemoryAllocateInfo memory_info;
-        bool is_ref_image;
-
-        TextureObject():
-            width(0),
-            height(0),
-            format(VK_FORMAT_UNDEFINED),
-            image(nullptr),
-            image_view(nullptr),
-            memory(nullptr),
-            is_ref_image(true)
-        {
-            Memory::Zero(&memory_info, sizeof(memory_info));
-        }
-        
-        void Destroy(VkDevice device)
-        {
-            if (is_ref_image == false)
-            {
-                vkDestroyImage(device, image, nullptr);
-                vkDestroyImageView(device, image_view, nullptr);
-                vkFreeMemory(device, memory, nullptr);
-            }
-        }
-    };
-
-    struct SwapchainImageResources
-    {
-        Ref<TextureObject> texture;
         VkCommandBuffer cmd = nullptr;
     };
 
@@ -142,7 +113,7 @@ namespace Viry3D
         int m_image_index = 0;
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
-        Ref<TextureObject> m_depth_texture;
+        Ref<Texture> m_depth_texture;
         List<Ref<Camera>> m_cameras;
         bool m_primary_cmd_dirty = true;
 
@@ -729,7 +700,6 @@ namespace Viry3D
 
         void DestroySizeDependentResources()
         {
-            m_depth_texture->Destroy(m_device);
             m_depth_texture.reset();
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
@@ -741,7 +711,7 @@ namespace Viry3D
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
-                vkDestroyImageView(m_device, m_swapchain_image_resources[i].texture->image_view, nullptr);
+                vkDestroyImageView(m_device, m_swapchain_image_resources[i].image_view, nullptr);
             }
             m_swapchain_image_resources.Clear();
             fpDestroySwapchainKHR(m_device, m_swapchain, nullptr);
@@ -899,6 +869,8 @@ namespace Viry3D
             m_swapchain_image_resources.Resize(swapchain_image_count);
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
+                SwapchainImageResources& resource = m_swapchain_image_resources[i];
+
                 VkImageViewCreateInfo view_info;
                 Memory::Zero(&view_info, sizeof(view_info));
                 view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -919,17 +891,13 @@ namespace Viry3D
                 view_info.subresourceRange.baseArrayLayer = 0;
                 view_info.subresourceRange.layerCount = 1;
 
-                Ref<TextureObject> texture = RefMake<TextureObject>();
-                texture->is_ref_image = true;
-                texture->image = swapchain_images[i];
-                texture->format = m_surface_format.format;
-                texture->width = swapchain_size.width;
-                texture->height = swapchain_size.height;
+                resource.width = swapchain_size.width;
+                resource.height = swapchain_size.height;
+                resource.format = m_surface_format.format;
+                resource.image = swapchain_images[i];
 
-                err = vkCreateImageView(m_device, &view_info, nullptr, &texture->image_view);
+                err = vkCreateImageView(m_device, &view_info, nullptr, &resource.image_view);
                 assert(!err);
-
-                m_swapchain_image_resources[i].texture = texture;
             }
         }
 
@@ -1150,7 +1118,7 @@ namespace Viry3D
             return false;
         }
 
-        Ref<TextureObject> CreateTexture(
+        Ref<Texture> CreateTexture(
             VkImageType type,
             VkImageViewType view_type,
             int width,
@@ -1160,11 +1128,10 @@ namespace Viry3D
             VkImageAspectFlags aspect_flag,
             const VkComponentMapping& component)
         {
-            Ref<TextureObject> texture = RefMake<TextureObject>();
-            texture->is_ref_image = false;
-            texture->width = width;
-            texture->height = height;
-            texture->format = format;
+            Ref<Texture> texture = Ref<Texture>(new Texture());
+            texture->m_width = width;
+            texture->m_height = height;
+            texture->m_format = format;
 
             VkImageCreateInfo image_info;
             Memory::Zero(&image_info, sizeof(image_info));
@@ -1184,25 +1151,25 @@ namespace Viry3D
             image_info.pQueueFamilyIndices = nullptr;
             image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-            VkResult err = vkCreateImage(m_device, &image_info, nullptr, &texture->image);
+            VkResult err = vkCreateImage(m_device, &image_info, nullptr, &texture->m_image);
             assert(!err);
 
             VkMemoryRequirements mem_reqs;
-            vkGetImageMemoryRequirements(m_device, texture->image, &mem_reqs);
+            vkGetImageMemoryRequirements(m_device, texture->m_image, &mem_reqs);
 
-            Memory::Zero(&texture->memory_info, sizeof(texture->memory_info));
-            texture->memory_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-            texture->memory_info.pNext = nullptr;
-            texture->memory_info.allocationSize = mem_reqs.size;
-            texture->memory_info.memoryTypeIndex = 0;
+            Memory::Zero(&texture->m_memory_info, sizeof(texture->m_memory_info));
+            texture->m_memory_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            texture->m_memory_info.pNext = nullptr;
+            texture->m_memory_info.allocationSize = mem_reqs.size;
+            texture->m_memory_info.memoryTypeIndex = 0;
 
-            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture->memory_info.memoryTypeIndex);
+            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture->m_memory_info.memoryTypeIndex);
             assert(pass);
 
-            err = vkAllocateMemory(m_device, &texture->memory_info, nullptr, &texture->memory);
+            err = vkAllocateMemory(m_device, &texture->m_memory_info, nullptr, &texture->m_memory);
             assert(!err);
 
-            err = vkBindImageMemory(m_device, texture->image, texture->memory, 0);
+            err = vkBindImageMemory(m_device, texture->m_image, texture->m_memory, 0);
             assert(!err);
 
             VkImageViewCreateInfo view_info;
@@ -1210,13 +1177,13 @@ namespace Viry3D
             view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             view_info.pNext = nullptr;
             view_info.flags = 0;
-            view_info.image = texture->image;
+            view_info.image = texture->m_image;
             view_info.viewType = view_type;
             view_info.format = format;
             view_info.components = component;
             view_info.subresourceRange = { aspect_flag, 0, 1, 0, 1 };
             
-            err = vkCreateImageView(m_device, &view_info, nullptr, &texture->image_view);
+            err = vkCreateImageView(m_device, &view_info, nullptr, &texture->m_image_view);
             assert(!err);
 
             return texture;
@@ -2100,8 +2067,8 @@ namespace Viry3D
         if (present)
         {
             m_private->CreateRenderPass(
-                m_private->m_swapchain_image_resources[0].texture->format,
-                m_private->m_depth_texture->format,
+                m_private->m_swapchain_image_resources[0].format,
+                m_private->m_depth_texture->GetFormat(),
                 clear_flag,
                 true,
                 render_pass);
@@ -2109,13 +2076,13 @@ namespace Viry3D
             framebuffers.Resize(m_private->m_swapchain_image_resources.Size());
             for (int i = 0; i < framebuffers.Size(); ++i)
             {
-                const Ref<TextureObject>& texture = m_private->m_swapchain_image_resources[i].texture;
+                const SwapchainImageResources& resource = m_private->m_swapchain_image_resources[i];
 
                 m_private->CreateFramebuffer(
-                    texture->image_view,
-                    m_private->m_depth_texture->image_view,
-                    texture->width,
-                    texture->height,
+                    resource.image_view,
+                    m_private->m_depth_texture->GetImageView(),
+                    resource.width,
+                    resource.height,
                     *render_pass,
                     &framebuffers[i]);
             }

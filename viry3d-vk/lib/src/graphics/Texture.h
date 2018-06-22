@@ -23,14 +23,29 @@ namespace Viry3D
 {
     class Texture
     {
+    private:
+        friend class DisplayPrivate;
+
     public:
-        Texture();
+        static Ref<Texture> LoadFromFile(const String& path, VkFilter filter_mode, VkSamplerAddressMode wrap_mode, bool gen_mipmap);
+        static Ref<Texture> CreateFromMemory(const ByteBuffer& pixels, int width, int height, int bpp, VkFilter filter_mode, VkSamplerAddressMode wrap_mode, bool gen_mipmap);
         ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
+        VkFormat GetFormat() const { return m_format; }
+        VkImage GetImage() const { return m_image; }
+        VkImageView GetImageView() const { return m_image_view; }
+
+    private:
+        Texture();
 
     private:
         int m_width;
         int m_height;
+        VkFormat m_format;
+        VkImage m_image;
+        VkImageView m_image_view;
+        VkDeviceMemory m_memory;
+        VkMemoryAllocateInfo m_memory_info;
     };
 }
