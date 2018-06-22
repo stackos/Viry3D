@@ -29,9 +29,11 @@ namespace Viry3D
 		Vector() { }
 		Vector(int size);
         Vector(int size, const V& v);
+        Vector(std::initializer_list<V> list);
 
 		void Add(const V& v);
 		void AddRange(const V* vs, int count);
+        void AddRange(std::initializer_list<V> list);
 		void Clear();
 		int Size() const;
 		bool Empty() const;
@@ -71,6 +73,12 @@ namespace Viry3D
     {
     }
 
+    template<class V>
+    Vector<V>::Vector(std::initializer_list<V> list):
+        m_vector(list)
+    {
+    }
+
 	template<class V>
 	void Vector<V>::Add(const V& v)
 	{
@@ -91,6 +99,12 @@ namespace Viry3D
 			}
 		}
 	}
+
+    template<class V>
+    void Vector<V>::AddRange(std::initializer_list<V> list)
+    {
+        m_vector.insert(m_vector.end(), list.begin(), list.end());
+    }
 
 	template<class V>
 	void Vector<V>::Clear()
