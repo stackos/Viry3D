@@ -73,14 +73,34 @@ namespace Viry3D
         m_renderers.Remove(renderer);
     }
 
-    void Material::SetMatrix(const String& name, const Matrix4x4& mat)
+    void Material::SetMatrix(const String& name, const Matrix4x4& value)
     {
-        this->SetProperty(name, mat, Property::Type::Matrix);
+        this->SetProperty(name, value, MaterialProperty::Type::Matrix);
+    }
+
+    void Material::SetVector(const String& name, const Vector4& value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Vector);
+    }
+
+    void Material::SetColor(const String& name, const Color& value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Color);
+    }
+
+    void Material::SetFloat(const String& name, float value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Float);
+    }
+
+    void Material::SetInt(const String& name, int value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Int);
     }
 
     void Material::SetTexture(const String& name, const Ref<Texture>& texture)
     {
-        Property* property_ptr;
+        MaterialProperty* property_ptr;
         if (m_properties.TryGet(name, &property_ptr))
         {
             property_ptr->texture = texture;
@@ -88,9 +108,9 @@ namespace Viry3D
         }
         else
         {
-            Property property;
+            MaterialProperty property;
             property.name = name;
-            property.type = Property::Type::Texture;
+            property.type = MaterialProperty::Type::Texture;
             property.texture = texture;
             property.dirty = true;
             m_properties.Add(name, property);
@@ -105,7 +125,7 @@ namespace Viry3D
             {
                 i.second.dirty = false;
 
-                if (i.second.type == Property::Type::Texture)
+                if (i.second.type == MaterialProperty::Type::Texture)
                 {
                     this->UpdateUniformTexture(i.second.name, i.second.texture);
                 }
@@ -115,6 +135,41 @@ namespace Viry3D
                 }
             }
         }
+    }
+
+    int Material::FindUniformSetIndex(const String& name)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            Vector<VkDescriptorSetLayoutBinding> layout_bindings;
+
+            for (int j = 0; j < m_uniform_sets[i].buffers.Size(); ++j)
+            {
+                const auto& buffer = m_uniform_sets[i].buffers[j];
+
+                for (int k = 0; k < buffer.members.Size(); ++k)
+                {
+                    const auto& member = buffer.members[k];
+
+                    if (member.name == name)
+                    {
+                        return i;
+                    }
+                }
+
+                for (int j = 0; j < m_uniform_sets[i].textures.Size(); ++j)
+                {
+                    const auto& uniform_texture = m_uniform_sets[i].textures[j];
+
+                    if (uniform_texture.name == name)
+                    {
+                        return i;
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 
     void Material::UpdateUniformMember(const String& name, const void* data, int size)

@@ -296,18 +296,35 @@ namespace Viry3D
     void Camera::BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer)
     {
         const Ref<Material>& material = renderer->GetMaterial();
+        const Ref<Material>& instance_material = renderer->GetInstanceMaterial();
         const Ref<Shader>& shader = material->GetShader();
 
         int index_offset;
         int index_count;
         renderer->GetIndexRange(index_offset, index_count);
 
+        Vector<VkDescriptorSet> descriptor_sets = material->GetDescriptorSets();
+        
+        if (instance_material)
+        {
+            const Vector<VkDescriptorSet>& instance_descriptor_sets = instance_material->GetDescriptorSets();
+            const Map<String, MaterialProperty>& instance_properties = instance_material->GetProperties();
+            for (const auto& i : instance_properties)
+            {
+                int instance_set_index = instance_material->FindUniformSetIndex(i.second.name);
+                if (instance_set_index >= 0)
+                {
+                    descriptor_sets[instance_set_index] = instance_descriptor_sets[instance_set_index];
+                }
+            }
+        }
+
         Display::GetDisplay()->BuildInstanceCmd(
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
             shader->GetPipeline(m_render_pass),
-            material->GetDescriptorSets(),
+            descriptor_sets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),
             m_viewport_rect,

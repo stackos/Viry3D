@@ -17,8 +17,11 @@
 
 #pragma once
 
+#include "Display.h"
 #include "memory/Ref.h"
 #include "container/List.h"
+#include "math/Matrix4x4.h"
+#include "string/String.h"
 
 namespace Viry3D
 {
@@ -36,14 +39,17 @@ namespace Viry3D
         virtual void GetIndexRange(int& index_offset, int& index_count) const = 0;
         virtual void Update();
         const Ref<Material>& GetMaterial() const { return m_material; }
+        const Ref<Material>& GetInstanceMaterial() const { return m_instance_material; }
         void SetMaterial(const Ref<Material>& material);
         void OnAddToCamera(Camera* camera);
         void OnRemoveFromCamera(Camera* camera);
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty();
+        void SetInstanceMatrix(const String& name, const Matrix4x4& mat);
 
     private:
         Ref<Material> m_material;
+        Ref<Material> m_instance_material;
         List<Camera*> m_cameras;
     };
 }

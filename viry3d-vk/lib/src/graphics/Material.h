@@ -18,9 +18,11 @@
 #pragma once
 
 #include "Display.h"
+#include "Color.h"
 #include "container/List.h"
 #include "container/Map.h"
 #include "math/Matrix4x4.h"
+#include "math/Vector4.h"
 #include "string/String.h"
 
 namespace Viry3D
@@ -28,38 +30,37 @@ namespace Viry3D
     class Shader;
     class Renderer;
 
-    class Material
+    struct MaterialProperty
     {
-    private:
-        struct Property
+        enum class Type
         {
-            enum class Type
-            {
-                Matrix,
-                Vector,
-                Color,
-                Float,
-                Int,
-                Texture,
-            };
-
-            union Data
-            {
-                float matrix[16];
-                float vector[4];
-                float color[4];
-                float floatValue;
-                int intValue;
-            };
-
-            String name;
-            Type type;
-            Data data;
-            Ref<Texture> texture;
-            int size;
-            bool dirty;
+            Matrix,
+            Vector,
+            Color,
+            Float,
+            Int,
+            Texture,
         };
 
+        union Data
+        {
+            float matrix[16];
+            float vector[4];
+            float color[4];
+            float floatValue;
+            int intValue;
+        };
+
+        String name;
+        Type type;
+        Data data;
+        Ref<Texture> texture;
+        int size;
+        bool dirty;
+    };
+
+    class Material
+    {
     public:
         Material(const Ref<Shader>& shader);
         ~Material();
@@ -69,15 +70,21 @@ namespace Viry3D
         void OnSetRenderer(Renderer* renderer);
         void OnUnSetRenderer(Renderer* renderer);
         const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
-        void SetMatrix(const String& name, const Matrix4x4& mat);
+        void SetMatrix(const String& name, const Matrix4x4& value);
+        void SetVector(const String& name, const Vector4& value);
+        void SetColor(const String& name, const Color& value);
+        void SetFloat(const String& name, float value);
+        void SetInt(const String& name, int value);
         void SetTexture(const String& name, const Ref<Texture>& texture);
         void UpdateUniformSets();
+        int FindUniformSetIndex(const String& name);
+        const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
 
     private:
         template <class T>
-        void SetProperty(const String& name, const T& v, Property::Type type)
+        void SetProperty(const String& name, const T& v, MaterialProperty::Type type)
         {
-            Property* property_ptr;
+            MaterialProperty* property_ptr;
             if (m_properties.TryGet(name, &property_ptr))
             {
                 Memory::Copy(&property_ptr->data, &v, sizeof(v));
@@ -85,7 +92,7 @@ namespace Viry3D
             }
             else
             {
-                Property property;
+                MaterialProperty property;
                 property.name = name;
                 property.type = type;
                 Memory::Copy(&property.data, &v, sizeof(v));
@@ -103,6 +110,6 @@ namespace Viry3D
         List<Renderer*> m_renderers;
         Vector<VkDescriptorSet> m_descriptor_sets;
         Vector<UniformSet> m_uniform_sets;
-        Map<String, Property> m_properties;
+        Map<String, MaterialProperty> m_properties;
     };
 }

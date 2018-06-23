@@ -29,7 +29,6 @@
 using namespace Viry3D;
 
 // TODO:
-// - per instance uniform buffer
 // - gen mipmaps
 // - load cubemap
 
@@ -38,6 +37,8 @@ class App
 public:
     Camera* m_camera;
     Material* m_material;
+    MeshRenderer* m_renderer;
+    MeshRenderer* m_renderer2;
     float m_deg = 0;
 
     App()
@@ -66,7 +67,7 @@ void main()
         String fs = R"(
 precision mediump float;
       
-UniformTexture(0, 1) uniform sampler2D u_texture;
+UniformTexture(1, 0) uniform sampler2D u_texture;
 
 Input(0) vec2 v_uv;
 
@@ -79,6 +80,7 @@ void main()
 )";
         
         auto renderer = RefMake<MeshRenderer>();
+        m_renderer = renderer.get();
 
         RenderState render_state;
         auto shader = RefMake<Shader>(
@@ -88,8 +90,8 @@ void main()
             Vector<String>(),
             render_state);
         auto material = RefMake<Material>(shader);
-        renderer->SetMaterial(material);
         m_material = material.get();
+        renderer->SetMaterial(material);
 
         Vector<Vertex> vertices(4);
         Memory::Zero(&vertices[0], vertices.SizeInBytes());
@@ -110,6 +112,13 @@ void main()
 
         auto texture = Texture::LoadTexture2DFromFile(Application::DataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
         m_material->SetTexture("u_texture", texture);
+
+        renderer = RefMake<MeshRenderer>();
+        m_renderer2 = renderer.get();
+
+        renderer->SetMaterial(material);
+        renderer->SetMesh(mesh);
+        m_camera->AddRenderer(renderer);
     }
 
     ~App()
@@ -126,7 +135,11 @@ void main()
         Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);
         Matrix4x4 mvp = projection * view * model;
 
-        m_material->SetMatrix("mvp", mvp);
+        m_renderer->SetInstanceMatrix("mvp", mvp);
+
+        model = Matrix4x4::Translation(Vector3(-2, 0, 0)) * Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, m_deg)));
+        mvp = projection * view * model;
+        m_renderer2->SetInstanceMatrix("mvp", mvp);
     }
 };
 
