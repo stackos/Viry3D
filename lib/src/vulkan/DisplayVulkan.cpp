@@ -624,7 +624,6 @@ namespace Viry3D
 
 		if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 		{
-			/* Make sure anything that was copying from this image has completed */
 			image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 		}
 
@@ -640,7 +639,6 @@ namespace Viry3D
 
 		if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 		{
-			/* Make sure any Copy or CPU writes to image are flushed */
 			image_memory_barrier.dstAccessMask =
 				VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 		}

@@ -27,17 +27,34 @@ namespace Viry3D
         friend class DisplayPrivate;
 
     public:
-        static Ref<Texture> LoadFromFile(const String& path, VkFilter filter_mode, VkSamplerAddressMode wrap_mode, bool gen_mipmap);
-        static Ref<Texture> CreateFromMemory(const ByteBuffer& pixels, int width, int height, int bpp, VkFilter filter_mode, VkSamplerAddressMode wrap_mode, bool gen_mipmap);
+        static Ref<Texture> LoadTexture2DFromFile(
+            const String& path,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool gen_mipmap);
+        static Ref<Texture> CreateTexture2DFromMemory(
+            const ByteBuffer& pixels,
+            int width,
+            int height,
+            int bpp,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool gen_mipmap,
+            bool dynamic);
         ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
         VkFormat GetFormat() const { return m_format; }
         VkImage GetImage() const { return m_image; }
         VkImageView GetImageView() const { return m_image_view; }
+        VkSampler GetSampler() const { return m_sampler; }
 
     private:
         Texture();
+        void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
+        void CopyBufferToImageBegin();
+        void CopyBufferToImageEnd();
+        void GenMipmaps();
 
     private:
         int m_width;
@@ -47,5 +64,10 @@ namespace Viry3D
         VkImageView m_image_view;
         VkDeviceMemory m_memory;
         VkMemoryAllocateInfo m_memory_info;
+        VkSampler m_sampler;
+        Ref<BufferObject> m_image_buffer;
+        int m_mipmap_level_count;
+        bool m_dynamic;
+        bool m_cubemap;
     };
 }

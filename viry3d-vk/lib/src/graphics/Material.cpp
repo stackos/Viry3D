@@ -78,14 +78,41 @@ namespace Viry3D
         this->SetProperty(name, mat, Property::Type::Matrix);
     }
 
+    void Material::SetTexture(const String& name, const Ref<Texture>& texture)
+    {
+        Property* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            property_ptr->texture = texture;
+            property_ptr->dirty = true;
+        }
+        else
+        {
+            Property property;
+            property.name = name;
+            property.type = Property::Type::Texture;
+            property.texture = texture;
+            property.dirty = true;
+            m_properties.Add(name, property);
+        }
+    }
+
     void Material::UpdateUniformSets()
     {
-        for (auto i : m_properties)
+        for (auto& i : m_properties)
         {
             if (i.second.dirty)
             {
                 i.second.dirty = false;
-                this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size);
+
+                if (i.second.type == Property::Type::Texture)
+                {
+                    this->UpdateUniformTexture(i.second.name, i.second.texture);
+                }
+                else
+                {
+                    this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size);
+                }
             }
         }
     }
@@ -109,6 +136,25 @@ namespace Viry3D
                         Display::GetDisplay()->UpdateBuffer(buffer.buffer, member.offset, data, size);
                         return;
                     }
+                }
+            }
+        }
+    }
+
+    void Material::UpdateUniformTexture(const String& name, const Ref<Texture>& texture)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            Vector<VkDescriptorSetLayoutBinding> layout_bindings;
+
+            for (int j = 0; j < m_uniform_sets[i].textures.Size(); ++j)
+            {
+                const auto& uniform_texture = m_uniform_sets[i].textures[j];
+
+                if (uniform_texture.name == name)
+                {
+                    Display::GetDisplay()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, texture);
+                    return;
                 }
             }
         }

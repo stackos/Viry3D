@@ -18,6 +18,7 @@
 #include "Image.h"
 #include "io/File.h"
 #include "memory/Memory.h"
+#include <assert.h>
 
 extern "C"
 {
@@ -196,6 +197,10 @@ namespace Viry3D
                     pPixel += 4;
                 }
             }
+        }
+        else
+        {
+            assert(!"color type not support");
         }
 
         png_destroy_read_struct(&png_ptr, &info_ptr, 0);

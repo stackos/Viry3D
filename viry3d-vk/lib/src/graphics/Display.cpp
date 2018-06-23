@@ -107,6 +107,7 @@ namespace Viry3D
         VkSurfaceFormatKHR m_surface_format;
         VkSwapchainKHR m_swapchain = nullptr;
         Vector<SwapchainImageResources> m_swapchain_image_resources;
+        VkFence m_image_fence = nullptr;
         VkFence m_draw_complete_fence = nullptr;
         VkSemaphore m_image_acquired_semaphore = nullptr;
         VkSemaphore m_draw_complete_semaphore = nullptr;
@@ -134,6 +135,7 @@ namespace Viry3D
 
             this->DestroySizeDependentResources();
 
+            vkDestroyFence(m_device, m_image_fence, nullptr);
             vkDestroyFence(m_device, m_draw_complete_fence, nullptr);
             vkDestroySemaphore(m_device, m_image_acquired_semaphore, nullptr);
             vkDestroySemaphore(m_device, m_draw_complete_semaphore, nullptr);
@@ -665,7 +667,9 @@ namespace Viry3D
             semaphore_info.pNext = nullptr;
             semaphore_info.flags = 0;
 
-            VkResult err = vkCreateFence(m_device, &fence_info, nullptr, &m_draw_complete_fence);
+            VkResult err = vkCreateFence(m_device, &fence_info, nullptr, &m_image_fence);
+            assert(!err);
+            err = vkCreateFence(m_device, &fence_info, nullptr, &m_draw_complete_fence);
             assert(!err);
             err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_image_acquired_semaphore);
             assert(!err);
@@ -695,7 +699,9 @@ namespace Viry3D
                     VK_COMPONENT_SWIZZLE_IDENTITY,
                     VK_COMPONENT_SWIZZLE_IDENTITY,
                     VK_COMPONENT_SWIZZLE_IDENTITY
-                });
+                },
+                1,
+                false);
         }
 
         void DestroySizeDependentResources()
@@ -1126,7 +1132,9 @@ namespace Viry3D
             VkFormat format,
             VkImageUsageFlags usage,
             VkImageAspectFlags aspect_flag,
-            const VkComponentMapping& component)
+            const VkComponentMapping& component,
+            int mipmap_level_count,
+            bool cubemap)
         {
             Ref<Texture> texture = Ref<Texture>(new Texture());
             texture->m_width = width;
@@ -1137,12 +1145,12 @@ namespace Viry3D
             Memory::Zero(&image_info, sizeof(image_info));
             image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
             image_info.pNext = nullptr;
-            image_info.flags = 0;
+            image_info.flags = cubemap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
             image_info.imageType = type;
             image_info.format = format;
             image_info.extent = { (uint32_t) width, (uint32_t) height, 1 };
-            image_info.mipLevels = 1;
-            image_info.arrayLayers = 1;
+            image_info.mipLevels = mipmap_level_count;
+            image_info.arrayLayers = cubemap ? 6 : 1;
             image_info.samples = VK_SAMPLE_COUNT_1_BIT;
             image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
             image_info.usage = usage;
@@ -1181,12 +1189,42 @@ namespace Viry3D
             view_info.viewType = view_type;
             view_info.format = format;
             view_info.components = component;
-            view_info.subresourceRange = { aspect_flag, 0, 1, 0, 1 };
+            view_info.subresourceRange = { aspect_flag, 0, (uint32_t) mipmap_level_count, 0, (uint32_t) (cubemap ? 6 : 1) };
             
             err = vkCreateImageView(m_device, &view_info, nullptr, &texture->m_image_view);
             assert(!err);
 
             return texture;
+        }
+
+        void CreateSampler(
+            const Ref<Texture>& texture,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode)
+        {
+            VkSamplerCreateInfo sampler_info;
+            Memory::Zero(&sampler_info, sizeof(sampler_info));
+            sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+            sampler_info.pNext = nullptr;
+            sampler_info.flags = 0;
+            sampler_info.magFilter = filter_mode;
+            sampler_info.minFilter = filter_mode;
+            sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            sampler_info.addressModeU = wrap_mode;
+            sampler_info.addressModeV = wrap_mode;
+            sampler_info.addressModeW = wrap_mode;
+            sampler_info.mipLodBias = 0.0f;
+            sampler_info.anisotropyEnable = VK_FALSE;
+            sampler_info.maxAnisotropy = 1;
+            sampler_info.compareEnable = VK_FALSE;
+            sampler_info.compareOp = VK_COMPARE_OP_NEVER;
+            sampler_info.minLod = 0.0f;
+            sampler_info.maxLod = texture->m_mipmap_level_count > 1 ? (float) texture->m_mipmap_level_count : 0.0f;
+            sampler_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+            sampler_info.unnormalizedCoordinates = VK_FALSE;
+
+            VkResult err = vkCreateSampler(m_device, &sampler_info, nullptr, &texture->m_sampler);
+            assert(!err);
         }
 
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
@@ -1249,6 +1287,124 @@ namespace Viry3D
             Memory::Copy(map_data, data, size);
 
             vkUnmapMemory(m_device, buffer->memory);
+        }
+
+        void BeginImageCmd()
+        {
+            VkCommandBufferBeginInfo cmd_info;
+            cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmd_info.pNext = nullptr;
+            cmd_info.flags = 0;
+            cmd_info.pInheritanceInfo = nullptr;
+
+            VkResult err = vkBeginCommandBuffer(m_image_cmd, &cmd_info);
+            assert(!err);
+        }
+
+        void EndImageCmd()
+        {
+            VkResult err = vkEndCommandBuffer(m_image_cmd);
+            assert(!err);
+
+            VkSubmitInfo submit_info;
+            Memory::Zero(&submit_info, sizeof(submit_info));
+            submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submit_info.pNext = nullptr;
+            submit_info.waitSemaphoreCount = 0;
+            submit_info.pWaitSemaphores = nullptr;
+            submit_info.pWaitDstStageMask = nullptr;
+            submit_info.commandBufferCount = 1;
+            submit_info.pCommandBuffers = &m_image_cmd;
+            submit_info.signalSemaphoreCount = 0;
+            submit_info.pSignalSemaphores = nullptr;
+
+            err = vkResetFences(m_device, 1, &m_image_fence);
+            assert(!err);
+
+            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_image_fence);
+            assert(!err);
+
+            err = vkWaitForFences(m_device, 1, &m_image_fence, VK_TRUE, UINT64_MAX);
+            assert(!err);
+        }
+
+        void SetImageLayout(
+            VkImage image,
+            const VkImageSubresourceRange& subresource_range,
+            VkImageLayout old_image_layout,
+            VkImageLayout new_image_layout,
+            VkAccessFlagBits src_access_mask,
+            VkPipelineStageFlags src_stage,
+            VkPipelineStageFlags dest_stage)
+        {
+            VkImageMemoryBarrier barrier_info;
+            Memory::Zero(&barrier_info, sizeof(barrier_info));
+            barrier_info.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier_info.pNext = NULL;
+            barrier_info.srcAccessMask = src_access_mask;
+            barrier_info.dstAccessMask = 0;
+            barrier_info.oldLayout = old_image_layout;
+            barrier_info.newLayout = new_image_layout;
+            barrier_info.srcQueueFamilyIndex = m_graphics_queue_family_index;
+            barrier_info.dstQueueFamilyIndex = m_graphics_queue_family_index;
+            barrier_info.image = image;
+            barrier_info.subresourceRange = subresource_range;
+
+            switch (new_image_layout)
+            {
+                case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+                    barrier_info.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    break;
+
+                case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+                    barrier_info.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    break;
+
+                case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+                    barrier_info.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                    break;
+
+                case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+                    barrier_info.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+                    break;
+
+                case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+                    barrier_info.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    break;
+
+                case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+                    barrier_info.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+                    break;
+
+                default:
+                    barrier_info.dstAccessMask = 0;
+                    break;
+            }
+
+            vkCmdPipelineBarrier(m_image_cmd, src_stage, dest_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier_info);
+        }
+
+        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, VkImage image, int x, int y, int w, int h, int face, int level)
+        {
+            VkBufferImageCopy copy;
+            Memory::Zero(&copy, sizeof(copy));
+            copy.bufferOffset = 0;
+            copy.bufferRowLength = 0;
+            copy.bufferImageHeight = 0;
+            copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) face, 1 };
+            copy.imageOffset.x = x;
+            copy.imageOffset.y = y;
+            copy.imageOffset.z = 0;
+            copy.imageExtent.width = w;
+            copy.imageExtent.height = h;
+            copy.imageExtent.depth = 1;
+
+            vkCmdCopyBufferToImage(m_image_cmd,
+                image_buffer->buffer,
+                image,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                1,
+                &copy);
         }
 
         void CreateSpirvShaderModule(const Vector<unsigned int>& spirv, VkShaderModule* module)
@@ -1762,6 +1918,29 @@ namespace Viry3D
             vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
         }
 
+        void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture)
+        {
+            VkDescriptorImageInfo image_info;
+            image_info.sampler = texture->GetSampler();
+            image_info.imageView = texture->GetImageView();
+            image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+            VkWriteDescriptorSet desc_write;
+            Memory::Zero(&desc_write, sizeof(desc_write));
+            desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            desc_write.pNext = nullptr;
+            desc_write.dstSet = descriptor_set;
+            desc_write.dstBinding = binding;
+            desc_write.dstArrayElement = 0;
+            desc_write.descriptorCount = 1;
+            desc_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            desc_write.pImageInfo = &image_info;
+            desc_write.pBufferInfo = nullptr;
+            desc_write.pTexelBufferView = nullptr;
+
+            vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
+        }
+
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,
@@ -2174,6 +2353,11 @@ namespace Viry3D
             uniform_sets_out);
     }
 
+    void Display::UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture)
+    {
+        m_private->UpdateUniformTexture(descriptor_set, binding, texture);
+    }
+
     Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
     {
         return m_private->CreateBuffer(data, size, usage);
@@ -2211,5 +2395,72 @@ namespace Viry3D
             index_buffer,
             index_offset,
             index_count);
+    }
+
+    Ref<Texture> Display::CreateTexture(
+        VkImageType type,
+        VkImageViewType view_type,
+        int width,
+        int height,
+        VkFormat format,
+        VkImageUsageFlags usage,
+        VkImageAspectFlags aspect_flag,
+        const VkComponentMapping& component,
+        int mipmap_level_count,
+        bool cubemap)
+    {
+        return m_private->CreateTexture(
+            type,
+            view_type,
+            width,
+            height,
+            format,
+            usage,
+            aspect_flag,
+            component,
+            mipmap_level_count,
+            cubemap);
+    }
+
+    void Display::CreateSampler(
+        const Ref<Texture>& texture,
+        VkFilter filter_mode,
+        VkSamplerAddressMode wrap_mode)
+    {
+        m_private->CreateSampler(texture, filter_mode, wrap_mode);
+    }
+
+    void Display::BeginImageCmd()
+    {
+        m_private->BeginImageCmd();
+    }
+
+    void Display::EndImageCmd()
+    {
+        m_private->EndImageCmd();
+    }
+
+    void Display::SetImageLayout(
+        VkImage image,
+        const VkImageSubresourceRange& subresource_range,
+        VkImageLayout old_image_layout,
+        VkImageLayout new_image_layout,
+        VkAccessFlagBits src_access_mask,
+        VkPipelineStageFlags src_stage,
+        VkPipelineStageFlags dest_stage)
+    {
+        m_private->SetImageLayout(
+            image,
+            subresource_range,
+            old_image_layout,
+            new_image_layout,
+            src_access_mask,
+            src_stage,
+            dest_stage);
+    }
+
+    void Display::CopyBufferToImage(const Ref<BufferObject>& image_buffer, VkImage image, int x, int y, int w, int h, int face, int level)
+    {
+        m_private->CopyBufferToImage(image_buffer, image, x, y, w, h, face, level);   
     }
 }

@@ -29,14 +29,15 @@
 using namespace Viry3D;
 
 // TODO:
-// - load texture
 // - per instance uniform buffer
+// - gen mipmaps
+// - load cubemap
 
 class App
 {
 public:
     Camera* m_camera;
-    Ref<Material> m_material;
+    Material* m_material;
     float m_deg = 0;
 
     App()
@@ -50,7 +51,7 @@ UniformBuffer(0, 0) uniform UniformBuffer00
 } u_buf_0_0;
 
 Input(0) vec4 a_pos;
-Input(1) vec2 a_uv;
+Input(2) vec2 a_uv;
 
 Output(0) vec2 v_uv;
 
@@ -73,8 +74,7 @@ Output(0) vec4 o_frag;
 
 void main()
 {
-    //o_frag = texture(u_texture, v_uv);
-    o_frag = vec4(1, 1, 1, 1);
+    o_frag = texture(u_texture, v_uv);
 }
 )";
         
@@ -87,15 +87,20 @@ void main()
             fs,
             Vector<String>(),
             render_state);
-        m_material = RefMake<Material>(shader);
-        renderer->SetMaterial(m_material);
-        
+        auto material = RefMake<Material>(shader);
+        renderer->SetMaterial(material);
+        m_material = material.get();
+
         Vector<Vertex> vertices(4);
         Memory::Zero(&vertices[0], vertices.SizeInBytes());
         vertices[0].vertex = Vector3(0, 0, 0);
         vertices[1].vertex = Vector3(0, -1, 0);
         vertices[2].vertex = Vector3(1, -1, 0);
         vertices[3].vertex = Vector3(1, 0, 0);
+        vertices[0].uv = Vector2(0, 0);
+        vertices[1].uv = Vector2(0, 1);
+        vertices[2].uv = Vector2(1, 1);
+        vertices[3].uv = Vector2(1, 0);
 
         Vector<unsigned short> indices({ 0, 1, 2, 0, 2, 3 });
         auto mesh = RefMake<Mesh>(vertices, indices);
@@ -103,19 +108,19 @@ void main()
 
         m_camera->AddRenderer(renderer);
 
-        auto texture = Texture::LoadFromFile(Application::DataPath() + "/texture/logo.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        auto texture = Texture::LoadTexture2DFromFile(Application::DataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        m_material->SetTexture("u_texture", texture);
     }
 
     ~App()
     {
-        m_material.reset();
         Display::GetDisplay()->DestroyCamera(m_camera);
         m_camera = nullptr;
     }
 
     void Update()
     {
-        m_deg += 1;
+        m_deg += 0.1f;
         Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, m_deg)));
         Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
         Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);

@@ -84,6 +84,7 @@ namespace Viry3D
             const Vector<VkDescriptorSetLayout>& descriptor_layouts,
             Vector<VkDescriptorSet>& descriptor_sets,
             Vector<UniformSet>& uniform_sets_out);
+        void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture);
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage);
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
         void BuildInstanceCmd(
@@ -99,6 +100,32 @@ namespace Viry3D
             const Ref<BufferObject>& index_buffer,
             int index_offset,
             int index_count);
+        Ref<Texture> CreateTexture(
+            VkImageType type,
+            VkImageViewType view_type,
+            int width,
+            int height,
+            VkFormat format,
+            VkImageUsageFlags usage,
+            VkImageAspectFlags aspect_flag,
+            const VkComponentMapping& component,
+            int mipmap_level_count,
+            bool cubemap);
+        void CreateSampler(
+            const Ref<Texture>& texture,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode);
+        void BeginImageCmd();
+        void EndImageCmd();
+        void SetImageLayout(
+            VkImage image,
+            const VkImageSubresourceRange& subresource_range,
+            VkImageLayout old_image_layout,
+            VkImageLayout new_image_layout,
+            VkAccessFlagBits src_access_mask,
+            VkPipelineStageFlags src_stage,
+            VkPipelineStageFlags dest_stage);
+        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, VkImage image, int x, int y, int w, int h, int face, int level);
 
     private:
         DisplayPrivate* m_private;

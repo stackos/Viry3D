@@ -55,6 +55,7 @@ namespace Viry3D
             String name;
             Type type;
             Data data;
+            Ref<Texture> texture;
             int size;
             bool dirty;
         };
@@ -69,6 +70,7 @@ namespace Viry3D
         void OnUnSetRenderer(Renderer* renderer);
         const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
         void SetMatrix(const String& name, const Matrix4x4& mat);
+        void SetTexture(const String& name, const Ref<Texture>& texture);
         void UpdateUniformSets();
 
     private:
@@ -93,6 +95,7 @@ namespace Viry3D
             }
         }
         void UpdateUniformMember(const String& name, const void* data, int size);
+        void UpdateUniformTexture(const String& name, const Ref<Texture>& texture);
 
     private:
         Ref<Shader> m_shader;
