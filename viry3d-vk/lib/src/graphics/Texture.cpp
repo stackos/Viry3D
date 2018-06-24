@@ -156,7 +156,7 @@ namespace Viry3D
         }
 
         this->CopyBufferToImageBegin();
-        Display::GetDisplay()->CopyBufferToImage(m_image_buffer, m_image, x, y, w, h, 0, 0);
+        this->CopyBufferToImage(m_image_buffer, x, y, w, h, 0, 0);
         this->CopyBufferToImageEnd();
 
         if (!m_dynamic)
@@ -172,31 +172,114 @@ namespace Viry3D
 
         Display::GetDisplay()->SetImageLayout(
             m_image,
-            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, (uint32_t) (m_cubemap ? 6 : 1) },
             VK_IMAGE_LAYOUT_UNDEFINED,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            (VkAccessFlagBits) 0,
-            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK_PIPELINE_STAGE_TRANSFER_BIT);
+            (VkAccessFlagBits) 0);
     }
     
+    void Texture::CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level)
+    {
+        VkBufferImageCopy copy;
+        Memory::Zero(&copy, sizeof(copy));
+        copy.bufferOffset = 0;
+        copy.bufferRowLength = 0;
+        copy.bufferImageHeight = 0;
+        copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) face, 1 };
+        copy.imageOffset.x = x;
+        copy.imageOffset.y = y;
+        copy.imageOffset.z = 0;
+        copy.imageExtent.width = w;
+        copy.imageExtent.height = h;
+        copy.imageExtent.depth = 1;
+
+        vkCmdCopyBufferToImage(
+            Display::GetDisplay()->GetImageCmd(),
+            image_buffer->buffer,
+            m_image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &copy);
+    }
+
     void Texture::CopyBufferToImageEnd()
     {
         Display::GetDisplay()->SetImageLayout(
             m_image,
-            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, (uint32_t) (m_cubemap ? 6 : 1) },
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-            VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+            VK_ACCESS_TRANSFER_WRITE_BIT);
 
         Display::GetDisplay()->EndImageCmd();
     }
 
     void Texture::GenMipmaps()
     {
-        
+        uint32_t layer_count = m_cubemap ? 6 : 1;
+
+        Display::GetDisplay()->BeginImageCmd();
+
+        Display::GetDisplay()->SetImageLayout(
+            m_image,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, layer_count },
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_ACCESS_SHADER_READ_BIT);
+
+        for (int i = 1; i < m_mipmap_level_count; ++i)
+        {
+            VkImageBlit blit;
+            Memory::Zero(&blit, sizeof(blit));
+            blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            blit.srcSubresource.mipLevel = i - 1;
+            blit.srcSubresource.baseArrayLayer = 0;
+            blit.srcSubresource.layerCount = layer_count;
+            blit.srcOffsets[1].x = Mathf::Max(1, m_width >> (i - 1));
+            blit.srcOffsets[1].y = Mathf::Max(1, m_height >> (i - 1));
+            blit.srcOffsets[1].z = 1;
+
+            blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            blit.dstSubresource.mipLevel = i;
+            blit.dstSubresource.baseArrayLayer = 0;
+            blit.dstSubresource.layerCount = layer_count;
+            blit.dstOffsets[1].x = Mathf::Max(1, m_width >> i);
+            blit.dstOffsets[1].y = Mathf::Max(1, m_height >> i);
+            blit.dstOffsets[1].z = 1;
+
+            Display::GetDisplay()->SetImageLayout(
+                m_image,
+                { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) i, 1, 0, layer_count },
+                VK_IMAGE_LAYOUT_UNDEFINED,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                (VkAccessFlagBits) 0);
+
+            vkCmdBlitImage(
+                Display::GetDisplay()->GetImageCmd(),
+                m_image,
+                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                m_image,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                1,
+                &blit,
+                VK_FILTER_LINEAR);
+
+            Display::GetDisplay()->SetImageLayout(
+                m_image,
+                { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) i, 1, 0, layer_count },
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                VK_ACCESS_TRANSFER_WRITE_BIT);
+        }
+
+        Display::GetDisplay()->SetImageLayout(
+            m_image,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, layer_count },
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_ACCESS_TRANSFER_READ_BIT);
+
+        Display::GetDisplay()->EndImageCmd();
     }
 
     Texture::Texture():

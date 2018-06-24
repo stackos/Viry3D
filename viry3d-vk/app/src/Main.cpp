@@ -29,7 +29,7 @@
 using namespace Viry3D;
 
 // TODO:
-// - gen mipmaps
+// - transform
 // - load cubemap
 
 class App
@@ -38,7 +38,6 @@ public:
     Camera* m_camera;
     Material* m_material;
     MeshRenderer* m_renderer;
-    MeshRenderer* m_renderer2;
     float m_deg = 0;
 
     App()
@@ -95,10 +94,10 @@ void main()
 
         Vector<Vertex> vertices(4);
         Memory::Zero(&vertices[0], vertices.SizeInBytes());
-        vertices[0].vertex = Vector3(0, 0, 0);
-        vertices[1].vertex = Vector3(0, -1, 0);
-        vertices[2].vertex = Vector3(1, -1, 0);
-        vertices[3].vertex = Vector3(1, 0, 0);
+        vertices[0].vertex = Vector3(-0.5f, 0.5f, 0);
+        vertices[1].vertex = Vector3(-0.5f, -0.5f, 0);
+        vertices[2].vertex = Vector3(0.5f, -0.5f, 0);
+        vertices[3].vertex = Vector3(0.5f, 0.5f, 0);
         vertices[0].uv = Vector2(0, 0);
         vertices[1].uv = Vector2(0, 1);
         vertices[2].uv = Vector2(1, 1);
@@ -110,15 +109,15 @@ void main()
 
         m_camera->AddRenderer(renderer);
 
-        auto texture = Texture::LoadTexture2DFromFile(Application::DataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        auto texture = Texture::LoadTexture2DFromFile(Application::DataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
         m_material->SetTexture("u_texture", texture);
 
-        renderer = RefMake<MeshRenderer>();
-        m_renderer2 = renderer.get();
+        Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(80, 0, 0))) * Matrix4x4::Scaling(Vector3(1, 1, 1) * 10);
+        Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
+        Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);
+        Matrix4x4 mvp = projection * view * model;
 
-        renderer->SetMaterial(material);
-        renderer->SetMesh(mesh);
-        m_camera->AddRenderer(renderer);
+        m_renderer->SetInstanceMatrix("mvp", mvp);
     }
 
     ~App()
@@ -130,16 +129,6 @@ void main()
     void Update()
     {
         m_deg += 0.1f;
-        Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, m_deg)));
-        Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
-        Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);
-        Matrix4x4 mvp = projection * view * model;
-
-        m_renderer->SetInstanceMatrix("mvp", mvp);
-
-        model = Matrix4x4::Translation(Vector3(-2, 0, 0)) * Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, 0, m_deg)));
-        mvp = projection * view * model;
-        m_renderer2->SetInstanceMatrix("mvp", mvp);
     }
 };
 

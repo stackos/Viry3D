@@ -122,10 +122,8 @@ namespace Viry3D
             const VkImageSubresourceRange& subresource_range,
             VkImageLayout old_image_layout,
             VkImageLayout new_image_layout,
-            VkAccessFlagBits src_access_mask,
-            VkPipelineStageFlags src_stage,
-            VkPipelineStageFlags dest_stage);
-        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, VkImage image, int x, int y, int w, int h, int face, int level);
+            VkAccessFlagBits src_access_mask);
+        VkCommandBuffer GetImageCmd() const;
 
     private:
         DisplayPrivate* m_private;

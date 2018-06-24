@@ -53,6 +53,7 @@ namespace Viry3D
         Texture();
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
         void CopyBufferToImageBegin();
+        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
         void CopyBufferToImageEnd();
         void GenMipmaps();
 

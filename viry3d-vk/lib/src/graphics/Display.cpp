@@ -1140,6 +1140,7 @@ namespace Viry3D
             texture->m_width = width;
             texture->m_height = height;
             texture->m_format = format;
+            texture->m_mipmap_level_count = mipmap_level_count;
 
             VkImageCreateInfo image_info;
             Memory::Zero(&image_info, sizeof(image_info));
@@ -1333,9 +1334,7 @@ namespace Viry3D
             const VkImageSubresourceRange& subresource_range,
             VkImageLayout old_image_layout,
             VkImageLayout new_image_layout,
-            VkAccessFlagBits src_access_mask,
-            VkPipelineStageFlags src_stage,
-            VkPipelineStageFlags dest_stage)
+            VkAccessFlagBits src_access_mask)
         {
             VkImageMemoryBarrier barrier_info;
             Memory::Zero(&barrier_info, sizeof(barrier_info));
@@ -1381,30 +1380,7 @@ namespace Viry3D
                     break;
             }
 
-            vkCmdPipelineBarrier(m_image_cmd, src_stage, dest_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier_info);
-        }
-
-        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, VkImage image, int x, int y, int w, int h, int face, int level)
-        {
-            VkBufferImageCopy copy;
-            Memory::Zero(&copy, sizeof(copy));
-            copy.bufferOffset = 0;
-            copy.bufferRowLength = 0;
-            copy.bufferImageHeight = 0;
-            copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) face, 1 };
-            copy.imageOffset.x = x;
-            copy.imageOffset.y = y;
-            copy.imageOffset.z = 0;
-            copy.imageExtent.width = w;
-            copy.imageExtent.height = h;
-            copy.imageExtent.depth = 1;
-
-            vkCmdCopyBufferToImage(m_image_cmd,
-                image_buffer->buffer,
-                image,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                1,
-                &copy);
+            vkCmdPipelineBarrier(m_image_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_info);
         }
 
         void CreateSpirvShaderModule(const Vector<unsigned int>& spirv, VkShaderModule* module)
@@ -2445,22 +2421,18 @@ namespace Viry3D
         const VkImageSubresourceRange& subresource_range,
         VkImageLayout old_image_layout,
         VkImageLayout new_image_layout,
-        VkAccessFlagBits src_access_mask,
-        VkPipelineStageFlags src_stage,
-        VkPipelineStageFlags dest_stage)
+        VkAccessFlagBits src_access_mask)
     {
         m_private->SetImageLayout(
             image,
             subresource_range,
             old_image_layout,
             new_image_layout,
-            src_access_mask,
-            src_stage,
-            dest_stage);
+            src_access_mask);
     }
 
-    void Display::CopyBufferToImage(const Ref<BufferObject>& image_buffer, VkImage image, int x, int y, int w, int h, int face, int level)
+    VkCommandBuffer Display::GetImageCmd() const
     {
-        m_private->CopyBufferToImage(image_buffer, image, x, y, w, h, face, level);   
+        return m_private->m_image_cmd;
     }
 }
