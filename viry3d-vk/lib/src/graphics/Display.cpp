@@ -1417,12 +1417,21 @@ namespace Viry3D
                 uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
                 const std::string& name = compiler.get_name(resource.id);
 
-                if (set >= (uint32_t) uniform_sets.Size())
+                UniformSet* set_ptr = nullptr;
+                for (int i = 0; i < uniform_sets.Size(); ++i)
                 {
-                    uniform_sets.Resize(set + 1);
+                    if (set == uniform_sets[i].set)
+                    {
+                        set_ptr = &uniform_sets[i];
+                        break;
+                    }
                 }
-                UniformSet& uniform_set = uniform_sets[set];
-                uniform_set.set = (int) set;
+                if (set_ptr == nullptr)
+                {
+                    uniform_sets.Add(UniformSet());
+                    set_ptr = &uniform_sets[uniform_sets.Size() - 1];
+                    set_ptr->set = set;
+                }
 
                 UniformBuffer buffer;
                 buffer.name = name.c_str();
@@ -1455,7 +1464,7 @@ namespace Viry3D
 
                 buffer.size = buffer.members[max_offset_member].offset + buffer.members[max_offset_member].size;
 
-                uniform_set.buffers.Add(buffer);
+                set_ptr->buffers.Add(buffer);
             }
 
             for (const auto& resource : resources.sampled_images)
@@ -1464,19 +1473,28 @@ namespace Viry3D
                 uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
                 const std::string& name = resource.name;
 
-                if (set >= (uint32_t) uniform_sets.Size())
+                UniformSet* set_ptr = nullptr;
+                for (int i = 0; i < uniform_sets.Size(); ++i)
                 {
-                    uniform_sets.Resize(set + 1);
+                    if (set == uniform_sets[i].set)
+                    {
+                        set_ptr = &uniform_sets[i];
+                        break;
+                    }
                 }
-                UniformSet& uniform_set = uniform_sets[set];
-                uniform_set.set = (int) set;
+                if (set_ptr == nullptr)
+                {
+                    uniform_sets.Add(UniformSet());
+                    set_ptr = &uniform_sets[uniform_sets.Size() - 1];
+                    set_ptr->set = set;
+                }
 
                 UniformTexture texture;
                 texture.name = name.c_str();
                 texture.binding = (int) binding;
                 texture.stage = shader_type;
 
-                uniform_set.textures.Add(texture);
+                set_ptr->textures.Add(texture);
             }
         }
 
@@ -1515,6 +1533,23 @@ namespace Viry3D
 
             this->CreateGlslShaderModule(vs, VK_SHADER_STAGE_VERTEX_BIT, vs_module, uniform_sets);
             this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, fs_module, uniform_sets);
+
+            // sort by set
+            List<UniformSet*> sets;
+            for (int i = 0; i < uniform_sets.Size(); ++i)
+            {
+                sets.AddLast(&uniform_sets[i]);
+            }
+            sets.Sort([](const UniformSet* a, const UniformSet* b) {
+                return a->set < b->set;
+            });
+
+            Vector<UniformSet> sets_sorted;
+            for (auto i : sets)
+            {
+                sets_sorted.Add(*i);
+            }
+            uniform_sets = sets_sorted;
         }
 
         void CreatePipelineLayout(
@@ -1857,8 +1892,6 @@ namespace Viry3D
 
             uniform_sets_out = uniform_sets;
 
-            Vector<VkWriteDescriptorSet> desc_writes;
-
             for (int i = 0; i < uniform_sets_out.Size(); ++i)
             {
                 Vector<VkDescriptorSetLayoutBinding> layout_bindings;
@@ -1887,11 +1920,9 @@ namespace Viry3D
                     desc_write.pBufferInfo = &buffer_info;
                     desc_write.pTexelBufferView = nullptr;
 
-                    desc_writes.Add(desc_write);
+                    vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
                 }
             }
-
-            vkUpdateDescriptorSets(m_device, (uint32_t) desc_writes.Size(), &desc_writes[0], 0, nullptr);
         }
 
         void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture)

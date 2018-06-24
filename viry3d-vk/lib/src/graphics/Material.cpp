@@ -176,8 +176,6 @@ namespace Viry3D
     {
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
-            Vector<VkDescriptorSetLayoutBinding> layout_bindings;
-
             for (int j = 0; j < m_uniform_sets[i].buffers.Size(); ++j)
             {
                 const auto& buffer = m_uniform_sets[i].buffers[j];
@@ -200,8 +198,6 @@ namespace Viry3D
     {
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
-            Vector<VkDescriptorSetLayoutBinding> layout_bindings;
-
             for (int j = 0; j < m_uniform_sets[i].textures.Size(); ++j)
             {
                 const auto& uniform_texture = m_uniform_sets[i].textures[j];

@@ -29,7 +29,7 @@
 using namespace Viry3D;
 
 // TODO:
-// - transform
+// - fix multi uniform sets problem
 // - load cubemap
 
 class App
@@ -47,8 +47,13 @@ public:
         String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
-	mat4 mvp;
-} u_buf_0_0;
+	mat4 u_view_projection_matrix;
+} buf_0_0;
+
+UniformBuffer(1, 0) uniform UniformBuffer10
+{
+	mat4 u_model_matrix;
+} buf_1_0;
 
 Input(0) vec4 a_pos;
 Input(2) vec2 a_uv;
@@ -57,7 +62,7 @@ Output(0) vec2 v_uv;
 
 void main()
 {
-	gl_Position = a_pos * u_buf_0_0.mvp;
+	gl_Position = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_projection_matrix;
 	v_uv = a_uv;
 
 	vulkan_convert();
@@ -66,7 +71,7 @@ void main()
         String fs = R"(
 precision mediump float;
       
-UniformTexture(1, 0) uniform sampler2D u_texture;
+UniformTexture(0, 1) uniform sampler2D u_texture;
 
 Input(0) vec2 v_uv;
 
@@ -115,9 +120,10 @@ void main()
         Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(80, 0, 0))) * Matrix4x4::Scaling(Vector3(1, 1, 1) * 10);
         Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
         Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);
-        Matrix4x4 mvp = projection * view * model;
+        Matrix4x4 view_projection = projection * view;
 
-        m_renderer->SetInstanceMatrix("mvp", mvp);
+        m_material->SetMatrix("u_view_projection_matrix", view_projection);
+        m_renderer->SetInstanceMatrix("u_model_matrix", model);
     }
 
     ~App()
