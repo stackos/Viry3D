@@ -29,7 +29,6 @@
 using namespace Viry3D;
 
 // TODO:
-// - fix multi uniform sets problem
 // - load cubemap
 
 class App

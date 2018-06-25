@@ -27,6 +27,31 @@
 
 namespace Viry3D
 {
+    ByteBuffer Texture::LoadImageFromFile(const String& path, int& width, int& height, int& bpp)
+    {
+        ByteBuffer pixels;
+
+        if (File::Exist(path))
+        {
+            if (path.EndsWith(".png"))
+            {
+                ByteBuffer png = File::ReadAllBytes(path);
+                pixels = Image::LoadPNG(png, width, height, bpp);
+            }
+            else if (path.EndsWith(".jpg"))
+            {
+                ByteBuffer jpg = File::ReadAllBytes(path);
+                pixels = Image::LoadJPEG(jpg, width, height, bpp);
+            }
+            else
+            {
+                assert(!"image file format not support");
+            }
+        }
+
+        return pixels;
+    }
+
     Ref<Texture> Texture::LoadTexture2DFromFile(
         const String& path,
         VkFilter filter_mode,
@@ -35,29 +60,13 @@ namespace Viry3D
     {
         Ref<Texture> texture;
 
-        if (path.EndsWith(".png"))
+        int width;
+        int height;
+        int bpp;
+        ByteBuffer pixels = Texture::LoadImageFromFile(path, width, height, bpp);
+        if (pixels.Size() > 0)
         {
-            ByteBuffer png = File::ReadAllBytes(path);
-            
-            int width;
-            int height;
-            int bpp;
-            ByteBuffer pixels = Image::LoadPNG(png, width, height, bpp);
             texture = Texture::CreateTexture2DFromMemory(pixels, width, height, bpp, filter_mode, wrap_mode, gen_mipmap, false);
-        }
-        else if (path.EndsWith(".jpg"))
-        {
-            ByteBuffer jpg = File::ReadAllBytes(path);
-
-            int width;
-            int height;
-            int bpp;
-            ByteBuffer pixels = Image::LoadJPEG(jpg, width, height, bpp);
-            texture = Texture::CreateTexture2DFromMemory(pixels, width, height, bpp, filter_mode, wrap_mode, gen_mipmap, false);
-        }
-        else
-        {
-            assert(!"image file format not support");
         }
 
         return texture;

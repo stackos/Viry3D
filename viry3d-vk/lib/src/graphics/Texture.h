@@ -27,6 +27,7 @@ namespace Viry3D
         friend class DisplayPrivate;
 
     public:
+        static ByteBuffer LoadImageFromFile(const String& path, int& width, int& height, int& bpp);
         static Ref<Texture> LoadTexture2DFromFile(
             const String& path,
             VkFilter filter_mode,
@@ -48,10 +49,10 @@ namespace Viry3D
         VkImage GetImage() const { return m_image; }
         VkImageView GetImageView() const { return m_image_view; }
         VkSampler GetSampler() const { return m_sampler; }
+        void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
 
     private:
         Texture();
-        void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
         void CopyBufferToImageBegin();
         void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
         void CopyBufferToImageEnd();
