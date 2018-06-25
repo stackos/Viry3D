@@ -35,7 +35,6 @@ class App
 {
 public:
     Camera* m_camera;
-    Material* m_material;
     MeshRenderer* m_renderer;
     float m_deg = 0;
 
@@ -93,36 +92,122 @@ void main()
             Vector<String>(),
             render_state);
         auto material = RefMake<Material>(shader);
-        m_material = material.get();
         renderer->SetMaterial(material);
 
-        Vector<Vertex> vertices(4);
+        Vector<Vertex> vertices(8);
         Memory::Zero(&vertices[0], vertices.SizeInBytes());
-        vertices[0].vertex = Vector3(-0.5f, 0.5f, 0);
-        vertices[1].vertex = Vector3(-0.5f, -0.5f, 0);
-        vertices[2].vertex = Vector3(0.5f, -0.5f, 0);
-        vertices[3].vertex = Vector3(0.5f, 0.5f, 0);
+        vertices[0].vertex = Vector3(-0.5f, 0.5f, -0.5f);
+        vertices[1].vertex = Vector3(-0.5f, -0.5f, -0.5f);
+        vertices[2].vertex = Vector3(0.5f, -0.5f, -0.5f);
+        vertices[3].vertex = Vector3(0.5f, 0.5f, -0.5f);
+        vertices[4].vertex = Vector3(-0.5f, 0.5f, 0.5f);
+        vertices[5].vertex = Vector3(-0.5f, -0.5f, 0.5f);
+        vertices[6].vertex = Vector3(0.5f, -0.5f, 0.5f);
+        vertices[7].vertex = Vector3(0.5f, 0.5f, 0.5f);
         vertices[0].uv = Vector2(0, 0);
         vertices[1].uv = Vector2(0, 1);
         vertices[2].uv = Vector2(1, 1);
         vertices[3].uv = Vector2(1, 0);
+        vertices[4].uv = Vector2(1, 0);
+        vertices[5].uv = Vector2(1, 1);
+        vertices[6].uv = Vector2(0, 1);
+        vertices[7].uv = Vector2(0, 0);
 
-        Vector<unsigned short> indices({ 0, 1, 2, 0, 2, 3 });
+        Vector<unsigned short> indices({
+            0, 1, 2, 0, 2, 3,
+            3, 2, 6, 3, 6, 7,
+            7, 6, 5, 7, 5, 4,
+            4, 5, 1, 4, 1, 0,
+            4, 0, 3, 4, 3, 7,
+            1, 5, 6, 1, 6, 2
+            });
         auto mesh = RefMake<Mesh>(vertices, indices);
         renderer->SetMesh(mesh);
 
         m_camera->AddRenderer(renderer);
 
         auto texture = Texture::LoadTexture2DFromFile(Application::DataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
-        m_material->SetTexture("u_texture", texture);
+        material->SetTexture("u_texture", texture);
 
-        Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(80, 0, 0))) * Matrix4x4::Scaling(Vector3(1, 1, 1) * 10);
-        Matrix4x4 view = Matrix4x4::LookTo(Vector3(0, 0, -5), Vector3(0, 0, 1), Vector3(0, 1, 0));
+        Vector3 camera_pos(0, 0, -5);
+        Matrix4x4 view = Matrix4x4::LookTo(camera_pos, Vector3(0, 0, 1), Vector3(0, 1, 0));
         Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);
         Matrix4x4 view_projection = projection * view;
+        material->SetMatrix("u_view_projection_matrix", view_projection);
 
-        m_material->SetMatrix("u_view_projection_matrix", view_projection);
-        m_renderer->SetInstanceMatrix("u_model_matrix", model);
+        // sky box
+        vs = R"(
+UniformBuffer(0, 0) uniform UniformBuffer00
+{
+	mat4 u_view_projection_matrix;
+} buf_0_0;
+
+UniformBuffer(1, 0) uniform UniformBuffer10
+{
+	mat4 u_model_matrix;
+} buf_1_0;
+
+Input(0) vec4 a_pos;
+
+Output(0) vec3 v_uv;
+
+void main()
+{
+	gl_Position = (a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_projection_matrix).xyww;
+	v_uv = a_pos.xyz;
+
+	vulkan_convert();
+}
+)";
+        fs = R"(
+precision mediump float;
+      
+UniformTexture(0, 1) uniform samplerCube u_texture;
+
+Input(0) vec3 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    o_frag = texture(u_texture, v_uv);
+}
+)";
+        render_state = RenderState();
+        render_state.cull = RenderState::Cull::Front;
+        render_state.zWrite = RenderState::ZWrite::Off;
+        render_state.queue = (int) RenderState::Queue::Background;
+        shader = RefMake<Shader>(
+            vs,
+            Vector<String>(),
+            fs,
+            Vector<String>(),
+            render_state);
+        material = RefMake<Material>(shader);
+
+        auto cubemap = Texture::CreateCubemap(1024, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
+        cubemap->UpdateCubemapFaceBegin();
+        for (int i = 0; i < 6; ++i)
+        {
+            int width;
+            int height;
+            int bpp;
+            ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::DataPath() + "/texture/dawn/%d.png").CString(), i), width, height, bpp);
+            cubemap->UpdateCubemapFace(pixels, (CubemapFace) i, 0);
+        }
+        cubemap->UpdateCubemapFaceEnd();
+        cubemap->GenMipmaps();
+
+        material->SetTexture("u_texture", cubemap);
+        material->SetMatrix("u_view_projection_matrix", view_projection);
+
+        renderer = RefMake<MeshRenderer>();
+        renderer->SetMaterial(material);
+        renderer->SetMesh(mesh);
+        m_camera->AddRenderer(renderer);
+
+        Matrix4x4 model = Matrix4x4::Translation(camera_pos);
+        renderer->SetInstanceMatrix("u_model_matrix", model);
     }
 
     ~App()
@@ -134,6 +219,9 @@ void main()
     void Update()
     {
         m_deg += 0.1f;
+
+        Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, m_deg, 0)));
+        m_renderer->SetInstanceMatrix("u_model_matrix", model);
     }
 };
 

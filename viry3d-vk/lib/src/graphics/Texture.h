@@ -21,6 +21,20 @@
 
 namespace Viry3D
 {
+    enum class CubemapFace
+    {
+        Unknown = -1,
+
+        PositiveX,
+        NegativeX,
+        PositiveY,
+        NegativeY,
+        PositiveZ,
+        NegativeZ,
+
+        Count
+    };
+
     class Texture
     {
     private:
@@ -37,11 +51,17 @@ namespace Viry3D
             const ByteBuffer& pixels,
             int width,
             int height,
-            int bpp,
+            VkFormat format,
             VkFilter filter_mode,
             VkSamplerAddressMode wrap_mode,
             bool gen_mipmap,
             bool dynamic);
+        static Ref<Texture> CreateCubemap(
+            int size,
+            VkFormat format,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool mipmap);
         ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
@@ -50,13 +70,16 @@ namespace Viry3D
         VkImageView GetImageView() const { return m_image_view; }
         VkSampler GetSampler() const { return m_sampler; }
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
+        void UpdateCubemapFaceBegin();
+        void UpdateCubemapFace(const ByteBuffer& pixels, CubemapFace face, int level);
+        void UpdateCubemapFaceEnd();
+        void GenMipmaps();
 
     private:
         Texture();
         void CopyBufferToImageBegin();
         void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
         void CopyBufferToImageEnd();
-        void GenMipmaps();
 
     private:
         int m_width;

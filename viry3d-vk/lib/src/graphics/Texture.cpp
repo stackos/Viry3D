@@ -47,6 +47,21 @@ namespace Viry3D
             {
                 assert(!"image file format not support");
             }
+
+            if (bpp == 24)
+            {
+                int pixel_count = pixels.Size() / 3;
+                ByteBuffer rgba(pixel_count * 4);
+                for (int i = 0; i < pixel_count; i++)
+                {
+                    rgba[i * 4 + 0] = pixels[i * 3 + 0];
+                    rgba[i * 4 + 1] = pixels[i * 3 + 1];
+                    rgba[i * 4 + 2] = pixels[i * 3 + 2];
+                    rgba[i * 4 + 3] = 255;
+                }
+                pixels = rgba;
+                bpp = 32;
+            }
         }
 
         return pixels;
@@ -66,7 +81,22 @@ namespace Viry3D
         ByteBuffer pixels = Texture::LoadImageFromFile(path, width, height, bpp);
         if (pixels.Size() > 0)
         {
-            texture = Texture::CreateTexture2DFromMemory(pixels, width, height, bpp, filter_mode, wrap_mode, gen_mipmap, false);
+            VkFormat format;
+
+            if (bpp == 32)
+            {
+                format = VK_FORMAT_R8G8B8A8_UNORM;
+            }
+            else if (bpp == 8)
+            {
+                format = VK_FORMAT_R8_UNORM;
+            }
+            else
+            {
+                assert(!"texture format not support");
+            }
+
+            texture = Texture::CreateTexture2DFromMemory(pixels, width, height, format, filter_mode, wrap_mode, gen_mipmap, false);
         }
 
         return texture;
@@ -76,44 +106,13 @@ namespace Viry3D
         const ByteBuffer& pixels,
         int width,
         int height,
-        int bpp,
+        VkFormat format,
         VkFilter filter_mode,
         VkSamplerAddressMode wrap_mode,
         bool gen_mipmap,
         bool dynamic)
     {
         Ref<Texture> texture;
-
-        VkFormat format;
-        ByteBuffer pixel_buffer = pixels;
-
-        if (bpp == 32)
-        {
-            format = VK_FORMAT_R8G8B8A8_UNORM;
-        }
-        else if (bpp == 24)
-        {
-            format = VK_FORMAT_R8G8B8A8_UNORM;
-
-            int pixel_count = pixel_buffer.Size() / 3;
-            ByteBuffer rgba(pixel_count * 4);
-            for (int i = 0; i < pixel_count; i++)
-            {
-                rgba[i * 4 + 0] = pixel_buffer[i * 3 + 0];
-                rgba[i * 4 + 1] = pixel_buffer[i * 3 + 1];
-                rgba[i * 4 + 2] = pixel_buffer[i * 3 + 2];
-                rgba[i * 4 + 3] = 255;
-            }
-            pixel_buffer = rgba;
-        }
-        else if (bpp == 8)
-        {
-            format = VK_FORMAT_R8_UNORM;
-        }
-        else
-        {
-            assert(!"texture format not support");
-        }
 
         int mipmap_level_count = 1;
         if (gen_mipmap)
@@ -141,12 +140,48 @@ namespace Viry3D
 
         texture->m_dynamic = dynamic;
 
-        texture->UpdateTexture2D(pixel_buffer, 0, 0, width, height);
+        texture->UpdateTexture2D(pixels, 0, 0, width, height);
 
         if (gen_mipmap)
         {
             texture->GenMipmaps();
         }
+
+        return texture;
+    }
+
+    Ref<Texture> Texture::CreateCubemap(
+        int size,
+        VkFormat format,
+        VkFilter filter_mode,
+        VkSamplerAddressMode wrap_mode,
+        bool mipmap)
+    {
+        Ref<Texture> texture;
+
+        int mipmap_level_count = 1;
+        if (mipmap)
+        {
+            mipmap_level_count = (int) floor(Mathf::Log2((float) size)) + 1;
+        }
+
+        texture = Display::GetDisplay()->CreateTexture(
+            VK_IMAGE_TYPE_2D,
+            VK_IMAGE_VIEW_TYPE_CUBE,
+            size,
+            size,
+            format,
+            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT,
+            {
+                VK_COMPONENT_SWIZZLE_R,
+                VK_COMPONENT_SWIZZLE_G,
+                VK_COMPONENT_SWIZZLE_B,
+                VK_COMPONENT_SWIZZLE_A
+            },
+            mipmap_level_count,
+            true);
+        Display::GetDisplay()->CreateSampler(texture, filter_mode, wrap_mode);
 
         return texture;
     }
@@ -166,6 +201,38 @@ namespace Viry3D
 
         this->CopyBufferToImageBegin();
         this->CopyBufferToImage(m_image_buffer, x, y, w, h, 0, 0);
+        this->CopyBufferToImageEnd();
+
+        if (!m_dynamic)
+        {
+            m_image_buffer->Destroy(device);
+            m_image_buffer.reset();
+        }
+    }
+
+    void Texture::UpdateCubemapFaceBegin()
+    {
+        this->CopyBufferToImageBegin();
+    }
+
+    void Texture::UpdateCubemapFace(const ByteBuffer& pixels, CubemapFace face, int level)
+    {
+        if (!m_image_buffer || m_image_buffer->size < pixels.Size())
+        {
+            m_image_buffer = Display::GetDisplay()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        }
+        else
+        {
+            Display::GetDisplay()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
+        }
+
+        this->CopyBufferToImage(m_image_buffer, 0, 0, m_width, m_height, (int) face, level);
+    }
+
+    void Texture::UpdateCubemapFaceEnd()
+    {
+        VkDevice device = Display::GetDisplay()->GetDevice();
+
         this->CopyBufferToImageEnd();
 
         if (!m_dynamic)
@@ -225,6 +292,8 @@ namespace Viry3D
 
     void Texture::GenMipmaps()
     {
+        assert(m_mipmap_level_count > 1);
+
         uint32_t layer_count = m_cubemap ? 6 : 1;
 
         Display::GetDisplay()->BeginImageCmd();

@@ -139,6 +139,6 @@ public:
 	bool m_mouse_down = false;
 };
 
-#if 0
+#if 1
 VR_MAIN(AppSky);
 #endif
