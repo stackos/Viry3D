@@ -226,7 +226,7 @@ namespace Viry3D
             Display::GetDisplay()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
         }
 
-        this->CopyBufferToImage(m_image_buffer, 0, 0, m_width, m_height, (int) face, level);
+        this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, (int) face, level);
     }
 
     void Texture::UpdateCubemapFaceEnd()
@@ -237,8 +237,11 @@ namespace Viry3D
 
         if (!m_dynamic)
         {
-            m_image_buffer->Destroy(device);
-            m_image_buffer.reset();
+            if (m_image_buffer)
+            {
+                m_image_buffer->Destroy(device);
+                m_image_buffer.reset();
+            }
         }
     }
 
@@ -248,7 +251,7 @@ namespace Viry3D
 
         Display::GetDisplay()->SetImageLayout(
             m_image,
-            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, (uint32_t) (m_cubemap ? 6 : 1) },
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
             VK_IMAGE_LAYOUT_UNDEFINED,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             (VkAccessFlagBits) 0);
@@ -282,7 +285,7 @@ namespace Viry3D
     {
         Display::GetDisplay()->SetImageLayout(
             m_image,
-            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, (uint32_t) (m_cubemap ? 6 : 1) },
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             VK_ACCESS_TRANSFER_WRITE_BIT);

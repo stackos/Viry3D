@@ -29,7 +29,7 @@
 using namespace Viry3D;
 
 // TODO:
-// - load cubemap
+// - sprite renderer
 
 class App
 {
@@ -170,7 +170,8 @@ Output(0) vec4 o_frag;
 
 void main()
 {
-    o_frag = texture(u_texture, v_uv);
+    vec4 c = textureLod(u_texture, v_uv, 0.0);
+    o_frag = pow(c, vec4(1.0 / 2.2));
 }
 )";
         render_state = RenderState();
@@ -187,16 +188,18 @@ void main()
 
         auto cubemap = Texture::CreateCubemap(1024, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
         cubemap->UpdateCubemapFaceBegin();
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < cubemap->GetMipmapLevelCount(); ++i)
         {
-            int width;
-            int height;
-            int bpp;
-            ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::DataPath() + "/texture/dawn/%d.png").CString(), i), width, height, bpp);
-            cubemap->UpdateCubemapFace(pixels, (CubemapFace) i, 0);
+            for (int j = 0; j < 6; ++j)
+            {
+                int width;
+                int height;
+                int bpp;
+                ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::DataPath() + "/texture/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
+                cubemap->UpdateCubemapFace(pixels, (CubemapFace) j, i);
+            }
         }
         cubemap->UpdateCubemapFaceEnd();
-        cubemap->GenMipmaps();
 
         material->SetTexture("u_texture", cubemap);
         material->SetMatrix("u_view_projection_matrix", view_projection);

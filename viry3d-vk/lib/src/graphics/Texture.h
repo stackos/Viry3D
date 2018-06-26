@@ -65,6 +65,7 @@ namespace Viry3D
         ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
+        int GetMipmapLevelCount() const { return m_mipmap_level_count; }
         VkFormat GetFormat() const { return m_format; }
         VkImage GetImage() const { return m_image; }
         VkImageView GetImageView() const { return m_image_view; }

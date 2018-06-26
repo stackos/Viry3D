@@ -1141,6 +1141,7 @@ namespace Viry3D
             texture->m_height = height;
             texture->m_format = format;
             texture->m_mipmap_level_count = mipmap_level_count;
+            texture->m_cubemap = cubemap;
 
             VkImageCreateInfo image_info;
             Memory::Zero(&image_info, sizeof(image_info));
