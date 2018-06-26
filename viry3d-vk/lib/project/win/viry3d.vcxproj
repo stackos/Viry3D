@@ -259,6 +259,7 @@
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btTransformUtil.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btVector3.h" />
     <ClInclude Include="..\..\src\string\String.h" />
+    <ClInclude Include="..\..\src\thread\ThreadPool.h" />
     <ClInclude Include="..\..\src\time\Time.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv.hpp" />
@@ -645,6 +646,7 @@
     <ClCompile Include="..\..\src\png\pngwtran.c" />
     <ClCompile Include="..\..\src\png\pngwutil.c" />
     <ClCompile Include="..\..\src\string\String.cpp" />
+    <ClCompile Include="..\..\src\thread\ThreadPool.cpp" />
     <ClCompile Include="..\..\src\time\Time.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />

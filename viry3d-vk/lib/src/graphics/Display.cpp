@@ -88,6 +88,7 @@ namespace Viry3D
         VkSurfaceKHR m_surface = nullptr;
         VkDevice m_device = nullptr;
         VkQueue m_graphics_queue = nullptr;
+        VkQueue m_image_queue = nullptr;
         VkPhysicalDeviceProperties m_gpu_properties;
         Vector<VkQueueFamilyProperties> m_queue_properties;
         VkPhysicalDeviceFeatures m_gpu_features;
@@ -600,14 +601,14 @@ namespace Viry3D
             m_graphics_queue_family_index = graphics_queue_index;
 
             float queue_priorities[1] = { 0.0 };
-            VkDeviceQueueCreateInfo queue_infos[2];
-            Memory::Zero(queue_infos, sizeof(queue_infos));
-            queue_infos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            queue_infos[0].pNext = nullptr;
-            queue_infos[0].flags = 0;
-            queue_infos[0].queueFamilyIndex = m_graphics_queue_family_index;
-            queue_infos[0].queueCount = 1;
-            queue_infos[0].pQueuePriorities = queue_priorities;
+            VkDeviceQueueCreateInfo queue_info;
+            Memory::Zero(&queue_info, sizeof(queue_info));
+            queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queue_info.pNext = nullptr;
+            queue_info.flags = 0;
+            queue_info.queueFamilyIndex = m_graphics_queue_family_index;
+            queue_info.queueCount = 2;
+            queue_info.pQueuePriorities = queue_priorities;
 
             VkDeviceCreateInfo device_info;
             Memory::Zero(&device_info, sizeof(device_info));
@@ -615,7 +616,7 @@ namespace Viry3D
             device_info.pNext = nullptr;
             device_info.flags = 0;
             device_info.queueCreateInfoCount = 1;
-            device_info.pQueueCreateInfos = queue_infos;
+            device_info.pQueueCreateInfos = &queue_info;
             device_info.enabledLayerCount = m_enabled_layers.Size();
             device_info.ppEnabledLayerNames = &m_enabled_layers[0];
             device_info.enabledExtensionCount = m_device_extension_names.Size();
@@ -632,6 +633,7 @@ namespace Viry3D
             GET_DEVICE_PROC_ADDR(m_device, QueuePresentKHR);
 
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
+            vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 1, &m_image_queue);
 
             uint32_t surface_format_count;
             err = fpGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, m_surface, &surface_format_count, nullptr);
@@ -1323,7 +1325,7 @@ namespace Viry3D
             err = vkResetFences(m_device, 1, &m_image_fence);
             assert(!err);
 
-            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_image_fence);
+            err = vkQueueSubmit(m_image_queue, 1, &submit_info, m_image_fence);
             assert(!err);
 
             err = vkWaitForFences(m_device, 1, &m_image_fence, VK_TRUE, UINT64_MAX);
