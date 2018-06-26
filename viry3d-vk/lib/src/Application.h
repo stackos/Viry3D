@@ -18,9 +18,12 @@
 #pragma once
 
 #include "string/String.h"
+#include <functional>
 
 namespace Viry3D
 {
+    typedef std::function<void()> Event;
+
     class ApplicationPrivate;
 
     class Application
@@ -30,5 +33,7 @@ namespace Viry3D
         static const String& Name();
         static const String& DataPath();
         static const String& SavePath();
+        static void PostEvent(Event event);
+        static void ProcessEvents();
     };
 }

@@ -16,6 +16,8 @@
 */
 
 #include "Application.h"
+#include "container/List.h"
+#include "thread/ThreadPool.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -29,11 +31,15 @@ namespace Viry3D
         static String m_name;
         static String m_data_path;
         static String m_save_path;
+        static List<Event> m_events;
+        static Mutex m_mutex;
     };
 
     String ApplicationPrivate::m_name;
     String ApplicationPrivate::m_data_path;
     String ApplicationPrivate::m_save_path;
+    List<Event> ApplicationPrivate::m_events;
+    Mutex ApplicationPrivate::m_mutex;
 
     void Application::SetName(const String& name)
     {
@@ -70,4 +76,25 @@ namespace Viry3D
         return ApplicationPrivate::m_save_path;
     }
 #endif
+
+    void Application::PostEvent(Event event)
+    {
+        ApplicationPrivate::m_mutex.lock();
+        ApplicationPrivate::m_events.AddLast(event);
+        ApplicationPrivate::m_mutex.unlock();
+    }
+
+    void Application::ProcessEvents()
+    {
+        ApplicationPrivate::m_mutex.lock();
+        for (const auto& event : ApplicationPrivate::m_events)
+        {
+            if (event)
+            {
+                event();
+            }
+        }
+        ApplicationPrivate::m_events.Clear();
+        ApplicationPrivate::m_mutex.unlock();
+    }
 }

@@ -32,9 +32,8 @@
 using namespace Viry3D;
 
 // TODO:
-// - image queue
-// - thread pool, task and complete callback
-// - thread callback in main loop
+// - rebuild renderer instance cmd after update uniform texture
+// - separate image queue
 // - render target texture
 // - input
 // - sprite renderer
@@ -53,14 +52,6 @@ public:
     App()
     {
         m_thread_pool = RefMake<ThreadPool>(8);
-
-        m_thread_pool->AddTask({
-            []() {
-            return RefMake<Thread::Res>();
-        },
-            [](const Ref<Thread::Res>& res) {
-        }
-            });
 
         m_camera = Display::GetDisplay()->CreateCamera();
 
@@ -208,20 +199,28 @@ void main()
             render_state);
         material = RefMake<Material>(shader);
 
-        auto cubemap = Texture::CreateCubemap(1024, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
-        cubemap->UpdateCubemapFaceBegin();
-        for (int i = 0; i < cubemap->GetMipmapLevelCount(); ++i)
-        {
-            for (int j = 0; j < 6; ++j)
+        m_thread_pool->AddTask({
+            []() {
+            auto cubemap = Texture::CreateCubemap(1024, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
+            cubemap->UpdateCubemapFaceBegin();
+            for (int i = 0; i < cubemap->GetMipmapLevelCount(); ++i)
             {
-                int width;
-                int height;
-                int bpp;
-                ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::DataPath() + "/texture/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
-                cubemap->UpdateCubemapFace(pixels, (CubemapFace) j, i);
+                for (int j = 0; j < 6; ++j)
+                {
+                    int width;
+                    int height;
+                    int bpp;
+                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::DataPath() + "/texture/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
+                    cubemap->UpdateCubemapFace(pixels, (CubemapFace) j, i);
+                }
             }
+            cubemap->UpdateCubemapFaceEnd();
+            return cubemap;
+        },
+            [=](const Ref<Thread::Res>& res) {
+            material->SetTexture("u_texture", RefCast<Texture>(res));
         }
-        cubemap->UpdateCubemapFaceEnd();
+            });
 
         renderer = RefMake<MeshRenderer>();
         renderer->SetMaterial(material);
@@ -229,7 +228,6 @@ void main()
 
         m_camera->AddRenderer(renderer);
 
-        material->SetTexture("u_texture", cubemap);
         material->SetMatrix("u_view_projection_matrix", view_projection);
 
         Matrix4x4 model = Matrix4x4::Translation(camera_pos);
@@ -245,6 +243,8 @@ void main()
 
     void Update()
     {
+        Application::ProcessEvents();
+
         m_deg += 0.1f;
 
         Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, m_deg, 0)));

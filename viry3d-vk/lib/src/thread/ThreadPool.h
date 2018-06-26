@@ -33,6 +33,8 @@ namespace Viry3D
 	public:
         class Res
         {
+        public:
+            virtual ~Res() { }
         };
 
 		struct Task
@@ -56,7 +58,7 @@ namespace Viry3D
 
 		Ref<std::thread> m_thread;
         List<Task> m_job_queue;
-		std::mutex m_mutex;
+        Mutex m_mutex;
 		std::condition_variable m_condition;
 		bool m_close;
 	};

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Display.h"
+#include "thread/ThreadPool.h"
 
 namespace Viry3D
 {
@@ -35,7 +36,7 @@ namespace Viry3D
         Count
     };
 
-    class Texture
+    class Texture : public Thread::Res
     {
     private:
         friend class DisplayPrivate;
@@ -62,7 +63,7 @@ namespace Viry3D
             VkFilter filter_mode,
             VkSamplerAddressMode wrap_mode,
             bool mipmap);
-        ~Texture();
+        virtual ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
         int GetMipmapLevelCount() const { return m_mipmap_level_count; }

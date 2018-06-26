@@ -47,7 +47,7 @@ namespace Viry3D
 
 	void Thread::Wait()
 	{
-		std::unique_lock<std::mutex> lock(m_mutex);
+		std::unique_lock<Mutex> lock(m_mutex);
 
 		// wait until all job done
 		m_condition.wait(lock, [this]() {
@@ -57,13 +57,13 @@ namespace Viry3D
 
 	int Thread::GetQueueLength()
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
+		std::lock_guard<Mutex> lock(m_mutex);
 		return m_job_queue.Size();
 	}
 
     void Thread::AddTask(const Task& task)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<Mutex> lock(m_mutex);
         m_job_queue.AddLast(task);
         m_condition.notify_one();
     }
@@ -72,10 +72,10 @@ namespace Viry3D
     {
         while (true)
         {
-            Task* task = nullptr;
+            Task task;
 
             {
-                std::unique_lock<std::mutex> lock(m_mutex);
+                std::unique_lock<Mutex> lock(m_mutex);
 
                 // wait until has a job or close
                 m_condition.wait(lock, [this] {
@@ -87,21 +87,23 @@ namespace Viry3D
                     break;
                 }
 
-                task = &m_job_queue.First();
+                task = m_job_queue.First();
             }
 
-            if (task->job)
+            if (task.job)
             {
-                Ref<Res> res = task->job();
+                Ref<Res> res = task.job();
 
-                if (task->complete)
+                if (task.complete)
                 {
-                    task->complete(res);
+                    Application::PostEvent([=]() {
+                        task.complete(res);
+                    });
                 }
             }
 
             {
-                std::lock_guard<std::mutex> lock(m_mutex);
+                std::lock_guard<Mutex> lock(m_mutex);
                 m_job_queue.RemoveFirst();
                 m_condition.notify_one();
             }
@@ -136,7 +138,7 @@ namespace Viry3D
             int min_len = 0x7fffffff;
             int min_index = -1;
 
-            for (int i = 0; i < m_threads.Size(); i++)
+            for (int i = 0; i < m_threads.Size(); ++i)
             {
                 int len = m_threads[i]->GetQueueLength();
                 if (min_len > len)
