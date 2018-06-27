@@ -600,7 +600,7 @@ namespace Viry3D
 
             m_graphics_queue_family_index = graphics_queue_index;
 
-            float queue_priorities[1] = { 0.0 };
+            float queue_priorities[2] = { 0.0, 0.0 };
             VkDeviceQueueCreateInfo queue_info;
             Memory::Zero(&queue_info, sizeof(queue_info));
             queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;

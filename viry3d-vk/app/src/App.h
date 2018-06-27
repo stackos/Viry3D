@@ -32,8 +32,6 @@
 using namespace Viry3D;
 
 // TODO:
-// - rebuild renderer instance cmd after update uniform texture
-// - separate image queue
 // - render target texture
 // - input
 // - sprite renderer
@@ -199,6 +197,15 @@ void main()
             render_state);
         material = RefMake<Material>(shader);
 
+        renderer = RefMake<MeshRenderer>();
+        renderer->SetMaterial(material);
+        renderer->SetMesh(mesh);
+
+        material->SetMatrix("u_view_projection_matrix", view_projection);
+
+        Matrix4x4 model = Matrix4x4::Translation(camera_pos);
+        renderer->SetInstanceMatrix("u_model_matrix", model);
+
         m_thread_pool->AddTask({
             []() {
             auto cubemap = Texture::CreateCubemap(1024, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
@@ -219,19 +226,9 @@ void main()
         },
             [=](const Ref<Thread::Res>& res) {
             material->SetTexture("u_texture", RefCast<Texture>(res));
+            m_camera->AddRenderer(renderer);
         }
             });
-
-        renderer = RefMake<MeshRenderer>();
-        renderer->SetMaterial(material);
-        renderer->SetMesh(mesh);
-
-        m_camera->AddRenderer(renderer);
-
-        material->SetMatrix("u_view_projection_matrix", view_projection);
-
-        Matrix4x4 model = Matrix4x4::Translation(camera_pos);
-        renderer->SetInstanceMatrix("u_model_matrix", model);
     }
 
     ~App()
