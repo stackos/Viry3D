@@ -103,6 +103,8 @@ namespace Viry3D
         }
         void UpdateUniformMember(const String& name, const void* data, int size);
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture);
+        void MarkRendererOrderDirty();
+        void MarkInstanceCmdDirty();
 
     private:
         Ref<Shader> m_shader;

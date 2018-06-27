@@ -57,10 +57,7 @@ namespace Viry3D
     {
         m_queue = RefMake<int>(queue);
 
-        for (auto i : m_renderers)
-        {
-            i->MarkRendererOrderDirty();
-        }
+        this->MarkRendererOrderDirty();
     }
 
     void Material::OnSetRenderer(Renderer* renderer)
@@ -119,6 +116,8 @@ namespace Viry3D
 
     void Material::UpdateUniformSets()
     {
+        bool instance_cmd_dirty = false;
+
         for (auto& i : m_properties)
         {
             if (i.second.dirty)
@@ -128,12 +127,19 @@ namespace Viry3D
                 if (i.second.type == MaterialProperty::Type::Texture)
                 {
                     this->UpdateUniformTexture(i.second.name, i.second.texture);
+
+                    instance_cmd_dirty = true;
                 }
                 else
                 {
                     this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size);
                 }
             }
+        }
+
+        if (instance_cmd_dirty)
+        {
+            this->MarkInstanceCmdDirty();
         }
     }
 
@@ -208,6 +214,22 @@ namespace Viry3D
                     return;
                 }
             }
+        }
+    }
+
+    void Material::MarkRendererOrderDirty()
+    {
+        for (auto i : m_renderers)
+        {
+            i->MarkRendererOrderDirty();
+        }
+    }
+
+    void Material::MarkInstanceCmdDirty()
+    {
+        for (auto i : m_renderers)
+        {
+            i->MarkInstanceCmdDirty();
         }
     }
 }
