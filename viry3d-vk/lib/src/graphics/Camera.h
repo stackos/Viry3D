@@ -53,6 +53,8 @@ namespace Viry3D
         void SetClearColor(const Color& color);
         const Rect& GetViewportRect() const { return m_viewport_rect; }
         void SetViewportRect(const Rect& rect);
+        int GetDepth() const { return m_depth; }
+        void SetDepth(int depth);
         bool HasRenderTarget() const { return m_render_target_color || m_render_target_depth; }
         const Ref<Texture>& GetRenderTargetColor() const { return m_render_target_color; }
         const Ref<Texture>& GetRenderTargetDepth() const { return m_render_target_depth; }
@@ -60,7 +62,7 @@ namespace Viry3D
         void Update();
         void OnResize(int width, int height);
         VkRenderPass GetRenderPass() const { return m_render_pass; }
-        VkFramebuffer GetFramebuffer(int index) const { return m_framebuffers[index]; }
+        VkFramebuffer GetFramebuffer(int index) const;
         int GetTargetWidth() const;
         int GetTargetHeight() const;
         void AddRenderer(const Ref<Renderer>& renderer);
@@ -85,6 +87,7 @@ namespace Viry3D
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;
+        int m_depth;
         Ref<Texture> m_render_target_color;
         Ref<Texture> m_render_target_depth;
         VkRenderPass m_render_pass;

@@ -936,6 +936,7 @@ namespace Viry3D
             VkAttachmentLoadOp color_load;
             VkAttachmentLoadOp depth_load;
             VkImageLayout color_final_layout;
+            VkImageLayout depth_final_layout;
 
             switch (clear_flag)
             {
@@ -968,25 +969,30 @@ namespace Viry3D
             if (present)
             {
                 color_final_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                depth_final_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             }
             else
             {
                 color_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                depth_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
 
             Vector<VkAttachmentDescription> attachments;
 
-            attachments.Add(VkAttachmentDescription());
-            Memory::Zero(&attachments[0], sizeof(attachments[0]));
-            attachments[0].flags = 0;
-            attachments[0].format = color_format;
-            attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-            attachments[0].loadOp = color_load;
-            attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attachments[0].finalLayout = color_final_layout;
+            if (color_format != VK_FORMAT_UNDEFINED)
+            {
+                attachments.Add(VkAttachmentDescription());
+                Memory::Zero(&attachments[0], sizeof(attachments[0]));
+                attachments[0].flags = 0;
+                attachments[0].format = color_format;
+                attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+                attachments[0].loadOp = color_load;
+                attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+                attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachments[0].finalLayout = color_final_layout;
+            }
 
             if (depth_format != VK_FORMAT_UNDEFINED)
             {
@@ -1000,7 +1006,7 @@ namespace Viry3D
                 attachments[1].stencilLoadOp = depth_load;
                 attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
                 attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+                attachments[1].finalLayout = depth_final_layout;
             }
 
             VkAttachmentReference color_reference = {
@@ -1019,7 +1025,14 @@ namespace Viry3D
             subpass.inputAttachmentCount = 0;
             subpass.pInputAttachments = nullptr;
             subpass.colorAttachmentCount = 1;
-            subpass.pColorAttachments = &color_reference;
+            if (color_format != VK_FORMAT_UNDEFINED)
+            {
+                subpass.pColorAttachments = &color_reference;
+            }
+            else
+            {
+                subpass.pColorAttachments = nullptr;
+            }
             subpass.pResolveAttachments = nullptr;
             if (depth_format != VK_FORMAT_UNDEFINED)
             {
@@ -1076,7 +1089,10 @@ namespace Viry3D
             VkFramebuffer* framebuffer)
         {
             Vector<VkImageView> attachments_view;
-            attachments_view.Add(color_image_view);
+            if (color_image_view != nullptr)
+            {
+                attachments_view.Add(color_image_view);
+            }
             if (depth_image_view != nullptr)
             {
                 attachments_view.Add(depth_image_view);
@@ -2065,6 +2081,10 @@ namespace Viry3D
 
         void BuildPrimaryCmds()
         {
+            m_cameras.Sort([](const Ref<Camera>& a, const Ref<Camera>& b) {
+                return a->GetDepth() < b->GetDepth();
+            });
+
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 VkCommandBuffer cmd = m_swapchain_image_resources[i].cmd;
@@ -2268,7 +2288,44 @@ namespace Viry3D
         }
         else
         {
-            
+            VkFormat color_format = VK_FORMAT_UNDEFINED;
+            VkFormat depth_format = VK_FORMAT_UNDEFINED;
+            VkImageView color_image_view = nullptr;
+            VkImageView depth_image_view = nullptr;
+            int image_width = 0;
+            int image_height = 0;
+
+            if (color_texture)
+            {
+                color_format = color_texture->GetFormat();
+                color_image_view = color_texture->GetImageView();
+                image_width = color_texture->GetWidth();
+                image_height = color_texture->GetHeight();
+            }
+
+            if (depth_texture)
+            {
+                depth_format = depth_texture->GetFormat();
+                depth_image_view = depth_texture->GetImageView();
+                image_width = depth_texture->GetWidth();
+                image_height = depth_texture->GetHeight();
+            }
+
+            m_private->CreateRenderPass(
+                color_format,
+                depth_format,
+                clear_flag,
+                false,
+                render_pass);
+
+            framebuffers.Resize(1);
+            m_private->CreateFramebuffer(
+                color_image_view,
+                depth_image_view,
+                image_width,
+                image_height,
+                *render_pass,
+                &framebuffers[0]);
         }
     }
 

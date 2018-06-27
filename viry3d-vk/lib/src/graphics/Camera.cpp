@@ -30,6 +30,7 @@ namespace Viry3D
         m_clear_flags(CameraClearFlags::ColorAndDepth),
         m_clear_color(0, 0, 0, 1),
         m_viewport_rect(0, 0, 1, 1),
+        m_depth(0),
         m_render_pass(nullptr),
         m_cmd_pool(nullptr)
     {
@@ -59,6 +60,12 @@ namespace Viry3D
     {
         m_viewport_rect = rect;
         m_instance_cmds_dirty = true;
+    }
+
+    void Camera::SetDepth(int depth)
+    {
+        m_depth = depth;
+        Display::GetDisplay()->MarkPrimaryCmdDirty();
     }
 
     void Camera::SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture)
@@ -204,6 +211,18 @@ namespace Viry3D
         }
 
         return cmds;
+    }
+
+    VkFramebuffer Camera::GetFramebuffer(int index) const
+    {
+        if (this->HasRenderTarget())
+        {
+            return m_framebuffers[0];
+        }
+        else
+        {
+            return m_framebuffers[index];
+        }
     }
 
     int Camera::GetTargetWidth() const
