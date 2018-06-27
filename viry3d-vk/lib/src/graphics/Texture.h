@@ -63,6 +63,12 @@ namespace Viry3D
             VkFilter filter_mode,
             VkSamplerAddressMode wrap_mode,
             bool mipmap);
+        static Ref<Texture> CreateRenderTexture(
+            int width,
+            int height,
+            VkFormat format,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode);
         virtual ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }

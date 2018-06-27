@@ -186,6 +186,62 @@ namespace Viry3D
         return texture;
     }
 
+    Ref<Texture> Texture::CreateRenderTexture(
+        int width,
+        int height,
+        VkFormat format,
+        VkFilter filter_mode,
+        VkSamplerAddressMode wrap_mode)
+    {
+        Ref<Texture> texture;
+
+        VkImageUsageFlags usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+        VkImageAspectFlags aspect;
+
+        switch (format)
+        {
+            case VK_FORMAT_D16_UNORM:
+            case VK_FORMAT_X8_D24_UNORM_PACK32:
+            case VK_FORMAT_D32_SFLOAT:
+                usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+                aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+                break;
+            case VK_FORMAT_D16_UNORM_S8_UINT:
+            case VK_FORMAT_D24_UNORM_S8_UINT:
+            case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+                aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+                break;
+            case VK_FORMAT_S8_UINT:
+                usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+                aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
+                break;
+            default:
+                usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+                aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+        }
+
+        texture = Display::GetDisplay()->CreateTexture(
+            VK_IMAGE_TYPE_2D,
+            VK_IMAGE_VIEW_TYPE_2D,
+            width,
+            height,
+            format,
+            usage,
+            aspect,
+            {
+                VK_COMPONENT_SWIZZLE_IDENTITY,
+                VK_COMPONENT_SWIZZLE_IDENTITY,
+                VK_COMPONENT_SWIZZLE_IDENTITY,
+                VK_COMPONENT_SWIZZLE_IDENTITY
+            },
+            1,
+            false);
+        Display::GetDisplay()->CreateSampler(texture, filter_mode, wrap_mode);
+
+        return texture;
+    }
+
     void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h)
     {
         VkDevice device = Display::GetDisplay()->GetDevice();
