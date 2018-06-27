@@ -977,46 +977,54 @@ namespace Viry3D
                 depth_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
 
-            Vector<VkAttachmentDescription> attachments;
-
-            if (color_format != VK_FORMAT_UNDEFINED)
-            {
-                attachments.Add(VkAttachmentDescription());
-                Memory::Zero(&attachments[0], sizeof(attachments[0]));
-                attachments[0].flags = 0;
-                attachments[0].format = color_format;
-                attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-                attachments[0].loadOp = color_load;
-                attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-                attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-                attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                attachments[0].finalLayout = color_final_layout;
-            }
-
-            if (depth_format != VK_FORMAT_UNDEFINED)
-            {
-                attachments.Add(VkAttachmentDescription());
-                Memory::Zero(&attachments[1], sizeof(attachments[1]));
-                attachments[1].flags = 0;
-                attachments[1].format = depth_format;
-                attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-                attachments[1].loadOp = depth_load;
-                attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachments[1].stencilLoadOp = depth_load;
-                attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                attachments[1].finalLayout = depth_final_layout;
-            }
-
             VkAttachmentReference color_reference = {
                 0,
                 VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             };
             VkAttachmentReference depth_reference = {
-                1,
+                0,
                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
             };
+
+            Vector<VkAttachmentDescription> attachments;
+
+            if (color_format != VK_FORMAT_UNDEFINED)
+            {
+                color_reference.attachment = attachments.Size();
+
+                VkAttachmentDescription attachment;
+                Memory::Zero(&attachment, sizeof(attachment));
+                attachment.flags = 0;
+                attachment.format = color_format;
+                attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+                attachment.loadOp = color_load;
+                attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachment.finalLayout = color_final_layout;
+
+                attachments.Add(attachment);
+            }
+
+            if (depth_format != VK_FORMAT_UNDEFINED)
+            {
+                depth_reference.attachment = attachments.Size();
+
+                VkAttachmentDescription attachment;
+                Memory::Zero(&attachment, sizeof(attachment));
+                attachment.flags = 0;
+                attachment.format = depth_format;
+                attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+                attachment.loadOp = depth_load;
+                attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachment.stencilLoadOp = depth_load;
+                attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachment.finalLayout = depth_final_layout;
+
+                attachments.Add(attachment);
+            }
 
             VkSubpassDescription subpass;
             Memory::Zero(&subpass, sizeof(subpass));
@@ -1024,13 +1032,14 @@ namespace Viry3D
             subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
             subpass.inputAttachmentCount = 0;
             subpass.pInputAttachments = nullptr;
-            subpass.colorAttachmentCount = 1;
             if (color_format != VK_FORMAT_UNDEFINED)
             {
+                subpass.colorAttachmentCount = 1;
                 subpass.pColorAttachments = &color_reference;
             }
             else
             {
+                subpass.colorAttachmentCount = 0;
                 subpass.pColorAttachments = nullptr;
             }
             subpass.pResolveAttachments = nullptr;
@@ -1073,8 +1082,8 @@ namespace Viry3D
             rp_info.pAttachments = &attachments[0];
             rp_info.subpassCount = 1;
             rp_info.pSubpasses = &subpass;
-            rp_info.dependencyCount = 2;
-            rp_info.pDependencies = dependencies;
+            rp_info.dependencyCount = 0;//2;
+            rp_info.pDependencies = nullptr;//dependencies;
 
             VkResult err = vkCreateRenderPass(m_device, &rp_info, nullptr, render_pass);
             assert(!err);

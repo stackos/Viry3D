@@ -110,7 +110,7 @@ void main()
             camera->SetDepth(1);
             camera->AddRenderer(renderer);
 
-            material->SetTexture("u_texture", m_camera->GetRenderTargetColor());
+            material->SetTexture("u_texture", m_camera->GetRenderTargetDepth());
         }
         {
             auto material = RefMake<Material>(shader);
@@ -145,7 +145,7 @@ void main()
             VK_FILTER_LINEAR,
             VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
         m_camera = Display::GetDisplay()->CreateCamera();
-        m_camera->SetRenderTarget(color_texture, depth_texture);
+        m_camera->SetRenderTarget(Ref<Texture>(), depth_texture);//color_texture
         m_camera->SetDepth(0);
 
         this->BuildScreenCamera();
@@ -330,9 +330,10 @@ void main()
 
     ~App()
     {
+        m_thread_pool.reset();
+        Application::ClearEvents();
         Display::GetDisplay()->DestroyCamera(m_camera);
         m_camera = nullptr;
-        m_thread_pool.reset();
     }
 
     void Update()

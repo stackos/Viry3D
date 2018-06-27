@@ -97,4 +97,11 @@ namespace Viry3D
         ApplicationPrivate::m_events.Clear();
         ApplicationPrivate::m_mutex.unlock();
     }
+
+    void Application::ClearEvents()
+    {
+        ApplicationPrivate::m_mutex.lock();
+        ApplicationPrivate::m_events.Clear();
+        ApplicationPrivate::m_mutex.unlock();
+    }
 }

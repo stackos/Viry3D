@@ -35,5 +35,6 @@ namespace Viry3D
         static const String& SavePath();
         static void PostEvent(Event event);
         static void ProcessEvents();
+        static void ClearEvents();
     };
 }
