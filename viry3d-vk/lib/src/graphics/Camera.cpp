@@ -52,7 +52,7 @@ namespace Viry3D
     void Camera::SetClearColor(const Color& color)
     {
         m_clear_color = color;
-        Display::GetDisplay()->MarkPrimaryCmdDirty();
+        Display::Instance()->MarkPrimaryCmdDirty();
     }
 
     void Camera::SetViewportRect(const Rect& rect)
@@ -64,7 +64,7 @@ namespace Viry3D
     void Camera::SetDepth(int depth)
     {
         m_depth = depth;
-        Display::GetDisplay()->MarkPrimaryCmdDirty();
+        Display::Instance()->MarkPrimaryCmdDirty();
     }
 
     void Camera::SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture)
@@ -82,7 +82,7 @@ namespace Viry3D
             this->UpdateRenderPass();
 
             m_instance_cmds_dirty = true;
-            Display::GetDisplay()->MarkPrimaryCmdDirty();
+            Display::Instance()->MarkPrimaryCmdDirty();
         }
 
         if (m_renderer_order_dirty)
@@ -90,7 +90,7 @@ namespace Viry3D
             m_renderer_order_dirty = false;
             this->SortRenderers();
 
-            Display::GetDisplay()->MarkPrimaryCmdDirty();
+            Display::Instance()->MarkPrimaryCmdDirty();
         }
 
         this->UpdateRenderers();
@@ -110,7 +110,7 @@ namespace Viry3D
     {
         this->ClearRenderPass();
 
-        Display::GetDisplay()->CreateRenderPass(
+        Display::Instance()->CreateRenderPass(
             m_render_target_color,
             m_render_target_depth,
             m_clear_flags,
@@ -120,7 +120,7 @@ namespace Viry3D
 
     void Camera::ClearRenderPass()
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         for (int i = 0; i < m_framebuffers.Size(); ++i)
         {
@@ -164,10 +164,10 @@ namespace Viry3D
             {
                 if (m_cmd_pool == nullptr)
                 {
-                    Display::GetDisplay()->CreateCommandPool(&m_cmd_pool);
+                    Display::Instance()->CreateCommandPool(&m_cmd_pool);
                 }
                 
-                Display::GetDisplay()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
+                Display::Instance()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
             }
 
             if (i.cmd_dirty || m_instance_cmds_dirty)
@@ -183,7 +183,7 @@ namespace Viry3D
 
     void Camera::ClearInstanceCmds()
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         for (auto& i : m_renderers)
         {
@@ -237,7 +237,7 @@ namespace Viry3D
         }
         else
         {
-            return Display::GetDisplay()->GetWidth();
+            return Display::Instance()->GetWidth();
         }
     }
     
@@ -253,7 +253,7 @@ namespace Viry3D
         }
         else
         {
-            return Display::GetDisplay()->GetHeight();
+            return Display::Instance()->GetHeight();
         }
     }
 
@@ -273,9 +273,9 @@ namespace Viry3D
 
     void Camera::RemoveRenderer(const Ref<Renderer>& renderer)
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
-        Display::GetDisplay()->WaitDevice();
+        Display::Instance()->WaitDevice();
 
         for (auto i = m_renderers.begin(); i != m_renderers.end(); ++i)
         {
@@ -290,7 +290,7 @@ namespace Viry3D
             }
         }
 
-        Display::GetDisplay()->MarkPrimaryCmdDirty();
+        Display::Instance()->MarkPrimaryCmdDirty();
 
         renderer->OnRemoveFromCamera(this);
     }
@@ -346,7 +346,7 @@ namespace Viry3D
             depth_attachment = (bool) this->GetRenderTargetDepth();
         }
 
-        Display::GetDisplay()->BuildInstanceCmd(
+        Display::Instance()->BuildInstanceCmd(
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),

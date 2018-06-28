@@ -31,7 +31,7 @@ namespace Viry3D
     {
     public:
         static Application* m_app;
-        static String m_name;
+        String m_name;
         String m_data_path;
         String m_save_path;
         List<Event> m_events;
@@ -49,94 +49,13 @@ namespace Viry3D
             m_thread_pool.reset();
             m_app = nullptr;
         }
-
-        static Application* App()
-        {
-            return m_app;
-        }
     };
 
     Application* ApplicationPrivate::m_app;
-    String ApplicationPrivate::m_name;
 
-    void Application::SetName(const String& name)
+    Application* Application::Instance()
     {
-        ApplicationPrivate::m_name = name;
-    }
-
-    const String& Application::Name()
-    {
-        return ApplicationPrivate::m_name;
-    }
-
-#if VR_WINDOWS
-    const String& Application::DataPath()
-    {
-        if (ApplicationPrivate::App()->m_private->m_data_path.Empty())
-        {
-            char buffer[MAX_PATH];
-            ::GetModuleFileName(nullptr, buffer, MAX_PATH);
-            String path = buffer;
-            path = path.Replace("\\", "/").Substring(0, path.LastIndexOf("\\")) + "/Assets";
-            ApplicationPrivate::App()->m_private->m_data_path = path;
-        }
-
-        return ApplicationPrivate::App()->m_private->m_data_path;
-    }
-
-    const String& Application::SavePath()
-    {
-        if (ApplicationPrivate::App()->m_private->m_save_path.Empty())
-        {
-            ApplicationPrivate::App()->m_private->m_save_path = DataPath();
-        }
-
-        return ApplicationPrivate::App()->m_private->m_save_path;
-    }
-#endif
-
-    ThreadPool* Application::ThreadPool()
-    {
-        return ApplicationPrivate::App()->m_private->m_thread_pool.get();
-    }
-
-    void Application::PostEvent(Event event)
-    {
-        ApplicationPrivate::App()->m_private->m_mutex.lock();
-        ApplicationPrivate::App()->m_private->m_events.AddLast(event);
-        ApplicationPrivate::App()->m_private->m_mutex.unlock();
-    }
-
-    void Application::ProcessEvents()
-    {
-        ApplicationPrivate::App()->m_private->m_mutex.lock();
-        for (const auto& event : ApplicationPrivate::App()->m_private->m_events)
-        {
-            if (event)
-            {
-                event();
-            }
-        }
-        ApplicationPrivate::App()->m_private->m_events.Clear();
-        ApplicationPrivate::App()->m_private->m_mutex.unlock();
-    }
-
-    void Application::ClearEvents()
-    {
-        ApplicationPrivate::App()->m_private->m_mutex.lock();
-        ApplicationPrivate::App()->m_private->m_events.Clear();
-        ApplicationPrivate::App()->m_private->m_mutex.unlock();
-    }
-
-    void Application::UpdateBegin()
-    {
-        Time::Update();
-        Application::ProcessEvents();
-    }
-
-    void Application::UpdateEnd()
-    {
-        Input::Update();
+        return ApplicationPrivate::m_app;
     }
 
     Application::Application():
@@ -147,7 +66,87 @@ namespace Viry3D
 
     Application::~Application()
     {
-        Application::ClearEvents();
+        this->ClearEvents();
         delete m_private;
+    }
+
+    const String& Application::GetName() const
+    {
+        return m_private->m_name;
+    }
+
+    void Application::SetName(const String& name)
+    {
+        m_private->m_name = name;
+    }
+
+#if VR_WINDOWS
+    const String& Application::GetDataPath()
+    {
+        if (m_private->m_data_path.Empty())
+        {
+            char buffer[MAX_PATH];
+            ::GetModuleFileName(nullptr, buffer, MAX_PATH);
+            String path = buffer;
+            path = path.Replace("\\", "/").Substring(0, path.LastIndexOf("\\")) + "/Assets";
+            m_private->m_data_path = path;
+        }
+
+        return m_private->m_data_path;
+    }
+
+    const String& Application::GetSavePath()
+    {
+        if (m_private->m_save_path.Empty())
+        {
+            m_private->m_save_path = this->GetDataPath();
+        }
+
+        return m_private->m_save_path;
+    }
+#endif
+
+    ThreadPool* Application::GetThreadPool() const
+    {
+        return m_private->m_thread_pool.get();
+    }
+
+    void Application::PostEvent(Event event)
+    {
+        m_private->m_mutex.lock();
+        m_private->m_events.AddLast(event);
+        m_private->m_mutex.unlock();
+    }
+
+    void Application::ProcessEvents()
+    {
+        m_private->m_mutex.lock();
+        for (const auto& event : m_private->m_events)
+        {
+            if (event)
+            {
+                event();
+            }
+        }
+        m_private->m_events.Clear();
+        m_private->m_mutex.unlock();
+    }
+
+    void Application::ClearEvents()
+    {
+        m_private->m_mutex.lock();
+        m_private->m_events.Clear();
+        m_private->m_mutex.unlock();
+    }
+
+    void Application::UpdateBegin()
+    {
+        Time::Update();
+        this->ProcessEvents();
+    }
+
+    void Application::UpdateEnd()
+    {
+        Input::Update();
     }
 }

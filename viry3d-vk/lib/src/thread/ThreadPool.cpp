@@ -96,7 +96,7 @@ namespace Viry3D
 
                 if (task.complete)
                 {
-                    Application::PostEvent([=]() {
+                    Application::Instance()->PostEvent([=]() {
                         task.complete(res);
                     });
                 }

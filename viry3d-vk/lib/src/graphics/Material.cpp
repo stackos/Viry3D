@@ -30,7 +30,7 @@ namespace Viry3D
 
     Material::~Material()
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
@@ -192,7 +192,7 @@ namespace Viry3D
 
                     if (member.name == name && size <= member.size)
                     {
-                        Display::GetDisplay()->UpdateBuffer(buffer.buffer, member.offset, data, size);
+                        Display::Instance()->UpdateBuffer(buffer.buffer, member.offset, data, size);
                         return;
                     }
                 }
@@ -210,7 +210,7 @@ namespace Viry3D
 
                 if (uniform_texture.name == name)
                 {
-                    Display::GetDisplay()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, texture);
+                    Display::Instance()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, texture);
                     return;
                 }
             }

@@ -34,6 +34,7 @@
 using namespace Viry3D;
 
 // TODO:
+// - camera view projection matrix build
 // - PostProcess
 // - CanvaRenderer View Sprite Label Button
 // - ScrollView TabView TreeView
@@ -47,88 +48,6 @@ public:
     Camera* m_camera;
     MeshRenderer* m_renderer;
     float m_deg = 0;
-
-    void BuildScreenCamera()
-    {
-        String vs = R"(
-Input(0) vec4 a_pos;
-Input(2) vec2 a_uv;
-
-Output(0) vec2 v_uv;
-
-void main()
-{
-	gl_Position = a_pos;
-	v_uv = a_uv;
-
-	vulkan_convert();
-}
-)";
-        String fs = R"(
-precision mediump float;
-      
-UniformTexture(0, 0) uniform sampler2D u_texture;
-
-Input(0) vec2 v_uv;
-
-Output(0) vec4 o_frag;
-
-void main()
-{
-    o_frag = texture(u_texture, v_uv);
-}
-)";
-        RenderState render_state;
-
-        auto shader = RefMake<Shader>(
-            vs,
-            Vector<String>(),
-            fs,
-            Vector<String>(),
-            render_state);
-
-        Vector<Vertex> vertices(4);
-        Memory::Zero(&vertices[0], vertices.SizeInBytes());
-        vertices[0].vertex = Vector3(-1.0f, 1.0f, 0);
-        vertices[1].vertex = Vector3(-1.0f, -1.0f, 0);
-        vertices[2].vertex = Vector3(1.0f, -1.0f, 0);
-        vertices[3].vertex = Vector3(1.0f, 1.0f, 0);
-        vertices[0].uv = Vector2(0, 0);
-        vertices[1].uv = Vector2(0, 1);
-        vertices[2].uv = Vector2(1, 1);
-        vertices[3].uv = Vector2(1, 0);
-
-        Vector<unsigned short> indices({ 0, 1, 2, 0, 2, 3 });
-        auto mesh = RefMake<Mesh>(vertices, indices);
-
-        {
-            auto material = RefMake<Material>(shader);
-            auto renderer = RefMake<MeshRenderer>();
-            renderer->SetMaterial(material);
-            renderer->SetMesh(mesh);
-
-            Camera* camera = Display::GetDisplay()->CreateCamera();
-            camera->SetViewportRect(Rect(0, 0, 0.5f, 0.5f));
-            camera->SetDepth(1);
-            camera->AddRenderer(renderer);
-
-            material->SetTexture("u_texture", m_camera->GetRenderTargetColor());
-        }
-        {
-            auto material = RefMake<Material>(shader);
-            auto renderer = RefMake<MeshRenderer>();
-            renderer->SetMaterial(material);
-            renderer->SetMesh(mesh);
-
-            Camera* camera = Display::GetDisplay()->CreateCamera();
-            camera->SetViewportRect(Rect(0.5f, 0, 0.5f, 0.5f));
-            camera->SetClearFlags(CameraClearFlags::Nothing);
-            camera->SetDepth(2);
-            camera->AddRenderer(renderer);
-
-            material->SetTexture("u_texture", m_camera->GetRenderTargetDepth());
-        }
-    }
 
     App()
     {
@@ -144,11 +63,14 @@ void main()
             VK_FORMAT_D32_SFLOAT,
             VK_FILTER_LINEAR,
             VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
-        m_camera = Display::GetDisplay()->CreateCamera();
+        m_camera = Display::Instance()->CreateCamera();
         m_camera->SetRenderTarget(color_texture, depth_texture);
         m_camera->SetDepth(0);
 
-        this->BuildScreenCamera();
+        auto blit_depth_camera = Display::Instance()->CreateBlitCamera(1, m_camera->GetRenderTargetDepth(), "", CameraClearFlags::Nothing, Ref<Shader>(), Rect(0, 0, 0.25f, 0.25f));
+        blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
+
+        Display::Instance()->CreateBlitCamera(2, m_camera->GetRenderTargetColor());
 
         String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
@@ -234,7 +156,7 @@ void main()
 
         m_camera->AddRenderer(renderer);
 
-        auto texture = Texture::LoadTexture2DFromFile(Application::DataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
+        auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
         material->SetTexture("u_texture", texture);
 
         Vector3 camera_pos(0, 0, -5);
@@ -314,7 +236,7 @@ void main()
                     int width;
                     int height;
                     int bpp;
-                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::DataPath() + "/texture/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
+                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
                     cubemap->UpdateCubemapFace(pixels, (CubemapFace) j, i);
                 }
             }
@@ -325,12 +247,12 @@ void main()
             material->SetTexture("u_texture", RefCast<Texture>(res));
             m_camera->AddRenderer(renderer);
         };
-        Application::ThreadPool()->AddTask(task);
+        Application::Instance()->GetThreadPool()->AddTask(task);
     }
 
     virtual ~App()
     {
-        Display::GetDisplay()->DestroyCamera(m_camera);
+        Display::Instance()->DestroyCamera(m_camera);
         m_camera = nullptr;
     }
 

@@ -30,19 +30,20 @@ namespace Viry3D
     class Application
     {
     public:
-        static void SetName(const String& name);
-        static const String& Name();
-        static const String& DataPath();
-        static const String& SavePath();
-        static ThreadPool* ThreadPool();
-        static void PostEvent(Event event);
-        static void ProcessEvents();
-        static void ClearEvents();
-        static void UpdateBegin();
-        static void UpdateEnd();
+        static Application* Instance();
         Application();
         virtual ~Application();
         virtual void Update() { }
+        const String& GetName() const;
+        void SetName(const String& name);
+        const String& GetDataPath();
+        const String& GetSavePath();
+        ThreadPool* GetThreadPool() const;
+        void PostEvent(Event event);
+        void ProcessEvents();
+        void ClearEvents();
+        void UpdateBegin();
+        void UpdateEnd();
 
     private:
         ApplicationPrivate* m_private;

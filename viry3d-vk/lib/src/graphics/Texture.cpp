@@ -120,7 +120,7 @@ namespace Viry3D
             mipmap_level_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
         }
 
-        texture = Display::GetDisplay()->CreateTexture(
+        texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_2D,
             width,
@@ -136,7 +136,7 @@ namespace Viry3D
             },
             mipmap_level_count,
             false);
-        Display::GetDisplay()->CreateSampler(texture, filter_mode, wrap_mode);
+        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
 
         texture->m_dynamic = dynamic;
 
@@ -165,7 +165,7 @@ namespace Viry3D
             mipmap_level_count = (int) floor(Mathf::Log2((float) size)) + 1;
         }
 
-        texture = Display::GetDisplay()->CreateTexture(
+        texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_CUBE,
             size,
@@ -181,7 +181,7 @@ namespace Viry3D
             },
             mipmap_level_count,
             true);
-        Display::GetDisplay()->CreateSampler(texture, filter_mode, wrap_mode);
+        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
 
         return texture;
     }
@@ -221,7 +221,7 @@ namespace Viry3D
                 aspect = VK_IMAGE_ASPECT_COLOR_BIT;
         }
 
-        texture = Display::GetDisplay()->CreateTexture(
+        texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_2D,
             width,
@@ -237,22 +237,22 @@ namespace Viry3D
             },
             1,
             false);
-        Display::GetDisplay()->CreateSampler(texture, filter_mode, wrap_mode);
+        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
 
         return texture;
     }
 
     void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h)
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         if (!m_image_buffer)
         {
-            m_image_buffer = Display::GetDisplay()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         }
         else
         {
-            Display::GetDisplay()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
+            Display::Instance()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
         }
 
         this->CopyBufferToImageBegin();
@@ -275,11 +275,11 @@ namespace Viry3D
     {
         if (!m_image_buffer || m_image_buffer->size < pixels.Size())
         {
-            m_image_buffer = Display::GetDisplay()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         }
         else
         {
-            Display::GetDisplay()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
+            Display::Instance()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
         }
 
         this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, (int) face, level);
@@ -287,7 +287,7 @@ namespace Viry3D
 
     void Texture::UpdateCubemapFaceEnd()
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         this->CopyBufferToImageEnd();
 
@@ -303,9 +303,9 @@ namespace Viry3D
 
     void Texture::CopyBufferToImageBegin()
     {
-        Display::GetDisplay()->BeginImageCmd();
+        Display::Instance()->BeginImageCmd();
 
-        Display::GetDisplay()->SetImageLayout(
+        Display::Instance()->SetImageLayout(
             m_image,
             { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
             VK_IMAGE_LAYOUT_UNDEFINED,
@@ -329,7 +329,7 @@ namespace Viry3D
         copy.imageExtent.depth = 1;
 
         vkCmdCopyBufferToImage(
-            Display::GetDisplay()->GetImageCmd(),
+            Display::Instance()->GetImageCmd(),
             image_buffer->buffer,
             m_image,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -339,14 +339,14 @@ namespace Viry3D
 
     void Texture::CopyBufferToImageEnd()
     {
-        Display::GetDisplay()->SetImageLayout(
+        Display::Instance()->SetImageLayout(
             m_image,
             { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             VK_ACCESS_TRANSFER_WRITE_BIT);
 
-        Display::GetDisplay()->EndImageCmd();
+        Display::Instance()->EndImageCmd();
     }
 
     void Texture::GenMipmaps()
@@ -355,9 +355,9 @@ namespace Viry3D
 
         uint32_t layer_count = m_cubemap ? 6 : 1;
 
-        Display::GetDisplay()->BeginImageCmd();
+        Display::Instance()->BeginImageCmd();
 
-        Display::GetDisplay()->SetImageLayout(
+        Display::Instance()->SetImageLayout(
             m_image,
             { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, layer_count },
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -384,7 +384,7 @@ namespace Viry3D
             blit.dstOffsets[1].y = Mathf::Max(1, m_height >> i);
             blit.dstOffsets[1].z = 1;
 
-            Display::GetDisplay()->SetImageLayout(
+            Display::Instance()->SetImageLayout(
                 m_image,
                 { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) i, 1, 0, layer_count },
                 VK_IMAGE_LAYOUT_UNDEFINED,
@@ -392,7 +392,7 @@ namespace Viry3D
                 (VkAccessFlagBits) 0);
 
             vkCmdBlitImage(
-                Display::GetDisplay()->GetImageCmd(),
+                Display::Instance()->GetImageCmd(),
                 m_image,
                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                 m_image,
@@ -401,7 +401,7 @@ namespace Viry3D
                 &blit,
                 VK_FILTER_LINEAR);
 
-            Display::GetDisplay()->SetImageLayout(
+            Display::Instance()->SetImageLayout(
                 m_image,
                 { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) i, 1, 0, layer_count },
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -409,14 +409,14 @@ namespace Viry3D
                 VK_ACCESS_TRANSFER_WRITE_BIT);
         }
 
-        Display::GetDisplay()->SetImageLayout(
+        Display::Instance()->SetImageLayout(
             m_image,
             { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, layer_count },
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             VK_ACCESS_TRANSFER_READ_BIT);
 
-        Display::GetDisplay()->EndImageCmd();
+        Display::Instance()->EndImageCmd();
     }
 
     Texture::Texture():
@@ -436,7 +436,7 @@ namespace Viry3D
 
     Texture::~Texture()
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         if (m_image_buffer)
         {

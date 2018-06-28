@@ -37,7 +37,7 @@ namespace Viry3D
     {
         m_shaders.AddLast(this);
 
-        Display::GetDisplay()->CreateShaderModule(
+        Display::Instance()->CreateShaderModule(
             vs_source,
             vs_includes,
             fs_source,
@@ -45,14 +45,14 @@ namespace Viry3D
             &m_vs_module,
             &m_fs_module,
             m_uniform_sets);
-        Display::GetDisplay()->CreatePipelineCache(&m_pipeline_cache);
-        Display::GetDisplay()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
-        Display::GetDisplay()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+        Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
+        Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
+        Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
     }
 
     Shader::~Shader()
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         for (auto i : m_pipelines)
         {
@@ -83,7 +83,7 @@ namespace Viry3D
         else
         {
             VkPipeline pipeline;
-            Display::GetDisplay()->CreatePipeline(
+            Display::Instance()->CreatePipeline(
                 render_pass,
                 m_vs_module,
                 m_fs_module,
@@ -101,7 +101,7 @@ namespace Viry3D
 
     void Shader::OnRenderPassDestroy(VkRenderPass render_pass)
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         for (auto i : m_shaders)
         {
@@ -116,9 +116,9 @@ namespace Viry3D
 
     void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets)
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
-        Display::GetDisplay()->CreateDescriptorSets(
+        Display::Instance()->CreateDescriptorSets(
             m_uniform_sets,
             m_descriptor_pool,
             m_descriptor_layouts,

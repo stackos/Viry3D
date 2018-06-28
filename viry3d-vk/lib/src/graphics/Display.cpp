@@ -24,6 +24,10 @@
 #include "VertexAttribute.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "Shader.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "MeshRenderer.h"
 #include "vulkan/vulkan_shader_compiler.h"
 #include "container/List.h"
 #include "string/String.h"
@@ -74,7 +78,7 @@ namespace Viry3D
     class DisplayPrivate
     {
     public:
-        static Display* m_current_display;
+        static Display* m_display;
         Display* m_public;
         void* m_window;
         int m_width;
@@ -118,6 +122,8 @@ namespace Viry3D
         Ref<Texture> m_depth_texture;
         List<Ref<Camera>> m_cameras;
         bool m_primary_cmd_dirty = true;
+        Ref<Shader> m_blit_shader;
+        Ref<Mesh> m_blit_mesh;
 
         DisplayPrivate(Display* display, void* window, int width, int height):
             m_public(display),
@@ -125,13 +131,15 @@ namespace Viry3D
             m_width(width),
             m_height(height)
         {
-            m_current_display = m_public;
+            m_display = m_public;
         }
 
         ~DisplayPrivate()
         {
             vkDeviceWaitIdle(m_device);
 
+            m_blit_mesh.reset();
+            m_blit_shader.reset();
             m_cameras.Clear();
 
             this->DestroySizeDependentResources();
@@ -150,7 +158,7 @@ namespace Viry3D
             StringVectorClear(m_device_extension_names);
             m_public = nullptr;
 
-            m_current_display = nullptr;
+            m_display = nullptr;
         }
 
         static void StringVectorAdd(Vector<char*>& vec, const char* str)
@@ -183,7 +191,7 @@ namespace Viry3D
                 md5_str += String::Format("%02x", hash_bytes[i]);
             }
 
-            String cache_path = Application::SavePath() + "/" + md5_str + ".cache";
+            String cache_path = Application::Instance()->GetSavePath() + "/" + md5_str + ".cache";
             if (File::Exist(cache_path))
             {
                 auto buffer = File::ReadAllBytes(cache_path);
@@ -217,7 +225,7 @@ namespace Viry3D
             String source = s_shader_header;
             for (const auto& i : includes)
             {
-                auto include_path = Application::DataPath() + "/shader/Include/" + i;
+                auto include_path = Application::Instance()->GetDataPath() + "/shader/Include/" + i;
                 auto bytes = File::ReadAllBytes(include_path);
                 auto include_str = String(bytes);
                 source += include_str + "\n";
@@ -417,10 +425,8 @@ namespace Viry3D
             assert(platform_surface_ext_found);
         }
 
-        void CreateInstance()
+        void CreateInstance(const String& name)
         {
-            String name = Application::Name();
-
             VkApplicationInfo app_info;
             Memory::Zero(&app_info, sizeof(app_info));
             app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -2166,7 +2172,16 @@ namespace Viry3D
 
         void OnDraw()
         {
-            if (m_cameras.Empty())
+            bool has_present_camera = false;
+            for (auto i : m_cameras)
+            {
+                if (!i->HasRenderTarget())
+                {
+                    has_present_camera = true;
+                    break;
+                }
+            }
+            if (!has_present_camera)
             {
                 return;
             }
@@ -2212,23 +2227,84 @@ namespace Viry3D
             err = fpQueuePresentKHR(m_graphics_queue, &present_info);
             assert(!err);
         }
+
+        void CreateBlitShader()
+        {
+            String vs = R"(
+Input(0) vec4 a_pos;
+Input(2) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+
+void main()
+{
+	gl_Position = a_pos;
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+)";
+            String fs = R"(
+precision mediump float;
+      
+UniformTexture(0, 0) uniform sampler2D u_texture;
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    o_frag = texture(u_texture, v_uv);
+}
+)";
+            RenderState render_state;
+            render_state.cull = RenderState::Cull::Off;
+            render_state.zTest = RenderState::ZTest::Off;
+            render_state.zWrite = RenderState::ZWrite::Off;
+
+            m_blit_shader = RefMake<Shader>(
+                vs,
+                Vector<String>(),
+                fs,
+                Vector<String>(),
+                render_state);
+        }
+
+        void CreateBlitMesh()
+        {
+            Vector<Vertex> vertices(4);
+            Memory::Zero(&vertices[0], vertices.SizeInBytes());
+            vertices[0].vertex = Vector3(-1.0f, 1.0f, 0);
+            vertices[1].vertex = Vector3(-1.0f, -1.0f, 0);
+            vertices[2].vertex = Vector3(1.0f, -1.0f, 0);
+            vertices[3].vertex = Vector3(1.0f, 1.0f, 0);
+            vertices[0].uv = Vector2(0, 0);
+            vertices[1].uv = Vector2(0, 1);
+            vertices[2].uv = Vector2(1, 1);
+            vertices[3].uv = Vector2(1, 0);
+
+            Vector<unsigned short> indices({ 0, 1, 2, 0, 2, 3 });
+
+            m_blit_mesh = RefMake<Mesh>(vertices, indices);
+        }
     };
 
-    Display* DisplayPrivate::m_current_display;
+    Display* DisplayPrivate::m_display;
 
-    Display* Display::GetDisplay()
+    Display* Display::Instance()
     {
-        return DisplayPrivate::m_current_display;
+        return DisplayPrivate::m_display;
     }
 
-    Display::Display(void* window, int width, int height):
+    Display::Display(const String& name, void* window, int width, int height):
         m_private(new DisplayPrivate(this, window, width, height))
     {
         init_shader_compiler();
 
         m_private->CheckInstanceLayers();
         m_private->CheckInstanceExtensions();
-        m_private->CreateInstance();
+        m_private->CreateInstance(name);
         m_private->CreateDebugReportCallback();
         m_private->InitPhysicalDevice();
         m_private->CreateDevice();
@@ -2279,6 +2355,45 @@ namespace Viry3D
         m_private->m_cameras.AddLast(camera);
         this->MarkPrimaryCmdDirty();
         return camera.get();
+    }
+
+    Camera* Display::CreateBlitCamera(int depth, const Ref<Texture>& texture, const String& texture_name, CameraClearFlags clear_flags, const Ref<Shader>& shader, const Rect& rect)
+    {
+        Ref<Shader> blit_shader = shader;
+
+        if (!blit_shader)
+        {
+            if (!m_private->m_blit_shader)
+            {
+                m_private->CreateBlitShader();
+            }
+            blit_shader = m_private->m_blit_shader;
+        }
+
+        if (!m_private->m_blit_mesh)
+        {
+            m_private->CreateBlitMesh();
+        }
+
+        Ref<Material> material = RefMake<Material>(blit_shader);
+        Ref<MeshRenderer> renderer = RefMake<MeshRenderer>();
+        renderer->SetMaterial(material);
+        renderer->SetMesh(m_private->m_blit_mesh);
+
+        Camera* camera = this->CreateCamera();
+        camera->SetViewportRect(rect);
+        camera->SetClearFlags(clear_flags);
+        camera->SetDepth(depth);
+        camera->AddRenderer(renderer);
+
+        String blit_texture_name = texture_name;
+        if (blit_texture_name.Empty())
+        {
+            blit_texture_name = "u_texture";
+        }
+        material->SetTexture(blit_texture_name, texture);
+
+        return camera;
     }
 
     void Display::DestroyCamera(Camera* camera)

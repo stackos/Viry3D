@@ -25,8 +25,8 @@ namespace Viry3D
         m_vertex_count(0),
         m_index_count(0)
     {
-        m_vertex_buffer = Display::GetDisplay()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        m_index_buffer = Display::GetDisplay()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     
         m_vertex_count = vertices.Size();
         m_index_count = indices.Size();
@@ -34,7 +34,7 @@ namespace Viry3D
     
     Mesh::~Mesh()
     {
-        VkDevice device = Display::GetDisplay()->GetDevice();
+        VkDevice device = Display::Instance()->GetDevice();
 
         m_vertex_buffer->Destroy(device);
         m_vertex_buffer.reset();

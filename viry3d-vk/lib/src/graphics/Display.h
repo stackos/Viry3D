@@ -32,12 +32,13 @@ namespace Viry3D
     struct RenderState;
     struct BufferObject;
     class DisplayPrivate;
+    class Shader;
 
     class Display
     {
     public:
-        static Display* GetDisplay();
-        Display(void* window, int width, int height);
+        static Display* Instance();
+        Display(const String& name, void* window, int width, int height);
         virtual ~Display();
         void OnResize(int width, int height);
         void OnDraw();
@@ -46,6 +47,7 @@ namespace Viry3D
         VkDevice GetDevice() const;
         void WaitDevice() const;
         Camera* CreateCamera();
+        Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, const String& texture_name = "", CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Ref<Shader>& shader = Ref<Shader>(), const Rect& rect = Rect(0, 0, 1, 1));
         void DestroyCamera(Camera* camera);
         void MarkPrimaryCmdDirty();
         void CreateRenderPass(
