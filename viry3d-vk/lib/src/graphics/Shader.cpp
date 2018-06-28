@@ -73,7 +73,7 @@ namespace Viry3D
         m_shaders.Remove(this);
     }
 
-    VkPipeline Shader::GetPipeline(VkRenderPass render_pass)
+    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment)
     {
         VkPipeline* pipeline_ptr;
         if (m_pipelines.TryGet(render_pass, &pipeline_ptr))
@@ -90,17 +90,18 @@ namespace Viry3D
                 m_render_state,
                 m_pipeline_layout,
                 m_pipeline_cache,
-                &pipeline);
+                &pipeline,
+                color_attachment,
+                depth_attachment);
             m_pipelines.Add(render_pass, pipeline);
 
             return pipeline;
         }
     }
 
-    void Shader::OnCameraDestroy(Camera* camera)
+    void Shader::OnRenderPassDestroy(VkRenderPass render_pass)
     {
         VkDevice device = Display::GetDisplay()->GetDevice();
-        VkRenderPass render_pass = camera->GetRenderPass();
 
         for (auto i : m_shaders)
         {
@@ -108,8 +109,8 @@ namespace Viry3D
             if (i->m_pipelines.TryGet(render_pass, &pipeline))
             {
                 vkDestroyPipeline(device, *pipeline, nullptr);
+                i->m_pipelines.Remove(render_pass);
             }
-            i->m_pipelines.Remove(render_pass);
         }
     }
 

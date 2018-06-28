@@ -76,7 +76,9 @@ namespace Viry3D
             const RenderState& render_state,
             VkPipelineLayout pipeline_layout,
             VkPipelineCache pipeline_cache,
-            VkPipeline* pipeline);
+            VkPipeline* pipeline,
+            bool color_attachment,
+            bool depth_attachment);
         void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool);
         void CreateDescriptorSets(
             const Vector<UniformSet>& uniform_sets,

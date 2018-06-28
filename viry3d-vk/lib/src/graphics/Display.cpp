@@ -237,10 +237,6 @@ namespace Viry3D
             if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
             {
                 message = String::Format("ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-
-#if VR_WINDOWS
-                MessageBox(nullptr, message.CString(), "Alert", MB_OK);
-#endif
             }
             else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
             {
@@ -264,6 +260,10 @@ namespace Viry3D
             }
 
             Log("%s", message.CString());
+
+#if VR_WINDOWS
+            MessageBox(nullptr, message.CString(), "Alert", MB_OK);
+#endif
 
             return false;
         }
@@ -974,7 +974,7 @@ namespace Viry3D
             else
             {
                 color_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                depth_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                depth_final_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             }
 
             VkAttachmentReference color_reference = {
@@ -1018,8 +1018,8 @@ namespace Viry3D
                 attachment.samples = VK_SAMPLE_COUNT_1_BIT;
                 attachment.loadOp = depth_load;
                 attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachment.stencilLoadOp = depth_load;
-                attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
                 attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                 attachment.finalLayout = depth_final_layout;
 
@@ -1054,25 +1054,6 @@ namespace Viry3D
             subpass.preserveAttachmentCount = 0;
             subpass.pPreserveAttachments = nullptr;
 
-            VkSubpassDependency dependencies[2];
-            Memory::Zero(dependencies, sizeof(dependencies));
-
-            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[0].dstSubpass = 0;
-            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-            dependencies[1].srcSubpass = 0;
-            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
             VkRenderPassCreateInfo rp_info;
             Memory::Zero(&rp_info, sizeof(rp_info));
             rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -1082,8 +1063,8 @@ namespace Viry3D
             rp_info.pAttachments = &attachments[0];
             rp_info.subpassCount = 1;
             rp_info.pSubpasses = &subpass;
-            rp_info.dependencyCount = 0;//2;
-            rp_info.pDependencies = nullptr;//dependencies;
+            rp_info.dependencyCount = 0;
+            rp_info.pDependencies = nullptr;
 
             VkResult err = vkCreateRenderPass(m_device, &rp_info, nullptr, render_pass);
             assert(!err);
@@ -1645,25 +1626,39 @@ namespace Viry3D
             const RenderState& render_state,
             VkPipelineLayout pipeline_layout,
             VkPipelineCache pipeline_cache,
-            VkPipeline* pipeline)
+            VkPipeline* pipeline,
+            bool color_attachment,
+            bool depth_attachment)
         {
-            Vector<VkPipelineShaderStageCreateInfo> shader_stages(2);
-            Memory::Zero(&shader_stages[0], shader_stages.SizeInBytes());
-            shader_stages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-            shader_stages[0].pNext = nullptr;
-            shader_stages[0].flags = 0;
-            shader_stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-            shader_stages[0].module = vs_module;
-            shader_stages[0].pName = "main";
-            shader_stages[0].pSpecializationInfo = nullptr;
+            Vector<VkPipelineShaderStageCreateInfo> shader_stages;
+            {
+                VkPipelineShaderStageCreateInfo stage_info;
+                Memory::Zero(&stage_info, sizeof(stage_info));
+                stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+                stage_info.pNext = nullptr;
+                stage_info.flags = 0;
+                stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+                stage_info.module = vs_module;
+                stage_info.pName = "main";
+                stage_info.pSpecializationInfo = nullptr;
 
-            shader_stages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-            shader_stages[1].pNext = nullptr;
-            shader_stages[1].flags = 0;
-            shader_stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-            shader_stages[1].module = fs_module;
-            shader_stages[1].pName = "main";
-            shader_stages[1].pSpecializationInfo = nullptr;
+                shader_stages.Add(stage_info);
+            }
+
+            if (color_attachment)
+            {
+                VkPipelineShaderStageCreateInfo stage_info;
+                Memory::Zero(&stage_info, sizeof(stage_info));
+                stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+                stage_info.pNext = nullptr;
+                stage_info.flags = 0;
+                stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+                stage_info.module = fs_module;
+                stage_info.pName = "main";
+                stage_info.pSpecializationInfo = nullptr;
+
+                shader_stages.Add(stage_info);
+            }
 
             VkVertexInputBindingDescription vi_bind;
             Memory::Zero(&vi_bind, sizeof(vi_bind));
@@ -1839,8 +1834,22 @@ namespace Viry3D
             pipeline_info.pViewportState = &vp;
             pipeline_info.pRasterizationState = &rs;
             pipeline_info.pMultisampleState = &ms;
-            pipeline_info.pDepthStencilState = &ds;
-            pipeline_info.pColorBlendState = &cb;
+            if (depth_attachment)
+            {
+                pipeline_info.pDepthStencilState = &ds;
+            }
+            else
+            {
+                pipeline_info.pDepthStencilState = nullptr;
+            }
+            if (color_attachment)
+            {
+                pipeline_info.pColorBlendState = &cb;
+            }
+            else
+            {
+                pipeline_info.pColorBlendState = nullptr;
+            }
             pipeline_info.pDynamicState = &dynamic_info;
             pipeline_info.layout = pipeline_layout;
             pipeline_info.renderPass = render_pass;
@@ -2057,15 +2066,29 @@ namespace Viry3D
             VkFramebuffer framebuffer,
             int image_width,
             int image_height,
-            const Color& clear_color)
+            const Color& clear_color,
+            bool color_attachment,
+            bool depth_attachment)
         {
-            VkClearValue clear_values[2];
-            clear_values[0].color.float32[0] = clear_color.r;
-            clear_values[0].color.float32[1] = clear_color.g;
-            clear_values[0].color.float32[2] = clear_color.b;
-            clear_values[0].color.float32[3] = clear_color.a;
-            clear_values[1].depthStencil.depth = 1.0f;
-            clear_values[1].depthStencil.stencil = 0;
+            Vector<VkClearValue> clear_values;
+            if (color_attachment)
+            {
+                VkClearValue clear;
+                clear.color.float32[0] = clear_color.r;
+                clear.color.float32[1] = clear_color.g;
+                clear.color.float32[2] = clear_color.b;
+                clear.color.float32[3] = clear_color.a;
+
+                clear_values.Add(clear);
+            }
+            if (depth_attachment)
+            {
+                VkClearValue clear;
+                clear.depthStencil.depth = 1.0f;
+                clear.depthStencil.stencil = 0;
+
+                clear_values.Add(clear);
+            }
 
             VkRenderPassBeginInfo rp_begin;
             Memory::Zero(&rp_begin, sizeof(rp_begin));
@@ -2077,8 +2100,8 @@ namespace Viry3D
             rp_begin.renderArea.offset.y = 0;
             rp_begin.renderArea.extent.width = image_width;
             rp_begin.renderArea.extent.height = image_height;
-            rp_begin.clearValueCount = 2;
-            rp_begin.pClearValues = clear_values;
+            rp_begin.clearValueCount = clear_values.Size();
+            rp_begin.pClearValues = &clear_values[0];
 
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
             if (instance_cmds.Size() > 0)
@@ -2102,6 +2125,14 @@ namespace Viry3D
 
                 for (auto j : m_cameras)
                 {
+                    bool color_attachment = true;
+                    bool depth_attachment = true;
+                    if (j->HasRenderTarget())
+                    {
+                        color_attachment = (bool) j->GetRenderTargetColor();
+                        depth_attachment = (bool) j->GetRenderTargetDepth();
+                    }
+
                     this->BuildPrimaryCmd(
                         cmd,
                         j->GetInstanceCmds(),
@@ -2109,7 +2140,9 @@ namespace Viry3D
                         j->GetFramebuffer(i),
                         j->GetTargetWidth(),
                         j->GetTargetHeight(),
-                        j->GetClearColor());
+                        j->GetClearColor(),
+                        color_attachment,
+                        depth_attachment);
                 }
 
                 this->BuildPrimaryCmdEnd(cmd);
@@ -2387,7 +2420,9 @@ namespace Viry3D
         const RenderState& render_state,
         VkPipelineLayout pipeline_layout,
         VkPipelineCache pipeline_cache,
-        VkPipeline* pipeline)
+        VkPipeline* pipeline,
+        bool color_attachment,
+        bool depth_attachment)
     {
         m_private->CreatePipeline(
             render_pass,
@@ -2396,7 +2431,9 @@ namespace Viry3D
             render_state,
             pipeline_layout,
             pipeline_cache,
-            pipeline);
+            pipeline,
+            color_attachment,
+            depth_attachment);
     }
 
     void Display::CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)

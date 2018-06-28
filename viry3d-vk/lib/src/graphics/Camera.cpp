@@ -39,7 +39,6 @@ namespace Viry3D
 
     Camera::~Camera()
     {
-        Shader::OnCameraDestroy(this);
         this->ClearRenderPass();
         this->ClearInstanceCmds();
     }
@@ -131,6 +130,7 @@ namespace Viry3D
 
         if (m_render_pass)
         {
+            Shader::OnRenderPassDestroy(m_render_pass);
             vkDestroyRenderPass(device, m_render_pass, nullptr);
             m_render_pass = nullptr;
         }
@@ -338,11 +338,19 @@ namespace Viry3D
             }
         }
 
+        bool color_attachment = true;
+        bool depth_attachment = true;
+        if (this->HasRenderTarget())
+        {
+            color_attachment = (bool) this->GetRenderTargetColor();
+            depth_attachment = (bool) this->GetRenderTargetDepth();
+        }
+
         Display::GetDisplay()->BuildInstanceCmd(
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
-            shader->GetPipeline(m_render_pass),
+            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment),
             descriptor_sets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),

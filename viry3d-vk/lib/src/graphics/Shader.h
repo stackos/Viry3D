@@ -28,7 +28,7 @@ namespace Viry3D
     class Shader
     {
     public:
-        static void OnCameraDestroy(Camera* camera);
+        static void OnRenderPassDestroy(VkRenderPass render_pass);
         Shader(
             const String& vs_source,
             const Vector<String>& vs_includes,
@@ -37,7 +37,7 @@ namespace Viry3D
             const RenderState& render_state);
         ~Shader();
         const RenderState& GetRenderState() const { return m_render_state; }
-        VkPipeline GetPipeline(VkRenderPass render_pass);
+        VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment);
         void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
         VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
 
