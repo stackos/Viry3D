@@ -18,6 +18,8 @@
 #pragma once
 
 #include "Application.h"
+#include "Input.h"
+#include "Debug.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "graphics/Shader.h"
@@ -32,16 +34,16 @@
 using namespace Viry3D;
 
 // TODO:
-// - input
-// - sprite renderer
+// - PostProcess
+// - CanvaRenderer View Sprite Label Button
+// - ScrollView TabView TreeView
 // - android project
 // - mac project
 // - ios project
 
-class App
+class App : public Application
 {
 public:
-    Ref<ThreadPool> m_thread_pool;
     Camera* m_camera;
     MeshRenderer* m_renderer;
     float m_deg = 0;
@@ -130,8 +132,6 @@ void main()
 
     App()
     {
-        m_thread_pool = RefMake<ThreadPool>(8);
-
         auto color_texture = Texture::CreateRenderTexture(
             1280,
             720,
@@ -325,21 +325,17 @@ void main()
             material->SetTexture("u_texture", RefCast<Texture>(res));
             m_camera->AddRenderer(renderer);
         };
-        m_thread_pool->AddTask(task);
+        Application::ThreadPool()->AddTask(task);
     }
 
-    ~App()
+    virtual ~App()
     {
-        m_thread_pool.reset();
-        Application::ClearEvents();
         Display::GetDisplay()->DestroyCamera(m_camera);
         m_camera = nullptr;
     }
 
-    void Update()
+    virtual void Update()
     {
-        Application::ProcessEvents();
-
         m_deg += 0.1f;
 
         Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, m_deg, 0)));

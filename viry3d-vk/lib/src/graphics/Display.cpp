@@ -2166,6 +2166,11 @@ namespace Viry3D
 
         void OnDraw()
         {
+            if (m_cameras.Empty())
+            {
+                return;
+            }
+
             // wait for previous frame draw complete
             VkResult err = vkWaitForFences(m_device, 1, &m_draw_complete_fence, VK_TRUE, UINT64_MAX);
             assert(!err);

@@ -24,6 +24,7 @@ namespace Viry3D
 {
     typedef std::function<void()> Event;
 
+    class ThreadPool;
     class ApplicationPrivate;
 
     class Application
@@ -33,8 +34,17 @@ namespace Viry3D
         static const String& Name();
         static const String& DataPath();
         static const String& SavePath();
+        static ThreadPool* ThreadPool();
         static void PostEvent(Event event);
         static void ProcessEvents();
         static void ClearEvents();
+        static void UpdateBegin();
+        static void UpdateEnd();
+        Application();
+        virtual ~Application();
+        virtual void Update() { }
+
+    private:
+        ApplicationPrivate* m_private;
     };
 }

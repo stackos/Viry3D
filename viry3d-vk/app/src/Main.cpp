@@ -16,10 +16,187 @@
 */
 
 #include "Application.h"
+#include "Input.h"
+#include "time/Time.h"
 #include "App.h"
+
+extern Viry3D::Vector<Viry3D::Touch> g_input_touches;
+extern Viry3D::List<Viry3D::Touch> g_input_touch_buffer;
+extern bool g_key_down[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key[(int) Viry3D::KeyCode::COUNT];
+extern bool g_key_up[(int) Viry3D::KeyCode::COUNT];
+extern bool g_mouse_button_down[3];
+extern bool g_mouse_button_up[3];
+extern Viry3D::Vector3 g_mouse_position;
+extern bool g_mouse_button_held[3];
+extern float g_mouse_scroll_wheel;
+
+static bool g_mouse_down = false;
 
 #if VR_WINDOWS
 #include <Windows.h>
+#include <windowsx.h>
+
+static int get_key_code(int wParam)
+{
+    int key = -1;
+
+    if (wParam >= 48 && wParam < 48 + 10)
+    {
+        key = (int) KeyCode::Alpha0 + wParam - 48;
+    }
+    else if (wParam >= 96 && wParam < 96 + 10)
+    {
+        key = (int) KeyCode::Keypad0 + wParam - 96;
+    }
+    else if (wParam >= 65 && wParam < 65 + 'z' - 'a')
+    {
+        key = (int) KeyCode::A + wParam - 65;
+    }
+    else
+    {
+        switch (wParam)
+        {
+            case VK_CONTROL:
+            {
+                short state_l = ((unsigned short) GetKeyState(VK_LCONTROL)) >> 15;
+                short state_r = ((unsigned short) GetKeyState(VK_RCONTROL)) >> 15;
+                if (state_l)
+                {
+                    key = (int) KeyCode::LeftControl;
+                }
+                else if (state_r)
+                {
+                    key = (int) KeyCode::RightControl;
+                }
+                break;
+            }
+            case VK_SHIFT:
+            {
+                short state_l = ((unsigned short) GetKeyState(VK_LSHIFT)) >> 15;
+                short state_r = ((unsigned short) GetKeyState(VK_RSHIFT)) >> 15;
+                if (state_l)
+                {
+                    key = (int) KeyCode::LeftShift;
+                }
+                else if (state_r)
+                {
+                    key = (int) KeyCode::RightShift;
+                }
+                break;
+            }
+            case VK_MENU:
+            {
+                short state_l = ((unsigned short) GetKeyState(VK_LMENU)) >> 15;
+                short state_r = ((unsigned short) GetKeyState(VK_RMENU)) >> 15;
+                if (state_l)
+                {
+                    key = (int) KeyCode::LeftAlt;
+                }
+                else if (state_r)
+                {
+                    key = (int) KeyCode::RightAlt;
+                }
+                break;
+            }
+            case VK_UP:
+                key = (int) KeyCode::UpArrow;
+                break;
+            case VK_DOWN:
+                key = (int) KeyCode::DownArrow;
+                break;
+            case VK_LEFT:
+                key = (int) KeyCode::LeftArrow;
+                break;
+            case VK_RIGHT:
+                key = (int) KeyCode::RightArrow;
+                break;
+            case VK_BACK:
+                key = (int) KeyCode::Backspace;
+                break;
+            case VK_TAB:
+                key = (int) KeyCode::Tab;
+                break;
+            case VK_SPACE:
+                key = (int) KeyCode::Space;
+                break;
+            case VK_ESCAPE:
+                key = (int) KeyCode::Escape;
+                break;
+            case VK_RETURN:
+                key = (int) KeyCode::Return;
+                break;
+            case VK_OEM_3:
+                key = (int) KeyCode::BackQuote;
+                break;
+            case VK_OEM_MINUS:
+                key = (int) KeyCode::Minus;
+                break;
+            case VK_OEM_PLUS:
+                key = (int) KeyCode::Equals;
+                break;
+            case VK_OEM_4:
+                key = (int) KeyCode::LeftBracket;
+                break;
+            case VK_OEM_6:
+                key = (int) KeyCode::RightBracket;
+                break;
+            case VK_OEM_5:
+                key = (int) KeyCode::Backslash;
+                break;
+            case VK_OEM_1:
+                key = (int) KeyCode::Semicolon;
+                break;
+            case VK_OEM_7:
+                key = (int) KeyCode::Quote;
+                break;
+            case VK_OEM_COMMA:
+                key = (int) KeyCode::Comma;
+                break;
+            case VK_OEM_PERIOD:
+                key = (int) KeyCode::Period;
+                break;
+            case VK_OEM_2:
+                key = (int) KeyCode::Slash;
+                break;
+        }
+    }
+
+    return key;
+}
+
+static void switch_full_screen(HWND hWnd)
+{
+    static bool full_screen = false;
+    static int old_style = 0;
+    static RECT old_pos;
+
+    if (!full_screen)
+    {
+        full_screen = true;
+
+        old_style = GetWindowLong(hWnd, GWL_STYLE);
+        GetWindowRect(hWnd, &old_pos);
+
+        RECT rect;
+        HWND desktop = GetDesktopWindow();
+        GetWindowRect(desktop, &rect);
+        SetWindowLong(hWnd, GWL_STYLE, WS_POPUP);
+        SetWindowPos(hWnd, HWND_TOP, 0, 0, rect.right, rect.bottom, SWP_SHOWWINDOW);
+    }
+    else
+    {
+        full_screen = false;
+
+        SetWindowLong(hWnd, GWL_STYLE, old_style);
+        SetWindowPos(hWnd, HWND_TOP,
+            old_pos.left,
+            old_pos.top,
+            old_pos.right - old_pos.left,
+            old_pos.bottom - old_pos.top,
+            SWP_SHOWWINDOW);
+    }
+}
 
 static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -41,6 +218,276 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                 }
             }
             break;
+
+        case WM_SYSKEYDOWN:
+        case WM_KEYDOWN:
+        {
+            int key = get_key_code((int) wParam);
+
+            if (key >= 0)
+            {
+                if (!g_key[key])
+                {
+                    g_key_down[key] = true;
+                    g_key[key] = true;
+                }
+            }
+            else
+            {
+                if (wParam == VK_CAPITAL)
+                {
+                    short caps_on = ((unsigned short) GetKeyState(VK_CAPITAL)) & 1;
+                    g_key[(int) KeyCode::CapsLock] = caps_on == 1;
+                }
+            }
+            break;
+        }
+
+        case WM_SYSKEYUP:
+        case WM_KEYUP:
+        {
+            int key = get_key_code((int) wParam);
+
+            if (key >= 0)
+            {
+                g_key_up[key] = true;
+                g_key[key] = false;
+            }
+            else
+            {
+                switch (wParam)
+                {
+                    case VK_CONTROL:
+                    {
+                        if (g_key[(int) KeyCode::LeftControl])
+                        {
+                            g_key_up[(int) KeyCode::LeftControl] = true;
+                            g_key[(int) KeyCode::LeftControl] = false;
+                        }
+                        if (g_key[(int) KeyCode::RightControl])
+                        {
+                            g_key_up[(int) KeyCode::RightControl] = true;
+                            g_key[(int) KeyCode::RightControl] = false;
+                        }
+                        break;
+                    }
+                    case VK_SHIFT:
+                    {
+                        if (g_key[(int) KeyCode::LeftShift])
+                        {
+                            g_key_up[(int) KeyCode::LeftShift] = true;
+                            g_key[(int) KeyCode::LeftShift] = false;
+                        }
+                        if (g_key[(int) KeyCode::RightShift])
+                        {
+                            g_key_up[(int) KeyCode::RightShift] = true;
+                            g_key[(int) KeyCode::RightShift] = false;
+                        }
+                        break;
+                    }
+                    case VK_MENU:
+                    {
+                        if (g_key[(int) KeyCode::LeftAlt])
+                        {
+                            g_key_up[(int) KeyCode::LeftAlt] = true;
+                            g_key[(int) KeyCode::LeftAlt] = false;
+                        }
+                        if (g_key[(int) KeyCode::RightAlt])
+                        {
+                            g_key_up[(int) KeyCode::RightAlt] = true;
+                            g_key[(int) KeyCode::RightAlt] = false;
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+
+        case WM_SYSCHAR:
+            if (wParam == VK_RETURN)
+            {
+                // Alt + Enter
+                switch_full_screen(hWnd);
+            }
+            break;
+
+        case WM_LBUTTONDOWN:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            if (!g_mouse_down)
+            {
+                Touch t;
+                t.deltaPosition = Vector2(0, 0);
+                t.deltaTime = 0;
+                t.fingerId = 0;
+                t.phase = TouchPhase::Began;
+                t.position = Vector2((float) x, (float) Display::GetDisplay()->GetHeight() - y - 1);
+                t.tapCount = 1;
+                t.time = Time::GetRealTimeSinceStartup();
+
+                if (!g_input_touches.Empty())
+                {
+                    g_input_touch_buffer.AddLast(t);
+                }
+                else
+                {
+                    g_input_touches.Add(t);
+                }
+
+                g_mouse_down = true;
+            }
+
+            g_mouse_button_down[0] = true;
+            g_mouse_position.x = (float) x;
+            g_mouse_position.y = (float) Display::GetDisplay()->GetHeight() - y - 1;
+            g_mouse_button_held[0] = true;
+
+            break;
+        }
+
+        case WM_RBUTTONDOWN:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            g_mouse_button_down[1] = true;
+            g_mouse_position.x = (float) x;
+            g_mouse_position.y = (float) Display::GetDisplay()->GetHeight() - y - 1;
+            g_mouse_button_held[1] = true;
+
+            break;
+        }
+
+        case WM_MBUTTONDOWN:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            g_mouse_button_down[2] = true;
+            g_mouse_position.x = (float) x;
+            g_mouse_position.y = (float) Display::GetDisplay()->GetHeight() - y - 1;
+            g_mouse_button_held[2] = true;
+
+            break;
+        }
+
+        case WM_MOUSEMOVE:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            if (g_mouse_down)
+            {
+                Touch t;
+                t.deltaPosition = Vector2(0, 0);
+                t.deltaTime = 0;
+                t.fingerId = 0;
+                t.phase = TouchPhase::Moved;
+                t.position = Vector2((float) x, (float) Display::GetDisplay()->GetHeight() - y - 1);
+                t.tapCount = 1;
+                t.time = Time::GetRealTimeSinceStartup();
+
+                if (!g_input_touches.Empty())
+                {
+                    if (g_input_touch_buffer.Empty())
+                    {
+                        g_input_touch_buffer.AddLast(t);
+                    }
+                    else
+                    {
+                        if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
+                        {
+                            g_input_touch_buffer.Last() = t;
+                        }
+                        else
+                        {
+                            g_input_touch_buffer.AddLast(t);
+                        }
+                    }
+                }
+                else
+                {
+                    g_input_touches.Add(t);
+                }
+            }
+
+            g_mouse_position.x = (float) x;
+            g_mouse_position.y = (float) Display::GetDisplay()->GetHeight() - y - 1;
+
+            break;
+        }
+
+        case WM_LBUTTONUP:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            if (g_mouse_down)
+            {
+                Touch t;
+                t.deltaPosition = Vector2(0, 0);
+                t.deltaTime = 0;
+                t.fingerId = 0;
+                t.phase = TouchPhase::Ended;
+                t.position = Vector2((float) x, (float) Display::GetDisplay()->GetHeight() - y - 1);
+                t.tapCount = 1;
+                t.time = Time::GetRealTimeSinceStartup();
+
+                if (!g_input_touches.Empty())
+                {
+                    g_input_touch_buffer.AddLast(t);
+                }
+                else
+                {
+                    g_input_touches.Add(t);
+                }
+
+                g_mouse_down = false;
+            }
+
+            g_mouse_button_up[0] = true;
+            g_mouse_position.x = (float) x;
+            g_mouse_position.y = (float) Display::GetDisplay()->GetHeight() - y - 1;
+            g_mouse_button_held[0] = false;
+
+            break;
+        }
+
+        case WM_RBUTTONUP:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            g_mouse_button_up[1] = true;
+            g_mouse_position.x = (float) x;
+            g_mouse_position.y = (float) Display::GetDisplay()->GetHeight() - y - 1;
+            g_mouse_button_held[1] = false;
+
+            break;
+        }
+
+        case WM_MBUTTONUP:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            g_mouse_button_up[2] = true;
+            g_mouse_position.x = (float) x;
+            g_mouse_position.y = (float) Display::GetDisplay()->GetHeight() - y - 1;
+            g_mouse_button_held[2] = false;
+
+            break;
+        }
+
+        case WM_MOUSEWHEEL:
+        {
+            int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            g_mouse_scroll_wheel = delta / 120.0f;
+            break;
+        }
 
         default:
             break;
@@ -134,7 +581,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break;
         }
 
+        Application::UpdateBegin();
         app->Update();
+        Application::UpdateEnd();
 
         display->OnDraw();
     }

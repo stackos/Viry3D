@@ -42,6 +42,7 @@
     <ClInclude Include="..\..\src\graphics\Texture.h" />
     <ClInclude Include="..\..\src\graphics\UniformSet.h" />
     <ClInclude Include="..\..\src\graphics\VertexAttribute.h" />
+    <ClInclude Include="..\..\src\Input.h" />
     <ClInclude Include="..\..\src\io\Directory.h" />
     <ClInclude Include="..\..\src\io\File.h" />
     <ClInclude Include="..\..\src\io\MemoryStream.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\..\src\json\reader.h" />
     <ClInclude Include="..\..\src\json\value.h" />
     <ClInclude Include="..\..\src\json\writer.h" />
+    <ClInclude Include="..\..\src\KeyCode.h" />
     <ClInclude Include="..\..\src\lua\lapi.h" />
     <ClInclude Include="..\..\src\lua\lauxlib.h" />
     <ClInclude Include="..\..\src\lua\lcode.h" />
@@ -329,6 +331,7 @@
     <ClCompile Include="..\..\src\graphics\Shader.cpp" />
     <ClCompile Include="..\..\src\graphics\Texture.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexAttribute.cpp" />
+    <ClCompile Include="..\..\src\Input.cpp" />
     <ClCompile Include="..\..\src\io\Directory.cpp" />
     <ClCompile Include="..\..\src\io\File.cpp" />
     <ClCompile Include="..\..\src\io\MemoryStream.cpp" />

@@ -16,8 +16,10 @@
 */
 
 #include "Application.h"
+#include "Input.h"
 #include "container/List.h"
 #include "thread/ThreadPool.h"
+#include "time/Time.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -28,18 +30,34 @@ namespace Viry3D
     class ApplicationPrivate
     {
     public:
+        static Application* m_app;
         static String m_name;
-        static String m_data_path;
-        static String m_save_path;
-        static List<Event> m_events;
-        static Mutex m_mutex;
+        String m_data_path;
+        String m_save_path;
+        List<Event> m_events;
+        Mutex m_mutex;
+        Ref<ThreadPool> m_thread_pool;
+
+        ApplicationPrivate(Application* app)
+        {
+            m_app = app;
+            m_thread_pool = RefMake<ThreadPool>(8);
+        }
+
+        ~ApplicationPrivate()
+        {
+            m_thread_pool.reset();
+            m_app = nullptr;
+        }
+
+        static Application* App()
+        {
+            return m_app;
+        }
     };
 
+    Application* ApplicationPrivate::m_app;
     String ApplicationPrivate::m_name;
-    String ApplicationPrivate::m_data_path;
-    String ApplicationPrivate::m_save_path;
-    List<Event> ApplicationPrivate::m_events;
-    Mutex ApplicationPrivate::m_mutex;
 
     void Application::SetName(const String& name)
     {
@@ -54,54 +72,82 @@ namespace Viry3D
 #if VR_WINDOWS
     const String& Application::DataPath()
     {
-        if (ApplicationPrivate::m_data_path.Empty())
+        if (ApplicationPrivate::App()->m_private->m_data_path.Empty())
         {
             char buffer[MAX_PATH];
             ::GetModuleFileName(nullptr, buffer, MAX_PATH);
             String path = buffer;
             path = path.Replace("\\", "/").Substring(0, path.LastIndexOf("\\")) + "/Assets";
-            ApplicationPrivate::m_data_path = path;
+            ApplicationPrivate::App()->m_private->m_data_path = path;
         }
 
-        return ApplicationPrivate::m_data_path;
+        return ApplicationPrivate::App()->m_private->m_data_path;
     }
 
     const String& Application::SavePath()
     {
-        if (ApplicationPrivate::m_save_path.Empty())
+        if (ApplicationPrivate::App()->m_private->m_save_path.Empty())
         {
-            ApplicationPrivate::m_save_path = DataPath();
+            ApplicationPrivate::App()->m_private->m_save_path = DataPath();
         }
 
-        return ApplicationPrivate::m_save_path;
+        return ApplicationPrivate::App()->m_private->m_save_path;
     }
 #endif
 
+    ThreadPool* Application::ThreadPool()
+    {
+        return ApplicationPrivate::App()->m_private->m_thread_pool.get();
+    }
+
     void Application::PostEvent(Event event)
     {
-        ApplicationPrivate::m_mutex.lock();
-        ApplicationPrivate::m_events.AddLast(event);
-        ApplicationPrivate::m_mutex.unlock();
+        ApplicationPrivate::App()->m_private->m_mutex.lock();
+        ApplicationPrivate::App()->m_private->m_events.AddLast(event);
+        ApplicationPrivate::App()->m_private->m_mutex.unlock();
     }
 
     void Application::ProcessEvents()
     {
-        ApplicationPrivate::m_mutex.lock();
-        for (const auto& event : ApplicationPrivate::m_events)
+        ApplicationPrivate::App()->m_private->m_mutex.lock();
+        for (const auto& event : ApplicationPrivate::App()->m_private->m_events)
         {
             if (event)
             {
                 event();
             }
         }
-        ApplicationPrivate::m_events.Clear();
-        ApplicationPrivate::m_mutex.unlock();
+        ApplicationPrivate::App()->m_private->m_events.Clear();
+        ApplicationPrivate::App()->m_private->m_mutex.unlock();
     }
 
     void Application::ClearEvents()
     {
-        ApplicationPrivate::m_mutex.lock();
-        ApplicationPrivate::m_events.Clear();
-        ApplicationPrivate::m_mutex.unlock();
+        ApplicationPrivate::App()->m_private->m_mutex.lock();
+        ApplicationPrivate::App()->m_private->m_events.Clear();
+        ApplicationPrivate::App()->m_private->m_mutex.unlock();
+    }
+
+    void Application::UpdateBegin()
+    {
+        Time::Update();
+        Application::ProcessEvents();
+    }
+
+    void Application::UpdateEnd()
+    {
+        Input::Update();
+    }
+
+    Application::Application():
+        m_private(new ApplicationPrivate(this))
+    {
+    
+    }
+
+    Application::~Application()
+    {
+        Application::ClearEvents();
+        delete m_private;
     }
 }

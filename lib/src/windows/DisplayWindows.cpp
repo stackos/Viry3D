@@ -36,7 +36,7 @@ extern float g_mouse_scroll_wheel;
 
 namespace Viry3D
 {
-	static bool g_input_down = false;
+	static bool g_mouse_down = false;
 
 	static int get_key_code(int wParam)
 	{
@@ -315,7 +315,7 @@ namespace Viry3D
 				int x = GET_X_LPARAM(lParam);
 				int y = GET_Y_LPARAM(lParam);
 
-				if (!g_input_down)
+				if (!g_mouse_down)
 				{
 					Touch t;
 					t.deltaPosition = Vector2(0, 0);
@@ -335,7 +335,7 @@ namespace Viry3D
 						g_input_touches.Add(t);
 					}
 
-					g_input_down = true;
+                    g_mouse_down = true;
 				}
 
 				g_mouse_button_down[0] = true;
@@ -377,7 +377,7 @@ namespace Viry3D
 				int x = GET_X_LPARAM(lParam);
 				int y = GET_Y_LPARAM(lParam);
 
-				if (g_input_down)
+				if (g_mouse_down)
 				{
 					Touch t;
 					t.deltaPosition = Vector2(0, 0);
@@ -423,7 +423,7 @@ namespace Viry3D
 				int x = GET_X_LPARAM(lParam);
 				int y = GET_Y_LPARAM(lParam);
 
-				if (g_input_down)
+				if (g_mouse_down)
 				{
 					Touch t;
 					t.deltaPosition = Vector2(0, 0);
@@ -443,7 +443,7 @@ namespace Viry3D
 						g_input_touches.Add(t);
 					}
 
-					g_input_down = false;
+                    g_mouse_down = false;
 				}
 
 				g_mouse_button_up[0] = true;
