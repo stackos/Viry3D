@@ -68,10 +68,10 @@ public:
         m_camera->SetRenderTarget(color_texture, depth_texture);
         m_camera->SetDepth(0);
 
-        auto blit_depth_camera = Display::Instance()->CreateBlitCamera(1, m_camera->GetRenderTargetDepth(), "", CameraClearFlags::Nothing, Ref<Shader>(), Rect(0, 0, 0.25f, 0.25f));
+        auto blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, "", CameraClearFlags::Nothing, Ref<Shader>(), Rect(0, 0, 0.25f, 0.25f));
         blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
 
-        Display::Instance()->CreateBlitCamera(2, m_camera->GetRenderTargetColor());
+        Display::Instance()->CreateBlitCamera(2, color_texture);
 
         String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
