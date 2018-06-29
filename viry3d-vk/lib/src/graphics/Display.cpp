@@ -118,6 +118,7 @@ namespace Viry3D
         VkSemaphore m_draw_complete_semaphore = nullptr;
         int m_image_index = 0;
         VkCommandPool m_graphics_cmd_pool = nullptr;
+        VkCommandPool m_image_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
         Ref<Texture> m_depth_texture;
         List<Ref<Camera>> m_cameras;
@@ -144,6 +145,8 @@ namespace Viry3D
 
             this->DestroySizeDependentResources();
 
+            vkFreeCommandBuffers(m_device, m_image_cmd_pool, 1, &m_image_cmd);
+            vkDestroyCommandPool(m_device, m_image_cmd_pool, nullptr);
             vkDestroyFence(m_device, m_image_fence, nullptr);
             vkDestroyFence(m_device, m_draw_complete_fence, nullptr);
             vkDestroySemaphore(m_device, m_image_acquired_semaphore, nullptr);
@@ -685,11 +688,16 @@ namespace Viry3D
             assert(!err);
         }
 
+        void CreateImageCmd()
+        {
+            this->CreateCommandPool(&m_image_cmd_pool);
+            this->CreateCommandBuffer(m_image_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_image_cmd);
+        }
+
         void CreateSizeDependentResources()
         {
             this->CreateSwapChain();
             this->CreateCommandPool(&m_graphics_cmd_pool);
-            this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_image_cmd);
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_swapchain_image_resources[i].cmd);
@@ -710,7 +718,6 @@ namespace Viry3D
             {
                 vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_swapchain_image_resources[i].cmd);
             }
-            vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_image_cmd);
             vkDestroyCommandPool(m_device, m_graphics_cmd_pool, nullptr);
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
@@ -2309,6 +2316,7 @@ void main()
         m_private->InitPhysicalDevice();
         m_private->CreateDevice();
         m_private->CreateSignals();
+        m_private->CreateImageCmd();
         m_private->CreateSizeDependentResources();
     }
 

@@ -35,6 +35,7 @@ using namespace Viry3D;
 
 // TODO:
 // - camera view projection matrix build
+// - camera resize
 // - PostProcess
 // - CanvaRenderer View Sprite Label Button
 // - ScrollView TabView TreeView

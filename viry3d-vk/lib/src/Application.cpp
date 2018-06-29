@@ -37,8 +37,10 @@ namespace Viry3D
         List<Event> m_events;
         Mutex m_mutex;
         Ref<ThreadPool> m_thread_pool;
+        bool m_quit;
 
-        ApplicationPrivate(Application* app)
+        ApplicationPrivate(Application* app):
+            m_quit(false)
         {
             m_app = app;
             m_thread_pool = RefMake<ThreadPool>(8);
@@ -61,12 +63,12 @@ namespace Viry3D
     Application::Application():
         m_private(new ApplicationPrivate(this))
     {
-    
+        this->GetDataPath();
+        this->GetSavePath();
     }
 
     Application::~Application()
     {
-        this->ClearEvents();
         delete m_private;
     }
 
@@ -132,13 +134,6 @@ namespace Viry3D
         m_private->m_mutex.unlock();
     }
 
-    void Application::ClearEvents()
-    {
-        m_private->m_mutex.lock();
-        m_private->m_events.Clear();
-        m_private->m_mutex.unlock();
-    }
-
     void Application::UpdateBegin()
     {
         Time::Update();
@@ -147,6 +142,29 @@ namespace Viry3D
 
     void Application::UpdateEnd()
     {
+#if VR_ANDROID
+        if (Input::GetKeyDown(KeyCode::Backspace))
+#else
+        if (Input::GetKeyDown(KeyCode::Escape))
+#endif
+        {
+            this->Quit();
+        }
+
         Input::Update();
+    }
+
+    void Application::Quit()
+    {
+        m_private->m_quit = true;
+
+#if VR_ANDROID
+        java_quit_application();
+#endif
+    }
+
+    bool Application::HasQuit()
+    {
+        return m_private->m_quit;
     }
 }

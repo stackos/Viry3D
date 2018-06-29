@@ -18,6 +18,7 @@
 #include "Application.h"
 #include "Input.h"
 #include "time/Time.h"
+#include "thread/ThreadPool.h"
 #include "App.h"
 
 extern Viry3D::Vector<Viry3D::Touch> g_input_touches;
@@ -37,7 +38,7 @@ static bool g_mouse_down = false;
 #include <Windows.h>
 #include <windowsx.h>
 
-static int get_key_code(int wParam)
+static int GetKeyCode(int wParam)
 {
     int key = -1;
 
@@ -165,7 +166,7 @@ static int get_key_code(int wParam)
     return key;
 }
 
-static void switch_full_screen(HWND hWnd)
+static void SwitchFullScreen(HWND hWnd)
 {
     static bool full_screen = false;
     static int old_style = 0;
@@ -181,15 +182,15 @@ static void switch_full_screen(HWND hWnd)
         RECT rect;
         HWND desktop = GetDesktopWindow();
         GetWindowRect(desktop, &rect);
-        SetWindowLong(hWnd, GWL_STYLE, WS_POPUP);
-        SetWindowPos(hWnd, HWND_TOP, 0, 0, rect.right, rect.bottom, SWP_SHOWWINDOW);
+        SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPED);
+        SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, rect.right, rect.bottom, SWP_SHOWWINDOW);
     }
     else
     {
         full_screen = false;
 
         SetWindowLong(hWnd, GWL_STYLE, old_style);
-        SetWindowPos(hWnd, HWND_TOP,
+        SetWindowPos(hWnd, HWND_NOTOPMOST,
             old_pos.left,
             old_pos.top,
             old_pos.right - old_pos.left,
@@ -203,6 +204,10 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     switch (uMsg)
     {
         case WM_CLOSE:
+            DestroyWindow(hWnd);
+            break;
+
+        case WM_DESTROY:
             PostQuitMessage(0);
             break;
 
@@ -222,7 +227,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
         {
-            int key = get_key_code((int) wParam);
+            int key = GetKeyCode((int) wParam);
 
             if (key >= 0)
             {
@@ -246,7 +251,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         case WM_SYSKEYUP:
         case WM_KEYUP:
         {
-            int key = get_key_code((int) wParam);
+            int key = GetKeyCode((int) wParam);
 
             if (key >= 0)
             {
@@ -308,7 +313,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             if (wParam == VK_RETURN)
             {
                 // Alt + Enter
-                switch_full_screen(hWnd);
+                SwitchFullScreen(hWnd);
             }
             break;
 
@@ -584,7 +589,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         app->Update();
         app->UpdateEnd();
 
-        display->OnDraw();
+        if (app->HasQuit())
+        {
+            SendMessage(hwnd, WM_CLOSE, 0, 0);
+        }
+        else
+        {
+            display->OnDraw();
+        }
     }
 
     app.reset();
