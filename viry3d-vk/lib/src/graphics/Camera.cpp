@@ -27,9 +27,16 @@ namespace Viry3D
         m_render_pass_dirty(true),
         m_renderer_order_dirty(true),
         m_instance_cmds_dirty(true),
+        m_projection_matrix_dirty(true),
         m_clear_flags(CameraClearFlags::ColorAndDepth),
         m_clear_color(0, 0, 0, 1),
         m_viewport_rect(0, 0, 1, 1),
+        m_fov(45),
+        m_aspect(1),
+        m_near(0.3f),
+        m_far(1000),
+        m_orthographic(false),
+        m_orthographic_size(1),
         m_depth(0),
         m_render_pass(nullptr),
         m_cmd_pool(nullptr)
@@ -59,6 +66,42 @@ namespace Viry3D
     {
         m_viewport_rect = rect;
         m_instance_cmds_dirty = true;
+    }
+
+    void Camera::SetFieldOfView(float fov)
+    {
+        m_fov = fov;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetAspect(float aspect)
+    {
+        m_aspect = aspect;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetNear(float near_clip)
+    {
+        m_near = near_clip;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetFar(float far_clip)
+    {
+        m_far = far_clip;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetOrthographic(bool ortho)
+    {
+        m_orthographic = ortho;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetOrthographicSize(float size)
+    {
+        m_orthographic_size = size;
+        m_projection_matrix_dirty = true;
     }
 
     void Camera::SetDepth(int depth)
@@ -104,6 +147,8 @@ namespace Viry3D
 
         m_render_pass_dirty = true;
         m_instance_cmds_dirty = true;
+
+        this->SetAspect(width / (float) height);
     }
 
     void Camera::UpdateRenderPass()
@@ -366,6 +411,38 @@ namespace Viry3D
         for (auto& i : m_renderers)
         {
             i.renderer->Update();
+        }
+    }
+
+    void Camera::UpdateMatrix()
+    {
+        bool update_all_renderers = false;
+
+        if (m_projection_matrix_dirty)
+        {
+            m_projection_matrix_dirty = false;
+            update_all_renderers = true;
+
+            if (m_orthographic)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+
+        for (auto& i : m_renderers)
+        {
+            const Ref<Material>& material = i.renderer->GetMaterial();
+            if (material)
+            {
+                if (update_all_renderers)
+                {
+                    material->SetMatrix("u_projection_matrix", this->GetProjectionMatrix());
+                }
+            }
         }
     }
 }

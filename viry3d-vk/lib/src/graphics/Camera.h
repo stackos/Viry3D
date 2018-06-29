@@ -21,6 +21,7 @@
 #include "CameraClearFlags.h"
 #include "Color.h"
 #include "math/Rect.h"
+#include "math/Matrix4x4.h"
 #include "container/Vector.h"
 #include "container/List.h"
 
@@ -53,6 +54,13 @@ namespace Viry3D
         void SetClearColor(const Color& color);
         const Rect& GetViewportRect() const { return m_viewport_rect; }
         void SetViewportRect(const Rect& rect);
+        void SetFieldOfView(float fov);
+        void SetAspect(float aspect);
+        void SetNear(float near_clip);
+        void SetFar(float far_clip);
+        void SetOrthographic(bool ortho);
+        void SetOrthographicSize(float size);
+        const Matrix4x4& GetProjectionMatrix() const { return m_projection_matrix; }
         int GetDepth() const { return m_depth; }
         void SetDepth(int depth);
         bool HasRenderTarget() const { return m_render_target_color || m_render_target_depth; }
@@ -79,14 +87,23 @@ namespace Viry3D
         void ClearInstanceCmds();
         void BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer);
         void UpdateRenderers();
+        void UpdateMatrix();
 
     private:
         bool m_render_pass_dirty;
         bool m_renderer_order_dirty;
         bool m_instance_cmds_dirty;
+        bool m_projection_matrix_dirty;
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;
+        float m_fov;
+        float m_aspect;
+        float m_near;
+        float m_far;
+        bool m_orthographic;
+        float m_orthographic_size;
+        Matrix4x4 m_projection_matrix;
         int m_depth;
         Ref<Texture> m_render_target_color;
         Ref<Texture> m_render_target_depth;
