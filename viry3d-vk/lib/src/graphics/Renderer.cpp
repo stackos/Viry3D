@@ -47,30 +47,32 @@ namespace Viry3D
 
         if (m_instance_material)
         {
-            Map<String, MaterialProperty> properties = m_instance_material->GetProperties();
+            Map<String, Vector<MaterialProperty>> properties = m_instance_material->GetProperties();
 
             m_instance_material = RefMake<Material>(m_material->GetShader());
             for (const auto& i : properties)
             {
-                switch(i.second.type)
+                const MaterialProperty& property = i.second[0];
+
+                switch(property.type)
                 {
                     case MaterialProperty::Type::Matrix:
-                        m_instance_material->SetMatrix(i.second.name, *(Matrix4x4*) &i.second.data);
+                        m_instance_material->SetMatrix(property.name, *(Matrix4x4*) &property.data);
                         break;
                     case MaterialProperty::Type::Vector:
-                        m_instance_material->SetVector(i.second.name, *(Vector4*) &i.second.data);
+                        m_instance_material->SetVector(property.name, *(Vector4*) &property.data);
                         break;
                     case MaterialProperty::Type::Color:
-                        m_instance_material->SetColor(i.second.name, *(Color*) &i.second.data);
+                        m_instance_material->SetColor(property.name, *(Color*) &property.data);
                         break;
                     case MaterialProperty::Type::Float:
-                        m_instance_material->SetFloat(i.second.name, *(float*) &i.second.data);
+                        m_instance_material->SetFloat(property.name, *(float*) &property.data);
                         break;
                     case MaterialProperty::Type::Int:
-                        m_instance_material->SetInt(i.second.name, *(int*) &i.second.data);
+                        m_instance_material->SetInt(property.name, *(int*) &property.data);
                         break;
                     case MaterialProperty::Type::Texture:
-                        m_instance_material->SetTexture(i.second.name, i.second.texture);
+                        m_instance_material->SetTexture(property.name, property.texture);
                         break;
                 }
             }

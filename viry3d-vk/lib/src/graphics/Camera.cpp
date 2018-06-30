@@ -24,6 +24,7 @@
 namespace Viry3D
 {
     Camera::Camera():
+        m_index(-1),
         m_render_pass_dirty(true),
         m_renderer_order_dirty(true),
         m_instance_cmds_dirty(true),
@@ -136,6 +137,13 @@ namespace Viry3D
             Display::Instance()->MarkPrimaryCmdDirty();
         }
 
+        if (m_projection_matrix_dirty)
+        {
+            m_projection_matrix_dirty = false;
+
+            this->UpdateMatrix();
+        }
+        
         this->UpdateRenderers();
         this->UpdateInstanceCmds();
     }
@@ -362,6 +370,7 @@ namespace Viry3D
         const Ref<Material>& material = renderer->GetMaterial();
         const Ref<Material>& instance_material = renderer->GetInstanceMaterial();
         const Ref<Shader>& shader = material->GetShader();
+        const Vector<UniformSet>& sets_info = shader->GetUniformSets();
 
         int index_offset;
         int index_count;
@@ -372,10 +381,10 @@ namespace Viry3D
         if (instance_material)
         {
             const Vector<VkDescriptorSet>& instance_descriptor_sets = instance_material->GetDescriptorSets();
-            const Map<String, MaterialProperty>& instance_properties = instance_material->GetProperties();
+            const Map<String, Vector<MaterialProperty>>& instance_properties = instance_material->GetProperties();
             for (const auto& i : instance_properties)
             {
-                int instance_set_index = instance_material->FindUniformSetIndex(i.second.name);
+                int instance_set_index = instance_material->FindUniformSetIndex(i.second[0].name);
                 if (instance_set_index >= 0)
                 {
                     descriptor_sets[instance_set_index] = instance_descriptor_sets[instance_set_index];
@@ -391,12 +400,23 @@ namespace Viry3D
             depth_attachment = (bool) this->GetRenderTargetDepth();
         }
 
+        Vector<Vector<int>> dynamic_offsets(descriptor_sets.Size());
+        for (int i = 0; i < descriptor_sets.Size(); ++i)
+        {
+            int buffer_count = sets_info[i].buffers.Size();
+            for (int j = 0; j < buffer_count; ++j)
+            {
+                dynamic_offsets[i].Add(sets_info[i].buffers[j].offset_alignment * m_index);
+            }
+        }
+
         Display::Instance()->BuildInstanceCmd(
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
             shader->GetPipeline(m_render_pass, color_attachment, depth_attachment),
             descriptor_sets,
+            dynamic_offsets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),
             m_viewport_rect,
@@ -416,12 +436,9 @@ namespace Viry3D
 
     void Camera::UpdateMatrix()
     {
-        bool update_all_renderers = false;
-
         if (m_projection_matrix_dirty)
         {
             m_projection_matrix_dirty = false;
-            update_all_renderers = true;
 
             if (m_orthographic)
             {
@@ -430,18 +447,6 @@ namespace Viry3D
             else
             {
 
-            }
-        }
-
-        for (auto& i : m_renderers)
-        {
-            const Ref<Material>& material = i.renderer->GetMaterial();
-            if (material)
-            {
-                if (update_all_renderers)
-                {
-                    material->SetMatrix("u_projection_matrix", this->GetProjectionMatrix());
-                }
             }
         }
     }

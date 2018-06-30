@@ -40,6 +40,7 @@ namespace Viry3D
         Vector<UniformMember> members;
         int size;
         Ref<BufferObject> buffer;
+        int offset_alignment;
     };
 
     struct UniformTexture

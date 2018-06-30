@@ -34,8 +34,10 @@
 using namespace Viry3D;
 
 // TODO:
-// - camera view projection matrix build
+// - update camera matrix uniform by dynamic uniform buffer
+// - camera projection matrix build
 // - camera resize
+// - camera view matrix build
 // - PostProcess
 // - CanvaRenderer View Sprite Label Button
 // - ScrollView TabView TreeView
@@ -76,7 +78,8 @@ public:
         String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
-	mat4 u_view_projection_matrix;
+	mat4 u_view_matrix;
+    mat4 u_projection_matrix;
 } buf_0_0;
 
 UniformBuffer(1, 0) uniform UniformBuffer10
@@ -91,7 +94,7 @@ Output(0) vec2 v_uv;
 
 void main()
 {
-	gl_Position = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_projection_matrix;
+	gl_Position = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
 	v_uv = a_uv;
 
 	vulkan_convert();
@@ -163,14 +166,15 @@ void main()
         Vector3 camera_pos(0, 0, -5);
         Matrix4x4 view = Matrix4x4::LookTo(camera_pos, Vector3(0, 0, 1), Vector3(0, 1, 0));
         Matrix4x4 projection = Matrix4x4::Perspective(45, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), 1, 1000);
-        Matrix4x4 view_projection = projection * view;
-        material->SetMatrix("u_view_projection_matrix", view_projection);
+        material->SetMatrix(VIEW_MATRIX, view);
+        material->SetMatrix(PROJECTION_MATRIX, projection);
 
         // sky box
         vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
-	mat4 u_view_projection_matrix;
+	mat4 u_view_matrix;
+    mat4 u_projection_matrix;
 } buf_0_0;
 
 UniformBuffer(1, 0) uniform UniformBuffer10
@@ -184,7 +188,7 @@ Output(0) vec3 v_uv;
 
 void main()
 {
-	gl_Position = (a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_projection_matrix).xyww;
+	gl_Position = (a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix).xyww;
 	v_uv = a_pos.xyz;
 
 	vulkan_convert();
@@ -221,10 +225,11 @@ void main()
         renderer->SetMaterial(material);
         renderer->SetMesh(mesh);
 
-        material->SetMatrix("u_view_projection_matrix", view_projection);
+        material->SetMatrix(VIEW_MATRIX, view);
+        material->SetMatrix(PROJECTION_MATRIX, projection);
 
         Matrix4x4 model = Matrix4x4::Translation(camera_pos);
-        renderer->SetInstanceMatrix("u_model_matrix", model);
+        renderer->SetInstanceMatrix(MODEL_MATRIX, model);
 
         Thread::Task task;
         task.job = []() {

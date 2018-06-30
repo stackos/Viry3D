@@ -27,12 +27,14 @@
 
 namespace Viry3D
 {
+#define MAX_CAMERA 10
+
     class Camera;
     class Texture;
     struct RenderState;
     struct BufferObject;
-    class DisplayPrivate;
     class Shader;
+    class DisplayPrivate;
 
     class Display
     {
@@ -97,6 +99,7 @@ namespace Viry3D
             VkPipelineLayout pipeline_layout,
             VkPipeline pipeline,
             const Vector<VkDescriptorSet>& descriptor_sets,
+            const Vector<Vector<int>>& dynamic_offsets,
             int image_width,
             int image_height,
             const Rect& view_rect,

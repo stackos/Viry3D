@@ -48,6 +48,7 @@ namespace Viry3D
         Camera();
         ~Camera();
 
+        void SetIndex(int index) { m_index = index; }
         CameraClearFlags GetClearFlags() const { return m_clear_flags; }
         void SetClearFlags(CameraClearFlags flags);
         const Color& GetClearColor() const { return m_clear_color; }
@@ -90,6 +91,7 @@ namespace Viry3D
         void UpdateMatrix();
 
     private:
+        int m_index;
         bool m_render_pass_dirty;
         bool m_renderer_order_dirty;
         bool m_instance_cmds_dirty;
