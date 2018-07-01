@@ -1485,7 +1485,6 @@ namespace Viry3D
                 }
 
                 buffer.size = buffer.members[max_offset_member].offset + buffer.members[max_offset_member].size;
-                buffer.offset_alignment = 0;
 
                 set_ptr->buffers.Add(buffer);
             }
@@ -1594,7 +1593,7 @@ namespace Viry3D
                     VkDescriptorSetLayoutBinding layout_binding;
                     Memory::Zero(&layout_binding, sizeof(layout_binding));
                     layout_binding.binding = buffer.binding;
-                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                     layout_binding.descriptorCount = 1;
                     layout_binding.stageFlags = buffer.stage;
                     layout_binding.pImmutableSamplers = nullptr;
@@ -1905,7 +1904,7 @@ namespace Viry3D
 
             Vector<VkDescriptorPoolSize> pool_sizes(2);
             Memory::Zero(&pool_sizes[0], pool_sizes.SizeInBytes());
-            pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+            pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             pool_sizes[0].descriptorCount = (uint32_t) buffer_count * DESCRIPTOR_POOL_SIZE_MAX;
             pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             pool_sizes[1].descriptorCount = (uint32_t) texture_count * DESCRIPTOR_POOL_SIZE_MAX;
@@ -1945,33 +1944,13 @@ namespace Viry3D
 
             for (int i = 0; i < uniform_sets_out.Size(); ++i)
             {
+                Vector<VkDescriptorSetLayoutBinding> layout_bindings;
+
                 for (int j = 0; j < uniform_sets_out[i].buffers.Size(); ++j)
                 {
                     auto& buffer = uniform_sets_out[i].buffers[j];
 
-                    bool camera_uniform = false;
-                    for (int k = 0; k < buffer.members.Size(); ++k)
-                    {
-                        if (buffer.members[k].name == VIEW_MATRIX ||
-                            buffer.members[k].name == PROJECTION_MATRIX)
-                        {
-                            camera_uniform = true;
-                            break;
-                        }
-                    }
-
-                    int size = buffer.size;
-                    if (camera_uniform)
-                    {
-                        int offset_alignment = (int) m_gpu_properties.limits.minUniformBufferOffsetAlignment;
-                        if (offset_alignment > 0)
-                        {
-                            offset_alignment = (size + offset_alignment - 1) & ~(offset_alignment - 1);
-                        }
-                        buffer.offset_alignment = offset_alignment;
-                        size = offset_alignment * MAX_CAMERA;
-                    }
-                    buffer.buffer = this->CreateBuffer(nullptr, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+                    buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
                     VkDescriptorBufferInfo buffer_info;
                     buffer_info.buffer = buffer.buffer->buffer;
@@ -1986,7 +1965,7 @@ namespace Viry3D
                     desc_write.dstBinding = buffer.binding;
                     desc_write.dstArrayElement = 0;
                     desc_write.descriptorCount = 1;
-                    desc_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+                    desc_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                     desc_write.pImageInfo = nullptr;
                     desc_write.pBufferInfo = &buffer_info;
                     desc_write.pTexelBufferView = nullptr;
@@ -2025,7 +2004,6 @@ namespace Viry3D
             VkPipelineLayout pipeline_layout,
             VkPipeline pipeline,
             const Vector<VkDescriptorSet>& descriptor_sets,
-            const Vector<Vector<int>>& dynamic_offsets,
             int image_width,
             int image_height,
             const Rect& view_rect,
@@ -2056,25 +2034,7 @@ namespace Viry3D
             assert(!err);
 
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
-            for (int i = 0; i < descriptor_sets.Size(); ++i)
-            {
-                const Vector<int>* offsets = &dynamic_offsets[i];
-                uint32_t offset_count = offsets->Size();
-                const uint32_t* uniform_offsets = nullptr;
-                if (offset_count > 0)
-                {
-                    uniform_offsets = (uint32_t*) &(*offsets)[0];
-                }
-
-                vkCmdBindDescriptorSets(
-                    cmd,
-                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    pipeline_layout,
-                    i,
-                    1, &descriptor_sets[i],
-                    offset_count, uniform_offsets);
-            }
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, descriptor_sets.Size(), &descriptor_sets[0], 0, nullptr);
 
             VkViewport viewport;
             Memory::Zero(&viewport, sizeof(viewport));
@@ -2192,6 +2152,10 @@ namespace Viry3D
 
         void BuildPrimaryCmds()
         {
+            m_cameras.Sort([](const Ref<Camera>& a, const Ref<Camera>& b) {
+                return a->GetDepth() < b->GetDepth();
+            });
+
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 VkCommandBuffer cmd = m_swapchain_image_resources[i].cmd;
@@ -2229,20 +2193,6 @@ namespace Viry3D
 
         void Update()
         {
-            if (m_primary_cmd_dirty)
-            {
-                m_cameras.Sort([](const Ref<Camera>& a, const Ref<Camera>& b) {
-                    return a->GetDepth() < b->GetDepth();
-                });
-
-                int index = 0;
-                for (auto i : m_cameras)
-                {
-                    i->SetIndex(index);
-                    ++index;
-                }
-            }
-
             for (auto i : m_cameras)
             {
                 i->Update();
@@ -2684,7 +2634,6 @@ void main()
         VkPipelineLayout pipeline_layout,
         VkPipeline pipeline,
         const Vector<VkDescriptorSet>& descriptor_sets,
-        const Vector<Vector<int>>& dynamic_offsets,
         int image_width,
         int image_height,
         const Rect& view_rect,
@@ -2699,7 +2648,6 @@ void main()
             pipeline_layout,
             pipeline,
             descriptor_sets,
-            dynamic_offsets,
             image_width,
             image_height,
             view_rect,

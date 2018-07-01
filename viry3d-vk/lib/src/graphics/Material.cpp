@@ -70,14 +70,9 @@ namespace Viry3D
         m_renderers.Remove(renderer);
     }
 
-    bool Material::HasProperty(const String& name) const
+    void Material::SetMatrix(const String& name, const Matrix4x4& value)
     {
-        return m_properties.Contains(name);
-    }
-
-    void Material::SetMatrix(const String& name, const Matrix4x4& value, int dynamic_index)
-    {
-        this->SetProperty(name, value, MaterialProperty::Type::Matrix, dynamic_index);
+        this->SetProperty(name, value, MaterialProperty::Type::Matrix);
     }
 
     void Material::SetVector(const String& name, const Vector4& value)
@@ -102,25 +97,20 @@ namespace Viry3D
 
     void Material::SetTexture(const String& name, const Ref<Texture>& texture)
     {
-        Vector<MaterialProperty>* properties_ptr;
-        if (m_properties.TryGet(name, &properties_ptr))
+        MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
         {
-            (*properties_ptr)[0].texture = texture;
-            (*properties_ptr)[0].dirty = true;
+            property_ptr->texture = texture;
+            property_ptr->dirty = true;
         }
         else
         {
-            Vector<MaterialProperty> properties;
-
             MaterialProperty property;
             property.name = name;
             property.type = MaterialProperty::Type::Texture;
             property.texture = texture;
             property.dirty = true;
-            property.dynamic_index = 0;
-
-            properties.Add(property);
-            m_properties.Add(name, properties);
+            m_properties.Add(name, property);
         }
     }
 
@@ -130,23 +120,19 @@ namespace Viry3D
 
         for (auto& i : m_properties)
         {
-            for (int j = 0; j < i.second.Size(); ++j)
+            if (i.second.dirty)
             {
-                MaterialProperty& property = i.second[j];
-                if (property.dirty)
+                i.second.dirty = false;
+
+                if (i.second.type == MaterialProperty::Type::Texture)
                 {
-                    property.dirty = false;
+                    this->UpdateUniformTexture(i.second.name, i.second.texture);
 
-                    if (property.type == MaterialProperty::Type::Texture)
-                    {
-                        this->UpdateUniformTexture(property.name, property.texture);
-
-                        instance_cmd_dirty = true;
-                    }
-                    else
-                    {
-                        this->UpdateUniformMember(property.name, &property.data, property.size, property.dynamic_index);
-                    }
+                    instance_cmd_dirty = true;
+                }
+                else
+                {
+                    this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size);
                 }
             }
         }
@@ -157,10 +143,12 @@ namespace Viry3D
         }
     }
 
-    int Material::FindUniformSetIndex(const String& name) const
+    int Material::FindUniformSetIndex(const String& name)
     {
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
+            Vector<VkDescriptorSetLayoutBinding> layout_bindings;
+
             for (int j = 0; j < m_uniform_sets[i].buffers.Size(); ++j)
             {
                 const auto& buffer = m_uniform_sets[i].buffers[j];
@@ -190,7 +178,7 @@ namespace Viry3D
         return -1;
     }
 
-    void Material::UpdateUniformMember(const String& name, const void* data, int size, int dynamic_index)
+    void Material::UpdateUniformMember(const String& name, const void* data, int size)
     {
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
@@ -204,7 +192,7 @@ namespace Viry3D
 
                     if (member.name == name && size <= member.size)
                     {
-                        Display::Instance()->UpdateBuffer(buffer.buffer, buffer.offset_alignment * dynamic_index + member.offset, data, size);
+                        Display::Instance()->UpdateBuffer(buffer.buffer, member.offset, data, size);
                         return;
                     }
                 }

@@ -27,10 +27,6 @@
 
 namespace Viry3D
 {
-#define MODEL_MATRIX "u_model_matrix"
-#define VIEW_MATRIX "u_view_matrix"
-#define PROJECTION_MATRIX "u_projection_matrix"
-
     class Shader;
     class Renderer;
 
@@ -61,7 +57,6 @@ namespace Viry3D
         Ref<Texture> texture;
         int size;
         bool dirty;
-        int dynamic_index;
     };
 
     class Material
@@ -75,67 +70,38 @@ namespace Viry3D
         void OnSetRenderer(Renderer* renderer);
         void OnUnSetRenderer(Renderer* renderer);
         const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
-        bool HasProperty(const String& name) const;
-        void SetMatrix(const String& name, const Matrix4x4& value, int dynamic_index = 0);
+        void SetMatrix(const String& name, const Matrix4x4& value);
         void SetVector(const String& name, const Vector4& value);
         void SetColor(const String& name, const Color& value);
         void SetFloat(const String& name, float value);
         void SetInt(const String& name, int value);
         void SetTexture(const String& name, const Ref<Texture>& texture);
         void UpdateUniformSets();
-        int FindUniformSetIndex(const String& name) const;
-        const Map<String, Vector<MaterialProperty>>& GetProperties() const { return m_properties; }
+        int FindUniformSetIndex(const String& name);
+        const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
 
     private:
         template <class T>
-        void SetProperty(const String& name, const T& v, MaterialProperty::Type type, int dynamic_index = 0)
+        void SetProperty(const String& name, const T& v, MaterialProperty::Type type)
         {
-            Vector<MaterialProperty>* properties_ptr;
-            if (m_properties.TryGet(name, &properties_ptr))
+            MaterialProperty* property_ptr;
+            if (m_properties.TryGet(name, &property_ptr))
             {
-                bool exist = false;
-                for (int i = 0; i < properties_ptr->Size(); ++i)
-                {
-                    MaterialProperty& property = (*properties_ptr)[i];
-                    if (property.dynamic_index == dynamic_index)
-                    {
-                        exist = true;
-                        Memory::Copy(&property.data, &v, sizeof(v));
-                        property.dirty = true;
-                        break;
-                    }
-                }
-
-                if (!exist)
-                {
-                    MaterialProperty property;
-                    property.name = name;
-                    property.type = type;
-                    Memory::Copy(&property.data, &v, sizeof(v));
-                    property.size = sizeof(v);
-                    property.dirty = true;
-                    property.dynamic_index = dynamic_index;
-
-                    properties_ptr->Add(property);
-                }
+                Memory::Copy(&property_ptr->data, &v, sizeof(v));
+                property_ptr->dirty = true;
             }
             else
             {
-                Vector<MaterialProperty> properties;
-
                 MaterialProperty property;
                 property.name = name;
                 property.type = type;
                 Memory::Copy(&property.data, &v, sizeof(v));
                 property.size = sizeof(v);
                 property.dirty = true;
-                property.dynamic_index = dynamic_index;
-
-                properties.Add(property);
-                m_properties.Add(name, properties);
+                m_properties.Add(name, property);
             }
         }
-        void UpdateUniformMember(const String& name, const void* data, int size, int dynamic_index);
+        void UpdateUniformMember(const String& name, const void* data, int size);
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture);
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty();
@@ -146,6 +112,6 @@ namespace Viry3D
         List<Renderer*> m_renderers;
         Vector<VkDescriptorSet> m_descriptor_sets;
         Vector<UniformSet> m_uniform_sets;
-        Map<String, Vector<MaterialProperty>> m_properties;
+        Map<String, MaterialProperty> m_properties;
     };
 }
