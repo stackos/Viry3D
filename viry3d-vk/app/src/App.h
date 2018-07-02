@@ -42,7 +42,9 @@ using namespace Viry3D;
 // - mac project
 // - ios project
 
+#define RENDER_TO_TEXTURE 1
 #define SHOW_DEPTH 1
+#define BLUR_COLOR 1
 
 class App : public Application
 {
@@ -68,30 +70,88 @@ public:
 	MeshRenderer* m_renderer_sky;
     float m_deg = 0;
 
+    Vector<float> InitGaussKernel(int size, float sigma)
+    {
+        Vector<float> kernel(size * 2 + 1);
+        float sqrt_2pi = sqrt(2 * Mathf::PI);
+        float sum = 0;
+
+        for (int i = 0; i <= size; ++i)
+        {
+            float k = (float) exp(-(i * i) / (2.0 * sigma * sigma)) / (sigma * sqrt_2pi);
+            kernel[size - i] = k;
+            kernel[size + i] = k;
+
+            if (i == 0)
+            {
+                sum += k;
+            }
+            else
+            {
+                sum += k * 2;
+            }
+        }
+
+        for (int i = 0; i < kernel.Size(); ++i)
+        {
+            kernel[i] /= sum;
+        }
+
+        return kernel;
+    }
+
+    void InitPostEffectBlur(const Ref<Texture>& color_texture)
+    {
+        Vector<float> kernel = this->InitGaussKernel(2, 1);
+
+        auto color_texture_2 = Texture::CreateRenderTexture(
+            1280 / 2,
+            720 / 2,
+            VK_FORMAT_R8G8B8A8_UNORM,
+            VK_FILTER_LINEAR,
+            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+
+        // color -> color2
+        auto blit_color_camera = Display::Instance()->CreateBlitCamera(2, color_texture);
+        blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
+
+        // color2 -> color
+        blit_color_camera = Display::Instance()->CreateBlitCamera(3, color_texture_2);
+        blit_color_camera->SetRenderTarget(color_texture, Ref<Texture>());
+    }
+
     App()
     {
         m_camera = Display::Instance()->CreateCamera();
         
-#if SHOW_DEPTH
-		m_camera->SetDepth(0);
-		auto color_texture = Texture::CreateRenderTexture(
-			1280,
-			720,
-			VK_FORMAT_R8G8B8A8_UNORM,
-			VK_FILTER_LINEAR,
-			VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
-		auto depth_texture = Texture::CreateRenderTexture(
-			1280,
-			720,
-			VK_FORMAT_D32_SFLOAT,
-			VK_FILTER_LINEAR,
-			VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
-		m_camera->SetRenderTarget(color_texture, depth_texture);
+#if RENDER_TO_TEXTURE
+        m_camera->SetDepth(0);
+        auto color_texture = Texture::CreateRenderTexture(
+            1280,
+            720,
+            VK_FORMAT_R8G8B8A8_UNORM,
+            VK_FILTER_LINEAR,
+            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+        auto depth_texture = Texture::CreateRenderTexture(
+            1280,
+            720,
+            VK_FORMAT_D32_SFLOAT,
+            VK_FILTER_LINEAR,
+            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+        m_camera->SetRenderTarget(color_texture, depth_texture);
 
+#if SHOW_DEPTH
+        // depth -> color
         auto blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, "", CameraClearFlags::Nothing, Ref<Shader>(), Rect(0, 0, 0.25f, 0.25f));
         blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
+#endif
 
-        Display::Instance()->CreateBlitCamera(2, color_texture);
+#if BLUR_COLOR
+        this->InitPostEffectBlur(color_texture);
+#endif
+
+        // color -> window
+        Display::Instance()->CreateBlitCamera(4, color_texture);
 #endif
 
         String vs = R"(
