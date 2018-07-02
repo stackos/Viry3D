@@ -53,7 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\demo\AppFlappyBird\Editor\SpriteSlice.cs" />
+     <Compile Include="Assets\AppFlappyBird\Editor\SpriteSlice.cs" />
      <Compile Include="Assets\script\Editor\TextureImportProcess.cs" />
      <Compile Include="Assets\script\Editor\Viry3D\AnimCombiner.cs" />
      <Compile Include="Assets\script\Editor\Viry3D\Exporter.cs" />

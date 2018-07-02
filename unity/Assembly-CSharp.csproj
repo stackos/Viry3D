@@ -53,22 +53,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\demo\AppPBR\PBRGen.cs" />
+     <Compile Include="Assets\AppPBR\PBRGen.cs" />
      <Compile Include="Assets\script\FPS.cs" />
      <None Include="Assets\shader\Lightmap\Emissive.shader" />
-     <None Include="Assets\demo\AppFlappyBird\atlas.txt" />
-     <None Include="Assets\demo\AppPBR\PBR1.shader" />
+     <None Include="Assets\AppFlappyBird\atlas.txt" />
+     <None Include="Assets\AppPBR\PBR1.shader" />
      <None Include="Assets\shader\Lightmap\Cutout.shader" />
      <None Include="Assets\shader\Diffuse.shader" />
-     <None Include="Assets\demo\AppPBR\irradiance.shader" />
-     <None Include="Assets\demo\AppPBR\brdf.shader" />
+     <None Include="Assets\AppPBR\irradiance.shader" />
+     <None Include="Assets\AppPBR\brdf.shader" />
      <None Include="Assets\shader\DiffuseCullOff.shader" />
-     <None Include="Assets\demo\AppPBR\PBR0.shader" />
+     <None Include="Assets\AppPBR\PBR0.shader" />
      <None Include="Assets\shader\Transparent.shader" />
      <None Include="Assets\shader\Cutout.shader" />
      <None Include="Assets\shader\SkinnedMesh\Diffuse.shader" />
      <None Include="Assets\shader\SkinnedMesh\DiffuseCullOff.shader" />
-     <None Include="Assets\demo\AppPBR\prefilter.shader" />
+     <None Include="Assets\AppPBR\prefilter.shader" />
      <None Include="Assets\shader\Lightmap\Diffuse.shader" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>D:/Project/stack/Viry3D.git/unity/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
