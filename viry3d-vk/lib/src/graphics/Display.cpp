@@ -2359,6 +2359,8 @@ void main()
     void Display::OnResize(int width, int height)
     {
         m_private->OnResize(width, height);
+
+		Application::Instance()->OnResize(width, height);
     }
 
     void Display::OnDraw()

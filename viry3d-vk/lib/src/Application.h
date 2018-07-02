@@ -34,6 +34,7 @@ namespace Viry3D
         Application();
         virtual ~Application();
         virtual void Update() { }
+		virtual void OnResize(int width, int height) { }
         const String& GetName() const;
         void SetName(const String& name);
         const String& GetDataPath();
