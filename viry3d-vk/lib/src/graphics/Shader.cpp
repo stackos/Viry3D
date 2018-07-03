@@ -28,8 +28,6 @@ namespace Viry3D
         const String& fs_source,
         const Vector<String>& fs_includes,
         const RenderState& render_state):
-		m_vs_source(vs_source),
-		m_fs_source(fs_source),
         m_render_state(render_state),
         m_vs_module(nullptr),
         m_fs_module(nullptr),
