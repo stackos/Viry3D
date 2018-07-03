@@ -207,6 +207,10 @@ namespace Viry3D
             {
                 String error;
                 bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
+                if (!success)
+                {
+                    Log("shader compile error: %s", error.CString());
+                }
                 assert(success);
 
                 ByteBuffer buffer(spirv.SizeInBytes());
@@ -253,15 +257,7 @@ namespace Viry3D
             }
             else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
             {
-                if (msgCode == 62)
-                {
-                    // known warning, avoid secondary instance cmd depending framebuffer
-                    return false;
-                }
-                else
-                {
-                    message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-                }
+                message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
             }
             else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
             {
@@ -316,32 +312,28 @@ namespace Viry3D
             };
 
             const char* instance_validation_layers_alt1[] = {
+                "VK_LAYER_GOOGLE_threading",
+                "VK_LAYER_LUNARG_parameter_validation",
+                "VK_LAYER_LUNARG_object_tracker",
+                "VK_LAYER_LUNARG_core_validation",
+                "VK_LAYER_LUNARG_device_limits",
+                "VK_LAYER_LUNARG_image",
+                "VK_LAYER_LUNARG_swapchain",
+                "VK_LAYER_GOOGLE_unique_objects"
+            };
+            const char* instance_validation_layers_alt2[] = {
                 "VK_LAYER_LUNARG_standard_validation"
             };
-            
-            const char** instance_validation_layers = instance_validation_layers_alt1;
-            int instance_validation_layer_count = sizeof(instance_validation_layers_alt1) / sizeof(instance_validation_layers_alt1[0]);
 
-            bool validation_found = check_layer(
-                instance_validation_layers,
-                instance_validation_layer_count,
-                &instance_layers[0],
-                instance_layers.Size());
+            bool validation_found = false;
+            const char** instance_validation_layers = nullptr;
+            int instance_validation_layer_count = 0;
+            
             if (!validation_found)
             {
-                const char* instance_validation_layers_alt2[] = {
-                    "VK_LAYER_GOOGLE_threading",
-                    "VK_LAYER_LUNARG_parameter_validation",
-                    "VK_LAYER_LUNARG_object_tracker",
-                    "VK_LAYER_LUNARG_core_validation",
-                    "VK_LAYER_LUNARG_image",
-                    "VK_LAYER_LUNARG_swapchain",
-                    "VK_LAYER_GOOGLE_unique_objects"
-                };
+                instance_validation_layers = instance_validation_layers_alt1;
+                instance_validation_layer_count = sizeof(instance_validation_layers_alt1) / sizeof(instance_validation_layers_alt1[0]);
 
-                instance_validation_layers = instance_validation_layers_alt2;
-                instance_validation_layer_count = sizeof(instance_validation_layers_alt2) / sizeof(instance_validation_layers_alt2[0]);
-                
                 validation_found = check_layer(
                     instance_validation_layers,
                     instance_validation_layer_count,
@@ -350,13 +342,9 @@ namespace Viry3D
             }
             if (!validation_found)
             {
-                const char* instance_validation_layers_alt3[] = {
-                    "VK_LAYER_NV_optimus"
-                };
-
-                instance_validation_layers = instance_validation_layers_alt3;
-                instance_validation_layer_count = sizeof(instance_validation_layers_alt3) / sizeof(instance_validation_layers_alt3[0]);
-
+                instance_validation_layers = instance_validation_layers_alt2;
+                instance_validation_layer_count = sizeof(instance_validation_layers_alt2) / sizeof(instance_validation_layers_alt2[0]);
+                
                 validation_found = check_layer(
                     instance_validation_layers,
                     instance_validation_layer_count,
@@ -2438,17 +2426,17 @@ void main()
         return camera.get();
     }
 
-    Camera* Display::CreateBlitCamera(int depth, const Ref<Texture>& texture, const String& texture_name, CameraClearFlags clear_flags, const Ref<Shader>& shader, const Rect& rect)
+    Camera* Display::CreateBlitCamera(int depth, const Ref<Texture>& texture, const Ref<Material>& material, const String& texture_name, CameraClearFlags clear_flags, const Rect& rect)
     {
-        Ref<Shader> blit_shader = shader;
+        Ref<Material> blit_material = material;
 
-        if (!blit_shader)
+        if (!blit_material)
         {
             if (!m_private->m_blit_shader)
             {
                 m_private->CreateBlitShader();
             }
-            blit_shader = m_private->m_blit_shader;
+            blit_material = RefMake<Material>(m_private->m_blit_shader);
         }
 
         if (!m_private->m_blit_mesh)
@@ -2456,9 +2444,8 @@ void main()
             m_private->CreateBlitMesh();
         }
 
-        Ref<Material> material = RefMake<Material>(blit_shader);
         Ref<MeshRenderer> renderer = RefMake<MeshRenderer>();
-        renderer->SetMaterial(material);
+        renderer->SetMaterial(blit_material);
         renderer->SetMesh(m_private->m_blit_mesh);
 
         Camera* camera = this->CreateCamera();
@@ -2472,7 +2459,7 @@ void main()
         {
             blit_texture_name = "u_texture";
         }
-        material->SetTexture(blit_texture_name, texture);
+        blit_material->SetTexture(blit_texture_name, texture);
 
         return camera;
     }

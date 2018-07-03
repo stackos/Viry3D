@@ -29,10 +29,10 @@ namespace Viry3D
 {
     class Camera;
     class Texture;
+    class Material;
     struct RenderState;
     struct BufferObject;
     class DisplayPrivate;
-    class Shader;
 
     class Display
     {
@@ -47,7 +47,7 @@ namespace Viry3D
         VkDevice GetDevice() const;
         void WaitDevice() const;
         Camera* CreateCamera();
-        Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, const String& texture_name = "", CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Ref<Shader>& shader = Ref<Shader>(), const Rect& rect = Rect(0, 0, 1, 1));
+        Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, const Ref<Material>& material = Ref<Material>(), const String& texture_name = "", CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
         void DestroyCamera(Camera* camera);
         void MarkPrimaryCmdDirty();
         void CreateRenderPass(
