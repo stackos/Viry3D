@@ -180,7 +180,7 @@ void main()
 }
 )";
         String fs = R"(
-precision mediump float;
+precision highp float;
       
 UniformTexture(0, 1) uniform sampler2D u_texture;
 
@@ -279,7 +279,7 @@ void main()
 }
 )";
 		String fs = R"(
-precision mediump float;
+precision highp float;
       
 UniformTexture(0, 1) uniform samplerCube u_texture;
 

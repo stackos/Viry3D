@@ -43,6 +43,8 @@ namespace Viry3D
 
     private:
         static List<Shader*> m_shaders;
+		String m_vs_source;
+		String m_fs_source;
         RenderState m_render_state;
         VkShaderModule m_vs_module;
         VkShaderModule m_fs_module;

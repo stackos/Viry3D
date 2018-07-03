@@ -958,8 +958,10 @@ namespace Viry3D
         {
             VkAttachmentLoadOp color_load;
             VkAttachmentLoadOp depth_load;
-            VkImageLayout color_final_layout;
-            VkImageLayout depth_final_layout;
+			VkImageLayout color_final_layout;
+			VkImageLayout depth_final_layout;
+			VkImageLayout color_initial_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+			VkImageLayout depth_initial_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
             switch (clear_flag)
             {
@@ -973,18 +975,21 @@ namespace Viry3D
                 {
                     color_load = VK_ATTACHMENT_LOAD_OP_LOAD;
                     depth_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+					color_initial_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     break;
                 }
-                case CameraClearFlags::Invalidate:
+                case CameraClearFlags::Nothing:
                 {
-                    color_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-                    depth_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+					color_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+					depth_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+					color_initial_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+					depth_initial_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                     break;
                 }
                 default:
                 {
-                    color_load = VK_ATTACHMENT_LOAD_OP_LOAD;
-                    depth_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+					color_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+					depth_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                     break;
                 }
             }
@@ -1024,7 +1029,7 @@ namespace Viry3D
                 attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                 attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachment.initialLayout = color_initial_layout;
                 attachment.finalLayout = color_final_layout;
 
                 attachments.Add(attachment);
@@ -1043,7 +1048,7 @@ namespace Viry3D
                 attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                 attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                attachment.initialLayout = depth_initial_layout;
                 attachment.finalLayout = depth_final_layout;
 
                 attachments.Add(attachment);
@@ -1352,7 +1357,10 @@ namespace Viry3D
         }
 
         void SetImageLayout(
+			VkCommandBuffer cmd,
             VkImage image,
+			VkPipelineStageFlags src_stage,
+			VkPipelineStageFlags dst_stage,
             const VkImageSubresourceRange& subresource_range,
             VkImageLayout old_image_layout,
             VkImageLayout new_image_layout,
@@ -1402,7 +1410,7 @@ namespace Viry3D
                     break;
             }
 
-            vkCmdPipelineBarrier(m_image_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_info);
+            vkCmdPipelineBarrier(cmd, src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier_info);
         }
 
         void CreateSpirvShaderModule(const Vector<unsigned int>& spirv, VkShaderModule* module)
@@ -1902,13 +1910,22 @@ namespace Viry3D
                 }
             }
 
-            Vector<VkDescriptorPoolSize> pool_sizes(2);
-            Memory::Zero(&pool_sizes[0], pool_sizes.SizeInBytes());
-            pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            pool_sizes[0].descriptorCount = (uint32_t) buffer_count * DESCRIPTOR_POOL_SIZE_MAX;
-            pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            pool_sizes[1].descriptorCount = (uint32_t) texture_count * DESCRIPTOR_POOL_SIZE_MAX;
-
+            Vector<VkDescriptorPoolSize> pool_sizes;
+			if (buffer_count > 0)
+			{
+				VkDescriptorPoolSize pool_size;
+				pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				pool_size.descriptorCount = (uint32_t) buffer_count * DESCRIPTOR_POOL_SIZE_MAX;
+				pool_sizes.Add(pool_size);
+			}
+			if (texture_count > 0)
+			{
+				VkDescriptorPoolSize pool_size;
+				pool_size.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				pool_size.descriptorCount = (uint32_t) texture_count * DESCRIPTOR_POOL_SIZE_MAX;
+				pool_sizes.Add(pool_size);
+			}
+            
             VkDescriptorPoolCreateInfo pool_info;
             Memory::Zero(&pool_info, sizeof(pool_info));
             pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -2090,10 +2107,18 @@ namespace Viry3D
             int image_width,
             int image_height,
             const Color& clear_color,
-            bool color_attachment,
-            bool depth_attachment,
+			const Ref<Texture>& color_texture,
+			const Ref<Texture>& depth_texture,
             bool first_pass)
         {
+			bool color_attachment = true;
+			bool depth_attachment = true;
+			if (color_texture || depth_texture)
+			{
+				color_attachment = (bool) color_attachment;
+				depth_attachment = (bool) depth_texture;
+			}
+
             Vector<VkClearValue> clear_values;
             if (color_attachment)
             {
@@ -2140,6 +2165,31 @@ namespace Viry3D
                 vkCmdResetEvent(cmd, m_render_pass_event, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
             }
 
+			if (color_texture)
+			{
+				this->SetImageLayout(
+					cmd,
+					color_texture->GetImage(),
+					VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+					VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+					{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+					VK_ACCESS_SHADER_READ_BIT);
+			}
+			if (depth_texture)
+			{
+				this->SetImageLayout(
+					cmd,
+					depth_texture->GetImage(),
+					VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+					{ VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 },
+					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+					VK_ACCESS_SHADER_READ_BIT);
+			}
+
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
             if (instance_cmds.Size() > 0)
             {
@@ -2165,14 +2215,6 @@ namespace Viry3D
                 bool first_pass = true;
                 for (auto j : m_cameras)
                 {
-                    bool color_attachment = true;
-                    bool depth_attachment = true;
-                    if (j->HasRenderTarget())
-                    {
-                        color_attachment = (bool) j->GetRenderTargetColor();
-                        depth_attachment = (bool) j->GetRenderTargetDepth();
-                    }
-
                     this->BuildPrimaryCmd(
                         cmd,
                         j->GetInstanceCmds(),
@@ -2181,8 +2223,8 @@ namespace Viry3D
                         j->GetTargetWidth(),
                         j->GetTargetHeight(),
                         j->GetClearColor(),
-                        color_attachment,
-                        depth_attachment,
+						j->GetRenderTargetColor(),
+						j->GetRenderTargetDepth(),
                         first_pass);
                     first_pass = false;
                 }
@@ -2281,7 +2323,7 @@ void main()
 }
 )";
             String fs = R"(
-precision mediump float;
+precision highp float;
       
 UniformTexture(0, 0) uniform sampler2D u_texture;
 
@@ -2704,13 +2746,18 @@ void main()
 
     void Display::SetImageLayout(
         VkImage image,
+		VkPipelineStageFlags src_stage,
+		VkPipelineStageFlags dst_stage,
         const VkImageSubresourceRange& subresource_range,
         VkImageLayout old_image_layout,
         VkImageLayout new_image_layout,
         VkAccessFlagBits src_access_mask)
     {
         m_private->SetImageLayout(
+			m_private->m_image_cmd,
             image,
+			src_stage,
+			dst_stage,
             subresource_range,
             old_image_layout,
             new_image_layout,

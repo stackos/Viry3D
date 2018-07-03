@@ -123,6 +123,8 @@ namespace Viry3D
         void EndImageCmd();
         void SetImageLayout(
             VkImage image,
+			VkPipelineStageFlags src_stage,
+			VkPipelineStageFlags dst_stage,
             const VkImageSubresourceRange& subresource_range,
             VkImageLayout old_image_layout,
             VkImageLayout new_image_layout,
