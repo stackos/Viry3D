@@ -17,10 +17,14 @@
 
 #pragma once
 
-#include "Renderer.h"
+#include "graphics/Renderer.h"
+#include "container/Vector.h"
 
 namespace Viry3D
 {
+	class View;
+	class Mesh;
+
 	class CanvaRenderer : public Renderer
 	{
 	public:
@@ -29,5 +33,17 @@ namespace Viry3D
 		virtual Ref<BufferObject> GetVertexBuffer() const;
 		virtual Ref<BufferObject> GetIndexBuffer() const;
 		virtual void GetIndexRange(int& index_offset, int& index_count) const;
+		virtual void Update();
+		void AddView(const Ref<View>& view);
+		void RemoveView(const Ref<View>& view);
+		void MarkCanvasDirty();
+
+	private:
+		void UpdateCanvas();
+
+	private:
+		Vector<Ref<View>> m_views;
+		bool m_canvas_dirty;
+		Ref<Mesh> m_mesh;
 	};
 }

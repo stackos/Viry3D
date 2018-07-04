@@ -42,6 +42,7 @@ namespace Viry3D
 		byte* Bytes(int index = 0) const;
 		int SizeInBytes() const;
 
+		void Remove(const V& v);
 		void Remove(int index);
 		void RemoveRange(int index, int count);
 
@@ -134,6 +135,19 @@ namespace Viry3D
 	int Vector<V>::SizeInBytes() const
 	{
 		return sizeof(V) * Size();
+	}
+
+	template<class V>
+	void Vector<V>::Remove(const V& v)
+	{
+		for (int i = 0; i < this->Size(); ++i)
+		{
+			if (m_vector[i] == v)
+			{
+				this->Remove(i);
+				break;
+			}
+		}
 	}
 
 	template<class V>

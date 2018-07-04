@@ -23,7 +23,7 @@
 #include "memory/Memory.h"
 #include "io/File.h"
 #include "math/Mathf.h"
-#include <assert.h>
+#include "Debug.h"
 
 namespace Viry3D
 {

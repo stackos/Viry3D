@@ -106,6 +106,9 @@
     <Filter Include="src\thread">
       <UniqueIdentifier>{74d1cd99-69fb-47ee-a85e-56168bdede29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ui">
+      <UniqueIdentifier>{4686000f-3fac-4edc-95ac-bbc9f7b613e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -879,8 +882,11 @@
     <ClInclude Include="..\..\src\KeyCode.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\graphics\CanvaRenderer.h">
-      <Filter>src\graphics</Filter>
+    <ClInclude Include="..\..\src\ui\CanvaRenderer.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\View.h">
+      <Filter>src\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2210,8 +2216,11 @@
     <ClCompile Include="..\..\src\Input.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\graphics\CanvaRenderer.cpp">
-      <Filter>src\graphics</Filter>
+    <ClCompile Include="..\..\src\ui\CanvaRenderer.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\View.cpp">
+      <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

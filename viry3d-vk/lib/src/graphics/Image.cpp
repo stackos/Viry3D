@@ -18,7 +18,7 @@
 #include "Image.h"
 #include "io/File.h"
 #include "memory/Memory.h"
-#include <assert.h>
+#include "Debug.h"
 
 extern "C"
 {

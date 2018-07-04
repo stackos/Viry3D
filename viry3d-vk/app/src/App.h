@@ -28,14 +28,18 @@
 #include "graphics/VertexAttribute.h"
 #include "graphics/Mesh.h"
 #include "graphics/Texture.h"
-#include "graphics/CanvaRenderer.h"
 #include "memory/Memory.h"
 #include "thread/ThreadPool.h"
 #include "math/Quaternion.h"
+#include "ui/CanvaRenderer.h"
+#include "ui/View.h"
 
 using namespace Viry3D;
 
 // TODO:
+// - create material uniform buffer if used
+// - view layout, build canvas mesh
+// - canvas dynamic atlas texture array
 // - CanvaRenderer View Sprite Label
 // - Button SliderControl SwitchControl
 // - ScrollView TabView TreeView
@@ -405,6 +409,9 @@ void main()
 	{
 		auto canvas = RefMake<CanvaRenderer>();
 		m_camera->AddRenderer(canvas);
+
+		auto view = RefMake<View>();
+		canvas->AddView(view);
 	}
 
     virtual ~App()

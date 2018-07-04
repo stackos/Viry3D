@@ -28,6 +28,9 @@ namespace Viry3D
     class Shader
     {
     public:
+		static Ref<Shader> Find(const String& name);
+		static void AddCache(const String& name, const Ref<Shader>& shader);
+		static void ClearCache();
         static void OnRenderPassDestroy(VkRenderPass render_pass);
         Shader(
             const String& vs_source,
@@ -43,6 +46,7 @@ namespace Viry3D
 
     private:
         static List<Shader*> m_shaders;
+		static Map<String, Ref<Shader>> m_shader_cache;
         RenderState m_render_state;
         VkShaderModule m_vs_module;
         VkShaderModule m_fs_module;

@@ -34,7 +34,7 @@
 #include "memory/Memory.h"
 #include "math/Matrix4x4.h"
 #include "io/File.h"
-#include <assert.h>
+#include "Debug.h"
 
 extern "C"
 {

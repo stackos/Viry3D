@@ -56,15 +56,13 @@ namespace Viry3D
 
     void MeshRenderer::GetIndexRange(int& index_offset, int& index_count) const
     {
+		index_offset = 0;
+		index_count = 0;
+
         if (m_mesh)
         {
             index_offset = 0;
             index_count = m_mesh->GetIndexCount();
-        }
-        else
-        {
-            index_offset = 0;
-            index_count = 0;
         }
     }
 

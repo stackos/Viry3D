@@ -20,6 +20,7 @@
 #include "container/List.h"
 #include "thread/ThreadPool.h"
 #include "time/Time.h"
+#include "graphics/Shader.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -48,6 +49,7 @@ namespace Viry3D
 
         ~ApplicationPrivate()
         {
+			Shader::ClearCache();
             m_thread_pool.reset();
             m_app = nullptr;
         }

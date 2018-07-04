@@ -21,6 +21,45 @@
 namespace Viry3D
 {
     List<Shader*> Shader::m_shaders;
+	Map<String, Ref<Shader>> Shader::m_shader_cache;
+
+	Ref<Shader> Shader::Find(const String& name)
+	{
+		Ref<Shader> shader;
+
+		Ref<Shader>* find;
+		if (m_shader_cache.TryGet(name, &find))
+		{
+			shader = *find;
+		}
+
+		return shader;
+	}
+
+	void Shader::AddCache(const String& name, const Ref<Shader>& shader)
+	{
+		m_shader_cache.Add(name, shader);
+	}
+
+	void Shader::ClearCache()
+	{
+		m_shader_cache.Clear();
+	}
+
+	void Shader::OnRenderPassDestroy(VkRenderPass render_pass)
+	{
+		VkDevice device = Display::Instance()->GetDevice();
+
+		for (auto i : m_shaders)
+		{
+			VkPipeline* pipeline = nullptr;
+			if (i->m_pipelines.TryGet(render_pass, &pipeline))
+			{
+				vkDestroyPipeline(device, *pipeline, nullptr);
+				i->m_pipelines.Remove(render_pass);
+			}
+		}
+	}
 
     Shader::Shader(
         const String& vs_source,
@@ -96,21 +135,6 @@ namespace Viry3D
             m_pipelines.Add(render_pass, pipeline);
 
             return pipeline;
-        }
-    }
-
-    void Shader::OnRenderPassDestroy(VkRenderPass render_pass)
-    {
-        VkDevice device = Display::Instance()->GetDevice();
-
-        for (auto i : m_shaders)
-        {
-            VkPipeline* pipeline = nullptr;
-            if (i->m_pipelines.TryGet(render_pass, &pipeline))
-            {
-                vkDestroyPipeline(device, *pipeline, nullptr);
-                i->m_pipelines.Remove(render_pass);
-            }
         }
     }
 

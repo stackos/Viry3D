@@ -30,7 +30,6 @@
     <ClInclude Include="..\..\src\graphics\BufferObject.h" />
     <ClInclude Include="..\..\src\graphics\Camera.h" />
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
-    <ClInclude Include="..\..\src\graphics\CanvaRenderer.h" />
     <ClInclude Include="..\..\src\graphics\Color.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\Image.h" />
@@ -264,6 +263,8 @@
     <ClInclude Include="..\..\src\string\String.h" />
     <ClInclude Include="..\..\src\thread\ThreadPool.h" />
     <ClInclude Include="..\..\src\time\Time.h" />
+    <ClInclude Include="..\..\src\ui\CanvaRenderer.h" />
+    <ClInclude Include="..\..\src\ui\View.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv.hpp" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cfg.hpp" />
@@ -322,7 +323,6 @@
     <ClCompile Include="..\..\src\freetype\src\type42\type42.c" />
     <ClCompile Include="..\..\src\freetype\src\winfonts\winfnt.c" />
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
-    <ClCompile Include="..\..\src\graphics\CanvaRenderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
@@ -653,6 +653,8 @@
     <ClCompile Include="..\..\src\string\String.cpp" />
     <ClCompile Include="..\..\src\thread\ThreadPool.cpp" />
     <ClCompile Include="..\..\src\time\Time.cpp" />
+    <ClCompile Include="..\..\src\ui\CanvaRenderer.cpp" />
+    <ClCompile Include="..\..\src\ui\View.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Constant.cpp" />
