@@ -28,6 +28,7 @@
 #include "graphics/VertexAttribute.h"
 #include "graphics/Mesh.h"
 #include "graphics/Texture.h"
+#include "graphics/CanvaRenderer.h"
 #include "memory/Memory.h"
 #include "thread/ThreadPool.h"
 #include "math/Quaternion.h"
@@ -35,7 +36,8 @@
 using namespace Viry3D;
 
 // TODO:
-// - CanvaRenderer View Sprite Label Button
+// - CanvaRenderer View Sprite Label
+// - Button SliderControl SwitchControl
 // - ScrollView TabView TreeView
 // - android project
 // - mac project
@@ -307,6 +309,7 @@ void main()
 		material->SetMatrix("u_projection_matrix", projection);
 
 		this->InitSkybox(mesh, view, projection);
+		this->InitUI();
     }
 
 	void InitSkybox(const Ref<Mesh>& mesh, const Matrix4x4& view, const Matrix4x4& projection)
@@ -396,6 +399,12 @@ void main()
 			m_camera->AddRenderer(renderer);
 		};
 		Application::Instance()->GetThreadPool()->AddTask(task);
+	}
+
+	void InitUI()
+	{
+		auto canvas = RefMake<CanvaRenderer>();
+		m_camera->AddRenderer(canvas);
 	}
 
     virtual ~App()

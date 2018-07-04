@@ -879,6 +879,9 @@
     <ClInclude Include="..\..\src\KeyCode.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\CanvaRenderer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2206,6 +2209,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Input.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\CanvaRenderer.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
