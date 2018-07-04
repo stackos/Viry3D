@@ -18,10 +18,12 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Material.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
-    Renderer::Renderer()
+    Renderer::Renderer():
+		m_camera(nullptr)
     {
     
     }
@@ -79,28 +81,30 @@ namespace Viry3D
 
     void Renderer::OnAddToCamera(Camera* camera)
     {
-        m_cameras.AddLast(camera);
+		assert(m_camera == nullptr);
+		m_camera = camera;
     }
 
     void Renderer::OnRemoveFromCamera(Camera* camera)
     {
-        m_cameras.Remove(camera);
+		assert(m_camera == camera);
+		m_camera = nullptr;
     }
 
     void Renderer::MarkRendererOrderDirty()
     {
-        for (auto i : m_cameras)
-        {
-            i->MarkRendererOrderDirty();
-        }
+		if (m_camera)
+		{
+			m_camera->MarkRendererOrderDirty();
+		}
     }
 
     void Renderer::MarkInstanceCmdDirty()
     {
-        for (auto i : m_cameras)
-        {
-            i->MarkInstanceCmdDirty(this);
-        }
+		if (m_camera)
+		{
+			m_camera->MarkInstanceCmdDirty(this);
+		}
     }
 
     void Renderer::Update()

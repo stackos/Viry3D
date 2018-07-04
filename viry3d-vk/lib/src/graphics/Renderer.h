@@ -50,6 +50,6 @@ namespace Viry3D
     private:
         Ref<Material> m_material;
         Ref<Material> m_instance_material;
-        List<Camera*> m_cameras;
+        Camera* m_camera;
     };
 }
