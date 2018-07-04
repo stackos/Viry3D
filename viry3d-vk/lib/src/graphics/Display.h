@@ -86,8 +86,8 @@ namespace Viry3D
             const Vector<UniformSet>& uniform_sets,
             VkDescriptorPool descriptor_pool,
             const Vector<VkDescriptorSetLayout>& descriptor_layouts,
-            Vector<VkDescriptorSet>& descriptor_sets,
-            Vector<UniformSet>& uniform_sets_out);
+            Vector<VkDescriptorSet>& descriptor_sets);
+        void CreateUniformBuffer(VkDescriptorSet descriptor_set, UniformBuffer& buffer);
         void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture);
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage);
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);

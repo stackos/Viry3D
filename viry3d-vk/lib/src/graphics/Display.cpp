@@ -1931,8 +1931,7 @@ namespace Viry3D
             const Vector<UniformSet>& uniform_sets,
             VkDescriptorPool descriptor_pool,
             const Vector<VkDescriptorSetLayout>& descriptor_layouts,
-            Vector<VkDescriptorSet>& descriptor_sets,
-            Vector<UniformSet>& uniform_sets_out)
+            Vector<VkDescriptorSet>& descriptor_sets)
         {
             VkDescriptorSetAllocateInfo desc_info;
             desc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -1944,40 +1943,32 @@ namespace Viry3D
             descriptor_sets.Resize(descriptor_layouts.Size());
             VkResult err = vkAllocateDescriptorSets(m_device, &desc_info, &descriptor_sets[0]);
             assert(!err);
+        }
 
-            uniform_sets_out = uniform_sets;
+        void CreateUniformBuffer(VkDescriptorSet descriptor_set, UniformBuffer& buffer)
+        {
+            assert(!buffer.buffer);
+            buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-            for (int i = 0; i < uniform_sets_out.Size(); ++i)
-            {
-                Vector<VkDescriptorSetLayoutBinding> layout_bindings;
+            VkDescriptorBufferInfo buffer_info;
+            buffer_info.buffer = buffer.buffer->buffer;
+            buffer_info.offset = 0;
+            buffer_info.range = buffer.size;
 
-                for (int j = 0; j < uniform_sets_out[i].buffers.Size(); ++j)
-                {
-                    auto& buffer = uniform_sets_out[i].buffers[j];
+            VkWriteDescriptorSet desc_write;
+            Memory::Zero(&desc_write, sizeof(desc_write));
+            desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            desc_write.pNext = nullptr;
+            desc_write.dstSet = descriptor_set;
+            desc_write.dstBinding = buffer.binding;
+            desc_write.dstArrayElement = 0;
+            desc_write.descriptorCount = 1;
+            desc_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            desc_write.pImageInfo = nullptr;
+            desc_write.pBufferInfo = &buffer_info;
+            desc_write.pTexelBufferView = nullptr;
 
-                    buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-
-                    VkDescriptorBufferInfo buffer_info;
-                    buffer_info.buffer = buffer.buffer->buffer;
-                    buffer_info.offset = 0;
-                    buffer_info.range = buffer.size;
-
-                    VkWriteDescriptorSet desc_write;
-                    Memory::Zero(&desc_write, sizeof(desc_write));
-                    desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                    desc_write.pNext = nullptr;
-                    desc_write.dstSet = descriptor_sets[i];
-                    desc_write.dstBinding = buffer.binding;
-                    desc_write.dstArrayElement = 0;
-                    desc_write.descriptorCount = 1;
-                    desc_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    desc_write.pImageInfo = nullptr;
-                    desc_write.pBufferInfo = &buffer_info;
-                    desc_write.pTexelBufferView = nullptr;
-
-                    vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
-                }
-            }
+            vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
         }
 
         void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture)
@@ -2660,15 +2651,18 @@ void main()
         const Vector<UniformSet>& uniform_sets,
         VkDescriptorPool descriptor_pool,
         const Vector<VkDescriptorSetLayout>& descriptor_layouts,
-        Vector<VkDescriptorSet>& descriptor_sets,
-        Vector<UniformSet>& uniform_sets_out)
+        Vector<VkDescriptorSet>& descriptor_sets)
     {
         m_private->CreateDescriptorSets(
             uniform_sets,
             descriptor_pool,
             descriptor_layouts,
-            descriptor_sets,
-            uniform_sets_out);
+            descriptor_sets);
+    }
+
+    void Display::CreateUniformBuffer(VkDescriptorSet descriptor_set, UniformBuffer& buffer)
+    {
+        m_private->CreateUniformBuffer(descriptor_set, buffer);
     }
 
     void Display::UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture)

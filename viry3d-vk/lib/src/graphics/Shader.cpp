@@ -146,7 +146,7 @@ namespace Viry3D
             m_uniform_sets,
             m_descriptor_pool,
             m_descriptor_layouts,
-            descriptor_sets,
-            uniform_sets);
+            descriptor_sets);
+        uniform_sets = m_uniform_sets;
     }
 }

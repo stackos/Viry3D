@@ -36,8 +36,11 @@ namespace Viry3D
         {
             for (int j = 0; j < m_uniform_sets[i].buffers.Size(); j++)
             {
-                m_uniform_sets[i].buffers[j].buffer->Destroy(device);
-                m_uniform_sets[i].buffers[j].buffer.reset();
+                if (m_uniform_sets[i].buffers[j].buffer)
+                {
+                    m_uniform_sets[i].buffers[j].buffer->Destroy(device);
+                    m_uniform_sets[i].buffers[j].buffer.reset();
+                }
             }
         }
         m_uniform_sets.Clear();
@@ -184,7 +187,7 @@ namespace Viry3D
         {
             for (int j = 0; j < m_uniform_sets[i].buffers.Size(); ++j)
             {
-                const auto& buffer = m_uniform_sets[i].buffers[j];
+                auto& buffer = m_uniform_sets[i].buffers[j];
 
                 for (int k = 0; k < buffer.members.Size(); ++k)
                 {
@@ -192,6 +195,10 @@ namespace Viry3D
 
                     if (member.name == name && size <= member.size)
                     {
+                        if (!buffer.buffer)
+                        {
+                            Display::Instance()->CreateUniformBuffer(m_descriptor_sets[i], buffer);
+                        }
                         Display::Instance()->UpdateBuffer(buffer.buffer, member.offset, data, size);
                         return;
                     }

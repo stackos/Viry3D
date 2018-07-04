@@ -37,7 +37,6 @@
 using namespace Viry3D;
 
 // TODO:
-// - create material uniform buffer if used
 // - view layout, build canvas mesh
 // - canvas dynamic atlas texture array
 // - CanvaRenderer View Sprite Label
