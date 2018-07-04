@@ -104,6 +104,7 @@ namespace Viry3D
             const Ref<BufferObject>& index_buffer,
             int index_offset,
             int index_count);
+		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass);
         Ref<Texture> CreateTexture(
             VkImageType type,
             VkImageViewType view_type,

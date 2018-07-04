@@ -161,19 +161,19 @@ namespace Viry3D
 	{
 		for (auto& i : m_renderers)
 		{
-			if (i.cmd == nullptr)
-			{
-				if (m_cmd_pool == nullptr)
-				{
-					Display::Instance()->CreateCommandPool(&m_cmd_pool);
-				}
-
-				Display::Instance()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
-			}
-
 			if (i.cmd_dirty || m_instance_cmds_dirty)
 			{
 				i.cmd_dirty = false;
+
+				if (i.cmd == nullptr)
+				{
+					if (m_cmd_pool == nullptr)
+					{
+						Display::Instance()->CreateCommandPool(&m_cmd_pool);
+					}
+
+					Display::Instance()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
+				}
 
 				this->BuildInstanceCmd(i.cmd, i.renderer);
 			}
@@ -316,12 +316,20 @@ namespace Viry3D
 	void Camera::BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer)
 	{
 		const Ref<Material>& material = renderer->GetMaterial();
-		const Ref<Material>& instance_material = renderer->GetInstanceMaterial();
-		const Ref<Shader>& shader = material->GetShader();
-
+		Ref<BufferObject> vertex_buffer = renderer->GetVertexBuffer();
+		Ref<BufferObject> index_buffer = renderer->GetIndexBuffer();
 		int index_offset;
 		int index_count;
 		renderer->GetIndexRange(index_offset, index_count);
+
+		if (!material || !vertex_buffer || !index_buffer || index_count == 0)
+		{
+			Display::Instance()->BuildEmptyInstanceCmd(cmd, m_render_pass);
+			return;
+		}
+
+		const Ref<Material>& instance_material = renderer->GetInstanceMaterial();
+		const Ref<Shader>& shader = material->GetShader();
 
 		Vector<VkDescriptorSet> descriptor_sets = material->GetDescriptorSets();
 
@@ -356,8 +364,8 @@ namespace Viry3D
 			this->GetTargetWidth(),
 			this->GetTargetHeight(),
 			m_viewport_rect,
-			renderer->GetVertexBuffer(),
-			renderer->GetIndexBuffer(),
+			vertex_buffer,
+			index_buffer,
 			index_offset,
 			index_count);
 	}

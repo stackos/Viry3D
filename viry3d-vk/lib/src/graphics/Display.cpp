@@ -2068,6 +2068,33 @@ namespace Viry3D
             assert(!err);
         }
 
+		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass)
+		{
+			VkCommandBufferInheritanceInfo inheritance_info;
+			Memory::Zero(&inheritance_info, sizeof(inheritance_info));
+			inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+			inheritance_info.pNext = nullptr;
+			inheritance_info.renderPass = render_pass;
+			inheritance_info.subpass = 0;
+			inheritance_info.framebuffer = nullptr;
+			inheritance_info.occlusionQueryEnable = VK_FALSE;
+			inheritance_info.queryFlags = 0;
+			inheritance_info.pipelineStatistics = 0;
+
+			VkCommandBufferBeginInfo cmd_begin;
+			Memory::Zero(&cmd_begin, sizeof(cmd_begin));
+			cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			cmd_begin.pNext = nullptr;
+			cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+			cmd_begin.pInheritanceInfo = &inheritance_info;
+
+			VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
+			assert(!err);
+
+			err = vkEndCommandBuffer(cmd);
+			assert(!err);
+		}
+
         void BuildPrimaryCmdBegin(VkCommandBuffer cmd)
         {
             VkCommandBufferBeginInfo cmd_begin;
@@ -2687,6 +2714,11 @@ void main()
             index_offset,
             index_count);
     }
+
+	void Display::BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass)
+	{
+		m_private->BuildEmptyInstanceCmd(cmd, render_pass);
+	}
 
     Ref<Texture> Display::CreateTexture(
         VkImageType type,
