@@ -105,6 +105,11 @@ namespace Viry3D
 
 		m_render_pass_dirty = true;
 		m_instance_cmds_dirty = true;
+
+        for (auto& i : m_renderers)
+        {
+            i.renderer->OnResize(width, height);
+        }
 	}
 
 	void Camera::UpdateRenderPass()

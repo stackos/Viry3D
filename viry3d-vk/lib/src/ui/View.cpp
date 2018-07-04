@@ -18,6 +18,7 @@
 #include "View.h"
 #include "CanvaRenderer.h"
 #include "Debug.h"
+#include "memory/Memory.h"
 
 namespace Viry3D
 {
@@ -93,4 +94,30 @@ namespace Viry3D
 			m_canvas->MarkCanvasDirty();
 		}
 	}
+
+    void View::UpdateLayout()
+    {
+    
+    }
+
+    void View::FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices)
+    {
+        Vertex vs[4];
+        Memory::Zero(&vs[0], sizeof(vs));
+        vs[0].vertex = Vector3(-100.0f, 100.0f, 0);
+        vs[1].vertex = Vector3(-100.0f, -100.0f, 0);
+        vs[2].vertex = Vector3(100.0f, -100.0f, 0);
+        vs[3].vertex = Vector3(100.0f, 100.0f, 0);
+        vs[0].color = Color(1, 0, 0, 1);
+        vs[1].color = Color(0, 1, 0, 1);
+        vs[2].color = Color(0, 0, 1, 1);
+        vs[3].color = Color(1, 1, 1, 1);
+        vs[0].uv = Vector2(0, 0);
+        vs[1].uv = Vector2(0, 1);
+        vs[2].uv = Vector2(1, 1);
+        vs[3].uv = Vector2(1, 0);
+
+        vertices.AddRange({ vs[0], vs[1], vs[2], vs[3] });
+        indices.AddRange({ 0, 1, 2, 0, 2, 3 });
+    }
 }

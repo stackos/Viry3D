@@ -20,6 +20,7 @@
 #include "graphics/Mesh.h"
 #include "graphics/Shader.h"
 #include "graphics/Material.h"
+#include "graphics/Camera.h"
 
 namespace Viry3D
 {
@@ -65,7 +66,7 @@ Output(0) vec4 o_frag;
 
 void main()
 {
-    o_frag = texture(u_texture, v_uv) * v_color;
+    o_frag = v_color;//texture(u_texture, v_uv) * 
 }
 )";
 			RenderState render_state;
@@ -87,6 +88,14 @@ void main()
 		}
 		
 		auto material = RefMake<Material>(shader);
+        material->SetMatrix("u_model_matrix", Matrix4x4::Identity());
+
+        auto view_matrix = Matrix4x4::LookTo(
+            Vector3(0, 0, 0),
+            Vector3(0, 0, 1),
+            Vector3(0, 1, 0));
+        material->SetMatrix("u_view_matrix", view_matrix);
+
 		this->SetMaterial(material);
 	}
 
@@ -139,9 +148,15 @@ void main()
 		{
 			m_canvas_dirty = false;
 			this->UpdateCanvas();
+            this->UpdateProjectionMatrix();
 			this->MarkInstanceCmdDirty();
 		}
 	}
+
+    void CanvaRenderer::OnResize(int width, int height)
+    {
+        this->MarkCanvasDirty();
+    }
 
 	void CanvaRenderer::AddView(const Ref<View>& view)
 	{
@@ -164,6 +179,36 @@ void main()
 
 	void CanvaRenderer::UpdateCanvas()
 	{
-		
+        Vector<Vertex> vertices;
+        Vector<unsigned short> indices;
+
+        for (int i = 0; i < m_views.Size(); ++i)
+        {
+            m_views[i]->UpdateLayout();
+            m_views[i]->FillVertices(vertices, indices);
+        }
+
+        if (vertices.Size() > 0 && indices.Size() > 0)
+        {
+            m_mesh = RefMake<Mesh>(vertices, indices);
+        }
+        else
+        {
+            m_mesh.reset();
+        }
 	}
+
+    void CanvaRenderer::UpdateProjectionMatrix()
+    {
+        auto camera = this->GetCamera();
+        int target_width = camera->GetTargetWidth();
+        int target_height = camera->GetTargetHeight();
+        float ortho_size = target_height / 2.0f;
+        float top = ortho_size;
+        float bottom = -ortho_size;
+        float plane_h = ortho_size * 2;
+        float plane_w = plane_h * target_width / target_height;
+        auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1, 1);
+        this->GetMaterial()->SetMatrix("u_projection_matrix", projection_matrix);
+    }
 }

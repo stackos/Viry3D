@@ -38,11 +38,13 @@ namespace Viry3D
         virtual Ref<BufferObject> GetIndexBuffer() const = 0;
         virtual void GetIndexRange(int& index_offset, int& index_count) const = 0;
         virtual void Update();
+        virtual void OnResize(int width, int height) { }
         const Ref<Material>& GetMaterial() const { return m_material; }
         const Ref<Material>& GetInstanceMaterial() const { return m_instance_material; }
         void SetMaterial(const Ref<Material>& material);
         void OnAddToCamera(Camera* camera);
         void OnRemoveFromCamera(Camera* camera);
+        Camera* GetCamera() const { return m_camera; }
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty();
         void SetInstanceMatrix(const String& name, const Matrix4x4& mat);

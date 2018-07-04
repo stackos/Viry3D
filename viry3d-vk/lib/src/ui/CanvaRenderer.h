@@ -34,12 +34,14 @@ namespace Viry3D
 		virtual Ref<BufferObject> GetIndexBuffer() const;
 		virtual void GetIndexRange(int& index_offset, int& index_count) const;
 		virtual void Update();
+        virtual void OnResize(int width, int height);
 		void AddView(const Ref<View>& view);
 		void RemoveView(const Ref<View>& view);
 		void MarkCanvasDirty();
 
 	private:
 		void UpdateCanvas();
+        void UpdateProjectionMatrix();
 
 	private:
 		Vector<Ref<View>> m_views;

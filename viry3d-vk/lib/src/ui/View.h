@@ -19,6 +19,7 @@
 
 #include "container/Vector.h"
 #include "graphics/Color.h"
+#include "graphics/VertexAttribute.h"
 #include "math/Vector2.h"
 
 namespace Viry3D
@@ -52,6 +53,8 @@ namespace Viry3D
 		void SetSize(const Vector2& size);
 		const Vector2& GetOffset() const { return m_offset; }
 		void SetOffset(const Vector2& offset);
+        virtual void UpdateLayout();
+        virtual void FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices);
 
 	private:
 		CanvaRenderer* m_canvas;
