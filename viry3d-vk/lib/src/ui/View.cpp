@@ -19,6 +19,7 @@
 #include "CanvaRenderer.h"
 #include "Debug.h"
 #include "memory/Memory.h"
+#include "graphics/Texture.h"
 
 namespace Viry3D
 {
@@ -100,14 +101,14 @@ namespace Viry3D
     
     }
 
-    void View::FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices)
+    void View::FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices, Vector<Ref<Texture>>& textures)
     {
         Vertex vs[4];
         Memory::Zero(&vs[0], sizeof(vs));
-        vs[0].vertex = Vector3(-100.0f, 100.0f, 0);
-        vs[1].vertex = Vector3(-100.0f, -100.0f, 0);
-        vs[2].vertex = Vector3(100.0f, -100.0f, 0);
-        vs[3].vertex = Vector3(100.0f, 100.0f, 0);
+        vs[0].vertex = Vector3(-200.0f, 200.0f, 0);
+        vs[1].vertex = Vector3(-200.0f, -200.0f, 0);
+        vs[2].vertex = Vector3(200.0f, -200.0f, 0);
+        vs[3].vertex = Vector3(200.0f, 200.0f, 0);
         vs[0].color = Color(1, 0, 0, 1);
         vs[1].color = Color(0, 1, 0, 1);
         vs[2].color = Color(0, 0, 1, 1);
@@ -119,5 +120,6 @@ namespace Viry3D
 
         vertices.AddRange({ vs[0], vs[1], vs[2], vs[3] });
         indices.AddRange({ 0, 1, 2, 0, 2, 3 });
+		textures.Add(Texture::GetSharedWhiteTexture());
     }
 }

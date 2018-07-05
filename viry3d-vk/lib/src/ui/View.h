@@ -25,6 +25,7 @@
 namespace Viry3D
 {
 	class CanvaRenderer;
+	class Texture;
 
 	enum class ViewAlignment
 	{
@@ -54,7 +55,7 @@ namespace Viry3D
 		const Vector2& GetOffset() const { return m_offset; }
 		void SetOffset(const Vector2& offset);
         virtual void UpdateLayout();
-        virtual void FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices);
+        virtual void FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices, Vector<Ref<Texture>>& textures);
 
 	private:
 		CanvaRenderer* m_canvas;

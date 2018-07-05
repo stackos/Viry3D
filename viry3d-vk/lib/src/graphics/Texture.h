@@ -69,6 +69,11 @@ namespace Viry3D
             VkFormat format,
             VkFilter filter_mode,
             VkSamplerAddressMode wrap_mode);
+		static Ref<Texture> GetSharedWhiteTexture();
+		static Ref<Texture> GetSharedBlackTexture();
+		static Ref<Texture> GetSharedNormalTexture();
+		static Ref<Texture> GetSharedCubemap();
+		static void ClearSharedTextures();
         virtual ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
@@ -90,6 +95,10 @@ namespace Viry3D
         void CopyBufferToImageEnd();
 
     private:
+		static Ref<Texture> m_shared_white_texture;
+		static Ref<Texture> m_shared_black_texture;
+		static Ref<Texture> m_shared_normal_texture;
+		static Ref<Texture> m_shared_cubemap;
         int m_width;
         int m_height;
         VkFormat m_format;

@@ -181,11 +181,12 @@ void main()
 	{
         Vector<Vertex> vertices;
         Vector<unsigned short> indices;
+		Vector<Ref<Texture>> textures;
 
         for (int i = 0; i < m_views.Size(); ++i)
         {
             m_views[i]->UpdateLayout();
-            m_views[i]->FillVertices(vertices, indices);
+            m_views[i]->FillVertices(vertices, indices, textures);
         }
 
         if (vertices.Size() > 0 && indices.Size() > 0)

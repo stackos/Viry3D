@@ -21,6 +21,7 @@
 #include "thread/ThreadPool.h"
 #include "time/Time.h"
 #include "graphics/Shader.h"
+#include "graphics/Texture.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -49,6 +50,7 @@ namespace Viry3D
 
         ~ApplicationPrivate()
         {
+			Texture::ClearSharedTextures();
 			Shader::ClearCache();
             m_thread_pool.reset();
             m_app = nullptr;

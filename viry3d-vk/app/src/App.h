@@ -37,7 +37,6 @@
 using namespace Viry3D;
 
 // TODO:
-// - shared white and black texture
 // - view layout, build canvas mesh
 // - canvas dynamic atlas texture array
 // - CanvaRenderer View Sprite Label
@@ -312,7 +311,7 @@ void main()
         material->SetMatrix("u_view_matrix", view);
 		material->SetMatrix("u_projection_matrix", projection);
 
-		this->InitSkybox(mesh, view, projection);
+		//this->InitSkybox(mesh, view, projection);
 		this->InitUI();
     }
 

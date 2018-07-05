@@ -27,6 +27,11 @@
 
 namespace Viry3D
 {
+	Ref<Texture> Texture::m_shared_white_texture;
+	Ref<Texture> Texture::m_shared_black_texture;
+	Ref<Texture> Texture::m_shared_normal_texture;
+	Ref<Texture> Texture::m_shared_cubemap;
+
     ByteBuffer Texture::LoadImageFromFile(const String& path, int& width, int& height, int& bpp)
     {
         ByteBuffer pixels;
@@ -252,6 +257,109 @@ namespace Viry3D
 
         return texture;
     }
+
+	Ref<Texture> Texture::GetSharedWhiteTexture()
+	{
+		if (!m_shared_white_texture)
+		{
+			ByteBuffer pixels(4);
+			pixels[0] = 255;
+			pixels[1] = 255;
+			pixels[2] = 255;
+			pixels[3] = 255;
+
+			m_shared_white_texture = Texture::CreateTexture2DFromMemory(
+				pixels,
+				1,
+				1,
+				VK_FORMAT_R8G8B8A8_UNORM,
+				VK_FILTER_NEAREST,
+				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+				false,
+				false);
+		}
+
+		return m_shared_white_texture;
+	}
+
+	Ref<Texture> Texture::GetSharedBlackTexture()
+	{
+		if (!m_shared_black_texture)
+		{
+			ByteBuffer pixels(4);
+			pixels[0] = 0;
+			pixels[1] = 0;
+			pixels[2] = 0;
+			pixels[3] = 255;
+
+			m_shared_black_texture = Texture::CreateTexture2DFromMemory(
+				pixels,
+				1,
+				1,
+				VK_FORMAT_R8G8B8A8_UNORM,
+				VK_FILTER_NEAREST,
+				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+				false,
+				false);
+		}
+
+		return m_shared_black_texture;
+	}
+
+	Ref<Texture> Texture::GetSharedNormalTexture()
+	{
+		if (!m_shared_normal_texture)
+		{
+			ByteBuffer pixels(4);
+			pixels[0] = 127;
+			pixels[1] = 127;
+			pixels[2] = 255;
+			pixels[3] = 255;
+
+			m_shared_normal_texture = Texture::CreateTexture2DFromMemory(
+				pixels,
+				1,
+				1,
+				VK_FORMAT_R8G8B8A8_UNORM,
+				VK_FILTER_NEAREST,
+				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+				false,
+				false);
+		}
+		
+		return m_shared_normal_texture;
+	}
+
+	Ref<Texture> Texture::GetSharedCubemap()
+	{
+		if (!m_shared_cubemap)
+		{
+			ByteBuffer pixels(4);
+			pixels[0] = 255;
+			pixels[1] = 255;
+			pixels[2] = 255;
+			pixels[3] = 255;
+
+			Ref<Texture> cubemap = Texture::CreateCubemap(1, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+			cubemap->UpdateCubemapFaceBegin();
+			for (int i = 0; i < 6; ++i)
+			{
+				cubemap->UpdateCubemapFace(pixels, (CubemapFace) i, 0);
+			}
+			cubemap->UpdateCubemapFaceEnd();
+			m_shared_cubemap = cubemap;
+		}
+		
+		return m_shared_cubemap;
+	}
+
+	void Texture::ClearSharedTextures()
+	{
+		m_shared_white_texture.reset();
+		m_shared_black_texture.reset();
+		m_shared_normal_texture.reset();
+		m_shared_cubemap.reset();
+	}
 
     void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h)
     {
