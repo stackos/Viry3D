@@ -29,7 +29,9 @@ namespace Viry3D
 		m_alignment((int) ViewAlignment::HorizontalCenter | (int) ViewAlignment::VerticalCenter),
 		m_pivot(0.5f, 0.5f),
 		m_size(100, 100),
-		m_offset(0, 0)
+		m_offset(0, 0),
+        m_local_rotation(Quaternion::Identity()),
+        m_local_scale(1, 1)
 	{
 	
 	}
@@ -96,9 +98,27 @@ namespace Viry3D
 		}
 	}
 
+    void View::SetLocalRotation(const Quaternion& rotation)
+    {
+        m_local_rotation = rotation;
+        if (m_canvas)
+        {
+            m_canvas->MarkCanvasDirty();
+        }
+    }
+
+    void View::SetLocalScale(const Vector2& scale)
+    {
+        m_local_scale = scale;
+        if (m_canvas)
+        {
+            m_canvas->MarkCanvasDirty();
+        }
+    }
+
     void View::UpdateLayout()
     {
-    
+        
     }
 
     void View::FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices, Vector<Ref<Texture>>& textures)

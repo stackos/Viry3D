@@ -303,12 +303,10 @@ namespace Viry3D
 
         assert(pixels.Size() == layer_count);
 
-        texture->UpdateTexture2DArrayBegin();
         for (int i = 0; i < layer_count; ++i)
         {
             texture->UpdateTexture2DArray(pixels[i], i, 0);
         }
-        texture->UpdateTexture2DArrayEnd();
 
         if (gen_mipmap)
         {
@@ -401,12 +399,10 @@ namespace Viry3D
 			pixels[3] = 255;
 
 			Ref<Texture> cubemap = Texture::CreateCubemap(1, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
-			cubemap->UpdateCubemapBegin();
 			for (int i = 0; i < 6; ++i)
 			{
 				cubemap->UpdateCubemap(pixels, (CubemapFace) i, 0);
 			}
-			cubemap->UpdateCubemapEnd();
 			m_shared_cubemap = cubemap;
 		}
 		
@@ -445,13 +441,10 @@ namespace Viry3D
         }
     }
 
-    void Texture::UpdateCubemapBegin()
-    {
-        this->CopyBufferToImageBegin();
-    }
-
     void Texture::UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level)
     {
+        VkDevice device = Display::Instance()->GetDevice();
+
         if (!m_image_buffer || m_image_buffer->size < pixels.Size())
         {
             m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
@@ -459,34 +452,23 @@ namespace Viry3D
         else
         {
             Display::Instance()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
-        } 
+        }
 
+        this->CopyBufferToImageBegin();
         this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, (int) face, level);
-    }
-
-    void Texture::UpdateCubemapEnd()
-    {
-        VkDevice device = Display::Instance()->GetDevice();
-
         this->CopyBufferToImageEnd();
 
         if (!m_dynamic)
         {
-            if (m_image_buffer)
-            {
-                m_image_buffer->Destroy(device);
-                m_image_buffer.reset();
-            }
+            m_image_buffer->Destroy(device);
+            m_image_buffer.reset();
         }
-    }
-
-    void Texture::UpdateTexture2DArrayBegin()
-    {
-        this->CopyBufferToImageBegin();
     }
 
     void Texture::UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level)
     {
+        VkDevice device = Display::Instance()->GetDevice();
+
         if (!m_image_buffer || m_image_buffer->size < pixels.Size())
         {
             m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
@@ -496,22 +478,14 @@ namespace Viry3D
             Display::Instance()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
         }
 
+        this->CopyBufferToImageBegin();
         this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, layer, level);
-    }
-
-    void Texture::UpdateTexture2DArrayEnd()
-    {
-        VkDevice device = Display::Instance()->GetDevice();
-
         this->CopyBufferToImageEnd();
 
         if (!m_dynamic)
         {
-            if (m_image_buffer)
-            {
-                m_image_buffer->Destroy(device);
-                m_image_buffer.reset();
-            }
+            m_image_buffer->Destroy(device);
+            m_image_buffer.reset();
         }
     }
 

@@ -21,6 +21,7 @@
 #include "graphics/Color.h"
 #include "graphics/VertexAttribute.h"
 #include "math/Vector2.h"
+#include "math/Quaternion.h"
 
 namespace Viry3D
 {
@@ -54,6 +55,10 @@ namespace Viry3D
 		void SetSize(const Vector2& size);
 		const Vector2& GetOffset() const { return m_offset; }
 		void SetOffset(const Vector2& offset);
+        const Quaternion& GetLocalRotation() const { return m_local_rotation; }
+        void SetLocalRotation(const Quaternion& rotation);
+        const Vector2& GetLocalScale() const { return m_local_scale; }
+        void SetLocalScale(const Vector2& scale);
         virtual void UpdateLayout();
         virtual void FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices, Vector<Ref<Texture>>& textures);
 
@@ -65,5 +70,7 @@ namespace Viry3D
 		Vector2 m_pivot;
 		Vector2 m_size;
 		Vector2 m_offset;
+        Quaternion m_local_rotation;
+        Vector2 m_local_scale;
 	};
 }

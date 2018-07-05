@@ -37,10 +37,9 @@
 using namespace Viry3D;
 
 // TODO:
-// - multi layer texture image buffer for update
-// - canvas dynamic atlas atlas array
-// - view layout, build canvas mesh
+// - layout view, build canvas mesh
 // - update canvas atlas atlas
+// - canvas dynamic atlas atlas array
 // - CanvaRenderer View Sprite Label
 // - Button SliderControl SwitchControl
 // - ScrollView TabView TreeView
@@ -384,7 +383,6 @@ void main()
 		Thread::Task task;
 		task.job = []() {
 			auto cubemap = Texture::CreateCubemap(1024, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
-			cubemap->UpdateCubemapBegin();
 			for (int i = 0; i < cubemap->GetMipmapLevelCount(); ++i)
 			{
 				for (int j = 0; j < 6; ++j)
@@ -396,7 +394,6 @@ void main()
 					cubemap->UpdateCubemap(pixels, (CubemapFace) j, i);
 				}
 			}
-			cubemap->UpdateCubemapEnd();
 			return cubemap;
 		};
 		task.complete = [=](const Ref<Thread::Res>& res) {

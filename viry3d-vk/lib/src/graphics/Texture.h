@@ -93,12 +93,8 @@ namespace Viry3D
         VkImageView GetImageView() const { return m_image_view; }
         VkSampler GetSampler() const { return m_sampler; }
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
-        void UpdateCubemapBegin();
         void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
-        void UpdateCubemapEnd();
-        void UpdateTexture2DArrayBegin();
         void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
-        void UpdateTexture2DArrayEnd();
         void GenMipmaps();
 
     private:
