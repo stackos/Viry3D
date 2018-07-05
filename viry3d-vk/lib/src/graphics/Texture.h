@@ -69,6 +69,16 @@ namespace Viry3D
             VkFormat format,
             VkFilter filter_mode,
             VkSamplerAddressMode wrap_mode);
+        static Ref<Texture> CreateTexture2DArrayFromMemory(
+            const Vector<ByteBuffer>& pixels,
+            int width,
+            int height,
+            int layer_count,
+            VkFormat format,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool gen_mipmap,
+            bool dynamic);
 		static Ref<Texture> GetSharedWhiteTexture();
 		static Ref<Texture> GetSharedBlackTexture();
 		static Ref<Texture> GetSharedNormalTexture();
@@ -83,9 +93,12 @@ namespace Viry3D
         VkImageView GetImageView() const { return m_image_view; }
         VkSampler GetSampler() const { return m_sampler; }
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
-        void UpdateCubemapFaceBegin();
-        void UpdateCubemapFace(const ByteBuffer& pixels, CubemapFace face, int level);
-        void UpdateCubemapFaceEnd();
+        void UpdateCubemapBegin();
+        void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
+        void UpdateCubemapEnd();
+        void UpdateTexture2DArrayBegin();
+        void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
+        void UpdateTexture2DArrayEnd();
         void GenMipmaps();
 
     private:
@@ -93,6 +106,7 @@ namespace Viry3D
         void CopyBufferToImageBegin();
         void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
         void CopyBufferToImageEnd();
+        int GetLayerCount();
 
     private:
 		static Ref<Texture> m_shared_white_texture;
@@ -111,5 +125,6 @@ namespace Viry3D
         int m_mipmap_level_count;
         bool m_dynamic;
         bool m_cubemap;
+        int m_array_size;
     };
 }

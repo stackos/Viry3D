@@ -1148,7 +1148,8 @@ namespace Viry3D
             VkImageAspectFlags aspect_flag,
             const VkComponentMapping& component,
             int mipmap_level_count,
-            bool cubemap)
+            bool cubemap,
+            int array_size)
         {
             Ref<Texture> texture = Ref<Texture>(new Texture());
             texture->m_width = width;
@@ -1156,17 +1157,32 @@ namespace Viry3D
             texture->m_format = format;
             texture->m_mipmap_level_count = mipmap_level_count;
             texture->m_cubemap = cubemap;
+            texture->m_array_size = array_size;
+
+            VkImageCreateFlags flags = 0;
+            uint32_t layer_count = 1;
+
+            if (cubemap)
+            {
+                flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+                layer_count = 6;
+            }
+            if (array_size > 1)
+            {
+                flags |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+                layer_count = array_size;
+            }
 
             VkImageCreateInfo image_info;
             Memory::Zero(&image_info, sizeof(image_info));
             image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
             image_info.pNext = nullptr;
-            image_info.flags = cubemap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
+            image_info.flags = flags;
             image_info.imageType = type;
             image_info.format = format;
             image_info.extent = { (uint32_t) width, (uint32_t) height, 1 };
             image_info.mipLevels = mipmap_level_count;
-            image_info.arrayLayers = cubemap ? 6 : 1;
+            image_info.arrayLayers = layer_count;
             image_info.samples = VK_SAMPLE_COUNT_1_BIT;
             image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
             image_info.usage = usage;
@@ -1205,7 +1221,7 @@ namespace Viry3D
             view_info.viewType = view_type;
             view_info.format = format;
             view_info.components = component;
-            view_info.subresourceRange = { aspect_flag, 0, (uint32_t) mipmap_level_count, 0, (uint32_t) (cubemap ? 6 : 1) };
+            view_info.subresourceRange = { aspect_flag, 0, (uint32_t) mipmap_level_count, 0, layer_count };
             
             err = vkCreateImageView(m_device, &view_info, nullptr, &texture->m_image_view);
             assert(!err);
@@ -2724,7 +2740,8 @@ void main()
         VkImageAspectFlags aspect_flag,
         const VkComponentMapping& component,
         int mipmap_level_count,
-        bool cubemap)
+        bool cubemap,
+        int array_size)
     {
         return m_private->CreateTexture(
             type,
@@ -2736,7 +2753,8 @@ void main()
             aspect_flag,
             component,
             mipmap_level_count,
-            cubemap);
+            cubemap,
+            array_size);
     }
 
     void Display::CreateSampler(

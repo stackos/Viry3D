@@ -40,6 +40,8 @@ namespace Viry3D
 		void MarkCanvasDirty();
 
 	private:
+        void CreateAtlasTexture();
+        void CreateMaterial();
 		void UpdateCanvas();
         void UpdateProjectionMatrix();
 
@@ -47,5 +49,6 @@ namespace Viry3D
 		Vector<Ref<View>> m_views;
 		bool m_canvas_dirty;
 		Ref<Mesh> m_mesh;
+        Ref<Texture> m_atlas;
 	};
 }

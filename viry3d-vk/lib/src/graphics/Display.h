@@ -115,7 +115,8 @@ namespace Viry3D
             VkImageAspectFlags aspect_flag,
             const VkComponentMapping& component,
             int mipmap_level_count,
-            bool cubemap);
+            bool cubemap,
+            int array_size);
         void CreateSampler(
             const Ref<Texture>& texture,
             VkFilter filter_mode,

@@ -21,16 +21,72 @@
 #include "graphics/Shader.h"
 #include "graphics/Material.h"
 #include "graphics/Camera.h"
+#include "graphics/Material.h"
+#include "graphics/Texture.h"
+#include "memory/Memory.h"
 
 namespace Viry3D
 {
 	CanvaRenderer::CanvaRenderer():
 		m_canvas_dirty(true)
 	{
-		auto shader = Shader::Find("UI");
-		if (!shader)
-		{
-			String vs = R"(
+        this->CreateAtlasTexture();
+		this->CreateMaterial();
+	}
+
+	CanvaRenderer::~CanvaRenderer()
+	{
+
+	}
+
+    void CanvaRenderer::CreateAtlasTexture()
+    {
+        const int atlas_size = 2048;
+        const int array_size = 4;
+
+        Color colors[] = {
+            Color(1, 0, 0, 1),
+            Color(0, 1, 0, 1),
+            Color(0, 0, 1, 1),
+            Color(1, 1, 1, 1),
+        };
+
+        Vector<ByteBuffer> pixels(array_size);
+        for (int i = 0; i < array_size; ++i)
+        {
+            ByteBuffer buffer(atlas_size * atlas_size * 4);
+            for (int j = 0; j < atlas_size; ++j)
+            {
+                for (int k = 0; k < atlas_size; ++k)
+                {
+                    buffer[j * atlas_size * 4 + k * 4 + 0] = byte(colors[i].r * 255);
+                    buffer[j * atlas_size * 4 + k * 4 + 1] = byte(colors[i].g * 255);
+                    buffer[j * atlas_size * 4 + k * 4 + 2] = byte(colors[i].b * 255);
+                    buffer[j * atlas_size * 4 + k * 4 + 3] = 255;
+                }
+            }
+
+            pixels[i] = buffer;
+        }
+
+        m_atlas = Texture::CreateTexture2DArrayFromMemory(
+            pixels,
+            atlas_size,
+            atlas_size,
+            array_size,
+            VK_FORMAT_R8G8B8A8_UNORM,
+            VK_FILTER_LINEAR,
+            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            false,
+            true);
+    }
+
+    void CanvaRenderer::CreateMaterial()
+    {
+        auto shader = Shader::Find("UI");
+        if (!shader)
+        {
+            String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
 	mat4 u_model_matrix;
@@ -54,10 +110,11 @@ void main()
 	vulkan_convert();
 }
 )";
-			String fs = R"(
+            String fs = R"(
 precision highp float;
-      
-UniformTexture(0, 1) uniform sampler2D u_texture;
+precision lowp sampler2DArray;
+
+UniformTexture(0, 1) uniform sampler2DArray u_texture;
 
 Input(0) vec2 v_uv;
 Input(1) vec4 v_color;
@@ -66,28 +123,29 @@ Output(0) vec4 o_frag;
 
 void main()
 {
-    o_frag = v_color;//texture(u_texture, v_uv) * 
+    vec3 uv = vec3(v_uv, 0.0);
+    o_frag = texture(u_texture, uv) * v_color;
 }
 )";
-			RenderState render_state;
-			render_state.cull = RenderState::Cull::Off;
-			render_state.zTest = RenderState::ZTest::Off;
-			render_state.zWrite = RenderState::ZWrite::Off;
-			render_state.blend = RenderState::Blend::On;
-			render_state.srcBlendMode = RenderState::BlendMode::SrcAlpha;
-			render_state.dstBlendMode = RenderState::BlendMode::OneMinusSrcAlpha;
-			render_state.queue = (int) RenderState::Queue::Transparent;
+            RenderState render_state;
+            render_state.cull = RenderState::Cull::Off;
+            render_state.zTest = RenderState::ZTest::Off;
+            render_state.zWrite = RenderState::ZWrite::Off;
+            render_state.blend = RenderState::Blend::On;
+            render_state.srcBlendMode = RenderState::BlendMode::SrcAlpha;
+            render_state.dstBlendMode = RenderState::BlendMode::OneMinusSrcAlpha;
+            render_state.queue = (int) RenderState::Queue::Transparent;
 
-			shader = RefMake<Shader>(
-				vs,
-				Vector<String>(),
-				fs,
-				Vector<String>(),
-				render_state);
-			Shader::AddCache("UI", shader);
-		}
-		
-		auto material = RefMake<Material>(shader);
+            shader = RefMake<Shader>(
+                vs,
+                Vector<String>(),
+                fs,
+                Vector<String>(),
+                render_state);
+            Shader::AddCache("UI", shader);
+        }
+
+        auto material = RefMake<Material>(shader);
         material->SetMatrix("u_model_matrix", Matrix4x4::Identity());
 
         auto view_matrix = Matrix4x4::LookTo(
@@ -96,13 +154,10 @@ void main()
             Vector3(0, 1, 0));
         material->SetMatrix("u_view_matrix", view_matrix);
 
-		this->SetMaterial(material);
-	}
+        material->SetTexture("u_texture", m_atlas);
 
-	CanvaRenderer::~CanvaRenderer()
-	{
-
-	}
+        this->SetMaterial(material);
+    }
 
 	Ref<BufferObject> CanvaRenderer::GetVertexBuffer() const
 	{
@@ -142,8 +197,6 @@ void main()
 
 	void CanvaRenderer::Update()
 	{
-		Renderer::Update();
-
 		if (m_canvas_dirty)
 		{
 			m_canvas_dirty = false;
@@ -151,6 +204,8 @@ void main()
             this->UpdateProjectionMatrix();
 			this->MarkInstanceCmdDirty();
 		}
+
+        Renderer::Update();
 	}
 
     void CanvaRenderer::OnResize(int width, int height)
@@ -197,6 +252,8 @@ void main()
         {
             m_mesh.reset();
         }
+
+        // update atlas texture if view texture not in atlas
 	}
 
     void CanvaRenderer::UpdateProjectionMatrix()

@@ -140,7 +140,8 @@ namespace Viry3D
                 VK_COMPONENT_SWIZZLE_A
             },
             mipmap_level_count,
-            false);
+            false,
+            1);
         Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
 
         texture->m_dynamic = dynamic;
@@ -185,7 +186,8 @@ namespace Viry3D
                 VK_COMPONENT_SWIZZLE_A
             },
             mipmap_level_count,
-            true);
+            true,
+            1);
         Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
 
         return texture;
@@ -241,7 +243,8 @@ namespace Viry3D
                 VK_COMPONENT_SWIZZLE_IDENTITY
             },
             1,
-            false);
+            false,
+            1);
         Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
 
 		Display::Instance()->BeginImageCmd();
@@ -254,6 +257,63 @@ namespace Viry3D
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			(VkAccessFlagBits) 0);
 		Display::Instance()->EndImageCmd();
+
+        return texture;
+    }
+
+    Ref<Texture> Texture::CreateTexture2DArrayFromMemory(
+        const Vector<ByteBuffer>& pixels,
+        int width,
+        int height,
+        int layer_count,
+        VkFormat format,
+        VkFilter filter_mode,
+        VkSamplerAddressMode wrap_mode,
+        bool gen_mipmap,
+        bool dynamic)
+    {
+        Ref<Texture> texture;
+
+        int mipmap_level_count = 1;
+        if (gen_mipmap)
+        {
+            mipmap_level_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
+        }
+
+        texture = Display::Instance()->CreateTexture(
+            VK_IMAGE_TYPE_2D,
+            VK_IMAGE_VIEW_TYPE_2D_ARRAY,
+            width,
+            height,
+            format,
+            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT,
+            {
+                VK_COMPONENT_SWIZZLE_R,
+                VK_COMPONENT_SWIZZLE_G,
+                VK_COMPONENT_SWIZZLE_B,
+                VK_COMPONENT_SWIZZLE_A
+            },
+            mipmap_level_count,
+            false,
+            layer_count);
+        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
+
+        texture->m_dynamic = dynamic;
+
+        assert(pixels.Size() == layer_count);
+
+        texture->UpdateTexture2DArrayBegin();
+        for (int i = 0; i < layer_count; ++i)
+        {
+            texture->UpdateTexture2DArray(pixels[i], i, 0);
+        }
+        texture->UpdateTexture2DArrayEnd();
+
+        if (gen_mipmap)
+        {
+            texture->GenMipmaps();
+        }
 
         return texture;
     }
@@ -341,12 +401,12 @@ namespace Viry3D
 			pixels[3] = 255;
 
 			Ref<Texture> cubemap = Texture::CreateCubemap(1, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
-			cubemap->UpdateCubemapFaceBegin();
+			cubemap->UpdateCubemapBegin();
 			for (int i = 0; i < 6; ++i)
 			{
-				cubemap->UpdateCubemapFace(pixels, (CubemapFace) i, 0);
+				cubemap->UpdateCubemap(pixels, (CubemapFace) i, 0);
 			}
-			cubemap->UpdateCubemapFaceEnd();
+			cubemap->UpdateCubemapEnd();
 			m_shared_cubemap = cubemap;
 		}
 		
@@ -385,12 +445,47 @@ namespace Viry3D
         }
     }
 
-    void Texture::UpdateCubemapFaceBegin()
+    void Texture::UpdateCubemapBegin()
     {
         this->CopyBufferToImageBegin();
     }
 
-    void Texture::UpdateCubemapFace(const ByteBuffer& pixels, CubemapFace face, int level)
+    void Texture::UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level)
+    {
+        if (!m_image_buffer || m_image_buffer->size < pixels.Size())
+        {
+            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        }
+        else
+        {
+            Display::Instance()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
+        } 
+
+        this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, (int) face, level);
+    }
+
+    void Texture::UpdateCubemapEnd()
+    {
+        VkDevice device = Display::Instance()->GetDevice();
+
+        this->CopyBufferToImageEnd();
+
+        if (!m_dynamic)
+        {
+            if (m_image_buffer)
+            {
+                m_image_buffer->Destroy(device);
+                m_image_buffer.reset();
+            }
+        }
+    }
+
+    void Texture::UpdateTexture2DArrayBegin()
+    {
+        this->CopyBufferToImageBegin();
+    }
+
+    void Texture::UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level)
     {
         if (!m_image_buffer || m_image_buffer->size < pixels.Size())
         {
@@ -401,10 +496,10 @@ namespace Viry3D
             Display::Instance()->UpdateBuffer(m_image_buffer, 0, pixels.Bytes(), pixels.Size());
         }
 
-        this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, (int) face, level);
+        this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, layer, level);
     }
 
-    void Texture::UpdateCubemapFaceEnd()
+    void Texture::UpdateTexture2DArrayEnd()
     {
         VkDevice device = Display::Instance()->GetDevice();
 
@@ -428,20 +523,20 @@ namespace Viry3D
             m_image,
 			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
-            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) this->GetLayerCount() },
             VK_IMAGE_LAYOUT_UNDEFINED,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             (VkAccessFlagBits) 0);
     }
     
-    void Texture::CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level)
+    void Texture::CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int layer, int level)
     {
         VkBufferImageCopy copy;
         Memory::Zero(&copy, sizeof(copy));
         copy.bufferOffset = 0;
         copy.bufferRowLength = 0;
         copy.bufferImageHeight = 0;
-        copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) face, 1 };
+        copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) layer, 1 };
         copy.imageOffset.x = x;
         copy.imageOffset.y = y;
         copy.imageOffset.z = 0;
@@ -464,7 +559,7 @@ namespace Viry3D
             m_image,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) (m_cubemap ? 6 : 1) },
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) this->GetLayerCount() },
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             VK_ACCESS_TRANSFER_WRITE_BIT);
@@ -472,11 +567,25 @@ namespace Viry3D
         Display::Instance()->EndImageCmd();
     }
 
+    int Texture::GetLayerCount()
+    {
+        int layer_count = 1;
+        if (m_cubemap)
+        {
+            layer_count = 6;
+        }
+        if (m_array_size > 1)
+        {
+            layer_count = m_array_size;
+        }
+        return layer_count;
+    }
+
     void Texture::GenMipmaps()
     {
         assert(m_mipmap_level_count > 1);
 
-        uint32_t layer_count = m_cubemap ? 6 : 1;
+        uint32_t layer_count = (uint32_t) this->GetLayerCount();
 
         Display::Instance()->BeginImageCmd();
 
