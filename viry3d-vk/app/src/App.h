@@ -38,8 +38,8 @@ using namespace Viry3D;
 
 // TODO:
 // - layout view, build canvas mesh
-// - update canvas atlas atlas
-// - canvas dynamic atlas atlas array
+// - update canvas atlas texture
+// - canvas dynamic atlas texture array
 // - CanvaRenderer View Sprite Label
 // - Button SliderControl SwitchControl
 // - ScrollView TabView TreeView
