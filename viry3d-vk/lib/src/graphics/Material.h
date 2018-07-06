@@ -101,8 +101,8 @@ namespace Viry3D
                 m_properties.Add(name, property);
             }
         }
-        void UpdateUniformMember(const String& name, const void* data, int size);
-        void UpdateUniformTexture(const String& name, const Ref<Texture>& texture);
+        void UpdateUniformMember(const String& name, const void* data, int size, bool& instance_cmd_dirty);
+        void UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty);
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty();
 

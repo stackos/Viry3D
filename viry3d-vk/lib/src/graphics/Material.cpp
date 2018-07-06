@@ -129,13 +129,11 @@ namespace Viry3D
 
                 if (i.second.type == MaterialProperty::Type::Texture)
                 {
-                    this->UpdateUniformTexture(i.second.name, i.second.texture);
-
-                    instance_cmd_dirty = true;
+                    this->UpdateUniformTexture(i.second.name, i.second.texture, instance_cmd_dirty);
                 }
                 else
                 {
-                    this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size);
+                    this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size, instance_cmd_dirty);
                 }
             }
         }
@@ -181,7 +179,7 @@ namespace Viry3D
         return -1;
     }
 
-    void Material::UpdateUniformMember(const String& name, const void* data, int size)
+    void Material::UpdateUniformMember(const String& name, const void* data, int size, bool& instance_cmd_dirty)
     {
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
@@ -198,6 +196,7 @@ namespace Viry3D
                         if (!buffer.buffer)
                         {
                             Display::Instance()->CreateUniformBuffer(m_descriptor_sets[i], buffer);
+                            instance_cmd_dirty = true;
                         }
                         Display::Instance()->UpdateBuffer(buffer.buffer, member.offset, data, size);
                         return;
@@ -207,7 +206,7 @@ namespace Viry3D
         }
     }
 
-    void Material::UpdateUniformTexture(const String& name, const Ref<Texture>& texture)
+    void Material::UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty)
     {
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
@@ -218,6 +217,7 @@ namespace Viry3D
                 if (uniform_texture.name == name)
                 {
                     Display::Instance()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, texture);
+                    instance_cmd_dirty = true;
                     return;
                 }
             }

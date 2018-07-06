@@ -181,6 +181,8 @@ namespace Viry3D
 				}
 
 				this->BuildInstanceCmd(i.cmd, i.renderer);
+
+                Display::Instance()->MarkPrimaryCmdDirty();
 			}
 		}
 
@@ -323,11 +325,9 @@ namespace Viry3D
 		const Ref<Material>& material = renderer->GetMaterial();
 		Ref<BufferObject> vertex_buffer = renderer->GetVertexBuffer();
 		Ref<BufferObject> index_buffer = renderer->GetIndexBuffer();
-		int index_offset;
-		int index_count;
-		renderer->GetIndexRange(index_offset, index_count);
+        Ref<BufferObject> draw_buffer = renderer->GetDrawBuffer();
 
-		if (!material || !vertex_buffer || !index_buffer || index_count == 0)
+		if (!material || !vertex_buffer || !index_buffer || !draw_buffer)
 		{
 			Display::Instance()->BuildEmptyInstanceCmd(cmd, m_render_pass);
 			return;
@@ -371,8 +371,7 @@ namespace Viry3D
 			m_viewport_rect,
 			vertex_buffer,
 			index_buffer,
-			index_offset,
-			index_count);
+            draw_buffer);
 	}
 
 	void Camera::UpdateRenderers()
