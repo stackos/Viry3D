@@ -37,7 +37,6 @@
 using namespace Viry3D;
 
 // TODO:
-// - layout view, build canvas mesh
 // - update canvas atlas texture
 // - canvas dynamic atlas texture array
 // - CanvaRenderer View Sprite Label
@@ -403,6 +402,8 @@ void main()
 		Application::Instance()->GetThreadPool()->AddTask(task);
 	}
 
+    Ref<View> m_view;
+
 	void InitUI()
 	{
 		auto canvas = RefMake<CanvaRenderer>();
@@ -412,6 +413,8 @@ void main()
         view->SetSize(Vector2(300, 300));
 
 		canvas->AddView(view);
+
+        m_view = view;
 	}
 
     virtual ~App()
@@ -426,6 +429,8 @@ void main()
 
         Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, m_deg, 0)));
         m_renderer_cube->SetInstanceMatrix("u_model_matrix", model);
+
+        m_view->SetLocalRotation(Quaternion::Euler(0, 0, m_deg));
     }
 
 	virtual void OnResize(int width, int height)
