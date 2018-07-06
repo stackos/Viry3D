@@ -29,6 +29,7 @@ namespace Viry3D
     public:
         Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices);
         ~Mesh();
+        void Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices);
         const Ref<BufferObject>& GetVertexBuffer() const { return m_vertex_buffer; }
         const Ref<BufferObject>& GetIndexBuffer() const { return m_index_buffer; }
         int GetVertexCount() const { return m_vertex_count; }
@@ -39,5 +40,7 @@ namespace Viry3D
         Ref<BufferObject> m_index_buffer;
         int m_vertex_count;
         int m_index_count;
+        int m_buffer_vertex_count;
+        int m_buffer_index_count;
     };
 }

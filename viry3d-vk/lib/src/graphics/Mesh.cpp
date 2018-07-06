@@ -18,18 +18,23 @@
 #include "Mesh.h"
 #include "Display.h"
 #include "BufferObject.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
     Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices):
         m_vertex_count(0),
-        m_index_count(0)
+        m_index_count(0),
+        m_buffer_vertex_count(0),
+        m_buffer_index_count(0)
     {
         m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     
         m_vertex_count = vertices.Size();
         m_index_count = indices.Size();
+        m_buffer_vertex_count = m_vertex_count;
+        m_buffer_index_count = m_index_count;
     }
     
     Mesh::~Mesh()
@@ -40,5 +45,17 @@ namespace Viry3D
         m_vertex_buffer.reset();
         m_index_buffer->Destroy(device);
         m_index_buffer.reset();
+    }
+
+    void Mesh::Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices)
+    {
+        assert(vertices.Size() <= m_buffer_vertex_count);
+        assert(indices.Size() <= m_buffer_index_count);
+
+        Display::Instance()->UpdateBuffer(m_vertex_buffer, 0, &vertices[0], vertices.SizeInBytes());
+        Display::Instance()->UpdateBuffer(m_index_buffer, 0, &indices[0], indices.SizeInBytes());
+
+        m_vertex_count = vertices.Size();
+        m_index_count = indices.Size();
     }
 }
