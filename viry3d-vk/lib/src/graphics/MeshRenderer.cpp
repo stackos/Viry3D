@@ -17,6 +17,7 @@
 
 #include "MeshRenderer.h"
 #include "Mesh.h"
+#include "BufferObject.h"
 
 namespace Viry3D
 {
@@ -27,7 +28,11 @@ namespace Viry3D
 
     MeshRenderer::~MeshRenderer()
     {
-
+        if (m_draw_buffer)
+        {
+            m_draw_buffer->Destroy(Display::Instance()->GetDevice());
+            m_draw_buffer.reset();
+        }
     }
 
     Ref<BufferObject> MeshRenderer::GetVertexBuffer() const
@@ -54,21 +59,26 @@ namespace Viry3D
         return buffer;
     }
 
-    void MeshRenderer::GetIndexRange(int& index_offset, int& index_count) const
-    {
-		index_offset = 0;
-		index_count = 0;
-
-        if (m_mesh)
-        {
-            index_offset = 0;
-            index_count = m_mesh->GetIndexCount();
-        }
-    }
-
     void MeshRenderer::SetMesh(const Ref<Mesh>& mesh)
     {
         m_mesh = mesh;
+
+        VkDrawIndexedIndirectCommand draw;
+        draw.indexCount = m_mesh->GetIndexCount();
+        draw.instanceCount = 1;
+        draw.firstIndex = 0;
+        draw.vertexOffset = 0;
+        draw.firstInstance = 0;
+
+        if (!m_draw_buffer)
+        {
+            m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
+        }
+        else
+        {
+            Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
+        }
+
         this->MarkInstanceCmdDirty();
     }
 }

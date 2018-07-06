@@ -102,8 +102,7 @@ namespace Viry3D
             const Rect& view_rect,
             const Ref<BufferObject>& vertex_buffer,
             const Ref<BufferObject>& index_buffer,
-            int index_offset,
-            int index_count);
+            const Ref<BufferObject>& draw_buffer);
 		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass);
         Ref<Texture> CreateTexture(
             VkImageType type,

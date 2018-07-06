@@ -32,7 +32,7 @@ namespace Viry3D
 		virtual ~CanvaRenderer();
 		virtual Ref<BufferObject> GetVertexBuffer() const;
 		virtual Ref<BufferObject> GetIndexBuffer() const;
-		virtual void GetIndexRange(int& index_offset, int& index_count) const;
+        virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
 		virtual void Update();
         virtual void OnResize(int width, int height);
 		void AddView(const Ref<View>& view);
@@ -50,5 +50,6 @@ namespace Viry3D
 		bool m_canvas_dirty;
 		Ref<Mesh> m_mesh;
         Ref<Texture> m_atlas;
+        Ref<BufferObject> m_draw_buffer;
 	};
 }

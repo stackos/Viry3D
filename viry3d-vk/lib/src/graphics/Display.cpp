@@ -2021,8 +2021,7 @@ namespace Viry3D
             const Rect& view_rect,
             const Ref<BufferObject>& vertex_buffer,
             const Ref<BufferObject>& index_buffer,
-            int index_offset,
-            int index_count)
+            const Ref<BufferObject>& draw_buffer)
         {
             VkCommandBufferInheritanceInfo inheritance_info;
             Memory::Zero(&inheritance_info, sizeof(inheritance_info));
@@ -2069,7 +2068,7 @@ namespace Viry3D
             VkDeviceSize offset = 0;
             vkCmdBindVertexBuffers(cmd, 0, 1, &vertex_buffer->buffer, &offset);
             vkCmdBindIndexBuffer(cmd, index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
-            vkCmdDrawIndexed(cmd, index_count, 1, index_offset, 0, 0);
+            vkCmdDrawIndexedIndirect(cmd, draw_buffer->buffer, 0, 1, 0);
 
             err = vkEndCommandBuffer(cmd);
             assert(!err);
@@ -2707,8 +2706,7 @@ void main()
         const Rect& view_rect,
         const Ref<BufferObject>& vertex_buffer,
         const Ref<BufferObject>& index_buffer,
-        int index_offset,
-        int index_count)
+        const Ref<BufferObject>& draw_buffer)
     {
         m_private->BuildInstanceCmd(
             cmd,
@@ -2721,8 +2719,7 @@ void main()
             view_rect,
             vertex_buffer,
             index_buffer,
-            index_offset,
-            index_count);
+            draw_buffer);
     }
 
 	void Display::BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass)

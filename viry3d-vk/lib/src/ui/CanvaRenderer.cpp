@@ -23,6 +23,7 @@
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "graphics/Texture.h"
+#include "graphics/BufferObject.h"
 #include "memory/Memory.h"
 
 namespace Viry3D
@@ -36,7 +37,11 @@ namespace Viry3D
 
 	CanvaRenderer::~CanvaRenderer()
 	{
-
+        if (m_draw_buffer)
+        {
+            m_draw_buffer->Destroy(Display::Instance()->GetDevice());
+            m_draw_buffer.reset();
+        }
 	}
 
     void CanvaRenderer::CreateAtlasTexture()
@@ -162,18 +167,6 @@ void main()
 		return buffer;
 	}
 
-	void CanvaRenderer::GetIndexRange(int& index_offset, int& index_count) const
-	{
-		index_offset = 0;
-		index_count = 0;
-
-		if (m_mesh)
-		{
-			index_offset = 0;
-			index_count = m_mesh->GetIndexCount();
-		}
-	}
-
 	void CanvaRenderer::Update()
 	{
 		if (m_canvas_dirty)
@@ -181,7 +174,6 @@ void main()
 			m_canvas_dirty = false;
 			this->UpdateCanvas();
             this->UpdateProjectionMatrix();
-			this->MarkInstanceCmdDirty();
 		}
 
         Renderer::Update();
@@ -223,13 +215,57 @@ void main()
             m_views[i]->FillVertices(vertices, indices, textures);
         }
 
+        bool draw_buffer_dirty = false;
+
+        if (!m_mesh)
+        {
+            if (indices.Size() > 0)
+            {
+                draw_buffer_dirty = true;
+            }
+        }
+        else
+        {
+            if (indices.Size() != m_mesh->GetIndexCount())
+            {
+                draw_buffer_dirty = true;
+            }
+        }
+
         if (vertices.Size() > 0 && indices.Size() > 0)
         {
-            m_mesh = RefMake<Mesh>(vertices, indices);
+            if (!m_mesh || vertices.Size() > m_mesh->GetVertexCount() || indices.Size() > m_mesh->GetIndexCount())
+            {
+                m_mesh = RefMake<Mesh>(vertices, indices);
+                this->MarkInstanceCmdDirty();
+            }
+            else
+            {
+                m_mesh->Update(vertices, indices);
+            }
         }
         else
         {
             m_mesh.reset();
+        }
+
+        if (draw_buffer_dirty)
+        {
+            VkDrawIndexedIndirectCommand draw;
+            draw.indexCount = m_mesh->GetIndexCount();
+            draw.instanceCount = 1;
+            draw.firstIndex = 0;
+            draw.vertexOffset = 0;
+            draw.firstInstance = 0;
+
+            if (!m_draw_buffer)
+            {
+                m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
+            }
+            else
+            {
+                Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
+            }
         }
 
         // update atlas texture if view texture not in atlas
@@ -246,6 +282,7 @@ void main()
         float plane_h = ortho_size * 2;
         float plane_w = plane_h * target_width / target_height;
         auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1000, 1000);
+
         this->GetMaterial()->SetMatrix("u_projection_matrix", projection_matrix);
     }
 }

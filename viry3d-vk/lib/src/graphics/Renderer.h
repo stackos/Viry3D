@@ -36,7 +36,7 @@ namespace Viry3D
         virtual ~Renderer();
         virtual Ref<BufferObject> GetVertexBuffer() const = 0;
         virtual Ref<BufferObject> GetIndexBuffer() const = 0;
-        virtual void GetIndexRange(int& index_offset, int& index_count) const = 0;
+        virtual Ref<BufferObject> GetDrawBuffer() const = 0;
         virtual void Update();
         virtual void OnResize(int width, int height) { }
         const Ref<Material>& GetMaterial() const { return m_material; }
