@@ -33,13 +33,6 @@ namespace Viry3D
 		return Vector2(x * value, y * value);
 	}
 
-	Vector2& Vector2::operator *=(float value)
-	{
-		x *= value;
-		y *= value;
-		return *this;
-	}
-
 	Vector2 Vector2::operator +(const Vector2& value) const
 	{
 		return Vector2(x + value.x, y + value.y);
@@ -49,6 +42,27 @@ namespace Viry3D
 	{
 		return Vector2(x - value.x, y - value.y);
 	}
+
+    Vector2& Vector2::operator *=(float value)
+    {
+        x *= value;
+        y *= value;
+        return *this;
+    }
+
+    Vector2& Vector2::operator +=(const Vector2& value)
+    {
+        x += value.x;
+        y += value.y;
+        return *this;
+    }
+
+    Vector2& Vector2::operator -=(const Vector2& value)
+    {
+        x -= value.x;
+        y -= value.y;
+        return *this;
+    }
 
 	float Vector2::Magnitude() const
 	{

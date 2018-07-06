@@ -22,20 +22,24 @@
 #include "graphics/VertexAttribute.h"
 #include "math/Vector2.h"
 #include "math/Quaternion.h"
+#include "math/Rect.h"
 
 namespace Viry3D
 {
 	class CanvaRenderer;
 	class Texture;
 
-	enum class ViewAlignment
+    struct ViewAlignment
 	{
-		HorizontalLeft = 0x00000001,
-		HorizontalCenter = 0x00000002,
-		HorizontalRight = 0x00000004,
-		VerticalTop = 0x00000010,
-		VerticalCenter = 0x00000020,
-		VerticalBottom = 0x00000040,
+        enum
+        {
+            HorizontalLeft = 0x00000001,
+            HorizontalCenter = 0x00000002,
+            HorizontalRight = 0x00000004,
+            VerticalTop = 0x00000010,
+            VerticalCenter = 0x00000020,
+            VerticalBottom = 0x00000040,
+        };
 	};
 
 	class View
@@ -45,6 +49,10 @@ namespace Viry3D
 		virtual ~View();
 		void OnAddToCanvas(CanvaRenderer* canvas);
 		void OnRemoveFromCanvas(CanvaRenderer* canvas);
+        void AddSubview(const Ref<View>& view);
+        void RemoveSubview(const Ref<View>& view);
+        int GetSubviewCount() const { return m_subviews.Size(); }
+        const Ref<View>& GetSubview(int index) const { return m_subviews[index]; }
 		const Color& GetColor() const { return m_color; }
 		void SetColor(const Color& color);
 		int GetAlignment() const { return m_alignment; }
@@ -59,12 +67,16 @@ namespace Viry3D
         void SetLocalRotation(const Quaternion& rotation);
         const Vector2& GetLocalScale() const { return m_local_scale; }
         void SetLocalScale(const Vector2& scale);
+        const Rect& GetRect() const { return m_rect; }
+        const Quaternion& GetRotation() const { return m_rotation; }
+        const Vector2& GetScale() const { return m_scale; }
         virtual void UpdateLayout();
         virtual void FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices, Vector<Ref<Texture>>& textures);
 
 	private:
 		CanvaRenderer* m_canvas;
-		Vector<Ref<View>> m_children;
+        View* m_parent_view;
+		Vector<Ref<View>> m_subviews;
 		Color m_color;
 		int m_alignment;
 		Vector2 m_pivot;
@@ -72,5 +84,8 @@ namespace Viry3D
 		Vector2 m_offset;
         Quaternion m_local_rotation;
         Vector2 m_local_scale;
+        Rect m_rect;
+        Quaternion m_rotation;
+        Vector2 m_scale;
 	};
 }

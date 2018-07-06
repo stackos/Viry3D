@@ -44,30 +44,9 @@ namespace Viry3D
         const int atlas_size = 2048;
         const int array_size = 4;
 
-        Color colors[] = {
-            Color(1, 0, 0, 1),
-            Color(0, 1, 0, 1),
-            Color(0, 0, 1, 1),
-            Color(1, 1, 1, 1),
-        };
-
-        Vector<ByteBuffer> pixels(array_size);
-        for (int i = 0; i < array_size; ++i)
-        {
-            ByteBuffer buffer(atlas_size * atlas_size * 4);
-            for (int j = 0; j < atlas_size; ++j)
-            {
-                for (int k = 0; k < atlas_size; ++k)
-                {
-                    buffer[j * atlas_size * 4 + k * 4 + 0] = byte(colors[i].r * 255);
-                    buffer[j * atlas_size * 4 + k * 4 + 1] = byte(colors[i].g * 255);
-                    buffer[j * atlas_size * 4 + k * 4 + 2] = byte(colors[i].b * 255);
-                    buffer[j * atlas_size * 4 + k * 4 + 3] = 255;
-                }
-            }
-
-            pixels[i] = buffer;
-        }
+        ByteBuffer buffer(atlas_size * atlas_size * 4);
+        Memory::Set(&buffer[0], 255, buffer.Size());
+        Vector<ByteBuffer> pixels(array_size, buffer);
 
         m_atlas = Texture::CreateTexture2DArrayFromMemory(
             pixels,
@@ -266,7 +245,7 @@ void main()
         float bottom = -ortho_size;
         float plane_h = ortho_size * 2;
         float plane_w = plane_h * target_width / target_height;
-        auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1, 1);
+        auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1000, 1000);
         this->GetMaterial()->SetMatrix("u_projection_matrix", projection_matrix);
     }
 }

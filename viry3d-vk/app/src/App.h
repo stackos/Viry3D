@@ -409,6 +409,8 @@ void main()
 		m_camera->AddRenderer(canvas);
 
 		auto view = RefMake<View>();
+        view->SetSize(Vector2(300, 300));
+
 		canvas->AddView(view);
 	}
 
