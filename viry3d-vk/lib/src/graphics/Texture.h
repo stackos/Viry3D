@@ -95,6 +95,13 @@ namespace Viry3D
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
         void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
         void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
+        void CopyTexture(
+            const Ref<Texture>& src_texture,
+            int src_layer, int src_level,
+            int src_x, int src_y,
+            int layer, int level,
+            int x, int y,
+            int w, int h);
         void GenMipmaps();
 
     private:

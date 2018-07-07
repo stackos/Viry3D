@@ -489,6 +489,72 @@ namespace Viry3D
         }
     }
 
+    void Texture::CopyTexture(
+        const Ref<Texture>& src_texture,
+        int src_layer, int src_level,
+        int src_x, int src_y,
+        int layer, int level,
+        int x, int y,
+        int w, int h)
+    {
+        Display::Instance()->BeginImageCmd();
+
+        Display::Instance()->SetImageLayout(
+            src_texture->GetImage(),
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) src_level, 1, (uint32_t) src_layer, 1 },
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            (VkAccessFlagBits) 0);
+
+        Display::Instance()->SetImageLayout(
+            m_image,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, 1, (uint32_t) layer, 1 },
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            (VkAccessFlagBits) 0);
+
+        VkImageCopy copy;
+        Memory::Zero(&copy, sizeof(copy));
+        copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) src_level, (uint32_t) src_layer, 1 };
+        copy.srcOffset = { src_x, src_y, 0 };
+        copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) layer, 1 };
+        copy.dstOffset = { x, y, 0 };
+        copy.extent = { (uint32_t) w, (uint32_t) h, 1 };
+
+        vkCmdCopyImage(
+            Display::Instance()->GetImageCmd(),
+            src_texture->GetImage(),
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            m_image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &copy);
+
+        Display::Instance()->SetImageLayout(
+            src_texture->GetImage(),
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) src_level, 1, (uint32_t) src_layer, 1 },
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_ACCESS_TRANSFER_READ_BIT);
+
+        Display::Instance()->SetImageLayout(
+            m_image,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, 1, (uint32_t) layer, 1 },
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_ACCESS_TRANSFER_WRITE_BIT);
+
+        Display::Instance()->EndImageCmd();
+    }
+
     void Texture::CopyBufferToImageBegin()
     {
         Display::Instance()->BeginImageCmd();
@@ -511,12 +577,8 @@ namespace Viry3D
         copy.bufferRowLength = 0;
         copy.bufferImageHeight = 0;
         copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) layer, 1 };
-        copy.imageOffset.x = x;
-        copy.imageOffset.y = y;
-        copy.imageOffset.z = 0;
-        copy.imageExtent.width = w;
-        copy.imageExtent.height = h;
-        copy.imageExtent.depth = 1;
+        copy.imageOffset = { x, y, 0 };
+        copy.imageExtent = { (uint32_t) w, (uint32_t) h, 1 };
 
         vkCmdCopyBufferToImage(
             Display::Instance()->GetImageCmd(),
@@ -576,18 +638,12 @@ namespace Viry3D
         {
             VkImageBlit blit;
             Memory::Zero(&blit, sizeof(blit));
-            blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            blit.srcSubresource.mipLevel = i - 1;
-            blit.srcSubresource.baseArrayLayer = 0;
-            blit.srcSubresource.layerCount = layer_count;
+            blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) (i - 1), 0, layer_count };
             blit.srcOffsets[1].x = Mathf::Max(1, m_width >> (i - 1));
             blit.srcOffsets[1].y = Mathf::Max(1, m_height >> (i - 1));
             blit.srcOffsets[1].z = 1;
 
-            blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            blit.dstSubresource.mipLevel = i;
-            blit.dstSubresource.baseArrayLayer = 0;
-            blit.dstSubresource.layerCount = layer_count;
+            blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) i, 0, layer_count };
             blit.dstOffsets[1].x = Mathf::Max(1, m_width >> i);
             blit.dstOffsets[1].y = Mathf::Max(1, m_height >> i);
             blit.dstOffsets[1].z = 1;
