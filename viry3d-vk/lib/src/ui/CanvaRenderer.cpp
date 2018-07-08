@@ -29,9 +29,10 @@
 namespace Viry3D
 {
 	CanvaRenderer::CanvaRenderer():
-		m_canvas_dirty(true)
+		m_canvas_dirty(true),
+        m_atlas_array_size(0)
 	{
-        this->CreateAtlasTexture();
+        this->NewAtlasTextureLayer();
 		this->CreateMaterial();
 	}
 
@@ -44,25 +45,60 @@ namespace Viry3D
         }
 	}
 
-    void CanvaRenderer::CreateAtlasTexture()
+    void CanvaRenderer::NewAtlasTextureLayer()
     {
         const int atlas_size = 2048;
-        const int array_size = 4;
-
         ByteBuffer buffer(atlas_size * atlas_size * 4);
         Memory::Set(&buffer[0], 255, buffer.Size());
-        Vector<ByteBuffer> pixels(array_size, buffer);
 
-        m_atlas = Texture::CreateTexture2DArrayFromMemory(
-            pixels,
-            atlas_size,
-            atlas_size,
-            array_size,
-            VK_FORMAT_R8G8B8A8_UNORM,
-            VK_FILTER_LINEAR,
-            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            false,
-            true);
+        if (!m_atlas)
+        {
+            m_atlas_array_size = 1;
+
+            Vector<ByteBuffer> pixels(m_atlas_array_size, buffer);
+
+            m_atlas = Texture::CreateTexture2DArrayFromMemory(
+                pixels,
+                atlas_size,
+                atlas_size,
+                m_atlas_array_size,
+                VK_FORMAT_R8G8B8A8_UNORM,
+                VK_FILTER_LINEAR,
+                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                false,
+                true);
+        }
+        else
+        {
+            int new_array_size = m_atlas_array_size + 1;
+
+            Vector<ByteBuffer> pixels(new_array_size, buffer);
+
+            Ref<Texture> new_atlas = Texture::CreateTexture2DArrayFromMemory(
+                pixels,
+                atlas_size,
+                atlas_size,
+                new_array_size,
+                VK_FORMAT_R8G8B8A8_UNORM,
+                VK_FILTER_LINEAR,
+                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                false,
+                true);
+
+            for (int i = 0; i < m_atlas_array_size; ++i)
+            {
+                new_atlas->CopyTexture(
+                    m_atlas,
+                    i, 0,
+                    0, 0,
+                    i, 0,
+                    0, 0,
+                    atlas_size, atlas_size);
+            }
+
+            m_atlas = new_atlas;
+            m_atlas_array_size = new_array_size;
+        }
     }
 
     void CanvaRenderer::CreateMaterial()

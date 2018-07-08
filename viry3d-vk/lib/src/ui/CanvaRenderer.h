@@ -40,7 +40,7 @@ namespace Viry3D
 		void MarkCanvasDirty();
 
 	private:
-        void CreateAtlasTexture();
+        void NewAtlasTextureLayer();
         void CreateMaterial();
 		void UpdateCanvas();
         void UpdateProjectionMatrix();
@@ -50,6 +50,7 @@ namespace Viry3D
 		bool m_canvas_dirty;
 		Ref<Mesh> m_mesh;
         Ref<Texture> m_atlas;
+        int m_atlas_array_size;
         Ref<BufferObject> m_draw_buffer;
 	};
 }
