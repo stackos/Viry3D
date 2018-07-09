@@ -564,6 +564,55 @@ namespace Viry3D
         Display::Instance()->EndImageCmd();
     }
 
+    void Texture::CopyToMemory(ByteBuffer& pixels, int layer, int level)
+    {
+        Ref<BufferObject> copy_buffer = Display::Instance()->CreateBuffer(nullptr, m_width * m_height * 4, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+
+        Display::Instance()->BeginImageCmd();
+
+        Display::Instance()->SetImageLayout(
+            m_image,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, 1, (uint32_t) layer, 1 },
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            (VkAccessFlagBits) 0);
+
+        VkBufferImageCopy copy;
+        Memory::Zero(&copy, sizeof(copy));
+        copy.bufferOffset = 0;
+        copy.bufferRowLength = 0;
+        copy.bufferImageHeight = 0;
+        copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, (uint32_t) layer, 1 };
+        copy.imageOffset = { 0, 0, 0 };
+        copy.imageExtent = { (uint32_t) m_width, (uint32_t) m_height, 1 };
+
+        vkCmdCopyImageToBuffer(
+            Display::Instance()->GetImageCmd(),
+            m_image,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            copy_buffer->buffer,
+            1,
+            &copy);
+
+        Display::Instance()->SetImageLayout(
+            m_image,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, 1, (uint32_t) layer, 1 },
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_ACCESS_TRANSFER_READ_BIT);
+
+        Display::Instance()->EndImageCmd();
+
+        Display::Instance()->ReadBuffer(copy_buffer, pixels);
+
+        copy_buffer->Destroy(Display::Instance()->GetDevice());
+        copy_buffer.reset();
+    }
+
     void Texture::CopyBufferToImageBegin()
     {
         Display::Instance()->BeginImageCmd();

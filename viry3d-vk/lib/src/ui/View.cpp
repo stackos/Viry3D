@@ -214,7 +214,7 @@ namespace Viry3D
         }
     }
 
-    void View::FillVertices(ViewMesh& mesh)
+    void View::FillVertices(Vector<ViewMesh>& meshes)
     {
         float canvas_width = (float) m_canvas->GetCamera()->GetTargetWidth();
         float canvas_height = (float) m_canvas->GetCamera()->GetTargetHeight();
@@ -246,8 +246,15 @@ namespace Viry3D
             vs[i].vertex = matrix.MultiplyPoint3x4(vs[i].vertex);
         }
 
+        ViewMesh mesh;
         mesh.vertices.AddRange({ vs[0], vs[1], vs[2], vs[3] });
         mesh.indices.AddRange({ 0, 1, 2, 0, 2, 3 });
         mesh.texture = Texture::GetSharedWhiteTexture();
+        meshes.Add(mesh);
+
+        for (auto& i : m_subviews)
+        {
+            i->FillVertices(meshes);
+        }
     }
 }

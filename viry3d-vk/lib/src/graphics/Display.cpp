@@ -1321,6 +1321,19 @@ namespace Viry3D
             vkUnmapMemory(m_device, buffer->memory);
         }
 
+        void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data)
+        {
+            data = ByteBuffer(buffer->size);
+
+            void* map_data = nullptr;
+            VkResult err = vkMapMemory(m_device, buffer->memory, 0, buffer->size, 0, (void**) &map_data);
+            assert(!err);
+
+            Memory::Copy(&data[0], map_data, buffer->size);
+
+            vkUnmapMemory(m_device, buffer->memory);
+        }
+
         void BeginImageCmd()
         {
             VkCommandBufferBeginInfo cmd_info;
@@ -2693,6 +2706,11 @@ void main()
     void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
     {
         m_private->UpdateBuffer(buffer, buffer_offset, data, size);
+    }
+
+    void Display::ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data)
+    {
+        m_private->ReadBuffer(buffer, data);
     }
 
     void Display::BuildInstanceCmd(

@@ -25,7 +25,9 @@
 #include "graphics/Material.h"
 #include "graphics/Texture.h"
 #include "graphics/BufferObject.h"
+#include "graphics/Image.h"
 #include "memory/Memory.h"
+#include "container/List.h"
 
 #define ATLAS_SIZE 2048
 
@@ -267,22 +269,46 @@ void main()
 
     void CanvaRenderer::UpdateCanvas()
     {
+        Vector<ViewMesh> meshes;
+        
+        for (int i = 0; i < m_views.Size(); ++i)
+        {
+            m_views[i]->UpdateLayout();
+            m_views[i]->FillVertices(meshes);
+        }
+
+        List<ViewMesh*> mesh_list;
+
+        for (int i = 0; i < meshes.Size(); ++i)
+        {
+            mesh_list.AddLast(&meshes[i]);
+        }
+
+        mesh_list.Sort([](const ViewMesh* a, const ViewMesh* b) {
+            if (a->texture->GetWidth() == b->texture->GetWidth())
+            {
+                return a->texture->GetHeight() > b->texture->GetHeight();
+            }
+            else
+            {
+                return a->texture->GetWidth() > b->texture->GetWidth();
+            }
+        });
+
+        for (auto i : mesh_list)
+        {
+            this->UpdateAtlas(*i);
+        }
+
         Vector<Vertex> vertices;
         Vector<unsigned short> indices;
 
-        for (int i = 0; i < m_views.Size(); ++i)
+        for (const auto& i : meshes)
         {
-            ViewMesh mesh;
-
-            m_views[i]->UpdateLayout();
-            m_views[i]->FillVertices(mesh);
-
-            if (mesh.vertices.Size() > 0 && mesh.indices.Size() > 0 && mesh.texture)
+            if (i.vertices.Size() > 0 && i.indices.Size() > 0 && i.texture)
             {
-                this->UpdateAtlas(mesh);
-
-                vertices.AddRange(mesh.vertices);
-                indices.AddRange(mesh.indices);
+                vertices.AddRange(i.vertices);
+                indices.AddRange(i.indices);
             }
         }
 
@@ -403,6 +429,13 @@ void main()
 
             // add cache
             m_atlas_cache.Add(mesh.texture.get(), node);
+
+            // test output atlas texture
+            /*
+            ByteBuffer pixels;
+            m_atlas->CopyToMemory(pixels, 0, 0);
+            Image::EncodeToPNG("atlas.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32)
+            */
         }
 
         // update uv

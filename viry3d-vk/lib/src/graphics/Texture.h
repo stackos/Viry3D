@@ -102,6 +102,7 @@ namespace Viry3D
             int layer, int level,
             int x, int y,
             int w, int h);
+        void CopyToMemory(ByteBuffer& pixels, int layer, int level);
         void GenMipmaps();
 
     private:

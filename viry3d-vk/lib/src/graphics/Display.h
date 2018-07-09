@@ -91,6 +91,7 @@ namespace Viry3D
         void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture);
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage);
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
+        void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data);
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
             VkRenderPass render_pass,

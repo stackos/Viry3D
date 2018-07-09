@@ -78,7 +78,7 @@ namespace Viry3D
         const Quaternion& GetRotation() const { return m_rotation; }
         const Vector2& GetScale() const { return m_scale; }
         virtual void UpdateLayout();
-        virtual void FillVertices(ViewMesh& mesh);
+        virtual void FillVertices(Vector<ViewMesh>& mesh);
 
 	private:
 		CanvaRenderer* m_canvas;
