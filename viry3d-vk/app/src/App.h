@@ -37,8 +37,6 @@
 using namespace Viry3D;
 
 // TODO:
-// - update canvas atlas texture
-// - canvas dynamic atlas texture array
 // - CanvaRenderer View Sprite Label
 // - Button SliderControl SwitchControl
 // - ScrollView TabView TreeView

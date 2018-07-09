@@ -19,11 +19,23 @@
 
 #include "graphics/Renderer.h"
 #include "container/Vector.h"
+#include "container/Map.h"
+#include "View.h"
 
 namespace Viry3D
 {
 	class View;
 	class Mesh;
+
+    struct AtlasTreeNode
+    {
+        int x;
+        int y;
+        int w;
+        int h;
+        int layer;
+        Vector<AtlasTreeNode> children;
+    };
 
 	class CanvaRenderer : public Renderer
 	{
@@ -42,8 +54,10 @@ namespace Viry3D
 	private:
         void NewAtlasTextureLayer();
         void CreateMaterial();
-		void UpdateCanvas();
         void UpdateProjectionMatrix();
+        void UpdateCanvas();
+        void UpdateAtlas(ViewMesh& mesh);
+        AtlasTreeNode* FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode& node);
 
 	private:
 		Vector<Ref<View>> m_views;
@@ -51,6 +65,8 @@ namespace Viry3D
 		Ref<Mesh> m_mesh;
         Ref<Texture> m_atlas;
         int m_atlas_array_size;
+        Vector<AtlasTreeNode> m_atlas_tree;
+        Map<Texture*, AtlasTreeNode*> m_atlas_cache;
         Ref<BufferObject> m_draw_buffer;
 	};
 }

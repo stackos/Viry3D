@@ -17,6 +17,7 @@
 
 #include "CanvaRenderer.h"
 #include "View.h"
+#include "Debug.h"
 #include "graphics/Mesh.h"
 #include "graphics/Shader.h"
 #include "graphics/Material.h"
@@ -25,6 +26,8 @@
 #include "graphics/Texture.h"
 #include "graphics/BufferObject.h"
 #include "memory/Memory.h"
+
+#define ATLAS_SIZE 2048
 
 namespace Viry3D
 {
@@ -47,9 +50,8 @@ namespace Viry3D
 
     void CanvaRenderer::NewAtlasTextureLayer()
     {
-        const int atlas_size = 2048;
-        ByteBuffer buffer(atlas_size * atlas_size * 4);
-        Memory::Set(&buffer[0], 255, buffer.Size());
+        ByteBuffer buffer(ATLAS_SIZE * ATLAS_SIZE * 4);
+        Memory::Set(&buffer[0], 0, buffer.Size());
 
         if (!m_atlas)
         {
@@ -59,8 +61,8 @@ namespace Viry3D
 
             m_atlas = Texture::CreateTexture2DArrayFromMemory(
                 pixels,
-                atlas_size,
-                atlas_size,
+                ATLAS_SIZE,
+                ATLAS_SIZE,
                 m_atlas_array_size,
                 VK_FORMAT_R8G8B8A8_UNORM,
                 VK_FILTER_LINEAR,
@@ -76,8 +78,8 @@ namespace Viry3D
 
             Ref<Texture> new_atlas = Texture::CreateTexture2DArrayFromMemory(
                 pixels,
-                atlas_size,
-                atlas_size,
+                ATLAS_SIZE,
+                ATLAS_SIZE,
                 new_array_size,
                 VK_FORMAT_R8G8B8A8_UNORM,
                 VK_FILTER_LINEAR,
@@ -93,12 +95,20 @@ namespace Viry3D
                     0, 0,
                     i, 0,
                     0, 0,
-                    atlas_size, atlas_size);
+                    ATLAS_SIZE, ATLAS_SIZE);
             }
 
             m_atlas = new_atlas;
             m_atlas_array_size = new_array_size;
         }
+
+        AtlasTreeNode layer;
+        layer.x = 0;
+        layer.y = 0;
+        layer.w = ATLAS_SIZE;
+        layer.h = ATLAS_SIZE;
+        layer.layer = m_atlas_tree.Size();
+        m_atlas_tree.Add(layer);
     }
 
     void CanvaRenderer::CreateMaterial()
@@ -117,14 +127,15 @@ UniformBuffer(0, 0) uniform UniformBuffer00
 Input(0) vec4 a_pos;
 Input(1) vec4 a_color;
 Input(2) vec2 a_uv;
+Input(3) vec2 a_uv2;
 
-Output(0) vec2 v_uv;
+Output(0) vec3 v_uv;
 Output(1) vec4 v_color;
 
 void main()
 {
 	gl_Position = a_pos * buf_0_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
-	v_uv = a_uv;
+	v_uv = vec3(a_uv, a_uv2.x);
 	v_color = a_color;
 
 	vulkan_convert();
@@ -136,14 +147,14 @@ precision lowp sampler2DArray;
 
 UniformTexture(0, 1) uniform sampler2DArray u_texture;
 
-Input(0) vec2 v_uv;
+Input(0) vec3 v_uv;
 Input(1) vec4 v_color;
 
 Output(0) vec4 o_frag;
 
 void main()
 {
-    vec3 uv = vec3(v_uv, 0.0);
+    vec3 uv = vec3(v_uv.xy, v_uv.z);
     o_frag = texture(u_texture, uv) * v_color;
 }
 )";
@@ -208,8 +219,8 @@ void main()
 		if (m_canvas_dirty)
 		{
 			m_canvas_dirty = false;
-			this->UpdateCanvas();
             this->UpdateProjectionMatrix();
+            this->UpdateCanvas();
 		}
 
         Renderer::Update();
@@ -239,16 +250,40 @@ void main()
 		m_canvas_dirty = true;
 	}
 
-	void CanvaRenderer::UpdateCanvas()
-	{
+    void CanvaRenderer::UpdateProjectionMatrix()
+    {
+        auto camera = this->GetCamera();
+        int target_width = camera->GetTargetWidth();
+        int target_height = camera->GetTargetHeight();
+        float ortho_size = target_height / 2.0f;
+        float top = ortho_size;
+        float bottom = -ortho_size;
+        float plane_h = ortho_size * 2;
+        float plane_w = plane_h * target_width / target_height;
+        auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1000, 1000);
+
+        this->GetMaterial()->SetMatrix("u_projection_matrix", projection_matrix);
+    }
+
+    void CanvaRenderer::UpdateCanvas()
+    {
         Vector<Vertex> vertices;
         Vector<unsigned short> indices;
-		Vector<Ref<Texture>> textures;
 
         for (int i = 0; i < m_views.Size(); ++i)
         {
+            ViewMesh mesh;
+
             m_views[i]->UpdateLayout();
-            m_views[i]->FillVertices(vertices, indices, textures);
+            m_views[i]->FillVertices(mesh);
+
+            if (mesh.vertices.Size() > 0 && mesh.indices.Size() > 0 && mesh.texture)
+            {
+                this->UpdateAtlas(mesh);
+
+                vertices.AddRange(mesh.vertices);
+                indices.AddRange(mesh.indices);
+            }
         }
 
         bool draw_buffer_dirty = false;
@@ -303,22 +338,109 @@ void main()
                 Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
             }
         }
+    }
 
-        // update atlas texture if view texture not in atlas
-	}
-
-    void CanvaRenderer::UpdateProjectionMatrix()
+    void CanvaRenderer::UpdateAtlas(ViewMesh& mesh)
     {
-        auto camera = this->GetCamera();
-        int target_width = camera->GetTargetWidth();
-        int target_height = camera->GetTargetHeight();
-        float ortho_size = target_height / 2.0f;
-        float top = ortho_size;
-        float bottom = -ortho_size;
-        float plane_h = ortho_size * 2;
-        float plane_w = plane_h * target_width / target_height;
-        auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1000, 1000);
+        assert(mesh.texture->GetWidth() <= ATLAS_SIZE && mesh.texture->GetHeight() <= ATLAS_SIZE);
 
-        this->GetMaterial()->SetMatrix("u_projection_matrix", projection_matrix);
+        AtlasTreeNode* node = nullptr;
+
+        AtlasTreeNode** node_ptr;
+        if (m_atlas_cache.TryGet(mesh.texture.get(), &node_ptr))
+        {
+            node = *node_ptr;
+        }
+        else
+        {
+            for (int i = 0; i < m_atlas_tree.Size(); ++i)
+            {
+                node = this->FindAtlasTreeNodeToInsert(mesh.texture->GetWidth(), mesh.texture->GetHeight(), m_atlas_tree[i]);
+                if (node)
+                {
+                    break;
+                }
+            }
+
+            if (node == nullptr)
+            {
+                this->NewAtlasTextureLayer();
+
+                node = this->FindAtlasTreeNodeToInsert(mesh.texture->GetWidth(), mesh.texture->GetHeight(), m_atlas_tree[m_atlas_tree.Size() - 1]);
+            }
+
+            assert(node);
+
+            // split node
+            AtlasTreeNode left;
+            left.x = node->x + mesh.texture->GetWidth();
+            left.y = node->y;
+            left.w = node->w - mesh.texture->GetWidth();
+            left.h = mesh.texture->GetHeight();
+            left.layer = node->layer;
+
+            AtlasTreeNode right;
+            right.x = node->x;
+            right.y = node->y + mesh.texture->GetHeight();
+            right.w = node->w;
+            right.h = node->h - mesh.texture->GetHeight();
+            right.layer = node->layer;
+
+            node->w = mesh.texture->GetWidth();
+            node->h = mesh.texture->GetHeight();
+            node->children.Resize(2);
+            node->children[0] = left;
+            node->children[1] = right;
+
+            // copy texture to atlas
+            m_atlas->CopyTexture(
+                mesh.texture,
+                0, 0,
+                0, 0,
+                node->layer, 0,
+                node->x, node->y,
+                node->w, node->h);
+
+            // add cache
+            m_atlas_cache.Add(mesh.texture.get(), node);
+        }
+
+        // update uv
+        Vector2 uv_offset(node->x / (float) ATLAS_SIZE, node->y / (float) ATLAS_SIZE);
+        Vector2 uv_scale(node->w / (float) ATLAS_SIZE, node->h / (float) ATLAS_SIZE);
+
+        for (int i = 0; i < mesh.vertices.Size(); ++i)
+        {
+            mesh.vertices[i].uv.x = mesh.vertices[i].uv.x * uv_scale.x + uv_offset.x;
+            mesh.vertices[i].uv.y = mesh.vertices[i].uv.y * uv_scale.y + uv_offset.y;
+            mesh.vertices[i].uv2.x = (float) node->layer;
+        }
+    }
+
+    AtlasTreeNode* CanvaRenderer::FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode& node)
+    {
+        if (node.children.Size() == 0)
+        {
+            if (node.w >= w && node.h >= h)
+            {
+                return &node;
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+        else
+        {
+            AtlasTreeNode* left = this->FindAtlasTreeNodeToInsert(w, h, node.children[0]);
+            if (left)
+            {
+                return left;
+            }
+            else
+            {
+                return this->FindAtlasTreeNodeToInsert(w, h, node.children[1]);
+            }
+        }
     }
 }

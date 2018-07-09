@@ -34,6 +34,7 @@ namespace Viry3D
 		void Add(const V& v);
 		void AddRange(const V* vs, int count);
         void AddRange(std::initializer_list<V> list);
+        void AddRange(const Vector<V>& vs);
 		void Clear();
 		int Size() const;
 		bool Empty() const;
@@ -105,6 +106,12 @@ namespace Viry3D
     void Vector<V>::AddRange(std::initializer_list<V> list)
     {
         m_vector.insert(m_vector.end(), list.begin(), list.end());
+    }
+
+    template<class V>
+    void Vector<V>::AddRange(const Vector<V>& vs)
+    {
+        m_vector.insert(m_vector.end(), vs.begin(), vs.end());
     }
 
 	template<class V>

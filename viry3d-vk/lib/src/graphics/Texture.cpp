@@ -320,16 +320,19 @@ namespace Viry3D
 	{
 		if (!m_shared_white_texture)
 		{
-			ByteBuffer pixels(4);
-			pixels[0] = 255;
-			pixels[1] = 255;
-			pixels[2] = 255;
-			pixels[3] = 255;
+			ByteBuffer pixels(4 * 9);
+            for (int i = 0; i < 9; ++i)
+            {
+                pixels[i * 4 + 0] = 255;
+                pixels[i * 4 + 1] = 255;
+                pixels[i * 4 + 2] = 255;
+                pixels[i * 4 + 3] = 255;
+            }
 
 			m_shared_white_texture = Texture::CreateTexture2DFromMemory(
 				pixels,
-				1,
-				1,
+				3,
+				3,
 				VK_FORMAT_R8G8B8A8_UNORM,
 				VK_FILTER_NEAREST,
 				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
@@ -344,16 +347,19 @@ namespace Viry3D
 	{
 		if (!m_shared_black_texture)
 		{
-			ByteBuffer pixels(4);
-			pixels[0] = 0;
-			pixels[1] = 0;
-			pixels[2] = 0;
-			pixels[3] = 255;
+            ByteBuffer pixels(4 * 9);
+            for (int i = 0; i < 9; ++i)
+            {
+                pixels[i * 4 + 0] = 0;
+                pixels[i * 4 + 1] = 0;
+                pixels[i * 4 + 2] = 0;
+                pixels[i * 4 + 3] = 255;
+            }
 
 			m_shared_black_texture = Texture::CreateTexture2DFromMemory(
 				pixels,
-				1,
-				1,
+				3,
+				3,
 				VK_FORMAT_R8G8B8A8_UNORM,
 				VK_FILTER_NEAREST,
 				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
@@ -368,16 +374,19 @@ namespace Viry3D
 	{
 		if (!m_shared_normal_texture)
 		{
-			ByteBuffer pixels(4);
-			pixels[0] = 127;
-			pixels[1] = 127;
-			pixels[2] = 255;
-			pixels[3] = 255;
+            ByteBuffer pixels(4 * 9);
+            for (int i = 0; i < 9; ++i)
+            {
+                pixels[i * 4 + 0] = 127;
+                pixels[i * 4 + 1] = 127;
+                pixels[i * 4 + 2] = 255;
+                pixels[i * 4 + 3] = 255;
+            }
 
 			m_shared_normal_texture = Texture::CreateTexture2DFromMemory(
 				pixels,
-				1,
-				1,
+				3,
+				3,
 				VK_FORMAT_R8G8B8A8_UNORM,
 				VK_FILTER_NEAREST,
 				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,

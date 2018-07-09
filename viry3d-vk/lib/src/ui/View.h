@@ -29,6 +29,13 @@ namespace Viry3D
 	class CanvaRenderer;
 	class Texture;
 
+    struct ViewMesh
+    {
+        Vector<Vertex> vertices;
+        Vector<unsigned short> indices;
+        Ref<Texture> texture;
+    };
+
     struct ViewAlignment
 	{
         enum
@@ -71,7 +78,7 @@ namespace Viry3D
         const Quaternion& GetRotation() const { return m_rotation; }
         const Vector2& GetScale() const { return m_scale; }
         virtual void UpdateLayout();
-        virtual void FillVertices(Vector<Vertex>& vertices, Vector<unsigned short>& indices, Vector<Ref<Texture>>& textures);
+        virtual void FillVertices(ViewMesh& mesh);
 
 	private:
 		CanvaRenderer* m_canvas;
