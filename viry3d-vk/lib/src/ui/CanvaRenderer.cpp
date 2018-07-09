@@ -30,6 +30,7 @@
 #include "container/List.h"
 
 #define ATLAS_SIZE 2048
+#define PADDING_SIZE 1
 
 namespace Viry3D
 {
@@ -156,8 +157,7 @@ Output(0) vec4 o_frag;
 
 void main()
 {
-    vec3 uv = vec3(v_uv.xy, v_uv.z);
-    o_frag = texture(u_texture, uv) * v_color;
+    o_frag = texture(u_texture, v_uv) * v_color;
 }
 )";
             RenderState render_state;
@@ -274,7 +274,7 @@ void main()
         for (int i = 0; i < m_views.Size(); ++i)
         {
             m_views[i]->UpdateLayout();
-            m_views[i]->FillVertices(meshes);
+            m_views[i]->FillMeshes(meshes);
         }
 
         List<ViewMesh*> mesh_list;
@@ -307,8 +307,14 @@ void main()
         {
             if (i.vertices.Size() > 0 && i.indices.Size() > 0 && i.texture)
             {
+                int index_offset = vertices.Size();
+
                 vertices.AddRange(i.vertices);
-                indices.AddRange(i.indices);
+
+                for (int j = 0; j < i.indices.Size(); ++j)
+                {
+                    indices.Add(index_offset + i.indices[j]);
+                }
             }
         }
 
@@ -364,11 +370,34 @@ void main()
                 Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
             }
         }
+
+        /*
+        // test output atlas texture
+        ByteBuffer pixels;
+        
+        if (m_atlas_array_size > 0)
+        {
+            m_atlas->CopyToMemory(pixels, 0, 0);
+            Image::EncodeToPNG("atlas0.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+        }
+
+        if (m_atlas_array_size > 1)
+        {
+            m_atlas->CopyToMemory(pixels, 1, 0);
+            Image::EncodeToPNG("atlas1.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+        }
+
+        if (m_atlas_array_size > 2)
+        {
+            m_atlas->CopyToMemory(pixels, 2, 0);
+            Image::EncodeToPNG("atlas2.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+        }
+        */
     }
 
     void CanvaRenderer::UpdateAtlas(ViewMesh& mesh)
     {
-        assert(mesh.texture->GetWidth() <= ATLAS_SIZE && mesh.texture->GetHeight() <= ATLAS_SIZE);
+        assert(mesh.texture->GetWidth() <= ATLAS_SIZE - PADDING_SIZE && mesh.texture->GetHeight() <= ATLAS_SIZE - PADDING_SIZE);
 
         AtlasTreeNode* node = nullptr;
 
@@ -391,6 +420,7 @@ void main()
             if (node == nullptr)
             {
                 this->NewAtlasTextureLayer();
+                this->GetMaterial()->SetTexture("u_texture", m_atlas);
 
                 node = this->FindAtlasTreeNodeToInsert(mesh.texture->GetWidth(), mesh.texture->GetHeight(), m_atlas_tree[m_atlas_tree.Size() - 1]);
             }
@@ -399,17 +429,17 @@ void main()
 
             // split node
             AtlasTreeNode left;
-            left.x = node->x + mesh.texture->GetWidth();
+            left.x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
             left.y = node->y;
-            left.w = node->w - mesh.texture->GetWidth();
+            left.w = node->w - mesh.texture->GetWidth() - PADDING_SIZE;
             left.h = mesh.texture->GetHeight();
             left.layer = node->layer;
 
             AtlasTreeNode right;
             right.x = node->x;
-            right.y = node->y + mesh.texture->GetHeight();
+            right.y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
             right.w = node->w;
-            right.h = node->h - mesh.texture->GetHeight();
+            right.h = node->h - mesh.texture->GetHeight() - PADDING_SIZE;
             right.layer = node->layer;
 
             node->w = mesh.texture->GetWidth();
@@ -429,13 +459,6 @@ void main()
 
             // add cache
             m_atlas_cache.Add(mesh.texture.get(), node);
-
-            // test output atlas texture
-            /*
-            ByteBuffer pixels;
-            m_atlas->CopyToMemory(pixels, 0, 0);
-            Image::EncodeToPNG("atlas.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32)
-            */
         }
 
         // update uv
@@ -454,7 +477,7 @@ void main()
     {
         if (node.children.Size() == 0)
         {
-            if (node.w >= w && node.h >= h)
+            if (node.w - PADDING_SIZE >= w && node.h - PADDING_SIZE >= h)
             {
                 return &node;
             }
