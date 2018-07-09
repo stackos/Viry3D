@@ -38,8 +38,8 @@ namespace Viry3D
 		m_canvas_dirty(true),
         m_atlas_array_size(0)
 	{
-        this->NewAtlasTextureLayer();
 		this->CreateMaterial();
+        this->NewAtlasTextureLayer();
 	}
 
 	CanvaRenderer::~CanvaRenderer()
@@ -112,6 +112,8 @@ namespace Viry3D
         layer.h = ATLAS_SIZE;
         layer.layer = m_atlas_tree.Size();
         m_atlas_tree.Add(layer);
+
+        this->GetMaterial()->SetTexture("u_texture", m_atlas);
     }
 
     void CanvaRenderer::CreateMaterial()
@@ -186,8 +188,6 @@ void main()
             Vector3(0, 0, 1),
             Vector3(0, 1, 0));
         material->SetMatrix("u_view_matrix", view_matrix);
-
-        material->SetTexture("u_texture", m_atlas);
 
         this->SetMaterial(material);
     }
@@ -420,7 +420,6 @@ void main()
             if (node == nullptr)
             {
                 this->NewAtlasTextureLayer();
-                this->GetMaterial()->SetTexture("u_texture", m_atlas);
 
                 node = this->FindAtlasTreeNodeToInsert(mesh.texture->GetWidth(), mesh.texture->GetHeight(), m_atlas_tree[m_atlas_tree.Size() - 1]);
             }
