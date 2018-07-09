@@ -56,6 +56,7 @@ namespace Viry3D
 		virtual ~View();
 		void OnAddToCanvas(CanvaRenderer* canvas);
 		void OnRemoveFromCanvas(CanvaRenderer* canvas);
+        CanvaRenderer* GetCanvas() const { return m_canvas; }
         void AddSubview(const Ref<View>& view);
         void RemoveSubview(const Ref<View>& view);
         int GetSubviewCount() const { return m_subviews.Size(); }
@@ -78,7 +79,10 @@ namespace Viry3D
         const Quaternion& GetRotation() const { return m_rotation; }
         const Vector2& GetScale() const { return m_scale; }
         virtual void UpdateLayout();
-        virtual void FillVertices(Vector<ViewMesh>& mesh);
+        void FillMeshes(Vector<ViewMesh>& mesh);
+
+    protected:
+        virtual void FillSelfMesh(ViewMesh& mesh);
 
 	private:
 		CanvaRenderer* m_canvas;

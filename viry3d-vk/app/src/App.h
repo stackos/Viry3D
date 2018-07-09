@@ -32,7 +32,7 @@
 #include "thread/ThreadPool.h"
 #include "math/Quaternion.h"
 #include "ui/CanvaRenderer.h"
-#include "ui/View.h"
+#include "ui/Sprite.h"
 
 using namespace Viry3D;
 
@@ -405,10 +405,53 @@ void main()
 		auto canvas = RefMake<CanvaRenderer>();
 		m_camera->AddRenderer(canvas);
 
-		auto view = RefMake<View>();
-        view->SetSize(Vector2(300, 300));
+        auto texture0 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/0.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        auto texture1 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/1.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        auto texture2 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/2.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        auto texture3 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/3.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        auto texture4 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/4.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+        auto texture5 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/5.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
 
-		canvas->AddView(view);
+		auto sprite = RefMake<Sprite>();
+        sprite->SetSize(Vector2(100, 100));
+        sprite->SetTexture(texture3);
+
+        canvas->AddView(sprite);
+
+        sprite = RefMake<Sprite>();
+        sprite->SetSize(Vector2(100, 100));
+        sprite->SetOffset(Vector2(400, 100));
+        sprite->SetTexture(texture2);
+
+        canvas->AddView(sprite);
+
+        sprite = RefMake<Sprite>();
+        sprite->SetSize(Vector2(100, 100));
+        sprite->SetOffset(Vector2(-400, -100));
+        sprite->SetTexture(texture4);
+
+        canvas->AddView(sprite);
+
+        sprite = RefMake<Sprite>();
+        sprite->SetSize(Vector2(100, 100));
+        sprite->SetOffset(Vector2(400, -100));
+        sprite->SetTexture(texture1);
+
+		canvas->AddView(sprite);
+
+        sprite = RefMake<Sprite>();
+        sprite->SetSize(Vector2(100, 100));
+        sprite->SetOffset(Vector2(-400, 100));
+        sprite->SetTexture(texture5);
+
+        canvas->AddView(sprite);
+
+        sprite = RefMake<Sprite>();
+        sprite->SetSize(Vector2(100, 100));
+        sprite->SetOffset(Vector2(0, -200));
+        sprite->SetTexture(texture0);
+
+        canvas->AddView(sprite);
 	}
 
     virtual ~App()
