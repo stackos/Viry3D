@@ -264,6 +264,7 @@
     <ClInclude Include="..\..\src\thread\ThreadPool.h" />
     <ClInclude Include="..\..\src\time\Time.h" />
     <ClInclude Include="..\..\src\ui\CanvaRenderer.h" />
+    <ClInclude Include="..\..\src\ui\Label.h" />
     <ClInclude Include="..\..\src\ui\Sprite.h" />
     <ClInclude Include="..\..\src\ui\View.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h" />
@@ -655,6 +656,7 @@
     <ClCompile Include="..\..\src\thread\ThreadPool.cpp" />
     <ClCompile Include="..\..\src\time\Time.cpp" />
     <ClCompile Include="..\..\src\ui\CanvaRenderer.cpp" />
+    <ClCompile Include="..\..\src\ui\Label.cpp" />
     <ClCompile Include="..\..\src\ui\Sprite.cpp" />
     <ClCompile Include="..\..\src\ui\View.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />

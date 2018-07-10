@@ -52,8 +52,8 @@ namespace Viry3D
 		void MarkCanvasDirty();
 
 	private:
-        void NewAtlasTextureLayer();
         void CreateMaterial();
+        void NewAtlasTextureLayer();
         void UpdateProjectionMatrix();
         void UpdateCanvas();
         void UpdateAtlas(ViewMesh& mesh);

@@ -39,10 +39,11 @@ namespace Viry3D
         }
     }
 
-    void Sprite::FillSelfMesh(ViewMesh& mesh)
+    void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes)
     {
-        View::FillSelfMesh(mesh);
+        View::FillSelfMeshes(meshes);
 
+        ViewMesh& mesh = meshes[meshes.Size() - 1];
         mesh.vertices[0].uv = Vector2(0, 0);
         mesh.vertices[1].uv = Vector2(0, 1);
         mesh.vertices[2].uv = Vector2(1, 1);

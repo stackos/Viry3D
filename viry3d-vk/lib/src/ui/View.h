@@ -54,6 +54,7 @@ namespace Viry3D
 	public:
 		View();
 		virtual ~View();
+        virtual void UpdateLayout();
 		void OnAddToCanvas(CanvaRenderer* canvas);
 		void OnRemoveFromCanvas(CanvaRenderer* canvas);
         CanvaRenderer* GetCanvas() const { return m_canvas; }
@@ -78,11 +79,10 @@ namespace Viry3D
         const Rect& GetRect() const { return m_rect; }
         const Quaternion& GetRotation() const { return m_rotation; }
         const Vector2& GetScale() const { return m_scale; }
-        virtual void UpdateLayout();
         void FillMeshes(Vector<ViewMesh>& mesh);
 
     protected:
-        virtual void FillSelfMesh(ViewMesh& mesh);
+        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
 
 	private:
 		CanvaRenderer* m_canvas;

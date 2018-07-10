@@ -51,71 +51,6 @@ namespace Viry3D
         }
 	}
 
-    void CanvaRenderer::NewAtlasTextureLayer()
-    {
-        ByteBuffer buffer(ATLAS_SIZE * ATLAS_SIZE * 4);
-        Memory::Set(&buffer[0], 0, buffer.Size());
-
-        if (!m_atlas)
-        {
-            m_atlas_array_size = 1;
-
-            Vector<ByteBuffer> pixels(m_atlas_array_size, buffer);
-
-            m_atlas = Texture::CreateTexture2DArrayFromMemory(
-                pixels,
-                ATLAS_SIZE,
-                ATLAS_SIZE,
-                m_atlas_array_size,
-                VK_FORMAT_R8G8B8A8_UNORM,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                false,
-                true);
-        }
-        else
-        {
-            int new_array_size = m_atlas_array_size + 1;
-
-            Vector<ByteBuffer> pixels(new_array_size, buffer);
-
-            Ref<Texture> new_atlas = Texture::CreateTexture2DArrayFromMemory(
-                pixels,
-                ATLAS_SIZE,
-                ATLAS_SIZE,
-                new_array_size,
-                VK_FORMAT_R8G8B8A8_UNORM,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                false,
-                true);
-
-            for (int i = 0; i < m_atlas_array_size; ++i)
-            {
-                new_atlas->CopyTexture(
-                    m_atlas,
-                    i, 0,
-                    0, 0,
-                    i, 0,
-                    0, 0,
-                    ATLAS_SIZE, ATLAS_SIZE);
-            }
-
-            m_atlas = new_atlas;
-            m_atlas_array_size = new_array_size;
-        }
-
-        AtlasTreeNode layer;
-        layer.x = 0;
-        layer.y = 0;
-        layer.w = ATLAS_SIZE;
-        layer.h = ATLAS_SIZE;
-        layer.layer = m_atlas_tree.Size();
-        m_atlas_tree.Add(layer);
-
-        this->GetMaterial()->SetTexture("u_texture", m_atlas);
-    }
-
     void CanvaRenderer::CreateMaterial()
     {
         auto shader = Shader::Find("UI");
@@ -190,6 +125,71 @@ void main()
         material->SetMatrix("u_view_matrix", view_matrix);
 
         this->SetMaterial(material);
+    }
+
+    void CanvaRenderer::NewAtlasTextureLayer()
+    {
+        ByteBuffer buffer(ATLAS_SIZE * ATLAS_SIZE * 4);
+        Memory::Set(&buffer[0], 0, buffer.Size());
+
+        if (!m_atlas)
+        {
+            m_atlas_array_size = 1;
+
+            Vector<ByteBuffer> pixels(m_atlas_array_size, buffer);
+
+            m_atlas = Texture::CreateTexture2DArrayFromMemory(
+                pixels,
+                ATLAS_SIZE,
+                ATLAS_SIZE,
+                m_atlas_array_size,
+                VK_FORMAT_R8G8B8A8_UNORM,
+                VK_FILTER_LINEAR,
+                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                false,
+                true);
+        }
+        else
+        {
+            int new_array_size = m_atlas_array_size + 1;
+
+            Vector<ByteBuffer> pixels(new_array_size, buffer);
+
+            Ref<Texture> new_atlas = Texture::CreateTexture2DArrayFromMemory(
+                pixels,
+                ATLAS_SIZE,
+                ATLAS_SIZE,
+                new_array_size,
+                VK_FORMAT_R8G8B8A8_UNORM,
+                VK_FILTER_LINEAR,
+                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                false,
+                true);
+
+            for (int i = 0; i < m_atlas_array_size; ++i)
+            {
+                new_atlas->CopyTexture(
+                    m_atlas,
+                    i, 0,
+                    0, 0,
+                    i, 0,
+                    0, 0,
+                    ATLAS_SIZE, ATLAS_SIZE);
+            }
+
+            m_atlas = new_atlas;
+            m_atlas_array_size = new_array_size;
+        }
+
+        AtlasTreeNode layer;
+        layer.x = 0;
+        layer.y = 0;
+        layer.w = ATLAS_SIZE;
+        layer.h = ATLAS_SIZE;
+        layer.layer = m_atlas_tree.Size();
+        m_atlas_tree.Add(layer);
+
+        this->GetMaterial()->SetTexture("u_texture", m_atlas);
     }
 
 	Ref<BufferObject> CanvaRenderer::GetVertexBuffer() const

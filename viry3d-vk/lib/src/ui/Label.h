@@ -21,20 +21,19 @@
 
 namespace Viry3D
 {
-    class Texture;
-
-    class Sprite : public View
+    class Label : public View
     {
     public:
-        Sprite();
-        virtual ~Sprite();
-        const Ref<Texture>& GetTexture() const { return m_texture; }
-        void SetTexture(Ref<Texture>& texture);
-    
+        Label();
+        virtual ~Label();
+        virtual void UpdateLayout();
+        const String& GetText() const { return m_text; }
+        void SetText(const String& text);
+
     protected:
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
 
     private:
-        Ref<Texture> m_texture;
+        String m_text;
     };
 }

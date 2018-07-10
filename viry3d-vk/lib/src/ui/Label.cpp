@@ -15,26 +15,37 @@
 * limitations under the License.
 */
 
-#pragma once
-
-#include "View.h"
+#include "Label.h"
+#include "CanvaRenderer.h"
 
 namespace Viry3D
 {
-    class Texture;
-
-    class Sprite : public View
+    Label::Label()
     {
-    public:
-        Sprite();
-        virtual ~Sprite();
-        const Ref<Texture>& GetTexture() const { return m_texture; }
-        void SetTexture(Ref<Texture>& texture);
     
-    protected:
-        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
+    }
+    
+    Label::~Label()
+    {
+    
+    }
 
-    private:
-        Ref<Texture> m_texture;
-    };
+    void Label::SetText(const String& text)
+    {
+        m_text = text;
+        if (this->GetCanvas())
+        {
+            this->GetCanvas()->MarkCanvasDirty();
+        }
+    }
+
+    void Label::UpdateLayout()
+    {
+        View::UpdateLayout();
+    }
+
+    void Label::FillSelfMeshes(Vector<ViewMesh>& meshes)
+    {
+        View::FillSelfMeshes(meshes);
+    }
 }
