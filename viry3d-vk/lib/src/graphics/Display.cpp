@@ -34,6 +34,7 @@
 #include "memory/Memory.h"
 #include "math/Matrix4x4.h"
 #include "io/File.h"
+#include "thread/ThreadPool.h"
 #include "Debug.h"
 
 extern "C"
@@ -121,6 +122,7 @@ namespace Viry3D
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandPool m_image_cmd_pool = nullptr;
         VkCommandBuffer m_image_cmd = nullptr;
+        Mutex m_image_cmd_mutex;
         Ref<Texture> m_depth_texture;
         List<Ref<Camera>> m_cameras;
         bool m_primary_cmd_dirty = true;
@@ -1336,6 +1338,8 @@ namespace Viry3D
 
         void BeginImageCmd()
         {
+            m_image_cmd_mutex.lock();
+
             VkCommandBufferBeginInfo cmd_info;
             cmd_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             cmd_info.pNext = nullptr;
@@ -1371,6 +1375,8 @@ namespace Viry3D
 
             err = vkWaitForFences(m_device, 1, &m_image_fence, VK_TRUE, UINT64_MAX);
             assert(!err);
+
+            m_image_cmd_mutex.unlock();
         }
 
         void SetImageLayout(

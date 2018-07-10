@@ -44,7 +44,7 @@ using namespace Viry3D;
 // - mac project
 // - ios project
 
-#define RENDER_TO_TEXTURE 0
+#define RENDER_TO_TEXTURE 1
 #define SHOW_DEPTH 1
 #define BLUR_COLOR 1
 
@@ -309,7 +309,7 @@ void main()
         material->SetMatrix("u_view_matrix", view);
 		material->SetMatrix("u_projection_matrix", projection);
 
-		//this->InitSkybox(mesh, view, projection);
+		this->InitSkybox(mesh, view, projection);
 		this->InitUI();
     }
 
