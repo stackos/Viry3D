@@ -22,6 +22,7 @@
 #include "time/Time.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
+#include "ui/Font.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -46,12 +47,14 @@ namespace Viry3D
         {
             m_app = app;
             m_thread_pool = RefMake<ThreadPool>(8);
+            Font::Init();
         }
 
         ~ApplicationPrivate()
         {
-			Texture::ClearSharedTextures();
-			Shader::ClearCache();
+            Font::Done();
+			Texture::Done();
+			Shader::Done();
             m_thread_pool.reset();
             m_app = nullptr;
         }

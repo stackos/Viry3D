@@ -418,7 +418,7 @@ namespace Viry3D
 		return m_shared_cubemap;
 	}
 
-	void Texture::ClearSharedTextures()
+	void Texture::Done()
 	{
 		m_shared_white_texture.reset();
 		m_shared_black_texture.reset();

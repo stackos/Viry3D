@@ -894,6 +894,9 @@
     <ClInclude Include="..\..\src\ui\Label.h">
       <Filter>src\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ui\Font.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2232,6 +2235,9 @@
       <Filter>src\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\Label.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\Font.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>

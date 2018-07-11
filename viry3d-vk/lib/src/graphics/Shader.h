@@ -30,7 +30,7 @@ namespace Viry3D
     public:
 		static Ref<Shader> Find(const String& name);
 		static void AddCache(const String& name, const Ref<Shader>& shader);
-		static void ClearCache();
+		static void Done();
         static void OnRenderPassDestroy(VkRenderPass render_pass);
         Shader(
             const String& vs_source,

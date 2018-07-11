@@ -83,7 +83,7 @@ namespace Viry3D
 		static Ref<Texture> GetSharedBlackTexture();
 		static Ref<Texture> GetSharedNormalTexture();
 		static Ref<Texture> GetSharedCubemap();
-		static void ClearSharedTextures();
+		static void Done();
         virtual ~Texture();
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
