@@ -97,6 +97,7 @@
     <ClInclude Include="..\..\src\math\Ray.h" />
     <ClInclude Include="..\..\src\math\Rect.h" />
     <ClInclude Include="..\..\src\math\Vector2.h" />
+    <ClInclude Include="..\..\src\math\Vector2i.h" />
     <ClInclude Include="..\..\src\math\Vector3.h" />
     <ClInclude Include="..\..\src\math\Vector4.h" />
     <ClInclude Include="..\..\src\memory\ByteBuffer.h" />

@@ -19,6 +19,13 @@
 
 namespace Viry3D
 {
+    Bounds::Bounds():
+        m_min(0, 0, 0),
+        m_max(0, 0, 0)
+    {
+        
+    }
+
 	Bounds::Bounds(const Vector3& min, const Vector3& max):
 		m_min(min),
 		m_max(max)

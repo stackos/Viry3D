@@ -196,4 +196,20 @@ namespace Viry3D
 
 		return *p_glyph;
 	}
+
+    bool Font::HasKerning() const
+    {
+        FT_Face face = (FT_Face) m_font;
+        return FT_HAS_KERNING(face);
+    }
+
+    Vector2i Font::GetKerning(unsigned int previous_glyph_index, unsigned int glyph_index)
+    {
+        FT_Face face = (FT_Face) m_font;
+
+        FT_Vector kerning;
+        FT_Get_Kerning(face, previous_glyph_index, glyph_index, FT_KERNING_UNFITTED, &kerning);
+
+        return Vector2i(kerning.x >> 6, kerning.x >> 6);
+    }
 }

@@ -20,6 +20,7 @@
 #include "memory/Ref.h"
 #include "container/Map.h"
 #include "string/String.h"
+#include "math/Vector2i.h"
 
 namespace Viry3D
 {
@@ -50,6 +51,8 @@ namespace Viry3D
 		static Ref<Font> LoadFromFile(const String& file);
 		~Font();
 		GlyphInfo GetGlyph(char32_t c, int size, bool bold, bool italic, bool mono);
+        bool HasKerning() const;
+        Vector2i GetKerning(unsigned int previous_glyph_index, unsigned int glyph_index);
 
 	private:
 		Font();

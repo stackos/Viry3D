@@ -21,8 +21,10 @@
 #include "graphics/Color.h"
 #include "graphics/VertexAttribute.h"
 #include "math/Vector2.h"
+#include "math/Vector2i.h"
 #include "math/Quaternion.h"
 #include "math/Rect.h"
+#include "math/Matrix4x4.h"
 
 namespace Viry3D
 {
@@ -40,12 +42,12 @@ namespace Viry3D
 	{
         enum
         {
-            HorizontalLeft = 0x00000001,
-            HorizontalCenter = 0x00000002,
-            HorizontalRight = 0x00000004,
-            VerticalTop = 0x00000010,
-            VerticalCenter = 0x00000020,
-            VerticalBottom = 0x00000040,
+            Left = 0x00000001,
+            HCenter = 0x00000002,
+            Right = 0x00000004,
+            Top = 0x00000010,
+            VCenter = 0x00000020,
+            Bottom = 0x00000040,
         };
 	};
 
@@ -65,13 +67,16 @@ namespace Viry3D
 		const Color& GetColor() const { return m_color; }
 		void SetColor(const Color& color);
 		int GetAlignment() const { return m_alignment; }
+        // use ViewAlignment
 		void SetAlignment(int alignment);
 		const Vector2& GetPivot() const { return m_pivot; }
+        // left top is (0.0, 0.0), right bottom is (1.0, 1.0)
 		void SetPivot(const Vector2& pivot);
-		const Vector2& GetSize() const { return m_size; }
-		void SetSize(const Vector2& size);
-		const Vector2& GetOffset() const { return m_offset; }
-		void SetOffset(const Vector2& offset);
+		const Vector2i& GetSize() const { return m_size; }
+		void SetSize(const Vector2i& size);
+		const Vector2i& GetOffset() const { return m_offset; }
+        // offset y direction is down
+		void SetOffset(const Vector2i& offset);
         const Quaternion& GetLocalRotation() const { return m_local_rotation; }
         void SetLocalRotation(const Quaternion& rotation);
         const Vector2& GetLocalScale() const { return m_local_scale; }
@@ -83,6 +88,7 @@ namespace Viry3D
 
     protected:
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
+        void ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix);
 
 	private:
 		CanvaRenderer* m_canvas;
@@ -91,8 +97,8 @@ namespace Viry3D
 		Color m_color;
 		int m_alignment;
 		Vector2 m_pivot;
-		Vector2 m_size;
-		Vector2 m_offset;
+        Vector2i m_size;
+        Vector2i m_offset;
         Quaternion m_local_rotation;
         Vector2 m_local_scale;
         Rect m_rect;

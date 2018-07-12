@@ -33,6 +33,9 @@
 #include "math/Quaternion.h"
 #include "ui/CanvaRenderer.h"
 #include "ui/Sprite.h"
+#include "ui/Label.h"
+#include "ui/Font.h"
+#include "time/Time.h"
 
 using namespace Viry3D;
 
@@ -70,6 +73,7 @@ public:
     Camera* m_camera;
     MeshRenderer* m_renderer_cube;
 	MeshRenderer* m_renderer_sky;
+    Label* m_label;
     float m_deg = 0;
 
     void InitPostEffectBlur(const Ref<Texture>& color_texture)
@@ -413,45 +417,50 @@ void main()
         auto texture5 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/5.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
 
 		auto sprite = RefMake<Sprite>();
-        sprite->SetSize(Vector2(100, 100));
+        sprite->SetSize(Vector2i(100, 100));
         sprite->SetTexture(texture3);
 
         canvas->AddView(sprite);
 
         sprite = RefMake<Sprite>();
-        sprite->SetSize(Vector2(100, 100));
-        sprite->SetOffset(Vector2(400, 100));
+        sprite->SetSize(Vector2i(100, 100));
+        sprite->SetOffset(Vector2i(400, 100));
         sprite->SetTexture(texture2);
 
         canvas->AddView(sprite);
 
         sprite = RefMake<Sprite>();
-        sprite->SetSize(Vector2(100, 100));
-        sprite->SetOffset(Vector2(-400, -100));
+        sprite->SetSize(Vector2i(100, 100));
+        sprite->SetOffset(Vector2i(-400, -100));
         sprite->SetTexture(texture4);
 
         canvas->AddView(sprite);
 
         sprite = RefMake<Sprite>();
-        sprite->SetSize(Vector2(100, 100));
-        sprite->SetOffset(Vector2(400, -100));
+        sprite->SetSize(Vector2i(100, 100));
+        sprite->SetOffset(Vector2i(400, -100));
         sprite->SetTexture(texture1);
 
 		canvas->AddView(sprite);
 
         sprite = RefMake<Sprite>();
-        sprite->SetSize(Vector2(100, 100));
-        sprite->SetOffset(Vector2(-400, 100));
+        sprite->SetSize(Vector2i(100, 100));
+        sprite->SetOffset(Vector2i(-400, 100));
         sprite->SetTexture(texture5);
 
         canvas->AddView(sprite);
 
-        sprite = RefMake<Sprite>();
-        sprite->SetSize(Vector2(100, 100));
-        sprite->SetOffset(Vector2(0, -200));
-        sprite->SetTexture(texture0);
+        auto font = Font::LoadFromFile(Application::Instance()->GetDataPath() + "/font/heiti.ttf");
 
-        canvas->AddView(sprite);
+        auto label = RefMake<Label>();
+        label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+        label->SetPivot(Vector2(0, 0));
+        label->SetFont(font);
+        label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+
+        m_label = label.get();
+
+        canvas->AddView(label);
 	}
 
     virtual ~App()
@@ -466,6 +475,8 @@ void main()
 
         Matrix4x4 model = Matrix4x4::Rotation(Quaternion::Euler(Vector3(0, m_deg, 0)));
         m_renderer_cube->SetInstanceMatrix("u_model_matrix", model);
+
+        m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
     }
 
 	virtual void OnResize(int width, int height)

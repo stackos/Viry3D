@@ -897,6 +897,9 @@
     <ClInclude Include="..\..\src\ui\Font.h">
       <Filter>src\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\math\Vector2i.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">

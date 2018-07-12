@@ -28,7 +28,7 @@ namespace Viry3D
 		m_canvas(nullptr),
         m_parent_view(nullptr),
 		m_color(1, 1, 1, 1),
-		m_alignment(ViewAlignment::HorizontalCenter | ViewAlignment::VerticalCenter),
+		m_alignment(ViewAlignment::HCenter | ViewAlignment::VCenter),
 		m_pivot(0.5f, 0.5f),
 		m_size(100, 100),
 		m_offset(0, 0),
@@ -111,7 +111,7 @@ namespace Viry3D
 		}
 	}
 
-	void View::SetSize(const Vector2& size)
+	void View::SetSize(const Vector2i& size)
 	{
 		m_size = size;
 		if (m_canvas)
@@ -120,7 +120,7 @@ namespace Viry3D
 		}
 	}
 
-	void View::SetOffset(const Vector2& offset)
+	void View::SetOffset(const Vector2i& offset)
 	{
 		m_offset = offset;
 		if (m_canvas)
@@ -160,40 +160,40 @@ namespace Viry3D
             parent_rect = Rect(0, 0, (float) m_canvas->GetCamera()->GetTargetWidth(), (float) m_canvas->GetCamera()->GetTargetHeight());
         }
 
-        Vector2 local_pos;
+        Vector2i local_pos;
 
-        if (m_alignment & ViewAlignment::HorizontalLeft)
+        if (m_alignment & ViewAlignment::Left)
         {
             local_pos.x = 0;
         }
-        else if (m_alignment & ViewAlignment::HorizontalCenter)
+        else if (m_alignment & ViewAlignment::HCenter)
         {
-            local_pos.x = parent_rect.width / 2;
+            local_pos.x = (int) (parent_rect.width / 2);
         }
-        else if (m_alignment & ViewAlignment::HorizontalRight)
+        else if (m_alignment & ViewAlignment::Right)
         {
-            local_pos.x = parent_rect.width;
+            local_pos.x = (int) parent_rect.width;
         }
 
-        if (m_alignment & ViewAlignment::VerticalTop)
+        if (m_alignment & ViewAlignment::Top)
         {
             local_pos.y = 0;
         }
-        else if (m_alignment & ViewAlignment::VerticalCenter)
+        else if (m_alignment & ViewAlignment::VCenter)
         {
-            local_pos.y = parent_rect.height / 2;
+            local_pos.y = (int) (parent_rect.height / 2);
         }
-        else if (m_alignment & ViewAlignment::VerticalBottom)
+        else if (m_alignment & ViewAlignment::Bottom)
         {
-            local_pos.y = parent_rect.height;
+            local_pos.y = (int) parent_rect.height;
         }
 
         local_pos += m_offset;
 
-        m_rect.x = parent_rect.x + local_pos.x - m_pivot.x * m_size.x;
-        m_rect.y = parent_rect.y + local_pos.y - m_pivot.y * m_size.y;
-        m_rect.width = m_size.x;
-        m_rect.height = m_size.y;
+        m_rect.x = parent_rect.x + local_pos.x - Mathf::Round(m_pivot.x * m_size.x);
+        m_rect.y = parent_rect.y + local_pos.y - Mathf::Round(m_pivot.y * m_size.y);
+        m_rect.width = (float) m_size.x;
+        m_rect.height = (float) m_size.y;
 
         if (m_parent_view)
         {
@@ -214,24 +214,35 @@ namespace Viry3D
         }
     }
 
+    void View::ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix)
+    {
+        int canvas_width = m_canvas->GetCamera()->GetTargetWidth();
+        int canvas_height = m_canvas->GetCamera()->GetTargetHeight();
+        int x = -canvas_width / 2 + (int) m_rect.x;
+        int y = canvas_height / 2 - (int) m_rect.y;
+
+        rect = Rect((float) x, (float) y, m_rect.width, m_rect.height);
+
+        Vector3 pivot_pos;
+        pivot_pos.x = x + Mathf::Round(m_pivot.x * m_rect.width);
+        pivot_pos.y = y - Mathf::Round(m_pivot.y * m_rect.height);
+        pivot_pos.z = 0;
+
+        matrix = Matrix4x4::Translation(pivot_pos) * Matrix4x4::Rotation(m_rotation) * Matrix4x4::Scaling(m_scale) * Matrix4x4::Translation(-pivot_pos);
+    }
+
     void View::FillSelfMeshes(Vector<ViewMesh>& meshes)
     {
-        float canvas_width = (float) m_canvas->GetCamera()->GetTargetWidth();
-        float canvas_height = (float) m_canvas->GetCamera()->GetTargetHeight();
-        float x = -canvas_width / 2 + m_rect.x;
-        float y = canvas_height / 2 - m_rect.y;
-        Vector3 pivot_pos;
-        pivot_pos.x = x + m_pivot.x * m_size.x;
-        pivot_pos.y = y - m_pivot.y * m_size.y;
-        pivot_pos.z = 0;
-        Matrix4x4 matrix = Matrix4x4::Translation(pivot_pos) * Matrix4x4::Rotation(m_rotation) * Matrix4x4::Scaling(m_scale) * Matrix4x4::Translation(-pivot_pos);
+        Rect rect;
+        Matrix4x4 matrix;
+        this->ComputeVerticesRectAndMatrix(rect, matrix);
 
         Vertex vs[4];
         Memory::Zero(&vs[0], sizeof(vs));
-        vs[0].vertex = Vector3(x, y, 0);
-        vs[1].vertex = Vector3(x, y - m_size.y, 0);
-        vs[2].vertex = Vector3(x + m_size.x, y - m_size.y, 0);
-        vs[3].vertex = Vector3(x + m_size.x, y, 0);
+        vs[0].vertex = Vector3(rect.x, rect.y, 0);
+        vs[1].vertex = Vector3(rect.x, rect.y - rect.height, 0);
+        vs[2].vertex = Vector3(rect.x + rect.width, rect.y - rect.height, 0);
+        vs[3].vertex = Vector3(rect.x + rect.width, rect.y, 0);
         vs[0].color = m_color;
         vs[1].color = m_color;
         vs[2].color = m_color;
