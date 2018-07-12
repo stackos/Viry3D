@@ -212,7 +212,14 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             break;
 
         case WM_SIZE:
-            if (wParam != SIZE_MINIMIZED)
+            if (wParam == SIZE_MINIMIZED)
+            {
+                if (Display::Instance())
+                {
+                    Display::Instance()->OnPause();
+                }
+            }
+            else
             {
                 int width = lParam & 0xffff;
                 int height = (lParam & 0xffff0000) >> 16;

@@ -40,12 +40,11 @@
 using namespace Viry3D;
 
 // TODO:
-// - queue present problem when window minimized
 // - Button SliderControl SwitchControl
-// - ScrollView TabView TreeView
 // - android project
 // - mac project
 // - ios project
+// - ScrollView TabView TreeView
 
 #define RENDER_TO_TEXTURE 0
 #define SHOW_DEPTH 1

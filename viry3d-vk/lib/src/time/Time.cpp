@@ -131,8 +131,6 @@ namespace Viry3D
 			Time::m_fps = frame - Time::m_frame_record;
 			Time::m_time_record = time;
 			Time::m_frame_record = frame;
-
-			Log("fps:%d", Time::GetFPS());
 		}
 
         if (m_frame_count < 0)

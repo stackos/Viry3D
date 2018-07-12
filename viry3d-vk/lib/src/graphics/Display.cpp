@@ -128,6 +128,7 @@ namespace Viry3D
         bool m_primary_cmd_dirty = true;
         Ref<Shader> m_blit_shader;
         Ref<Mesh> m_blit_mesh;
+        bool m_pause_draw = false;
 
         DisplayPrivate(Display* display, void* window, int width, int height):
             m_public(display),
@@ -745,6 +746,12 @@ namespace Viry3D
             this->CreateSizeDependentResources();
 
             m_primary_cmd_dirty = true;
+            m_pause_draw = false;
+        }
+
+        void OnPause()
+        {
+            m_pause_draw = true;
         }
 
         void CreateSwapChain()
@@ -783,7 +790,6 @@ namespace Viry3D
             {
                 swapchain_size = surface_caps.currentExtent;
             }
-            assert(swapchain_size.width > 0 && swapchain_size.height > 0);
 
             uint32_t present_mode_count;
             err = fpGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, m_surface, &present_mode_count, nullptr);
@@ -2290,6 +2296,12 @@ namespace Viry3D
 
         void OnDraw()
         {
+            if (m_pause_draw)
+            {
+                Thread::Sleep(1);
+                return;
+            }
+
             bool has_present_camera = false;
             for (auto i : m_cameras)
             {
@@ -2443,6 +2455,11 @@ void main()
         m_private->OnResize(width, height);
 
 		Application::Instance()->OnResize(width, height);
+    }
+
+    void Display::OnPause()
+    {
+        m_private->OnPause();
     }
 
     void Display::OnDraw()
