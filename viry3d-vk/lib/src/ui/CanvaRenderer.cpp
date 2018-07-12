@@ -44,12 +44,29 @@ namespace Viry3D
 
 	CanvaRenderer::~CanvaRenderer()
 	{
+        for (int i = 0; i < m_atlas_tree.Size(); ++i)
+        {
+            this->ReleaseAtlasTreeNode(m_atlas_tree[i]);
+            delete m_atlas_tree[i];
+        }
+        m_atlas_tree.Clear();
+
         if (m_draw_buffer)
         {
             m_draw_buffer->Destroy(Display::Instance()->GetDevice());
             m_draw_buffer.reset();
         }
 	}
+
+    void CanvaRenderer::ReleaseAtlasTreeNode(AtlasTreeNode* node)
+    {
+        for (int i = 0; i < node->children.Size(); ++i)
+        {
+            this->ReleaseAtlasTreeNode(node->children[i]);
+            delete node->children[i];
+        }
+        node->children.Clear();
+    }
 
     void CanvaRenderer::CreateMaterial()
     {
@@ -181,12 +198,12 @@ void main()
             m_atlas_array_size = new_array_size;
         }
 
-        AtlasTreeNode layer;
-        layer.x = 0;
-        layer.y = 0;
-        layer.w = ATLAS_SIZE;
-        layer.h = ATLAS_SIZE;
-        layer.layer = m_atlas_tree.Size();
+        AtlasTreeNode* layer = new AtlasTreeNode();
+        layer->x = 0;
+        layer->y = 0;
+        layer->w = ATLAS_SIZE;
+        layer->h = ATLAS_SIZE;
+        layer->layer = m_atlas_tree.Size();
         m_atlas_tree.Add(layer);
 
         this->GetMaterial()->SetTexture("u_texture", m_atlas);
@@ -295,9 +312,16 @@ void main()
             }
         });
 
+        bool atlas_updated = false;
         for (auto i : mesh_list)
         {
-            this->UpdateAtlas(*i);
+            bool updated;
+            this->UpdateAtlas(*i, updated);
+
+            if (updated)
+            {
+                atlas_updated = true;
+            }
         }
 
         Vector<Vertex> vertices;
@@ -373,29 +397,32 @@ void main()
 
         /*
         // test output atlas texture
-        ByteBuffer pixels;
-        
-        if (m_atlas_array_size > 0)
+        if (atlas_updated)
         {
-            m_atlas->CopyToMemory(pixels, 0, 0);
-            Image::EncodeToPNG("atlas0.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
-        }
+            ByteBuffer pixels;
 
-        if (m_atlas_array_size > 1)
-        {
-            m_atlas->CopyToMemory(pixels, 1, 0);
-            Image::EncodeToPNG("atlas1.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
-        }
+            if (m_atlas_array_size > 0)
+            {
+                m_atlas->CopyToMemory(pixels, 0, 0);
+                Image::EncodeToPNG("atlas0.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+            }
 
-        if (m_atlas_array_size > 2)
-        {
-            m_atlas->CopyToMemory(pixels, 2, 0);
-            Image::EncodeToPNG("atlas2.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+            if (m_atlas_array_size > 1)
+            {
+                m_atlas->CopyToMemory(pixels, 1, 0);
+                Image::EncodeToPNG("atlas1.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+            }
+
+            if (m_atlas_array_size > 2)
+            {
+                m_atlas->CopyToMemory(pixels, 2, 0);
+                Image::EncodeToPNG("atlas2.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+            }
         }
         */
     }
 
-    void CanvaRenderer::UpdateAtlas(ViewMesh& mesh)
+    void CanvaRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)
     {
         assert(mesh.texture->GetWidth() <= ATLAS_SIZE - PADDING_SIZE && mesh.texture->GetHeight() <= ATLAS_SIZE - PADDING_SIZE);
 
@@ -405,6 +432,8 @@ void main()
         if (m_atlas_cache.TryGet(mesh.texture.get(), &node_ptr))
         {
             node = *node_ptr;
+
+            updated = false;
         }
         else
         {
@@ -427,19 +456,19 @@ void main()
             assert(node);
 
             // split node
-            AtlasTreeNode left;
-            left.x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
-            left.y = node->y;
-            left.w = node->w - mesh.texture->GetWidth() - PADDING_SIZE;
-            left.h = mesh.texture->GetHeight();
-            left.layer = node->layer;
+            AtlasTreeNode* left = new AtlasTreeNode();
+            left->x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
+            left->y = node->y;
+            left->w = node->w - mesh.texture->GetWidth() - PADDING_SIZE;
+            left->h = mesh.texture->GetHeight();
+            left->layer = node->layer;
 
-            AtlasTreeNode right;
-            right.x = node->x;
-            right.y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
-            right.w = node->w;
-            right.h = node->h - mesh.texture->GetHeight() - PADDING_SIZE;
-            right.layer = node->layer;
+            AtlasTreeNode* right = new AtlasTreeNode();
+            right->x = node->x;
+            right->y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
+            right->w = node->w;
+            right->h = node->h - mesh.texture->GetHeight() - PADDING_SIZE;
+            right->layer = node->layer;
 
             node->w = mesh.texture->GetWidth();
             node->h = mesh.texture->GetHeight();
@@ -458,6 +487,8 @@ void main()
 
             // add cache
             m_atlas_cache.Add(mesh.texture.get(), node);
+
+            updated = true;
         }
 
         // update uv
@@ -472,13 +503,13 @@ void main()
         }
     }
 
-    AtlasTreeNode* CanvaRenderer::FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode& node)
+    AtlasTreeNode* CanvaRenderer::FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode* node)
     {
-        if (node.children.Size() == 0)
+        if (node->children.Size() == 0)
         {
-            if (node.w - PADDING_SIZE >= w && node.h - PADDING_SIZE >= h)
+            if (node->w - PADDING_SIZE >= w && node->h - PADDING_SIZE >= h)
             {
-                return &node;
+                return node;
             }
             else
             {
@@ -487,14 +518,14 @@ void main()
         }
         else
         {
-            AtlasTreeNode* left = this->FindAtlasTreeNodeToInsert(w, h, node.children[0]);
+            AtlasTreeNode* left = this->FindAtlasTreeNodeToInsert(w, h, node->children[0]);
             if (left)
             {
                 return left;
             }
             else
             {
-                return this->FindAtlasTreeNodeToInsert(w, h, node.children[1]);
+                return this->FindAtlasTreeNodeToInsert(w, h, node->children[1]);
             }
         }
     }

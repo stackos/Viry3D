@@ -40,7 +40,7 @@
 using namespace Viry3D;
 
 // TODO:
-// - CanvaRenderer View Sprite Label
+// - queue present problem when window minimized
 // - Button SliderControl SwitchControl
 // - ScrollView TabView TreeView
 // - android project

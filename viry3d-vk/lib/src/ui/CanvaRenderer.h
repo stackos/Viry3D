@@ -34,7 +34,7 @@ namespace Viry3D
         int w;
         int h;
         int layer;
-        Vector<AtlasTreeNode> children;
+        Vector<AtlasTreeNode*> children;
     };
 
 	class CanvaRenderer : public Renderer
@@ -56,8 +56,9 @@ namespace Viry3D
         void NewAtlasTextureLayer();
         void UpdateProjectionMatrix();
         void UpdateCanvas();
-        void UpdateAtlas(ViewMesh& mesh);
-        AtlasTreeNode* FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode& node);
+        void UpdateAtlas(ViewMesh& mesh, bool& updated);
+        AtlasTreeNode* FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode* node);
+        void ReleaseAtlasTreeNode(AtlasTreeNode* node);
 
 	private:
 		Vector<Ref<View>> m_views;
@@ -65,7 +66,7 @@ namespace Viry3D
 		Ref<Mesh> m_mesh;
         Ref<Texture> m_atlas;
         int m_atlas_array_size;
-        Vector<AtlasTreeNode> m_atlas_tree;
+        Vector<AtlasTreeNode*> m_atlas_tree;
         Map<Texture*, AtlasTreeNode*> m_atlas_cache;
         Ref<BufferObject> m_draw_buffer;
 	};
