@@ -150,49 +150,52 @@ namespace Viry3D
 		p_glyph->advance_x = (int) (slot->advance.x >> 6);
 		p_glyph->advance_y = (int) (slot->advance.y >> 6);
 
-        ByteBuffer pixels = ByteBuffer(p_glyph->witdh * p_glyph->height * 4);
-
-        if (mono)
+        if (p_glyph->witdh > 0 && p_glyph->height > 0)
         {
-            for (int i = 0; i < p_glyph->height; i++)
-            {
-                for (int j = 0; j < p_glyph->witdh; j++)
-                {
-                    unsigned char bit = slot->bitmap.buffer[i * slot->bitmap.pitch + j / 8] & (0x1 << (7 - j % 8));
-                    bit = bit == 0 ? 0 : 255;
+            ByteBuffer pixels = ByteBuffer(p_glyph->witdh * p_glyph->height * 4);
 
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = bit;
+            if (mono)
+            {
+                for (int i = 0; i < p_glyph->height; i++)
+                {
+                    for (int j = 0; j < p_glyph->witdh; j++)
+                    {
+                        unsigned char bit = slot->bitmap.buffer[i * slot->bitmap.pitch + j / 8] & (0x1 << (7 - j % 8));
+                        bit = bit == 0 ? 0 : 255;
+
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = bit;
+                    }
                 }
             }
-        }
-        else
-        {
-            for (int i = 0; i < p_glyph->height; i++)
+            else
             {
-                for (int j = 0; j < p_glyph->witdh; j++)
+                for (int i = 0; i < p_glyph->height; i++)
                 {
-                    unsigned char alpha = slot->bitmap.buffer[i * slot->bitmap.pitch + j];
+                    for (int j = 0; j < p_glyph->witdh; j++)
+                    {
+                        unsigned char alpha = slot->bitmap.buffer[i * slot->bitmap.pitch + j];
 
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
-                    pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = alpha;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = alpha;
+                    }
                 }
             }
-        }
 
-        p_glyph->texture = Texture::CreateTexture2DFromMemory(
-            pixels,
-            p_glyph->witdh,
-            p_glyph->height,
-            VK_FORMAT_R8G8B8A8_UNORM,
-            VK_FILTER_LINEAR,
-            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            false,
-            false);
+            p_glyph->texture = Texture::CreateTexture2DFromMemory(
+                pixels,
+                p_glyph->witdh,
+                p_glyph->height,
+                VK_FORMAT_R8G8B8A8_UNORM,
+                VK_FILTER_LINEAR,
+                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                false,
+                false);
+        }
 
 		return *p_glyph;
 	}

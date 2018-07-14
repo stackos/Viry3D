@@ -18,6 +18,7 @@
 #include "CanvaRenderer.h"
 #include "View.h"
 #include "Debug.h"
+#include "Input.h"
 #include "graphics/Mesh.h"
 #include "graphics/Shader.h"
 #include "graphics/Material.h"
@@ -235,6 +236,8 @@ void main()
 
 	void CanvaRenderer::Update()
 	{
+        this->ProcessInput();
+
 		if (m_canvas_dirty)
 		{
 			m_canvas_dirty = false;
@@ -286,48 +289,66 @@ void main()
 
     void CanvaRenderer::UpdateCanvas()
     {
-        Vector<ViewMesh> meshes;
-        
+        m_view_meshes.Clear();
+
         for (int i = 0; i < m_views.Size(); ++i)
         {
             m_views[i]->UpdateLayout();
-            m_views[i]->FillMeshes(meshes);
+            m_views[i]->FillMeshes(m_view_meshes);
         }
 
         List<ViewMesh*> mesh_list;
 
-        for (int i = 0; i < meshes.Size(); ++i)
+        for (int i = 0; i < m_view_meshes.Size(); ++i)
         {
-            mesh_list.AddLast(&meshes[i]);
+            mesh_list.AddLast(&m_view_meshes[i]);
         }
 
         mesh_list.Sort([](const ViewMesh* a, const ViewMesh* b) {
-            if (a->texture->GetWidth() == b->texture->GetWidth())
+            if (!a->texture && b->texture)
             {
-                return a->texture->GetHeight() > b->texture->GetHeight();
+                return true;
+            }
+            else if (a->texture && !b->texture)
+            {
+                return false;
+            }
+            else if (!a->texture && !b->texture)
+            {
+                return false;
             }
             else
             {
-                return a->texture->GetWidth() > b->texture->GetWidth();
+                if (a->texture->GetWidth() == b->texture->GetWidth())
+                {
+                    return a->texture->GetHeight() > b->texture->GetHeight();
+                }
+                else
+                {
+                    return a->texture->GetWidth() > b->texture->GetWidth();
+                }
             }
         });
 
         bool atlas_updated = false;
         for (auto i : mesh_list)
         {
-            bool updated;
-            this->UpdateAtlas(*i, updated);
-
-            if (updated)
+            if (i->texture)
             {
-                atlas_updated = true;
+                bool updated;
+                this->UpdateAtlas(*i, updated);
+
+                if (updated)
+                {
+                    atlas_updated = true;
+                }
             }
         }
 
         Vector<Vertex> vertices;
         Vector<unsigned short> indices;
 
-        for (const auto& i : meshes)
+        for (const auto& i : m_view_meshes)
         {
             if (i.vertices.Size() > 0 && i.indices.Size() > 0 && i.texture)
             {
@@ -526,6 +547,41 @@ void main()
             else
             {
                 return this->FindAtlasTreeNodeToInsert(w, h, node->children[1]);
+            }
+        }
+    }
+
+    void CanvaRenderer::ProcessInput()
+    {
+        int touch_count = Input::GetTouchCount();
+
+        for (int i = 0; i < touch_count; ++i)
+        {
+            const Touch& t = Input::GetTouch(i);
+
+            if (t.phase == TouchPhase::Began)
+            {
+                this->HitViews(t);
+            }
+            else if (t.phase == TouchPhase::Moved)
+            {
+
+            }
+            else if (t.phase == TouchPhase::Ended)
+            {
+
+            }
+        }
+    }
+
+    void CanvaRenderer::HitViews(const Touch& t)
+    {
+        // from to top to bottom
+        for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
+        {
+            if (m_view_meshes[i].base_view)
+            {
+
             }
         }
     }

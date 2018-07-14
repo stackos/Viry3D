@@ -41,7 +41,7 @@ namespace Viry3D
         int end;
     };
 
-    static bool check_tag_begin(Vector<char32_t>& str, int& char_index, const String& tag_str, int value_length, TagInfo& tag)
+    static bool CheckTagBegin(Vector<char32_t>& str, int& char_index, const String& tag_str, int value_length, TagInfo& tag)
     {
         bool match = true;
         auto tag_cstr = tag_str.CString();
@@ -84,7 +84,7 @@ namespace Viry3D
         return match;
     }
 
-    static bool check_tag_end(Vector<char32_t>& str, int& char_index, const String& tag_str, Vector<TagInfo>& tag_find, Vector<TagInfo>& tags)
+    static bool CheckTagEnd(Vector<char32_t>& str, int& char_index, const String& tag_str, Vector<TagInfo>& tag_find, Vector<TagInfo>& tags)
     {
         bool match = true;
         auto tag_cstr = tag_str.CString();
@@ -135,7 +135,7 @@ namespace Viry3D
     static const String TAG_ITALIC_BEGIN = "<italic>";
     static const String TAG_ITALIC_END = "</italic>";
 
-    static Vector<TagInfo> parse_rich_tags(Vector<char32_t>& str)
+    static Vector<TagInfo> ParseRichTag(Vector<char32_t>& str)
     {
         Vector<TagInfo> tags;
         Vector<TagInfo> tag_find;
@@ -144,64 +144,64 @@ namespace Viry3D
         {
             TagInfo tag;
 
-            if (check_tag_begin(str, i, TAG_COLOR_BEGIN, 8, tag))
+            if (CheckTagBegin(str, i, TAG_COLOR_BEGIN, 8, tag))
             {
                 tag.type = TagType::Color;
                 tag_find.Add(tag);
             }
-            else if (check_tag_end(str, i, TAG_COLOR_END, tag_find, tags))
+            else if (CheckTagEnd(str, i, TAG_COLOR_END, tag_find, tags))
             {
             }
-            else if (check_tag_begin(str, i, TAG_SHADOW_BEGIN, 0, tag))
+            else if (CheckTagBegin(str, i, TAG_SHADOW_BEGIN, 0, tag))
             {
                 tag.type = TagType::Shadow;
                 tag.value = "000000ff";
                 tag_find.Add(tag);
             }
-            else if (check_tag_begin(str, i, TAG_SHADOW_VALUE_BEGIN, 8, tag))
+            else if (CheckTagBegin(str, i, TAG_SHADOW_VALUE_BEGIN, 8, tag))
             {
                 tag.type = TagType::Shadow;
                 tag_find.Add(tag);
             }
-            else if (check_tag_end(str, i, TAG_SHADOW_END, tag_find, tags))
+            else if (CheckTagEnd(str, i, TAG_SHADOW_END, tag_find, tags))
             {
             }
-            else if (check_tag_begin(str, i, TAG_OUTLINE_BEGIN, 0, tag))
+            else if (CheckTagBegin(str, i, TAG_OUTLINE_BEGIN, 0, tag))
             {
                 tag.type = TagType::Outline;
                 tag.value = "000000ff";
                 tag_find.Add(tag);
             }
-            else if (check_tag_begin(str, i, TAG_OUTLINE_VALUE_BEGIN, 8, tag))
+            else if (CheckTagBegin(str, i, TAG_OUTLINE_VALUE_BEGIN, 8, tag))
             {
                 tag.type = TagType::Outline;
                 tag_find.Add(tag);
             }
-            else if (check_tag_end(str, i, TAG_OUTLINE_END, tag_find, tags))
+            else if (CheckTagEnd(str, i, TAG_OUTLINE_END, tag_find, tags))
             {
             }
-            else if (check_tag_begin(str, i, TAG_UNDERLINE_BEGIN, 0, tag))
+            else if (CheckTagBegin(str, i, TAG_UNDERLINE_BEGIN, 0, tag))
             {
                 tag.type = TagType::Underline;
                 tag_find.Add(tag);
             }
-            else if (check_tag_end(str, i, TAG_UNDERLINE_END, tag_find, tags))
+            else if (CheckTagEnd(str, i, TAG_UNDERLINE_END, tag_find, tags))
             {
             }
-            else if (check_tag_begin(str, i, TAG_BOLD_BEGIN, 0, tag))
+            else if (CheckTagBegin(str, i, TAG_BOLD_BEGIN, 0, tag))
             {
                 tag.type = TagType::Bold;
                 tag_find.Add(tag);
             }
-            else if (check_tag_end(str, i, TAG_BOLD_END, tag_find, tags))
+            else if (CheckTagEnd(str, i, TAG_BOLD_END, tag_find, tags))
             {
             }
-            else if (check_tag_begin(str, i, TAG_ITALIC_BEGIN, 0, tag))
+            else if (CheckTagBegin(str, i, TAG_ITALIC_BEGIN, 0, tag))
             {
                 tag.type = TagType::Italic;
                 tag_find.Add(tag);
             }
-            else if (check_tag_end(str, i, TAG_ITALIC_END, tag_find, tags))
+            else if (CheckTagEnd(str, i, TAG_ITALIC_END, tag_find, tags))
             {
             }
         }
@@ -209,7 +209,7 @@ namespace Viry3D
         return tags;
     }
 
-    static Color string_to_color(const String& str)
+    static Color StringToColor(const String& str)
     {
         auto str_lower = str.ToLower();
 
@@ -272,10 +272,13 @@ namespace Viry3D
 
     void Label::SetText(const String& text)
     {
-        m_text = text;
-        if (this->GetCanvas())
+        if (m_text != text)
         {
-            this->GetCanvas()->MarkCanvasDirty();
+            m_text = text;
+            if (this->GetCanvas())
+            {
+                this->GetCanvas()->MarkCanvasDirty();
+            }
         }
     }
 
@@ -329,7 +332,7 @@ namespace Viry3D
         Vector<TagInfo> tags;
         if (m_rich)
         {
-            tags = parse_rich_tags(chars);
+            tags = ParseRichTag(chars);
         }
 
         int pen_x = 0;
@@ -380,7 +383,7 @@ namespace Viry3D
                         switch (j.type)
                         {
                         case TagType::Color:
-                            color = string_to_color(j.value);
+                            color = StringToColor(j.value);
                             break;
                         case TagType::Bold:
                             bold = true;
@@ -389,10 +392,10 @@ namespace Viry3D
                             italic = true;
                             break;
                         case TagType::Shadow:
-                            color_shadow = RefMake<Color>(string_to_color(j.value));
+                            color_shadow = RefMake<Color>(StringToColor(j.value));
                             break;
                         case TagType::Outline:
-                            color_outline = RefMake<Color>(string_to_color(j.value));
+                            color_outline = RefMake<Color>(StringToColor(j.value));
                             break;
                         case TagType::Underline:
                             underline = true;
@@ -633,6 +636,8 @@ namespace Viry3D
 
     void Label::FillSelfMeshes(Vector<ViewMesh>& meshes)
     {
+        View::FillSelfMeshes(meshes);
+
         Rect rect;
         Matrix4x4 matrix;
         this->ComputeVerticesRectAndMatrix(rect, matrix);
@@ -662,6 +667,8 @@ namespace Viry3D
 
                 mesh.indices.AddRange(char_mesh.indices);
                 mesh.texture = char_mesh.texture;
+                mesh.view = this;
+                mesh.base_view = false;
 
                 meshes.Add(mesh);
             }

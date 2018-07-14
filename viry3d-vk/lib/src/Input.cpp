@@ -62,14 +62,9 @@ namespace Viry3D
 		return g_input_touches.Size();
 	}
 
-	const Touch* Input::GetTouch(int index)
+	const Touch& Input::GetTouch(int index)
 	{
-		if (index >= 0 && index < g_input_touches.Size())
-		{
-			return &g_input_touches[index];
-		}
-
-		return nullptr;
+        return g_input_touches[index];
 	}
 
 	bool Input::GetKeyDown(KeyCode key)

@@ -42,8 +42,8 @@ namespace Viry3D
         ThreadPool* GetThreadPool() const;
         void PostEvent(Event event);
         void ProcessEvents();
-        void UpdateBegin();
-        void UpdateEnd();
+        void OnFrameBegin();
+        void OnFrameEnd();
         void Quit();
         bool HasQuit();
 

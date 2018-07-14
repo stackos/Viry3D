@@ -141,13 +141,13 @@ namespace Viry3D
         m_private->m_mutex.unlock();
     }
 
-    void Application::UpdateBegin()
+    void Application::OnFrameBegin()
     {
         Time::Update();
         this->ProcessEvents();
     }
 
-    void Application::UpdateEnd()
+    void Application::OnFrameEnd()
     {
 #if VR_ANDROID
         if (Input::GetKeyDown(KeyCode::Backspace))

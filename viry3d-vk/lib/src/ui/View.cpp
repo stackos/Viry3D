@@ -260,7 +260,8 @@ namespace Viry3D
         ViewMesh mesh;
         mesh.vertices.AddRange({ vs[0], vs[1], vs[2], vs[3] });
         mesh.indices.AddRange({ 0, 1, 2, 0, 2, 3 });
-        mesh.texture = Texture::GetSharedWhiteTexture();
+        mesh.view = this;
+        mesh.base_view = true;
         meshes.Add(mesh);
     }
 

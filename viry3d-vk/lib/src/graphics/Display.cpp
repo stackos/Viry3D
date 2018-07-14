@@ -66,6 +66,117 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
 namespace Viry3D
 {
+    static void StringVectorAdd(Vector<char*>& vec, const char* str)
+    {
+        int size = (int) strlen(str);
+        char* str_new = Memory::Alloc<char>(size + 1);
+        strcpy(str_new, str);
+        vec.Add(str_new);
+    }
+
+    static void StringVectorClear(Vector<char*>& vec)
+    {
+        for (int i = 0; i < vec.Size(); ++i)
+        {
+            Memory::Free(vec[i]);
+        }
+        vec.Clear();
+    }
+
+    static void GlslToSpirvCached(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
+    {
+        unsigned char hash_bytes[16];
+        MD5_CTX md5_context;
+        MD5_Init(&md5_context);
+        MD5_Update(&md5_context, (void*) glsl.CString(), glsl.Size());
+        MD5_Final(hash_bytes, &md5_context);
+        String md5_str;
+        for (int i = 0; i < sizeof(hash_bytes); i++)
+        {
+            md5_str += String::Format("%02x", hash_bytes[i]);
+        }
+
+        String cache_path = Application::Instance()->GetSavePath() + "/" + md5_str + ".cache";
+        if (File::Exist(cache_path))
+        {
+            auto buffer = File::ReadAllBytes(cache_path);
+            spirv.Resize(buffer.Size() / 4);
+            Memory::Copy(&spirv[0], buffer.Bytes(), buffer.Size());
+        }
+        else
+        {
+            String error;
+            bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
+            if (!success)
+            {
+                Log("shader compile error: %s", error.CString());
+            }
+            assert(success);
+
+            ByteBuffer buffer(spirv.SizeInBytes());
+            Memory::Copy(buffer.Bytes(), &spirv[0], buffer.Size());
+            File::WriteAllBytes(cache_path, buffer);
+        }
+    }
+
+    static String ProcessShaderSource(const String& glsl, const Vector<String>& includes)
+    {
+        static const String s_shader_header =
+            "#version 310 es\n"
+            "#extension GL_ARB_separate_shader_objects : enable\n"
+            "#extension GL_ARB_shading_language_420pack : enable\n"
+            "#define VR_VULKAN 1\n"
+            "#define UniformBuffer(set_index, binding_index) layout(std140, set = set_index, binding = binding_index)\n"
+            "#define UniformTexture(set_index, binding_index) layout(set = set_index, binding = binding_index)\n"
+            "#define Input(location_index) layout(location = location_index) in\n"
+            "#define Output(location_index) layout(location = location_index) out\n";
+
+        String source = s_shader_header;
+        for (const auto& i : includes)
+        {
+            auto include_path = Application::Instance()->GetDataPath() + "/shader/Include/" + i;
+            auto bytes = File::ReadAllBytes(include_path);
+            auto include_str = String(bytes);
+            source += include_str + "\n";
+        }
+        source += glsl;
+
+        return source;
+    }
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL
+        DebugFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
+            uint64_t srcObject, size_t location, int32_t msgCode,
+            const char *pLayerPrefix, const char *pMsg, void *pUserData)
+    {
+        String message;
+
+        if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+        {
+            message = String::Format("ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        }
+        else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+        {
+            message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        }
+        else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+        {
+            message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        }
+        else if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+        {
+            message = String::Format("INFO: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        }
+
+        Log("%s", message.CString());
+
+#if VR_WINDOWS
+        MessageBox(nullptr, message.CString(), "Alert", MB_OK);
+#endif
+
+        return false;
+    }
+
     struct SwapchainImageResources
     {
         int width;
@@ -167,117 +278,6 @@ namespace Viry3D
             m_public = nullptr;
 
             m_display = nullptr;
-        }
-
-        static void StringVectorAdd(Vector<char*>& vec, const char* str)
-        {
-            int size = (int) strlen(str);
-            char* str_new = Memory::Alloc<char>(size + 1);
-            strcpy(str_new, str);
-            vec.Add(str_new);
-        }
-
-        static void StringVectorClear(Vector<char*>& vec)
-        {
-            for (int i = 0; i < vec.Size(); ++i)
-            {
-                Memory::Free(vec[i]);
-            }
-            vec.Clear();
-        }
-
-        static void GlslToSpirvCached(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
-        {
-            unsigned char hash_bytes[16];
-            MD5_CTX md5_context;
-            MD5_Init(&md5_context);
-            MD5_Update(&md5_context, (void*) glsl.CString(), glsl.Size());
-            MD5_Final(hash_bytes, &md5_context);
-            String md5_str;
-            for (int i = 0; i < sizeof(hash_bytes); i++)
-            {
-                md5_str += String::Format("%02x", hash_bytes[i]);
-            }
-
-            String cache_path = Application::Instance()->GetSavePath() + "/" + md5_str + ".cache";
-            if (File::Exist(cache_path))
-            {
-                auto buffer = File::ReadAllBytes(cache_path);
-                spirv.Resize(buffer.Size() / 4);
-                Memory::Copy(&spirv[0], buffer.Bytes(), buffer.Size());
-            }
-            else
-            {
-                String error;
-                bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
-                if (!success)
-                {
-                    Log("shader compile error: %s", error.CString());
-                }
-                assert(success);
-
-                ByteBuffer buffer(spirv.SizeInBytes());
-                Memory::Copy(buffer.Bytes(), &spirv[0], buffer.Size());
-                File::WriteAllBytes(cache_path, buffer);
-            }
-        }
-
-        static String ProcessShaderSource(const String& glsl, const Vector<String>& includes)
-        {
-            static const String s_shader_header =
-                "#version 310 es\n"
-                "#extension GL_ARB_separate_shader_objects : enable\n"
-                "#extension GL_ARB_shading_language_420pack : enable\n"
-                "#define VR_VULKAN 1\n"
-                "#define UniformBuffer(set_index, binding_index) layout(std140, set = set_index, binding = binding_index)\n"
-                "#define UniformTexture(set_index, binding_index) layout(set = set_index, binding = binding_index)\n"
-                "#define Input(location_index) layout(location = location_index) in\n"
-                "#define Output(location_index) layout(location = location_index) out\n";
-
-            String source = s_shader_header;
-            for (const auto& i : includes)
-            {
-                auto include_path = Application::Instance()->GetDataPath() + "/shader/Include/" + i;
-                auto bytes = File::ReadAllBytes(include_path);
-                auto include_str = String(bytes);
-                source += include_str + "\n";
-            }
-            source += glsl;
-
-            return source;
-        }
-
-        static VKAPI_ATTR VkBool32 VKAPI_CALL
-            DebugFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
-                uint64_t srcObject, size_t location, int32_t msgCode,
-                const char *pLayerPrefix, const char *pMsg, void *pUserData)
-        {
-            String message;
-
-            if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
-            {
-                message = String::Format("ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-            }
-            else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
-            {
-                message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-            }
-            else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
-            {
-                message = String::Format("WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-            }
-            else if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
-            {
-                message = String::Format("INFO: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-            }
-
-            Log("%s", message.CString());
-
-#if VR_WINDOWS
-            MessageBox(nullptr, message.CString(), "Alert", MB_OK);
-#endif
-
-            return false;
         }
 
         void CheckInstanceLayers()

@@ -26,6 +26,7 @@ namespace Viry3D
 {
 	class View;
 	class Mesh;
+    struct Touch;
 
     struct AtlasTreeNode
     {
@@ -59,6 +60,8 @@ namespace Viry3D
         void UpdateAtlas(ViewMesh& mesh, bool& updated);
         AtlasTreeNode* FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode* node);
         void ReleaseAtlasTreeNode(AtlasTreeNode* node);
+        void ProcessInput();
+        void HitViews(const Touch& t);
 
 	private:
 		Vector<Ref<View>> m_views;
@@ -69,5 +72,6 @@ namespace Viry3D
         Vector<AtlasTreeNode*> m_atlas_tree;
         Map<Texture*, AtlasTreeNode*> m_atlas_cache;
         Ref<BufferObject> m_draw_buffer;
+        Vector<ViewMesh> m_view_meshes;
 	};
 }

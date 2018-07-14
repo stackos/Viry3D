@@ -30,12 +30,15 @@ namespace Viry3D
 {
 	class CanvaRenderer;
 	class Texture;
+    class View;
 
     struct ViewMesh
     {
         Vector<Vertex> vertices;
         Vector<unsigned short> indices;
         Ref<Texture> texture;
+        View* view = nullptr;
+        bool base_view = false;
     };
 
     struct ViewAlignment

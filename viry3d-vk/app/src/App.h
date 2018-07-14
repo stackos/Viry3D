@@ -40,6 +40,7 @@
 using namespace Viry3D;
 
 // TODO:
+// - process ui input
 // - Button SliderControl SwitchControl
 // - android project
 // - mac project
@@ -439,6 +440,7 @@ void main()
         sprite->SetSize(Vector2i(100, 100));
         sprite->SetOffset(Vector2i(400, -100));
         sprite->SetTexture(texture1);
+        sprite->SetLocalRotation(Quaternion::Euler(Vector3(0, 0, 45)));
 
 		canvas->AddView(sprite);
 

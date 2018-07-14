@@ -592,9 +592,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break;
         }
 
-        app->UpdateBegin();
+        app->OnFrameBegin();
+
         app->Update();
-        app->UpdateEnd();
 
         if (app->HasQuit())
         {
@@ -604,6 +604,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         {
             display->OnDraw();
         }
+
+        app->OnFrameEnd();
     }
 
     app.reset();

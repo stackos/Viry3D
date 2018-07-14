@@ -28,9 +28,7 @@ namespace Viry3D
 	{
 		Began,          //A finger touched the screen.
 		Moved,          //A finger moved on the screen.
-		Stationary,     //A finger is touching the screen but hasn't moved.
 		Ended,          //A finger was lifted from the screen. This is the final phase of a touch.
-		Canceled,       //The system cancelled tracking for the touch.
 	};
 
 	struct Touch
@@ -50,7 +48,7 @@ namespace Viry3D
 	{
 	public:
 		static int GetTouchCount();
-		static const Touch* GetTouch(int index);
+		static const Touch& GetTouch(int index);
 		static void Update();
 		static bool GetKeyDown(KeyCode key);
 		static bool GetKey(KeyCode key);
