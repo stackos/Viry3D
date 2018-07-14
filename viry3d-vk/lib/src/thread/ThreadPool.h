@@ -40,7 +40,7 @@ namespace Viry3D
 		struct Task
 		{
             typedef std::function<Ref<Res>()> Job;
-            typedef std::function<void (const Ref<Res>&)> CompleteCallback;
+            typedef std::function<void(const Ref<Res>&)> CompleteCallback;
 
 			Job job;
             CompleteCallback complete;

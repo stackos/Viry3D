@@ -60,7 +60,7 @@ namespace Viry3D
         void UpdateAtlas(ViewMesh& mesh, bool& updated);
         AtlasTreeNode* FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode* node);
         void ReleaseAtlasTreeNode(AtlasTreeNode* node);
-        void ProcessInput();
+        void HandleTouchEvent();
         void HitViews(const Touch& t);
 
 	private:

@@ -274,4 +274,31 @@ namespace Viry3D
             i->FillMeshes(meshes);
         }
     }
+
+    bool View::OnTouchDown() const
+    {
+        if (m_on_touch_down)
+        {
+            return m_on_touch_down();
+        }
+        return false;
+    }
+
+    bool View::OnTouchMove() const
+    {
+        if (m_on_touch_move)
+        {
+            return m_on_touch_move();
+        }
+        return false;
+    }
+    
+    bool View::OnTouchUp() const
+    {
+        if (m_on_touch_up)
+        {
+            return m_on_touch_up();
+        }
+        return false;
+    }
 }

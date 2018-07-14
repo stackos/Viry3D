@@ -236,7 +236,7 @@ void main()
 
 	void CanvaRenderer::Update()
 	{
-        this->ProcessInput();
+        this->HandleTouchEvent();
 
 		if (m_canvas_dirty)
 		{
@@ -551,37 +551,80 @@ void main()
         }
     }
 
-    void CanvaRenderer::ProcessInput()
+    void CanvaRenderer::HandleTouchEvent()
     {
         int touch_count = Input::GetTouchCount();
-
         for (int i = 0; i < touch_count; ++i)
         {
-            const Touch& t = Input::GetTouch(i);
+            this->HitViews(Input::GetTouch(i));
+        }
+    }
 
-            if (t.phase == TouchPhase::Began)
-            {
-                this->HitViews(t);
-            }
-            else if (t.phase == TouchPhase::Moved)
-            {
+    static bool IsPointInView(const Vector2& pos, const Vector<Vertex>& vertices)
+    {
+        // ax + by + c = 0
+        // a = y1 - y0
+        // b = x0 - x1
+        // c = x1y0 - x0y1
+        float x0 = vertices[0].vertex.x;
+        float y0 = vertices[0].vertex.y;
+        float x1 = vertices[1].vertex.x;
+        float y1 = vertices[1].vertex.y;
+        float x2 = vertices[2].vertex.x;
+        float y2 = vertices[2].vertex.y;
+        float x3 = vertices[3].vertex.x;
+        float y3 = vertices[3].vertex.y;
+        Vector3 lines[4];
+        lines[0] = Vector3(y1 - y0, x0 - x1, x1 * y0 - x0 * y1);
+        lines[1] = Vector3(y2 - y1, x1 - x2, x2 * y1 - x1 * y2);
+        lines[2] = Vector3(y3 - y2, x2 - x3, x3 * y2 - x2 * y3);
+        lines[3] = Vector3(y0 - y3, x3 - x0, x0 * y3 - x3 * y0);
 
-            }
-            else if (t.phase == TouchPhase::Ended)
+        for (int i = 0; i < 4; ++i)
+        {
+            float sign = lines[i].x * pos.x + lines[i].y * pos.y + lines[i].z;
+            if (sign > 0)
             {
-
+                return false;
             }
         }
+
+        return true;
     }
 
     void CanvaRenderer::HitViews(const Touch& t)
     {
+        Vector2 pos = t.position;
+        pos.x -= this->GetCamera()->GetTargetWidth() / 2;
+        pos.y -= this->GetCamera()->GetTargetHeight() / 2;
+
         // from to top to bottom
         for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
         {
             if (m_view_meshes[i].base_view)
             {
+                if (IsPointInView(pos, m_view_meshes[i].vertices))
+                {
+                    bool block_event = false;
 
+                    if (t.phase == TouchPhase::Began)
+                    {
+                        block_event = m_view_meshes[i].view->OnTouchDown();
+                    }
+                    else if (t.phase == TouchPhase::Moved)
+                    {
+                        block_event = m_view_meshes[i].view->OnTouchMove();
+                    }
+                    else if (t.phase == TouchPhase::Ended)
+                    {
+                        block_event = m_view_meshes[i].view->OnTouchUp();
+                    }
+
+                    if (block_event)
+                    {
+                        break;
+                    }
+                }
             }
         }
     }

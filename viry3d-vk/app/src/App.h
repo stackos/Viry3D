@@ -40,8 +40,8 @@
 using namespace Viry3D;
 
 // TODO:
-// - process ui input
-// - Button SliderControl SwitchControl
+// - Button
+// - SliderControl SwitchControl
 // - android project
 // - mac project
 // - ios project
@@ -456,6 +456,7 @@ void main()
         auto label = RefMake<Label>();
         label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
         label->SetPivot(Vector2(0, 0));
+        label->SetSize(Vector2i(100, 20));
         label->SetFont(font);
         label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
 

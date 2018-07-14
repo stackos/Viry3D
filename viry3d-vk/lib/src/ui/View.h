@@ -25,6 +25,7 @@
 #include "math/Quaternion.h"
 #include "math/Rect.h"
 #include "math/Matrix4x4.h"
+#include <functional>
 
 namespace Viry3D
 {
@@ -88,6 +89,12 @@ namespace Viry3D
         const Quaternion& GetRotation() const { return m_rotation; }
         const Vector2& GetScale() const { return m_scale; }
         void FillMeshes(Vector<ViewMesh>& mesh);
+        void SetOnTouchDown(std::function<bool()> func) { m_on_touch_down = func; }
+        void SetOnTouchMove(std::function<bool()> func) { m_on_touch_move = func; }
+        void SetOnTouchUp(std::function<bool()> func) { m_on_touch_up = func; }
+        bool OnTouchDown() const;
+        bool OnTouchMove() const;
+        bool OnTouchUp() const;
 
     protected:
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
@@ -107,5 +114,8 @@ namespace Viry3D
         Rect m_rect;
         Quaternion m_rotation;
         Vector2 m_scale;
+        std::function<bool()> m_on_touch_down;
+        std::function<bool()> m_on_touch_move;
+        std::function<bool()> m_on_touch_up;
 	};
 }
