@@ -97,6 +97,7 @@ namespace Viry3D
         bool OnTouchUp() const;
 
     protected:
+        void MarkCanvasDirty() const;
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
         void ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix);
 

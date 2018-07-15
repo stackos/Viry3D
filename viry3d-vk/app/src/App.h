@@ -31,11 +31,12 @@
 #include "memory/Memory.h"
 #include "thread/ThreadPool.h"
 #include "math/Quaternion.h"
+#include "time/Time.h"
 #include "ui/CanvaRenderer.h"
 #include "ui/Sprite.h"
 #include "ui/Label.h"
 #include "ui/Font.h"
-#include "time/Time.h"
+#include "ui/Button.h"
 
 using namespace Viry3D;
 
@@ -444,12 +445,11 @@ void main()
 
 		canvas->AddView(sprite);
 
-        sprite = RefMake<Sprite>();
-        sprite->SetSize(Vector2i(100, 100));
-        sprite->SetOffset(Vector2i(-400, 100));
-        sprite->SetTexture(texture5);
+        auto button = RefMake<Button>();
+        button->SetSize(Vector2i(100, 100));
+        button->SetOffset(Vector2i(-400, 100));
 
-        canvas->AddView(sprite);
+        canvas->AddView(button);
 
         auto font = Font::LoadFromFile(Application::Instance()->GetDataPath() + "/font/heiti.ttf");
 

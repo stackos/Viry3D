@@ -246,28 +246,19 @@ namespace Viry3D
     void Label::SetFont(const Ref<Font>& font)
     {
         m_font = font;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Label::SetFontStyle(FontStyle style)
     {
         m_font_style = style;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Label::SetFontSize(int size)
     {
         m_font_size = size;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Label::SetText(const String& text)
@@ -275,47 +266,32 @@ namespace Viry3D
         if (m_text != text)
         {
             m_text = text;
-            if (this->GetCanvas())
-            {
-                this->GetCanvas()->MarkCanvasDirty();
-            }
+            this->MarkCanvasDirty();
         }
     }
 
     void Label::SetLineSpace(int space)
     {
         m_line_space = space;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Label::SetRich(bool rich)
     {
         m_rich = rich;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Label::SetMono(bool mono)
     {
         m_mono = mono;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Label::SetTextAlignment(int alignment)
     {
         m_text_alignment = alignment;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Label::ProcessText()

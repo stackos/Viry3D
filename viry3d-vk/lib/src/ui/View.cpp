@@ -19,7 +19,6 @@
 #include "CanvaRenderer.h"
 #include "Debug.h"
 #include "memory/Memory.h"
-#include "graphics/Texture.h"
 #include "graphics/Camera.h"
 
 namespace Viry3D
@@ -58,6 +57,18 @@ namespace Viry3D
 		m_canvas = nullptr;
 	}
 
+    void View::MarkCanvasDirty() const
+    {
+        if (m_canvas)
+        {
+            m_canvas->MarkCanvasDirty();
+        }
+        else if (m_parent_view)
+        {
+            m_parent_view->MarkCanvasDirty();
+        }
+    }
+
     void View::AddSubview(const Ref<View>& view)
     {
         assert(view->m_parent_view == nullptr);
@@ -65,10 +76,7 @@ namespace Viry3D
 
         m_subviews.Add(view);
 
-        if (m_canvas)
-        {
-            m_canvas->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void View::RemoveSubview(const Ref<View>& view)
@@ -78,73 +86,49 @@ namespace Viry3D
         
         m_subviews.Remove(view);
 
-        if (m_canvas)
-        {
-            m_canvas->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
 	void View::SetColor(const Color& color)
 	{
 		m_color = color;
-		if (m_canvas)
-		{
-			m_canvas->MarkCanvasDirty();
-		}
+        this->MarkCanvasDirty();
 	}
 
 	void View::SetAlignment(int alignment)
 	{
 		m_alignment = alignment;
-		if (m_canvas)
-		{
-			m_canvas->MarkCanvasDirty();
-		}
+        this->MarkCanvasDirty();
 	}
 
 	void View::SetPivot(const Vector2& pivot)
 	{
 		m_pivot = pivot;
-		if (m_canvas)
-		{
-			m_canvas->MarkCanvasDirty();
-		}
+        this->MarkCanvasDirty();
 	}
 
 	void View::SetSize(const Vector2i& size)
 	{
 		m_size = size;
-		if (m_canvas)
-		{
-			m_canvas->MarkCanvasDirty();
-		}
+        this->MarkCanvasDirty();
 	}
 
 	void View::SetOffset(const Vector2i& offset)
 	{
 		m_offset = offset;
-		if (m_canvas)
-		{
-			m_canvas->MarkCanvasDirty();
-		}
+        this->MarkCanvasDirty();
 	}
 
     void View::SetLocalRotation(const Quaternion& rotation)
     {
         m_local_rotation = rotation;
-        if (m_canvas)
-        {
-            m_canvas->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void View::SetLocalScale(const Vector2& scale)
     {
         m_local_scale = scale;
-        if (m_canvas)
-        {
-            m_canvas->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void View::UpdateLayout()
@@ -247,10 +231,10 @@ namespace Viry3D
         vs[1].color = m_color;
         vs[2].color = m_color;
         vs[3].color = m_color;
-        vs[0].uv = Vector2(1.0f / 3, 1.0f / 3);
-        vs[1].uv = Vector2(1.0f / 3, 2.0f / 3);
-        vs[2].uv = Vector2(2.0f / 3, 2.0f / 3);
-        vs[3].uv = Vector2(2.0f / 3, 1.0f / 3);
+        vs[0].uv = Vector2(0, 0);
+        vs[1].uv = Vector2(0, 1);
+        vs[2].uv = Vector2(1, 1);
+        vs[3].uv = Vector2(1, 0);
 
         for (int i = 0; i < 4; ++i)
         {

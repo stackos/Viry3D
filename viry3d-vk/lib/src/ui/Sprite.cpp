@@ -17,6 +17,7 @@
 
 #include "Sprite.h"
 #include "CanvaRenderer.h"
+#include "graphics/Texture.h"
 
 namespace Viry3D
 {
@@ -33,10 +34,7 @@ namespace Viry3D
     void Sprite::SetTexture(Ref<Texture>& texture)
     {
         m_texture = texture;
-        if (this->GetCanvas())
-        {
-            this->GetCanvas()->MarkCanvasDirty();
-        }
+        this->MarkCanvasDirty();
     }
 
     void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes)
@@ -44,14 +42,19 @@ namespace Viry3D
         View::FillSelfMeshes(meshes);
 
         ViewMesh& mesh = meshes[meshes.Size() - 1];
-        mesh.vertices[0].uv = Vector2(0, 0);
-        mesh.vertices[1].uv = Vector2(0, 1);
-        mesh.vertices[2].uv = Vector2(1, 1);
-        mesh.vertices[3].uv = Vector2(1, 0);
 
         if (m_texture)
         {
             mesh.texture = m_texture;
+        }
+        else
+        {
+            mesh.vertices[0].uv = Vector2(1.0f / 3, 1.0f / 3);
+            mesh.vertices[1].uv = Vector2(1.0f / 3, 2.0f / 3);
+            mesh.vertices[2].uv = Vector2(2.0f / 3, 2.0f / 3);
+            mesh.vertices[3].uv = Vector2(2.0f / 3, 1.0f / 3);
+
+            mesh.texture = Texture::GetSharedWhiteTexture();
         }
     }
 }
