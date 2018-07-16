@@ -63,7 +63,7 @@ namespace Viry3D
         virtual void UpdateLayout();
 		void OnAddToCanvas(CanvaRenderer* canvas);
 		void OnRemoveFromCanvas(CanvaRenderer* canvas);
-        CanvaRenderer* GetCanvas() const { return m_canvas; }
+        CanvaRenderer* GetCanvas() const;
         void AddSubview(const Ref<View>& view);
         void RemoveSubview(const Ref<View>& view);
         int GetSubviewCount() const { return m_subviews.Size(); }

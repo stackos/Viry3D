@@ -21,10 +21,16 @@
 
 namespace Viry3D
 {
+    class Label;
+
     class Button : public Sprite
     {
     public:
         Button();
         virtual ~Button();
+        const Ref<Label>& GetLabel();
+
+    private:
+        Ref<Label> m_label;
     };
 }

@@ -20,6 +20,7 @@
 #include "memory/Memory.h"
 #include "graphics/Texture.h"
 #include "Debug.h"
+#include "Application.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "ftoutln.h"
@@ -27,6 +28,7 @@
 namespace Viry3D
 {
 	static FT_Library g_ft_lib;
+    Map<FontType, Ref<Font>> Font::m_fonts;
 
 	void Font::Init()
 	{
@@ -35,8 +37,47 @@ namespace Viry3D
 
 	void Font::Done()
 	{
+        m_fonts.Clear();
+
 		FT_Done_FreeType(g_ft_lib);
 	}
+
+    Ref<Font> Font::GetFont(FontType type)
+    {
+        Ref<Font> font;
+
+        Ref<Font>* font_ptr;
+        if (m_fonts.TryGet(type, &font_ptr))
+        {
+            font = *font_ptr;
+        }
+        else
+        {
+            String file;
+
+            switch (type)
+            {
+            case FontType::Arial:
+                file = "Arial.ttf";
+                break;
+            case FontType::Consola:
+                file = "Consola.ttf";
+                break;
+            case FontType::PingFangSC:
+                file = "PingFangSC.ttf";
+                break;
+            case FontType::SimSun:
+                file = "SimSun.ttc";
+                break;
+            }
+
+            font = Font::LoadFromFile(Application::Instance()->GetDataPath() + "/font/" + file);
+
+            m_fonts.Add(type, font);
+        }
+
+        return font;
+    }
 
 	Ref<Font> Font::LoadFromFile(const String& file)
 	{
@@ -103,7 +144,7 @@ namespace Viry3D
 		p_glyph->mono = mono;
 
 		FT_Face face = (FT_Face) m_font;
-		FT_Set_Pixel_Sizes(face, 0, size);
+        FT_Set_Char_Size(face, size << 6, size << 6, 96, 96);
 
 		FT_GlyphSlot slot = face->glyph;
 		auto glyph_index = FT_Get_Char_Index(face, c);

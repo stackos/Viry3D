@@ -57,15 +57,26 @@ namespace Viry3D
 		m_canvas = nullptr;
 	}
 
-    void View::MarkCanvasDirty() const
+    CanvaRenderer* View::GetCanvas() const
     {
         if (m_canvas)
         {
-            m_canvas->MarkCanvasDirty();
+            return m_canvas; 
         }
         else if (m_parent_view)
         {
-            m_parent_view->MarkCanvasDirty();
+            return m_parent_view->GetCanvas();
+        }
+
+        return nullptr;
+    }
+
+    void View::MarkCanvasDirty() const
+    {
+        CanvaRenderer* canvas = this->GetCanvas();
+        if (canvas)
+        {
+            canvas->MarkCanvasDirty();
         }
     }
 
@@ -200,8 +211,8 @@ namespace Viry3D
 
     void View::ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix)
     {
-        int canvas_width = m_canvas->GetCamera()->GetTargetWidth();
-        int canvas_height = m_canvas->GetCamera()->GetTargetHeight();
+        int canvas_width = this->GetCanvas()->GetCamera()->GetTargetWidth();
+        int canvas_height = this->GetCanvas()->GetCamera()->GetTargetHeight();
         int x = -canvas_width / 2 + (int) m_rect.x;
         int y = canvas_height / 2 - (int) m_rect.y;
 

@@ -24,6 +24,14 @@
 
 namespace Viry3D
 {
+    enum class FontType
+    {
+        Arial,
+        Consola,
+        PingFangSC,
+        SimSun,
+    };
+
     class Texture;
 
 	struct GlyphInfo
@@ -48,6 +56,7 @@ namespace Viry3D
 	public:
 		static void Init();
 		static void Done();
+        static Ref<Font> GetFont(FontType type);
 		static Ref<Font> LoadFromFile(const String& file);
 		~Font();
 		GlyphInfo GetGlyph(char32_t c, int size, bool bold, bool italic, bool mono);
@@ -58,6 +67,7 @@ namespace Viry3D
 		Font();
 
     private:
+        static Map<FontType, Ref<Font>> m_fonts;
 		void* m_font;
 		Map<char32_t, Map<int, GlyphInfo>> m_glyphs;
 	};

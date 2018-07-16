@@ -16,6 +16,8 @@
 */
 
 #include "Button.h"
+#include "Label.h"
+#include "Font.h"
 
 namespace Viry3D
 {
@@ -27,5 +29,20 @@ namespace Viry3D
     Button::~Button()
     {
     
+    }
+
+    const Ref<Label>& Button::GetLabel()
+    {
+        if (!m_label)
+        {
+            m_label = RefMake<Label>();
+            m_label->SetSize(this->GetSize());
+            m_label->SetFont(Font::GetFont(FontType::PingFangSC));
+            m_label->SetColor(Color(0, 0, 0, 1));
+
+            this->AddSubview(m_label);
+        }
+
+        return m_label;
     }
 }

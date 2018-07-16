@@ -445,24 +445,23 @@ void main()
 
 		canvas->AddView(sprite);
 
-        auto button = RefMake<Button>();
-        button->SetSize(Vector2i(100, 100));
-        button->SetOffset(Vector2i(-400, 100));
-
-        canvas->AddView(button);
-
-        auto font = Font::LoadFromFile(Application::Instance()->GetDataPath() + "/font/heiti.ttf");
-
         auto label = RefMake<Label>();
         label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
         label->SetPivot(Vector2(0, 0));
         label->SetSize(Vector2i(100, 20));
-        label->SetFont(font);
+        label->SetFont(Font::GetFont(FontType::PingFangSC));
         label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
 
         m_label = label.get();
 
         canvas->AddView(label);
+
+        auto button = RefMake<Button>();
+        button->SetSize(Vector2i(100, 100));
+        button->SetOffset(Vector2i(-400, 100));
+        button->GetLabel()->SetText("button");
+
+        canvas->AddView(button);
 	}
 
     virtual ~App()
