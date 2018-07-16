@@ -29,8 +29,12 @@ namespace Viry3D
         Button();
         virtual ~Button();
         const Ref<Label>& GetLabel();
+        void SetOnClick(std::function<void()> func) { m_on_click = func; }
+        void OnClick() const;
 
     private:
         Ref<Label> m_label;
+        bool m_touch_down;
+        std::function<void()> m_on_click;
     };
 }

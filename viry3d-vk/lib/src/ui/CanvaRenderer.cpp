@@ -598,33 +598,113 @@ void main()
         pos.x -= this->GetCamera()->GetTargetWidth() / 2;
         pos.y -= this->GetCamera()->GetTargetHeight() / 2;
 
-        // from to top to bottom
-        for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
+        if (t.phase == TouchPhase::Began)
         {
-            if (m_view_meshes[i].base_view)
+            for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
             {
-                if (IsPointInView(pos, m_view_meshes[i].vertices))
+                if (m_view_meshes[i].base_view)
                 {
-                    bool block_event = false;
+                    if (IsPointInView(pos, m_view_meshes[i].vertices))
+                    {
+                        View* view = m_view_meshes[i].view;
 
-                    if (t.phase == TouchPhase::Began)
-                    {
-                        block_event = m_view_meshes[i].view->OnTouchDown();
+                        List<View*>* touch_down_views_ptr;
+                        if (m_touch_down_views.TryGet(t.fingerId, &touch_down_views_ptr))
+                        {
+                            touch_down_views_ptr->AddLast(view);
+                        }
+                        else
+                        {
+                            List<View*> views;
+                            views.AddLast(view);
+                            m_touch_down_views.Add(t.fingerId, views);
+                        }
+
+                        bool block_event = view->OnTouchDownInside();
+
+                        if (block_event)
+                        {
+                            break;
+                        }
                     }
-                    else if (t.phase == TouchPhase::Moved)
-                    {
-                        block_event = m_view_meshes[i].view->OnTouchMove();
-                    }
-                    else if (t.phase == TouchPhase::Ended)
-                    {
-                        block_event = m_view_meshes[i].view->OnTouchUp();
-                    }
+                }
+            }
+        }
+        else if (t.phase == TouchPhase::Moved)
+        {
+            List<View*>* touch_down_views_ptr;
+            if (m_touch_down_views.TryGet(t.fingerId, &touch_down_views_ptr))
+            {
+                for (View* j : *touch_down_views_ptr)
+                {
+                    bool block_event = j->OnTouchDrag();
 
                     if (block_event)
                     {
                         break;
                     }
                 }
+            }
+
+            for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
+            {
+                if (m_view_meshes[i].base_view)
+                {
+                    if (IsPointInView(pos, m_view_meshes[i].vertices))
+                    {
+                        View* view = m_view_meshes[i].view;
+
+                        bool block_event = view->OnTouchMoveInside();
+
+                        if (block_event)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else if (t.phase == TouchPhase::Ended)
+        {
+            List<View*>* touch_down_views_ptr = nullptr;
+            m_touch_down_views.TryGet(t.fingerId, &touch_down_views_ptr);
+
+            for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
+            {
+                if (m_view_meshes[i].base_view)
+                {
+                    if (IsPointInView(pos, m_view_meshes[i].vertices))
+                    {
+                        View* view = m_view_meshes[i].view;
+
+                        if (touch_down_views_ptr)
+                        {
+                            touch_down_views_ptr->Remove(view);
+                        }
+
+                        bool block_event = view->OnTouchUpInside();
+
+                        if (block_event)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (touch_down_views_ptr)
+            {
+                for (View* j : *touch_down_views_ptr)
+                {
+                    bool block_event = j->OnTouchUpOutside();
+
+                    if (block_event)
+                    {
+                        break;
+                    }
+                }
+
+                m_touch_down_views.Remove(t.fingerId);
             }
         }
     }

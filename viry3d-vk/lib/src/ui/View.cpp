@@ -270,29 +270,47 @@ namespace Viry3D
         }
     }
 
-    bool View::OnTouchDown() const
+    bool View::OnTouchDownInside() const
     {
-        if (m_on_touch_down)
+        if (m_on_touch_down_inside)
         {
-            return m_on_touch_down();
+            return m_on_touch_down_inside();
         }
         return false;
     }
 
-    bool View::OnTouchMove() const
+    bool View::OnTouchMoveInside() const
     {
-        if (m_on_touch_move)
+        if (m_on_touch_move_inside)
         {
-            return m_on_touch_move();
+            return m_on_touch_move_inside();
         }
         return false;
     }
     
-    bool View::OnTouchUp() const
+    bool View::OnTouchUpInside() const
     {
-        if (m_on_touch_up)
+        if (m_on_touch_up_inside)
         {
-            return m_on_touch_up();
+            return m_on_touch_up_inside();
+        }
+        return false;
+    }
+
+    bool View::OnTouchUpOutside() const
+    {
+        if (m_on_touch_up_outside)
+        {
+            return m_on_touch_up_outside();
+        }
+        return false;
+    }
+
+    bool View::OnTouchDrag() const
+    {
+        if (m_on_touch_drag)
+        {
+            return m_on_touch_drag();
         }
         return false;
     }

@@ -89,12 +89,16 @@ namespace Viry3D
         const Quaternion& GetRotation() const { return m_rotation; }
         const Vector2& GetScale() const { return m_scale; }
         void FillMeshes(Vector<ViewMesh>& mesh);
-        void SetOnTouchDown(std::function<bool()> func) { m_on_touch_down = func; }
-        void SetOnTouchMove(std::function<bool()> func) { m_on_touch_move = func; }
-        void SetOnTouchUp(std::function<bool()> func) { m_on_touch_up = func; }
-        bool OnTouchDown() const;
-        bool OnTouchMove() const;
-        bool OnTouchUp() const;
+        void SetOnTouchDownInside(std::function<bool()> func) { m_on_touch_down_inside = func; }
+        void SetOnTouchMoveInside(std::function<bool()> func) { m_on_touch_move_inside = func; }
+        void SetOnTouchUpInside(std::function<bool()> func) { m_on_touch_up_inside = func; }
+        void SetOnTouchUpOutside(std::function<bool()> func) { m_on_touch_up_outside = func; }
+        void SetOnTouchDrag(std::function<bool()> func) { m_on_touch_drag = func; }
+        bool OnTouchDownInside() const;
+        bool OnTouchMoveInside() const;
+        bool OnTouchUpInside() const;
+        bool OnTouchUpOutside() const;
+        bool OnTouchDrag() const;
 
     protected:
         void MarkCanvasDirty() const;
@@ -115,8 +119,10 @@ namespace Viry3D
         Rect m_rect;
         Quaternion m_rotation;
         Vector2 m_scale;
-        std::function<bool()> m_on_touch_down;
-        std::function<bool()> m_on_touch_move;
-        std::function<bool()> m_on_touch_up;
+        std::function<bool()> m_on_touch_down_inside;
+        std::function<bool()> m_on_touch_move_inside;
+        std::function<bool()> m_on_touch_up_inside;
+        std::function<bool()> m_on_touch_up_outside;
+        std::function<bool()> m_on_touch_drag;
 	};
 }

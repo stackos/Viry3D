@@ -41,8 +41,8 @@
 using namespace Viry3D;
 
 // TODO:
-// - Button
-// - SliderControl SwitchControl
+// - SwitchControl
+// - SliderControl
 // - android project
 // - mac project
 // - ios project
@@ -460,6 +460,9 @@ void main()
         button->SetSize(Vector2i(100, 100));
         button->SetOffset(Vector2i(-400, 100));
         button->GetLabel()->SetText("button");
+        button->SetOnClick([]() {
+            Log("click button");
+        });
 
         canvas->AddView(button);
 	}

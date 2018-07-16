@@ -21,9 +21,25 @@
 
 namespace Viry3D
 {
-    Button::Button()
+    Button::Button():
+        m_touch_down(false)
     {
-    
+        this->SetOnTouchDownInside([this]() {
+            this->m_touch_down = true;
+            return true;
+        });
+        this->SetOnTouchUpInside([this]() {
+            if (this->m_touch_down)
+            {
+                this->OnClick();
+                this->m_touch_down = false;
+            }
+            return true;
+        });
+        this->SetOnTouchUpOutside([this]() {
+            this->m_touch_down = false;
+            return false;
+        });
     }
     
     Button::~Button()
@@ -44,5 +60,13 @@ namespace Viry3D
         }
 
         return m_label;
+    }
+
+    void Button::OnClick() const
+    {
+        if (m_on_click)
+        {
+            m_on_click();
+        }
     }
 }
