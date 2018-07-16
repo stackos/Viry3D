@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 namespace Viry3D

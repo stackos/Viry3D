@@ -373,7 +373,7 @@ void Debug::LogString(const String& str, bool end_line)
     NSLog(@"\n%s", str.CString());
 }
     
-String Application::DataPath()
+const String& Application::DataPath()
 {
     static std::mutex s_mutex;
     
@@ -389,7 +389,7 @@ String Application::DataPath()
     return m_data_path;
 }
 
-String Application::SavePath()
+const String& Application::SavePath()
 {
     static String s_path;
     
