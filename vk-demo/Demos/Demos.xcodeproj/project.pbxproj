@@ -350,7 +350,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\n\"${PROJECT_DIR}/../Package/MoltenVKShaderConverter/Tools/MoltenVKShaderConverter\" -gi -so -xs \"-\" -d \"${PROJECT_DIR}/../demos\"\n";
+			shellScript = "set -e\n\n\"${PROJECT_DIR}/../Package/MoltenVKShaderConverter/Tools/MoltenVKShaderConverter\" -gi -so -xs \"-\" -d \"${PROJECT_DIR}/demos\"\n";
 		};
 		A9BA29C6204F298800EA6575 /* Generate SPIR-V shaders */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -364,7 +364,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\n\"${PROJECT_DIR}/../Package/MoltenVKShaderConverter/Tools/MoltenVKShaderConverter\" -gi -so -xs \"-\" -d \"${PROJECT_DIR}/../demos\"\n";
+			shellScript = "set -e\n\n\"${PROJECT_DIR}/../Package/MoltenVKShaderConverter/Tools/MoltenVKShaderConverter\" -gi -so -xs \"-\" -d \"${PROJECT_DIR}/demos\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
