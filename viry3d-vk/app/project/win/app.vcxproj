@@ -193,10 +193,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\Main.cpp" />
+    <ClInclude Include="..\..\src\App.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\App.h" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
