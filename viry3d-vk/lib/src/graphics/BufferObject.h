@@ -30,8 +30,8 @@ namespace Viry3D
         int size;
 
         BufferObject():
-            buffer(nullptr),
-            memory(nullptr),
+            buffer(VK_NULL_HANDLE),
+            memory(VK_NULL_HANDLE),
             size(0)
         {
             Memory::Zero(&memory_info, sizeof(memory_info));

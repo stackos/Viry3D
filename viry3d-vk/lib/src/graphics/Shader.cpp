@@ -68,11 +68,11 @@ namespace Viry3D
         const Vector<String>& fs_includes,
         const RenderState& render_state):
         m_render_state(render_state),
-        m_vs_module(nullptr),
-        m_fs_module(nullptr),
-        m_pipeline_cache(nullptr),
-        m_pipeline_layout(nullptr),
-        m_descriptor_pool(nullptr)
+        m_vs_module(VK_NULL_HANDLE),
+        m_fs_module(VK_NULL_HANDLE),
+        m_pipeline_cache(VK_NULL_HANDLE),
+        m_pipeline_layout(VK_NULL_HANDLE),
+        m_descriptor_pool(VK_NULL_HANDLE)
     {
         m_shaders.AddLast(this);
 

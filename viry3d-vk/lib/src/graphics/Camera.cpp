@@ -32,8 +32,8 @@ namespace Viry3D
 		m_clear_color(0, 0, 0, 1),
 		m_viewport_rect(0, 0, 1, 1),
 		m_depth(0),
-		m_render_pass(nullptr),
-		m_cmd_pool(nullptr)
+		m_render_pass(VK_NULL_HANDLE),
+		m_cmd_pool(VK_NULL_HANDLE)
 	{
 
 	}
@@ -138,7 +138,7 @@ namespace Viry3D
 		{
 			Shader::OnRenderPassDestroy(m_render_pass);
 			vkDestroyRenderPass(device, m_render_pass, nullptr);
-			m_render_pass = nullptr;
+			m_render_pass = VK_NULL_HANDLE;
 		}
 	}
 
@@ -172,7 +172,7 @@ namespace Viry3D
 
 				if (i.cmd == nullptr)
 				{
-					if (m_cmd_pool == nullptr)
+					if (m_cmd_pool == VK_NULL_HANDLE)
 					{
 						Display::Instance()->CreateCommandPool(&m_cmd_pool);
 					}
@@ -205,7 +205,7 @@ namespace Viry3D
 		if (m_cmd_pool)
 		{
 			vkDestroyCommandPool(device, m_cmd_pool, nullptr);
-			m_cmd_pool = nullptr;
+			m_cmd_pool = VK_NULL_HANDLE;
 		}
 	}
 

@@ -19,8 +19,6 @@
 		D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D137753C20FEDF4A00E4F19B /* libviry3d.a */; };
 		D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */; };
 		D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757E20FEF7D000E4F19B /* MoltenVK.framework */; };
-		D137758120FEF8BE00E4F19B /* libMoltenVK.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */; };
-		D13775A220FF014F00E4F19B /* libMoltenVK.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D13775A620FF327C00E4F19B /* App.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D13775A520FF327C00E4F19B /* App.cpp */; };
 		D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */; };
 /* End PBXBuildFile section */
@@ -49,7 +47,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				D13775A220FF014F00E4F19B /* libMoltenVK.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,7 +70,6 @@
 		D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/ios/viry3d.xcodeproj; sourceTree = "<group>"; };
 		D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = usr/lib/libz.1.2.8.tbd; sourceTree = SDKROOT; };
 		D137757E20FEF7D000E4F19B /* MoltenVK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVK.framework; path = ../../../lib/src/vulkan/MoltenVK/iOS/MoltenVK.framework; sourceTree = "<group>"; };
-		D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMoltenVK.dylib; path = ../../../lib/src/vulkan/MoltenVK/iOS/libMoltenVK.dylib; sourceTree = "<group>"; };
 		D13775A420FF320C00E4F19B /* App.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = App.h; path = ../../src/App.h; sourceTree = "<group>"; };
 		D13775A520FF327C00E4F19B /* App.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = App.cpp; path = ../../src/App.cpp; sourceTree = "<group>"; };
 		D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVKGLSLToSPIRVConverter.framework; path = ../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework; sourceTree = "<group>"; };
@@ -85,7 +81,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
-				D137758120FEF8BE00E4F19B /* libMoltenVK.dylib in Frameworks */,
 				D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */,
 				D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */,
 				D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */,
@@ -147,7 +142,6 @@
 			isa = PBXGroup;
 			children = (
 				D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */,
-				D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */,
 				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,
 				D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */,
 				BA5924A31D92F2A200173EDC /* UIKit.framework */,
@@ -413,6 +407,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Debug;
 		};
@@ -442,10 +437,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
 				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Release;
 		};

@@ -29,6 +29,10 @@ using namespace Viry3D;
     App* m_app;
 }
 
+-(BOOL)prefersStatusBarHidden {
+    return TRUE;
+}
+
 -(void)loadView {
     CGRect bounds = [UIScreen mainScreen].bounds;
     float scale = [UIScreen mainScreen].nativeScale;

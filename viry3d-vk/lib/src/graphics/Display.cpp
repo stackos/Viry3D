@@ -240,13 +240,13 @@ namespace Viry3D
         Vector<char*> m_instance_extension_names;
         Vector<char*> m_device_extension_names;
         bool m_has_debug_report_extension = false;
-        VkInstance m_instance = nullptr;
-        VkDebugReportCallbackEXT m_debug_callback = nullptr;
-        VkPhysicalDevice m_gpu = nullptr;
-        VkSurfaceKHR m_surface = nullptr;
-        VkDevice m_device = nullptr;
-        VkQueue m_graphics_queue = nullptr;
-        VkQueue m_image_queue = nullptr;
+        VkInstance m_instance = VK_NULL_HANDLE;
+        VkDebugReportCallbackEXT m_debug_callback = VK_NULL_HANDLE;
+        VkPhysicalDevice m_gpu = VK_NULL_HANDLE;
+        VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+        VkDevice m_device = VK_NULL_HANDLE;
+        VkQueue m_graphics_queue = VK_NULL_HANDLE;
+        VkQueue m_image_queue = VK_NULL_HANDLE;
         VkPhysicalDeviceProperties m_gpu_properties;
         Vector<VkQueueFamilyProperties> m_queue_properties;
         VkPhysicalDeviceFeatures m_gpu_features;
@@ -264,16 +264,16 @@ namespace Viry3D
         PFN_vkQueuePresentKHR fpQueuePresentKHR = nullptr;
         int m_graphics_queue_family_index = -1;
         VkSurfaceFormatKHR m_surface_format;
-        VkSwapchainKHR m_swapchain = nullptr;
+        VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
         Vector<SwapchainImageResources> m_swapchain_image_resources;
-        VkFence m_image_fence = nullptr;
-        VkFence m_draw_complete_fence = nullptr;
-        VkSemaphore m_image_acquired_semaphore = nullptr;
-        VkSemaphore m_draw_complete_semaphore = nullptr;
+        VkFence m_image_fence = VK_NULL_HANDLE;
+        VkFence m_draw_complete_fence = VK_NULL_HANDLE;
+        VkSemaphore m_image_acquired_semaphore = VK_NULL_HANDLE;
+        VkSemaphore m_draw_complete_semaphore = VK_NULL_HANDLE;
         int m_image_index = 0;
-        VkCommandPool m_graphics_cmd_pool = nullptr;
-        VkCommandPool m_image_cmd_pool = nullptr;
-        VkCommandBuffer m_image_cmd = nullptr;
+        VkCommandPool m_graphics_cmd_pool = VK_NULL_HANDLE;
+        VkCommandPool m_image_cmd_pool = VK_NULL_HANDLE;
+        VkCommandBuffer m_image_cmd = VK_NULL_HANDLE;
         Mutex m_image_cmd_mutex;
         Ref<Texture> m_depth_texture;
         List<Ref<Camera>> m_cameras;
@@ -309,7 +309,7 @@ namespace Viry3D
             vkDestroySemaphore(m_device, m_draw_complete_semaphore, nullptr);
             vkDestroyDevice(m_device, nullptr);
             vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-            m_gpu = nullptr;
+            m_gpu = VK_NULL_HANDLE;
             fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
             vkDestroyInstance(m_instance, nullptr);
             StringVectorClear(m_enabled_layers);
@@ -770,7 +770,7 @@ namespace Viry3D
             }
             m_swapchain_image_resources.Clear();
             fpDestroySwapchainKHR(m_device, m_swapchain, nullptr);
-            m_swapchain = nullptr;
+            m_swapchain = VK_NULL_HANDLE;
         }
 
         void OnResize(int width, int height)
@@ -913,7 +913,7 @@ namespace Viry3D
             err = fpCreateSwapchainKHR(m_device, &swapchain_info, nullptr, &m_swapchain);
             assert(!err);
 
-            if (old_swapchain != nullptr)
+            if (old_swapchain != VK_NULL_HANDLE)
             {
                 fpDestroySwapchainKHR(m_device, old_swapchain, nullptr);
             }
@@ -1146,11 +1146,11 @@ namespace Viry3D
             VkFramebuffer* framebuffer)
         {
             Vector<VkImageView> attachments_view;
-            if (color_image_view != nullptr)
+            if (color_image_view != VK_NULL_HANDLE)
             {
                 attachments_view.Add(color_image_view);
             }
-            if (depth_image_view != nullptr)
+            if (depth_image_view != VK_NULL_HANDLE)
             {
                 attachments_view.Add(depth_image_view);
             }
@@ -1957,7 +1957,7 @@ namespace Viry3D
             pipeline_info.layout = pipeline_layout;
             pipeline_info.renderPass = render_pass;
             pipeline_info.subpass = 0;
-            pipeline_info.basePipelineHandle = nullptr;
+            pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
             pipeline_info.basePipelineIndex = 0;
 
             VkResult err = vkCreateGraphicsPipelines(m_device, pipeline_cache, 1, &pipeline_info, nullptr, pipeline);
@@ -2097,7 +2097,7 @@ namespace Viry3D
             inheritance_info.pNext = nullptr;
             inheritance_info.renderPass = render_pass;
             inheritance_info.subpass = 0;
-            inheritance_info.framebuffer = nullptr;
+            inheritance_info.framebuffer = VK_NULL_HANDLE;
             inheritance_info.occlusionQueryEnable = VK_FALSE;
             inheritance_info.queryFlags = 0;
             inheritance_info.pipelineStatistics = 0;
@@ -2150,7 +2150,7 @@ namespace Viry3D
 			inheritance_info.pNext = nullptr;
 			inheritance_info.renderPass = render_pass;
 			inheritance_info.subpass = 0;
-			inheritance_info.framebuffer = nullptr;
+			inheritance_info.framebuffer = VK_NULL_HANDLE;
 			inheritance_info.occlusionQueryEnable = VK_FALSE;
 			inheritance_info.queryFlags = 0;
 			inheritance_info.pipelineStatistics = 0;
@@ -2356,7 +2356,7 @@ namespace Viry3D
 
             this->Update();
 
-            err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphore, nullptr, (uint32_t*) &m_image_index);
+            err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphore, VK_NULL_HANDLE, (uint32_t*) &m_image_index);
             assert(!err);
 
             VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -2625,8 +2625,8 @@ void main()
         {
             VkFormat color_format = VK_FORMAT_UNDEFINED;
             VkFormat depth_format = VK_FORMAT_UNDEFINED;
-            VkImageView color_image_view = nullptr;
-            VkImageView depth_image_view = nullptr;
+            VkImageView color_image_view = VK_NULL_HANDLE;
+            VkImageView depth_image_view = VK_NULL_HANDLE;
             int image_width = 0;
             int image_height = 0;
 

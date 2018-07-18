@@ -446,8 +446,10 @@ void main()
         auto label = RefMake<Label>();
         label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
         label->SetPivot(Vector2(0, 0));
-        label->SetSize(Vector2i(100, 20));
+        label->SetSize(Vector2i(100, 30));
+        label->SetOffset(Vector2i(40, 40));
         label->SetFont(Font::GetFont(FontType::PingFangSC));
+        label->SetFontSize(28);
         label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
 
         m_label = label.get();
