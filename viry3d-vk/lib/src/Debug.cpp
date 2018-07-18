@@ -17,29 +17,37 @@
 
 #include "Debug.h"
 
-#if VR_ANDROID
-#include <android/log.h>
-#elif VR_WINDOWS
+#if VR_WINDOWS
 #include <Windows.h>
+#elif VR_IOS
+#import <UIKit/UIKit.h>
+#elif VR_ANDROID
+#include <android/log.h>
 #endif
 
 namespace Viry3D
 {
-#if VR_ANDROID || VR_WINDOWS
-	void Debug::LogString(const String& str, bool end_line)
-	{
-#if VR_ANDROID
-		__android_log_print(ANDROID_LOG_ERROR, "Viry3D", "%s", str.CString());
-#elif VR_WINDOWS
-		if (end_line)
-		{
-			OutputDebugString((str + "\n").CString());
-		}
-		else
-		{
-			OutputDebugString(str.CString());
-		}
-#endif
-	}
+#if VR_WINDOWS
+    void Debug::LogString(const String& str, bool end_line)
+    {
+        if (end_line)
+        {
+            OutputDebugString((str + "\n").CString());
+        }
+        else
+        {
+            OutputDebugString(str.CString());
+        }
+    }
+#elif VR_IOS
+    void Debug::LogString(const String& str, bool end_line)
+    {
+        NSLog(@"\n%s", str.CString());
+    }
+#elif VR_ANDROID
+    void Debug::LogString(const String& str, bool end_line)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Viry3D", "%s", str.CString());
+    }
 #endif
 }

@@ -105,14 +105,16 @@ namespace Viry3D
         }
         else
         {
+#if VR_WINDOWS
             String error;
-            bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
+            bool success; = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
             if (!success)
             {
                 Log("shader compile error: %s", error.CString());
             }
             assert(success);
-
+#endif
+            
             ByteBuffer buffer(spirv.SizeInBytes());
             Memory::Copy(buffer.Bytes(), &spirv[0], buffer.Size());
             File::WriteAllBytes(cache_path, buffer);
@@ -198,6 +200,7 @@ namespace Viry3D
         Vector<char*> m_enabled_layers;
         Vector<char*> m_instance_extension_names;
         Vector<char*> m_device_extension_names;
+        bool m_has_debug_report_extension = false;
         VkInstance m_instance = nullptr;
         VkDebugReportCallbackEXT m_debug_callback = nullptr;
         VkPhysicalDevice m_gpu = nullptr;
@@ -385,25 +388,25 @@ namespace Viry3D
                     surface_ext_found = true;
                     StringVectorAdd(m_instance_extension_names, VK_KHR_SURFACE_EXTENSION_NAME);
                 }
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#if defined(VR_WINDOWS)
                 if (strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
                     StringVectorAdd(m_instance_extension_names, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
                 }
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
+#elif defined(VR_ANDROID)
                 if (strcmp(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
                     StringVectorAdd(m_instance_extension_names, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
                 }
-#elif defined(VK_USE_PLATFORM_IOS_MVK)
+#elif defined(VR_IOS)
                 if (strcmp(VK_MVK_IOS_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
                     StringVectorAdd(m_instance_extension_names, VK_MVK_IOS_SURFACE_EXTENSION_NAME);
                 }
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
+#elif defined(VR_MAC)
                 if (strcmp(VK_MVK_MACOS_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
                     platform_surface_ext_found = true;
@@ -412,7 +415,7 @@ namespace Viry3D
 #endif
                 if (strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
                 {
-                    platform_surface_ext_found = true;
+                    m_has_debug_report_extension = true;
                     StringVectorAdd(m_instance_extension_names, VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
                 }
             }
@@ -439,8 +442,16 @@ namespace Viry3D
             inst_info.pNext = nullptr;
             inst_info.flags = 0;
             inst_info.pApplicationInfo = &app_info;
-            inst_info.enabledLayerCount = m_enabled_layers.Size();
-            inst_info.ppEnabledLayerNames = &m_enabled_layers[0];
+            if (m_enabled_layers.Size() > 0)
+            {
+                inst_info.enabledLayerCount = m_enabled_layers.Size();
+                inst_info.ppEnabledLayerNames = &m_enabled_layers[0];
+            }
+            else
+            {
+                inst_info.enabledLayerCount = 0;
+                inst_info.ppEnabledLayerNames = nullptr;
+            }
             inst_info.enabledExtensionCount = m_instance_extension_names.Size();
             inst_info.ppEnabledExtensionNames = &m_instance_extension_names[0];
 
@@ -458,16 +469,19 @@ namespace Viry3D
 
         void CreateDebugReportCallback()
         {
-            VkDebugReportCallbackCreateInfoEXT create_info;
-            Memory::Zero(&create_info, sizeof(create_info));
-            create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-            create_info.pNext = nullptr;
-            create_info.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-            create_info.pfnCallback = DebugFunc;
-            create_info.pUserData = nullptr;
-
-            VkResult err = fpCreateDebugReportCallbackEXT(m_instance, &create_info, nullptr, &m_debug_callback);
-            assert(!err);
+            if (m_has_debug_report_extension)
+            {
+                VkDebugReportCallbackCreateInfoEXT create_info;
+                Memory::Zero(&create_info, sizeof(create_info));
+                create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+                create_info.pNext = nullptr;
+                create_info.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+                create_info.pfnCallback = DebugFunc;
+                create_info.pUserData = nullptr;
+                
+                VkResult err = fpCreateDebugReportCallbackEXT(m_instance, &create_info, nullptr, &m_debug_callback);
+                assert(!err);
+            }
         }
 
         void InitPhysicalDevice()
@@ -519,7 +533,7 @@ namespace Viry3D
         {
             VkResult err;
 
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#if VR_WINDOWS
             VkWin32SurfaceCreateInfoKHR create_info;
             Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -529,7 +543,7 @@ namespace Viry3D
             create_info.hwnd = (HWND) m_window;
             
             err = vkCreateWin32SurfaceKHR(m_instance, &create_info, nullptr, &m_surface);
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
+#elif VR_ANDROID
             VkAndroidSurfaceCreateInfoKHR create_info;
             Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
@@ -538,7 +552,7 @@ namespace Viry3D
             create_info.window = (ANativeWindow*) m_window;
 
             err = vkCreateAndroidSurfaceKHR(m_instance, &create_info, nullptr, &m_surface);
-#elif defined(VK_USE_PLATFORM_IOS_MVK)
+#elif VR_IOS
             VkIOSSurfaceCreateInfoMVK create_info;
             Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK;
@@ -547,7 +561,7 @@ namespace Viry3D
             create_info.pView = m_window;
 
             err = vkCreateIOSSurfaceMVK(m_instance, &create_info, nullptr, &m_surface);
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
+#elif VR_MAC
             VkMacOSSurfaceCreateInfoMVK create_info;
             Memory::Zero(&create_info, sizeof(create_info));
             create_info.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
@@ -686,7 +700,8 @@ namespace Viry3D
             event_info.pNext = nullptr;
             event_info.flags = 0;
 
-            vkCreateEvent(m_device, &event_info, nullptr, &m_render_pass_event);
+            err = vkCreateEvent(m_device, &event_info, nullptr, &m_render_pass_event);
+            assert(!err);
         }
 
         void CreateImageCmd()
@@ -800,10 +815,10 @@ namespace Viry3D
             err = fpGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, m_surface, &present_mode_count, &present_modes[0]);
             assert(!err);
 
-#if VSYNC || VR_ANDROID
-            VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
-#else
+#if (VR_WINDOWS || VR_MAC) && !VSYNC
             VkPresentModeKHR present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
+#else
+            VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
 #endif
 
             uint32_t swapchain_image_count = 3;
@@ -2430,8 +2445,10 @@ void main()
     Display::Display(const String& name, void* window, int width, int height):
         m_private(new DisplayPrivate(this, window, width, height))
     {
+#if VR_WINDOWS
         init_shader_compiler();
-
+#endif
+        
         m_private->CheckInstanceLayers();
         m_private->CheckInstanceExtensions();
         m_private->CreateInstance(name);
@@ -2447,7 +2464,9 @@ void main()
     {
         delete m_private;
 
+#if VR_WINDOWS
         deinit_shader_compiler();
+#endif
     }
 
     void Display::OnResize(int width, int height)

@@ -23,13 +23,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    CGRect bounds = [UIScreen mainScreen].bounds;
-    float scale = [UIScreen mainScreen].nativeScale;
-    
-    int window_width = bounds.size.width * scale;
-    int window_height = bounds.size.height * scale;
-    
-    UIWindow* window = [[UIWindow alloc] init];
+    UIWindow* window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     window.rootViewController = [[ViewController alloc] init];
     [window makeKeyAndVisible];
     

@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-#import "ViewController.h"
+#import "VkView.h"
 
-@implementation ViewController
+@implementation VkView
 
--(void)loadView {
-    NSArray* views = [[NSBundle mainBundle] loadNibNamed:@"View" owner:nil options:nil];
-    self.view = views[0];
++(Class)layerClass {
+    return [CAMetalLayer class];
 }
 
 @end

@@ -140,8 +140,6 @@ namespace Viry3D
 
     void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets)
     {
-        VkDevice device = Display::Instance()->GetDevice();
-
         Display::Instance()->CreateDescriptorSets(
             m_uniform_sets,
             m_descriptor_pool,

@@ -15,8 +15,6 @@
 * limitations under the License.
 */
 
-#pragma once
-
 #include "VertexAttribute.h"
 
 namespace Viry3D

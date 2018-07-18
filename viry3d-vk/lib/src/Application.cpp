@@ -26,6 +26,8 @@
 
 #if VR_WINDOWS
 #include <Windows.h>
+#elif VR_IOS
+#import <UIKit/UIKit.h>
 #endif
 
 namespace Viry3D
@@ -111,6 +113,30 @@ namespace Viry3D
             m_private->m_save_path = this->GetDataPath();
         }
 
+        return m_private->m_save_path;
+    }
+#elif VR_IOS
+    const String& Application::GetDataPath()
+    {
+        if (m_private->m_data_path.Empty())
+        {
+            String path = [[[NSBundle mainBundle] bundlePath] UTF8String];
+            path += "/Assets";
+            m_private->m_data_path = path;
+        }
+
+        return m_private->m_data_path;
+    }
+    
+    const String& Application::GetSavePath()
+    {
+        if (m_private->m_save_path.Empty())
+        {
+            NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString* doc_path = paths[0];
+            m_private->m_save_path = [doc_path UTF8String];
+        }
+        
         return m_private->m_save_path;
     }
 #endif

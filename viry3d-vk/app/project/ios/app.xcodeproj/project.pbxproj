@@ -13,9 +13,45 @@
 		BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */; };
 		BA4A32601D7B34D400DEEE5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */; };
 		BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A31D92F2A200173EDC /* UIKit.framework */; };
-		BA981FF320FE45F00068E5B2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BA981FF220FE45F00068E5B2 /* ViewController.m */; };
+		BA981FF320FE45F00068E5B2 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA981FF220FE45F00068E5B2 /* ViewController.mm */; };
 		BA981FF720FE49A60068E5B2 /* View.xib in Resources */ = {isa = PBXBuildFile; fileRef = BA981FF620FE49A60068E5B2 /* View.xib */; };
+		D137753620FED5E900E4F19B /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = D137753420FED5E800E4F19B /* VkView.m */; };
+		D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D137753C20FEDF4A00E4F19B /* libviry3d.a */; };
+		D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */; };
+		D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757E20FEF7D000E4F19B /* MoltenVK.framework */; };
+		D137758120FEF8BE00E4F19B /* libMoltenVK.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */; };
+		D13775A220FF014F00E4F19B /* libMoltenVK.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D137753B20FEDF4A00E4F19B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0A3C48C9CE12835F5C48CC6A;
+			remoteInfo = viry3d;
+		};
+		D137757720FEE06C00E4F19B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = EA2E22CBD00D6755C821EA4F;
+			remoteInfo = viry3d;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D13775A120FF013D00E4F19B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				D13775A220FF014F00E4F19B /* libMoltenVK.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		BA12989720FE36B400DC815A /* Main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Main.cpp; sourceTree = "<group>"; };
@@ -28,8 +64,14 @@
 		BA5924A31D92F2A200173EDC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		BA981FF020FE45890068E5B2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		BA981FF120FE45F00068E5B2 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		BA981FF220FE45F00068E5B2 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		BA981FF220FE45F00068E5B2 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		BA981FF620FE49A60068E5B2 /* View.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = View.xib; path = app/View.xib; sourceTree = "<group>"; };
+		D137753420FED5E800E4F19B /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
+		D137753520FED5E900E4F19B /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
+		D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/ios/viry3d.xcodeproj; sourceTree = "<group>"; };
+		D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = usr/lib/libz.1.2.8.tbd; sourceTree = SDKROOT; };
+		D137757E20FEF7D000E4F19B /* MoltenVK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVK.framework; path = ../../../lib/src/vulkan/MoltenVK/iOS/MoltenVK.framework; sourceTree = "<group>"; };
+		D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMoltenVK.dylib; path = ../../../lib/src/vulkan/MoltenVK/iOS/libMoltenVK.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,6 +79,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D137758120FEF8BE00E4F19B /* libMoltenVK.dylib in Frameworks */,
+				D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */,
+				D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */,
+				D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */,
 				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -47,6 +93,7 @@
 		BA4A32401D7B34D400DEEE5A = {
 			isa = PBXGroup;
 			children = (
+				D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */,
 				BA2800E61F69A71100215483 /* Assets */,
 				BA59247F1D90587200173EDC /* src */,
 				BA4A33421D7C161A00DEEE5A /* app */,
@@ -81,7 +128,9 @@
 				BA981FF020FE45890068E5B2 /* AppDelegate.h */,
 				BA12989B20FE387700DC815A /* AppDelegate.m */,
 				BA981FF120FE45F00068E5B2 /* ViewController.h */,
-				BA981FF220FE45F00068E5B2 /* ViewController.m */,
+				BA981FF220FE45F00068E5B2 /* ViewController.mm */,
+				D137753520FED5E900E4F19B /* VkView.h */,
+				D137753420FED5E800E4F19B /* VkView.m */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -89,9 +138,20 @@
 		BABF7B931E97E7A2000C2116 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */,
+				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,
+				D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */,
 				BA5924A31D92F2A200173EDC /* UIKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D137753820FEDF4A00E4F19B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D137753C20FEDF4A00E4F19B /* libviry3d.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -104,10 +164,12 @@
 				BA4A32451D7B34D400DEEE5A /* Sources */,
 				BA4A32461D7B34D400DEEE5A /* Frameworks */,
 				BA4A32471D7B34D400DEEE5A /* Resources */,
+				D13775A120FF013D00E4F19B /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D137757820FEE06C00E4F19B /* PBXTargetDependency */,
 			);
 			name = app;
 			productName = app;
@@ -141,12 +203,28 @@
 			mainGroup = BA4A32401D7B34D400DEEE5A;
 			productRefGroup = BA4A324A1D7B34D400DEEE5A /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D137753820FEDF4A00E4F19B /* Products */;
+					ProjectRef = D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				BA4A32481D7B34D400DEEE5A /* app */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		D137753C20FEDF4A00E4F19B /* libviry3d.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libviry3d.a;
+			remoteRef = D137753B20FEDF4A00E4F19B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		BA4A32471D7B34D400DEEE5A /* Resources */ = {
@@ -167,13 +245,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BA981FF320FE45F00068E5B2 /* ViewController.m in Sources */,
+				BA981FF320FE45F00068E5B2 /* ViewController.mm in Sources */,
 				BA12989C20FE387700DC815A /* AppDelegate.m in Sources */,
 				BA12989820FE36B400DC815A /* Main.cpp in Sources */,
+				D137753620FED5E900E4F19B /* VkView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D137757820FEE06C00E4F19B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = viry3d;
+			targetProxy = D137757720FEE06C00E4F19B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */ = {
@@ -296,15 +383,19 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4BGL2BSW3E;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_GLES,
 					VR_IOS,
 				);
-				HEADER_SEARCH_PATHS = ../../../lib/src;
+				HEADER_SEARCH_PATHS = (
+					../../../lib/src,
+					../../../lib/src/vulkan/MoltenVK/include,
+				);
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
+				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -322,15 +413,19 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4BGL2BSW3E;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_GLES,
 					VR_IOS,
 				);
-				HEADER_SEARCH_PATHS = ../../../lib/src;
+				HEADER_SEARCH_PATHS = (
+					../../../lib/src,
+					../../../lib/src/vulkan/MoltenVK/include,
+				);
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
+				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";

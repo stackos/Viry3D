@@ -15,12 +15,10 @@
 * limitations under the License.
 */
 
-#if VR_IOS
 #import <UIKit/UIKit.h>
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[]) {
     @autoreleasepool {
         return UIApplicationMain(argc, argv, nil, @"AppDelegate");
     }
 }
-#endif

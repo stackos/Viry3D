@@ -24,6 +24,7 @@
 #include "math/Matrix4x4.h"
 #include "math/Vector4.h"
 #include "string/String.h"
+#include "memory/Memory.h"
 
 namespace Viry3D
 {

@@ -25,6 +25,12 @@
 #include FT_FREETYPE_H
 #include "ftoutln.h"
 
+extern "C"
+{
+    int z_verbose;
+    void z_error(char* m) { }
+}
+
 namespace Viry3D
 {
 	static FT_Library g_ft_lib;
@@ -254,6 +260,6 @@ namespace Viry3D
         FT_Vector kerning;
         FT_Get_Kerning(face, previous_glyph_index, glyph_index, FT_KERNING_UNFITTED, &kerning);
 
-        return Vector2i(kerning.x >> 6, kerning.x >> 6);
+        return Vector2i((int) kerning.x >> 6, (int) kerning.x >> 6);
     }
 }
