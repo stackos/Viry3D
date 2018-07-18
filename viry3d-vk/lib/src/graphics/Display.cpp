@@ -28,7 +28,6 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "MeshRenderer.h"
-#include "vulkan/vulkan_shader_compiler.h"
 #include "container/List.h"
 #include "string/String.h"
 #include "memory/Memory.h"
@@ -47,6 +46,12 @@ extern "C"
 #endif
 
 #include "vulkan/spirv_cross/spirv_glsl.hpp"
+
+#if VR_WINDOWS
+#include "vulkan/vulkan_shader_compiler.h"
+#elif VR_IOS
+#include "GLSLConversion.h"
+#endif
 
 static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
@@ -113,6 +118,40 @@ namespace Viry3D
                 Log("shader compile error: %s", error.CString());
             }
             assert(success);
+#elif VR_IOS
+            MVKShaderStage stage;
+            switch (shader_type) {
+                case VK_SHADER_STAGE_VERTEX_BIT:
+                    stage = kMVKShaderStageVertex;
+                    break;
+                case VK_SHADER_STAGE_FRAGMENT_BIT:
+                    stage = kMVKShaderStageFragment;
+                    break;
+                default:
+                    stage = kMVKShaderStageAuto;
+                    break;
+            }
+            uint32_t* spirv_code = nullptr;
+            size_t size = 0;
+            char* log = nullptr;
+            bool success = mvkConvertGLSLToSPIRV(glsl.CString(),
+                                       stage,
+                                       &spirv_code,
+                                       &size,
+                                       &log,
+                                       true,
+                                       true);
+            if (!success)
+            {
+                Log("shader compile error: %s", log);
+            }
+            assert(success);
+            
+            spirv.Resize((int) size / 4);
+            Memory::Copy(&spirv[0], spirv_code, spirv.SizeInBytes());
+            
+            free(log);
+            free(spirv_code);
 #endif
             
             ByteBuffer buffer(spirv.SizeInBytes());

@@ -21,6 +21,8 @@
 		D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757E20FEF7D000E4F19B /* MoltenVK.framework */; };
 		D137758120FEF8BE00E4F19B /* libMoltenVK.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */; };
 		D13775A220FF014F00E4F19B /* libMoltenVK.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		D13775A620FF327C00E4F19B /* App.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D13775A520FF327C00E4F19B /* App.cpp */; };
+		D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +74,9 @@
 		D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = usr/lib/libz.1.2.8.tbd; sourceTree = SDKROOT; };
 		D137757E20FEF7D000E4F19B /* MoltenVK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVK.framework; path = ../../../lib/src/vulkan/MoltenVK/iOS/MoltenVK.framework; sourceTree = "<group>"; };
 		D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMoltenVK.dylib; path = ../../../lib/src/vulkan/MoltenVK/iOS/libMoltenVK.dylib; sourceTree = "<group>"; };
+		D13775A420FF320C00E4F19B /* App.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = App.h; path = ../../src/App.h; sourceTree = "<group>"; };
+		D13775A520FF327C00E4F19B /* App.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = App.cpp; path = ../../src/App.cpp; sourceTree = "<group>"; };
+		D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVKGLSLToSPIRVConverter.framework; path = ../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
 				D137758120FEF8BE00E4F19B /* libMoltenVK.dylib in Frameworks */,
 				D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */,
 				D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */,
@@ -124,6 +130,8 @@
 		BA59247F1D90587200173EDC /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D13775A520FF327C00E4F19B /* App.cpp */,
+				D13775A420FF320C00E4F19B /* App.h */,
 				BA12989720FE36B400DC815A /* Main.cpp */,
 				BA981FF020FE45890068E5B2 /* AppDelegate.h */,
 				BA12989B20FE387700DC815A /* AppDelegate.m */,
@@ -138,6 +146,7 @@
 		BABF7B931E97E7A2000C2116 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */,
 				D137758020FEF8BD00E4F19B /* libMoltenVK.dylib */,
 				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,
 				D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */,
@@ -249,6 +258,7 @@
 				BA12989C20FE387700DC815A /* AppDelegate.m in Sources */,
 				BA12989820FE36B400DC815A /* Main.cpp in Sources */,
 				D137753620FED5E900E4F19B /* VkView.m in Sources */,
+				D13775A620FF327C00E4F19B /* App.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,7 +393,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4BGL2BSW3E;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
+				FRAMEWORK_SEARCH_PATHS = (
+					../../../lib/src/vulkan/MoltenVK/iOS,
+					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS,
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_GLES,
 					VR_IOS,
@@ -413,7 +426,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4BGL2BSW3E;
 				ENABLE_BITCODE = NO;
-				FRAMEWORK_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
+				FRAMEWORK_SEARCH_PATHS = (
+					../../../lib/src/vulkan/MoltenVK/iOS,
+					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS,
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_GLES,
 					VR_IOS,

@@ -936,6 +936,7 @@
 		D137759320FEFAA000E4F19B /* GLSL.std.450.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLSL.std.450.h; sourceTree = "<group>"; };
 		D137759420FEFAA000E4F19B /* spirv_common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = spirv_common.hpp; sourceTree = "<group>"; };
 		D137759520FEFAA000E4F19B /* spirv_glsl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = spirv_glsl.hpp; sourceTree = "<group>"; };
+		D13775A820FF385300E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVKGLSLToSPIRVConverter.framework; path = ../../src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework; sourceTree = "<group>"; };
 		D4300A7E8717DDEBE7D33A8C /* parse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
 		D4487E10771293F15C54FBD2 /* mad_timer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mad_timer.c; sourceTree = "<group>"; };
 		D516C97C4BA1074828F35521 /* jfdctfst.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jfdctfst.c; sourceTree = "<group>"; };
@@ -1250,6 +1251,7 @@
 			children = (
 				1B0EEB9E6B981ACB2432F745 /* src */,
 				D62F4E3E3A4AF24FFDBDDEC0 /* Products */,
+				D13775A720FF385300E4F19B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2002,6 +2004,14 @@
 			path = ../vulkan/spirv_cross;
 			sourceTree = "<group>";
 		};
+		D13775A720FF385300E4F19B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D13775A820FF385300E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D334C989391AFFABA3CDD55A /* type1 */ = {
 			isa = PBXGroup;
 			children = (
@@ -2601,6 +2611,7 @@
 					../../src/physics/bullet/src,
 					../../src/lua,
 					../../src/vulkan/MoltenVK/include,
+					../../src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework/Headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = viry3d;
@@ -2638,6 +2649,7 @@
 					../../src/physics/bullet/src,
 					../../src/lua,
 					../../src/vulkan/MoltenVK/include,
+					../../src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework/Headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = viry3d;

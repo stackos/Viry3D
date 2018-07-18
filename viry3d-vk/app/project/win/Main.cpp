@@ -565,7 +565,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     Display* display = new Display(name, hwnd, width, height);
 
-    Ref<App> app = RefMake<App>();
+    App* app = new App();
     app->SetName(name);
 
     bool exit = false;
@@ -608,8 +608,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         app->OnFrameEnd();
     }
 
-    app.reset();
-
+    delete app;
     delete display;
 
     return 0;
