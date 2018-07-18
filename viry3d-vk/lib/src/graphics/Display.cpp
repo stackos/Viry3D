@@ -107,7 +107,7 @@ namespace Viry3D
         {
 #if VR_WINDOWS
             String error;
-            bool success; = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
+            bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
             if (!success)
             {
                 Log("shader compile error: %s", error.CString());
@@ -231,7 +231,6 @@ namespace Viry3D
         VkFence m_draw_complete_fence = nullptr;
         VkSemaphore m_image_acquired_semaphore = nullptr;
         VkSemaphore m_draw_complete_semaphore = nullptr;
-        VkEvent m_render_pass_event = nullptr;
         int m_image_index = 0;
         VkCommandPool m_graphics_cmd_pool = nullptr;
         VkCommandPool m_image_cmd_pool = nullptr;
@@ -269,7 +268,6 @@ namespace Viry3D
             vkDestroyFence(m_device, m_draw_complete_fence, nullptr);
             vkDestroySemaphore(m_device, m_image_acquired_semaphore, nullptr);
             vkDestroySemaphore(m_device, m_draw_complete_semaphore, nullptr);
-            vkDestroyEvent(m_device, m_render_pass_event, nullptr);
             vkDestroyDevice(m_device, nullptr);
             vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
             m_gpu = nullptr;
@@ -692,15 +690,6 @@ namespace Viry3D
             err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_image_acquired_semaphore);
             assert(!err);
             err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_draw_complete_semaphore);
-            assert(!err);
-
-            VkEventCreateInfo event_info;
-            Memory::Zero(&event_info, sizeof(event_info));
-            event_info.sType = VK_STRUCTURE_TYPE_EVENT_CREATE_INFO;
-            event_info.pNext = nullptr;
-            event_info.flags = 0;
-
-            err = vkCreateEvent(m_device, &event_info, nullptr, &m_render_pass_event);
             assert(!err);
         }
 
@@ -2169,8 +2158,7 @@ namespace Viry3D
             int image_height,
             const Color& clear_color,
 			const Ref<Texture>& color_texture,
-			const Ref<Texture>& depth_texture,
-            bool first_pass)
+			const Ref<Texture>& depth_texture)
         {
 			bool color_attachment = true;
 			bool depth_attachment = true;
@@ -2213,19 +2201,6 @@ namespace Viry3D
             rp_begin.clearValueCount = clear_values.Size();
             rp_begin.pClearValues = &clear_values[0];
 
-            if (!first_pass)
-            {
-                vkCmdWaitEvents(
-                    cmd,
-                    1, &m_render_pass_event,
-                    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                    0, nullptr,
-                    0, nullptr,
-                    0, nullptr);
-                vkCmdResetEvent(cmd, m_render_pass_event, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
-            }
-
 			if (color_texture)
 			{
 				this->SetImageLayout(
@@ -2258,7 +2233,13 @@ namespace Viry3D
             }
             vkCmdEndRenderPass(cmd);
 
-            vkCmdSetEvent(cmd, m_render_pass_event, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+            vkCmdPipelineBarrier(cmd,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                0,
+                0, nullptr,
+                0, nullptr,
+                0, nullptr);
         }
 
         void BuildPrimaryCmds()
@@ -2273,7 +2254,6 @@ namespace Viry3D
 
                 this->BuildPrimaryCmdBegin(cmd);
 
-                bool first_pass = true;
                 for (auto j : m_cameras)
                 {
                     this->BuildPrimaryCmd(
@@ -2285,9 +2265,7 @@ namespace Viry3D
                         j->GetTargetHeight(),
                         j->GetClearColor(),
 						j->GetRenderTargetColor(),
-						j->GetRenderTargetDepth(),
-                        first_pass);
-                    first_pass = false;
+						j->GetRenderTargetDepth());
                 }
 
                 this->BuildPrimaryCmdEnd(cmd);

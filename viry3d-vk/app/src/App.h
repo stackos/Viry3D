@@ -48,9 +48,9 @@ using namespace Viry3D;
 // - ios project
 // - ScrollView TabView TreeView
 
-#define RENDER_TO_TEXTURE 0
+#define RENDER_TO_TEXTURE 1
 #define SHOW_DEPTH 1
-#define BLUR_COLOR 1
+#define BLUR_COLOR 0
 
 class App : public Application
 {
@@ -207,7 +207,7 @@ void main()
 
 #if SHOW_DEPTH
         // depth -> color
-        auto blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0, 0, 0.25f, 0.25f));
+        auto blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
         blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
 #endif
 
