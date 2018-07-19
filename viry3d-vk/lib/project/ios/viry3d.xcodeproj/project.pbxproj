@@ -2598,7 +2598,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_IOS,
-					VR_GLES,
+					VR_VULKAN,
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,
@@ -2617,7 +2617,7 @@
 				PRODUCT_NAME = viry3d;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7 armv7s";
+				VALID_ARCHS = arm64;
 			};
 			name = Debug;
 		};
@@ -2637,7 +2637,7 @@
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_IOS,
-					VR_GLES,
+					VR_VULKAN,
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,
@@ -2655,7 +2655,7 @@
 				PRODUCT_NAME = viry3d;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7 armv7s";
+				VALID_ARCHS = arm64;
 			};
 			name = Release;
 		};

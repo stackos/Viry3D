@@ -40,18 +40,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		D13775A120FF013D00E4F19B /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 6;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		BA12989720FE36B400DC815A /* Main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Main.cpp; sourceTree = "<group>"; };
 		BA12989B20FE387700DC815A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -167,7 +155,6 @@
 				BA4A32451D7B34D400DEEE5A /* Sources */,
 				BA4A32461D7B34D400DEEE5A /* Frameworks */,
 				BA4A32471D7B34D400DEEE5A /* Resources */,
-				D13775A120FF013D00E4F19B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -392,7 +379,7 @@
 					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS,
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					VR_GLES,
+					VR_VULKAN,
 					VR_IOS,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -400,14 +387,13 @@
 					../../../lib/src/vulkan/MoltenVK/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
-				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				VALID_ARCHS = "arm64 armv7 armv7s";
+				VALID_ARCHS = arm64;
 			};
 			name = Debug;
 		};
@@ -426,7 +412,7 @@
 					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS,
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					VR_GLES,
+					VR_VULKAN,
 					VR_IOS,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -434,14 +420,13 @@
 					../../../lib/src/vulkan/MoltenVK/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
-				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				VALID_ARCHS = "arm64 armv7 armv7s";
+				VALID_ARCHS = arm64;
 			};
 			name = Release;
 		};
