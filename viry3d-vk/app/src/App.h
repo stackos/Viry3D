@@ -19,16 +19,19 @@
 
 #include "Application.h"
 
-class AppImplement;
-
-class App : public Viry3D::Application
+namespace Viry3D
 {
-public:
-    App();
-    virtual ~App();
-    virtual void Update();
-    virtual void OnResize(int width, int height);
-    
-private:
-    AppImplement* m_app;
-};
+    class AppImplement;
+
+    class App : public Application
+    {
+    public:
+        App();
+        virtual ~App();
+        virtual void Update();
+        virtual void OnResize(int width, int height);
+
+    private:
+        AppImplement* m_app;
+    };
+}

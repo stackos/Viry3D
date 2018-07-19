@@ -19,24 +19,25 @@
 #include "Input.h"
 #include "time/Time.h"
 #include "thread/ThreadPool.h"
+#include "graphics/Display.h"
 #include "App.h"
+#include <Windows.h>
+#include <windowsx.h>
 
-extern Viry3D::Vector<Viry3D::Touch> g_input_touches;
-extern Viry3D::List<Viry3D::Touch> g_input_touch_buffer;
-extern bool g_key_down[(int) Viry3D::KeyCode::COUNT];
-extern bool g_key[(int) Viry3D::KeyCode::COUNT];
-extern bool g_key_up[(int) Viry3D::KeyCode::COUNT];
+using namespace Viry3D;
+
+extern Vector<Touch> g_input_touches;
+extern List<Touch> g_input_touch_buffer;
+extern bool g_key_down[(int) KeyCode::COUNT];
+extern bool g_key[(int) KeyCode::COUNT];
+extern bool g_key_up[(int) KeyCode::COUNT];
 extern bool g_mouse_button_down[3];
 extern bool g_mouse_button_up[3];
-extern Viry3D::Vector3 g_mouse_position;
+extern Vector3 g_mouse_position;
 extern bool g_mouse_button_held[3];
 extern float g_mouse_scroll_wheel;
 
 static bool g_mouse_down = false;
-
-#if VR_WINDOWS
-#include <Windows.h>
-#include <windowsx.h>
 
 static int GetKeyCode(int wParam)
 {
@@ -613,4 +614,3 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     return 0;
 }
-#endif

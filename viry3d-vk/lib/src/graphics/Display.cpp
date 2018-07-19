@@ -225,7 +225,7 @@ namespace Viry3D
         VkFormat format;
         VkImage image;
         VkImageView image_view;
-        VkCommandBuffer cmd = nullptr;
+        VkCommandBuffer cmd = VK_NULL_HANDLE;
     };
 
     class DisplayPrivate

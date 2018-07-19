@@ -196,6 +196,7 @@
     <ClInclude Include="..\..\src\App.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\App.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
