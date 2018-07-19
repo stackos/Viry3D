@@ -27,10 +27,7 @@ using namespace Viry3D;
     CADisplayLink* m_display_link;
     Display* m_display;
     App* m_app;
-}
-
--(BOOL)prefersStatusBarHidden {
-    return TRUE;
+    UIDeviceOrientation m_orientation;
 }
 
 -(void)loadView {
@@ -52,6 +49,10 @@ using namespace Viry3D;
     [m_display_link setFrameInterval: 1];
     [m_display_link addToRunLoop: NSRunLoop.currentRunLoop forMode: NSDefaultRunLoopMode];
     
+    m_orientation = [UIDevice currentDevice].orientation;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
     // test view
     NSArray* views = [[NSBundle mainBundle] loadNibNamed:@"View" owner:nil options:nil];
     UIView* view = views[0];
@@ -60,6 +61,8 @@ using namespace Viry3D;
 }
 
 -(void) dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
     delete m_app;
     delete m_display;
 }
@@ -69,6 +72,30 @@ using namespace Viry3D;
     m_app->Update();
     m_display->OnDraw();
     m_app->OnFrameEnd();
+}
+
+-(BOOL)prefersStatusBarHidden {
+    return TRUE;
+}
+
+- (void)orientationDidChange:(NSNotification*)notification {
+    CGRect bounds = [UIScreen mainScreen].bounds;
+    float scale = [UIScreen mainScreen].nativeScale;
+    int window_width = bounds.size.width * scale;
+    int window_height = bounds.size.height * scale;
+    UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+    
+    if (orientation == UIDeviceOrientationPortrait ||
+        orientation == UIDeviceOrientationPortraitUpsideDown ||
+        orientation == UIDeviceOrientationLandscapeLeft ||
+        orientation == UIDeviceOrientationLandscapeRight) {
+        if (m_orientation == UIDeviceOrientationUnknown) {
+            m_orientation = orientation;
+        } else if (m_orientation != orientation) {
+            m_orientation = orientation;
+            m_display->OnResize(window_width, window_height);
+        }
+    }
 }
 
 @end
