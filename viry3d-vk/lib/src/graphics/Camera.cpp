@@ -170,7 +170,7 @@ namespace Viry3D
 			{
 				i.cmd_dirty = false;
 
-				if (i.cmd == nullptr)
+				if (i.cmd == VK_NULL_HANDLE)
 				{
 					if (m_cmd_pool == VK_NULL_HANDLE)
 					{
@@ -198,7 +198,7 @@ namespace Viry3D
 			if (i.cmd)
 			{
 				vkFreeCommandBuffers(device, m_cmd_pool, 1, &i.cmd);
-				i.cmd = nullptr;
+				i.cmd = VK_NULL_HANDLE;
 			}
 		}
 

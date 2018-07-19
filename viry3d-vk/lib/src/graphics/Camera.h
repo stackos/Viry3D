@@ -34,7 +34,7 @@ namespace Viry3D
     {
         Ref<Renderer> renderer;
         bool cmd_dirty = true;
-        VkCommandBuffer cmd = nullptr;
+        VkCommandBuffer cmd = VK_NULL_HANDLE;
 
         bool operator ==(const RendererInstance& a) const
         {
