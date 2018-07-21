@@ -1975,8 +1975,7 @@
 				D137758420FEFAA000E4F19B /* spirv_cross */,
 				D137757A20FEE0C200E4F19B /* vulkan_include.h */,
 			);
-			name = vulkan;
-			path = "New Group";
+			path = vulkan;
 			sourceTree = "<group>";
 		};
 		D137758420FEFAA000E4F19B /* spirv_cross */ = {

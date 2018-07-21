@@ -26,9 +26,11 @@ namespace Viry3D
 {
 	enum class TouchPhase
 	{
-		Began,          //A finger touched the screen.
-		Moved,          //A finger moved on the screen.
-		Ended,          //A finger was lifted from the screen. This is the final phase of a touch.
+        Began,             // whenever a finger touches the surface.
+        Moved,             // whenever a finger moves on the surface.
+        Stationary,        // whenever a finger is touching the surface but hasn't moved since the previous event.
+        Ended,              // whenever a finger leaves the surface.
+        Cancelled,         // whenever a touch doesn't end but we need to stop tracking (e.g. putting device to face)
 	};
 
 	struct Touch
