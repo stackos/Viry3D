@@ -428,7 +428,7 @@ target_include_directories(Viry3DApp PRIVATE
                            ${VIRY3D_LIB_SRC_DIR})
 
 target_link_libraries(Viry3DApp
-                      android log EGL GLESv3 z
+                      android log z
                       Viry3D Viry3DDep
                       shaderc_lib       # for vulkan shader compile
                       )

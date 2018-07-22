@@ -20,6 +20,8 @@
 #include "string/String.h"
 #include <functional>
 
+#define APP_VERSION_NAME "1.0.0"
+
 namespace Viry3D
 {
     typedef std::function<void()> Event;

@@ -28,6 +28,8 @@
 #include <Windows.h>
 #elif VR_IOS
 #import <UIKit/UIKit.h>
+#elif VR_ANDROID
+#include "android/jni.h"
 #endif
 
 namespace Viry3D
