@@ -47,7 +47,7 @@ extern "C"
 
 #include "vulkan/spirv_cross/spirv_glsl.hpp"
 
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_ANDROID
 #include "vulkan/vulkan_shader_compiler.h"
 #elif VR_IOS
 #include "GLSLConversion.h"
@@ -110,7 +110,7 @@ namespace Viry3D
         }
         else
         {
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_ANDROID
             String error;
             bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
             if (!success)
@@ -746,7 +746,7 @@ namespace Viry3D
             m_depth_texture = Texture::CreateRenderTexture(
                 m_width,
                 m_height,
-                VK_FORMAT_D32_SFLOAT,
+                VK_FORMAT_X8_D24_UNORM_PACK32,
                 VK_FILTER_LINEAR,
                 VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
         }
