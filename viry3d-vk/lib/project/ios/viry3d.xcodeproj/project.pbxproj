@@ -335,7 +335,6 @@
 		D137757120FEE03100E4F19B /* Label.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756520FEE03000E4F19B /* Label.cpp */; };
 		D137757220FEE03100E4F19B /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756620FEE03000E4F19B /* Font.cpp */; };
 		D137757320FEE03100E4F19B /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756720FEE03000E4F19B /* View.cpp */; };
-		D137757420FEE03100E4F19B /* CanvaRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756B20FEE03000E4F19B /* CanvaRenderer.cpp */; };
 		D137757520FEE03100E4F19B /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756D20FEE03100E4F19B /* Button.cpp */; };
 		D137757620FEE03100E4F19B /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756F20FEE03100E4F19B /* Sprite.cpp */; };
 		D137758220FEF92200E4F19B /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = BA2800691F69A48500215483 /* md5.c */; };
@@ -346,6 +345,7 @@
 		D137759A20FEFAA100E4F19B /* spirv_cross.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137758C20FEFAA000E4F19B /* spirv_cross.cpp */; };
 		D137759B20FEFAA100E4F19B /* spirv_hlsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137758D20FEFAA000E4F19B /* spirv_hlsl.cpp */; };
 		D137759C20FEFAA100E4F19B /* spirv_cpp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137758F20FEFAA000E4F19B /* spirv_cpp.cpp */; };
+		D1B25E142105CEDD001A3EC9 /* CanvasRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E122105CEDD001A3EC9 /* CanvasRenderer.cpp */; };
 		D8933E9E381E1DAC3A9823E3 /* jquant1.c in Sources */ = {isa = PBXBuildFile; fileRef = C84E7F3ACE7EBA1DC1FBDC49 /* jquant1.c */; };
 		D90DA02E9DD9F51F8233693C /* ftgasp.c in Sources */ = {isa = PBXBuildFile; fileRef = 4C26DE7235C38CE8FBE368B2 /* ftgasp.c */; };
 		D952565A8CB94067412D653F /* jcmaster.c in Sources */ = {isa = PBXBuildFile; fileRef = F6D14061D159F5DFA7EA8F75 /* jcmaster.c */; };
@@ -909,10 +909,8 @@
 		D137756520FEE03000E4F19B /* Label.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Label.cpp; sourceTree = "<group>"; };
 		D137756620FEE03000E4F19B /* Font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Font.cpp; sourceTree = "<group>"; };
 		D137756720FEE03000E4F19B /* View.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = View.cpp; sourceTree = "<group>"; };
-		D137756820FEE03000E4F19B /* CanvaRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvaRenderer.h; sourceTree = "<group>"; };
 		D137756920FEE03000E4F19B /* Label.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Label.h; sourceTree = "<group>"; };
 		D137756A20FEE03000E4F19B /* Font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Font.h; sourceTree = "<group>"; };
-		D137756B20FEE03000E4F19B /* CanvaRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvaRenderer.cpp; sourceTree = "<group>"; };
 		D137756C20FEE03000E4F19B /* View.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = View.h; sourceTree = "<group>"; };
 		D137756D20FEE03100E4F19B /* Button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Button.cpp; sourceTree = "<group>"; };
 		D137756E20FEE03100E4F19B /* Button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Button.h; sourceTree = "<group>"; };
@@ -937,6 +935,8 @@
 		D137759420FEFAA000E4F19B /* spirv_common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = spirv_common.hpp; sourceTree = "<group>"; };
 		D137759520FEFAA000E4F19B /* spirv_glsl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = spirv_glsl.hpp; sourceTree = "<group>"; };
 		D13775A820FF385300E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVKGLSLToSPIRVConverter.framework; path = ../../src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework; sourceTree = "<group>"; };
+		D1B25E122105CEDD001A3EC9 /* CanvasRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasRenderer.cpp; sourceTree = "<group>"; };
+		D1B25E132105CEDD001A3EC9 /* CanvasRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvasRenderer.h; sourceTree = "<group>"; };
 		D4300A7E8717DDEBE7D33A8C /* parse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
 		D4487E10771293F15C54FBD2 /* mad_timer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mad_timer.c; sourceTree = "<group>"; };
 		D516C97C4BA1074828F35521 /* jfdctfst.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jfdctfst.c; sourceTree = "<group>"; };
@@ -1232,8 +1232,8 @@
 			children = (
 				D137756D20FEE03100E4F19B /* Button.cpp */,
 				D137756E20FEE03100E4F19B /* Button.h */,
-				D137756B20FEE03000E4F19B /* CanvaRenderer.cpp */,
-				D137756820FEE03000E4F19B /* CanvaRenderer.h */,
+				D1B25E122105CEDD001A3EC9 /* CanvasRenderer.cpp */,
+				D1B25E132105CEDD001A3EC9 /* CanvasRenderer.h */,
 				D137756620FEE03000E4F19B /* Font.cpp */,
 				D137756A20FEE03000E4F19B /* Font.h */,
 				D137756520FEE03000E4F19B /* Label.cpp */,
@@ -2424,10 +2424,10 @@
 				C8D3D80DDCFDEFE5E72BA2C8 /* ucs4.c in Sources */,
 				738B3AE9BDE8EB6EEE27CF36 /* utf8.c in Sources */,
 				CBC4159CB68EA3B9DB94CF2F /* utf16.c in Sources */,
+				D1B25E142105CEDD001A3EC9 /* CanvasRenderer.cpp in Sources */,
 				CBAF96F7A796377BDF40042C /* util.c in Sources */,
 				02D2A909C5F238F26F43F42A /* bit.c in Sources */,
 				477C92801299C2893C4C8367 /* decoder.c in Sources */,
-				D137757420FEE03100E4F19B /* CanvaRenderer.cpp in Sources */,
 				BA2800DF1F69A5AA00215483 /* cylinder.cpp in Sources */,
 				D137758220FEF92200E4F19B /* md5.c in Sources */,
 				6CA8AD102752F0CD7900EE5E /* fixed.c in Sources */,
