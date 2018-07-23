@@ -142,6 +142,7 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     
     m_app = new App();
     m_app->SetName(name);
+	m_app->Init();
     
     m_display_link = [CADisplayLink displayLinkWithTarget: self selector: @selector(drawFrame)];
     [m_display_link setFrameInterval: 1];

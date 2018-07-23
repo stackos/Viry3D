@@ -16,7 +16,7 @@
 */
 
 #include "Sprite.h"
-#include "CanvaRenderer.h"
+#include "CanvasRenderer.h"
 #include "graphics/Texture.h"
 
 namespace Viry3D

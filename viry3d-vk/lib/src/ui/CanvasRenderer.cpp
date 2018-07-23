@@ -15,7 +15,7 @@
 * limitations under the License.
 */
 
-#include "CanvaRenderer.h"
+#include "CanvasRenderer.h"
 #include "View.h"
 #include "Debug.h"
 #include "Input.h"
@@ -35,7 +35,7 @@
 
 namespace Viry3D
 {
-	CanvaRenderer::CanvaRenderer():
+	CanvasRenderer::CanvasRenderer():
 		m_canvas_dirty(true),
         m_atlas_array_size(0)
 	{
@@ -43,7 +43,7 @@ namespace Viry3D
         this->NewAtlasTextureLayer();
 	}
 
-	CanvaRenderer::~CanvaRenderer()
+	CanvasRenderer::~CanvasRenderer()
 	{
         for (int i = 0; i < m_atlas_tree.Size(); ++i)
         {
@@ -59,7 +59,7 @@ namespace Viry3D
         }
 	}
 
-    void CanvaRenderer::ReleaseAtlasTreeNode(AtlasTreeNode* node)
+    void CanvasRenderer::ReleaseAtlasTreeNode(AtlasTreeNode* node)
     {
         for (int i = 0; i < node->children.Size(); ++i)
         {
@@ -69,7 +69,7 @@ namespace Viry3D
         node->children.Clear();
     }
 
-    void CanvaRenderer::CreateMaterial()
+    void CanvasRenderer::CreateMaterial()
     {
         auto shader = Shader::Find("UI");
         if (!shader)
@@ -145,7 +145,7 @@ void main()
         this->SetMaterial(material);
     }
 
-    void CanvaRenderer::NewAtlasTextureLayer()
+    void CanvasRenderer::NewAtlasTextureLayer()
     {
         ByteBuffer buffer(ATLAS_SIZE * ATLAS_SIZE * 4);
         Memory::Set(&buffer[0], 0, buffer.Size());
@@ -210,7 +210,7 @@ void main()
         this->GetMaterial()->SetTexture("u_texture", m_atlas);
     }
 
-	Ref<BufferObject> CanvaRenderer::GetVertexBuffer() const
+	Ref<BufferObject> CanvasRenderer::GetVertexBuffer() const
 	{
 		Ref<BufferObject> buffer;
 
@@ -222,7 +222,7 @@ void main()
 		return buffer;
 	}
 
-	Ref<BufferObject> CanvaRenderer::GetIndexBuffer() const
+	Ref<BufferObject> CanvasRenderer::GetIndexBuffer() const
 	{
 		Ref<BufferObject> buffer;
 
@@ -234,7 +234,7 @@ void main()
 		return buffer;
 	}
 
-	void CanvaRenderer::Update()
+	void CanvasRenderer::Update()
 	{
         this->HandleTouchEvent();
 
@@ -248,31 +248,31 @@ void main()
         Renderer::Update();
 	}
 
-    void CanvaRenderer::OnResize(int width, int height)
+    void CanvasRenderer::OnResize(int width, int height)
     {
         this->MarkCanvasDirty();
     }
 
-	void CanvaRenderer::AddView(const Ref<View>& view)
+	void CanvasRenderer::AddView(const Ref<View>& view)
 	{
 		m_views.Add(view);
 		view->OnAddToCanvas(this);
 		this->MarkCanvasDirty();
 	}
 
-	void CanvaRenderer::RemoveView(const Ref<View>& view)
+	void CanvasRenderer::RemoveView(const Ref<View>& view)
 	{
 		m_views.Remove(view);
 		view->OnRemoveFromCanvas(this);
 		this->MarkCanvasDirty();
 	}
 
-	void CanvaRenderer::MarkCanvasDirty()
+	void CanvasRenderer::MarkCanvasDirty()
 	{
 		m_canvas_dirty = true;
 	}
 
-    void CanvaRenderer::UpdateProjectionMatrix()
+    void CanvasRenderer::UpdateProjectionMatrix()
     {
         auto camera = this->GetCamera();
         int target_width = camera->GetTargetWidth();
@@ -287,7 +287,7 @@ void main()
         this->GetMaterial()->SetMatrix("u_projection_matrix", projection_matrix);
     }
 
-    void CanvaRenderer::UpdateCanvas()
+    void CanvasRenderer::UpdateCanvas()
     {
         m_view_meshes.Clear();
 
@@ -443,7 +443,7 @@ void main()
         */
     }
 
-    void CanvaRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)
+    void CanvasRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)
     {
         assert(mesh.texture->GetWidth() <= ATLAS_SIZE - PADDING_SIZE && mesh.texture->GetHeight() <= ATLAS_SIZE - PADDING_SIZE);
 
@@ -524,7 +524,7 @@ void main()
         }
     }
 
-    AtlasTreeNode* CanvaRenderer::FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode* node)
+    AtlasTreeNode* CanvasRenderer::FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode* node)
     {
         if (node->children.Size() == 0)
         {
@@ -551,7 +551,7 @@ void main()
         }
     }
 
-    void CanvaRenderer::HandleTouchEvent()
+    void CanvasRenderer::HandleTouchEvent()
     {
         int touch_count = Input::GetTouchCount();
         for (int i = 0; i < touch_count; ++i)
@@ -592,7 +592,7 @@ void main()
         return true;
     }
 
-    void CanvaRenderer::HitViews(const Touch& t)
+    void CanvasRenderer::HitViews(const Touch& t)
     {
         Vector2 pos = t.position;
         pos.x -= this->GetCamera()->GetTargetWidth() / 2;

@@ -16,7 +16,7 @@
 */
 
 #include "View.h"
-#include "CanvaRenderer.h"
+#include "CanvasRenderer.h"
 #include "Debug.h"
 #include "memory/Memory.h"
 #include "graphics/Camera.h"
@@ -45,19 +45,19 @@ namespace Viry3D
 	
 	}
 
-	void View::OnAddToCanvas(CanvaRenderer* canvas)
+	void View::OnAddToCanvas(CanvasRenderer* canvas)
 	{
 		assert(m_canvas == nullptr);
 		m_canvas = canvas;
 	}
 
-	void View::OnRemoveFromCanvas(CanvaRenderer* canvas)
+	void View::OnRemoveFromCanvas(CanvasRenderer* canvas)
 	{
 		assert(m_canvas == canvas);
 		m_canvas = nullptr;
 	}
 
-    CanvaRenderer* View::GetCanvas() const
+    CanvasRenderer* View::GetCanvas() const
     {
         if (m_canvas)
         {
@@ -73,7 +73,7 @@ namespace Viry3D
 
     void View::MarkCanvasDirty() const
     {
-        CanvaRenderer* canvas = this->GetCanvas();
+        CanvasRenderer* canvas = this->GetCanvas();
         if (canvas)
         {
             canvas->MarkCanvasDirty();

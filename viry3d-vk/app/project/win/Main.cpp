@@ -568,6 +568,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     App* app = new App();
     app->SetName(name);
+    app->Init();
 
     bool exit = false;
     MSG msg;

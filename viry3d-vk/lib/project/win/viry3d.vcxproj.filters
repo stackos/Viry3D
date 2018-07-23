@@ -882,9 +882,6 @@
     <ClInclude Include="..\..\src\KeyCode.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ui\CanvaRenderer.h">
-      <Filter>src\ui</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\ui\View.h">
       <Filter>src\ui</Filter>
     </ClInclude>
@@ -901,6 +898,9 @@
       <Filter>src\math</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\ui\Button.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\CanvasRenderer.h">
       <Filter>src\ui</Filter>
     </ClInclude>
   </ItemGroup>
@@ -2231,9 +2231,6 @@
     <ClCompile Include="..\..\src\Input.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ui\CanvaRenderer.cpp">
-      <Filter>src\ui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\ui\View.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
@@ -2247,6 +2244,9 @@
       <Filter>src\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\Button.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>

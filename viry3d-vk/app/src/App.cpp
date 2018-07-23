@@ -30,7 +30,7 @@
 #include "thread/ThreadPool.h"
 #include "math/Quaternion.h"
 #include "time/Time.h"
-#include "ui/CanvaRenderer.h"
+#include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
 #include "ui/Label.h"
 #include "ui/Font.h"
@@ -184,6 +184,11 @@ void main()
         }
 
         AppImplement()
+        {
+        
+        }
+
+        void Init()
         {
             m_camera = Display::Instance()->CreateCamera();
 
@@ -405,7 +410,7 @@ void main()
 
         void InitUI()
         {
-            auto canvas = RefMake<CanvaRenderer>();
+            auto canvas = RefMake<CanvasRenderer>();
             m_camera->AddRenderer(canvas);
 
             auto texture0 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/0.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
@@ -499,6 +504,11 @@ void main()
     App::~App()
     {
         delete m_app;
+    }
+
+    void App::Init()
+    {
+        m_app->Init();
     }
 
     void App::Update()

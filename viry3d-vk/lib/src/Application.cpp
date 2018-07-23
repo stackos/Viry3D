@@ -141,6 +141,26 @@ namespace Viry3D
         
         return m_private->m_save_path;
     }
+#elif VR_ANDROID
+    const String& Application::GetDataPath()
+    {
+        return m_private->m_data_path;
+    }
+
+    const String& Application::GetSavePath()
+    {
+        return m_private->m_save_path;
+    }
+
+    void Application::SetDataPath(const String& path)
+    {
+        m_private->m_data_path = path;
+    }
+
+    void Application::SetSavePath(const String& path)
+    {
+        m_private->m_save_path = path;
+    }
 #endif
 
     ThreadPool* Application::GetThreadPool() const

@@ -38,11 +38,11 @@ namespace Viry3D
         Vector<AtlasTreeNode*> children;
     };
 
-	class CanvaRenderer : public Renderer
+	class CanvasRenderer : public Renderer
 	{
 	public:
-		CanvaRenderer();
-		virtual ~CanvaRenderer();
+		CanvasRenderer();
+		virtual ~CanvasRenderer();
 		virtual Ref<BufferObject> GetVertexBuffer() const;
 		virtual Ref<BufferObject> GetIndexBuffer() const;
         virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }

@@ -265,7 +265,7 @@
     <ClInclude Include="..\..\src\thread\ThreadPool.h" />
     <ClInclude Include="..\..\src\time\Time.h" />
     <ClInclude Include="..\..\src\ui\Button.h" />
-    <ClInclude Include="..\..\src\ui\CanvaRenderer.h" />
+    <ClInclude Include="..\..\src\ui\CanvasRenderer.h" />
     <ClInclude Include="..\..\src\ui\Font.h" />
     <ClInclude Include="..\..\src\ui\Label.h" />
     <ClInclude Include="..\..\src\ui\Sprite.h" />
@@ -659,7 +659,7 @@
     <ClCompile Include="..\..\src\thread\ThreadPool.cpp" />
     <ClCompile Include="..\..\src\time\Time.cpp" />
     <ClCompile Include="..\..\src\ui\Button.cpp" />
-    <ClCompile Include="..\..\src\ui\CanvaRenderer.cpp" />
+    <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp" />
     <ClCompile Include="..\..\src\ui\Font.cpp" />
     <ClCompile Include="..\..\src\ui\Label.cpp" />
     <ClCompile Include="..\..\src\ui\Sprite.cpp" />

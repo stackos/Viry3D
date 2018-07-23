@@ -16,7 +16,7 @@
 */
 
 #include "Label.h"
-#include "CanvaRenderer.h"
+#include "CanvasRenderer.h"
 #include "Font.h"
 #include "graphics/Texture.h"
 

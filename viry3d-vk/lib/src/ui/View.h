@@ -29,7 +29,7 @@
 
 namespace Viry3D
 {
-	class CanvaRenderer;
+	class CanvasRenderer;
 	class Texture;
     class View;
 
@@ -61,9 +61,9 @@ namespace Viry3D
 		View();
 		virtual ~View();
         virtual void UpdateLayout();
-		void OnAddToCanvas(CanvaRenderer* canvas);
-		void OnRemoveFromCanvas(CanvaRenderer* canvas);
-        CanvaRenderer* GetCanvas() const;
+		void OnAddToCanvas(CanvasRenderer* canvas);
+		void OnRemoveFromCanvas(CanvasRenderer* canvas);
+        CanvasRenderer* GetCanvas() const;
         void AddSubview(const Ref<View>& view);
         void RemoveSubview(const Ref<View>& view);
         int GetSubviewCount() const { return m_subviews.Size(); }
@@ -106,7 +106,7 @@ namespace Viry3D
         void ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix);
 
 	private:
-		CanvaRenderer* m_canvas;
+		CanvasRenderer* m_canvas;
         View* m_parent_view;
 		Vector<Ref<View>> m_subviews;
 		Color m_color;

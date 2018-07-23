@@ -368,6 +368,13 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/png/pngwrite.c
             ${VIRY3D_LIB_SRC_DIR}/png/pngwtran.c
             ${VIRY3D_LIB_SRC_DIR}/png/pngwutil.c
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
             ${VIRY3D_LIB_SRC_DIR}/xml/tinyxml2.cpp
             ${VIRY3D_LIB_SRC_DIR}/zlib/ioapi.c
             ${VIRY3D_LIB_SRC_DIR}/zlib/unzip.c)
@@ -385,6 +392,17 @@ target_include_directories(Viry3DDep PRIVATE
 add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/Application.cpp
             ${VIRY3D_LIB_SRC_DIR}/Debug.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Camera.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Color.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Display.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Image.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Material.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Mesh.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/MeshRenderer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Renderer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Shader.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Texture.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/VertexAttribute.cpp
             ${VIRY3D_LIB_SRC_DIR}/io/Directory.cpp
             ${VIRY3D_LIB_SRC_DIR}/io/File.cpp
             ${VIRY3D_LIB_SRC_DIR}/io/MemoryStream.cpp
@@ -403,6 +421,12 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/string/String.cpp
             ${VIRY3D_LIB_SRC_DIR}/thread/ThreadPool.cpp
             ${VIRY3D_LIB_SRC_DIR}/time/Time.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/Button.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/CanvasRenderer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/Font.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/Label.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/Sprite.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/View.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_shader_compiler.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_wrapper/vulkan_wrapper.cpp      # for libvulkan.so load
             )
@@ -421,14 +445,20 @@ target_include_directories(Viry3D PRIVATE
 
 add_library(Viry3DApp SHARED
             ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
-            ${CMAKE_SOURCE_DIR}/app/src/main/jni/jni.cpp)
+            ${CMAKE_SOURCE_DIR}/app/src/main/jni/jni.cpp
+            ${VIRY3D_APP_SRC_DIR}/App.cpp)
 
 target_include_directories(Viry3DApp PRIVATE
                            ${ANDROID_NDK}/sources/android/native_app_glue
-                           ${VIRY3D_LIB_SRC_DIR})
+                           ${VIRY3D_LIB_SRC_DIR}
+                           ${VIRY3D_APP_SRC_DIR})
 
 target_link_libraries(Viry3DApp
                       android log z
                       Viry3D Viry3DDep
                       shaderc_lib       # for vulkan shader compile
                       )
+
+# build shaderc
+# ndk-bundle\sources\third_party\shaderc
+# ..\..\..\ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined
