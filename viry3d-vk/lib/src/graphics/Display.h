@@ -42,6 +42,7 @@ namespace Viry3D
         virtual ~Display();
         void OnResize(int width, int height);
         void OnPause();
+		void OnResume();
         void OnDraw();
         int GetWidth() const;
         int GetHeight() const;

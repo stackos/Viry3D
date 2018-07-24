@@ -61,6 +61,7 @@ static int g_display_height = 0;
 static App* g_app = nullptr;
 static FastList<Event> g_events;
 static Mutex g_mutex;
+static bool g_window_terminated = false;
 
 static void engine_create()
 {
@@ -97,12 +98,14 @@ static void engine_create()
 static void engine_pause()
 {
     Log("engine_pause");
+    g_display->OnPause();
     g_can_draw = false;
 }
 
 static void engine_resume()
 {
 	Log("engine_resume");
+    g_display->OnResume();
     g_can_draw = true;
 }
 
@@ -404,10 +407,12 @@ static void handle_cmd(android_app* app, int32_t cmdi)
             {
                 engine_create();
             }
+            g_window_terminated = false;
             break;
 
         case APP_CMD::APP_CMD_TERM_WINDOW:
             Log("APP_CMD_TERM_WINDOW");
+            g_window_terminated = true;
             break;
 
         case APP_CMD::APP_CMD_WINDOW_RESIZED:
@@ -421,6 +426,13 @@ static void handle_cmd(android_app* app, int32_t cmdi)
 
         case APP_CMD::APP_CMD_RESUME:
             Log("APP_CMD_RESUME");
+            if (g_display)
+            {
+                if (!g_window_terminated)
+                {
+                    engine_resume();
+                }
+            }
             break;
 
 		default:

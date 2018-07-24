@@ -112,6 +112,15 @@ namespace Viry3D
         }
 	}
 
+	void Camera::OnPause()
+	{
+        this->ClearRenderPass();
+        this->ClearInstanceCmds();
+
+        m_render_pass_dirty = true;
+        m_instance_cmds_dirty = true;
+	}
+
 	void Camera::UpdateRenderPass()
 	{
 		this->ClearRenderPass();

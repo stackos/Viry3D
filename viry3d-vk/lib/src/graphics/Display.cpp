@@ -308,7 +308,11 @@ namespace Viry3D
             vkDestroySemaphore(m_device, m_image_acquired_semaphore, nullptr);
             vkDestroySemaphore(m_device, m_draw_complete_semaphore, nullptr);
             vkDestroyDevice(m_device, nullptr);
-            vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+            if (m_surface != VK_NULL_HANDLE)
+            {
+                vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+                m_surface = VK_NULL_HANDLE;
+            }
             m_gpu = VK_NULL_HANDLE;
             fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
             vkDestroyInstance(m_instance, nullptr);
@@ -563,7 +567,7 @@ namespace Viry3D
             vkGetPhysicalDeviceMemoryProperties(m_gpu, &m_memory_properties);
         }
 
-        void CreateDevice()
+        void CreateSurface()
         {
             VkResult err;
 
@@ -575,7 +579,7 @@ namespace Viry3D
             create_info.flags = 0;
             create_info.hinstance = GetModuleHandle(nullptr);
             create_info.hwnd = (HWND) m_window;
-            
+
             err = vkCreateWin32SurfaceKHR(m_instance, &create_info, nullptr, &m_surface);
 #elif VR_ANDROID
             VkAndroidSurfaceCreateInfoKHR create_info;
@@ -650,6 +654,30 @@ namespace Viry3D
 
             m_graphics_queue_family_index = graphics_queue_index;
 
+            uint32_t surface_format_count;
+            err = fpGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, m_surface, &surface_format_count, nullptr);
+            assert(!err);
+
+            Vector<VkSurfaceFormatKHR> surface_formats(surface_format_count);
+            err = fpGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, m_surface, &surface_format_count, &surface_formats[0]);
+            assert(!err);
+
+            if (surface_format_count == 1 && surface_formats[0].format == VK_FORMAT_UNDEFINED)
+            {
+                m_surface_format.format = VK_FORMAT_B8G8R8A8_UNORM;
+            }
+            else
+            {
+                assert(surface_format_count > 0);
+                m_surface_format.format = surface_formats[0].format;
+            }
+            m_surface_format.colorSpace = surface_formats[0].colorSpace;
+        }
+
+        void CreateDevice()
+        {
+            VkResult err;
+
             float queue_priorities[2] = { 0.0, 0.0 };
             VkDeviceQueueCreateInfo queue_info;
             Memory::Zero(&queue_info, sizeof(queue_info));
@@ -681,28 +709,12 @@ namespace Viry3D
             GET_DEVICE_PROC_ADDR(m_device, GetSwapchainImagesKHR);
             GET_DEVICE_PROC_ADDR(m_device, AcquireNextImageKHR);
             GET_DEVICE_PROC_ADDR(m_device, QueuePresentKHR);
+        }
 
+        void GetQueues()
+        {
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 1, &m_image_queue);
-
-            uint32_t surface_format_count;
-            err = fpGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, m_surface, &surface_format_count, nullptr);
-            assert(!err);
-
-            Vector<VkSurfaceFormatKHR> surface_formats(surface_format_count);
-            err = fpGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, m_surface, &surface_format_count, &surface_formats[0]);
-            assert(!err);
-
-            if (surface_format_count == 1 && surface_formats[0].format == VK_FORMAT_UNDEFINED)
-            {
-                m_surface_format.format = VK_FORMAT_B8G8R8A8_UNORM;
-            }
-            else
-            {
-                assert(surface_format_count > 0);
-                m_surface_format.format = surface_formats[0].format;
-            }
-            m_surface_format.colorSpace = surface_formats[0].colorSpace;
         }
 
         void CreateSignals()
@@ -759,15 +771,22 @@ namespace Viry3D
             {
                 vkFreeCommandBuffers(m_device, m_graphics_cmd_pool, 1, &m_swapchain_image_resources[i].cmd);
             }
-            vkDestroyCommandPool(m_device, m_graphics_cmd_pool, nullptr);
+            if (m_graphics_cmd_pool != VK_NULL_HANDLE)
+            {
+                vkDestroyCommandPool(m_device, m_graphics_cmd_pool, nullptr);
+                m_graphics_cmd_pool = VK_NULL_HANDLE;
+            }
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 vkDestroyImageView(m_device, m_swapchain_image_resources[i].image_view, nullptr);
             }
             m_swapchain_image_resources.Clear();
-            fpDestroySwapchainKHR(m_device, m_swapchain, nullptr);
-            m_swapchain = VK_NULL_HANDLE;
+            if (m_swapchain != VK_NULL_HANDLE)
+            {
+                fpDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+                m_swapchain = VK_NULL_HANDLE;
+            }
         }
 
         void OnResize(int width, int height)
@@ -779,19 +798,38 @@ namespace Viry3D
 
             for (auto i : m_cameras)
             {
-                i->OnResize(width, height);
+                i->OnResize(m_width, m_height);
             }
 
             this->DestroySizeDependentResources();
             this->CreateSizeDependentResources();
 
             m_primary_cmd_dirty = true;
-            m_pause_draw = false;
         }
 
         void OnPause()
         {
             m_pause_draw = true;
+
+            vkDeviceWaitIdle(m_device);
+
+            for (auto i : m_cameras)
+            {
+                i->OnPause();
+            }
+
+            this->DestroySizeDependentResources();
+            vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+            m_surface = VK_NULL_HANDLE;
+        }
+
+        void OnResume()
+        {
+            m_pause_draw = false;
+
+            this->CreateSurface();
+            this->GetQueues();
+            this->CreateSizeDependentResources();
         }
 
         void CreateSwapChain()
@@ -904,7 +942,7 @@ namespace Viry3D
             swapchain_info.preTransform = transform_flag;
             swapchain_info.compositeAlpha = composite_alpha_flag;
             swapchain_info.presentMode = present_mode;
-            swapchain_info.clipped = true;
+            swapchain_info.clipped = VK_TRUE;
             swapchain_info.oldSwapchain = old_swapchain;
 
             err = fpCreateSwapchainKHR(m_device, &swapchain_info, nullptr, &m_swapchain);
@@ -2470,7 +2508,9 @@ void main()
         m_private->CreateInstance(name);
         m_private->CreateDebugReportCallback();
         m_private->InitPhysicalDevice();
+        m_private->CreateSurface();
         m_private->CreateDevice();
+        m_private->GetQueues();
         m_private->CreateSignals();
         m_private->CreateImageCmd();
         m_private->CreateSizeDependentResources();
@@ -2495,6 +2535,11 @@ void main()
     void Display::OnPause()
     {
         m_private->OnPause();
+    }
+
+    void Display::OnResume()
+    {
+        m_private->OnResume();
     }
 
     void Display::OnDraw()
