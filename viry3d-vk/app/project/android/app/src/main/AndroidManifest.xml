@@ -2,26 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.viry3d.app">
 
-    <uses-permission android:name="android.permission.SET_DEBUG_APP"/>
-
     <application
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-
         <activity
             android:name=".ActivityMain"
             android:configChanges="orientation|screenSize|keyboardHidden">
-
             <meta-data android:name="android.app.lib_name" android:value="Viry3DApp" />
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
     </application>
-
 </manifest>

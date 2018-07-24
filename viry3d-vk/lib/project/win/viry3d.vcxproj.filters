@@ -109,6 +109,9 @@
     <Filter Include="src\ui">
       <UniqueIdentifier>{4686000f-3fac-4edc-95ac-bbc9f7b613e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\android">
+      <UniqueIdentifier>{d138b107-2c8f-4c9b-b049-5f28ccac88e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -902,6 +905,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\ui\CanvasRenderer.h">
       <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\android\jni.h">
+      <Filter>src\android</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
