@@ -53,6 +53,10 @@ extern "C"
 #include "GLSLConversion.h"
 #endif
 
+#if VR_ANDROID
+#include "android/jni.h"
+#endif
+
 static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                \
@@ -587,7 +591,7 @@ namespace Viry3D
             create_info.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
             create_info.pNext = nullptr;
             create_info.flags = 0;
-            create_info.window = (ANativeWindow*) m_window;
+            create_info.window = (ANativeWindow*) get_native_window();
 
             err = vkCreateAndroidSurfaceKHR(m_instance, &create_info, nullptr, &m_surface);
 #elif VR_IOS
@@ -845,19 +849,8 @@ namespace Viry3D
             assert(!err);
 
             VkExtent2D swapchain_size;
-            if (surface_caps.currentExtent.width == 0xFFFFFFFF)
-            {
-                swapchain_size.width = (uint32_t) m_width;
-                swapchain_size.height = (uint32_t) m_height;
-            }
-            else
-            {
-                swapchain_size = surface_caps.currentExtent;
-                m_width = swapchain_size.width;
-                m_height = swapchain_size.height;
-
-                Log("w: %d h: %d", m_width, m_height);
-            }
+            swapchain_size.width = (uint32_t) m_width;
+            swapchain_size.height = (uint32_t) m_height;
 
             uint32_t present_mode_count;
             err = fpGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, m_surface, &present_mode_count, nullptr);
@@ -937,6 +930,8 @@ namespace Viry3D
 
             err = fpCreateSwapchainKHR(m_device, &swapchain_info, nullptr, &m_swapchain);
             assert(!err);
+
+            Log("create swapchain w: %d h: %d, surface w: %d h: %d", swapchain_size.width, swapchain_size.height, surface_caps.currentExtent.width, surface_caps.currentExtent.height);
 
             if (old_swapchain != VK_NULL_HANDLE)
             {

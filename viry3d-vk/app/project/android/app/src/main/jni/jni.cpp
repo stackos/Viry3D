@@ -59,7 +59,9 @@ static Display* g_display = nullptr;
 static App* g_app = nullptr;
 static FastList<Event> g_events;
 static Mutex g_mutex;
-static bool g_window_terminated = false;
+static int g_display_width = 0;
+static int g_display_height = 0;
+static bool g_paused = false;
 
 static void get_window_size(int* width, int* height)
 {
@@ -103,6 +105,8 @@ static void engine_create()
     int window_width;
     int window_height;
     get_window_size(&window_width, &window_height);
+    g_display_width = window_width;
+    g_display_height = window_height;
 
     g_display = new Display(name, g_android_app->window, window_width, window_height);
 
@@ -424,25 +428,39 @@ static void handle_cmd(android_app* app, int32_t cmdi)
             if (g_display)
             {
                 engine_resume();
+
+                int window_width;
+                int window_height;
+                get_window_size(&window_width, &window_height);
+
+                if (window_width != g_display_width || window_height != g_display_height)
+                {
+                    g_display_width = window_width;
+                    g_display_height = window_height;
+
+                    g_display->OnResize(window_width, window_height);
+                }
             }
             else
             {
                 engine_create();
             }
-            g_window_terminated = false;
             break;
 
         case APP_CMD::APP_CMD_TERM_WINDOW:
             Log("APP_CMD_TERM_WINDOW");
-            g_window_terminated = true;
+            engine_pause();
             break;
 
         case APP_CMD::APP_CMD_CONFIG_CHANGED:
             Log("APP_CMD_CONFIG_CHANGED");
+            if (g_android_app->window)
             {
                 int window_width;
                 int window_height;
                 get_window_size(&window_width, &window_height);
+                g_display_width = window_width;
+                g_display_height = window_height;
 
                 g_display->OnResize(window_width, window_height);
             }
@@ -450,18 +468,12 @@ static void handle_cmd(android_app* app, int32_t cmdi)
 
         case APP_CMD::APP_CMD_PAUSE:
             Log("APP_CMD_PAUSE");
-            engine_pause();
+            g_paused = true;
             break;
 
         case APP_CMD::APP_CMD_RESUME:
             Log("APP_CMD_RESUME");
-            if (g_display)
-            {
-                if (!g_window_terminated)
-                {
-                    engine_resume();
-                }
-            }
+            g_paused = false;
             break;
 
 		default:
@@ -499,7 +511,7 @@ void android_main(android_app* app)
 
         process_events();
 
-		if (g_can_draw)
+		if (g_can_draw && !g_paused)
 		{
 			draw();
 		}
