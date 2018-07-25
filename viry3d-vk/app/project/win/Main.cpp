@@ -38,6 +38,7 @@ extern bool g_mouse_button_held[3];
 extern float g_mouse_scroll_wheel;
 
 static bool g_mouse_down = false;
+static bool g_minimized = false;
 
 static int GetKeyCode(int wParam)
 {
@@ -215,20 +216,28 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         case WM_SIZE:
             if (wParam == SIZE_MINIMIZED)
             {
-                if (Display::Instance())
-                {
-                    Display::Instance()->OnPause();
-                }
+                g_minimized = true;
+
+                Display::Instance()->OnPause();
             }
             else
             {
-                int width = lParam & 0xffff;
-                int height = (lParam & 0xffff0000) >> 16;
-
-                if (Display::Instance())
+                if (g_minimized)
                 {
-                    Display::Instance()->OnResize(width, height);
+                    Display::Instance()->OnResume();
                 }
+                else
+                {
+                    int width = lParam & 0xffff;
+                    int height = (lParam & 0xffff0000) >> 16;
+
+                    if (Display::Instance())
+                    {
+                        Display::Instance()->OnResize(width, height);
+                    }
+                }
+
+                g_minimized = false;
             }
             break;
 
