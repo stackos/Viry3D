@@ -56,12 +56,35 @@ extern bool g_mouse_button_held[3];
 static android_app* g_android_app = nullptr;
 static bool g_can_draw = false;
 static Display* g_display = nullptr;
-static int g_display_width = 0;
-static int g_display_height = 0;
 static App* g_app = nullptr;
 static FastList<Event> g_events;
 static Mutex g_mutex;
 static bool g_window_terminated = false;
+
+static void get_window_size(int* width, int* height)
+{
+    int w = ANativeWindow_getWidth(g_android_app->window);
+    int h = ANativeWindow_getHeight(g_android_app->window);
+    int o = AConfiguration_getOrientation(g_android_app->config);
+
+    if (o == ACONFIGURATION_ORIENTATION_PORT)
+    {
+        if (w > h)
+        {
+            std::swap(w, h);
+        }
+    }
+    else if (o == ACONFIGURATION_ORIENTATION_LAND)
+    {
+        if (w < h)
+        {
+            std::swap(w, h);
+        }
+    }
+
+    *width = w;
+    *height = h;
+}
 
 static void engine_create()
 {
@@ -77,12 +100,11 @@ static void engine_create()
 	extract_assets_if_needed(package_path, data_path, true);
 
     String name = "viry3d-vk-demo";
-    g_display_width = ANativeWindow_getWidth(g_android_app->window);
-    g_display_height = ANativeWindow_getHeight(g_android_app->window);
+    int window_width;
+    int window_height;
+    get_window_size(&window_width, &window_height);
 
-    Log("init display width: %d height: %d", g_display_width, g_display_height);
-
-    g_display = new Display(name, g_android_app->window, g_display_width, g_display_height);
+    g_display = new Display(name, g_android_app->window, window_width, window_height);
 
     g_app = new App();
     g_app->SetName(name);
@@ -348,7 +370,7 @@ static int32_t handle_input(struct android_app*, AInputEvent* event)
             for (size_t i = 0; i < count; i++)
             {
                 touch.xys[i * 2] = AMotionEvent_getX(event, i);
-                touch.xys[i * 2 + 1] = (float) g_display_height - AMotionEvent_getY(event, i) - 1;
+                touch.xys[i * 2 + 1] = (float) g_display->GetHeight() - AMotionEvent_getY(event, i) - 1;
             }
 
             queue_event([=](){
@@ -415,8 +437,15 @@ static void handle_cmd(android_app* app, int32_t cmdi)
             g_window_terminated = true;
             break;
 
-        case APP_CMD::APP_CMD_WINDOW_RESIZED:
-            Log("APP_CMD_WINDOW_RESIZED");
+        case APP_CMD::APP_CMD_CONFIG_CHANGED:
+            Log("APP_CMD_CONFIG_CHANGED");
+            {
+                int window_width;
+                int window_height;
+                get_window_size(&window_width, &window_height);
+
+                g_display->OnResize(window_width, window_height);
+            }
             break;
 
         case APP_CMD::APP_CMD_PAUSE:

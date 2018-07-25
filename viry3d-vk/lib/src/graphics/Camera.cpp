@@ -27,7 +27,6 @@ namespace Viry3D
 		m_render_pass_dirty(true),
 		m_renderer_order_dirty(true),
 		m_instance_cmds_dirty(true),
-		m_projection_matrix_dirty(true),
 		m_clear_flags(CameraClearFlags::ColorAndDepth),
 		m_clear_color(0, 0, 0, 1),
 		m_viewport_rect(0, 0, 1, 1),

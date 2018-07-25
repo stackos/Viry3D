@@ -86,7 +86,6 @@ namespace Viry3D
         bool m_render_pass_dirty;
         bool m_renderer_order_dirty;
         bool m_instance_cmds_dirty;
-        bool m_projection_matrix_dirty;
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;

@@ -802,6 +802,10 @@ namespace Viry3D
             }
 
             this->DestroySizeDependentResources();
+            vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+            m_surface = VK_NULL_HANDLE;
+            this->CreateSurface();
+            this->GetQueues();
             this->CreateSizeDependentResources();
 
             m_primary_cmd_dirty = true;
@@ -843,30 +847,16 @@ namespace Viry3D
             VkExtent2D swapchain_size;
             if (surface_caps.currentExtent.width == 0xFFFFFFFF)
             {
-                swapchain_size.width = m_width;
-                swapchain_size.height = m_height;
-
-                if (swapchain_size.width < surface_caps.minImageExtent.width)
-                {
-                    swapchain_size.width = surface_caps.minImageExtent.width;
-                }
-                else if (swapchain_size.width > surface_caps.maxImageExtent.width)
-                {
-                    swapchain_size.width = surface_caps.maxImageExtent.width;
-                }
-
-                if (swapchain_size.height < surface_caps.minImageExtent.height)
-                {
-                    swapchain_size.height = surface_caps.minImageExtent.height;
-                }
-                else if (swapchain_size.height > surface_caps.maxImageExtent.height)
-                {
-                    swapchain_size.height = surface_caps.maxImageExtent.height;
-                }
+                swapchain_size.width = (uint32_t) m_width;
+                swapchain_size.height = (uint32_t) m_height;
             }
             else
             {
                 swapchain_size = surface_caps.currentExtent;
+                m_width = swapchain_size.width;
+                m_height = swapchain_size.height;
+
+                Log("w: %d h: %d", m_width, m_height);
             }
 
             uint32_t present_mode_count;
