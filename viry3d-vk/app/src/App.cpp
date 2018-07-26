@@ -203,7 +203,7 @@ void main()
             auto depth_texture = Texture::CreateRenderTexture(
                 1280,
                 720,
-                VK_FORMAT_X8_D24_UNORM_PACK32,
+                VK_FORMAT_D32_SFLOAT_S8_UINT,
                 VK_FILTER_LINEAR,
                 VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
             m_camera->SetRenderTarget(color_texture, depth_texture);

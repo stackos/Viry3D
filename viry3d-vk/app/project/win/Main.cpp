@@ -521,8 +521,8 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     String name = "viry3d-vk-demo";
-    int width = 1280;
-    int height = 720;
+    int window_width = 1280;
+    int window_height = 720;
 
     WNDCLASSEX win_class;
     ZeroMemory(&win_class, sizeof(win_class));
@@ -548,11 +548,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     DWORD style = WS_OVERLAPPEDWINDOW;
     DWORD style_ex = 0;
 
-    RECT wr = { 0, 0, width, height };
+    RECT wr = { 0, 0, window_width, window_height };
     AdjustWindowRect(&wr, style, FALSE);
 
-    int x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2 + wr.left;
-    int y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2 + wr.top;
+    int x = (GetSystemMetrics(SM_CXSCREEN) - window_width) / 2 + wr.left;
+    int y = (GetSystemMetrics(SM_CYSCREEN) - window_height) / 2 + wr.top;
 
     HWND hwnd = CreateWindowEx(
         style_ex,			// window ex style
@@ -573,7 +573,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     ShowWindow(hwnd, SW_SHOW);
 
-    Display* display = new Display(name, hwnd, width, height);
+    Display* display = new Display(name, hwnd, window_width, window_height);
 
     App* app = new App();
     app->SetName(name);

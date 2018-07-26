@@ -18,5 +18,4 @@
 #import <UIKit/UIKit.h>
 
 @interface VkView : UIView
-
 @end

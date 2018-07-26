@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Cocoa/Cocoa.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : NSViewController
+
+@property (weak, nonatomic) NSWindow* window;
+
 @end

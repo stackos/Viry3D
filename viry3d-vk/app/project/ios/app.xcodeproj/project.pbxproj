@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BA12989820FE36B400DC815A /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA12989720FE36B400DC815A /* Main.cpp */; };
+		BA12989820FE36B400DC815A /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = BA12989720FE36B400DC815A /* Main.m */; };
 		BA12989C20FE387700DC815A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BA12989B20FE387700DC815A /* AppDelegate.m */; };
 		BA2800E71F69A71100215483 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = BA2800E61F69A71100215483 /* Assets */; };
 		BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */; };
@@ -41,7 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		BA12989720FE36B400DC815A /* Main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Main.cpp; sourceTree = "<group>"; };
+		BA12989720FE36B400DC815A /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
 		BA12989B20FE387700DC815A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		BA2800E61F69A71100215483 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
 		BA4A32491D7B34D400DEEE5A /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,11 +68,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
+				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
 				D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */,
+				D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
 				D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */,
 				D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */,
-				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,7 +115,7 @@
 			children = (
 				D13775A520FF327C00E4F19B /* App.cpp */,
 				D13775A420FF320C00E4F19B /* App.h */,
-				BA12989720FE36B400DC815A /* Main.cpp */,
+				BA12989720FE36B400DC815A /* Main.m */,
 				BA981FF020FE45890068E5B2 /* AppDelegate.h */,
 				BA12989B20FE387700DC815A /* AppDelegate.m */,
 				BA981FF120FE45F00068E5B2 /* ViewController.h */,
@@ -129,10 +129,10 @@
 		BABF7B931E97E7A2000C2116 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */,
-				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,
-				D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */,
 				BA5924A31D92F2A200173EDC /* UIKit.framework */,
+				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,
+				D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */,
+				D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -237,7 +237,7 @@
 			files = (
 				BA981FF320FE45F00068E5B2 /* ViewController.mm in Sources */,
 				BA12989C20FE387700DC815A /* AppDelegate.m in Sources */,
-				BA12989820FE36B400DC815A /* Main.cpp in Sources */,
+				BA12989820FE36B400DC815A /* Main.m in Sources */,
 				D137753620FED5E900E4F19B /* VkView.m in Sources */,
 				D13775A620FF327C00E4F19B /* App.cpp in Sources */,
 			);
