@@ -22,7 +22,7 @@
 
 namespace Viry3D
 {
-    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices):
+    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes):
         m_vertex_count(0),
         m_index_count(0),
         m_buffer_vertex_count(0),
@@ -35,6 +35,11 @@ namespace Viry3D
         m_index_count = indices.Size();
         m_buffer_vertex_count = m_vertex_count;
         m_buffer_index_count = m_index_count;
+        m_submeshes = submeshes;
+        if (m_submeshes.Empty())
+        {
+            m_submeshes.Add(Submesh({ 0, indices.Size() }));
+        }
     }
     
     Mesh::~Mesh()
@@ -47,7 +52,7 @@ namespace Viry3D
         m_index_buffer.reset();
     }
 
-    void Mesh::Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices)
+    void Mesh::Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes)
     {
         assert(vertices.Size() <= m_buffer_vertex_count);
         assert(indices.Size() <= m_buffer_index_count);
@@ -57,5 +62,10 @@ namespace Viry3D
 
         m_vertex_count = vertices.Size();
         m_index_count = indices.Size();
+        m_submeshes = submeshes;
+        if (m_submeshes.Empty())
+        {
+            m_submeshes.Add(Submesh({ 0, indices.Size() }));
+        }
     }
 }

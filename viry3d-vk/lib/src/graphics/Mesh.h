@@ -27,13 +27,21 @@ namespace Viry3D
     class Mesh
     {
     public:
-        Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices);
+        struct Submesh
+        {
+            int index_first;
+            int index_count;
+        };
+
+    public:
+        Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
         ~Mesh();
-        void Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices);
+        void Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
         const Ref<BufferObject>& GetVertexBuffer() const { return m_vertex_buffer; }
         const Ref<BufferObject>& GetIndexBuffer() const { return m_index_buffer; }
         int GetVertexCount() const { return m_vertex_count; }
         int GetIndexCount() const { return m_index_count; }
+        const Submesh& GetSubmesh(int submesh) const { return m_submeshes[submesh]; }
 
     private:
         Ref<BufferObject> m_vertex_buffer;
@@ -42,5 +50,6 @@ namespace Viry3D
         int m_index_count;
         int m_buffer_vertex_count;
         int m_buffer_index_count;
+        Vector<Submesh> m_submeshes;
     };
 }

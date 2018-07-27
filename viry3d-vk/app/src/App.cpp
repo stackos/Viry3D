@@ -44,7 +44,7 @@
 // - ios project
 // - ScrollView TabView TreeView
 
-#define RENDER_TO_TEXTURE 1
+#define RENDER_TO_TEXTURE 0
 #define SHOW_DEPTH 1
 #define BLUR_COLOR 1
 

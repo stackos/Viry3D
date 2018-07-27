@@ -21,7 +21,8 @@
 
 namespace Viry3D
 {
-    MeshRenderer::MeshRenderer()
+    MeshRenderer::MeshRenderer():
+        m_submesh(-1)
     {
 
     }
@@ -59,14 +60,15 @@ namespace Viry3D
         return buffer;
     }
 
-    void MeshRenderer::SetMesh(const Ref<Mesh>& mesh)
+    void MeshRenderer::SetMesh(const Ref<Mesh>& mesh, int submesh)
     {
         m_mesh = mesh;
+        m_submesh = submesh;
 
         VkDrawIndexedIndirectCommand draw;
-        draw.indexCount = m_mesh->GetIndexCount();
+        draw.indexCount = m_mesh->GetSubmesh(m_submesh).index_count;
         draw.instanceCount = 1;
-        draw.firstIndex = 0;
+        draw.firstIndex = m_mesh->GetSubmesh(m_submesh).index_first;
         draw.vertexOffset = 0;
         draw.firstInstance = 0;
 
