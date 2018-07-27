@@ -107,6 +107,7 @@ namespace Viry3D
             const Ref<BufferObject>& index_buffer,
             const Ref<BufferObject>& draw_buffer);
 		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass);
+        VkFormat ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features);
         Ref<Texture> CreateTexture(
             VkImageType type,
             VkImageViewType view_type,

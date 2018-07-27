@@ -44,7 +44,7 @@
 // - ios project
 // - ScrollView TabView TreeView
 
-#define RENDER_TO_TEXTURE 0
+#define RENDER_TO_TEXTURE 1
 #define SHOW_DEPTH 1
 #define BLUR_COLOR 1
 
@@ -94,12 +94,14 @@ namespace Viry3D
                 width,
                 height,
                 VK_FORMAT_R8G8B8A8_UNORM,
+                true,
                 VK_FILTER_LINEAR,
                 VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
             auto color_texture_3 = Texture::CreateRenderTexture(
                 width,
                 height,
                 VK_FORMAT_R8G8B8A8_UNORM,
+                true,
                 VK_FILTER_LINEAR,
                 VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 
@@ -198,12 +200,16 @@ void main()
                 1280,
                 720,
                 VK_FORMAT_R8G8B8A8_UNORM,
+                true,
                 VK_FILTER_LINEAR,
                 VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
             auto depth_texture = Texture::CreateRenderTexture(
                 1280,
                 720,
-                VK_FORMAT_D32_SFLOAT_S8_UINT,
+                Display::Instance()->ChooseFormatSupported(
+                    { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT),
+                true,
                 VK_FILTER_LINEAR,
                 VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
             m_camera->SetRenderTarget(color_texture, depth_texture);

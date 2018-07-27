@@ -195,6 +195,7 @@ namespace Viry3D
         int width,
         int height,
         VkFormat format,
+        bool create_sampler,
         VkFilter filter_mode,
         VkSamplerAddressMode wrap_mode)
     {
@@ -243,7 +244,10 @@ namespace Viry3D
             1,
             false,
             1);
-        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
+        if (create_sampler)
+        {
+            Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
+        }
 
 		Display::Instance()->BeginImageCmd();
 		Display::Instance()->SetImageLayout(

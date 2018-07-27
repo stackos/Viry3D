@@ -67,6 +67,7 @@ namespace Viry3D
             int width,
             int height,
             VkFormat format,
+            bool create_sampler,
             VkFilter filter_mode,
             VkSamplerAddressMode wrap_mode);
         static Ref<Texture> CreateTexture2DArrayFromMemory(

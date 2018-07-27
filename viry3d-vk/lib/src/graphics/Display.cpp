@@ -762,9 +762,12 @@ namespace Viry3D
             m_depth_texture = Texture::CreateRenderTexture(
                 m_width,
                 m_height,
-                VK_FORMAT_D32_SFLOAT_S8_UINT,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+                this->ChooseFormatSupported(
+                    { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
+                false,
+                VK_FILTER_MAX_ENUM,
+                VK_SAMPLER_ADDRESS_MODE_MAX_ENUM);
         }
 
         void DestroySizeDependentResources()
@@ -1207,6 +1210,22 @@ namespace Viry3D
             }
 
             return false;
+        }
+
+        VkFormat ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features)
+        {
+            for (int i = 0; i < formats.Size(); ++i)
+            {
+                VkFormatProperties properties;
+                vkGetPhysicalDeviceFormatProperties(m_gpu, formats[i], &properties);
+
+                if ((properties.optimalTilingFeatures & features) != 0)
+                {
+                    return formats[i];
+                }
+            }
+
+            return VK_FORMAT_UNDEFINED;
         }
 
         Ref<Texture> CreateTexture(
@@ -2832,6 +2851,11 @@ void main()
 	{
 		m_private->BuildEmptyInstanceCmd(cmd, render_pass);
 	}
+
+    VkFormat Display::ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features)
+    {
+        return m_private->ChooseFormatSupported(formats, features);
+    }
 
     Ref<Texture> Display::CreateTexture(
         VkImageType type,
