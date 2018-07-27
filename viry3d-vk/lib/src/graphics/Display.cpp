@@ -1219,7 +1219,7 @@ namespace Viry3D
                 VkFormatProperties properties;
                 vkGetPhysicalDeviceFormatProperties(m_gpu, formats[i], &properties);
 
-                if ((properties.optimalTilingFeatures & features) != 0)
+                if ((properties.optimalTilingFeatures & features) == features)
                 {
                     return formats[i];
                 }
