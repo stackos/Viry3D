@@ -5,87 +5,18 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="src\AppGameDeveloper">
-      <UniqueIdentifier>{781658e1-d7e3-47a2-841a-6c1443f6ce50}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\AppClear.cpp">
+    <ClInclude Include="..\..\src\App.h">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppMesh.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppWatch.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppAnim.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppBlur.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppFlappyBird.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppTerrain.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppAR.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppShadow.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppSky.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppPBR.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppPhysics.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppUI.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\DebugUI.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppParticle.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppGameDeveloper.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppGameDeveloper\CodeEditor.cpp">
-      <Filter>src\AppGameDeveloper</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppGameDeveloper\LuaRunner.cpp">
-      <Filter>src\AppGameDeveloper</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\LaunchScreen.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\AppGameDeveloper\InputHandler.cpp">
-      <Filter>src\AppGameDeveloper</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\DebugUI.h">
+    <ClCompile Include="Main.cpp">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\AppGameDeveloper\CodeEditor.h">
-      <Filter>src\AppGameDeveloper</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\AppGameDeveloper\LuaRunner.h">
-      <Filter>src\AppGameDeveloper</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\LaunchScreen.h">
+    </ClCompile>
+    <ClCompile Include="..\..\src\App.cpp">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\AppGameDeveloper\InputHandler.h">
-      <Filter>src\AppGameDeveloper</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
 </Project>

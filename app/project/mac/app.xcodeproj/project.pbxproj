@@ -7,82 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BA2749041FFA8FD30029ABB1 /* LaunchScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2749031FFA8FD30029ABB1 /* LaunchScreen.cpp */; };
-		BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA410F7D1FAA319A005937F1 /* AppSky.cpp */; };
-		BA42E6221FF5433B009C3C01 /* AppGameDeveloper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */; };
-		BA42E6281FF54359009C3C01 /* LuaRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6251FF54358009C3C01 /* LuaRunner.cpp */; };
-		BA42E6291FF54359009C3C01 /* CodeEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6261FF54358009C3C01 /* CodeEditor.cpp */; };
-		BA4FAC201FBB564200C1ADB7 /* AppPhysics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */; };
-		BA547C5D200B6DAA00C0D325 /* InputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA547C5A200B6DAA00C0D325 /* InputHandler.cpp */; };
-		BA5CD1551FC1FF2C004C590A /* DebugUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */; };
-		BA7D82D11F9E4DC10085EEB7 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */; };
-		BA87B5141FDC1B820072868A /* AppParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA87B5121FDC1B820072868A /* AppParticle.cpp */; };
-		BAA45E5B1FB752210049A867 /* AppPBR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAA45E591FB752210049A867 /* AppPBR.cpp */; };
-		D1A6FA741FA2D2AA0081A94A /* AppShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */; };
-		D1B6AD4A1F83E4CD00082097 /* AppAnim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD421F83E4CD00082097 /* AppAnim.cpp */; };
-		D1B6AD4B1F83E4CD00082097 /* AppBlur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD431F83E4CD00082097 /* AppBlur.cpp */; };
-		D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD441F83E4CD00082097 /* AppClear.cpp */; };
-		D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */; };
-		D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD461F83E4CD00082097 /* AppMesh.cpp */; };
-		D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */; };
-		D1B6AD511F83E4CD00082097 /* AppWatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B6AD491F83E4CD00082097 /* AppWatch.cpp */; };
-		D1B6AD521F83E82B00082097 /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B6AD361F7E9E5D00082097 /* libviry3d.a */; };
-		D1B6AD551F83E87000082097 /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B6AD541F83E87000082097 /* libz.1.2.5.tbd */; };
-		D1B6AD571F83E88700082097 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B6AD561F83E88700082097 /* OpenAL.framework */; };
+		D1B25E1F2109F50E001A3EC9 /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E1E2109F50E001A3EC9 /* Main.m */; };
+		D1B25E222109F66A001A3EC9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E212109F669001A3EC9 /* AppDelegate.m */; };
+		D1B25E242109FBFE001A3EC9 /* libz.1.2.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B25E232109FBFE001A3EC9 /* libz.1.2.8.tbd */; };
+		D1B25E272109FCD6001A3EC9 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E262109FCD6001A3EC9 /* ViewController.mm */; };
+		D1B25E2A2109FECF001A3EC9 /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E292109FECF001A3EC9 /* VkView.m */; };
 		D1EA4E4B1F2DEABD0034D59B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */; };
-		D1EA4E4E1F2DEABD0034D59B /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */; };
-		D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */; };
 		D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F3BBBF1F86903800B738FA /* AppKit.framework */; };
-		D1F3BBC21F86905F00B738FA /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F3BBC11F86905F00B738FA /* CoreVideo.framework */; };
 		D1F3BBC61F87F6C200B738FA /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = D1F3BBC51F87F5FC00B738FA /* Assets */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		D1B6AD351F7E9E5D00082097 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0A3C48C9CE12835F5C48CC6A;
-			remoteInfo = viry3d;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		BA2749031FFA8FD30029ABB1 /* LaunchScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LaunchScreen.cpp; path = ../../src/LaunchScreen.cpp; sourceTree = "<group>"; };
-		BA2749051FFA8FE60029ABB1 /* DebugUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DebugUI.h; path = ../../src/DebugUI.h; sourceTree = "<group>"; };
-		BA2749061FFA8FEB0029ABB1 /* LaunchScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LaunchScreen.h; path = ../../src/LaunchScreen.h; sourceTree = "<group>"; };
-		BA410F7D1FAA319A005937F1 /* AppSky.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppSky.cpp; path = ../../src/AppSky.cpp; sourceTree = "<group>"; };
-		BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppGameDeveloper.cpp; path = ../../src/AppGameDeveloper.cpp; sourceTree = "<group>"; };
-		BA42E6241FF54358009C3C01 /* LuaRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaRunner.h; sourceTree = "<group>"; };
-		BA42E6251FF54358009C3C01 /* LuaRunner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LuaRunner.cpp; sourceTree = "<group>"; };
-		BA42E6261FF54358009C3C01 /* CodeEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditor.cpp; sourceTree = "<group>"; };
-		BA42E6271FF54358009C3C01 /* CodeEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeEditor.h; sourceTree = "<group>"; };
-		BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPhysics.cpp; path = ../../src/AppPhysics.cpp; sourceTree = "<group>"; };
-		BA547C5A200B6DAA00C0D325 /* InputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputHandler.cpp; sourceTree = "<group>"; };
-		BA547C5C200B6DAA00C0D325 /* InputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputHandler.h; sourceTree = "<group>"; };
-		BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DebugUI.cpp; path = ../../src/DebugUI.cpp; sourceTree = "<group>"; };
-		BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
-		BA87B5121FDC1B820072868A /* AppParticle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppParticle.cpp; path = ../../src/AppParticle.cpp; sourceTree = "<group>"; };
-		BAA45E591FB752210049A867 /* AppPBR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPBR.cpp; path = ../../src/AppPBR.cpp; sourceTree = "<group>"; };
-		D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppShadow.cpp; path = ../../src/AppShadow.cpp; sourceTree = "<group>"; };
-		D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/mac/viry3d.xcodeproj; sourceTree = "<group>"; };
-		D1B6AD421F83E4CD00082097 /* AppAnim.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppAnim.cpp; path = ../../src/AppAnim.cpp; sourceTree = "<group>"; };
-		D1B6AD431F83E4CD00082097 /* AppBlur.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppBlur.cpp; path = ../../src/AppBlur.cpp; sourceTree = "<group>"; };
-		D1B6AD441F83E4CD00082097 /* AppClear.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppClear.cpp; path = ../../src/AppClear.cpp; sourceTree = "<group>"; };
-		D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppFlappyBird.cpp; path = ../../src/AppFlappyBird.cpp; sourceTree = "<group>"; };
-		D1B6AD461F83E4CD00082097 /* AppMesh.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppMesh.cpp; path = ../../src/AppMesh.cpp; sourceTree = "<group>"; };
-		D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppTerrain.cpp; path = ../../src/AppTerrain.cpp; sourceTree = "<group>"; };
-		D1B6AD491F83E4CD00082097 /* AppWatch.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppWatch.cpp; path = ../../src/AppWatch.cpp; sourceTree = "<group>"; };
-		D1B6AD541F83E87000082097 /* libz.1.2.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.5.tbd; path = usr/lib/libz.1.2.5.tbd; sourceTree = SDKROOT; };
-		D1B6AD561F83E88700082097 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		D1B25E1E2109F50E001A3EC9 /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
+		D1B25E202109F5DD001A3EC9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		D1B25E212109F669001A3EC9 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		D1B25E232109FBFE001A3EC9 /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = usr/lib/libz.1.2.8.tbd; sourceTree = SDKROOT; };
+		D1B25E252109FCD6001A3EC9 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		D1B25E262109FCD6001A3EC9 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
+		D1B25E282109FECF001A3EC9 /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
+		D1B25E292109FECF001A3EC9 /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
 		D1EA4E401F2DEABD0034D59B /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		D1EA4E5E1F2DEABD0034D59B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		D1F3BBBD1F868D4200B738FA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D1F3BBBF1F86903800B738FA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		D1F3BBC11F86905F00B738FA /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D1F3BBC51F87F5FC00B738FA /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -91,70 +38,31 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D1F3BBC21F86905F00B738FA /* CoreVideo.framework in Frameworks */,
 				D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */,
-				D1B6AD571F83E88700082097 /* OpenAL.framework in Frameworks */,
-				D1EA4E651F2DEB2D0034D59B /* OpenGL.framework in Frameworks */,
-				D1B6AD551F83E87000082097 /* libz.1.2.5.tbd in Frameworks */,
-				D1B6AD521F83E82B00082097 /* libviry3d.a in Frameworks */,
+				D1B25E242109FBFE001A3EC9 /* libz.1.2.8.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BA42E6231FF54358009C3C01 /* AppGameDeveloper */ = {
-			isa = PBXGroup;
-			children = (
-				BA42E6261FF54358009C3C01 /* CodeEditor.cpp */,
-				BA42E6271FF54358009C3C01 /* CodeEditor.h */,
-				BA547C5A200B6DAA00C0D325 /* InputHandler.cpp */,
-				BA547C5C200B6DAA00C0D325 /* InputHandler.h */,
-				BA42E6251FF54358009C3C01 /* LuaRunner.cpp */,
-				BA42E6241FF54358009C3C01 /* LuaRunner.h */,
-			);
-			name = AppGameDeveloper;
-			path = ../../src/AppGameDeveloper;
-			sourceTree = "<group>";
-		};
 		D1B6AD2F1F7E9C1F00082097 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				BA42E6231FF54358009C3C01 /* AppGameDeveloper */,
-				D1B6AD421F83E4CD00082097 /* AppAnim.cpp */,
-				BA7D82CF1F9E4DC10085EEB7 /* AppAR.cpp */,
-				D1B6AD431F83E4CD00082097 /* AppBlur.cpp */,
-				D1B6AD441F83E4CD00082097 /* AppClear.cpp */,
-				D1B6AD451F83E4CD00082097 /* AppFlappyBird.cpp */,
-				BA42E6201FF5433B009C3C01 /* AppGameDeveloper.cpp */,
-				D1B6AD461F83E4CD00082097 /* AppMesh.cpp */,
-				BA87B5121FDC1B820072868A /* AppParticle.cpp */,
-				BAA45E591FB752210049A867 /* AppPBR.cpp */,
-				BA4FAC1E1FBB564200C1ADB7 /* AppPhysics.cpp */,
-				D1A6FA731FA2D2AA0081A94A /* AppShadow.cpp */,
-				BA410F7D1FAA319A005937F1 /* AppSky.cpp */,
-				D1B6AD481F83E4CD00082097 /* AppTerrain.cpp */,
-				D1B6AD491F83E4CD00082097 /* AppWatch.cpp */,
-				BA5CD1531FC1FF2C004C590A /* DebugUI.cpp */,
-				BA2749051FFA8FE60029ABB1 /* DebugUI.h */,
-				BA2749031FFA8FD30029ABB1 /* LaunchScreen.cpp */,
-				BA2749061FFA8FEB0029ABB1 /* LaunchScreen.h */,
+				D1B25E1E2109F50E001A3EC9 /* Main.m */,
+				D1B25E202109F5DD001A3EC9 /* AppDelegate.h */,
+				D1B25E212109F669001A3EC9 /* AppDelegate.m */,
+				D1B25E252109FCD6001A3EC9 /* ViewController.h */,
+				D1B25E262109FCD6001A3EC9 /* ViewController.mm */,
+				D1B25E282109FECF001A3EC9 /* VkView.h */,
+				D1B25E292109FECF001A3EC9 /* VkView.m */,
 			);
 			name = src;
-			sourceTree = "<group>";
-		};
-		D1B6AD321F7E9E5C00082097 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D1B6AD361F7E9E5D00082097 /* libviry3d.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		D1EA4E371F2DEABD0034D59B = {
 			isa = PBXGroup;
 			children = (
-				D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */,
 				D1F3BBC51F87F5FC00B738FA /* Assets */,
 				D1B6AD2F1F7E9C1F00082097 /* src */,
 				D1EA4E491F2DEABD0034D59B /* app */,
@@ -174,12 +82,8 @@
 		D1EA4E421F2DEABD0034D59B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D1F3BBC11F86905F00B738FA /* CoreVideo.framework */,
 				D1F3BBBF1F86903800B738FA /* AppKit.framework */,
-				D1F3BBBD1F868D4200B738FA /* GLKit.framework */,
-				D1B6AD561F83E88700082097 /* OpenAL.framework */,
-				D1B6AD541F83E87000082097 /* libz.1.2.5.tbd */,
-				D1EA4E641F2DEB2D0034D59B /* OpenGL.framework */,
+				D1B25E232109FBFE001A3EC9 /* libz.1.2.8.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -187,7 +91,6 @@
 		D1EA4E491F2DEABD0034D59B /* app */ = {
 			isa = PBXGroup;
 			children = (
-				D1EA4E4D1F2DEABD0034D59B /* AppDelegate.mm */,
 				D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */,
 				D1EA4E5E1F2DEABD0034D59B /* Info.plist */,
 			);
@@ -240,28 +143,12 @@
 			mainGroup = D1EA4E371F2DEABD0034D59B;
 			productRefGroup = D1EA4E411F2DEABD0034D59B /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = D1B6AD321F7E9E5C00082097 /* Products */;
-					ProjectRef = D1B6AD311F7E9E5C00082097 /* viry3d.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				D1EA4E3F1F2DEABD0034D59B /* app */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		D1B6AD361F7E9E5D00082097 /* libviry3d.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libviry3d.a;
-			remoteRef = D1B6AD351F7E9E5D00082097 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D1EA4E3E1F2DEABD0034D59B /* Resources */ = {
@@ -280,26 +167,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BAA45E5B1FB752210049A867 /* AppPBR.cpp in Sources */,
-				BA2749041FFA8FD30029ABB1 /* LaunchScreen.cpp in Sources */,
-				BA5CD1551FC1FF2C004C590A /* DebugUI.cpp in Sources */,
-				BA547C5D200B6DAA00C0D325 /* InputHandler.cpp in Sources */,
-				D1B6AD4D1F83E4CD00082097 /* AppFlappyBird.cpp in Sources */,
-				D1B6AD501F83E4CD00082097 /* AppTerrain.cpp in Sources */,
-				BA410F7F1FAA319A005937F1 /* AppSky.cpp in Sources */,
-				BA42E6291FF54359009C3C01 /* CodeEditor.cpp in Sources */,
-				BA42E6281FF54359009C3C01 /* LuaRunner.cpp in Sources */,
-				BA4FAC201FBB564200C1ADB7 /* AppPhysics.cpp in Sources */,
-				BA42E6221FF5433B009C3C01 /* AppGameDeveloper.cpp in Sources */,
-				D1B6AD4E1F83E4CD00082097 /* AppMesh.cpp in Sources */,
-				D1A6FA741FA2D2AA0081A94A /* AppShadow.cpp in Sources */,
-				D1B6AD4C1F83E4CD00082097 /* AppClear.cpp in Sources */,
-				BA87B5141FDC1B820072868A /* AppParticle.cpp in Sources */,
-				D1EA4E4E1F2DEABD0034D59B /* AppDelegate.mm in Sources */,
-				D1B6AD4B1F83E4CD00082097 /* AppBlur.cpp in Sources */,
-				D1B6AD4A1F83E4CD00082097 /* AppAnim.cpp in Sources */,
-				BA7D82D11F9E4DC10085EEB7 /* AppAR.cpp in Sources */,
-				D1B6AD511F83E4CD00082097 /* AppWatch.cpp in Sources */,
+				D1B25E222109F66A001A3EC9 /* AppDelegate.m in Sources */,
+				D1B25E1F2109F50E001A3EC9 /* Main.m in Sources */,
+				D1B25E272109FCD6001A3EC9 /* ViewController.mm in Sources */,
+				D1B25E2A2109FECF001A3EC9 /* VkView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

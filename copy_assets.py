@@ -8,7 +8,8 @@ def get_files(dir):
     for i in range(0, len(names)):
         name = (dir + '/' + names[i]).replace('\\', '/')
         if os.path.isfile(name):
-            files.append(name)
+            if not name.endswith('.cache'):
+                files.append(name)
         elif os.path.isdir(name):
             dirs.append(name)
     for i in range(0, len(dirs)):

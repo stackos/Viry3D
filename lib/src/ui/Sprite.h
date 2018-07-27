@@ -17,26 +17,24 @@
 
 #pragma once
 
-#include "Object.h"
-#include "math/Rect.h"
-#include "math/Vector2.h"
-#include "math/Vector4.h"
-#include "graphics/Texture2D.h"
+#include "View.h"
 
 namespace Viry3D
 {
-	class Sprite: public Object
-	{
-	public:
-		static Ref<Sprite> Create(const Rect& rect, const Vector4& border);
+    class Texture;
 
-		const Rect& GetRect() const { return m_rect; }
-		const Vector4& GetBorder() const { return m_border; }
+    class Sprite : public View
+    {
+    public:
+        Sprite();
+        virtual ~Sprite();
+        const Ref<Texture>& GetTexture() const { return m_texture; }
+        void SetTexture(Ref<Texture>& texture);
+    
+    protected:
+        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
 
-	private:
-		Sprite();
-
-		Rect m_rect;
-		Vector4 m_border;
-	};
+    private:
+        Ref<Texture> m_texture;
+    };
 }

@@ -14,13 +14,13 @@ if(!ndkDir || ndkDir.empty) {
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.1"
 
     defaultConfig {
         applicationId "com.viry3d.app"
         minSdkVersion 18
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -30,7 +30,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_PLATFORM=android-18', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=gnustl_static'
+                arguments '-DANDROID_PLATFORM=android-18', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_shared'
             }
         }
     }
@@ -51,7 +51,7 @@ android {
     exec {
         workingDir '../../../..'
         def cmd = [
-                'python', 'copy_assets.py'
+            'python', 'copy_assets.py'
         ]
         commandLine cmd
     }
@@ -67,5 +67,5 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }

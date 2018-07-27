@@ -16,245 +16,210 @@
 */
 
 #include "Application.h"
-#include "World.h"
 #include "Input.h"
+#include "container/List.h"
+#include "thread/ThreadPool.h"
 #include "time/Time.h"
-#include "graphics/Graphics.h"
-#include "renderer/Renderer.h"
+#include "graphics/Shader.h"
+#include "graphics/Texture.h"
+#include "ui/Font.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
-#endif
-
-#if VR_ANDROID
+#elif VR_IOS
+#import <UIKit/UIKit.h>
+#elif VR_ANDROID
 #include "android/jni.h"
 #endif
 
 namespace Viry3D
 {
-	Application* Application::m_instance;
-	String Application::m_data_path;
+    class ApplicationPrivate
+    {
+    public:
+        static Application* m_app;
+        String m_name;
+        String m_data_path;
+        String m_save_path;
+        List<Event> m_events;
+        Mutex m_mutex;
+        Ref<ThreadPool> m_thread_pool;
+        bool m_quit;
 
-	Application* Application::Current()
-	{
-		return m_instance;
-	}
+        ApplicationPrivate(Application* app):
+            m_quit(false)
+        {
+            m_app = app;
+            m_thread_pool = RefMake<ThreadPool>(8);
+            Font::Init();
+        }
 
-#if VR_WINDOWS || VR_ANDROID
-    const String& Application::DataPath()
-	{
-		static Mutex s_mutex;
+        ~ApplicationPrivate()
+        {
+            Font::Done();
+			Texture::Done();
+			Shader::Done();
+            m_thread_pool.reset();
+            m_app = nullptr;
+        }
+    };
 
-		s_mutex.lock();
-		if (m_data_path.Empty())
-		{
+    Application* ApplicationPrivate::m_app;
+
+    Application* Application::Instance()
+    {
+        return ApplicationPrivate::m_app;
+    }
+
+    Application::Application():
+        m_private(new ApplicationPrivate(this))
+    {
+        this->GetDataPath();
+        this->GetSavePath();
+    }
+
+    Application::~Application()
+    {
+        delete m_private;
+    }
+
+    const String& Application::GetName() const
+    {
+        return m_private->m_name;
+    }
+
+    void Application::SetName(const String& name)
+    {
+        m_private->m_name = name;
+    }
+
 #if VR_WINDOWS
-			char buffer[MAX_PATH];
-			::GetModuleFileName(NULL, buffer, MAX_PATH);
-			String path = buffer;
-			path = path.Replace("\\", "/").Substring(0, path.LastIndexOf("\\")) + "/Assets";
-			m_data_path = path;
+    const String& Application::GetDataPath()
+    {
+        if (m_private->m_data_path.Empty())
+        {
+            char buffer[MAX_PATH];
+            ::GetModuleFileName(nullptr, buffer, MAX_PATH);
+            String path = buffer;
+            path = path.Replace("\\", "/").Substring(0, path.LastIndexOf("\\")) + "/Assets";
+            m_private->m_data_path = path;
+        }
+
+        return m_private->m_data_path;
+    }
+
+    const String& Application::GetSavePath()
+    {
+        if (m_private->m_save_path.Empty())
+        {
+            m_private->m_save_path = this->GetDataPath();
+        }
+
+        return m_private->m_save_path;
+    }
+#elif VR_IOS
+    const String& Application::GetDataPath()
+    {
+        if (m_private->m_data_path.Empty())
+        {
+            String path = [[[NSBundle mainBundle] bundlePath] UTF8String];
+            path += "/Assets";
+            m_private->m_data_path = path;
+        }
+
+        return m_private->m_data_path;
+    }
+    
+    const String& Application::GetSavePath()
+    {
+        if (m_private->m_save_path.Empty())
+        {
+            NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString* doc_path = paths[0];
+            m_private->m_save_path = [doc_path UTF8String];
+        }
+        
+        return m_private->m_save_path;
+    }
+#elif VR_ANDROID
+    const String& Application::GetDataPath()
+    {
+        return m_private->m_data_path;
+    }
+
+    const String& Application::GetSavePath()
+    {
+        return m_private->m_save_path;
+    }
+
+    void Application::SetDataPath(const String& path)
+    {
+        m_private->m_data_path = path;
+    }
+
+    void Application::SetSavePath(const String& path)
+    {
+        m_private->m_save_path = path;
+    }
 #endif
-		}
-		s_mutex.unlock();
 
-		return m_data_path;
-	}
+    ThreadPool* Application::GetThreadPool() const
+    {
+        return m_private->m_thread_pool.get();
+    }
 
-    const String& Application::SavePath()
-	{
-		static String s_path;
+    void Application::PostEvent(Event event)
+    {
+        m_private->m_mutex.lock();
+        m_private->m_events.AddLast(event);
+        m_private->m_mutex.unlock();
+    }
 
-		if (s_path.Empty())
-		{
-#if VR_WINDOWS
-			s_path = DataPath();
-#endif
-
-#if VR_ANDROID
-			s_path = DataPath();
-#endif
-		}
-
-		return s_path;
-	}
-#endif
-
-	void Application::SetDataPath(const String& path)
-	{
-#if VR_ANDROID
-		m_data_path = path;
-#endif
-	}
-
-	Application::Application()
-	{
-		m_instance = this;
-		m_start = false;
-		m_quit = false;
-        m_paused = false;
-		m_name = "Viry3D::Application";
-		m_init_width = 1280;
-		m_init_height = 720;
-		m_init_fps = -1;
-		m_pre_runloop = RefMake<RunLoop>();
-		m_post_runloop = RefMake<RunLoop>();
-		m_thread_pool_update = RefMake<ThreadPool>(4);
-	}
-
-	Application::~Application()
-	{
-		m_pre_runloop.reset();
-		m_post_runloop.reset();
-		m_thread_pool_update.reset();
-
-		World::Deinit();
-		Graphics::Deinit();
-
-		m_instance = NULL;
-	}
-
-	void Application::SetInitSize(int width, int height)
-	{
-		m_init_width = width;
-		m_init_height = height;
-	}
-
-	void Application::SetInitFPS(int fps)
-	{
-		m_init_fps = fps;
-	}
-
-	void Application::SetName(const String& name)
-	{
-		m_name = name;
-	}
-
-    const String& Application::GetName()
-	{
-		return m_name;
-	}
-
-	void Application::Run()
-	{
-		assert(!m_start);
-
-		this->OnInit();
-
-		while (!m_quit)
-		{
-			this->EnsureFPS();
-			this->OnUpdate();
-            if (!m_quit)
+    void Application::ProcessEvents()
+    {
+        m_private->m_mutex.lock();
+        for (const auto& event : m_private->m_events)
+        {
+            if (event)
             {
-                this->OnDraw();
+                event();
             }
-		}
-	}
+        }
+        m_private->m_events.Clear();
+        m_private->m_mutex.unlock();
+    }
 
-	void Application::OnInit()
-	{
-		m_start = true;
-		Graphics::Init(m_init_width, m_init_height, m_init_fps);
-		World::Init();
-		this->Start();
-	}
+    void Application::OnFrameBegin()
+    {
+        Time::Update();
+        this->ProcessEvents();
+    }
 
-	void Application::AddAsyncUpdateTask(const Thread::Task& task)
-	{
-		m_thread_pool_update->AddTask(task);
-	}
-
-	void Application::EnsureFPS()
-	{
-		auto fps = Graphics::GetDisplay()->GetPreferredFPS();
-		if (fps > 0)
-		{
-			static long long frame_time_start_last = 0;
-			auto frame_time_min = 1000 / fps;
-			auto frame_time_start_this = Time::GetTimeMS();
-			auto frame_time_delta = frame_time_start_this - frame_time_start_last;
-			if (frame_time_delta < frame_time_min)
-			{
-				Thread::Sleep((int) (frame_time_min - frame_time_delta));
-			}
-			frame_time_start_last = Time::GetTimeMS();
-		}
-	}
-
-	void Application::OnUpdate()
-	{
-		Profiler::Reset();
-
-		Profiler::SampleBegin("Application::OnUpdate");
-
-		Time::Update();
-
-		m_pre_runloop->Run();
-		Renderer::HandleUIEvent();
-		this->Update();
-		World::Update();
-		m_post_runloop->Run();
-		m_thread_pool_update->Wait();
-
+    void Application::OnFrameEnd()
+    {
 #if VR_ANDROID
-		if (Input::GetKeyDown(KeyCode::Backspace))
+        if (Input::GetKeyDown(KeyCode::Backspace))
 #else
-		if (Input::GetKeyDown(KeyCode::Escape))
+        if (Input::GetKeyDown(KeyCode::Escape))
 #endif
-		{
-			Quit();
-		}
+        {
+            this->Quit();
+        }
 
-		Input::Update();
-
-		Profiler::SampleEnd();
-	}
-
-	void Application::OnDraw()
-	{
-		Profiler::SampleBegin("Application::OnDraw");
-
-		Graphics::Render();
-
-		Profiler::SampleEnd();
-	}
-
-	void Application::OnResize(int width, int height)
-	{
-		Graphics::OnResize(width, height);
-	}
-    
-    void Application::OnPause()
-    {
-        Graphics::OnPause();
-        World::OnPause();
-        m_paused = true;
-    }
-    
-    void Application::OnResume()
-    {
-        Graphics::OnResume();
-        World::OnResume();
-        m_paused = false;
+        Input::Update();
     }
 
-	void Application::Quit()
-	{
-		m_instance->m_quit = true;
+    void Application::Quit()
+    {
+        m_private->m_quit = true;
 
 #if VR_ANDROID
-		java_quit_application();
+        java_quit_application();
 #endif
-	}
+    }
 
-	void Application::RunTaskInPreLoop(const RunLoop::Task& task)
-	{
-		m_instance->m_pre_runloop->Add(task);
-	}
-
-	void Application::RunTaskInPostLoop(const RunLoop::Task& task)
-	{
-		m_instance->m_post_runloop->Add(task);
-	}
+    bool Application::HasQuit()
+    {
+        return m_private->m_quit;
+    }
 }

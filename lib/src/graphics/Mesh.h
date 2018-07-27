@@ -17,96 +17,39 @@
 
 #pragma once
 
-#include "Object.h"
-#include "Color.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "math/Vector2.h"
-#include "math/Vector3.h"
-#include "math/Vector4.h"
-#include "math/Matrix4x4.h"
+#include "VertexAttribute.h"
+#include "container/Vector.h"
 
 namespace Viry3D
 {
-	class GameObject;
+    struct BufferObject;
 
-	class Mesh: public Object
-	{
-	public:
-		static Ref<Mesh> Create(bool dynamic = false);
+    class Mesh
+    {
+    public:
+        struct Submesh
+        {
+            int index_first;
+            int index_count;
+        };
 
-		void Apply();
-		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_vertex_buffer; }
-		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_index_buffer; }
-		void GetIndexRange(int submesh_index, int& start, int& count);
-		int GetSubmeshCount() const;
-		void SetDynamic(bool dynamic);
-		bool IsDynamic() const { return m_dynamic; }
-		int GetBlendShapeCount() const;
-		const String& GetBlendShapeName(int index) const;
-		float GetBlendShapeWeight(int index) const;
-		void SetBlendShapeWeight(int index, float weight);
-		void UpdateBlendShapes();
+    public:
+        Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
+        ~Mesh();
+        void Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
+        const Ref<BufferObject>& GetVertexBuffer() const { return m_vertex_buffer; }
+        const Ref<BufferObject>& GetIndexBuffer() const { return m_index_buffer; }
+        int GetVertexCount() const { return m_vertex_count; }
+        int GetIndexCount() const { return m_index_count; }
+        const Submesh& GetSubmesh(int submesh) const { return m_submeshes[submesh]; }
 
-		Vector<Vector3> vertices;
-		Vector<Vector2> uv;				//Texture
-		Vector<Color> colors;			//UI
-		Vector<Vector2> uv2;			//Lightmap
-		Vector<Vector3> normals;		//Light
-		Vector<Vector4> tangents;		//NormalMap
-		Vector<Vector4> bone_weights;
-		Vector<Vector4> bone_indices;	//Skinned
-
-		struct Submesh
-		{
-			int start;
-			int count;
-		};
-
-		struct BlendShapeVertexDelta
-		{
-			Vector3 vertex;
-			Vector3 normal;
-			Vector3 tangent;
-		};
-
-		struct BlendShapeFrame
-		{
-			float weight;
-			Vector<BlendShapeVertexDelta> deltas;
-		};
-
-		struct BlendShape
-		{
-			String name;
-			Vector<BlendShapeFrame> frames;
-			float weight;
-
-			BlendShape():
-				weight(0)
-			{
-			}
-		};
-
-		Vector<unsigned short> triangles;
-		Vector<Submesh> submeshes;
-		Vector<Matrix4x4> bind_poses;
-		Vector<BlendShape> blend_shapes;
-		Vector<BlendShapeVertexDelta> blend_shapes_deltas;
-
-	private:
-		static void FillVertexBuffer(void* param, const ByteBuffer& buffer);
-		static void FillIndexBuffer(void* param, const ByteBuffer& buffer);
-
-		Mesh();
-		void UpdateVertexBuffer();
-		void UpdateIndexBuffer();
-		int VertexBufferSize() const;
-		int IndexBufferSize() const;
-
-		bool m_dynamic;
-		Ref<VertexBuffer> m_vertex_buffer;
-		Ref<IndexBuffer> m_index_buffer;
-		bool m_blend_shape_dirty;
-	};
+    private:
+        Ref<BufferObject> m_vertex_buffer;
+        Ref<BufferObject> m_index_buffer;
+        int m_vertex_count;
+        int m_index_count;
+        int m_buffer_vertex_count;
+        int m_buffer_index_count;
+        Vector<Submesh> m_submeshes;
+    };
 }

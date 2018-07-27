@@ -17,46 +17,44 @@
 
 #pragma once
 
-#if VR_VULKAN
-#include "vulkan/ShaderVulkan.h"
-#elif VR_GLES
-#include "gles/ShaderGLES.h"
-#endif
-
-#include "Object.h"
-#include "XMLShader.h"
+#include "Display.h"
+#include "RenderState.h"
+#include "string/String.h"
+#include "container/List.h"
 #include "container/Map.h"
-#include "thread/Thread.h"
 
 namespace Viry3D
 {
-	class Texture2D;
-
-#if VR_VULKAN
-	class Shader: public ShaderVulkan
-	{
-		friend class ShaderVulkan;
-#elif VR_GLES
-	class Shader: public ShaderGLES
-	{
-		friend class ShaderGLES;
-#endif
-	public:
-		static void Init();
-		static void Deinit();
-		static void ClearAllPipelines();
+    class Shader
+    {
+    public:
 		static Ref<Shader> Find(const String& name);
-		static Ref<Shader> ReplaceToShadowMapShader(const Ref<Shader>& shader);
-		static const Ref<Texture2D>& GetDefaultTexture(const String& name);
+		static void AddCache(const String& name, const Ref<Shader>& shader);
+		static void Done();
+        static void OnRenderPassDestroy(VkRenderPass render_pass);
+        Shader(
+            const String& vs_source,
+            const Vector<String>& vs_includes,
+            const String& fs_source,
+            const Vector<String>& fs_includes,
+            const RenderState& render_state);
+        ~Shader();
+        const RenderState& GetRenderState() const { return m_render_state; }
+        VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment);
+        void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
+        VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
 
-		int GetQueue() const;
-
-	private:
-		Shader(const String& name);
-
-		static Map<String, Ref<Shader>> m_shaders;
-		static Mutex m_mutex;
-		static Map<String, Ref<Texture2D>> m_default_textures;
-		XMLShader m_xml;
-	};
+    private:
+        static List<Shader*> m_shaders;
+		static Map<String, Ref<Shader>> m_shader_cache;
+        RenderState m_render_state;
+        VkShaderModule m_vs_module;
+        VkShaderModule m_fs_module;
+        Vector<UniformSet> m_uniform_sets;
+        VkPipelineCache m_pipeline_cache;
+        Vector<VkDescriptorSetLayout> m_descriptor_layouts;
+        VkPipelineLayout m_pipeline_layout;
+        VkDescriptorPool m_descriptor_pool;
+        Map<VkRenderPass, VkPipeline> m_pipelines;
+    };
 }

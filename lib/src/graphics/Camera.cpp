@@ -16,520 +16,377 @@
 */
 
 #include "Camera.h"
-#include "GameObject.h"
-#include "Debug.h"
-#include "Profiler.h"
-#include "Graphics.h"
+#include "Texture.h"
+#include "Renderer.h"
 #include "Material.h"
-#include "RenderPass.h"
-#include "RenderTexture.h"
-#include "time/Time.h"
-#include "renderer/Renderer.h"
-#include "postprocess/ImageEffect.h"
+#include "Shader.h"
 
 namespace Viry3D
 {
-	DEFINE_COM_CLASS(Camera);
-
-	List<Camera*> Camera::m_cameras;
-	Camera* Camera::m_current;
-	Ref<FrameBuffer> Camera::m_post_target_front;
-	Ref<FrameBuffer> Camera::m_post_target_back;
-
-	void Camera::Init()
-	{
-	}
-
-	void Camera::Deinit()
-	{
-		m_cameras.Clear();
-		m_post_target_front.reset();
-		m_post_target_back.reset();
-	}
-
-	bool Camera::IsValidCamera(Camera* cam)
-	{
-		bool exist = false;
-		for (auto i : m_cameras)
-		{
-			if (i == cam)
-			{
-				exist = true;
-				break;
-			}
-		}
-		return exist;
-	}
-
 	Camera::Camera():
-		m_culling_mask(-1),
-		m_matrix_dirty(true),
-        m_matrix_external(false),
-        m_frustum_culling(true),
-		m_render_mode(CameraRenderMode::Normal)
+		m_render_pass_dirty(true),
+		m_renderer_order_dirty(true),
+		m_instance_cmds_dirty(true),
+		m_clear_flags(CameraClearFlags::ColorAndDepth),
+		m_clear_color(0, 0, 0, 1),
+		m_viewport_rect(0, 0, 1, 1),
+		m_depth(0),
+		m_render_pass(VK_NULL_HANDLE),
+		m_cmd_pool(VK_NULL_HANDLE)
 	{
-		m_cameras.AddLast(this);
 
-		this->SetClearFlags(CameraClearFlags::Color);
-		this->SetClearColor(Color(0, 0, 0, 1));
-		this->SetDepth(0);
-		this->SetOrthographic(false);
-		this->SetOrthographicSize(1);
-		this->SetFieldOfView(45);
-		this->SetClipNear(0.3f);
-		this->SetClipFar(1000);
-		this->SetRect(Rect(0, 0, 1, 1));
-		this->SetHdr(false);
 	}
 
 	Camera::~Camera()
 	{
-		m_cameras.Remove(this);
+		this->ClearRenderPass();
+		this->ClearInstanceCmds();
 	}
 
-	void Camera::SetCullingMask(int mask)
+	void Camera::SetClearFlags(CameraClearFlags flags)
 	{
-		if (m_culling_mask != mask)
-		{
-			m_culling_mask = mask;
+		m_clear_flags = flags;
+		m_render_pass_dirty = true;
+	}
 
-			Renderer::SetCullingDirty(this);
-		}
+	void Camera::SetClearColor(const Color& color)
+	{
+		m_clear_color = color;
+		Display::Instance()->MarkPrimaryCmdDirty();
+	}
+
+	void Camera::SetViewportRect(const Rect& rect)
+	{
+		m_viewport_rect = rect;
+		m_instance_cmds_dirty = true;
 	}
 
 	void Camera::SetDepth(int depth)
 	{
 		m_depth = depth;
-
-		m_cameras.Sort(Less);
+		Display::Instance()->MarkPrimaryCmdDirty();
 	}
 
-	bool Camera::CanRender() const
+	void Camera::SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture)
 	{
-		return this->GetGameObject()->IsActiveInHierarchy() && this->IsEnable();
+		m_render_target_color = color_texture;
+		m_render_target_depth = depth_texture;
+		m_render_pass_dirty = true;
 	}
 
-	bool Camera::IsCulling(const Ref<GameObject>& obj) const
+	void Camera::Update()
 	{
-		return (this->GetCullingMask() & (1 << obj->GetLayer())) == 0;
-	}
+		if (m_render_pass_dirty)
+		{
+			m_render_pass_dirty = false;
+			this->UpdateRenderPass();
 
-	bool Camera::Less(const Camera *c1, const Camera *c2)
-	{
-		return c1->GetDepth() < c2->GetDepth();
-	}
+			m_instance_cmds_dirty = true;
+			Display::Instance()->MarkPrimaryCmdDirty();
+		}
 
-	void Camera::DeepCopy(const Ref<Object>& source)
-	{
-		assert(!"can not copy a camera");
-	}
+		if (m_renderer_order_dirty)
+		{
+			m_renderer_order_dirty = false;
+			this->SortRenderers();
 
-	void Camera::OnTranformChanged()
-	{
-		m_matrix_dirty = true;
+			Display::Instance()->MarkPrimaryCmdDirty();
+		}
 
-		Renderer::SetCullingDirty(this);
+		this->UpdateRenderers();
+		this->UpdateInstanceCmds();
 	}
 
 	void Camera::OnResize(int width, int height)
 	{
-		for (auto i : m_cameras)
-		{
-			i->m_render_pass.reset();
-			i->m_render_pass_post.reset();
-			i->m_matrix_dirty = true;
+		this->ClearRenderPass();
+		this->ClearInstanceCmds();
 
-			Renderer::SetCullingDirty(i);
-		}
-		m_post_target_front.reset();
-		m_post_target_back.reset();
+		m_render_pass_dirty = true;
+		m_instance_cmds_dirty = true;
 
-		Renderer::OnResize(width, height);
+        for (auto& i : m_renderers)
+        {
+            i.renderer->OnResize(width, height);
+        }
 	}
 
 	void Camera::OnPause()
 	{
-		for (auto i : m_cameras)
-		{
-			i->m_render_pass.reset();
-			i->m_render_pass_post.reset();
-			i->m_matrix_dirty = true;
+        this->ClearRenderPass();
+        this->ClearInstanceCmds();
 
-			Renderer::SetCullingDirty(i);
-		}
-		m_post_target_front.reset();
-		m_post_target_back.reset();
-
-		Renderer::OnPause();
+        m_render_pass_dirty = true;
+        m_instance_cmds_dirty = true;
 	}
 
-	void Camera::RenderAll()
+	void Camera::UpdateRenderPass()
 	{
-		Profiler::SampleBegin("Camera::RenderAll");
+		this->ClearRenderPass();
 
-		for (auto i : m_cameras)
+		Display::Instance()->CreateRenderPass(
+			m_render_target_color,
+			m_render_target_depth,
+			m_clear_flags,
+			&m_render_pass,
+			m_framebuffers);
+	}
+
+	void Camera::ClearRenderPass()
+	{
+		VkDevice device = Display::Instance()->GetDevice();
+
+		for (int i = 0; i < m_framebuffers.Size(); ++i)
 		{
-			if (i->CanRender())
+			vkDestroyFramebuffer(device, m_framebuffers[i], nullptr);
+		}
+		m_framebuffers.Clear();
+
+		if (m_render_pass)
+		{
+			Shader::OnRenderPassDestroy(m_render_pass);
+			vkDestroyRenderPass(device, m_render_pass, nullptr);
+			m_render_pass = VK_NULL_HANDLE;
+		}
+	}
+
+	void Camera::SortRenderers()
+	{
+		m_renderers.Sort([](const RendererInstance& a, const RendererInstance& b) {
+			const Ref<Material>& ma = a.renderer->GetMaterial();
+			const Ref<Material>& mb = b.renderer->GetMaterial();
+			if (ma && mb)
 			{
-				m_current = i;
-				i->Prepare();
-				i->Render();
+				return ma->GetQueue() < mb->GetQueue();
 			}
-		}
-		m_current = NULL;
-
-		Profiler::SampleEnd();
-	}
-
-	void Camera::Prepare()
-	{
-		this->DecideTarget();
-
-		if (!m_render_pass)
-		{
-			if (m_target_rendering)
+			else if (!ma && mb)
 			{
-				m_render_pass = RenderPass::Create(m_target_rendering->color_texture, m_target_rendering->depth_texture, this->GetClearFlags(), true, this->GetRect());
-				m_render_pass_post = RenderPass::Create(m_target_rendering->color_texture, m_target_rendering->depth_texture, CameraClearFlags::Nothing, true, this->GetRect());
+				return true;
 			}
 			else
 			{
-				m_render_pass = RenderPass::Create(Ref<RenderTexture>(), Ref<RenderTexture>(), this->GetClearFlags(), true, this->GetRect());
-				m_render_pass_post = RenderPass::Create(Ref<RenderTexture>(), Ref<RenderTexture>(), CameraClearFlags::Nothing, true, this->GetRect());
+				return false;
 			}
-		}
-
-		m_render_pass->Bind();
-
-		Renderer::PrepareAllPass();
-
-		m_render_pass->Unbind();
+		});
 	}
 
-	void Camera::BeginRenderPass(bool post) const
+	void Camera::UpdateInstanceCmds()
 	{
-		Graphics::GetDisplay()->WaitQueueIdle();
-		if (post)
+		for (auto& i : m_renderers)
 		{
-			m_render_pass_post->Begin(this->GetClearColor());
-		}
-		else
-		{
-			m_render_pass->Begin(this->GetClearColor());
-		}
-	}
-
-	void Camera::EndRenderPass(bool post) const
-	{
-		if (post)
-		{
-			m_render_pass_post->End();
-			Graphics::GetDisplay()->SubmitQueue(m_render_pass_post->GetCommandBuffer());
-		}
-		else
-		{
-			m_render_pass->End();
-			Graphics::GetDisplay()->SubmitQueue(m_render_pass->GetCommandBuffer());
-		}
-	}
-
-	void Camera::Render()
-	{
-		this->BeginRenderPass(false);
-		Renderer::RenderAllPass();
-		this->EndRenderPass(false);
-
-		this->GetGameObject()->OnPostRender();
-		if (m_post_render_func)
-		{
-			m_post_render_func();
-		}
-
-		this->PostProcess();
-	}
-
-	Ref<FrameBuffer> Camera::GetPostTargetFront()
-	{
-		if (!m_post_target_front)
-		{
-			m_post_target_front = RefMake<FrameBuffer>();
-			m_post_target_front->color_texture = RenderTexture::Create(
-				this->GetTargetWidth(),
-				this->GetTargetHeight(),
-				RenderTextureFormat::RGBA32,
-				DepthBuffer::Depth_0,
-				FilterMode::Bilinear);
-		}
-
-		return m_post_target_front;
-	}
-
-	Ref<FrameBuffer> Camera::GetPostTargetBack()
-	{
-		if (!m_post_target_back)
-		{
-			m_post_target_back = RefMake<FrameBuffer>();
-			m_post_target_back->color_texture = RenderTexture::Create(
-				this->GetTargetWidth(),
-				this->GetTargetHeight(),
-				RenderTextureFormat::RGBA32,
-				DepthBuffer::Depth_0,
-				FilterMode::Bilinear);
-		}
-
-		return m_post_target_back;
-	}
-
-	void Camera::SwapPostTargets()
-	{
-		if (m_post_target_front && m_post_target_back)
-		{
-			RefSwap(m_post_target_front, m_post_target_back);
-		}
-	}
-
-	void Camera::DecideTarget()
-	{
-		auto effects = this->GetGameObject()->GetComponents<ImageEffect>();
-
-		if (effects.Empty())
-		{
-			m_target_rendering = m_frame_buffer;
-		}
-		else
-		{
-			m_target_rendering = this->GetPostTargetFront();
-		}
-	}
-
-	void Camera::PostProcess()
-	{
-		auto effects = this->GetGameObject()->GetComponents<ImageEffect>();
-
-		if (!effects.Empty())
-		{
-			for (int i = 0; i < effects.Size(); i++)
+			if (i.cmd_dirty || m_instance_cmds_dirty)
 			{
-				Ref<FrameBuffer> src = this->GetPostTargetFront();
-				Ref<FrameBuffer> dest;
-				Ref<RenderTexture> src_texture;
-				Ref<RenderTexture> dest_texture;
+				i.cmd_dirty = false;
 
-				if (i == effects.Size() - 1)
+				if (i.cmd == VK_NULL_HANDLE)
 				{
-					dest = m_frame_buffer;
-				}
-				else
-				{
-					dest = this->GetPostTargetBack();
+					if (m_cmd_pool == VK_NULL_HANDLE)
+					{
+						Display::Instance()->CreateCommandPool(&m_cmd_pool);
+					}
+
+					Display::Instance()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
 				}
 
-				if (src)
-				{
-					src_texture = src->color_texture;
-				}
-				if (dest)
-				{
-					dest_texture = dest->color_texture;
-				}
+				this->BuildInstanceCmd(i.cmd, i.renderer);
 
-				effects[i]->OnRenderImage(src_texture, dest_texture);
-
-				this->SwapPostTargets();
+                Display::Instance()->MarkPrimaryCmdDirty();
 			}
+		}
+
+		m_instance_cmds_dirty = false;
+	}
+
+	void Camera::ClearInstanceCmds()
+	{
+		VkDevice device = Display::Instance()->GetDevice();
+
+		for (auto& i : m_renderers)
+		{
+			if (i.cmd)
+			{
+				vkFreeCommandBuffers(device, m_cmd_pool, 1, &i.cmd);
+				i.cmd = VK_NULL_HANDLE;
+			}
+		}
+
+		if (m_cmd_pool)
+		{
+			vkDestroyCommandPool(device, m_cmd_pool, nullptr);
+			m_cmd_pool = VK_NULL_HANDLE;
+		}
+	}
+
+	Vector<VkCommandBuffer> Camera::GetInstanceCmds() const
+	{
+		Vector<VkCommandBuffer> cmds;
+
+		for (const auto& i : m_renderers)
+		{
+			cmds.Add(i.cmd);
+		}
+
+		return cmds;
+	}
+
+	VkFramebuffer Camera::GetFramebuffer(int index) const
+	{
+		if (this->HasRenderTarget())
+		{
+			return m_framebuffers[0];
+		}
+		else
+		{
+			return m_framebuffers[index];
 		}
 	}
 
 	int Camera::GetTargetWidth() const
 	{
-		int width;
-
-		if (m_frame_buffer)
+		if (m_render_target_color)
 		{
-			width = m_frame_buffer->color_texture ? m_frame_buffer->color_texture->GetWidth() : m_frame_buffer->depth_texture->GetWidth();
+			return m_render_target_color->GetWidth();
+		}
+		else if (m_render_target_depth)
+		{
+			return m_render_target_depth->GetWidth();
 		}
 		else
 		{
-			width = Graphics::GetDisplay()->GetWidth();
+			return Display::Instance()->GetWidth();
 		}
-
-		return width;
 	}
 
 	int Camera::GetTargetHeight() const
 	{
-		int height;
-
-		if (m_frame_buffer)
+		if (m_render_target_color)
 		{
-			height = m_frame_buffer->color_texture ? m_frame_buffer->color_texture->GetHeight() : m_frame_buffer->depth_texture->GetHeight();
+			return m_render_target_color->GetHeight();
+		}
+		else if (m_render_target_depth)
+		{
+			return m_render_target_depth->GetHeight();
 		}
 		else
 		{
-			height = Graphics::GetDisplay()->GetHeight();
+			return Display::Instance()->GetHeight();
 		}
-
-		return height;
 	}
 
-	void Camera::UpdateMatrix()
+	void Camera::AddRenderer(const Ref<Renderer>& renderer)
 	{
-		m_matrix_dirty = false;
+		RendererInstance instance;
+		instance.renderer = renderer;
 
-		int width = this->GetTargetWidth();
-		int height = this->GetTargetHeight();
-
-		auto transform = GetTransform();
-
-		m_view_matrix = Matrix4x4::LookTo(
-			transform->GetPosition(),
-			transform->GetForward(),
-			transform->GetUp());
-
-		if (!this->IsOrthographic())
+		if (!m_renderers.Contains(instance))
 		{
-			m_projection_matrix = Matrix4x4::Perspective(this->GetFieldOfView(), width / (float) height, this->GetClipNear(), this->GetClipFar());
+			m_renderers.AddLast(instance);
+			this->MarkRendererOrderDirty();
+
+			renderer->OnAddToCamera(this);
 		}
-		else
+	}
+
+	void Camera::RemoveRenderer(const Ref<Renderer>& renderer)
+	{
+		VkDevice device = Display::Instance()->GetDevice();
+
+		Display::Instance()->WaitDevice();
+
+		for (auto i = m_renderers.begin(); i != m_renderers.end(); ++i)
 		{
-			float ortho_size = this->GetOrthographicSize();
-			auto rect = this->GetRect();
-
-			float top = ortho_size;
-			float bottom = -ortho_size;
-			float plane_h = ortho_size * 2;
-			float plane_w = plane_h * (width * rect.width) / (height * rect.height);
-			m_projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, this->GetClipNear(), this->GetClipFar());
+			if (i->renderer == renderer)
+			{
+				if (i->cmd)
+				{
+					vkFreeCommandBuffers(device, m_cmd_pool, 1, &i->cmd);
+				}
+				m_renderers.Remove(i);
+				break;
+			}
 		}
 
-		m_view_projection_matrix = m_projection_matrix * m_view_matrix;
+		Display::Instance()->MarkPrimaryCmdDirty();
+
+		renderer->OnRemoveFromCamera(this);
 	}
 
-	const Matrix4x4& Camera::GetViewMatrix()
+	void Camera::MarkRendererOrderDirty()
 	{
-        if (m_matrix_external)
-        {
-            return m_view_matrix_external;
-        }
-        
-		if (m_matrix_dirty)
+		m_renderer_order_dirty = true;
+	}
+
+	void Camera::MarkInstanceCmdDirty(Renderer* renderer)
+	{
+		for (auto& i : m_renderers)
 		{
-			UpdateMatrix();
+			if (i.renderer.get() == renderer)
+			{
+				i.cmd_dirty = true;
+				break;
+			}
 		}
-
-		return m_view_matrix;
 	}
 
-	const Matrix4x4& Camera::GetProjectionMatrix()
+	void Camera::BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer)
 	{
-        if (m_matrix_external)
-        {
-            return m_projection_matrix_external;
-        }
-        
-		if (m_matrix_dirty)
+		const Ref<Material>& material = renderer->GetMaterial();
+		Ref<BufferObject> vertex_buffer = renderer->GetVertexBuffer();
+		Ref<BufferObject> index_buffer = renderer->GetIndexBuffer();
+        Ref<BufferObject> draw_buffer = renderer->GetDrawBuffer();
+
+		if (!material || !vertex_buffer || !index_buffer || !draw_buffer)
 		{
-			UpdateMatrix();
+			Display::Instance()->BuildEmptyInstanceCmd(cmd, m_render_pass);
+			return;
 		}
 
-		return m_projection_matrix;
-	}
-    
-	const Frustum& Camera::GetFrustum()
-	{
-		if (m_matrix_dirty)
+		const Ref<Material>& instance_material = renderer->GetInstanceMaterial();
+		const Ref<Shader>& shader = material->GetShader();
+
+		Vector<VkDescriptorSet> descriptor_sets = material->GetDescriptorSets();
+
+		if (instance_material)
 		{
-			UpdateMatrix();
-
-			m_frustum = Frustum(m_view_projection_matrix);
+			const Vector<VkDescriptorSet>& instance_descriptor_sets = instance_material->GetDescriptorSets();
+			const Map<String, MaterialProperty>& instance_properties = instance_material->GetProperties();
+			for (const auto& i : instance_properties)
+			{
+				int instance_set_index = instance_material->FindUniformSetIndex(i.second.name);
+				if (instance_set_index >= 0)
+				{
+					descriptor_sets[instance_set_index] = instance_descriptor_sets[instance_set_index];
+				}
+			}
 		}
 
-		return m_frustum;
-	}
-
-	void Camera::SetFrameBuffer(const Ref<FrameBuffer>& frame_buffer)
-	{
-		m_matrix_dirty = true;
-		m_frame_buffer = frame_buffer;
-	}
-
-	Vector3 Camera::ScreenToViewportPoint(const Vector3& position)
-	{
-		float x = (position.x / GetTargetWidth() - m_rect.x) / m_rect.width;
-		float y = (position.y / GetTargetHeight() - m_rect.y) / m_rect.height;
-		return Vector3(x, y, position.z);
-	}
-
-	Vector3 Camera::ViewportToScreenPoint(const Vector3& position)
-	{
-		float x = (position.x * m_rect.width + m_rect.x) * GetTargetWidth();
-		float y = (position.y * m_rect.height + m_rect.y) * GetTargetHeight();
-		return Vector3(x, y, position.z);
-	}
-
-	Vector3 Camera::ScreenToWorldPoint(const Vector3& position)
-	{
-		Vector3 pos_viewport = this->ScreenToViewportPoint(position);
-		Vector3 pos_proj = pos_viewport * 2.0f - Vector3(1.0f, 1.0f, 0);
-		Matrix4x4 vp_inverse = (this->GetProjectionMatrix() * this->GetViewMatrix()).Inverse();
-
-		if (IsOrthographic())
+		bool color_attachment = true;
+		bool depth_attachment = true;
+		if (this->HasRenderTarget())
 		{
-			Vector4 pos_world = vp_inverse * Vector4(pos_proj.x, pos_proj.y, 0, 1.0f);
-			pos_world *= 1.0f / pos_world.w;
-
-			Vector3 origin = Vector3(pos_world.x, pos_world.y, pos_world.z);
-			Vector3 direction = this->GetTransform()->GetForward();
-
-			Ray ray_screen(origin, direction);
-			float ray_len = position.z - this->GetClipNear();
-
-			return ray_screen.GetPoint(ray_len);
+			color_attachment = (bool) this->GetRenderTargetColor();
+			depth_attachment = (bool) this->GetRenderTargetDepth();
 		}
-		else
-		{
-			Vector4 pos_world = vp_inverse * Vector4(pos_proj.x, pos_proj.y, -1.0f, 1.0f);
-			pos_world *= 1.0f / pos_world.w;
 
-			Vector3 origin = this->GetTransform()->GetPosition();
-			Vector3 direction = Vector3(pos_world.x, pos_world.y, pos_world.z) - origin;
-
-			Ray ray_screen(origin, direction);
-			Ray ray_forward(origin, this->GetTransform()->GetForward());
-			Vector3 plane_point = ray_forward.GetPoint(position.z);
-			float ray_len;
-			bool hit = Mathf::RayPlaneIntersection(ray_screen, ray_forward.GetDirection(), plane_point, ray_len);
-			assert(hit);
-
-			return ray_screen.GetPoint(ray_len);
-		}
+		Display::Instance()->BuildInstanceCmd(
+			cmd,
+			m_render_pass,
+			shader->GetPipelineLayout(),
+			shader->GetPipeline(m_render_pass, color_attachment, depth_attachment),
+			descriptor_sets,
+			this->GetTargetWidth(),
+			this->GetTargetHeight(),
+			m_viewport_rect,
+			vertex_buffer,
+			index_buffer,
+            draw_buffer);
 	}
 
-	Vector3 Camera::WorldToScreenPoint(const Vector3& position)
+	void Camera::UpdateRenderers()
 	{
-		Vector3 pos_view = this->GetViewMatrix().MultiplyPoint3x4(position);
-		Vector3 pos_proj = this->GetProjectionMatrix().MultiplyPoint3x4(pos_view);
-		Vector3 pos_viewport = (pos_proj + Vector3(1.0f, 1.0f, 0)) * 0.5f;
-		pos_viewport.z = pos_view.z;
-		return this->ViewportToScreenPoint(pos_viewport);
-	}
-
-	Ray Camera::ScreenPointToRay(const Vector3& position)
-	{
-		Vector3 pos_world = this->ScreenToWorldPoint(Vector3(position.x, position.y, this->GetClipNear()));
-
-		Vector3 origin = pos_world;
-		Vector3 direction;
-
-		if (IsOrthographic())
+		for (auto& i : m_renderers)
 		{
-			direction = this->GetTransform()->GetForward();
+			i.renderer->Update();
 		}
-		else
-		{
-			direction = origin - this->GetTransform()->GetPosition();
-		}
-
-		return Ray(origin, direction);
 	}
 }

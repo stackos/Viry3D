@@ -29,9 +29,12 @@ namespace Viry3D
 		Vector() { }
 		Vector(int size);
         Vector(int size, const V& v);
+        Vector(std::initializer_list<V> list);
 
 		void Add(const V& v);
 		void AddRange(const V* vs, int count);
+        void AddRange(std::initializer_list<V> list);
+        void AddRange(const Vector<V>& vs);
 		void Clear();
 		int Size() const;
 		bool Empty() const;
@@ -40,6 +43,7 @@ namespace Viry3D
 		byte* Bytes(int index = 0) const;
 		int SizeInBytes() const;
 
+		void Remove(const V& v);
 		void Remove(int index);
 		void RemoveRange(int index, int count);
 
@@ -71,6 +75,12 @@ namespace Viry3D
     {
     }
 
+    template<class V>
+    Vector<V>::Vector(std::initializer_list<V> list):
+        m_vector(list)
+    {
+    }
+
 	template<class V>
 	void Vector<V>::Add(const V& v)
 	{
@@ -91,6 +101,18 @@ namespace Viry3D
 			}
 		}
 	}
+
+    template<class V>
+    void Vector<V>::AddRange(std::initializer_list<V> list)
+    {
+        m_vector.insert(m_vector.end(), list.begin(), list.end());
+    }
+
+    template<class V>
+    void Vector<V>::AddRange(const Vector<V>& vs)
+    {
+        m_vector.insert(m_vector.end(), vs.begin(), vs.end());
+    }
 
 	template<class V>
 	void Vector<V>::Clear()
@@ -120,6 +142,19 @@ namespace Viry3D
 	int Vector<V>::SizeInBytes() const
 	{
 		return sizeof(V) * Size();
+	}
+
+	template<class V>
+	void Vector<V>::Remove(const V& v)
+	{
+		for (int i = 0; i < this->Size(); ++i)
+		{
+			if (m_vector[i] == v)
+			{
+				this->Remove(i);
+				break;
+			}
+		}
 	}
 
 	template<class V>

@@ -16,237 +16,227 @@
 */
 
 #include "Material.h"
-#include "Camera.h"
+#include "Shader.h"
+#include "Renderer.h"
+#include "BufferObject.h"
 
 namespace Viry3D
 {
-	static const String MAIN_TEX_NAME = "_MainTex";
-	static const String MAIN_TEX_ST = "_MainTex_ST";
-	static const String MAIN_COLOR_NAME = "_Color";
+    Material::Material(const Ref<Shader>& shader):
+        m_shader(shader)
+    {
+        m_shader->CreateDescriptorSets(m_descriptor_sets, m_uniform_sets);
+    }
 
-	Ref<Material> Material::Create(const String& shader_name)
-	{
-		Ref<Material> mat;
-		
-		mat = Ref<Material>(new Material());
-		mat->SetName(shader_name);
+    Material::~Material()
+    {
+        VkDevice device = Display::Instance()->GetDevice();
 
-		auto shader = Shader::Find(shader_name);
-		if (shader)
-		{
-			mat->m_shader = shader;
-		}
-		else
-		{
-			mat->m_shader = Shader::Find("Error");
-		}
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            for (int j = 0; j < m_uniform_sets[i].buffers.Size(); j++)
+            {
+                if (m_uniform_sets[i].buffers[j].buffer)
+                {
+                    m_uniform_sets[i].buffers[j].buffer->Destroy(device);
+                    m_uniform_sets[i].buffers[j].buffer.reset();
+                }
+            }
+        }
+        m_uniform_sets.Clear();
+    }
+    
+    int Material::GetQueue() const
+    {
+        if (m_queue)
+        {
+            return *m_queue;
+        }
 
-		return mat;
-	}
+        return m_shader->GetRenderState().queue;
+    }
+    
+    void Material::SetQueue(int queue)
+    {
+        m_queue = RefMake<int>(queue);
 
-	void Material::DeepCopy(const Ref<Object>& source)
-	{
-		Object::DeepCopy(source);
+        this->MarkRendererOrderDirty();
+    }
 
-		auto src = RefCast<Material>(source);
-		this->m_matrices = src->m_matrices;
-		this->m_vectors = src->m_vectors;
-		this->m_vector_arrays = src->m_vector_arrays;
-		this->m_textures = src->m_textures;
-		this->m_colors = src->m_colors;
-	}
+    void Material::OnSetRenderer(Renderer* renderer)
+    {
+        m_renderers.AddLast(renderer);
+    }
 
-	Material::Material()
-	{
-		this->SetMainColor(Color(1, 1, 1, 1));
-        this->SetMainTextureST(Vector4(1, 1, 0, 0));
-	}
+    void Material::OnUnSetRenderer(Renderer* renderer)
+    {
+        m_renderers.Remove(renderer);
+    }
 
-	void Material::SetShader(const Ref<Shader>& shader)
-	{
-		if (shader)
-		{
-			m_shader = shader;
-			this->OnShaderChanged();
-		}
-	}
+    void Material::SetMatrix(const String& name, const Matrix4x4& value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Matrix);
+    }
 
-	void Material::SetMatrix(const String& name, const Matrix4x4& v)
-	{
-		if (!m_matrices.Contains(name))
-		{
-			m_matrices.Add(name, v);
-		}
-		else
-		{
-			m_matrices[name] = v;
-		}
-	}
+    void Material::SetVector(const String& name, const Vector4& value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Vector);
+    }
 
-	const Matrix4x4& Material::GetMatrix(const String& name) const
-	{
-		return m_matrices[name];
-	}
+    void Material::SetColor(const String& name, const Color& value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Color);
+    }
 
-	void Material::SetVector(const String& name, const Vector4& v)
-	{
-		if (!m_vectors.Contains(name))
-		{
-			m_vectors.Add(name, v);
-		}
-		else
-		{
-			m_vectors[name] = v;
-		}
-	}
+    void Material::SetFloat(const String& name, float value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Float);
+    }
 
-	bool Material::HasVector(const String& name) const
-	{
-		return m_vectors.Contains(name);
-	}
+    void Material::SetInt(const String& name, int value)
+    {
+        this->SetProperty(name, value, MaterialProperty::Type::Int);
+    }
 
-	const Vector4& Material::GetVector(const String& name) const
-	{
-		return m_vectors[name];
-	}
+    void Material::SetTexture(const String& name, const Ref<Texture>& texture)
+    {
+        MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            property_ptr->texture = texture;
+            property_ptr->dirty = true;
+        }
+        else
+        {
+            MaterialProperty property;
+            property.name = name;
+            property.type = MaterialProperty::Type::Texture;
+            property.texture = texture;
+            property.dirty = true;
+            m_properties.Add(name, property);
+        }
+    }
 
-	void Material::SetMainColor(const Color& v)
-	{
-		this->SetColor(MAIN_COLOR_NAME, v);
-	}
+    void Material::UpdateUniformSets()
+    {
+        bool instance_cmd_dirty = false;
 
-	const Color& Material::GetMainColor() const
-	{
-		return this->GetColor(MAIN_COLOR_NAME);
-	}
+        for (auto& i : m_properties)
+        {
+            if (i.second.dirty)
+            {
+                i.second.dirty = false;
 
-	void Material::SetColor(const String& name, const Color& v)
-	{
-		if (!m_colors.Contains(name))
-		{
-			m_colors.Add(name, v);
-		}
-		else
-		{
-			m_colors[name] = v;
-		}
-	}
+                if (i.second.type == MaterialProperty::Type::Texture)
+                {
+                    this->UpdateUniformTexture(i.second.name, i.second.texture, instance_cmd_dirty);
+                }
+                else
+                {
+                    this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size, instance_cmd_dirty);
+                }
+            }
+        }
 
-	const Color& Material::GetColor(const String& name) const
-	{
-		return m_colors[name];
-	}
+        if (instance_cmd_dirty)
+        {
+            this->MarkInstanceCmdDirty();
+        }
+    }
 
-	void Material::SetVectorArray(const String& name, const Vector<Vector4>& v)
-	{
-		if (!m_vector_arrays.Contains(name))
-		{
-			m_vector_arrays.Add(name, v);
-		}
-		else
-		{
-			m_vector_arrays[name] = v;
-		}
-	}
+    int Material::FindUniformSetIndex(const String& name)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            Vector<VkDescriptorSetLayoutBinding> layout_bindings;
 
-	const Vector<Vector4>& Material::GetVectorArray(const String& name) const
-	{
-		return m_vector_arrays[name];
-	}
+            for (int j = 0; j < m_uniform_sets[i].buffers.Size(); ++j)
+            {
+                const auto& buffer = m_uniform_sets[i].buffers[j];
 
-	void Material::SetMainTexture(const Ref<Texture>& v)
-	{
-		this->SetTexture(MAIN_TEX_NAME, v);
-	}
+                for (int k = 0; k < buffer.members.Size(); ++k)
+                {
+                    const auto& member = buffer.members[k];
 
-	void Material::SetMainTextureST(const Vector4& scale_offset)
-	{
-		this->SetVector(MAIN_TEX_ST, scale_offset);
-	}
+                    if (member.name == name)
+                    {
+                        return i;
+                    }
+                }
 
-	bool Material::HasMainTexture() const
-	{
-		return m_textures.Contains(MAIN_TEX_NAME);
-	}
+                for (int j = 0; j < m_uniform_sets[i].textures.Size(); ++j)
+                {
+                    const auto& uniform_texture = m_uniform_sets[i].textures[j];
 
-	const Ref<Texture>& Material::GetMainTexture() const
-	{
-		return m_textures[MAIN_TEX_NAME];
-	}
+                    if (uniform_texture.name == name)
+                    {
+                        return i;
+                    }
+                }
+            }
+        }
 
-	void Material::SetTexture(const String& name, const Ref<Texture>& v)
-	{
-		if (!m_textures.Contains(name))
-		{
-			m_textures.Add(name, v);
-		}
-		else
-		{
-			m_textures[name] = v;
-		}
-	}
+        return -1;
+    }
 
-	void Material::SetZBufferParams(const Ref<Camera>& cam)
-	{
-		float cam_far = cam->GetClipFar();
-		float cam_near = cam->GetClipNear();
+    void Material::UpdateUniformMember(const String& name, const void* data, int size, bool& instance_cmd_dirty)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            for (int j = 0; j < m_uniform_sets[i].buffers.Size(); ++j)
+            {
+                auto& buffer = m_uniform_sets[i].buffers[j];
 
-#if VR_VULKAN
-		float zx = (1.0f - cam_far / cam_near) / 2;
-		float zy = (1.0f + cam_far / cam_near) / 2;
-#else
-		float zx = (1.0f - cam_far / cam_near);
-		float zy = (cam_far / cam_near);
-#endif
+                for (int k = 0; k < buffer.members.Size(); ++k)
+                {
+                    const auto& member = buffer.members[k];
 
-		SetVector("_ZBufferParams", Vector4(zx, zy, zx / cam_far, zy / cam_near));
-	}
+                    if (member.name == name && size <= member.size)
+                    {
+                        if (!buffer.buffer)
+                        {
+                            Display::Instance()->CreateUniformBuffer(m_descriptor_sets[i], buffer);
+                            instance_cmd_dirty = true;
+                        }
+                        Display::Instance()->UpdateBuffer(buffer.buffer, member.offset, data, size);
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
-	void Material::SetProjectionParams(const Ref<Camera>& cam)
-	{
-		float cam_far = cam->GetClipFar();
-		float cam_near = cam->GetClipNear();
+    void Material::UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            for (int j = 0; j < m_uniform_sets[i].textures.Size(); ++j)
+            {
+                const auto& uniform_texture = m_uniform_sets[i].textures[j];
 
-		// x = 1 or -1 (-1 if projection is flipped)
-		// y = near plane
-		// z = far plane
-		// w = 1/far plane
-		SetVector("_ProjectionParams", Vector4(1, cam_near, cam_far, 1 / cam_far));
-	}
+                if (uniform_texture.name == name)
+                {
+                    Display::Instance()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, texture);
+                    instance_cmd_dirty = true;
+                    return;
+                }
+            }
+        }
+    }
 
-	void Material::SetMainTexTexelSize(const Ref<Texture>& tex)
-	{
-		SetVector("_MainTex_TexelSize", Vector4(1.0f / tex->GetWidth(), 1.0f / tex->GetHeight(), (float) tex->GetWidth(), (float) tex->GetHeight()));
-	}
+    void Material::MarkRendererOrderDirty()
+    {
+        for (auto i : m_renderers)
+        {
+            i->MarkRendererOrderDirty();
+        }
+    }
 
-	void Material::UpdateUniforms(int pass_index)
-	{
-		this->UpdateUniformsBegin(pass_index);
-
-		auto buffer = this->SetUniformBegin(pass_index);
-		for (auto& i : m_matrices)
-		{
-			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second, sizeof(Matrix4x4));
-		}
-		for (auto& i : m_colors)
-		{
-			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second, sizeof(Color));
-		}
-		for (auto& i : m_vectors)
-		{
-			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second, sizeof(Vector4));
-		}
-		for (auto& i : m_vector_arrays)
-		{
-			this->SetUniform(pass_index, buffer, i.first, (void*) &i.second[0], i.second.SizeInBytes());
-		}
-		this->SetUniformEnd(pass_index);
-
-		for (auto& i : m_textures)
-		{
-			this->SetUniformTexture(pass_index, i.first, i.second.get());
-		}
-
-		this->UpdateUniformsEnd(pass_index);
-	}
+    void Material::MarkInstanceCmdDirty()
+    {
+        for (auto i : m_renderers)
+        {
+            i->MarkInstanceCmdDirty();
+        }
+    }
 }

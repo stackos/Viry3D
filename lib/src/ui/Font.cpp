@@ -17,32 +17,73 @@
 
 #include "Font.h"
 #include "io/File.h"
-#include "graphics/Texture2D.h"
 #include "memory/Memory.h"
+#include "graphics/Texture.h"
 #include "Debug.h"
+#include "Application.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "ftoutln.h"
 
+extern "C"
+{
+    int z_verbose;
+    void z_error(char* m) { }
+}
+
 namespace Viry3D
 {
 	static FT_Library g_ft_lib;
-
-	extern "C"
-	{
-		int z_verbose;
-		void z_error(char *m) { }
-	}
+    Map<FontType, Ref<Font>> Font::m_fonts;
 
 	void Font::Init()
 	{
 		FT_Init_FreeType(&g_ft_lib);
 	}
 
-	void Font::Deinit()
+	void Font::Done()
 	{
+        m_fonts.Clear();
+
 		FT_Done_FreeType(g_ft_lib);
 	}
+
+    Ref<Font> Font::GetFont(FontType type)
+    {
+        Ref<Font> font;
+
+        Ref<Font>* font_ptr;
+        if (m_fonts.TryGet(type, &font_ptr))
+        {
+            font = *font_ptr;
+        }
+        else
+        {
+            String file;
+
+            switch (type)
+            {
+            case FontType::Arial:
+                file = "Arial.ttf";
+                break;
+            case FontType::Consola:
+                file = "Consola.ttf";
+                break;
+            case FontType::PingFangSC:
+                file = "PingFangSC.ttf";
+                break;
+            case FontType::SimSun:
+                file = "SimSun.ttc";
+                break;
+            }
+
+            font = Font::LoadFromFile(Application::Instance()->GetDataPath() + "/font/" + file);
+
+            m_fonts.Add(type, font);
+        }
+
+        return font;
+    }
 
 	Ref<Font> Font::LoadFromFile(const String& file)
 	{
@@ -63,19 +104,9 @@ namespace Viry3D
 	}
 
 	Font::Font():
-		m_font(NULL),
-		m_texture_x(0),
-		m_texture_y(0),
-		m_texture_line_h_max(0)
+		m_font(nullptr)
 	{
-		auto buffer = ByteBuffer(TEXTURE_SIZE_MAX * TEXTURE_SIZE_MAX);
-		Memory::Zero(buffer.Bytes(), buffer.Size());
-		m_texture = Texture2D::Create(
-			TEXTURE_SIZE_MAX, TEXTURE_SIZE_MAX,
-			TextureFormat::R8,
-			TextureWrapMode::Clamp, FilterMode::Point,
-			false,
-			buffer);
+
 	}
 
 	Font::~Font()
@@ -119,7 +150,7 @@ namespace Viry3D
 		p_glyph->mono = mono;
 
 		FT_Face face = (FT_Face) m_font;
-		FT_Set_Pixel_Sizes(face, 0, size);
+        FT_Set_Char_Size(face, size << 6, size << 6, 96, 96);
 
 		FT_GlyphSlot slot = face->glyph;
 		auto glyph_index = FT_Get_Char_Index(face, c);
@@ -159,80 +190,76 @@ namespace Viry3D
 		}
 
 		p_glyph->glyph_index = glyph_index;
-		p_glyph->uv_pixel_w = slot->bitmap.width;
-		p_glyph->uv_pixel_h = slot->bitmap.rows;
+        p_glyph->witdh = slot->bitmap.width;
+        p_glyph->height = slot->bitmap.rows;
 		p_glyph->bearing_x = slot->bitmap_left;
 		p_glyph->bearing_y = slot->bitmap_top;
 		p_glyph->advance_x = (int) (slot->advance.x >> 6);
 		p_glyph->advance_y = (int) (slot->advance.y >> 6);
 
-		if (m_texture_y + p_glyph->uv_pixel_h <= TEXTURE_SIZE_MAX)
-		{
-			auto colors = m_texture->GetColors();
+        if (p_glyph->witdh > 0 && p_glyph->height > 0)
+        {
+            ByteBuffer pixels = ByteBuffer(p_glyph->witdh * p_glyph->height * 4);
 
-			// insert one white pixel for underline
-			if (m_texture_x == 0 && m_texture_y == 0)
-			{
-				ByteBuffer buffer(1);
-				buffer[0] = 0xff;
-				colors[0] = 0xff;
-				m_texture->UpdateTexture(0, 0, 1, 1, buffer);
-				m_texture_x += 1;
-			}
+            if (mono)
+            {
+                for (int i = 0; i < p_glyph->height; i++)
+                {
+                    for (int j = 0; j < p_glyph->witdh; j++)
+                    {
+                        unsigned char bit = slot->bitmap.buffer[i * slot->bitmap.pitch + j / 8] & (0x1 << (7 - j % 8));
+                        bit = bit == 0 ? 0 : 255;
 
-			if (m_texture_x + p_glyph->uv_pixel_w > TEXTURE_SIZE_MAX)
-			{
-				m_texture_y += m_texture_line_h_max;
-				m_texture_x = 0;
-				m_texture_line_h_max = 0;
-			}
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = bit;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < p_glyph->height; i++)
+                {
+                    for (int j = 0; j < p_glyph->witdh; j++)
+                    {
+                        unsigned char alpha = slot->bitmap.buffer[i * slot->bitmap.pitch + j];
 
-			if (m_texture_line_h_max < p_glyph->uv_pixel_h)
-			{
-				m_texture_line_h_max = p_glyph->uv_pixel_h;
-			}
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
+                        pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = alpha;
+                    }
+                }
+            }
 
-			ByteBuffer char_pixels;
-
-			if (mono)
-			{
-				char_pixels = ByteBuffer(p_glyph->uv_pixel_w * p_glyph->uv_pixel_h);
-
-				for (int i = 0; i < p_glyph->uv_pixel_h; i++)
-				{
-					for (int j = 0; j < p_glyph->uv_pixel_w; j++)
-					{
-						unsigned char bit = slot->bitmap.buffer[i * slot->bitmap.pitch + j / 8] & (0x1 << (7 - j % 8));
-						bit = bit == 0 ? 0 : 255;
-						char_pixels[i * p_glyph->uv_pixel_w + j] = bit;
-					}
-				}
-			}
-			else
-			{
-				char_pixels = ByteBuffer(slot->bitmap.buffer, p_glyph->uv_pixel_w * p_glyph->uv_pixel_h);
-			}
-
-			for (int i = 0; i < p_glyph->uv_pixel_h; i++)
-			{
-				Memory::Copy(&colors[TEXTURE_SIZE_MAX * (m_texture_y + i) + m_texture_x], &char_pixels[p_glyph->uv_pixel_w * i], p_glyph->uv_pixel_w);
-			}
-
-			if (p_glyph->uv_pixel_w > 0 && p_glyph->uv_pixel_h > 0)
-			{
-				m_texture->UpdateTexture(m_texture_x, m_texture_y, p_glyph->uv_pixel_w, p_glyph->uv_pixel_h, char_pixels);
-			}
-
-			p_glyph->uv_pixel_x = m_texture_x;
-			p_glyph->uv_pixel_y = m_texture_y;
-
-			m_texture_x += p_glyph->uv_pixel_w;
-		}
-		else
-		{
-			Log("font texture size over than 2048");
-		}
+            p_glyph->texture = Texture::CreateTexture2DFromMemory(
+                pixels,
+                p_glyph->witdh,
+                p_glyph->height,
+                VK_FORMAT_R8G8B8A8_UNORM,
+                VK_FILTER_LINEAR,
+                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                false,
+                false);
+        }
 
 		return *p_glyph;
 	}
+
+    bool Font::HasKerning() const
+    {
+        FT_Face face = (FT_Face) m_font;
+        return FT_HAS_KERNING(face);
+    }
+
+    Vector2i Font::GetKerning(unsigned int previous_glyph_index, unsigned int glyph_index)
+    {
+        FT_Face face = (FT_Face) m_font;
+
+        FT_Vector kerning;
+        FT_Get_Kerning(face, previous_glyph_index, glyph_index, FT_KERNING_UNFITTED, &kerning);
+
+        return Vector2i((int) kerning.x >> 6, (int) kerning.x >> 6);
+    }
 }

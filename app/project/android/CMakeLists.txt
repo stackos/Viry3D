@@ -17,10 +17,10 @@ get_filename_component(VIRY3D_APP_SRC_DIR
                        ABSOLUTE)
 
 set(CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} -Wall -DVR_ANDROID -DVR_GLES=1 -DVR_VULKAN=0 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
+    "${CMAKE_C_FLAGS} -Wall -DVR_ANDROID -DVR_GLES=0 -DVR_VULKAN=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
 
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -frtti -Wall -DVR_ANDROID -DVR_GLES=1 -DVR_VULKAN=0 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
+    "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -frtti -Wall -DVR_ANDROID -DVR_GLES=0 -DVR_VULKAN=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
 
 set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
@@ -368,6 +368,13 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/png/pngwrite.c
             ${VIRY3D_LIB_SRC_DIR}/png/pngwtran.c
             ${VIRY3D_LIB_SRC_DIR}/png/pngwutil.c
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
             ${VIRY3D_LIB_SRC_DIR}/xml/tinyxml2.cpp
             ${VIRY3D_LIB_SRC_DIR}/zlib/ioapi.c
             ${VIRY3D_LIB_SRC_DIR}/zlib/unzip.c)
@@ -383,44 +390,19 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/lua)
 
 add_library(Viry3D STATIC
-            ${VIRY3D_LIB_SRC_DIR}/android/DisplayAndroid.cpp
-            ${VIRY3D_LIB_SRC_DIR}/animation/Animation.cpp
-            ${VIRY3D_LIB_SRC_DIR}/animation/AnimationCurve.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioClip.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioListener.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioManager.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioSource.cpp
             ${VIRY3D_LIB_SRC_DIR}/Application.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Component.cpp
             ${VIRY3D_LIB_SRC_DIR}/Debug.cpp
-            ${VIRY3D_LIB_SRC_DIR}/gles/BufferGLES.cpp
-            ${VIRY3D_LIB_SRC_DIR}/gles/DisplayGLES.cpp
-            ${VIRY3D_LIB_SRC_DIR}/gles/MaterialGLES.cpp
-            ${VIRY3D_LIB_SRC_DIR}/gles/RenderPassGLES.cpp
-            ${VIRY3D_LIB_SRC_DIR}/gles/ShaderGLES.cpp
-            ${VIRY3D_LIB_SRC_DIR}/gles/TextureGLES.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Camera.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Color.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Cubemap.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/DisplayBase.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Graphics.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Display.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Image.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/ImageBuffer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/IndexBuffer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Light.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/LightmapSettings.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Material.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Mesh.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/RenderPass.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/RenderTexture.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/RenderTextureBliter.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Screen.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/MeshRenderer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Renderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Shader.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Texture2D.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/UniformBuffer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/VertexBuffer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/XMLShader.cpp
-            ${VIRY3D_LIB_SRC_DIR}/GameObject.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Texture.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/VertexAttribute.cpp
             ${VIRY3D_LIB_SRC_DIR}/io/Directory.cpp
             ${VIRY3D_LIB_SRC_DIR}/io/File.cpp
             ${VIRY3D_LIB_SRC_DIR}/io/MemoryStream.cpp
@@ -436,50 +418,18 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/math/Vector2.cpp
             ${VIRY3D_LIB_SRC_DIR}/math/Vector3.cpp
             ${VIRY3D_LIB_SRC_DIR}/memory/ByteBuffer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Object.cpp
-            ${VIRY3D_LIB_SRC_DIR}/physics/BoxCollider.cpp
-            ${VIRY3D_LIB_SRC_DIR}/physics/Collider.cpp
-            ${VIRY3D_LIB_SRC_DIR}/physics/MeshCollider.cpp
-            ${VIRY3D_LIB_SRC_DIR}/physics/Physics.cpp
-            ${VIRY3D_LIB_SRC_DIR}/postprocess/ImageEffect.cpp
-            ${VIRY3D_LIB_SRC_DIR}/postprocess/ImageEffectBlur.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Profiler.cpp
-            ${VIRY3D_LIB_SRC_DIR}/renderer/MeshRenderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/renderer/ParticleSystem.cpp
-            ${VIRY3D_LIB_SRC_DIR}/renderer/ParticleSystemRenderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/renderer/Renderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/renderer/SkinnedMeshRenderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/renderer/Terrain.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Resource.cpp
-            ${VIRY3D_LIB_SRC_DIR}/RunLoop.cpp
             ${VIRY3D_LIB_SRC_DIR}/string/String.cpp
-            ${VIRY3D_LIB_SRC_DIR}/thread/Thread.cpp
+            ${VIRY3D_LIB_SRC_DIR}/thread/ThreadPool.cpp
             ${VIRY3D_LIB_SRC_DIR}/time/Time.cpp
-            ${VIRY3D_LIB_SRC_DIR}/time/Timer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/tweener/Tweener.cpp
-            ${VIRY3D_LIB_SRC_DIR}/tweener/TweenPosition.cpp
-            ${VIRY3D_LIB_SRC_DIR}/tweener/TweenUIColor.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Transform.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/Atlas.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/Button.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/CanvasRenderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Font.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/Label.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Sprite.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/UICanvasRenderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/UIEventHandler.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/UILabel.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/UIRect.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/UISprite.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/UIView.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/BufferVulkan.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/DisplayVulkan.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/MaterialVulkan.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/RenderPassVulkan.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/ShaderVulkan.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/TextureVulkan.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_check.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_proc_addr.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/View.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_shader_compiler.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_wrapper/vulkan_wrapper.cpp      # for libvulkan.so load
-            ${VIRY3D_LIB_SRC_DIR}/World.cpp)
+            )
 
 target_include_directories(Viry3D PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}
@@ -496,33 +446,19 @@ target_include_directories(Viry3D PRIVATE
 add_library(Viry3DApp SHARED
             ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
             ${CMAKE_SOURCE_DIR}/app/src/main/jni/jni.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppAnim.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppAR.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppBlur.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppClear.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppFlappyBird.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/CodeEditor.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/InputHandler.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper/LuaRunner.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppGameDeveloper.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppMesh.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppParticle.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppPBR.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppPhysics.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppShadow.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppSky.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppTerrain.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppUI.cpp
-            ${VIRY3D_APP_SRC_DIR}/AppWatch.cpp
-            ${VIRY3D_APP_SRC_DIR}/DebugUI.cpp
-            ${VIRY3D_APP_SRC_DIR}/LaunchScreen.cpp)
+            ${VIRY3D_APP_SRC_DIR}/App.cpp)
 
 target_include_directories(Viry3DApp PRIVATE
                            ${ANDROID_NDK}/sources/android/native_app_glue
-                           ${VIRY3D_LIB_SRC_DIR})
+                           ${VIRY3D_LIB_SRC_DIR}
+                           ${VIRY3D_APP_SRC_DIR})
 
 target_link_libraries(Viry3DApp
-                      android log EGL GLESv3 z OpenSLES
+                      android log z
                       Viry3D Viry3DDep
                       shaderc_lib       # for vulkan shader compile
                       )
+
+# build shaderc
+# ndk-bundle\sources\third_party\shaderc
+# ..\..\..\ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined

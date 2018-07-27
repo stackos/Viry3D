@@ -23,19 +23,26 @@ namespace Viry3D
     {
         Vector2i(int x = 0, int y = 0): x(x), y(y) { }
 
+        Vector2i operator +(const Vector2i& right) const
+        {
+            return Vector2i(x + right.x, y + right.y);
+        }
+
+        Vector2i& operator +=(const Vector2i& right)
+        {
+            *this = *this + right;
+            return *this;
+        }
+
         Vector2i operator -(const Vector2i& right) const
         {
             return Vector2i(x - right.x, y - right.y);
         }
 
-        static int Dot(const Vector2i& left, const Vector2i& right)
+        Vector2i& operator -=(const Vector2i& right)
         {
-            return left.x * right.x + left.y * right.y;
-        }
-
-        static int Cross(const Vector2i& left, const Vector2i& right)
-        {
-            return left.x * right.y - left.y * right.x;
+            *this = *this - right;
+            return *this;
         }
 
         int x;

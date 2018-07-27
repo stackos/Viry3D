@@ -30,7 +30,7 @@ namespace Viry3D
 	long long Time::m_time_startup = 0;
 	float Time::m_time_delta = 0;
 	float Time::m_time_record = -1;
-	int Time::m_frame_count = 0;
+	int Time::m_frame_count = -1;
 	int Time::m_frame_record;
 	float Time::m_time = 0;
 	int Time::m_fps;
@@ -131,10 +131,15 @@ namespace Viry3D
 			Time::m_fps = frame - Time::m_frame_record;
 			Time::m_time_record = time;
 			Time::m_frame_record = frame;
-
-			//Log("fps:%d", Time::GetFPS());
 		}
 
-		Time::m_frame_count++;
+        if (m_frame_count < 0)
+        {
+            m_frame_count = 0;
+        }
+        else
+        {
+            Time::m_frame_count++;
+        }
 	}
 }

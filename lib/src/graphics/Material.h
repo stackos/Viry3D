@@ -17,67 +17,102 @@
 
 #pragma once
 
-#include "Object.h"
-#include "Texture.h"
-#include "Shader.h"
+#include "Display.h"
 #include "Color.h"
+#include "container/List.h"
+#include "container/Map.h"
 #include "math/Matrix4x4.h"
-
-#if VR_VULKAN
-#include "vulkan/MaterialVulkan.h"
-#elif VR_GLES
-#include "gles/MaterialGLES.h"
-#endif
+#include "math/Vector4.h"
+#include "string/String.h"
+#include "memory/Memory.h"
 
 namespace Viry3D
 {
-	class Camera;
+    class Shader;
+    class Renderer;
 
-#if VR_VULKAN
-	class Material: public MaterialVulkan
-#elif VR_GLES
-	class Material: public MaterialGLES
-#endif
-	{
-	public:
-		static Ref<Material> Create(const String& shader_name);
+    struct MaterialProperty
+    {
+        enum class Type
+        {
+            Matrix,
+            Vector,
+            Color,
+            Float,
+            Int,
+            Texture,
+        };
 
-		virtual void DeepCopy(const Ref<Object>& source);
+        union Data
+        {
+            float matrix[16];
+            float vector[4];
+            float color[4];
+            float floatValue;
+            int intValue;
+        };
 
-		const Ref<Shader>& GetShader() const { return m_shader; }
-		void SetShader(const Ref<Shader>& shader);
+        String name;
+        Type type;
+        Data data;
+        Ref<Texture> texture;
+        int size;
+        bool dirty;
+    };
 
-		void SetMatrix(const String& name, const Matrix4x4& v);
-		const Matrix4x4& GetMatrix(const String& name) const;
-		void SetVector(const String& name, const Vector4& v);
-		bool HasVector(const String& name) const;
-		const Vector4& GetVector(const String& name) const;
-		void SetMainColor(const Color& v);
-		const Color& GetMainColor() const;
-		void SetColor(const String& name, const Color& v);
-		const Color& GetColor(const String& name) const;
-		void SetVectorArray(const String& name, const Vector<Vector4>& v);
-		const Vector<Vector4>& GetVectorArray(const String& name) const;
-		void SetMainTexture(const Ref<Texture>& v);
-		void SetMainTextureST(const Vector4& scale_offset);
-		bool HasMainTexture() const;
-		const Ref<Texture>& GetMainTexture() const;
-		void SetTexture(const String& name, const Ref<Texture>& v);
-		const Map<String, Ref<Texture>>& GetTextures() const { return m_textures; }
-		void SetMainTexTexelSize(const Ref<Texture>& tex);
-		void SetZBufferParams(const Ref<Camera>& cam);
-		void SetProjectionParams(const Ref<Camera>& cam);
+    class Material
+    {
+    public:
+        Material(const Ref<Shader>& shader);
+        ~Material();
+        const Ref<Shader>& GetShader() const { return m_shader; }
+        int GetQueue() const;
+        void SetQueue(int queue);
+        void OnSetRenderer(Renderer* renderer);
+        void OnUnSetRenderer(Renderer* renderer);
+        const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
+        void SetMatrix(const String& name, const Matrix4x4& value);
+        void SetVector(const String& name, const Vector4& value);
+        void SetColor(const String& name, const Color& value);
+        void SetFloat(const String& name, float value);
+        void SetInt(const String& name, int value);
+        void SetTexture(const String& name, const Ref<Texture>& texture);
+        void UpdateUniformSets();
+        int FindUniformSetIndex(const String& name);
+        const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
 
-		void UpdateUniforms(int pass_index);
+    private:
+        template <class T>
+        void SetProperty(const String& name, const T& v, MaterialProperty::Type type)
+        {
+            MaterialProperty* property_ptr;
+            if (m_properties.TryGet(name, &property_ptr))
+            {
+                Memory::Copy(&property_ptr->data, &v, sizeof(v));
+                property_ptr->dirty = true;
+            }
+            else
+            {
+                MaterialProperty property;
+                property.name = name;
+                property.type = type;
+                Memory::Copy(&property.data, &v, sizeof(v));
+                property.size = sizeof(v);
+                property.dirty = true;
+                m_properties.Add(name, property);
+            }
+        }
+        void UpdateUniformMember(const String& name, const void* data, int size, bool& instance_cmd_dirty);
+        void UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty);
+        void MarkRendererOrderDirty();
+        void MarkInstanceCmdDirty();
 
-	private:
-		Material();
-
-		Ref<Shader> m_shader;
-		Map<String, Matrix4x4> m_matrices;
-		Map<String, Vector4> m_vectors;
-		Map<String, Vector<Vector4>> m_vector_arrays;
-		Map<String, Ref<Texture>> m_textures;
-		Map<String, Color> m_colors;
-	};
+    private:
+        Ref<Shader> m_shader;
+        Ref<int> m_queue;
+        List<Renderer*> m_renderers;
+        Vector<VkDescriptorSet> m_descriptor_sets;
+        Vector<UniformSet> m_uniform_sets;
+        Map<String, MaterialProperty> m_properties;
+    };
 }

@@ -32,8 +32,6 @@ float g_mouse_scroll_wheel = 0;
 
 namespace Viry3D
 {
-	bool Input::m_multi_touch_enabled = false;
-
 	bool Input::GetMouseButtonDown(int index)
 	{
 		return g_mouse_button_down[index];
@@ -49,7 +47,7 @@ namespace Viry3D
 		return g_mouse_button_up[index];
 	}
 
-	Vector3 Input::GetMousePosition()
+    const Vector3& Input::GetMousePosition()
 	{
 		return g_mouse_position;
 	}
@@ -64,14 +62,9 @@ namespace Viry3D
 		return g_input_touches.Size();
 	}
 
-	const Touch *Input::GetTouch(int index)
+	const Touch& Input::GetTouch(int index)
 	{
-		if (index >= 0 && index < g_input_touches.Size())
-		{
-			return &g_input_touches[index];
-		}
-
-		return NULL;
+        return g_input_touches[index];
 	}
 
 	bool Input::GetKeyDown(KeyCode key)
@@ -103,13 +96,5 @@ namespace Viry3D
 		Memory::Zero(g_mouse_button_down, sizeof(g_mouse_button_down));
 		Memory::Zero(g_mouse_button_up, sizeof(g_mouse_button_up));
         g_mouse_scroll_wheel = 0;
-	}
-
-	void Input::EnableMultiTouch(bool value)
-	{
-	}
-
-	void Input::ResetInputAxes()
-	{
 	}
 }

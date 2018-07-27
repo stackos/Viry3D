@@ -17,21 +17,30 @@
 
 #pragma once
 
-#include "Object.h"
-
-#define TEXTURE_SIZE_MAX 2048
+#include "memory/Ref.h"
+#include "container/Map.h"
+#include "string/String.h"
+#include "math/Vector2i.h"
 
 namespace Viry3D
 {
+    enum class FontType
+    {
+        Arial,
+        Consola,
+        PingFangSC,
+        SimSun,
+    };
+
+    class Texture;
+
 	struct GlyphInfo
 	{
 		char32_t c;
 		int size;
 		unsigned int glyph_index;
-		int uv_pixel_x;
-		int uv_pixel_y;
-		int uv_pixel_w;
-		int uv_pixel_h;
+        int witdh;
+        int height;
 		int bearing_x;
 		int bearing_y;
 		int advance_x;
@@ -39,29 +48,27 @@ namespace Viry3D
 		bool bold;
 		bool italic;
 		bool mono;
+        Ref<Texture> texture;
 	};
 
-	class Texture2D;
-
-	class Font: public Object
+	class Font
 	{
 	public:
 		static void Init();
-		static void Deinit();
+		static void Done();
+        static Ref<Font> GetFont(FontType type);
 		static Ref<Font> LoadFromFile(const String& file);
 		~Font();
-		void* GetFont() const { return m_font; }
 		GlyphInfo GetGlyph(char32_t c, int size, bool bold, bool italic, bool mono);
-		const Ref<Texture2D>& GetTexture() const { return m_texture; }
+        bool HasKerning() const;
+        Vector2i GetKerning(unsigned int previous_glyph_index, unsigned int glyph_index);
 
 	private:
 		Font();
 
+    private:
+        static Map<FontType, Ref<Font>> m_fonts;
 		void* m_font;
 		Map<char32_t, Map<int, GlyphInfo>> m_glyphs;
-		Ref<Texture2D> m_texture;
-		int m_texture_x;
-		int m_texture_y;
-		int m_texture_line_h_max;
 	};
 }

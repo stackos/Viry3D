@@ -16,178 +16,135 @@
 */
 
 #include "Shader.h"
-#include "Application.h"
-#include "Texture2D.h"
-#include "Debug.h"
-#include "io/Directory.h"
-
-#if VR_VULKAN
-#include "vulkan/vulkan_shader_compiler.h"
-#endif
+#include "Camera.h"
 
 namespace Viry3D
 {
-	Map<String, Ref<Shader>> Shader::m_shaders;
-	Mutex Shader::m_mutex;
-	Map<String, Ref<Texture2D>> Shader::m_default_textures;
-
-	static String get_shader_path(const String& name)
-	{
-		static Map<String, String> s_path_map;
-
-		if (s_path_map.Empty())
-		{
-			auto dir = Application::DataPath() + "/shader";
-			auto files = Directory::GetFiles(dir, true);
-			for (auto& i : files)
-			{
-				if (i.EndsWith(".shader.xml"))
-				{
-					auto shader_name = i.Substring(dir.Size() + 1);
-					shader_name = shader_name.Substring(0, shader_name.IndexOf("."));
-					s_path_map.Add(shader_name, i);
-				}
-			}
-		}
-
-		String* path;
-		if (s_path_map.TryGet(name, &path))
-		{
-			return *path;
-		}
-
-		return "";
-	}
-
-	void Shader::Init()
-	{
-#if VR_VULKAN
-        init_shader_compiler();
-#endif
-	}
-
-	void Shader::Deinit()
-	{
-		m_mutex.lock();
-		m_shaders.Clear();
-		m_mutex.unlock();
-		m_default_textures.Clear();
-
-#if VR_VULKAN
-        deinit_shader_compiler();
-#endif
-	}
-
-	void Shader::ClearAllPipelines()
-	{
-		for (auto& i : m_shaders)
-		{
-			i.second->ClearPipelines();
-		}
-	}
-
-	const Ref<Texture2D>& Shader::GetDefaultTexture(const String& name)
-	{
-		if (!m_default_textures.Contains(name))
-		{
-			Ref<Texture2D> texture;
-
-			if (name == "white")
-			{
-				ByteBuffer colors(4);
-				int i = 0;
-				colors[i++] = 255;
-				colors[i++] = 255;
-				colors[i++] = 255;
-				colors[i++] = 255;
-
-				texture = Texture2D::Create(1, 1, TextureFormat::RGBA32, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
-			}
-			else if (name == "black")
-			{
-				ByteBuffer colors(4);
-				int i = 0;
-				colors[i++] = 0;
-				colors[i++] = 0;
-				colors[i++] = 0;
-				colors[i++] = 255;
-
-				texture = Texture2D::Create(1, 1, TextureFormat::RGBA32, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
-			}
-			else if (name == "bump")
-			{
-				ByteBuffer colors(4);
-				int i = 0;
-				colors[i++] = 128;
-				colors[i++] = 128;
-				colors[i++] = 255;
-				colors[i++] = 255;
-
-				texture = Texture2D::Create(1, 1, TextureFormat::RGBA32, TextureWrapMode::Clamp, FilterMode::Point, false, colors);
-			}
-			else
-			{
-				Log("invalid default texture name!");
-			}
-
-			m_default_textures.Add(name, texture);
-		}
-
-		return m_default_textures[name];
-	}
-
-	Shader::Shader(const String& name)
-	{
-		SetName(name);
-	}
+    List<Shader*> Shader::m_shaders;
+	Map<String, Ref<Shader>> Shader::m_shader_cache;
 
 	Ref<Shader> Shader::Find(const String& name)
 	{
 		Ref<Shader> shader;
 
-		m_mutex.lock();
-
 		Ref<Shader>* find;
-		if (m_shaders.TryGet(name, &find))
+		if (m_shader_cache.TryGet(name, &find))
 		{
 			shader = *find;
 		}
-		else
-		{
-			String path = get_shader_path(name);
-			if (!path.Empty())
-			{
-				shader = Ref<Shader>(new Shader(name));
-				shader->m_xml.Load(path);
-				shader->Compile();
-
-				m_shaders.Add(name, shader);
-			}
-			else
-			{
-				Log("can not find shader %s", name.CString());
-			}
-		}
-
-		m_mutex.unlock();
 
 		return shader;
 	}
 
-	Ref<Shader> Shader::ReplaceToShadowMapShader(const Ref<Shader>& shader)
+	void Shader::AddCache(const String& name, const Ref<Shader>& shader)
 	{
-		if (shader->GetName().StartsWith("SkinnedMesh"))
+		m_shader_cache.Add(name, shader);
+	}
+
+	void Shader::Done()
+	{
+		m_shader_cache.Clear();
+	}
+
+	void Shader::OnRenderPassDestroy(VkRenderPass render_pass)
+	{
+		VkDevice device = Display::Instance()->GetDevice();
+
+		for (auto i : m_shaders)
 		{
-			return Shader::Find("SkinnedMesh/ShadowMap");
-		}
-		else
-		{
-			return Shader::Find("ShadowMap");
+			VkPipeline* pipeline = nullptr;
+			if (i->m_pipelines.TryGet(render_pass, &pipeline))
+			{
+				vkDestroyPipeline(device, *pipeline, nullptr);
+				i->m_pipelines.Remove(render_pass);
+			}
 		}
 	}
 
-	int Shader::GetQueue() const
-	{
-		return m_xml.queue;
-	}
+    Shader::Shader(
+        const String& vs_source,
+        const Vector<String>& vs_includes,
+        const String& fs_source,
+        const Vector<String>& fs_includes,
+        const RenderState& render_state):
+        m_render_state(render_state),
+        m_vs_module(VK_NULL_HANDLE),
+        m_fs_module(VK_NULL_HANDLE),
+        m_pipeline_cache(VK_NULL_HANDLE),
+        m_pipeline_layout(VK_NULL_HANDLE),
+        m_descriptor_pool(VK_NULL_HANDLE)
+    {
+        m_shaders.AddLast(this);
+
+        Display::Instance()->CreateShaderModule(
+            vs_source,
+            vs_includes,
+            fs_source,
+            fs_includes,
+            &m_vs_module,
+            &m_fs_module,
+            m_uniform_sets);
+        Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
+        Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
+        Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+    }
+
+    Shader::~Shader()
+    {
+        VkDevice device = Display::Instance()->GetDevice();
+
+        for (auto i : m_pipelines)
+        {
+            vkDestroyPipeline(device, i.second, nullptr);
+        }
+        m_pipelines.Clear();
+        vkDestroyDescriptorPool(device, m_descriptor_pool, nullptr);
+        vkDestroyPipelineLayout(device, m_pipeline_layout, nullptr);
+        for (int i = 0; i < m_descriptor_layouts.Size(); ++i)
+        {
+            vkDestroyDescriptorSetLayout(device, m_descriptor_layouts[i], nullptr);
+        }
+        m_descriptor_layouts.Clear();
+        vkDestroyPipelineCache(device, m_pipeline_cache, nullptr);
+        vkDestroyShaderModule(device, m_vs_module, nullptr);
+        vkDestroyShaderModule(device, m_fs_module, nullptr);
+
+        m_shaders.Remove(this);
+    }
+
+    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment)
+    {
+        VkPipeline* pipeline_ptr;
+        if (m_pipelines.TryGet(render_pass, &pipeline_ptr))
+        {
+            return *pipeline_ptr;
+        }
+        else
+        {
+            VkPipeline pipeline;
+            Display::Instance()->CreatePipeline(
+                render_pass,
+                m_vs_module,
+                m_fs_module,
+                m_render_state,
+                m_pipeline_layout,
+                m_pipeline_cache,
+                &pipeline,
+                color_attachment,
+                depth_attachment);
+            m_pipelines.Add(render_pass, pipeline);
+
+            return pipeline;
+        }
+    }
+
+    void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets)
+    {
+        Display::Instance()->CreateDescriptorSets(
+            m_uniform_sets,
+            m_descriptor_pool,
+            m_descriptor_layouts,
+            descriptor_sets);
+        uniform_sets = m_uniform_sets;
+    }
 }

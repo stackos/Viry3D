@@ -39,6 +39,7 @@ namespace Viry3D
 		void Clear();
 		int Size() const;
 		bool Empty() const;
+        bool Contains(const V& v);
 		bool Remove(const V& v);
 		void RemoveAll(const V& v);
 
@@ -153,10 +154,24 @@ namespace Viry3D
 		return m_list.erase(pos);
 	}
 
+    template<class V>
+    bool List<V>::Contains(const V& v)
+    {
+        for (auto i = m_list.begin(); i != m_list.end(); ++i)
+        {
+            if (*i == v)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 	template<class V>
 	bool List<V>::Remove(const V& v)
 	{
-		for (auto i = m_list.begin(); i != m_list.end(); i++)
+		for (auto i = m_list.begin(); i != m_list.end(); ++i)
 		{
 			if (*i == v)
 			{

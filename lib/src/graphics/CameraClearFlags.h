@@ -21,9 +21,10 @@ namespace Viry3D
 {
 	enum class CameraClearFlags
 	{
-		Invalidate = 1,
-		Color = 2,
-		Depth = 3,
-		Nothing = 4,
+		Invalidate,
+        Color,
+        Depth,
+		ColorAndDepth,
+		Nothing,
 	};
 }

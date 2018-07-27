@@ -7,88 +7,60 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BA0913B81DAA85C500CA11BF /* AppWatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA0913B71DAA85C500CA11BF /* AppWatch.cpp */; };
-		BA0913C91DAFCF9500CA11BF /* AppAnim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA0913C81DAFCF9500CA11BF /* AppAnim.cpp */; };
-		BA0F43B51E92747500C9009C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA0F43B41E92747500C9009C /* OpenAL.framework */; };
-		BA1795481FBB597800D0B77E /* AppPhysics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1795461FBB597800D0B77E /* AppPhysics.cpp */; };
-		BA2800661F69A41C00215483 /* AppTerrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800651F69A41C00215483 /* AppTerrain.cpp */; };
+		BA12989820FE36B400DC815A /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = BA12989720FE36B400DC815A /* Main.m */; };
+		BA12989C20FE387700DC815A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BA12989B20FE387700DC815A /* AppDelegate.m */; };
 		BA2800E71F69A71100215483 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = BA2800E61F69A71100215483 /* Assets */; };
-		BA29655A1F9A6F6300C3FB87 /* AppAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2965581F9A6F6300C3FB87 /* AppAR.cpp */; };
-		BA29655D1F9A6FFF00C3FB87 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA29655C1F9A6FFF00C3FB87 /* ARKit.framework */; };
-		BA3599AD1F9B4C3200C0507C /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3599AB1F9B4C3100C0507C /* CoreVideo.framework */; };
-		BA4101DF1DC6021E003B50D6 /* AppBlur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */; };
-		BA410F8D1FAA3282005937F1 /* AppSky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA410F8B1FAA3282005937F1 /* AppSky.cpp */; };
-		BA42E6311FF5451C009C3C01 /* LuaRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E62D1FF5451C009C3C01 /* LuaRunner.cpp */; };
-		BA42E6321FF5451C009C3C01 /* CodeEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E62E1FF5451C009C3C01 /* CodeEditor.cpp */; };
-		BA42E6341FF5452E009C3C01 /* AppGameDeveloper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6331FF5452E009C3C01 /* AppGameDeveloper.cpp */; };
 		BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */; };
 		BA4A32601D7B34D400DEEE5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */; };
-		BA4A33451D7C1FE300DEEE5A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA4A33441D7C1FE300DEEE5A /* AppDelegate.mm */; };
-		BA547C62200B6E0300C0D325 /* InputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA547C5F200B6E0300C0D325 /* InputHandler.cpp */; };
-		BA5924811D90588800173EDC /* AppClear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5924801D90588800173EDC /* AppClear.cpp */; };
-		BA5924A01D92F26700173EDC /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA59249F1D92F26700173EDC /* OpenGLES.framework */; };
-		BA5924A21D92F29400173EDC /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A11D92F29400173EDC /* GLKit.framework */; };
 		BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A31D92F2A200173EDC /* UIKit.framework */; };
-		BA5CD1591FC20856004C590A /* DebugUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5CD1571FC20856004C590A /* DebugUI.cpp */; };
-		BA87B5181FDC1BB90072868A /* AppParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA87B5161FDC1BB90072868A /* AppParticle.cpp */; };
-		BA8C136E1F9FC710003776D0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA8C136C1F9FC710003776D0 /* CoreGraphics.framework */; };
-		BA94EE511D9E95CF00254ABF /* AppMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */; };
-		BA94EEAD1D9E9C1200254ABF /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */; };
-		BAA45E5F1FB752800049A867 /* AppPBR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */; };
-		BAD39DF01E926D220021B013 /* AppFlappyBird.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */; };
-		D1A6FA781FA2D3980081A94A /* AppShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A6FA771FA2D3980081A94A /* AppShadow.cpp */; };
-		D1EA4E081F2DD91D0034D59B /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EA4E021F2DD5170034D59B /* libviry3d.a */; };
+		BA981FF320FE45F00068E5B2 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA981FF220FE45F00068E5B2 /* ViewController.mm */; };
+		BA981FF720FE49A60068E5B2 /* View.xib in Resources */ = {isa = PBXBuildFile; fileRef = BA981FF620FE49A60068E5B2 /* View.xib */; };
+		D137753620FED5E900E4F19B /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = D137753420FED5E800E4F19B /* VkView.m */; };
+		D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D137753C20FEDF4A00E4F19B /* libviry3d.a */; };
+		D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */; };
+		D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757E20FEF7D000E4F19B /* MoltenVK.framework */; };
+		D13775A620FF327C00E4F19B /* App.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D13775A520FF327C00E4F19B /* App.cpp */; };
+		D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		D1EA4E011F2DD5170034D59B /* PBXContainerItemProxy */ = {
+		D137753B20FEDF4A00E4F19B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D1EA4DFD1F2DD5170034D59B /* viry3d.xcodeproj */;
+			containerPortal = D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 0A3C48C9CE12835F5C48CC6A;
+			remoteInfo = viry3d;
+		};
+		D137757720FEE06C00E4F19B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = EA2E22CBD00D6755C821EA4F;
 			remoteInfo = viry3d;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		BA0913B71DAA85C500CA11BF /* AppWatch.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppWatch.cpp; path = ../../src/AppWatch.cpp; sourceTree = "<group>"; };
-		BA0913C81DAFCF9500CA11BF /* AppAnim.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppAnim.cpp; path = ../../src/AppAnim.cpp; sourceTree = "<group>"; };
-		BA0F43B41E92747500C9009C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
-		BA1795461FBB597800D0B77E /* AppPhysics.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPhysics.cpp; path = ../../src/AppPhysics.cpp; sourceTree = "<group>"; };
-		BA2800651F69A41C00215483 /* AppTerrain.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppTerrain.cpp; path = ../../src/AppTerrain.cpp; sourceTree = "<group>"; };
+		BA12989720FE36B400DC815A /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
+		BA12989B20FE387700DC815A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		BA2800E61F69A71100215483 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
-		BA2965581F9A6F6300C3FB87 /* AppAR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppAR.cpp; path = ../../src/AppAR.cpp; sourceTree = "<group>"; };
-		BA29655C1F9A6FFF00C3FB87 /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
-		BA3599AB1F9B4C3100C0507C /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
-		BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppBlur.cpp; path = ../../src/AppBlur.cpp; sourceTree = "<group>"; };
-		BA410F8B1FAA3282005937F1 /* AppSky.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppSky.cpp; path = ../../src/AppSky.cpp; sourceTree = "<group>"; };
-		BA42E62C1FF5451C009C3C01 /* LuaRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaRunner.h; sourceTree = "<group>"; };
-		BA42E62D1FF5451C009C3C01 /* LuaRunner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LuaRunner.cpp; sourceTree = "<group>"; };
-		BA42E62E1FF5451C009C3C01 /* CodeEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditor.cpp; sourceTree = "<group>"; };
-		BA42E62F1FF5451C009C3C01 /* CodeEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeEditor.h; sourceTree = "<group>"; };
-		BA42E6331FF5452E009C3C01 /* AppGameDeveloper.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppGameDeveloper.cpp; path = ../../src/AppGameDeveloper.cpp; sourceTree = "<group>"; };
 		BA4A32491D7B34D400DEEE5A /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = app/Assets.xcassets; sourceTree = "<group>"; };
 		BA4A325F1D7B34D400DEEE5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BA4A32611D7B34D400DEEE5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = app/Info.plist; sourceTree = "<group>"; };
-		BA4A33441D7C1FE300DEEE5A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = app/AppDelegate.mm; sourceTree = "<group>"; };
-		BA547C5F200B6E0300C0D325 /* InputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputHandler.cpp; sourceTree = "<group>"; };
-		BA547C61200B6E0300C0D325 /* InputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputHandler.h; sourceTree = "<group>"; };
-		BA5924801D90588800173EDC /* AppClear.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppClear.cpp; path = ../../src/AppClear.cpp; sourceTree = "<group>"; };
-		BA59249F1D92F26700173EDC /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		BA5924A11D92F29400173EDC /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		BA5924A31D92F2A200173EDC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		BA5CD1571FC20856004C590A /* DebugUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DebugUI.cpp; path = ../../src/DebugUI.cpp; sourceTree = "<group>"; };
-		BA87B5161FDC1BB90072868A /* AppParticle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppParticle.cpp; path = ../../src/AppParticle.cpp; sourceTree = "<group>"; };
-		BA8C136C1F9FC710003776D0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppMesh.cpp; path = ../../src/AppMesh.cpp; sourceTree = "<group>"; };
-		BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.5.tbd; path = usr/lib/libz.1.2.5.tbd; sourceTree = SDKROOT; };
-		BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = AppPBR.cpp; path = ../../src/AppPBR.cpp; sourceTree = "<group>"; };
-		BABF7B941E97E7A3000C2116 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppFlappyBird.cpp; path = ../../src/AppFlappyBird.cpp; sourceTree = "<group>"; };
-		BAF6E2041E9E8229007C28BF /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = ../../../lib/src/spidermonkey/prebuilt/ios/libjs_static.a; sourceTree = "<group>"; };
-		D1A6FA771FA2D3980081A94A /* AppShadow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = AppShadow.cpp; path = ../../src/AppShadow.cpp; sourceTree = "<group>"; };
-		D1EA4DFD1F2DD5170034D59B /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/ios/viry3d.xcodeproj; sourceTree = "<group>"; };
+		BA981FF020FE45890068E5B2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		BA981FF120FE45F00068E5B2 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		BA981FF220FE45F00068E5B2 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
+		BA981FF620FE49A60068E5B2 /* View.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = View.xib; path = app/View.xib; sourceTree = "<group>"; };
+		D137753420FED5E800E4F19B /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
+		D137753520FED5E900E4F19B /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
+		D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/ios/viry3d.xcodeproj; sourceTree = "<group>"; };
+		D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = usr/lib/libz.1.2.8.tbd; sourceTree = SDKROOT; };
+		D137757E20FEF7D000E4F19B /* MoltenVK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVK.framework; path = ../../../lib/src/vulkan/MoltenVK/iOS/MoltenVK.framework; sourceTree = "<group>"; };
+		D13775A420FF320C00E4F19B /* App.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = App.h; path = ../../src/App.h; sourceTree = "<group>"; };
+		D13775A520FF327C00E4F19B /* App.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = App.cpp; path = ../../src/App.cpp; sourceTree = "<group>"; };
+		D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVKGLSLToSPIRVConverter.framework; path = ../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,39 +68,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D1EA4E081F2DD91D0034D59B /* libviry3d.a in Frameworks */,
-				BA94EEAD1D9E9C1200254ABF /* libz.1.2.5.tbd in Frameworks */,
-				BA0F43B51E92747500C9009C /* OpenAL.framework in Frameworks */,
-				BA5924A01D92F26700173EDC /* OpenGLES.framework in Frameworks */,
-				BA5924A21D92F29400173EDC /* GLKit.framework in Frameworks */,
 				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
-				BA29655D1F9A6FFF00C3FB87 /* ARKit.framework in Frameworks */,
-				BA3599AD1F9B4C3200C0507C /* CoreVideo.framework in Frameworks */,
-				BA8C136E1F9FC710003776D0 /* CoreGraphics.framework in Frameworks */,
+				D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */,
+				D13775AB20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
+				D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */,
+				D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BA42E62B1FF5451C009C3C01 /* AppGameDeveloper */ = {
-			isa = PBXGroup;
-			children = (
-				BA42E62E1FF5451C009C3C01 /* CodeEditor.cpp */,
-				BA42E62F1FF5451C009C3C01 /* CodeEditor.h */,
-				BA547C5F200B6E0300C0D325 /* InputHandler.cpp */,
-				BA547C61200B6E0300C0D325 /* InputHandler.h */,
-				BA42E62D1FF5451C009C3C01 /* LuaRunner.cpp */,
-				BA42E62C1FF5451C009C3C01 /* LuaRunner.h */,
-			);
-			name = AppGameDeveloper;
-			path = ../../src/AppGameDeveloper;
-			sourceTree = "<group>";
-		};
 		BA4A32401D7B34D400DEEE5A = {
 			isa = PBXGroup;
 			children = (
-				D1EA4DFD1F2DD5170034D59B /* viry3d.xcodeproj */,
+				D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */,
 				BA2800E61F69A71100215483 /* Assets */,
 				BA59247F1D90587200173EDC /* src */,
 				BA4A33421D7C161A00DEEE5A /* app */,
@@ -148,10 +102,10 @@
 		BA4A33421D7C161A00DEEE5A /* app */ = {
 			isa = PBXGroup;
 			children = (
-				BA4A33441D7C1FE300DEEE5A /* AppDelegate.mm */,
 				BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */,
 				BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */,
 				BA4A32611D7B34D400DEEE5A /* Info.plist */,
+				BA981FF620FE49A60068E5B2 /* View.xib */,
 			);
 			name = app;
 			sourceTree = "<group>";
@@ -159,22 +113,15 @@
 		BA59247F1D90587200173EDC /* src */ = {
 			isa = PBXGroup;
 			children = (
-				BA42E62B1FF5451C009C3C01 /* AppGameDeveloper */,
-				BA0913C81DAFCF9500CA11BF /* AppAnim.cpp */,
-				BA2965581F9A6F6300C3FB87 /* AppAR.cpp */,
-				BA4101DE1DC6021E003B50D6 /* AppBlur.cpp */,
-				BA5924801D90588800173EDC /* AppClear.cpp */,
-				BAD39DEF1E926D220021B013 /* AppFlappyBird.cpp */,
-				BA42E6331FF5452E009C3C01 /* AppGameDeveloper.cpp */,
-				BA94EE4E1D9E95CF00254ABF /* AppMesh.cpp */,
-				BA87B5161FDC1BB90072868A /* AppParticle.cpp */,
-				BAA45E5D1FB7527F0049A867 /* AppPBR.cpp */,
-				BA1795461FBB597800D0B77E /* AppPhysics.cpp */,
-				D1A6FA771FA2D3980081A94A /* AppShadow.cpp */,
-				BA410F8B1FAA3282005937F1 /* AppSky.cpp */,
-				BA2800651F69A41C00215483 /* AppTerrain.cpp */,
-				BA0913B71DAA85C500CA11BF /* AppWatch.cpp */,
-				BA5CD1571FC20856004C590A /* DebugUI.cpp */,
+				D13775A520FF327C00E4F19B /* App.cpp */,
+				D13775A420FF320C00E4F19B /* App.h */,
+				BA12989720FE36B400DC815A /* Main.m */,
+				BA981FF020FE45890068E5B2 /* AppDelegate.h */,
+				BA12989B20FE387700DC815A /* AppDelegate.m */,
+				BA981FF120FE45F00068E5B2 /* ViewController.h */,
+				BA981FF220FE45F00068E5B2 /* ViewController.mm */,
+				D137753520FED5E900E4F19B /* VkView.h */,
+				D137753420FED5E800E4F19B /* VkView.m */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -182,24 +129,18 @@
 		BABF7B931E97E7A2000C2116 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BA8C136C1F9FC710003776D0 /* CoreGraphics.framework */,
-				BA3599AB1F9B4C3100C0507C /* CoreVideo.framework */,
-				BA29655C1F9A6FFF00C3FB87 /* ARKit.framework */,
-				BAF6E2041E9E8229007C28BF /* libjs_static.a */,
-				BA94EEAC1D9E9C1200254ABF /* libz.1.2.5.tbd */,
-				BA5924A11D92F29400173EDC /* GLKit.framework */,
-				BABF7B941E97E7A3000C2116 /* JavaScriptCore.framework */,
-				BA0F43B41E92747500C9009C /* OpenAL.framework */,
-				BA59249F1D92F26700173EDC /* OpenGLES.framework */,
 				BA5924A31D92F2A200173EDC /* UIKit.framework */,
+				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,
+				D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */,
+				D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		D1EA4DFE1F2DD5170034D59B /* Products */ = {
+		D137753820FEDF4A00E4F19B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D1EA4E021F2DD5170034D59B /* libviry3d.a */,
+				D137753C20FEDF4A00E4F19B /* libviry3d.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -218,6 +159,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D137757820FEE06C00E4F19B /* PBXTargetDependency */,
 			);
 			name = app;
 			productName = app;
@@ -230,7 +172,7 @@
 		BA4A32411D7B34D400DEEE5A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = virytech;
 				TargetAttributes = {
 					BA4A32481D7B34D400DEEE5A = {
@@ -253,8 +195,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = D1EA4DFE1F2DD5170034D59B /* Products */;
-					ProjectRef = D1EA4DFD1F2DD5170034D59B /* viry3d.xcodeproj */;
+					ProductGroup = D137753820FEDF4A00E4F19B /* Products */;
+					ProjectRef = D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -265,11 +207,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		D1EA4E021F2DD5170034D59B /* libviry3d.a */ = {
+		D137753C20FEDF4A00E4F19B /* libviry3d.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libviry3d.a;
-			remoteRef = D1EA4E011F2DD5170034D59B /* PBXContainerItemProxy */;
+			remoteRef = D137753B20FEDF4A00E4F19B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -279,6 +221,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA981FF720FE49A60068E5B2 /* View.xib in Resources */,
 				BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */,
 				BA2800E71F69A71100215483 /* Assets in Resources */,
 				BA4A32601D7B34D400DEEE5A /* LaunchScreen.storyboard in Resources */,
@@ -292,29 +235,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BAA45E5F1FB752800049A867 /* AppPBR.cpp in Sources */,
-				BA5CD1591FC20856004C590A /* DebugUI.cpp in Sources */,
-				BA4A33451D7C1FE300DEEE5A /* AppDelegate.mm in Sources */,
-				BA42E6321FF5451C009C3C01 /* CodeEditor.cpp in Sources */,
-				BA2800661F69A41C00215483 /* AppTerrain.cpp in Sources */,
-				BA410F8D1FAA3282005937F1 /* AppSky.cpp in Sources */,
-				BA1795481FBB597800D0B77E /* AppPhysics.cpp in Sources */,
-				BA94EE511D9E95CF00254ABF /* AppMesh.cpp in Sources */,
-				BA42E6341FF5452E009C3C01 /* AppGameDeveloper.cpp in Sources */,
-				D1A6FA781FA2D3980081A94A /* AppShadow.cpp in Sources */,
-				BA4101DF1DC6021E003B50D6 /* AppBlur.cpp in Sources */,
-				BA87B5181FDC1BB90072868A /* AppParticle.cpp in Sources */,
-				BA42E6311FF5451C009C3C01 /* LuaRunner.cpp in Sources */,
-				BA5924811D90588800173EDC /* AppClear.cpp in Sources */,
-				BA0913C91DAFCF9500CA11BF /* AppAnim.cpp in Sources */,
-				BA0913B81DAA85C500CA11BF /* AppWatch.cpp in Sources */,
-				BA29655A1F9A6F6300C3FB87 /* AppAR.cpp in Sources */,
-				BA547C62200B6E0300C0D325 /* InputHandler.cpp in Sources */,
-				BAD39DF01E926D220021B013 /* AppFlappyBird.cpp in Sources */,
+				BA981FF320FE45F00068E5B2 /* ViewController.mm in Sources */,
+				BA12989C20FE387700DC815A /* AppDelegate.m in Sources */,
+				BA12989820FE36B400DC815A /* Main.m in Sources */,
+				D137753620FED5E900E4F19B /* VkView.m in Sources */,
+				D13775A620FF327C00E4F19B /* App.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D137757820FEE06C00E4F19B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = viry3d;
+			targetProxy = D137757720FEE06C00E4F19B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */ = {
@@ -342,12 +279,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -394,12 +333,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -437,19 +378,26 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4BGL2BSW3E;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					../../../lib/src/vulkan/MoltenVK/iOS,
+					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS,
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					VR_GLES,
+					VR_VULKAN,
 					VR_IOS,
 				);
-				HEADER_SEARCH_PATHS = ../../../lib/src;
+				HEADER_SEARCH_PATHS = (
+					../../../lib/src,
+					../../../lib/src/vulkan/MoltenVK/include,
+				);
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = arm64;
 			};
 			name = Debug;
 		};
@@ -463,19 +411,26 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4BGL2BSW3E;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					../../../lib/src/vulkan/MoltenVK/iOS,
+					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS,
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					VR_GLES,
+					VR_VULKAN,
 					VR_IOS,
 				);
-				HEADER_SEARCH_PATHS = ../../../lib/src;
+				HEADER_SEARCH_PATHS = (
+					../../../lib/src,
+					../../../lib/src/vulkan/MoltenVK/include,
+				);
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
-				ONLY_ACTIVE_ARCH = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.viry3d.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = arm64;
 			};
 			name = Release;
 		};

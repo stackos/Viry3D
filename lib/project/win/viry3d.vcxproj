@@ -19,22 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\Action.h" />
-    <ClInclude Include="..\..\src\android\DisplayAndroid.h" />
     <ClInclude Include="..\..\src\android\jni.h" />
-    <ClInclude Include="..\..\src\animation\Animation.h" />
-    <ClInclude Include="..\..\src\animation\AnimationClip.h" />
-    <ClInclude Include="..\..\src\animation\AnimationCurve.h" />
-    <ClInclude Include="..\..\src\animation\AnimationState.h" />
-    <ClInclude Include="..\..\src\animation\AnimationWrapMode.h" />
-    <ClInclude Include="..\..\src\Any.h" />
     <ClInclude Include="..\..\src\Application.h" />
-    <ClInclude Include="..\..\src\audio\AudioClip.h" />
-    <ClInclude Include="..\..\src\audio\AudioListener.h" />
-    <ClInclude Include="..\..\src\audio\AudioManager.h" />
-    <ClInclude Include="..\..\src\audio\AudioSource.h" />
-    <ClInclude Include="..\..\src\Component.h" />
-    <ClInclude Include="..\..\src\ComponentClassMap.h" />
     <ClInclude Include="..\..\src\container\Array.h" />
     <ClInclude Include="..\..\src\container\FastList.h" />
     <ClInclude Include="..\..\src\container\List.h" />
@@ -42,83 +28,21 @@
     <ClInclude Include="..\..\src\container\Vector.h" />
     <ClInclude Include="..\..\src\crypto\md5\md5.h" />
     <ClInclude Include="..\..\src\Debug.h" />
-    <ClInclude Include="..\..\src\GameObject.h" />
-    <ClInclude Include="..\..\src\gles\BufferGLES.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gles\DisplayGLES.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gles\gles_include.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gles\MaterialGLES.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gles\RenderPassGLES.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gles\ShaderGLES.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gles\TextureGLES.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\src\graphics\BufferType.h" />
+    <ClInclude Include="..\..\src\graphics\BufferObject.h" />
     <ClInclude Include="..\..\src\graphics\Camera.h" />
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
     <ClInclude Include="..\..\src\graphics\Color.h" />
-    <ClInclude Include="..\..\src\graphics\Cubemap.h" />
-    <ClInclude Include="..\..\src\graphics\DepthBuffer.h" />
-    <ClInclude Include="..\..\src\graphics\DescriptorSet.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
-    <ClInclude Include="..\..\src\graphics\DisplayBase.h" />
-    <ClInclude Include="..\..\src\graphics\FilterMode.h" />
-    <ClInclude Include="..\..\src\graphics\FrameBuffer.h" />
-    <ClInclude Include="..\..\src\graphics\Graphics.h" />
     <ClInclude Include="..\..\src\graphics\Image.h" />
-    <ClInclude Include="..\..\src\graphics\ImageBuffer.h" />
-    <ClInclude Include="..\..\src\graphics\IndexBuffer.h" />
-    <ClInclude Include="..\..\src\graphics\Light.h" />
-    <ClInclude Include="..\..\src\graphics\LightmapSettings.h" />
     <ClInclude Include="..\..\src\graphics\Material.h" />
     <ClInclude Include="..\..\src\graphics\Mesh.h" />
-    <ClInclude Include="..\..\src\graphics\RenderPass.h" />
-    <ClInclude Include="..\..\src\graphics\RenderQueue.h" />
-    <ClInclude Include="..\..\src\graphics\RenderTexture.h" />
-    <ClInclude Include="..\..\src\graphics\RenderTextureBliter.h" />
-    <ClInclude Include="..\..\src\graphics\RenderTextureFormat.h" />
-    <ClInclude Include="..\..\src\graphics\Screen.h" />
+    <ClInclude Include="..\..\src\graphics\MeshRenderer.h" />
+    <ClInclude Include="..\..\src\graphics\Renderer.h" />
+    <ClInclude Include="..\..\src\graphics\RenderState.h" />
     <ClInclude Include="..\..\src\graphics\Shader.h" />
     <ClInclude Include="..\..\src\graphics\Texture.h" />
-    <ClInclude Include="..\..\src\graphics\Texture2D.h" />
-    <ClInclude Include="..\..\src\graphics\TextureFormat.h" />
-    <ClInclude Include="..\..\src\graphics\TextureWrapMode.h" />
-    <ClInclude Include="..\..\src\graphics\UniformBuffer.h" />
+    <ClInclude Include="..\..\src\graphics\UniformSet.h" />
     <ClInclude Include="..\..\src\graphics\VertexAttribute.h" />
-    <ClInclude Include="..\..\src\graphics\VertexBuffer.h" />
-    <ClInclude Include="..\..\src\graphics\XMLShader.h" />
     <ClInclude Include="..\..\src\Input.h" />
     <ClInclude Include="..\..\src\io\Directory.h" />
     <ClInclude Include="..\..\src\io\File.h" />
@@ -134,7 +58,6 @@
     <ClInclude Include="..\..\src\json\value.h" />
     <ClInclude Include="..\..\src\json\writer.h" />
     <ClInclude Include="..\..\src\KeyCode.h" />
-    <ClInclude Include="..\..\src\Layer.h" />
     <ClInclude Include="..\..\src\lua\lapi.h" />
     <ClInclude Include="..\..\src\lua\lauxlib.h" />
     <ClInclude Include="..\..\src\lua\lcode.h" />
@@ -167,7 +90,6 @@
     <ClInclude Include="..\..\src\lua\lundump.h" />
     <ClInclude Include="..\..\src\lua\lvm.h" />
     <ClInclude Include="..\..\src\lua\lzio.h" />
-    <ClInclude Include="..\..\src\Main.h" />
     <ClInclude Include="..\..\src\math\Bounds.h" />
     <ClInclude Include="..\..\src\math\Frustum.h" />
     <ClInclude Include="..\..\src\math\Mathf.h" />
@@ -176,14 +98,13 @@
     <ClInclude Include="..\..\src\math\Ray.h" />
     <ClInclude Include="..\..\src\math\Rect.h" />
     <ClInclude Include="..\..\src\math\Vector2.h" />
+    <ClInclude Include="..\..\src\math\Vector2i.h" />
     <ClInclude Include="..\..\src\math\Vector3.h" />
     <ClInclude Include="..\..\src\math\Vector4.h" />
     <ClInclude Include="..\..\src\memory\ByteBuffer.h" />
     <ClInclude Include="..\..\src\memory\Memory.h" />
     <ClInclude Include="..\..\src\memory\Ref.h" />
-    <ClInclude Include="..\..\src\Object.h" />
     <ClInclude Include="..\..\src\openal\win\config.h" />
-    <ClInclude Include="..\..\src\physics\BoxCollider.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseInterface.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseProxy.h" />
@@ -341,105 +262,31 @@
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btTransform.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btTransformUtil.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btVector3.h" />
-    <ClInclude Include="..\..\src\physics\Collider.h" />
-    <ClInclude Include="..\..\src\physics\MeshCollider.h" />
-    <ClInclude Include="..\..\src\physics\Physics.h" />
-    <ClInclude Include="..\..\src\postprocess\ImageEffect.h" />
-    <ClInclude Include="..\..\src\postprocess\ImageEffectBlur.h" />
-    <ClInclude Include="..\..\src\Profiler.h" />
-    <ClInclude Include="..\..\src\renderer\MeshRenderer.h" />
-    <ClInclude Include="..\..\src\renderer\ParticleSystem.h" />
-    <ClInclude Include="..\..\src\renderer\ParticleSystemRenderer.h" />
-    <ClInclude Include="..\..\src\renderer\Renderer.h" />
-    <ClInclude Include="..\..\src\renderer\SkinnedMeshRenderer.h" />
-    <ClInclude Include="..\..\src\renderer\Terrain.h" />
-    <ClInclude Include="..\..\src\Resource.h" />
-    <ClInclude Include="..\..\src\RunLoop.h" />
     <ClInclude Include="..\..\src\string\String.h" />
-    <ClInclude Include="..\..\src\thread\Thread.h" />
+    <ClInclude Include="..\..\src\thread\ThreadPool.h" />
     <ClInclude Include="..\..\src\time\Time.h" />
-    <ClInclude Include="..\..\src\time\Timer.h" />
-    <ClInclude Include="..\..\src\Transform.h" />
-    <ClInclude Include="..\..\src\tweener\Tweener.h" />
-    <ClInclude Include="..\..\src\tweener\TweenPosition.h" />
-    <ClInclude Include="..\..\src\tweener\TweenUIColor.h" />
-    <ClInclude Include="..\..\src\ui\Atlas.h" />
+    <ClInclude Include="..\..\src\ui\Button.h" />
+    <ClInclude Include="..\..\src\ui\CanvasRenderer.h" />
     <ClInclude Include="..\..\src\ui\Font.h" />
+    <ClInclude Include="..\..\src\ui\Label.h" />
     <ClInclude Include="..\..\src\ui\Sprite.h" />
-    <ClInclude Include="..\..\src\ui\UICanvasRenderer.h" />
-    <ClInclude Include="..\..\src\ui\UIEventHandler.h" />
-    <ClInclude Include="..\..\src\ui\UILabel.h" />
-    <ClInclude Include="..\..\src\ui\UIRect.h" />
-    <ClInclude Include="..\..\src\ui\UISprite.h" />
-    <ClInclude Include="..\..\src\ui\UIView.h" />
-    <ClInclude Include="..\..\src\vulkan\DescriptorSetVulkan.h" />
-    <ClInclude Include="..\..\src\vulkan\DisplayVulkan.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\glslang_tab.cpp.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\gl_types.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Initialize.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\localintermediate.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ParseHelper.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\parseVersions.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpContext.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpTokens.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\propagateNoContraction.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\reflection.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\RemoveTree.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Scan.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ScanContext.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\SymbolTable.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Versions.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslGrammar.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslOpMap.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslParseables.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslParseHelper.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslScanContext.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslTokens.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\hlsl\hlslTokenStream.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\OGLCompilersDLL\InitializeDll.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\disassemble.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\doc.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\GLSL.std.450.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\GlslangToSpv.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\Logger.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\spirv.hpp" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\SpvBuilder.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\spvIR.h" />
-    <ClInclude Include="..\..\src\vulkan\glslang\SPIRV\SPVRemapper.h" />
-    <ClInclude Include="..\..\src\vulkan\BufferVulkan.h" />
-    <ClInclude Include="..\..\src\vulkan\MaterialVulkan.h" />
-    <ClInclude Include="..\..\src\vulkan\RenderPassVulkan.h" />
-    <ClInclude Include="..\..\src\vulkan\ShaderVulkan.h" />
-    <ClInclude Include="..\..\src\vulkan\TextureVulkan.h" />
-    <ClInclude Include="..\..\src\vulkan\vulkan_check.h" />
+    <ClInclude Include="..\..\src\ui\View.h" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cfg.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_common.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cpp.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cross.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_cross_util.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_glsl.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_hlsl.hpp" />
+    <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv_msl.hpp" />
     <ClInclude Include="..\..\src\vulkan\vulkan_include.h" />
-    <ClInclude Include="..\..\src\vulkan\vulkan_proc_addr.h" />
     <ClInclude Include="..\..\src\vulkan\vulkan_shader_compiler.h" />
-    <ClInclude Include="..\..\src\windows\DisplayWindows.h" />
-    <ClInclude Include="..\..\src\World.h" />
     <ClInclude Include="..\..\src\xml\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\app\project\android\app\src\main\jni\jni.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\android\DisplayAndroid.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\animation\Animation.cpp" />
-    <ClCompile Include="..\..\src\animation\AnimationCurve.cpp" />
     <ClCompile Include="..\..\src\Application.cpp" />
-    <ClCompile Include="..\..\src\audio\AudioClip.cpp" />
-    <ClCompile Include="..\..\src\audio\AudioListener.cpp" />
-    <ClCompile Include="..\..\src\audio\AudioManager.cpp" />
-    <ClCompile Include="..\..\src\audio\AudioSource.cpp" />
-    <ClCompile Include="..\..\src\Component.cpp" />
     <ClCompile Include="..\..\src\crypto\md5\md5.c" />
     <ClCompile Include="..\..\src\Debug.cpp" />
     <ClCompile Include="..\..\src\freetype\src\autofit\autofit.c" />
@@ -481,65 +328,17 @@
     <ClCompile Include="..\..\src\freetype\src\type1\type1.c" />
     <ClCompile Include="..\..\src\freetype\src\type42\type42.c" />
     <ClCompile Include="..\..\src\freetype\src\winfonts\winfnt.c" />
-    <ClCompile Include="..\..\src\GameObject.cpp" />
-    <ClCompile Include="..\..\src\gles\BufferGLES.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gles\DisplayGLES.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gles\glew\src\glew.c" />
-    <ClCompile Include="..\..\src\gles\MaterialGLES.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gles\RenderPassGLES.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gles\ShaderGLES.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gles\TextureGLES.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
-    <ClCompile Include="..\..\src\graphics\Cubemap.cpp" />
-    <ClCompile Include="..\..\src\graphics\DisplayBase.cpp" />
-    <ClCompile Include="..\..\src\graphics\Graphics.cpp" />
+    <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
-    <ClCompile Include="..\..\src\graphics\ImageBuffer.cpp" />
-    <ClCompile Include="..\..\src\graphics\IndexBuffer.cpp" />
-    <ClCompile Include="..\..\src\graphics\Light.cpp" />
-    <ClCompile Include="..\..\src\graphics\LightmapSettings.cpp" />
     <ClCompile Include="..\..\src\graphics\Material.cpp" />
     <ClCompile Include="..\..\src\graphics\Mesh.cpp" />
-    <ClCompile Include="..\..\src\graphics\RenderPass.cpp" />
-    <ClCompile Include="..\..\src\graphics\RenderTexture.cpp" />
-    <ClCompile Include="..\..\src\graphics\RenderTextureBliter.cpp" />
-    <ClCompile Include="..\..\src\graphics\Screen.cpp" />
+    <ClCompile Include="..\..\src\graphics\MeshRenderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Shader.cpp" />
-    <ClCompile Include="..\..\src\graphics\Texture2D.cpp" />
-    <ClCompile Include="..\..\src\graphics\UniformBuffer.cpp" />
-    <ClCompile Include="..\..\src\graphics\VertexBuffer.cpp" />
-    <ClCompile Include="..\..\src\graphics\XMLShader.cpp" />
+    <ClCompile Include="..\..\src\graphics\Texture.cpp" />
+    <ClCompile Include="..\..\src\graphics\VertexAttribute.cpp" />
     <ClCompile Include="..\..\src\Input.cpp" />
     <ClCompile Include="..\..\src\io\Directory.cpp" />
     <ClCompile Include="..\..\src\io\File.cpp" />
@@ -706,7 +505,6 @@
     <ClCompile Include="..\..\src\noise\module\voronoi.cpp" />
     <ClCompile Include="..\..\src\noise\noisegen.cpp" />
     <ClCompile Include="..\..\src\noise\noiseutils.cpp" />
-    <ClCompile Include="..\..\src\Object.cpp" />
     <ClCompile Include="..\..\src\openal\Alc\ALc.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcConfig.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcDedicated.c" />
@@ -731,7 +529,6 @@
     <ClCompile Include="..\..\src\openal\OpenAL32\alListener.c" />
     <ClCompile Include="..\..\src\openal\OpenAL32\alSource.c" />
     <ClCompile Include="..\..\src\openal\OpenAL32\alThunk.c" />
-    <ClCompile Include="..\..\src\physics\BoxCollider.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btAxisSweep3.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseProxy.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.cpp" />
@@ -844,9 +641,6 @@
     <ClCompile Include="..\..\src\physics\bullet\src\LinearMath\btQuickprof.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\LinearMath\btSerializer.cpp" />
     <ClCompile Include="..\..\src\physics\bullet\src\LinearMath\btVector3.cpp" />
-    <ClCompile Include="..\..\src\physics\Collider.cpp" />
-    <ClCompile Include="..\..\src\physics\MeshCollider.cpp" />
-    <ClCompile Include="..\..\src\physics\Physics.cpp" />
     <ClCompile Include="..\..\src\png\png.c" />
     <ClCompile Include="..\..\src\png\pngerror.c" />
     <ClCompile Include="..\..\src\png\pngget.c" />
@@ -862,36 +656,15 @@
     <ClCompile Include="..\..\src\png\pngwrite.c" />
     <ClCompile Include="..\..\src\png\pngwtran.c" />
     <ClCompile Include="..\..\src\png\pngwutil.c" />
-    <ClCompile Include="..\..\src\postprocess\ImageEffect.cpp" />
-    <ClCompile Include="..\..\src\postprocess\ImageEffectBlur.cpp" />
-    <ClCompile Include="..\..\src\Profiler.cpp" />
-    <ClCompile Include="..\..\src\renderer\MeshRenderer.cpp" />
-    <ClCompile Include="..\..\src\renderer\ParticleSystem.cpp" />
-    <ClCompile Include="..\..\src\renderer\ParticleSystemRenderer.cpp" />
-    <ClCompile Include="..\..\src\renderer\Renderer.cpp" />
-    <ClCompile Include="..\..\src\renderer\SkinnedMeshRenderer.cpp" />
-    <ClCompile Include="..\..\src\renderer\Terrain.cpp" />
-    <ClCompile Include="..\..\src\Resource.cpp" />
-    <ClCompile Include="..\..\src\RunLoop.cpp" />
     <ClCompile Include="..\..\src\string\String.cpp" />
-    <ClCompile Include="..\..\src\thread\Thread.cpp" />
+    <ClCompile Include="..\..\src\thread\ThreadPool.cpp" />
     <ClCompile Include="..\..\src\time\Time.cpp" />
-    <ClCompile Include="..\..\src\time\Timer.cpp" />
-    <ClCompile Include="..\..\src\Transform.cpp" />
-    <ClCompile Include="..\..\src\tweener\Tweener.cpp" />
-    <ClCompile Include="..\..\src\tweener\TweenPosition.cpp" />
-    <ClCompile Include="..\..\src\tweener\TweenUIColor.cpp" />
-    <ClCompile Include="..\..\src\ui\Atlas.cpp" />
+    <ClCompile Include="..\..\src\ui\Button.cpp" />
+    <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp" />
     <ClCompile Include="..\..\src\ui\Font.cpp" />
+    <ClCompile Include="..\..\src\ui\Label.cpp" />
     <ClCompile Include="..\..\src\ui\Sprite.cpp" />
-    <ClCompile Include="..\..\src\ui\UICanvasRenderer.cpp" />
-    <ClCompile Include="..\..\src\ui\UIEventHandler.cpp" />
-    <ClCompile Include="..\..\src\ui\UILabel.cpp" />
-    <ClCompile Include="..\..\src\ui\UIRect.cpp" />
-    <ClCompile Include="..\..\src\ui\UISprite.cpp" />
-    <ClCompile Include="..\..\src\ui\UIView.cpp" />
-    <ClCompile Include="..\..\src\vulkan\BufferVulkan.cpp" />
-    <ClCompile Include="..\..\src\vulkan\DisplayVulkan.cpp" />
+    <ClCompile Include="..\..\src\ui\View.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\Constant.cpp" />
@@ -935,15 +708,14 @@
     <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\Logger.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SpvBuilder.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SPVRemapper.cpp" />
-    <ClCompile Include="..\..\src\vulkan\MaterialVulkan.cpp" />
-    <ClCompile Include="..\..\src\vulkan\RenderPassVulkan.cpp" />
-    <ClCompile Include="..\..\src\vulkan\ShaderVulkan.cpp" />
-    <ClCompile Include="..\..\src\vulkan\TextureVulkan.cpp" />
-    <ClCompile Include="..\..\src\vulkan\vulkan_check.cpp" />
-    <ClCompile Include="..\..\src\vulkan\vulkan_proc_addr.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cfg.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cpp.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cross.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_cross_util.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_glsl.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_hlsl.cpp" />
+    <ClCompile Include="..\..\src\vulkan\spirv_cross\spirv_msl.cpp" />
     <ClCompile Include="..\..\src\vulkan\vulkan_shader_compiler.cpp" />
-    <ClCompile Include="..\..\src\windows\DisplayWindows.cpp" />
-    <ClCompile Include="..\..\src\World.cpp" />
     <ClCompile Include="..\..\src\xml\tinyxml2.cpp" />
     <ClCompile Include="..\..\src\zlib\adler32.c" />
     <ClCompile Include="..\..\src\zlib\compress.c" />

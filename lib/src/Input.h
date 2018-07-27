@@ -26,11 +26,11 @@ namespace Viry3D
 {
 	enum class TouchPhase
 	{
-		Began,          //A finger touched the screen.
-		Moved,          //A finger moved on the screen.
-		Stationary,     //A finger is touching the screen but hasn't moved.
-		Ended,          //A finger was lifted from the screen. This is the final phase of a touch.
-		Canceled,       //The system cancelled tracking for the touch.
+        Began,             // whenever a finger touches the surface.
+        Moved,             // whenever a finger moves on the surface.
+        Stationary,        // whenever a finger is touching the surface but hasn't moved since the previous event.
+        Ended,              // whenever a finger leaves the surface.
+        Cancelled,         // whenever a touch doesn't end but we need to stop tracking (e.g. putting device to face)
 	};
 
 	struct Touch
@@ -49,10 +49,8 @@ namespace Viry3D
 	class Input
 	{
 	public:
-		static bool IsMultiTouchEnabled() { return m_multi_touch_enabled; }
-		static void EnableMultiTouch(bool value);
 		static int GetTouchCount();
-		static const Touch *GetTouch(int index);
+		static const Touch& GetTouch(int index);
 		static void Update();
 		static bool GetKeyDown(KeyCode key);
 		static bool GetKey(KeyCode key);
@@ -60,11 +58,7 @@ namespace Viry3D
 		static bool GetMouseButtonDown(int index);
 		static bool GetMouseButton(int index);
 		static bool GetMouseButtonUp(int index);
-		static Vector3 GetMousePosition();
+		static const Vector3& GetMousePosition();
         static float GetMouseScrollWheel();
-		static void ResetInputAxes();
-
-	private:
-		static bool m_multi_touch_enabled;
 	};
 }

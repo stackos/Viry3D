@@ -62,9 +62,4 @@ public class ActivityBase extends NativeActivity {
         });
         return 0;
     }
-
-    int quitApplication() {
-        android.os.Process.killProcess(android.os.Process.myPid());
-        return 0;
-    }
 }

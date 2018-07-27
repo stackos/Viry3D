@@ -17,65 +17,44 @@
 
 #pragma once
 
-#include "RunLoop.h"
-#include "memory/Ref.h"
 #include "string/String.h"
-#include "thread/Thread.h"
-#include <assert.h>
+#include <functional>
 
-#define APP_VERSION			0x00010000
-#define APP_VERSION_NAME	"1.0"
+#define APP_VERSION_NAME "1.0.0"
 
 namespace Viry3D
 {
-	class Application
-	{
-	public:
-		static Application* Current();
-		static void Quit();
-		static void RunTaskInPreLoop(const RunLoop::Task& task);
-		static void RunTaskInPostLoop(const RunLoop::Task& task);
-		static const String& DataPath();
-		static const String& SavePath();
-		static void SetDataPath(const String& path);
+    typedef std::function<void()> Event;
 
-		virtual ~Application();
+    class ThreadPool;
+    class ApplicationPrivate;
 
-		void SetInitSize(int width, int height);
-		void SetInitFPS(int fps);
-		void SetName(const String& name);
-		const String& GetName();
+    class Application
+    {
+    public:
+        static Application* Instance();
+        Application();
+        virtual ~Application();
+        virtual void Init() { }
+        virtual void Update() { }
+		virtual void OnResize(int width, int height) { }
+        const String& GetName() const;
+        void SetName(const String& name);
+        const String& GetDataPath();
+        const String& GetSavePath();
+#if VR_ANDROID
+        void SetDataPath(const String& path);
+        void SetSavePath(const String& path);
+#endif
+        ThreadPool* GetThreadPool() const;
+        void PostEvent(Event event);
+        void ProcessEvents();
+        void OnFrameBegin();
+        void OnFrameEnd();
+        void Quit();
+        bool HasQuit();
 
-		void Run();
-		void OnInit();
-		void OnUpdate();
-		void OnDraw();
-		void AddAsyncUpdateTask(const Thread::Task& task);
-		void EnsureFPS();
-        bool IsPaused() const { return m_paused; }
-
-		virtual void Start() { }
-		virtual void Update() { }
-		virtual void OnResize(int width, int height);
-        virtual void OnPause();
-        virtual void OnResume();
-        
-	protected:
-		Application();
-
-	private:
-		static Application* m_instance;
-		static String m_data_path;
-
-		bool m_start;
-		bool m_quit;
-        bool m_paused;
-		String m_name;
-		int m_init_width;
-		int m_init_height;
-		int m_init_fps;
-		Ref<RunLoop> m_pre_runloop;
-		Ref<RunLoop> m_post_runloop;
-		Ref<ThreadPool> m_thread_pool_update;
-	};
+    private:
+        ApplicationPrivate* m_private;
+    };
 }

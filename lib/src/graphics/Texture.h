@@ -17,65 +17,119 @@
 
 #pragma once
 
-#if VR_VULKAN
-#include "vulkan/TextureVulkan.h"
-#elif VR_GLES
-#include "gles/TextureGLES.h"
-#endif
-
-#include "TextureWrapMode.h"
-#include "FilterMode.h"
-#include "math/Mathf.h"
+#include "Display.h"
+#include "thread/ThreadPool.h"
 
 namespace Viry3D
 {
-#if VR_VULKAN
-	class Texture: public TextureVulkan
-	{
-		friend class TextureVulkan;
-#elif VR_GLES
-	class Texture: public TextureGLES
-	{
-		friend class TextureGLES;
-#endif
-	public:
-		Texture():
-			m_width(0),
-			m_height(0),
-			m_wrap_mode(TextureWrapMode::Clamp),
-			m_filter_mode(FilterMode::Bilinear),
-			m_mipmap(false)
-		{
-			SetName("Texture");
-		}
-		int GetWidth() const { return m_width; }
-		int GetHeight() const { return m_height; }
-		TextureWrapMode GetWrapMode() const { return m_wrap_mode; }
-		void SetWrapMode(TextureWrapMode mode) { m_wrap_mode = mode; }
-		FilterMode GetFilterMode() const { return m_filter_mode; }
-		void SetFilterMode(FilterMode mode) { m_filter_mode = mode; }
-		bool IsMipmap() const { return m_mipmap; }
-		int GetMipmapCount()
-		{
-			int mip_count = 1;
+    enum class CubemapFace
+    {
+        Unknown = -1,
 
-			if (m_mipmap)
-			{
-				mip_count = (int) floor(Mathf::Log2((float) Mathf::Max(m_width, m_height))) + 1;
-			}
+        PositiveX,
+        NegativeX,
+        PositiveY,
+        NegativeY,
+        PositiveZ,
+        NegativeZ,
 
-			return mip_count;
-		}
+        Count
+    };
 
-	protected:
-		void SetWidth(int witdh) { m_width = witdh; }
-		void SetHeight(int height) { m_height = height; }
+    class Texture : public Thread::Res
+    {
+    private:
+        friend class DisplayPrivate;
 
-	protected:
-		int m_width;
-		int m_height;
-		TextureWrapMode m_wrap_mode;
-		FilterMode m_filter_mode;
-		bool m_mipmap;
-	};
+    public:
+        static ByteBuffer LoadImageFromFile(const String& path, int& width, int& height, int& bpp);
+        static Ref<Texture> LoadTexture2DFromFile(
+            const String& path,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool gen_mipmap);
+        static Ref<Texture> CreateTexture2DFromMemory(
+            const ByteBuffer& pixels,
+            int width,
+            int height,
+            VkFormat format,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool gen_mipmap,
+            bool dynamic);
+        static Ref<Texture> CreateCubemap(
+            int size,
+            VkFormat format,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool mipmap);
+        static Ref<Texture> CreateRenderTexture(
+            int width,
+            int height,
+            VkFormat format,
+            bool create_sampler,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode);
+        static Ref<Texture> CreateTexture2DArrayFromMemory(
+            const Vector<ByteBuffer>& pixels,
+            int width,
+            int height,
+            int layer_count,
+            VkFormat format,
+            VkFilter filter_mode,
+            VkSamplerAddressMode wrap_mode,
+            bool gen_mipmap,
+            bool dynamic);
+		static Ref<Texture> GetSharedWhiteTexture();
+		static Ref<Texture> GetSharedBlackTexture();
+		static Ref<Texture> GetSharedNormalTexture();
+		static Ref<Texture> GetSharedCubemap();
+		static void Done();
+        virtual ~Texture();
+        int GetWidth() const { return m_width; }
+        int GetHeight() const { return m_height; }
+        int GetMipmapLevelCount() const { return m_mipmap_level_count; }
+        VkFormat GetFormat() const { return m_format; }
+        VkImage GetImage() const { return m_image; }
+        VkImageView GetImageView() const { return m_image_view; }
+        VkSampler GetSampler() const { return m_sampler; }
+        void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
+        void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
+        void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
+        void CopyTexture(
+            const Ref<Texture>& src_texture,
+            int src_layer, int src_level,
+            int src_x, int src_y,
+            int layer, int level,
+            int x, int y,
+            int w, int h);
+        void CopyToMemory(ByteBuffer& pixels, int layer, int level);
+        void GenMipmaps();
+
+    private:
+        Texture();
+        void CopyBufferToImageBegin();
+        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
+        void CopyBufferToImageEnd();
+        int GetLayerCount();
+
+    private:
+		static Ref<Texture> m_shared_white_texture;
+		static Ref<Texture> m_shared_black_texture;
+		static Ref<Texture> m_shared_normal_texture;
+		static Ref<Texture> m_shared_cubemap;
+        int m_width;
+        int m_height;
+        VkFormat m_format;
+        VkImage m_image;
+        VkImageView m_image_view;
+        VkDeviceMemory m_memory;
+        VkMemoryAllocateInfo m_memory_info;
+        VkSampler m_sampler;
+        Ref<BufferObject> m_image_buffer;
+        int m_mipmap_level_count;
+        bool m_dynamic;
+        bool m_cubemap;
+        int m_array_size;
+    };
 }

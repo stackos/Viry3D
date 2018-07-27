@@ -21,7 +21,7 @@
 #include "memory/ByteBuffer.h"
 #include "memory/Memory.h"
 #include "string/String.h"
-#include <assert.h>
+#include "Debug.h"
 
 namespace Viry3D
 {

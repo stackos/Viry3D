@@ -16,23 +16,45 @@
 */
 
 #include "Sprite.h"
+#include "CanvasRenderer.h"
+#include "graphics/Texture.h"
 
 namespace Viry3D
 {
-	Ref<Sprite> Sprite::Create(const Rect& rect, const Vector4& border)
-	{
-		Ref<Sprite> sprite;
+    Sprite::Sprite()
+    {
+    
+    }
+    
+    Sprite::~Sprite()
+    {
+    
+    }
 
-		sprite = Ref<Sprite>(new Sprite());
-		sprite->m_rect = rect;
-		sprite->m_border = border;
+    void Sprite::SetTexture(Ref<Texture>& texture)
+    {
+        m_texture = texture;
+        this->MarkCanvasDirty();
+    }
 
-		return sprite;
-	}
+    void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes)
+    {
+        View::FillSelfMeshes(meshes);
 
-	Sprite::Sprite():
-		m_rect(0, 0, 1, 1),
-		m_border(0, 0, 0, 0)
-	{
-	}
+        ViewMesh& mesh = meshes[meshes.Size() - 1];
+
+        if (m_texture)
+        {
+            mesh.texture = m_texture;
+        }
+        else
+        {
+            mesh.vertices[0].uv = Vector2(1.0f / 3, 1.0f / 3);
+            mesh.vertices[1].uv = Vector2(1.0f / 3, 2.0f / 3);
+            mesh.vertices[2].uv = Vector2(2.0f / 3, 2.0f / 3);
+            mesh.vertices[3].uv = Vector2(2.0f / 3, 1.0f / 3);
+
+            mesh.texture = Texture::GetSharedWhiteTexture();
+        }
+    }
 }
