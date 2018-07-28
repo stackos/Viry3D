@@ -53,7 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\script\Editor\MeshExporter.cs" />
+     <Compile Include="Assets\script\Editor\GameObjectExporter.cs" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>D:/Project/stack/Viry3D-master/unity/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>
