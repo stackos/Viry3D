@@ -304,14 +304,23 @@ void main()
                 4, 0, 3, 4, 3, 7,
                 1, 5, 6, 1, 6, 2
                 });
-            auto mesh = RefMake<Mesh>(vertices, indices);
+            auto cube = RefMake<Mesh>(vertices, indices);
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
-            renderer->SetMesh(mesh);
+            renderer->SetMesh(cube);
+            m_camera->AddRenderer(renderer);
             m_renderer_cube = renderer.get();
 
+            auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
+
+            renderer = RefMake<MeshRenderer>();
+            renderer->SetMaterial(material);
+            renderer->SetMesh(sphere);
             m_camera->AddRenderer(renderer);
+
+            Matrix4x4 model = Matrix4x4::Translation(Vector3(1.5f, 0, 0));
+            renderer->SetInstanceMatrix("u_model_matrix", model);
 
             auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/logo.jpg", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, true);
             material->SetTexture("u_texture", texture);
@@ -323,7 +332,7 @@ void main()
             material->SetMatrix("u_view_matrix", view);
             material->SetMatrix("u_projection_matrix", projection);
 
-            this->InitSkybox(mesh, view, projection);
+            this->InitSkybox(cube, view, projection);
             this->InitUI();
         }
 

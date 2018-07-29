@@ -19,9 +19,99 @@
 #include "Display.h"
 #include "BufferObject.h"
 #include "Debug.h"
+#include "io/File.h"
+#include "io/MemoryStream.h"
 
 namespace Viry3D
 {
+    Ref<Mesh> Mesh::LoadFromFile(const String& path)
+    {
+        Ref<Mesh> mesh;
+
+        if (File::Exist(path))
+        {
+            MemoryStream ms(File::ReadAllBytes(path));
+
+            int name_size = ms.Read<int>();
+            String mesh_name = ms.ReadString(name_size);
+
+            Vector<Vertex>* vertices = new Vector<Vertex>();
+            Vector<unsigned short>* indices = new Vector<unsigned short>();
+            Vector<Submesh>* submeshes = new Vector<Submesh>();
+            Vector<Matrix4x4>* bindposes = new Vector<Matrix4x4>();
+
+            int vertex_count = ms.Read<int>();
+            vertices->Resize(vertex_count);
+
+            for (int i = 0; i < vertex_count; ++i)
+            {
+                (*vertices)[i].vertex = ms.Read<Vector3>();
+            }
+
+            int color_count = ms.Read<int>();
+            for (int i = 0; i < color_count; ++i)
+            {
+                (*vertices)[i].color = Color(ms.Read<byte>() / 255.0f, ms.Read<byte>() / 255.0f, ms.Read<byte>() / 255.0f, ms.Read<byte>() / 255.0f);
+            }
+
+            int uv_count = ms.Read<int>();
+            for (int i = 0; i < uv_count; ++i)
+            {
+                (*vertices)[i].uv = ms.Read<Vector2>();
+            }
+
+            int uv2_count = ms.Read<int>();
+            for (int i = 0; i < uv2_count; ++i)
+            {
+                (*vertices)[i].uv2 = ms.Read<Vector2>();
+            }
+
+            int normal_count = ms.Read<int>();
+            for (int i = 0; i < normal_count; ++i)
+            {
+                (*vertices)[i].normal = ms.Read<Vector3>();
+            }
+
+            int tangent_count = ms.Read<int>();
+            for (int i = 0; i < tangent_count; ++i)
+            {
+                (*vertices)[i].tangent = ms.Read<Vector4>();
+            }
+
+            int bone_weight_count = ms.Read<int>();
+            for (int i = 0; i < bone_weight_count; ++i)
+            {
+                (*vertices)[i].bone_weight = ms.Read<Vector4>();
+                (*vertices)[i].bone_indices = Vector4((float) ms.Read<byte>(), (float) ms.Read<byte>(), (float) ms.Read<byte>(), (float) ms.Read<byte>());
+            }
+
+            int index_count = ms.Read<int>();
+            indices->Resize(index_count);
+            ms.Read(&(*indices)[0], indices->SizeInBytes());
+
+            int submesh_count = ms.Read<int>();
+            submeshes->Resize(submesh_count);
+            ms.Read(&(*submeshes)[0], submeshes->SizeInBytes());
+
+            int bindpose_count = ms.Read<int>();
+            if (bindpose_count > 0)
+            {
+                bindposes->Resize(bindpose_count);
+                ms.Read(&(*bindposes)[0], bindposes->SizeInBytes());
+            }
+            
+            mesh = RefMake<Mesh>(*vertices, *indices, *submeshes);
+            mesh->SetBindposes(*bindposes);
+
+            delete vertices;
+            delete indices;
+            delete submeshes;
+            delete bindposes;
+        }
+
+        return mesh;
+    }
+
     Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes):
         m_vertex_count(0),
         m_index_count(0),

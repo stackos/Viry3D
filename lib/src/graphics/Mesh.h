@@ -19,6 +19,7 @@
 
 #include "VertexAttribute.h"
 #include "container/Vector.h"
+#include "math/Matrix4x4.h"
 
 namespace Viry3D
 {
@@ -34,6 +35,7 @@ namespace Viry3D
         };
 
     public:
+        static Ref<Mesh> LoadFromFile(const String& path);
         Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
         ~Mesh();
         void Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
@@ -42,6 +44,7 @@ namespace Viry3D
         int GetVertexCount() const { return m_vertex_count; }
         int GetIndexCount() const { return m_index_count; }
         const Submesh& GetSubmesh(int submesh) const { return m_submeshes[submesh]; }
+        void SetBindposes(const Vector<Matrix4x4>& bindposes) { m_bindposes = bindposes; }
 
     private:
         Ref<BufferObject> m_vertex_buffer;
@@ -51,5 +54,6 @@ namespace Viry3D
         int m_buffer_vertex_count;
         int m_buffer_index_count;
         Vector<Submesh> m_submeshes;
+        Vector<Matrix4x4> m_bindposes;
     };
 }
