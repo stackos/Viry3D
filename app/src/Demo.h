@@ -23,6 +23,7 @@ namespace Viry3D
     {
     public:
         virtual ~Demo() { }
+        virtual void Done() { }
         virtual void Init() { }
         virtual void Update() { }
         virtual void OnResize(int width, int height) { }

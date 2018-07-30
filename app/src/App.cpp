@@ -16,12 +16,16 @@
 */
 
 #include "App.h"
+#include "DemoMesh.h"
+#include "DemoSkybox.h"
+#include "DemoUI.h"
+#include "DemoRenderToTexture.h"
+#include "DemoPostEffectBlur.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
 #include "ui/Button.h"
 #include "ui/Label.h"
-#include "Demo1.h"
 
 // TODO:
 // - mac project
@@ -55,18 +59,19 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_camera->AddRenderer(canvas);
 
-            Vector<String> titles({ "Demo1" });
+            Vector<String> titles({ "Mesh", "Skybox", "UI", "RenderToTexture", "PostEffectBlur" });
 
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
                 canvas->AddView(button);
 
-                button->SetSize(Vector2i(Display::Instance()->GetWidth(), 120));
+                button->SetSize(Vector2i(Display::Instance()->GetWidth(), 160));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, 2 + i * (2 + 120)));
+                button->SetOffset(Vector2i(0, 2 + i * (2 + 160)));
                 button->GetLabel()->SetText(titles[i]);
+                button->GetLabel()->SetFontSize(40);
                 button->SetOnClick([=]() {
                     this->ClickDemo(i);
                 });
@@ -80,11 +85,26 @@ namespace Viry3D
 
             switch (index)
             {
-            case 0:
-                m_demo = new Demo1();
-                m_demo->Init();
-                break;
+                case 0:
+                    m_demo = new DemoMesh();
+                    break;
+                case 1:
+                    m_demo = new DemoSkybox();
+                    break;
+                case 2:
+                    m_demo = new DemoUI();
+                    break;
+                case 3:
+                    m_demo = new DemoRenderToTexture();
+                    break;
+                case 4:
+                    m_demo = new DemoPostEffectBlur();
+                    break;
+                default:
+                    break;
             }
+
+            m_demo->Init();
         }
 
         ~AppImplement()
@@ -97,6 +117,7 @@ namespace Viry3D
 
             if (m_demo)
             {
+                m_demo->Done();
                 delete m_demo;
                 m_demo = nullptr;
             }
