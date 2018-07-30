@@ -2365,6 +2365,15 @@ namespace Viry3D
             }
         }
 
+        void OnFrameEnd()
+        {
+            List<Ref<Camera>> cameras = m_cameras;
+            for (auto i : cameras)
+            {
+                i->OnFrameEnd();
+            }
+        }
+
         void OnDraw()
         {
             if (m_pause_draw)
@@ -2549,6 +2558,7 @@ void main()
     void Display::OnDraw()
     {
         m_private->OnDraw();
+        m_private->OnFrameEnd();
     }
 
     int Display::GetWidth() const

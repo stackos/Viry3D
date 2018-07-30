@@ -97,6 +97,14 @@ namespace Viry3D
 		this->UpdateInstanceCmds();
 	}
 
+    void Camera::OnFrameEnd()
+    {
+        for (auto& i : m_renderers)
+        {
+            i.renderer->OnFrameEnd();
+        }
+    }
+
 	void Camera::OnResize(int width, int height)
 	{
 		this->ClearRenderPass();

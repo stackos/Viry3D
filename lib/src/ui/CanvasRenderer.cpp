@@ -105,6 +105,11 @@ precision lowp sampler2DArray;
 
 UniformTexture(0, 1) uniform sampler2DArray u_texture;
 
+UniformBuffer(0, 2) uniform UniformBuffer00
+{
+	vec4 u_color; 
+} buf_0_2;
+
 Input(0) vec3 v_uv;
 Input(1) vec4 v_color;
 
@@ -112,7 +117,7 @@ Output(0) vec4 o_frag;
 
 void main()
 {
-    o_frag = texture(u_texture, v_uv) * v_color;
+    o_frag = texture(u_texture, v_uv) * v_color * buf_0_2.u_color;
 }
 )";
             RenderState render_state;
@@ -141,6 +146,8 @@ void main()
             Vector3(0, 0, 1),
             Vector3(0, 1, 0));
         material->SetMatrix("u_view_matrix", view_matrix);
+
+        material->SetColor("u_color", Color(1, 1, 1, 1));
 
         this->SetMaterial(material);
     }
@@ -236,8 +243,6 @@ void main()
 
 	void CanvasRenderer::Update()
 	{
-        this->HandleTouchEvent();
-
 		if (m_canvas_dirty)
 		{
 			m_canvas_dirty = false;
@@ -247,6 +252,11 @@ void main()
 
         Renderer::Update();
 	}
+
+    void CanvasRenderer::OnFrameEnd()
+    {
+        this->HandleTouchEvent();
+    }
 
     void CanvasRenderer::OnResize(int width, int height)
     {

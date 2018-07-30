@@ -47,6 +47,7 @@ namespace Viry3D
 		virtual Ref<BufferObject> GetIndexBuffer() const;
         virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
 		virtual void Update();
+        virtual void OnFrameEnd();
         virtual void OnResize(int width, int height);
 		void AddView(const Ref<View>& view);
 		void RemoveView(const Ref<View>& view);
