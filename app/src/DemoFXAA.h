@@ -19,6 +19,11 @@
 
 #include "DemoMesh.h"
 
+#define FXAA_QUALITY_FAST		10
+#define FXAA_QUALITY_DEFAULT	12
+#define FXAA_QUALITY_HIGH		29
+#define FXAA_QUALITY_EXTREME	39
+
 namespace Viry3D
 {
     class DemoFXAA : public DemoMesh
@@ -100,10 +105,12 @@ void main()
             render_state.zWrite = RenderState::ZWrite::Off;
 
             auto shader = RefMake<Shader>(
-                vs,
+                "",
                 Vector<String>(),
-                fs,
+                vs,
+                String::Format("#define FXAA_QUALITY__PRESET %d", FXAA_QUALITY_EXTREME),
                 Vector<String>({ "FXAA.in" }),
+                fs,
                 render_state);
             auto material = RefMake<Material>(shader);
             material->SetVector("u_rcp_frame", Vector4(1.0f / Display::Instance()->GetWidth(), 1.0f / Display::Instance()->GetHeight()));

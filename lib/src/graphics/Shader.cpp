@@ -62,10 +62,12 @@ namespace Viry3D
 	}
 
     Shader::Shader(
-        const String& vs_source,
+        const String& vs_predefine,
         const Vector<String>& vs_includes,
-        const String& fs_source,
+        const String& vs_source,
+        const String& fs_predefine,
         const Vector<String>& fs_includes,
+        const String& fs_source,
         const RenderState& render_state):
         m_render_state(render_state),
         m_vs_module(VK_NULL_HANDLE),
@@ -77,10 +79,12 @@ namespace Viry3D
         m_shaders.AddLast(this);
 
         Display::Instance()->CreateShaderModule(
-            vs_source,
+            vs_predefine,
             vs_includes,
-            fs_source,
+            vs_source,
+            fs_predefine,
             fs_includes,
+            fs_source,
             &m_vs_module,
             &m_fs_module,
             m_uniform_sets);

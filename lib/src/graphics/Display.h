@@ -61,10 +61,12 @@ namespace Viry3D
         void CreateCommandPool(VkCommandPool* cmd_pool);
         void CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd);
         void CreateShaderModule(
-            const String& vs_source,
+            const String& vs_predefine,
             const Vector<String>& vs_includes,
-            const String& fs_source,
+            const String& vs_source,
+            const String& fs_predefine,
             const Vector<String>& fs_includes,
+            const String& fs_source,
             VkShaderModule* vs_module,
             VkShaderModule* fs_module,
             Vector<UniformSet>& uniform_sets);

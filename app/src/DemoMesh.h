@@ -123,10 +123,12 @@ void main()
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
                 vs,
+                "",
                 Vector<String>(),
                 fs,
-                Vector<String>(),
                 render_state);
 
             Color light_color = Color(1, 1, 1, 1);

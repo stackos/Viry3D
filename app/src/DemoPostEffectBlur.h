@@ -120,10 +120,12 @@ void main()
             render_state.zWrite = RenderState::ZWrite::Off;
 
             auto shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
                 vs,
+                "",
                 Vector<String>(),
                 fs,
-                Vector<String>(),
                 render_state);
 
             int camera_depth = 2;

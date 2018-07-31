@@ -130,10 +130,12 @@ void main()
             render_state.queue = (int) RenderState::Queue::Transparent;
 
             shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
                 vs,
+                "",
                 Vector<String>(),
                 fs,
-                Vector<String>(),
                 render_state);
             Shader::AddCache("UI", shader);
         }

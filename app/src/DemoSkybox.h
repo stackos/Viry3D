@@ -80,10 +80,12 @@ void main()
             render_state.queue = (int) RenderState::Queue::Background;
 
             auto shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
                 vs,
+                "",
                 Vector<String>(),
                 fs,
-                Vector<String>(),
                 render_state);
 
             auto material = RefMake<Material>(shader);

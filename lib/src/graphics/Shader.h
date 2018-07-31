@@ -33,10 +33,12 @@ namespace Viry3D
 		static void Done();
         static void OnRenderPassDestroy(VkRenderPass render_pass);
         Shader(
-            const String& vs_source,
+            const String& vs_predefine,
             const Vector<String>& vs_includes,
-            const String& fs_source,
+            const String& vs_source,
+            const String& fs_predefine,
             const Vector<String>& fs_includes,
+            const String& fs_source,
             const RenderState& render_state);
         ~Shader();
         const RenderState& GetRenderState() const { return m_render_state; }

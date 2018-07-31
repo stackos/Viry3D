@@ -164,7 +164,7 @@ namespace Viry3D
         }
     }
 
-    static String ProcessShaderSource(const String& glsl, const Vector<String>& includes)
+    static String ProcessShaderSource(const String& glsl, const String& predefine, const Vector<String>& includes)
     {
         static const String s_shader_header =
             "#version 310 es\n"
@@ -177,6 +177,8 @@ namespace Viry3D
             "#define Output(location_index) layout(location = location_index) out\n";
 
         String source = s_shader_header;
+        source += predefine + "\n";
+
         for (const auto& i : includes)
         {
             auto include_path = Application::Instance()->GetDataPath() + "/shader/Include/" + i;
@@ -1655,10 +1657,12 @@ namespace Viry3D
         }
 
         void CreateShaderModule(
-            const String& vs_source,
+            const String& vs_predefine,
             const Vector<String>& vs_includes,
-            const String& fs_source,
+            const String& vs_source,
+            const String& fs_predefine,
             const Vector<String>& fs_includes,
+            const String& fs_source,
             VkShaderModule* vs_module,
             VkShaderModule* fs_module,
             Vector<UniformSet>& uniform_sets)
@@ -1669,8 +1673,8 @@ namespace Viry3D
             {
                 includes.AddRange(&vs_includes[0], vs_includes.Size());
             }
-            String vs = ProcessShaderSource(vs_source, includes);
-            String fs = ProcessShaderSource(fs_source, fs_includes);
+            String vs = ProcessShaderSource(vs_source, vs_predefine, includes);
+            String fs = ProcessShaderSource(fs_source, fs_predefine, fs_includes);
 
             this->CreateGlslShaderModule(vs, VK_SHADER_STAGE_VERTEX_BIT, vs_module, uniform_sets);
             this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, fs_module, uniform_sets);
@@ -2474,10 +2478,12 @@ void main()
             render_state.zWrite = RenderState::ZWrite::Off;
 
             m_blit_shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
                 vs,
+                "",
                 Vector<String>(),
                 fs,
-                Vector<String>(),
                 render_state);
         }
 
@@ -2733,19 +2739,23 @@ void main()
     }
 
     void Display::CreateShaderModule(
-        const String& vs_source,
+        const String& vs_predefine,
         const Vector<String>& vs_includes,
-        const String& fs_source,
+        const String& vs_source,
+        const String& fs_predefine,
         const Vector<String>& fs_includes,
+        const String& fs_source,
         VkShaderModule* vs_module,
         VkShaderModule* fs_module,
         Vector<UniformSet>& uniform_sets)
     {
         m_private->CreateShaderModule(
-            vs_source,
+            vs_predefine,
             vs_includes,
-            fs_source,
+            vs_source,
+            fs_predefine,
             fs_includes,
+            fs_source,
             vs_module,
             fs_module,
             uniform_sets);
