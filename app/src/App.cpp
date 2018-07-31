@@ -61,17 +61,25 @@ namespace Viry3D
 
             Vector<String> titles({ "Mesh", "Skybox", "UI", "RenderToTexture", "PostEffectBlur" });
 
+#if VR_WINDOWS || VR_MAC
+            int button_height = 80;
+            int font_size = 20;
+#else
+            int button_height = 160;
+            int font_size = 40;
+#endif
+
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
                 canvas->AddView(button);
 
-                button->SetSize(Vector2i(Display::Instance()->GetWidth(), 160));
+                button->SetSize(Vector2i(Display::Instance()->GetWidth(), button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, 2 + i * (2 + 160)));
+                button->SetOffset(Vector2i(0, 2 + i * (2 + button_height)));
                 button->GetLabel()->SetText(titles[i]);
-                button->GetLabel()->SetFontSize(40);
+                button->GetLabel()->SetFontSize(font_size);
                 button->SetOnClick([=]() {
                     this->ClickDemo(i);
                 });

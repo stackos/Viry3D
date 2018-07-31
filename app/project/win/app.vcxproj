@@ -195,7 +195,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\App.h" />
     <ClInclude Include="..\..\src\Demo.h" />
-    <ClInclude Include="..\..\src\Demo1.h" />
+    <ClInclude Include="..\..\src\DemoMesh.h" />
+    <ClInclude Include="..\..\src\DemoPostEffectBlur.h" />
+    <ClInclude Include="..\..\src\DemoRenderToTexture.h" />
+    <ClInclude Include="..\..\src\DemoSkybox.h" />
+    <ClInclude Include="..\..\src\DemoUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\App.cpp" />

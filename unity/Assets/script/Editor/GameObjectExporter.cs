@@ -308,9 +308,12 @@ public class GameObjectExporter
         }
 
         bw.Write(triangles.Length);
-        for (int i = 0; i < triangles.Length; ++i)
+        int face_count = triangles.Length / 3;
+        for (int i = 0; i < face_count; ++i)
         {
-            bw.Write((ushort) triangles[i]);
+            bw.Write((ushort) triangles[i * 3 + 0]);
+            bw.Write((ushort) triangles[i * 3 + 2]);
+            bw.Write((ushort) triangles[i * 3 + 1]);
         }
 
         bw.Write(mesh.subMeshCount);

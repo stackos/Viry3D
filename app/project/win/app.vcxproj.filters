@@ -10,7 +10,19 @@
     <ClInclude Include="..\..\src\App.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Demo1.h">
+    <ClInclude Include="..\..\src\DemoMesh.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoPostEffectBlur.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoRenderToTexture.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoSkybox.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoUI.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\Demo.h">
