@@ -151,12 +151,6 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     m_orientation = [UIDevice currentDevice].orientation;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-    
-    // test view
-    NSArray* views = [[NSBundle mainBundle] loadNibNamed:@"View" owner:nil options:nil];
-    UIView* view = views[0];
-    [view setFrame:self.view.frame];
-    [self.view addSubview:view];
 }
 
 -(void)dealloc {

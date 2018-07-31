@@ -78,7 +78,7 @@ namespace Viry3D
                 button->SetSize(Vector2i(Display::Instance()->GetWidth(), button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, 2 + i * (2 + button_height)));
+                button->SetOffset(Vector2i(0, 90 + i * (2 + button_height)));
                 button->GetLabel()->SetText(titles[i]);
                 button->GetLabel()->SetFontSize(font_size);
                 button->SetOnClick([=]() {
