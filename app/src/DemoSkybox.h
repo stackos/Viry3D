@@ -15,45 +15,16 @@
 * limitations under the License.
 */
 
-#include "Demo.h"
-#include "Application.h"
-#include "graphics/Display.h"
-#include "graphics/Camera.h"
-#include "graphics/Shader.h"
-#include "graphics/Material.h"
-#include "graphics/MeshRenderer.h"
-#include "graphics/Mesh.h"
-#include "graphics/Texture.h"
-#include "math/Quaternion.h"
-#include "time/Time.h"
-#include "ui/CanvasRenderer.h"
-#include "ui/Label.h"
-#include "ui/Font.h"
+#pragma once
+
+#include "DemoMesh.h"
 
 namespace Viry3D
 {
-    class DemoSkybox : public Demo
+    class DemoSkybox : public DemoMesh
     {
     public:
-        struct CameraParam
-        {
-            Vector3 pos;
-            Quaternion rot;
-            float fov;
-            float near_clip;
-            float far_clip;
-        };
-        CameraParam m_camera_param = {
-            Vector3(0, 0, 0),
-            Quaternion::Identity(),
-            45,
-            1,
-            1000
-        };
-
-        Camera* m_camera;
-        MeshRenderer* m_renderer_sky;
-        Label* m_label;
+        MeshRenderer * m_renderer_sky;
 
         void InitSkybox()
         {
@@ -107,21 +78,22 @@ void main()
             render_state.cull = RenderState::Cull::Front;
             render_state.zWrite = RenderState::ZWrite::Off;
             render_state.queue = (int) RenderState::Queue::Background;
+
             auto shader = RefMake<Shader>(
                 vs,
                 Vector<String>(),
                 fs,
                 Vector<String>(),
                 render_state);
+
             auto material = RefMake<Material>(shader);
+            material->SetMatrix("u_view_matrix", view);
+            material->SetMatrix("u_projection_matrix", projection);
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
             renderer->SetMesh(cube);
             m_renderer_sky = renderer.get();
-
-            material->SetMatrix("u_view_matrix", view);
-            material->SetMatrix("u_projection_matrix", projection);
 
             Matrix4x4 model = Matrix4x4::Translation(m_camera_param.pos);
             renderer->SetInstanceMatrix("u_model_matrix", model);
@@ -149,46 +121,27 @@ void main()
             Application::Instance()->GetThreadPool()->AddTask(task);
         }
 
-        void InitUI()
-        {
-            auto canvas = RefMake<CanvasRenderer>();
-            m_camera->AddRenderer(canvas);
-
-            auto label = RefMake<Label>();
-            canvas->AddView(label);
-
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 40));
-            label->SetFont(Font::GetFont(FontType::PingFangSC));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-
-            m_label = label.get();
-        }
-
         virtual void Init()
         {
-            m_camera = Display::Instance()->CreateCamera();
+            DemoMesh::Init();
 
             this->InitSkybox();
-            this->InitUI();
         }
 
         virtual void Done()
         {
-            Display::Instance()->DestroyCamera(m_camera);
-            m_camera = nullptr;
+            DemoMesh::Done();
         }
 
         virtual void Update()
         {
-            m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+            DemoMesh::Update();
         }
 
         virtual void OnResize(int width, int height)
         {
+            DemoMesh::OnResize(width, height);
+
             Matrix4x4 projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
             m_renderer_sky->GetMaterial()->SetMatrix("u_projection_matrix", projection);
         }

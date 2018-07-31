@@ -15,6 +15,8 @@
 * limitations under the License.
 */
 
+#pragma once
+
 #include "Demo.h"
 #include "Application.h"
 #include "graphics/Display.h"
@@ -47,12 +49,12 @@ namespace Viry3D
             Vector3(0, 3, -4),
             Quaternion::Euler(30, 0, 0),
             45,
-            0.1f,
-            100
+            0.3f,
+            1000
         };
 
         Camera* m_camera;
-        Vector<Ref<MeshRenderer>> m_renderers; 
+        Vector<Ref<MeshRenderer>> m_renderers;
         Label* m_label;
 
         void InitMesh()
@@ -121,11 +123,11 @@ void main()
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
-                    vs,
-                    Vector<String>(),
-                    fs,
-                    Vector<String>(),
-                    render_state);
+                vs,
+                Vector<String>(),
+                fs,
+                Vector<String>(),
+                render_state);
 
             Color light_color = Color(1, 1, 1, 1);
             Vector3 light_dir = Quaternion::Euler(45, 60, 0) * Vector3(0, 0, 1);

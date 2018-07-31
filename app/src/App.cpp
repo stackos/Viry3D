@@ -18,9 +18,10 @@
 #include "App.h"
 #include "DemoMesh.h"
 #include "DemoSkybox.h"
-#include "DemoUI.h"
 #include "DemoRenderToTexture.h"
+#include "DemoFXAA.h"
 #include "DemoPostEffectBlur.h"
+#include "DemoUI.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -59,7 +60,7 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_camera->AddRenderer(canvas);
 
-            Vector<String> titles({ "Mesh", "Skybox", "UI", "RenderToTexture", "PostEffectBlur" });
+            Vector<String> titles({ "Mesh", "Skybox", "RenderToTexture", "FXAA", "PostEffectBlur", "UI" });
 
 #if VR_WINDOWS || VR_MAC
             int button_height = 80;
@@ -100,13 +101,16 @@ namespace Viry3D
                     m_demo = new DemoSkybox();
                     break;
                 case 2:
-                    m_demo = new DemoUI();
+                    m_demo = new DemoRenderToTexture();
                     break;
                 case 3:
-                    m_demo = new DemoRenderToTexture();
+                    m_demo = new DemoFXAA();
                     break;
                 case 4:
                     m_demo = new DemoPostEffectBlur();
+                    break;
+                case 5:
+                    m_demo = new DemoUI();
                     break;
                 default:
                     break;

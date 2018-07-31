@@ -195,6 +195,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\App.h" />
     <ClInclude Include="..\..\src\Demo.h" />
+    <ClInclude Include="..\..\src\DemoFXAA.h" />
     <ClInclude Include="..\..\src\DemoMesh.h" />
     <ClInclude Include="..\..\src\DemoPostEffectBlur.h" />
     <ClInclude Include="..\..\src\DemoRenderToTexture.h" />

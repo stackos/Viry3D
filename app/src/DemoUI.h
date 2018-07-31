@@ -15,28 +15,18 @@
 * limitations under the License.
 */
 
-#include "Demo.h"
-#include "Application.h"
+#pragma once
+
+#include "DemoMesh.h"
 #include "Debug.h"
-#include "graphics/Display.h"
-#include "graphics/Camera.h"
-#include "graphics/Texture.h"
-#include "math/Quaternion.h"
-#include "time/Time.h"
-#include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
-#include "ui/Label.h"
-#include "ui/Font.h"
 #include "ui/Button.h"
 
 namespace Viry3D
 {
-    class DemoUI : public Demo
+    class DemoUI : public DemoMesh
     {
     public:
-        Camera* m_camera;
-        Label* m_label;
-
         void InitUI()
         {
             auto canvas = RefMake<CanvasRenderer>();
@@ -77,19 +67,6 @@ namespace Viry3D
 
             canvas->AddView(sprite);
 
-            auto label = RefMake<Label>();
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 40));
-            label->SetFont(Font::GetFont(FontType::PingFangSC));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-
-            m_label = label.get();
-
-            canvas->AddView(label);
-
             auto button = RefMake<Button>();
             button->SetSize(Vector2i(100, 100));
             button->SetOffset(Vector2i(-400, 100));
@@ -103,25 +80,24 @@ namespace Viry3D
 
         virtual void Init()
         {
-            m_camera = Display::Instance()->CreateCamera();
+            DemoMesh::Init();
 
             this->InitUI();
         }
 
         virtual void Done()
         {
-            Display::Instance()->DestroyCamera(m_camera);
-            m_camera = nullptr;
+            DemoMesh::Done();
         }
 
         virtual void Update()
         {
-            m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+            DemoMesh::Update();
         }
 
         virtual void OnResize(int width, int height)
         {
-
+            DemoMesh::OnResize(width, height);
         }
     };
 }

@@ -21,10 +21,10 @@
 
 namespace Viry3D
 {
-    class DemoPostEffectBlur : public DemoMesh
+    class DemoFXAA : public DemoMesh
     {
     public:
-        void InitPostEffectBlur()
+        void InitRenderTexture()
         {
             m_camera->SetDepth(0);
             auto color_texture = Texture::CreateRenderTexture(
@@ -44,35 +44,6 @@ namespace Viry3D
                 VK_FILTER_LINEAR,
                 VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
             m_camera->SetRenderTarget(color_texture, depth_texture);
-
-            // blur
-            int downsample = 1;
-            float texel_offset = 1.6f;
-            int iter_count = 3;
-            float iter_step = 0.0f;
-
-            int width = color_texture->GetWidth();
-            int height = color_texture->GetHeight();
-            for (int i = 0; i < downsample; ++i)
-            {
-                width >>= 1;
-                height >>= 1;
-            }
-
-            auto color_texture_2 = Texture::CreateRenderTexture(
-                width,
-                height,
-                VK_FORMAT_R8G8B8A8_UNORM,
-                true,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
-            auto color_texture_3 = Texture::CreateRenderTexture(
-                width,
-                height,
-                VK_FORMAT_R8G8B8A8_UNORM,
-                true,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 
             String vs = R"(
 Input(0) vec4 a_pos;
@@ -95,23 +66,32 @@ UniformTexture(0, 0) uniform sampler2D u_texture;
 
 UniformBuffer(0, 1) uniform UniformBuffer01
 {
-	vec4 u_texel_size;
+    vec4 u_rcp_frame;
 } buf_0_1;
 
 Input(0) vec2 v_uv;
 
 Output(0) vec4 o_frag;
 
-const float kernel[7] = float[7]( 0.0205, 0.0855, 0.232, 0.324, 0.232, 0.0855, 0.0205 );
-
 void main()
 {
-    vec4 c = vec4(0.0);
-    for (int i = 0; i < 7; ++i)
-    {
-        c += texture(u_texture, v_uv + buf_0_1.u_texel_size.xy * float(i - 3)) * kernel[i];
-    }
-    o_frag = c;
+    o_frag = FxaaPixelShader(v_uv,
+		FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsolePosPos,
+        u_texture,							    // FxaaTex tex,
+        u_texture,							    // FxaaTex fxaaConsole360TexExpBiasNegOne,
+        u_texture,							    // FxaaTex fxaaConsole360TexExpBiasNegTwo,
+        buf_0_1.u_rcp_frame.xy,					// FxaaFloat2 fxaaQualityRcpFrame,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsoleRcpFrameOpt,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsoleRcpFrameOpt2,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsole360RcpFrameOpt2,
+        0.75f,									// FxaaFloat fxaaQualitySubpix,
+        0.166f,									// FxaaFloat fxaaQualityEdgeThreshold,
+        0.0833f,								// FxaaFloat fxaaQualityEdgeThresholdMin,
+        0.0f,									// FxaaFloat fxaaConsoleEdgeSharpness,
+        0.0f,									// FxaaFloat fxaaConsoleEdgeThreshold,
+        0.0f,									// FxaaFloat fxaaConsoleEdgeThresholdMin,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f)		// FxaaFloat fxaaConsole360ConstDir,
+    );
 }
 )";
             RenderState render_state;
@@ -123,41 +103,20 @@ void main()
                 vs,
                 Vector<String>(),
                 fs,
-                Vector<String>(),
+                Vector<String>({ "FXAA.in" }),
                 render_state);
-
-            int camera_depth = 2;
-
-            // color -> color2, down sample
-            auto blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture);
-            blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
-
-            for (int i = 0; i < iter_count; ++i)
-            {
-                // color2 -> color, h blur
-                auto material_h = RefMake<Material>(shader);
-                material_h->SetVector("u_texel_size", Vector4(1.0f / width * texel_offset * (1.0f + i * iter_step), 0, 0, 0));
-
-                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2, material_h);
-                blit_color_camera->SetRenderTarget(color_texture, Ref<Texture>());
-
-                // color -> color2, v blur
-                auto material_v = RefMake<Material>(shader);
-                material_v->SetVector("u_texel_size", Vector4(0, 1.0f / height * texel_offset * (1.0f + i * iter_step), 0, 0));
-
-                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture, material_v);
-                blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
-            }
+            auto material = RefMake<Material>(shader);
+            material->SetVector("u_rcp_frame", Vector4(1.0f / Display::Instance()->GetWidth(), 1.0f / Display::Instance()->GetHeight()));
 
             // color -> window
-            Display::Instance()->CreateBlitCamera(0x7fffffff, color_texture_2);
+            Display::Instance()->CreateBlitCamera(0x7fffffff, color_texture, material);
         }
 
         virtual void Init()
         {
             DemoMesh::Init();
 
-            this->InitPostEffectBlur();
+            this->InitRenderTexture();
         }
 
         virtual void Done()
