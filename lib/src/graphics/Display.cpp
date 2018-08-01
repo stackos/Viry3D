@@ -49,7 +49,7 @@ extern "C"
 
 #if VR_WINDOWS || VR_ANDROID
 #include "vulkan/vulkan_shader_compiler.h"
-#elif VR_IOS
+#elif VR_IOS || VR_MAC
 #include "GLSLConversion.h"
 #endif
 
@@ -122,7 +122,7 @@ namespace Viry3D
                 Log("shader compile error: %s", error.CString());
             }
             assert(success);
-#elif VR_IOS
+#elif VR_IOS || VR_MAC
             MVKShaderStage stage;
             switch (shader_type) {
                 case VK_SHADER_STAGE_VERTEX_BIT:
@@ -320,7 +320,10 @@ namespace Viry3D
                 m_surface = VK_NULL_HANDLE;
             }
             m_gpu = VK_NULL_HANDLE;
-            fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
+            if (m_debug_callback != VK_NULL_HANDLE)
+            {
+                fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
+            }
             vkDestroyInstance(m_instance, nullptr);
             StringVectorClear(m_enabled_layers);
             StringVectorClear(m_instance_extension_names);

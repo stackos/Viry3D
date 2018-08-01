@@ -28,6 +28,8 @@
 #include <Windows.h>
 #elif VR_IOS
 #import <UIKit/UIKit.h>
+#elif VR_MAC
+#import <Cocoa/Cocoa.h>
 #elif VR_ANDROID
 #include "android/jni.h"
 #endif
@@ -136,6 +138,30 @@ namespace Viry3D
         {
             NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString* doc_path = paths[0];
+            m_private->m_save_path = [doc_path UTF8String];
+        }
+        
+        return m_private->m_save_path;
+    }
+#elif VR_MAC
+    const String& Application::GetDataPath()
+    {
+        if (m_private->m_data_path.Empty())
+        {
+            String path = [[[NSBundle mainBundle] resourcePath] UTF8String];
+            path += "/Assets";
+            m_private->m_data_path = path;
+        }
+        
+        return m_private->m_data_path;
+    }
+    
+    const String& Application::GetSavePath()
+    {
+        if (m_private->m_save_path.Empty())
+        {
+            NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString* doc_path = [paths objectAtIndex:0];
             m_private->m_save_path = [doc_path UTF8String];
         }
         

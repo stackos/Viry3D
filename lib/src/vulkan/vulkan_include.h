@@ -24,4 +24,7 @@
 #elif VR_IOS
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_ios.h"
+#elif VR_MAC
+#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_macos.h"
 #endif

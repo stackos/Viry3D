@@ -21,6 +21,8 @@
 #include <Windows.h>
 #elif VR_IOS
 #import <UIKit/UIKit.h>
+#elif VR_MAC
+#import <Cocoa/Cocoa.h>
 #elif VR_ANDROID
 #include <android/log.h>
 #endif
@@ -40,6 +42,11 @@ namespace Viry3D
         }
     }
 #elif VR_IOS
+    void Debug::LogString(const String& str, bool end_line)
+    {
+        NSLog(@"\n%s", str.CString());
+    }
+#elif VR_MAC
     void Debug::LogString(const String& str, bool end_line)
     {
         NSLog(@"\n%s", str.CString());
