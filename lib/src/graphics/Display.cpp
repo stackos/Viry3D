@@ -2236,11 +2236,13 @@ namespace Viry3D
 
         void BuildPrimaryCmd(
             VkCommandBuffer cmd,
+            int swapchain_image_index,
             const Vector<VkCommandBuffer>& instance_cmds,
             VkRenderPass render_pass,
             VkFramebuffer framebuffer,
             int image_width,
             int image_height,
+            CameraClearFlags clear_flag,
             const Color& clear_color,
 			const Ref<Texture>& color_texture,
 			const Ref<Texture>& depth_texture)
@@ -2249,7 +2251,7 @@ namespace Viry3D
 			bool depth_attachment = true;
 			if (color_texture || depth_texture)
 			{
-				color_attachment = (bool) color_attachment;
+				color_attachment = (bool) color_texture;
 				depth_attachment = (bool) depth_texture;
 			}
 
@@ -2286,30 +2288,48 @@ namespace Viry3D
             rp_begin.clearValueCount = clear_values.Size();
             rp_begin.pClearValues = &clear_values[0];
 
-			if (color_texture)
-			{
-				this->SetImageLayout(
-					cmd,
-					color_texture->GetImage(),
-					VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-					VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-					{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-					VK_ACCESS_SHADER_READ_BIT);
-			}
-			if (depth_texture)
-			{
-				this->SetImageLayout(
-					cmd,
-					depth_texture->GetImage(),
-					VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-					{ VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 },
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-					VK_ACCESS_SHADER_READ_BIT);
-			}
+            if (color_texture || depth_texture)
+            {
+                if (color_texture)
+                {
+                    this->SetImageLayout(
+                        cmd,
+                        color_texture->GetImage(),
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        VK_ACCESS_SHADER_READ_BIT);
+                }
+                if (depth_texture)
+                {
+                    this->SetImageLayout(
+                        cmd,
+                        depth_texture->GetImage(),
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                        { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                        VK_ACCESS_SHADER_READ_BIT);
+                }
+            }
+			else
+            {
+                if (clear_flag == CameraClearFlags::Nothing || clear_flag == CameraClearFlags::Depth)
+                {
+                    this->SetImageLayout(
+                        cmd,
+                        m_swapchain_image_resources[swapchain_image_index].image,
+                        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        VK_ACCESS_MEMORY_READ_BIT);
+                }
+            }
 
             vkCmdBeginRenderPass(cmd, &rp_begin, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
             if (instance_cmds.Size() > 0)
@@ -2343,11 +2363,13 @@ namespace Viry3D
                 {
                     this->BuildPrimaryCmd(
                         cmd,
+                        i,
                         j->GetInstanceCmds(),
                         j->GetRenderPass(),
                         j->GetFramebuffer(i),
                         j->GetTargetWidth(),
                         j->GetTargetHeight(),
+                        j->GetClearFlags(),
                         j->GetClearColor(),
 						j->GetRenderTargetColor(),
 						j->GetRenderTargetDepth());

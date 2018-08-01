@@ -22,6 +22,7 @@
 #include "DemoFXAA.h"
 #include "DemoPostEffectBlur.h"
 #include "DemoUI.h"
+#include "DemoShadowMap.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -29,7 +30,6 @@
 #include "ui/Label.h"
 
 // TODO:
-// - mac project
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView
@@ -43,11 +43,6 @@ namespace Viry3D
         Demo* m_demo = nullptr;
 
     public:
-        AppImplement()
-        {
-        
-        }
-
         void Init()
         {
             m_camera = Display::Instance()->CreateCamera();
@@ -60,7 +55,7 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_camera->AddRenderer(canvas);
 
-            Vector<String> titles({ "Mesh", "Skybox", "RenderToTexture", "FXAA", "PostEffectBlur", "UI" });
+            Vector<String> titles({ "Mesh", "Skybox", "RenderToTexture", "FXAA", "PostEffectBlur", "UI", "ShadowMap" });
 
 #if VR_WINDOWS || VR_MAC
             int button_height = 80;
@@ -111,6 +106,9 @@ namespace Viry3D
                     break;
                 case 5:
                     m_demo = new DemoUI();
+                    break;
+                case 6:
+                    m_demo = new DemoShadowMap();
                     break;
                 default:
                     break;

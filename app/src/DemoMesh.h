@@ -227,6 +227,7 @@ void main()
         virtual void Done()
         {
             m_renderers.Clear();
+
             Display::Instance()->DestroyCamera(m_camera);
             m_camera = nullptr;
         }
