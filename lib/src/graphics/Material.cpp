@@ -73,6 +73,11 @@ namespace Viry3D
         m_renderers.Remove(renderer);
     }
 
+    const Matrix4x4* Material::GetMatrix(const String& name) const
+    {
+        return this->GetProperty<Matrix4x4>(name, MaterialProperty::Type::Matrix);
+    }
+
     void Material::SetMatrix(const String& name, const Matrix4x4& value)
     {
         this->SetProperty(name, value, MaterialProperty::Type::Matrix);

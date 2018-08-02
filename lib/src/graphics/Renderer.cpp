@@ -27,7 +27,7 @@ namespace Viry3D
     {
     
     }
-    
+
     Renderer::~Renderer()
     {
     
@@ -118,6 +118,16 @@ namespace Viry3D
         {
             m_instance_material->UpdateUniformSets();
         }
+    }
+
+    const Matrix4x4* Renderer::GetInstanceMatrix(const String& name) const
+    {
+        if (m_instance_material)
+        {
+            return m_instance_material->GetMatrix(name);
+        }
+
+        return nullptr;
     }
 
     void Renderer::SetInstanceMatrix(const String& name, const Matrix4x4& mat)

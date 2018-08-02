@@ -32,6 +32,7 @@ namespace Viry3D
         virtual Ref<BufferObject> GetIndexBuffer() const;
         virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
         const Ref<Mesh>& GetMesh() const { return m_mesh; }
+        int GetSubmesh() const { return m_submesh; }
         void SetMesh(const Ref<Mesh>& mesh, int submesh = 0);
 
     private:

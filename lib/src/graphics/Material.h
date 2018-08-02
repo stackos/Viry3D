@@ -71,6 +71,7 @@ namespace Viry3D
         void OnSetRenderer(Renderer* renderer);
         void OnUnSetRenderer(Renderer* renderer);
         const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
+        const Matrix4x4* GetMatrix(const String& name) const;
         void SetMatrix(const String& name, const Matrix4x4& value);
         void SetVector(const String& name, const Vector4& value);
         void SetColor(const String& name, const Color& value);
@@ -82,6 +83,20 @@ namespace Viry3D
         const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
 
     private:
+        template <class T>
+        const T* GetProperty(const String& name, MaterialProperty::Type type) const
+        {
+            const MaterialProperty* property_ptr;
+            if (m_properties.TryGet(name, &property_ptr))
+            {
+                if (property_ptr->type == type)
+                {
+                    return (const T*) &property_ptr->data;
+                }
+            }
+
+            return nullptr;
+        }
         template <class T>
         void SetProperty(const String& name, const T& v, MaterialProperty::Type type)
         {

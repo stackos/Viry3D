@@ -48,6 +48,7 @@ namespace Viry3D
         Camera* GetCamera() const { return m_camera; }
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty();
+        const Matrix4x4* GetInstanceMatrix(const String& name) const;
         void SetInstanceMatrix(const String& name, const Matrix4x4& mat);
 
     private:
