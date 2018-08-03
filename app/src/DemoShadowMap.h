@@ -24,12 +24,32 @@ namespace Viry3D
     class DemoShadowMap : public DemoMesh
     {
     public:
+        struct LightParam
+        {
+            Vector3 pos;
+            Quaternion rot;
+            Color color;
+            float intensity;
+            float ortho_size;
+            float near_clip;
+            float far_clip;
+        };
+        LightParam m_light_param = {
+            Vector3(0, 0, 0),
+            Quaternion::Euler(45, 60, 0),
+            Color(1, 1, 1, 1),
+            1.0f,
+            7,
+            -5,
+            5
+        };
+
         Camera* m_shadow_camera;
         Vector<Ref<MeshRenderer>> m_shadow_renderers;
 
         void InitShadowCamera()
         {
-            m_camera->SetDepth(0);
+            m_camera->SetDepth(1);
 
             const int shadow_map_size = 1024;
             auto shadow_texture = Texture::CreateRenderTexture(
@@ -43,7 +63,7 @@ namespace Viry3D
                     VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 
             m_shadow_camera = Display::Instance()->CreateCamera();
-            m_shadow_camera->SetDepth(1);
+            m_shadow_camera->SetDepth(0);
             m_shadow_camera->SetClearFlags(CameraClearFlags::Depth);
             m_shadow_camera->SetRenderTarget(Ref<Texture>(), shadow_texture);
 
@@ -87,10 +107,18 @@ void main()
                     render_state);
             auto material = RefMake<Material>(shader);
 
-            Vector3 camera_forward = m_camera_param.rot * Vector3(0, 0, 1);
-            Vector3 camera_up = m_camera_param.rot * Vector3(0, 1, 0);
-            Matrix4x4 view = Matrix4x4::LookTo(m_camera_param.pos, camera_forward, camera_up);
-            Matrix4x4 projection = Matrix4x4::Perspective(m_camera_param.fov, shadow_map_size / (float) shadow_map_size, m_camera_param.near_clip, m_camera_param.far_clip);
+            Vector3 light_forward = m_light_param.rot * Vector3(0, 0, 1);
+            Vector3 light_up = m_light_param.rot * Vector3(0, 1, 0);
+            Matrix4x4 view = Matrix4x4::LookTo(m_light_param.pos, light_forward, light_up);
+
+            int target_width = shadow_map_size;
+            int target_height = shadow_map_size;
+            float ortho_size = m_light_param.ortho_size;
+            float top = ortho_size;
+            float bottom = -ortho_size;
+            float plane_h = ortho_size * 2;
+            float plane_w = plane_h * target_width / target_height;
+            Matrix4x4 projection = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_light_param.near_clip, m_light_param.far_clip);
 
             material->SetMatrix("u_view_matrix", view);
             material->SetMatrix("u_projection_matrix", projection);

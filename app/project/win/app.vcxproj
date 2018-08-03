@@ -199,6 +199,7 @@
     <ClInclude Include="..\..\src\DemoMesh.h" />
     <ClInclude Include="..\..\src\DemoPostEffectBlur.h" />
     <ClInclude Include="..\..\src\DemoRenderToTexture.h" />
+    <ClInclude Include="..\..\src\DemoShadowMap.h" />
     <ClInclude Include="..\..\src\DemoSkybox.h" />
     <ClInclude Include="..\..\src\DemoUI.h" />
   </ItemGroup>
