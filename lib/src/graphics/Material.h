@@ -66,6 +66,7 @@ namespace Viry3D
         Material(const Ref<Shader>& shader);
         ~Material();
         const Ref<Shader>& GetShader() const { return m_shader; }
+        void SetShader(const Ref<Shader>& shader);
         int GetQueue() const;
         void SetQueue(int queue);
         void OnSetRenderer(Renderer* renderer);
@@ -121,6 +122,7 @@ namespace Viry3D
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty);
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty();
+        void Release();
 
     private:
         Ref<Shader> m_shader;

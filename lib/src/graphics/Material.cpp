@@ -30,7 +30,14 @@ namespace Viry3D
 
     Material::~Material()
     {
+        this->Release();
+    }
+
+    void Material::Release()
+    {
         VkDevice device = Display::Instance()->GetDevice();
+
+        m_descriptor_sets.Clear();
 
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
@@ -46,6 +53,16 @@ namespace Viry3D
         m_uniform_sets.Clear();
     }
     
+    void Material::SetShader(const Ref<Shader>& shader)
+    {
+        this->Release();
+
+        m_shader = shader;
+        m_shader->CreateDescriptorSets(m_descriptor_sets, m_uniform_sets);
+
+        this->MarkInstanceCmdDirty();
+    }
+
     int Material::GetQueue() const
     {
         if (m_queue)
