@@ -39,7 +39,7 @@ namespace Viry3D
             Quaternion::Euler(45, 60, 0),
             Color(1, 1, 1, 1),
             1.0f,
-            7,
+            1.5f,
             -5,
             5
         };
@@ -98,6 +98,7 @@ void main()
 }
 )";
             RenderState render_state;
+            render_state.cull = RenderState::Cull::Front;
 
             auto shader = RefMake<Shader>(
                     "",
@@ -171,7 +172,6 @@ void main()
 	v_uv = a_uv * buf_0_0.u_uv_scale_offset.xy + buf_0_0.u_uv_scale_offset.zw;
     v_normal = normalize((vec4(a_normal, 0) * buf_1_0.u_model_matrix).xyz);
 	v_pos_light_proj = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_light_view_projection_matrix;
-    v_pos_light_proj = v_pos_light_proj / v_pos_light_proj.w;
 
     vulkan_convert();
 }
@@ -180,7 +180,7 @@ void main()
 precision highp float;
 
 UniformTexture(0, 1) uniform sampler2D u_texture;
-UniformTexture(0, 3) uniform sampler2D u_shadow_texture;
+UniformTexture(0, 3) uniform highp sampler2D u_shadow_texture;
 
 UniformBuffer(0, 2) uniform UniformBuffer02
 {
@@ -188,7 +188,8 @@ UniformBuffer(0, 2) uniform UniformBuffer02
     vec4 u_light_dir;
     float u_light_intensity;
     float u_shadow_strength;
-    float u_shadow_depth_bias;
+    float u_shadow_z_bias;
+    float u_shadow_uv_step;
 } buf_0_2;
 
 Input(0) vec2 v_uv;
@@ -197,14 +198,39 @@ Input(2) vec4 v_pos_light_proj;
 
 Output(0) vec4 o_frag;
 
+float linear_filter(float z, vec2 uv)
+{
+    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
+    {
+        return 0.0;
+    }
+    else
+    {
+        return z - buf_0_2.u_shadow_z_bias > texture(u_shadow_texture, uv).r ? 1.0 : 0.0;
+    }
+}
+
+float pcf_filter(float z, vec2 uv)
+{
+    float shadow = 0.0;
+    for (int i = -2; i <= 2; ++i)
+    {
+        for (int j = -2; j <= 2; ++j)
+        {
+            vec2 offset = vec2(i, j) * buf_0_2.u_shadow_uv_step;
+            shadow += linear_filter(z, uv + offset);
+        }
+    }
+    return shadow / 25.0;
+}
+
 float sample_shadow(vec4 pos_light_proj)
 {
     vec2 uv = pos_light_proj.xy * 0.5 + 0.5;
     uv.y = 1.0 - uv.y;
-    float depth = pos_light_proj.z * 0.5 + 0.5;
-    float shadow_depth = texture(u_shadow_texture, uv).r;
+    float z = pos_light_proj.z * 0.5 + 0.5;
 
-    return depth > shadow_depth + buf_0_2.u_shadow_depth_bias ? buf_0_2.u_shadow_strength : 0.0;
+    return pcf_filter(z, uv) * buf_0_2.u_shadow_strength;
 }
 
 void main()
@@ -215,7 +241,7 @@ void main()
     
     float nl = max(dot(n, l), 0.0);
     vec3 diff = c.rgb * nl * buf_0_2.u_light_color.rgb * buf_0_2.u_light_intensity;
-    float shadow = sample_shadow(v_pos_light_proj);
+    float shadow = sample_shadow(v_pos_light_proj / v_pos_light_proj.w);
 
     c.rgb = diff * (1.0 - shadow);
     c.a = 1.0;
@@ -241,7 +267,8 @@ void main()
                 material->SetTexture("u_shadow_texture", m_shadow_texture);
                 material->SetMatrix("u_light_view_projection_matrix", m_light_view_projection_matrix);
                 material->SetFloat("u_shadow_strength", 1.0f);
-                material->SetFloat("u_shadow_depth_bias", 0.0005f);
+                material->SetFloat("u_shadow_z_bias", 0.0001f);
+                material->SetFloat("u_shadow_uv_step", 1.0f / m_shadow_texture->GetWidth());
             }
         }
 

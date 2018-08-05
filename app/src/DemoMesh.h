@@ -152,15 +152,15 @@ void main()
             material->SetVector("u_light_dir", light_dir);
             material->SetFloat("u_light_intensity", light_intensity);
 
-            auto plane = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Plane.mesh");
+            auto cube = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
-            renderer->SetMesh(plane);
+            renderer->SetMesh(cube);
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
 
-            Matrix4x4 model = Matrix4x4::Translation(Vector3(0, 0, 0));
+            Matrix4x4 model = Matrix4x4::Translation(Vector3(0, -0.5f, 0)) * Matrix4x4::Scaling(Vector3(10, 1, 10));
             renderer->SetInstanceMatrix("u_model_matrix", model);
 
             // cube
@@ -173,15 +173,13 @@ void main()
             material->SetVector("u_light_dir", light_dir);
             material->SetFloat("u_light_intensity", light_intensity);
 
-            auto cube = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
-
             renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
             renderer->SetMesh(cube);
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
 
-            model = Matrix4x4::Translation(Vector3(-0.75f, 0.5f, 0));
+            model = Matrix4x4::Translation(Vector3(-0.7f, 0.72f, -0.2f)) * Matrix4x4::Scaling(Vector3(1, 1.44f, 1));
             renderer->SetInstanceMatrix("u_model_matrix", model);
 
             // sphere
@@ -193,7 +191,19 @@ void main()
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
 
-            model = Matrix4x4::Translation(Vector3(0.75f, 0.5f, 0));
+            model = Matrix4x4::Translation(Vector3(0.6f, 0.5f, -0.2f));
+            renderer->SetInstanceMatrix("u_model_matrix", model);
+
+            // cylinder
+            auto cylinder = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cylinder.mesh");
+
+            renderer = RefMake<MeshRenderer>();
+            renderer->SetMaterial(material);
+            renderer->SetMesh(cylinder);
+            m_camera->AddRenderer(renderer);
+            m_renderers.Add(renderer);
+
+            model = Matrix4x4::Translation(Vector3(-1.4f, 1.2f, -1)) * Matrix4x4::Scaling(Vector3(0.2f, 1.2f, 0.2f));
             renderer->SetInstanceMatrix("u_model_matrix", model);
         }
 

@@ -224,7 +224,7 @@ namespace Viry3D
 		m.m03 = -(right + left) * r_l;
 		m.m11 = 2 * t_b;
 		m.m13 = -(top + bottom) * t_b;
-#if 0
+#if 1
 		//cvv -1~1
 		m.m22 = 2 * n_f;
 		m.m23 = (near + far) * n_f;
