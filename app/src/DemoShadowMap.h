@@ -99,7 +99,6 @@ void main()
 }
 )";
             RenderState render_state;
-            render_state.cull = RenderState::Cull::Front;
 
             auto shader = RefMake<Shader>(
                 "",
@@ -227,27 +226,55 @@ const vec2 Poisson25[25] = vec2[](
     vec2(0.991882, -0.657338)
 );
 
-float linear_filter(float z, vec2 uv)
+float bias_z(float z, vec2 dz_duv, vec2 offset)
+{
+    return z + dot(dz_duv, offset);
+}
+
+float linear_filter(vec2 uv)
 {
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
     {
-        return 0.0;
+        return 1.0;
     }
     else
     {
-        return z - buf_0_2.u_shadow_z_bias > texture(u_shadow_texture, uv).r ? 1.0 : 0.0;
+        return texture(u_shadow_texture, uv).r;
     }
 }
 
-float poisson_filter(float z, vec2 uv, vec2 filter_radius)
+float poisson_filter(float z, vec2 uv, vec2 dz_duv, vec2 filter_radius)
 {
     float shadow = 0.0;
     for (int i = 0; i < 25; ++i)
     {
         vec2 offset = Poisson25[i] * filter_radius;
-        shadow += linear_filter(z, uv + offset);
+        float shadow_depth = linear_filter(uv + offset);
+        if (bias_z(z, dz_duv, offset) - buf_0_2.u_shadow_z_bias > shadow_depth)
+        {
+            shadow += 1.0;
+        }
     }
     return shadow / 25.0;
+}
+
+vec2 depth_gradient(vec2 uv, float z)
+{
+    vec2 dz_duv = vec2(0.0, 0.0);
+
+    vec3 duvdist_dx = dFdx(vec3(uv,z));
+    vec3 duvdist_dy = dFdy(vec3(uv,z));
+
+    dz_duv.x = duvdist_dy.y * duvdist_dx.z;
+    dz_duv.x -= duvdist_dx.y * duvdist_dy.z;
+
+    dz_duv.y = duvdist_dx.x * duvdist_dy.z;
+    dz_duv.y -= duvdist_dy.x * duvdist_dx.z;
+
+    float det = (duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x);
+    dz_duv /= det;
+
+    return dz_duv;
 }
 
 float sample_shadow(vec4 pos_light_proj)
@@ -255,8 +282,10 @@ float sample_shadow(vec4 pos_light_proj)
     vec2 uv = pos_light_proj.xy * 0.5 + 0.5;
     uv.y = 1.0 - uv.y;
     float z = pos_light_proj.z * 0.5 + 0.5;
+    vec2 filter_radius = vec2(buf_0_2.u_shadow_filter_radius);
+    vec2 dz_duv = depth_gradient(uv, z);
 
-    return poisson_filter(z, uv, vec2(buf_0_2.u_shadow_filter_radius));
+    return poisson_filter(z, uv, dz_duv, filter_radius);
 }
 
 void main()
@@ -293,7 +322,7 @@ void main()
                 material->SetTexture("u_shadow_texture", m_shadow_texture);
                 material->SetMatrix("u_light_view_projection_matrix", m_light_view_projection_matrix);
                 material->SetFloat("u_shadow_strength", 1.0f);
-                material->SetFloat("u_shadow_z_bias", 0.0001f);
+                material->SetFloat("u_shadow_z_bias", 0.001f);
                 material->SetFloat("u_shadow_filter_radius", 1.0f / SHADOW_MAP_SIZE * 3);
             }
         }
