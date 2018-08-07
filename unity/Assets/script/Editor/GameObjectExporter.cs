@@ -34,6 +34,7 @@ public class GameObjectExporter
     static BinaryWriter bw;
     static string out_dir;
     static Cache cache;
+    static Transform root;
 
     [MenuItem("Viry3D/Export GameObject")]
     public static void Export()
@@ -50,6 +51,7 @@ public class GameObjectExporter
             var ms = new MemoryStream();
             bw = new BinaryWriter(ms);
             cache = new Cache();
+            root = obj.transform;
 
             string go_name;
 
@@ -80,6 +82,7 @@ public class GameObjectExporter
 
             bw = null;
             cache = null;
+            root = null;
         }
     }
 
@@ -126,6 +129,11 @@ public class GameObjectExporter
             if (coms[i] is MeshRenderer)
             {
                 com_writers.Add(WriteMeshRenderer);
+                write_coms.Add(coms[i]);
+            }
+            else if (coms[i] is SkinnedMeshRenderer)
+            {
+                com_writers.Add(WriteSkinnedMeshRenderer);
                 write_coms.Add(coms[i]);
             }
         }
@@ -214,17 +222,62 @@ public class GameObjectExporter
         if (filter == null)
         {
             WriteString("");
-            return;
+        }
+        else
+        {
+            var mesh = filter.sharedMesh;
+            if (mesh == null)
+            {
+                WriteString("");
+            }
+            else
+            {
+                WriteMesh(mesh);
+            }
+        }
+    }
+
+    static string TransformPath(Transform t, Transform root)
+    {
+        string path = t.name;
+        Transform p = t.parent;
+        while (p != null)
+        {
+            path = p.name + '/' + path;
+            if (p == root)
+            {
+                return path;
+            }
+
+            p = p.parent;
         }
 
-        var mesh = filter.sharedMesh;
+        return "";
+    }
+
+    static void WriteSkinnedMeshRenderer(Component com)
+    {
+        WriteRenderer(com);
+
+        var skin = com as SkinnedMeshRenderer;
+        var mesh = skin.sharedMesh;
+        var bones = skin.bones;
+
         if (mesh == null)
         {
             WriteString("");
-            return;
+        }
+        else
+        {
+            WriteMesh(mesh);
         }
 
-        WriteMesh(mesh);
+        bw.Write(bones.Length);
+        for (int i = 0; i < bones.Length; ++i)
+        {
+            string bone_path = TransformPath(bones[i], root);
+            WriteString(bone_path);
+        }
     }
 
     static void WriteMesh(Mesh mesh)
