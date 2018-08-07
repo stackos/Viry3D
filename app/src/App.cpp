@@ -17,6 +17,7 @@
 
 #include "App.h"
 #include "DemoMesh.h"
+#include "DemoSkinnedMesh.h"
 #include "DemoSkybox.h"
 #include "DemoRenderToTexture.h"
 #include "DemoFXAA.h"
@@ -55,27 +56,29 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_camera->AddRenderer(canvas);
 
-            Vector<String> titles({ "Mesh", "Skybox", "RenderToTexture", "FXAA", "PostEffectBlur", "UI", "ShadowMap" });
+            Vector<String> titles({ "Mesh", "SkinnedMesh", "Skybox", "RenderToTexture", "FXAA", "PostEffectBlur", "UI", "ShadowMap" });
 
 #if VR_WINDOWS || VR_MAC
-            int button_height = 80;
-            int font_size = 20;
+            float scale = 0.4f;
 #else
+            float scale = 1.0f;
+#endif
+
+            int top = 90;
             int button_height = 160;
             int font_size = 40;
-#endif
 
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
                 canvas->AddView(button);
 
-                button->SetSize(Vector2i(Display::Instance()->GetWidth(), button_height));
+                button->SetSize(Vector2i(Display::Instance()->GetWidth(), (int) (button_height * scale)));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, 90 + i * (2 + button_height)));
+                button->SetOffset(Vector2i(0, (int) (top * scale) + i * (2 + (int) (button_height * scale))));
                 button->GetLabel()->SetText(titles[i]);
-                button->GetLabel()->SetFontSize(font_size);
+                button->GetLabel()->SetFontSize((int) (font_size * scale));
                 button->SetOnClick([=]() {
                     this->ClickDemo(i);
                 });
@@ -93,21 +96,24 @@ namespace Viry3D
                     m_demo = new DemoMesh();
                     break;
                 case 1:
-                    m_demo = new DemoSkybox();
+                    m_demo = new DemoSkinnedMesh();
                     break;
                 case 2:
-                    m_demo = new DemoRenderToTexture();
+                    m_demo = new DemoSkybox();
                     break;
                 case 3:
-                    m_demo = new DemoFXAA();
+                    m_demo = new DemoRenderToTexture();
                     break;
                 case 4:
-                    m_demo = new DemoPostEffectBlur();
+                    m_demo = new DemoFXAA();
                     break;
                 case 5:
-                    m_demo = new DemoUI();
+                    m_demo = new DemoPostEffectBlur();
                     break;
                 case 6:
+                    m_demo = new DemoUI();
+                    break;
+                case 7:
                     m_demo = new DemoShadowMap();
                     break;
                 default:

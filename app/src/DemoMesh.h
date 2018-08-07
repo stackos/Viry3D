@@ -52,12 +52,17 @@ namespace Viry3D
             0.3f,
             1000
         };
+        Color m_light_color = Color(1, 1, 1, 1);
+        Vector3 m_light_dir = Quaternion::Euler(45, 60, 0) * Vector3(0, 0, 1);
+        float m_light_intensity = 1.0f;
+        Matrix4x4 m_view;
+        Matrix4x4 m_projection;
 
         Camera* m_camera;
         Vector<Ref<MeshRenderer>> m_renderers;
         Label* m_label;
 
-        void InitMesh()
+        Ref<Shader> CreateDiffuseShader()
         {
             String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
@@ -131,28 +136,59 @@ void main()
                 fs,
                 render_state);
 
-            Color light_color = Color(1, 1, 1, 1);
-            Vector3 light_dir = Quaternion::Euler(45, 60, 0) * Vector3(0, 0, 1);
-            float light_intensity = 1.0f;
+            return shader;
+        }
 
-            // plane
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/checkflag.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true);
-
+        void InitCamera()
+        {
             Vector3 camera_forward = m_camera_param.rot * Vector3(0, 0, 1);
             Vector3 camera_up = m_camera_param.rot * Vector3(0, 1, 0);
-            Matrix4x4 view = Matrix4x4::LookTo(m_camera_param.pos, camera_forward, camera_up);
-            Matrix4x4 projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
+            m_view = Matrix4x4::LookTo(m_camera_param.pos, camera_forward, camera_up);
+            m_projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
+        }
+
+        void InitGround(const Ref<Shader>& shader)
+        {
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/checkflag.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true);
 
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", texture);
             material->SetVector("u_uv_scale_offset", Vector4(10, 10, 0, 0));
-            material->SetMatrix("u_view_matrix", view);
-            material->SetMatrix("u_projection_matrix", projection);
-            material->SetColor("u_light_color", light_color);
-            material->SetVector("u_light_dir", light_dir);
-            material->SetFloat("u_light_intensity", light_intensity);
+            material->SetMatrix("u_view_matrix", m_view);
+            material->SetMatrix("u_projection_matrix", m_projection);
+            material->SetColor("u_light_color", m_light_color);
+            material->SetVector("u_light_dir", m_light_dir);
+            material->SetFloat("u_light_intensity", m_light_intensity);
 
+            auto plane = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Plane.mesh");
+
+            auto renderer = RefMake<MeshRenderer>();
+            renderer->SetMaterial(material);
+            renderer->SetMesh(plane);
+            m_camera->AddRenderer(renderer);
+            m_renderers.Add(renderer);
+
+            Matrix4x4 model = Matrix4x4::Translation(Vector3(0, 0, 0));
+            renderer->SetInstanceMatrix("u_model_matrix", model);
+        }
+
+        virtual void InitMesh()
+        {
+            auto shader = CreateDiffuseShader();
+
+            this->InitGround(shader);
+
+            // cube
             auto cube = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
+
+            auto material = RefMake<Material>(shader);
+            material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
+            material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
+            material->SetMatrix("u_view_matrix", m_view);
+            material->SetMatrix("u_projection_matrix", m_projection);
+            material->SetColor("u_light_color", m_light_color);
+            material->SetVector("u_light_dir", m_light_dir);
+            material->SetFloat("u_light_intensity", m_light_intensity);
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
@@ -160,26 +196,7 @@ void main()
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
 
-            Matrix4x4 model = Matrix4x4::Translation(Vector3(0, -0.5f, 0)) * Matrix4x4::Scaling(Vector3(10, 1, 10));
-            renderer->SetInstanceMatrix("u_model_matrix", model);
-
-            // cube
-            material = RefMake<Material>(shader);
-            material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
-            material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
-            material->SetMatrix("u_view_matrix", view);
-            material->SetMatrix("u_projection_matrix", projection);
-            material->SetColor("u_light_color", light_color);
-            material->SetVector("u_light_dir", light_dir);
-            material->SetFloat("u_light_intensity", light_intensity);
-
-            renderer = RefMake<MeshRenderer>();
-            renderer->SetMaterial(material);
-            renderer->SetMesh(cube);
-            m_camera->AddRenderer(renderer);
-            m_renderers.Add(renderer);
-
-            model = Matrix4x4::Translation(Vector3(-0.7f, 0.72f, -0.2f)) * Matrix4x4::Scaling(Vector3(1, 1.44f, 1));
+            auto model = Matrix4x4::Translation(Vector3(-0.7f, 0.72f, -0.2f)) * Matrix4x4::Scaling(Vector3(1, 1.44f, 1));
             renderer->SetInstanceMatrix("u_model_matrix", model);
 
             // sphere
@@ -230,6 +247,7 @@ void main()
         {
             m_camera = Display::Instance()->CreateCamera();
 
+            this->InitCamera();
             this->InitMesh();
             this->InitUI();
         }
@@ -249,10 +267,10 @@ void main()
 
         virtual void OnResize(int width, int height)
         {
-            Matrix4x4 projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
+            m_projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
             for (auto i : m_renderers)
             {
-                i->GetMaterial()->SetMatrix("u_projection_matrix", projection);
+                i->GetMaterial()->SetMatrix("u_projection_matrix", m_projection);
             }
         }
     };
