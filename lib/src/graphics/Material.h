@@ -41,6 +41,7 @@ namespace Viry3D
             Float,
             Int,
             Texture,
+            VectorArray,
         };
 
         union Data
@@ -48,14 +49,15 @@ namespace Viry3D
             float matrix[16];
             float vector[4];
             float color[4];
-            float floatValue;
-            int intValue;
+            float float_value;
+            int int_value;
         };
 
         String name;
         Type type;
         Data data;
         Ref<Texture> texture;
+        Vector<Vector4> vector_array;
         int size;
         bool dirty;
     };
@@ -79,6 +81,7 @@ namespace Viry3D
         void SetFloat(const String& name, float value);
         void SetInt(const String& name, int value);
         void SetTexture(const String& name, const Ref<Texture>& texture);
+        void SetVectorArray(const String& name, const Vector<Vector4>& array);
         void UpdateUniformSets();
         int FindUniformSetIndex(const String& name);
         const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }

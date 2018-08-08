@@ -52,10 +52,8 @@ namespace Viry3D
 
     protected:
         virtual void OnMatrixDirty();
-
-    private:
-        const Matrix4x4* GetInstanceMatrix(const String& name) const;
         void SetInstanceMatrix(const String& name, const Matrix4x4& mat);
+        void SetInstanceVectorArray(const String& name, const Vector<Vector4>& array);
 
     private:
         Ref<Material> m_material;

@@ -26,11 +26,17 @@ namespace Viry3D
     public:
         SkinnedMeshRenderer();
         virtual ~SkinnedMeshRenderer();
+        virtual void Update();
         void SetBonePaths(const Vector<String>& bones) { m_bone_paths = bones; }
         void SetBonesRoot(const Ref<Node>& node) { m_bones_root = node; }
 
     private:
+        void FindBones();
+
+    private:
         Vector<String> m_bone_paths;
         WeakRef<Node> m_bones_root;
+        bool m_bones_dirty;
+        Vector<WeakRef<Node>> m_bones;
     };
 }

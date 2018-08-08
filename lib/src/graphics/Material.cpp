@@ -139,6 +139,25 @@ namespace Viry3D
         }
     }
 
+    void Material::SetVectorArray(const String& name, const Vector<Vector4>& array)
+    {
+        MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            property_ptr->vector_array = array;
+            property_ptr->dirty = true;
+        }
+        else
+        {
+            MaterialProperty property;
+            property.name = name;
+            property.type = MaterialProperty::Type::VectorArray;
+            property.vector_array = array;
+            property.dirty = true;
+            m_properties.Add(name, property);
+        }
+    }
+
     void Material::UpdateUniformSets()
     {
         bool instance_cmd_dirty = false;
@@ -152,6 +171,10 @@ namespace Viry3D
                 if (i.second.type == MaterialProperty::Type::Texture)
                 {
                     this->UpdateUniformTexture(i.second.name, i.second.texture, instance_cmd_dirty);
+                }
+                else if (i.second.type == MaterialProperty::Type::VectorArray)
+                {
+                    this->UpdateUniformMember(i.second.name, i.second.vector_array.Bytes(), i.second.vector_array.SizeInBytes(), instance_cmd_dirty);
                 }
                 else
                 {

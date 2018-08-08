@@ -44,11 +44,18 @@ namespace Viry3D
             }
         }
 
-        virtual void InitMesh()
+        void InitSkinnedMesh()
         {
-            auto shader = CreateDiffuseShader();
+            RenderState render_state;
 
-            this->InitGround(shader);
+            auto shader = RefMake<Shader>(
+                "#define SKINNED_MESH 1",
+                Vector<String>({ "Skin.in", "Diffuse.vs.in" }),
+                "",
+                "",
+                Vector<String>({ "Diffuse.fs.in" }),
+                "",
+                render_state);
 
             auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/tex.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true);
 
@@ -65,6 +72,14 @@ namespace Viry3D
             this->AddRenderer(m_node, material);
 
             m_node->SetLocalPosition(Vector3(0, 0, 0));
+        }
+
+        virtual void InitMesh()
+        {
+            auto shader = CreateDiffuseShader();
+
+            this->InitGround(shader);
+            this->InitSkinnedMesh();
         }
 
         virtual void Init()

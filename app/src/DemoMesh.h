@@ -64,76 +64,15 @@ namespace Viry3D
 
         Ref<Shader> CreateDiffuseShader()
         {
-            String vs = R"(
-UniformBuffer(0, 0) uniform UniformBuffer00
-{
-	mat4 u_view_matrix;
-	mat4 u_projection_matrix;
-    vec4 u_uv_scale_offset;
-} buf_0_0;
-
-UniformBuffer(1, 0) uniform UniformBuffer10
-{
-	mat4 u_model_matrix;
-} buf_1_0;
-
-Input(0) vec4 a_pos;
-Input(2) vec2 a_uv;
-Input(4) vec3 a_normal;
-
-Output(0) vec2 v_uv;
-Output(1) vec3 v_normal;
-
-void main()
-{
-	gl_Position = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
-	v_uv = a_uv * buf_0_0.u_uv_scale_offset.xy + buf_0_0.u_uv_scale_offset.zw;
-    v_normal = normalize((vec4(a_normal, 0) * buf_1_0.u_model_matrix).xyz);
-	
-    vulkan_convert();
-}
-)";
-            String fs = R"(
-precision highp float;
-
-UniformTexture(0, 1) uniform sampler2D u_texture;
-
-UniformBuffer(0, 2) uniform UniformBuffer02
-{
-    vec4 u_light_color;
-    vec4 u_light_dir;
-    float u_light_intensity;
-} buf_0_2;
-
-Input(0) vec2 v_uv;
-Input(1) vec3 v_normal;
-
-Output(0) vec4 o_frag;
-
-void main()
-{
-    vec4 c = texture(u_texture, v_uv);
-    vec3 n = normalize(v_normal);
-    vec3 l = normalize(-buf_0_2.u_light_dir.xyz);
-    
-    float nl = max(dot(n, l), 0.0);
-    vec3 diff = c.rgb * nl * buf_0_2.u_light_color.rgb * buf_0_2.u_light_intensity;
-
-    c.rgb = diff;
-    c.a = 1.0;
-
-    o_frag = c;
-}
-)";
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
                 "",
-                Vector<String>(),
-                vs,
+                Vector<String>({ "Diffuse.vs.in" }),
                 "",
-                Vector<String>(),
-                fs,
+                "",
+                Vector<String>({ "Diffuse.fs.in" }),
+                "",
                 render_state);
 
             return shader;

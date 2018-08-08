@@ -70,43 +70,15 @@ namespace Viry3D
             m_shadow_camera->SetClearFlags(CameraClearFlags::Depth);
             m_shadow_camera->SetRenderTarget(Ref<Texture>(), m_shadow_texture);
 
-            String vs = R"(
-UniformBuffer(0, 0) uniform UniformBuffer00
-{
-	mat4 u_view_matrix;
-	mat4 u_projection_matrix;
-} buf_0_0;
-
-UniformBuffer(1, 0) uniform UniformBuffer10
-{
-	mat4 u_model_matrix;
-} buf_1_0;
-
-Input(0) vec4 a_pos;
-
-void main()
-{
-	gl_Position = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
-
-    vulkan_convert();
-}
-)";
-            String fs = R"(
-precision highp float;
-
-void main()
-{
-}
-)";
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
+                "#define CAST_SHADOW 1",
+                Vector<String>({ "Diffuse.vs.in" }),
                 "",
-                Vector<String>(),
-                vs,
+                "#define CAST_SHADOW 1",
+                Vector<String>({ "Diffuse.fs.in" }),
                 "",
-                Vector<String>(),
-                fs,
                 render_state);
             auto material = RefMake<Material>(shader);
 

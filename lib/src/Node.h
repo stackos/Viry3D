@@ -30,6 +30,7 @@ namespace Viry3D
     public:
         static void SetParent(const Ref<Node>& node, const Ref<Node>& parent);
         static const Ref<Node>& GetRoot(const Ref<Node>& node);
+        static Ref<Node> Find(const Ref<Node>& node, const String& path);
         Node();
         virtual ~Node();
         const String& GetName() const { return m_name; }

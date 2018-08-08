@@ -116,4 +116,37 @@ namespace Viry3D
             return node;
         }
     }
+
+    Ref<Node> Node::Find(const Ref<Node>& node, const String& path)
+    {
+        if (path.Empty())
+        {
+            return node;
+        }
+
+        Ref<Node> find = node;
+
+        auto layers = path.Split("/");
+        for (int i = 0; i < layers.Size(); ++i)
+        {
+            bool find_child = false;
+
+            for (int j = 0; j < find->GetChildCount(); ++j)
+            {
+                if (find->GetChild(j)->GetName() == layers[i])
+                {
+                    find_child = true;
+                    find = find->GetChild(j);
+                    break;
+                }
+            }
+
+            if (!find_child)
+            {
+                return Ref<Node>();
+            }
+        }
+
+        return find;
+    }
 }

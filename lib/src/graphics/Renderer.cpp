@@ -134,16 +134,6 @@ namespace Viry3D
         }
     }
 
-    const Matrix4x4* Renderer::GetInstanceMatrix(const String& name) const
-    {
-        if (m_instance_material)
-        {
-            return m_instance_material->GetMatrix(name);
-        }
-
-        return nullptr;
-    }
-
     void Renderer::SetInstanceMatrix(const String& name, const Matrix4x4& mat)
     {
         if (m_material)
@@ -154,6 +144,19 @@ namespace Viry3D
             }
             
             m_instance_material->SetMatrix(name, mat);
+        }
+    }
+
+    void Renderer::SetInstanceVectorArray(const String& name, const Vector<Vector4>& array)
+    {
+        if (m_material)
+        {
+            if (!m_instance_material)
+            {
+                m_instance_material = RefMake<Material>(m_material->GetShader());
+            }
+
+            m_instance_material->SetVectorArray(name, array);
         }
     }
 }
