@@ -6,12 +6,21 @@
     #define CAST_SHADOW 0
 #endif
 
+#ifndef RECIEVE_SHADOW
+    #define RECIEVE_SHADOW 0
+#endif
+
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
 	mat4 u_view_matrix;
 	mat4 u_projection_matrix;
+
 #if (CAST_SHADOW == 0)
     vec4 u_uv_scale_offset;
+
+    #if (RECIEVE_SHADOW == 1)
+        mat4 u_light_view_projection_matrix;
+    #endif
 #endif
 } buf_0_0;
 
@@ -40,6 +49,10 @@ Input(0) vec4 a_pos;
 
 	Output(0) vec2 v_uv;
 	Output(1) vec3 v_normal;
+
+    #if (RECIEVE_SHADOW == 1)
+        Output(2) vec4 v_pos_light_proj;
+    #endif
 #endif
 
 void main()
@@ -56,6 +69,10 @@ void main()
 #if (CAST_SHADOW == 0)
 	v_uv = a_uv * buf_0_0.u_uv_scale_offset.xy + buf_0_0.u_uv_scale_offset.zw;
     v_normal = normalize((vec4(a_normal, 0) * model_mat).xyz);
+
+    #if (RECIEVE_SHADOW == 1)
+        v_pos_light_proj = a_pos * model_mat * buf_0_0.u_light_view_projection_matrix;
+    #endif
 #endif
 	
     vulkan_convert();

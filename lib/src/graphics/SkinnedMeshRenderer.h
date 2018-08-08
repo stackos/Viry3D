@@ -27,7 +27,9 @@ namespace Viry3D
         SkinnedMeshRenderer();
         virtual ~SkinnedMeshRenderer();
         virtual void Update();
+        const Vector<String>& GetBonePaths() const { return m_bone_paths; }
         void SetBonePaths(const Vector<String>& bones) { m_bone_paths = bones; }
+        Ref<Node> GetBonesRoot() const { return m_bones_root.lock(); }
         void SetBonesRoot(const Ref<Node>& node) { m_bones_root = node; }
 
     private:
