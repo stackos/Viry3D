@@ -90,7 +90,7 @@ namespace Viry3D
 #endif
     }
 
-	static void unzip_file(unzFile file, const String& path)
+	static void UnzipFile(unzFile file, const String& path)
 	{
 		auto dir = path.Substring(0, path.LastIndexOf("/"));
 		Directory::Create(dir);
@@ -141,14 +141,14 @@ namespace Viry3D
 					if (filename.StartsWith(source))
 					{
 						String dest_filename = dest + filename.Substring(source.Size());
-						unzip_file(file, dest_filename);
+                        UnzipFile(file, dest_filename);
 					}
 				}
 				else
 				{
 					if (source == filename_inzip)
 					{
-						unzip_file(file, dest);
+                        UnzipFile(file, dest);
 						break;
 					}
 				}

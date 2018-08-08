@@ -909,6 +909,15 @@
     <ClInclude Include="..\..\src\android\jni.h">
       <Filter>src\android</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Resources.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Node.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\SkinnedMeshRenderer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2254,6 +2263,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp">
       <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Resources.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Node.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\SkinnedMeshRenderer.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

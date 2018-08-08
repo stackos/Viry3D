@@ -25,7 +25,7 @@
 
 namespace Viry3D
 {
-	class MemoryStream: public Stream
+	class MemoryStream : public Stream
 	{
 	public:
 		MemoryStream(const ByteBuffer& buffer);

@@ -97,8 +97,7 @@ void main()
             renderer->SetMesh(cube);
             m_renderer_sky = renderer.get();
 
-            Matrix4x4 model = Matrix4x4::Translation(m_camera_param.pos);
-            renderer->SetInstanceMatrix("u_model_matrix", model);
+            renderer->SetLocalPosition(m_camera_param.pos);
 
             Thread::Task task;
             task.job = []() {

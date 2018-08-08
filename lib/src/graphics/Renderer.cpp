@@ -23,7 +23,8 @@
 namespace Viry3D
 {
     Renderer::Renderer():
-		m_camera(nullptr)
+		m_camera(nullptr),
+        m_model_matrix_dirty(true)
     {
     
     }
@@ -77,6 +78,8 @@ namespace Viry3D
                 }
             }
         }
+
+        m_model_matrix_dirty = true;
     }
 
     void Renderer::OnAddToCamera(Camera* camera)
@@ -107,8 +110,19 @@ namespace Viry3D
 		}
     }
 
+    void Renderer::OnMatrixDirty()
+    {
+        m_model_matrix_dirty = true;
+    }
+
     void Renderer::Update()
     {
+        if (m_model_matrix_dirty)
+        {
+            m_model_matrix_dirty = false;
+            this->SetInstanceMatrix("u_model_matrix", this->GetLocalToWorldMatrix());
+        }
+
         if (m_material)
         {
             m_material->UpdateUniformSets();

@@ -55,14 +55,14 @@ shaderc_shader_kind MapShadercType(VkShaderStageFlagBits vkShader)
 
 namespace Viry3D
 {
-	void init_shader_compiler()
+	void InitShaderCompiler()
 	{
 #if VR_WINDOWS
 		glslang::InitializeProcess();
 #endif
 	}
 
-	void deinit_shader_compiler()
+	void DeinitShaderCompiler()
 	{
 #if VR_WINDOWS
 		glslang::FinalizeProcess();
@@ -70,7 +70,7 @@ namespace Viry3D
 	}
 
 #if VR_WINDOWS
-	static void init_resources(TBuiltInResource& resources)
+	static void InitResources(TBuiltInResource& resources)
 	{
 		resources.maxLights = 32;
 		resources.maxClipPlanes = 6;
@@ -166,7 +166,7 @@ namespace Viry3D
 		resources.limits.generalConstantMatrixVectorIndexing = 1;
 	}
 
-	static EShLanguage find_shader_type(const VkShaderStageFlagBits shader_type)
+	static EShLanguage FindShaderType(const VkShaderStageFlagBits shader_type)
 	{
 		switch (shader_type)
 		{
@@ -194,17 +194,17 @@ namespace Viry3D
 	}
 #endif
 
-	bool glsl_to_spv(const VkShaderStageFlagBits shader_type, const char* src, Vector<unsigned int>& spirv, String& error)
+	bool GlslToSpv(const VkShaderStageFlagBits shader_type, const char* src, Vector<unsigned int>& spirv, String& error)
 	{
 #if VR_WINDOWS
-		EShLanguage type = find_shader_type(shader_type);
+		EShLanguage type = FindShaderType(shader_type);
 		glslang::TShader shader(type);
 		const char *shader_strings[1];
 		shader_strings[0] = src;
 		shader.setStrings(shader_strings, 1);
 
 		TBuiltInResource resources;
-		init_resources(resources);
+        InitResources(resources);
 		EShMessages messages = (EShMessages) (EShMsgSpvRules | EShMsgVulkanRules);
 		if (!shader.parse(&resources, 100, false, messages))
 		{

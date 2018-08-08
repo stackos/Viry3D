@@ -83,13 +83,13 @@ namespace Viry3D
         return colors;
     }
 
-    static void user_png_read(png_structp png_ptr, png_bytep data, png_size_t length)
+    static void PngRead(png_structp png_ptr, png_bytep data, png_size_t length)
     {
         memcpy(data, png_ptr->io_ptr, length);
         png_ptr->io_ptr = (char*) png_ptr->io_ptr + length;
     }
 
-    static void user_png_write(png_structp png_ptr, png_bytep data, png_size_t length)
+    static void PngWrite(png_structp png_ptr, png_bytep data, png_size_t length)
     {
         PNGData* png = (PNGData*) png_get_io_ptr(png_ptr);
 
@@ -106,8 +106,9 @@ namespace Viry3D
         png->size += (int) length;
     }
 
-    static void user_png_flush(png_structp png_ptr)
+    static void PngFlush(png_structp png_ptr)
     {
+
     }
 
     ByteBuffer Image::LoadPNG(const ByteBuffer& png, int& width, int& height, int& bpp)
@@ -118,7 +119,7 @@ namespace Viry3D
         png_infop info_ptr = png_create_info_struct(png_ptr);
         setjmp(png_jmpbuf(png_ptr));
 
-        png_set_read_fn(png_ptr, png.Bytes(), user_png_read);
+        png_set_read_fn(png_ptr, png.Bytes(), PngRead);
         png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, 0);
 
         width = png_get_image_width(png_ptr, info_ptr);
@@ -234,7 +235,7 @@ namespace Viry3D
         png_data.buffer = 0;
         png_data.size = 0;
 
-        png_set_write_fn(png_ptr, &png_data, user_png_write, user_png_flush);
+        png_set_write_fn(png_ptr, &png_data, PngWrite, PngFlush);
 
         png_set_IHDR(png_ptr, info_ptr, width, height,
             8, color_type, PNG_INTERLACE_NONE,

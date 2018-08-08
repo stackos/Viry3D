@@ -17,13 +17,15 @@
 
 #pragma once
 
-#include "vulkan_include.h"
-#include "container/Vector.h"
 #include "string/String.h"
 
 namespace Viry3D
 {
-	void InitShaderCompiler();
-	bool GlslToSpv(const VkShaderStageFlagBits shader_type, const char* src, Vector<unsigned int>& spirv, String& error);
-	void DeinitShaderCompiler();
+    class Node;
+
+    class Resources
+    {
+    public:
+        static Ref<Node> Load(const String& path);
+    };
 }

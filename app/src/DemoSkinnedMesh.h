@@ -18,17 +18,53 @@
 #pragma once
 
 #include "DemoMesh.h"
+#include "Resources.h"
 
 namespace Viry3D
 {
-    class DemoSkinnedMesh: public DemoMesh
+    class DemoSkinnedMesh : public DemoMesh
     {
     public:
+        Ref<Node> m_node;
+
+        void AddRenderer(const Ref<Node>& node, const Ref<Material>& material)
+        {
+            auto renderer = RefCast<MeshRenderer>(node);
+            if (renderer)
+            {
+                renderer->SetMaterial(material);
+                m_camera->AddRenderer(renderer);
+                m_renderers.Add(renderer);
+            }
+
+            int child_count = node->GetChildCount();
+            for (int i = 0; i < child_count; ++i)
+            {
+                this->AddRenderer(node->GetChild(i), material);
+            }
+        }
+
         virtual void InitMesh()
         {
             auto shader = CreateDiffuseShader();
 
             this->InitGround(shader);
+
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/tex.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true);
+
+            auto material = RefMake<Material>(shader);
+            material->SetTexture("u_texture", texture);
+            material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
+            material->SetMatrix("u_view_matrix", m_view);
+            material->SetMatrix("u_projection_matrix", m_projection);
+            material->SetColor("u_light_color", m_light_color);
+            material->SetVector("u_light_dir", m_light_dir);
+            material->SetFloat("u_light_intensity", m_light_intensity);
+
+            m_node = Resources::Load(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/ToonSoldier 1.go");
+            this->AddRenderer(m_node, material);
+
+            m_node->SetLocalPosition(Vector3(0, 0, 0));
         }
 
         virtual void Init()
@@ -38,6 +74,8 @@ namespace Viry3D
 
         virtual void Done()
         {
+            m_node.reset();
+
             DemoMesh::Done();
         }
 

@@ -167,9 +167,6 @@ void main()
             renderer->SetMesh(plane);
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
-
-            Matrix4x4 model = Matrix4x4::Translation(Vector3(0, 0, 0));
-            renderer->SetInstanceMatrix("u_model_matrix", model);
         }
 
         virtual void InitMesh()
@@ -196,8 +193,8 @@ void main()
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
 
-            auto model = Matrix4x4::Translation(Vector3(-0.7f, 0.72f, -0.2f)) * Matrix4x4::Scaling(Vector3(1, 1.44f, 1));
-            renderer->SetInstanceMatrix("u_model_matrix", model);
+            renderer->SetLocalPosition(Vector3(-0.7f, 0.72f, -0.2f));
+            renderer->SetLocalScale(Vector3(1, 1.44f, 1));
 
             // sphere
             auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
@@ -208,8 +205,7 @@ void main()
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
 
-            model = Matrix4x4::Translation(Vector3(0.6f, 0.5f, -0.2f));
-            renderer->SetInstanceMatrix("u_model_matrix", model);
+            renderer->SetLocalPosition(Vector3(0.6f, 0.5f, -0.2f));
 
             // cylinder
             auto cylinder = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cylinder.mesh");
@@ -220,8 +216,8 @@ void main()
             m_camera->AddRenderer(renderer);
             m_renderers.Add(renderer);
 
-            model = Matrix4x4::Translation(Vector3(-1.4f, 1.2f, -1)) * Matrix4x4::Scaling(Vector3(0.2f, 1.2f, 0.2f));
-            renderer->SetInstanceMatrix("u_model_matrix", model);
+            renderer->SetLocalPosition(Vector3(-1.4f, 1.2f, -1));
+            renderer->SetLocalScale(Vector3(0.2f, 1.2f, 0.2f));
         }
 
         void InitUI()

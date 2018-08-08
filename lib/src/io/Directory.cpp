@@ -29,7 +29,7 @@
 namespace Viry3D
 {
 #if VR_WINDOWS
-	static Vector<String> get_files(const String& path, bool recursive, bool* exist, bool get_dirs_only = false)
+	static Vector<String> GetDirFiles(const String& path, bool recursive, bool* exist, bool get_dirs_only = false)
 	{
 		Vector<String> files;
 		Vector<String> dirs;
@@ -91,7 +91,7 @@ namespace Viry3D
 			for (auto& i : dirs)
 			{
 				auto sub_dir = path + "/" + i;
-				auto sub_files = get_files(sub_dir, true, nullptr, false);
+				auto sub_files = GetDirFiles(sub_dir, true, nullptr, false);
 
 				for (auto& j : sub_files)
 				{
@@ -103,7 +103,7 @@ namespace Viry3D
 		return files;
 	}
 #else
-	static Vector<String> get_files(const String& path, bool recursive, bool* exist, bool get_dirs_only = false)
+	static Vector<String> GetDirFiles(const String& path, bool recursive, bool* exist, bool get_dirs_only = false)
 	{
 		Vector<String> files;
 		Vector<String> dirs;
@@ -161,7 +161,7 @@ namespace Viry3D
 			for (auto& i : dirs)
 			{
 				auto sub_dir = path + "/" + i;
-				auto sub_files = get_files(sub_dir, true, nullptr);
+				auto sub_files = GetDirFiles(sub_dir, true, nullptr);
 
 				for (auto& j : sub_files)
 				{
@@ -177,13 +177,13 @@ namespace Viry3D
 	bool Directory::Exist(const String& path)
 	{
 		bool exist;
-		get_files(path, false, &exist);
+        GetDirFiles(path, false, &exist);
 		return exist;
 	}
 
 	Vector<String> Directory::GetDirectorys(const String& path)
 	{
-		auto dirs = get_files(path, false, nullptr, true);
+		auto dirs = GetDirFiles(path, false, nullptr, true);
 
 		for (auto& i : dirs)
 		{
@@ -195,7 +195,7 @@ namespace Viry3D
 
 	Vector<String> Directory::GetFiles(const String& path, bool recursive)
 	{
-		auto files = get_files(path, recursive, nullptr);
+		auto files = GetDirFiles(path, recursive, nullptr);
 
 		for (auto& i : files)
 		{

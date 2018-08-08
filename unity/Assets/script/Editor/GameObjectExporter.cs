@@ -216,6 +216,8 @@ public class GameObjectExporter
 
     static void WriteMeshRenderer(Component com)
     {
+        WriteString("MeshRenderer");
+
         WriteRenderer(com);
 
         var filter = com.GetComponent<MeshFilter>();
@@ -257,6 +259,8 @@ public class GameObjectExporter
 
     static void WriteSkinnedMeshRenderer(Component com)
     {
+        WriteString("SkinnedMeshRenderer");
+
         WriteRenderer(com);
 
         var skin = com as SkinnedMeshRenderer;
@@ -326,13 +330,15 @@ public class GameObjectExporter
         bw.Write(uv.Length);
         for (int i = 0; i < uv.Length; ++i)
         {
-            WriteVector2(uv[i]);
+            Vector2 v = new Vector2(uv[i].x, 1.0f - uv[i].y);
+            WriteVector2(v);
         }
 
         bw.Write(uv2.Length);
         for (int i = 0; i < uv2.Length; ++i)
         {
-            WriteVector2(uv2[i]);
+            Vector2 v = new Vector2(uv2[i].x, 1.0f - uv2[i].y);
+            WriteVector2(v);
         }
 
         bw.Write(normals.Length);

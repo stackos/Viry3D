@@ -23,7 +23,7 @@
 
 namespace Viry3D
 {
-    class DemoShadowMap: public DemoMesh
+    class DemoShadowMap : public DemoMesh
     {
     public:
         struct LightParam
@@ -133,7 +133,9 @@ void main()
                 auto renderer = RefMake<MeshRenderer>();
                 renderer->SetMaterial(material);
                 renderer->SetMesh(m_renderers[i]->GetMesh(), m_renderers[i]->GetSubmesh());
-                renderer->SetInstanceMatrix("u_model_matrix", *m_renderers[i]->GetInstanceMatrix("u_model_matrix"));
+                renderer->SetLocalPosition(m_renderers[i]->GetLocalPosition());
+                renderer->SetLocalRotation(m_renderers[i]->GetLocalRotation());
+                renderer->SetLocalScale(m_renderers[i]->GetLocalScale());
 
                 m_shadow_renderers[i] = renderer;
                 m_shadow_camera->AddRenderer(renderer);

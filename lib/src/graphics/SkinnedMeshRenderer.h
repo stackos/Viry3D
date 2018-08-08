@@ -17,13 +17,20 @@
 
 #pragma once
 
-#include "vulkan_include.h"
-#include "container/Vector.h"
-#include "string/String.h"
+#include "MeshRenderer.h"
 
 namespace Viry3D
 {
-	void InitShaderCompiler();
-	bool GlslToSpv(const VkShaderStageFlagBits shader_type, const char* src, Vector<unsigned int>& spirv, String& error);
-	void DeinitShaderCompiler();
+    class SkinnedMeshRenderer : public MeshRenderer
+    {
+    public:
+        SkinnedMeshRenderer();
+        virtual ~SkinnedMeshRenderer();
+        void SetBonePaths(const Vector<String>& bones) { m_bone_paths = bones; }
+        void SetBonesRoot(const Ref<Node>& node) { m_bones_root = node; }
+
+    private:
+        Vector<String> m_bone_paths;
+        WeakRef<Node> m_bones_root;
+    };
 }

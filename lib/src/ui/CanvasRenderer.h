@@ -38,7 +38,7 @@ namespace Viry3D
         Vector<AtlasTreeNode*> children;
     };
 
-	class CanvasRenderer : public Renderer
+    class CanvasRenderer : public Renderer
 	{
 	public:
 		CanvasRenderer();

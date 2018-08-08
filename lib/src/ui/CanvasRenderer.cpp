@@ -77,10 +77,14 @@ namespace Viry3D
             String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
-	mat4 u_model_matrix;
 	mat4 u_view_matrix;
 	mat4 u_projection_matrix;
 } buf_0_0;
+
+UniformBuffer(1, 0) uniform UniformBuffer10
+{
+	mat4 u_model_matrix;
+} buf_1_0;
 
 Input(0) vec4 a_pos;
 Input(1) vec4 a_color;
@@ -92,7 +96,7 @@ Output(1) vec4 v_color;
 
 void main()
 {
-	gl_Position = a_pos * buf_0_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
+	gl_Position = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
 	v_uv = vec3(a_uv, a_uv2.x);
 	v_color = a_color;
 
@@ -141,7 +145,6 @@ void main()
         }
 
         auto material = RefMake<Material>(shader);
-        material->SetMatrix("u_model_matrix", Matrix4x4::Identity());
 
         auto view_matrix = Matrix4x4::LookTo(
             Vector3(0, 0, 0),

@@ -23,7 +23,7 @@ namespace Viry3D
 {
     class Mesh;
 
-    class MeshRenderer: public Renderer
+    class MeshRenderer : public Renderer
     {
     public:
         MeshRenderer();

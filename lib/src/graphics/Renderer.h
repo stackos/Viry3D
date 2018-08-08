@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "Node.h"
 #include "Display.h"
 #include "memory/Ref.h"
 #include "container/List.h"
@@ -29,7 +30,7 @@ namespace Viry3D
     class Camera;
     struct BufferObject;
 
-    class Renderer
+    class Renderer : public Node
     {
     public:
         Renderer();
@@ -48,6 +49,11 @@ namespace Viry3D
         Camera* GetCamera() const { return m_camera; }
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty();
+
+    protected:
+        virtual void OnMatrixDirty();
+
+    private:
         const Matrix4x4* GetInstanceMatrix(const String& name) const;
         void SetInstanceMatrix(const String& name, const Matrix4x4& mat);
 
@@ -55,5 +61,6 @@ namespace Viry3D
         Ref<Material> m_material;
         Ref<Material> m_instance_material;
         Camera* m_camera;
+        bool m_model_matrix_dirty;
     };
 }

@@ -116,7 +116,7 @@ namespace Viry3D
         {
 #if VR_WINDOWS || VR_ANDROID
             String error;
-            bool success = glsl_to_spv(shader_type, glsl.CString(), spirv, error);
+            bool success = GlslToSpv(shader_type, glsl.CString(), spirv, error);
             if (!success)
             {
                 Log("shader compile error: %s", error.CString());
@@ -2542,7 +2542,7 @@ void main()
         m_private(new DisplayPrivate(this, window, width, height))
     {
 #if VR_WINDOWS
-        init_shader_compiler();
+        InitShaderCompiler();
 #elif VR_ANDROID
         InitVulkan();
 #endif
@@ -2565,7 +2565,7 @@ void main()
         delete m_private;
 
 #if VR_WINDOWS
-        deinit_shader_compiler();
+        DeinitShaderCompiler();
 #endif
     }
 

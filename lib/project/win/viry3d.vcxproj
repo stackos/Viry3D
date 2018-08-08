@@ -40,6 +40,7 @@
     <ClInclude Include="..\..\src\graphics\Renderer.h" />
     <ClInclude Include="..\..\src\graphics\RenderState.h" />
     <ClInclude Include="..\..\src\graphics\Shader.h" />
+    <ClInclude Include="..\..\src\graphics\SkinnedMeshRenderer.h" />
     <ClInclude Include="..\..\src\graphics\Texture.h" />
     <ClInclude Include="..\..\src\graphics\UniformSet.h" />
     <ClInclude Include="..\..\src\graphics\VertexAttribute.h" />
@@ -104,6 +105,7 @@
     <ClInclude Include="..\..\src\memory\ByteBuffer.h" />
     <ClInclude Include="..\..\src\memory\Memory.h" />
     <ClInclude Include="..\..\src\memory\Ref.h" />
+    <ClInclude Include="..\..\src\Node.h" />
     <ClInclude Include="..\..\src\openal\win\config.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseInterface.h" />
@@ -262,6 +264,7 @@
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btTransform.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btTransformUtil.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\LinearMath\btVector3.h" />
+    <ClInclude Include="..\..\src\Resources.h" />
     <ClInclude Include="..\..\src\string\String.h" />
     <ClInclude Include="..\..\src\thread\ThreadPool.h" />
     <ClInclude Include="..\..\src\time\Time.h" />
@@ -337,6 +340,7 @@
     <ClCompile Include="..\..\src\graphics\MeshRenderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Shader.cpp" />
+    <ClCompile Include="..\..\src\graphics\SkinnedMeshRenderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Texture.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexAttribute.cpp" />
     <ClCompile Include="..\..\src\Input.cpp" />
@@ -469,6 +473,7 @@
     <ClCompile Include="..\..\src\mp3\mad\synth.c" />
     <ClCompile Include="..\..\src\mp3\mad\mad_timer.c" />
     <ClCompile Include="..\..\src\mp3\mad\version.c" />
+    <ClCompile Include="..\..\src\Node.cpp" />
     <ClCompile Include="..\..\src\noise\latlon.cpp" />
     <ClCompile Include="..\..\src\noise\model\cylinder.cpp" />
     <ClCompile Include="..\..\src\noise\model\line.cpp" />
@@ -656,6 +661,7 @@
     <ClCompile Include="..\..\src\png\pngwrite.c" />
     <ClCompile Include="..\..\src\png\pngwtran.c" />
     <ClCompile Include="..\..\src\png\pngwutil.c" />
+    <ClCompile Include="..\..\src\Resources.cpp" />
     <ClCompile Include="..\..\src\string\String.cpp" />
     <ClCompile Include="..\..\src\thread\ThreadPool.cpp" />
     <ClCompile Include="..\..\src\time\Time.cpp" />

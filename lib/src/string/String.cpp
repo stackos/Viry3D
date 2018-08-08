@@ -368,7 +368,7 @@ namespace Viry3D
 		return result;
 	}
 
-	static int utf8_to_unicode32(const char* utf8, char32_t& c32)
+	static int Utf8ToUnicode32(const char* utf8, char32_t& c32)
 	{
 		int byte_count = 0;
 
@@ -421,7 +421,7 @@ namespace Viry3D
 		}
 	}
 
-	static Vector<char> unicode32_to_utf8(char32_t c32)
+	static Vector<char> Unicode32ToUtf8(char32_t c32)
 	{
 		Vector<char> buffer;
 		int byte_count = 0;
@@ -484,7 +484,7 @@ namespace Viry3D
 		for (int i = 0; i < size; i++)
 		{
 			char32_t unicode32 = 0;
-			int byte_count = utf8_to_unicode32(&m_string[i], unicode32);
+			int byte_count = Utf8ToUnicode32(&m_string[i], unicode32);
 
 			if (byte_count > 0)
 			{
@@ -509,7 +509,7 @@ namespace Viry3D
 		{
 			char32_t c32 = unicode32[i];
 
-			auto bytes = unicode32_to_utf8(c32);
+			auto bytes = Unicode32ToUtf8(c32);
 			str.AddRange(&bytes[0], bytes.Size());
 		}
 
