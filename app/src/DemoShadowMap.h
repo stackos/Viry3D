@@ -35,7 +35,7 @@ namespace Viry3D
         };
         ShadowParam m_shadow_param = {
             Vector3(0, 0, 0),
-            3.0f,
+            2.0f,
             -5,
             5
         };
@@ -43,7 +43,6 @@ namespace Viry3D
         Camera* m_shadow_camera;
         Vector<Ref<MeshRenderer>> m_shadow_renderers;
         Ref<Texture> m_shadow_texture;
-        Matrix4x4 m_light_projection_matrix;
         Matrix4x4 m_light_view_projection_matrix;
 
         void InitShadowCaster()
@@ -66,6 +65,7 @@ namespace Viry3D
             m_shadow_camera->SetRenderTarget(Ref<Texture>(), m_shadow_texture);
 
             RenderState render_state;
+            render_state.cull = RenderState::Cull::Front;
 
             auto shader = RefMake<Shader>(
                 "#define CAST_SHADOW 1",
@@ -88,11 +88,11 @@ namespace Viry3D
             float bottom = -ortho_size;
             float plane_h = ortho_size * 2;
             float plane_w = plane_h * target_width / target_height;
-            m_light_projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_shadow_param.near_clip, m_shadow_param.far_clip);
-            m_light_view_projection_matrix = m_light_projection_matrix * view;
+            Matrix4x4 projection = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_shadow_param.near_clip, m_shadow_param.far_clip);
+            m_light_view_projection_matrix = projection * view;
 
             material->SetMatrix("u_view_matrix", view);
-            material->SetMatrix("u_projection_matrix", m_light_projection_matrix);
+            material->SetMatrix("u_projection_matrix", projection);
 
             auto skin_shader = RefMake<Shader>(
                 "#define CAST_SHADOW 1\n#define SKINNED_MESH 1",
@@ -104,7 +104,7 @@ namespace Viry3D
                 render_state);
             auto skin_material = RefMake<Material>(skin_shader);
             skin_material->SetMatrix("u_view_matrix", view);
-            skin_material->SetMatrix("u_projection_matrix", m_light_projection_matrix);
+            skin_material->SetMatrix("u_projection_matrix", projection);
 
             m_shadow_renderers.Resize(m_renderers.Size());
             for (int i = 0; i < m_shadow_renderers.Size(); ++i)
@@ -176,7 +176,8 @@ namespace Viry3D
                 material->SetTexture("u_shadow_texture", m_shadow_texture);
                 material->SetMatrix("u_light_view_projection_matrix", m_light_view_projection_matrix);
                 material->SetFloat("u_shadow_strength", 1.0f);
-                material->SetFloat("u_shadow_z_bias", 0.001f);
+                material->SetFloat("u_shadow_z_bias", 0.000f);
+                material->SetFloat("u_shadow_slope_bias", 0.0001f);
                 material->SetFloat("u_shadow_filter_radius", 1.0f / SHADOW_MAP_SIZE * 3);
             }
         }
@@ -203,21 +204,6 @@ namespace Viry3D
         virtual void Update()
         {
             DemoSkinnedMesh::Update();
-
-            Vector3 light_forward = m_light_param.light_rot * Vector3(0, 0, 1);
-            Vector3 light_up = m_light_param.light_rot * Vector3(0, 1, 0);
-            Matrix4x4 view = Matrix4x4::LookTo(m_shadow_param.light_pos, light_forward, light_up);
-            m_light_view_projection_matrix = m_light_projection_matrix * view;
-
-            for (auto i : m_shadow_renderers)
-            {
-                i->GetMaterial()->SetMatrix("u_view_matrix", view);
-            }
-
-            for (auto i : m_renderers)
-            {
-                i->GetMaterial()->SetMatrix("u_light_view_projection_matrix", m_light_view_projection_matrix);
-            }
         }
 
         virtual void OnResize(int width, int height)

@@ -28,12 +28,7 @@ const vec2 Poisson25[25] = vec2[](
     vec2(0.991882, -0.657338)
 );
 
-float offset_z(float z, vec2 dz_duv, vec2 offset)
-{
-    return z + dot(dz_duv, offset);
-}
-
-float linear_filter(highp sampler2D shadow_texture, vec2 uv)
+float texture_shadow(highp sampler2D shadow_texture, vec2 uv)
 {
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
     {
@@ -45,14 +40,14 @@ float linear_filter(highp sampler2D shadow_texture, vec2 uv)
     }
 }
 
-float poisson_filter(highp sampler2D shadow_texture, float z, vec2 uv, vec2 dz_duv, vec2 filter_radius, float shadow_z_bias)
+float poisson_filter(highp sampler2D shadow_texture, float z, vec2 uv, float shadow_z_bias, vec2 filter_radius)
 {
     float shadow = 0.0;
     for (int i = 0; i < 25; ++i)
     {
         vec2 offset = Poisson25[i] * filter_radius;
-        float shadow_depth = linear_filter(shadow_texture, uv + offset);
-        if (offset_z(z, dz_duv, offset) - shadow_z_bias > shadow_depth)
+        float shadow_depth = texture_shadow(shadow_texture, uv + offset);
+        if (z - shadow_z_bias > shadow_depth)
         {
             shadow += 1.0;
         }
@@ -60,36 +55,27 @@ float poisson_filter(highp sampler2D shadow_texture, float z, vec2 uv, vec2 dz_d
     return shadow / 25.0;
 }
 
-vec2 depth_gradient(vec2 uv, float z)
+float pcf_filter(highp sampler2D shadow_texture, float z, vec2 uv, float shadow_z_bias, vec2 filter_radius)
 {
-    vec2 dz_duv = vec2(0.0, 0.0);
-
-    vec3 duvdist_dx = dFdx(vec3(uv,z));
-    vec3 duvdist_dy = dFdy(vec3(uv,z));
-
-    dz_duv.x = duvdist_dy.y * duvdist_dx.z;
-    dz_duv.x -= duvdist_dx.y * duvdist_dy.z;
-
-    dz_duv.y = duvdist_dx.x * duvdist_dy.z;
-    dz_duv.y -= duvdist_dy.x * duvdist_dx.z;
-
-    float det = (duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x);
-    dz_duv /= det;
-
-    return dz_duv;
+    float shadow = 0.0;
+    for (int i = -1; i <= 1; ++i)
+    {
+        for (int j = -1; j <= 1; ++j)
+        {
+            vec2 offset = vec2(i, j) * filter_radius;
+            float shadow_depth = texture_shadow(shadow_texture, uv + offset);
+            if (z - shadow_z_bias > shadow_depth)
+            {
+                shadow += 1.0;
+            }
+        }
+    }
+    return shadow / 9.0;
 }
 
-float sample_shadow(highp sampler2D shadow_texture, vec4 pos_light_proj, float shadow_filter_radius, float shadow_z_bias)
+float linear_filter(highp sampler2D shadow_texture, float z, vec2 uv, float shadow_z_bias)
 {
-    vec2 uv = pos_light_proj.xy * 0.5 + 0.5;
-    uv.y = 1.0 - uv.y;
-    float z = pos_light_proj.z * 0.5 + 0.5;
-    vec2 filter_radius = vec2(shadow_filter_radius);
-    vec2 dz_duv = depth_gradient(uv, z);
-
-    //return poisson_filter(shadow_texture, z, uv, dz_duv, filter_radius, shadow_z_bias);
-
-	float shadow_depth = linear_filter(shadow_texture, uv);
+    float shadow_depth = texture_shadow(shadow_texture, uv);
     if (z - shadow_z_bias > shadow_depth)
     {
         return 1.0;
@@ -98,4 +84,18 @@ float sample_shadow(highp sampler2D shadow_texture, vec4 pos_light_proj, float s
 	{
 		return 0.0;
 	}
+}
+
+float sample_shadow(highp sampler2D shadow_texture, vec4 pos_light_proj, float shadow_filter_radius, float shadow_z_bias)
+{
+    vec2 uv = pos_light_proj.xy * 0.5 + 0.5;
+    uv.y = 1.0 - uv.y;
+    float z = pos_light_proj.z * 0.5 + 0.5;
+    vec2 filter_radius = vec2(shadow_filter_radius);
+
+    return poisson_filter(shadow_texture, z, uv, shadow_z_bias, filter_radius);
+
+    //return pcf_filter(shadow_texture, z, uv, shadow_z_bias, filter_radius);
+
+    //return linear_filter(shadow_texture, z, uv, shadow_z_bias);
 }

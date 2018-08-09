@@ -63,7 +63,7 @@ namespace Viry3D
             Color(0.2f, 0.2f, 0.2f, 1),
             Color(1, 1, 1, 1),
             0.8f,
-            Quaternion::Euler(45, 0, 0)
+            Quaternion::Euler(45, 60, 0)
         };
         Matrix4x4 m_view;
         Matrix4x4 m_projection;
@@ -71,7 +71,6 @@ namespace Viry3D
         Camera* m_camera;
         Vector<Ref<MeshRenderer>> m_renderers;
         Label* m_label;
-        float m_light_deg = 0;
 
         void InitCamera()
         {
@@ -199,23 +198,7 @@ namespace Viry3D
 
         virtual void Update()
         {
-            // update light dir
-            m_light_deg += 0.05f;
-            if (m_light_deg >= 360)
-            {
-                m_light_deg = 0;
-            }
-            m_light_deg = 102.452f;
-            m_light_param.light_rot = Quaternion::Euler(45, m_light_deg, 0);
-
-            Vector3 light_forward = m_light_param.light_rot * Vector3(0, 0, 1);
-
-            for (auto i : m_renderers)
-            {
-                i->GetMaterial()->SetVector("u_light_dir", light_forward);
-            }
-
-            m_label->SetText(String::Format("FPS:%d DEG:%.3f", Time::GetFPS(), m_light_deg));
+            m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
         }
 
         virtual void OnResize(int width, int height)
