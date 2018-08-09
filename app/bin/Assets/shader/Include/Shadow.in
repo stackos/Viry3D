@@ -28,7 +28,7 @@ const vec2 Poisson25[25] = vec2[](
     vec2(0.991882, -0.657338)
 );
 
-float bias_z(float z, vec2 dz_duv, vec2 offset)
+float offset_z(float z, vec2 dz_duv, vec2 offset)
 {
     return z + dot(dz_duv, offset);
 }
@@ -52,7 +52,7 @@ float poisson_filter(highp sampler2D shadow_texture, float z, vec2 uv, vec2 dz_d
     {
         vec2 offset = Poisson25[i] * filter_radius;
         float shadow_depth = linear_filter(shadow_texture, uv + offset);
-        if (bias_z(z, dz_duv, offset) - shadow_z_bias > shadow_depth)
+        if (offset_z(z, dz_duv, offset) - shadow_z_bias > shadow_depth)
         {
             shadow += 1.0;
         }
@@ -87,5 +87,15 @@ float sample_shadow(highp sampler2D shadow_texture, vec4 pos_light_proj, float s
     vec2 filter_radius = vec2(shadow_filter_radius);
     vec2 dz_duv = depth_gradient(uv, z);
 
-    return poisson_filter(shadow_texture, z, uv, dz_duv, filter_radius, shadow_z_bias);
+    //return poisson_filter(shadow_texture, z, uv, dz_duv, filter_radius, shadow_z_bias);
+
+	float shadow_depth = linear_filter(shadow_texture, uv);
+    if (z - shadow_z_bias > shadow_depth)
+    {
+        return 1.0;
+    }
+	else
+	{
+		return 0.0;
+	}
 }

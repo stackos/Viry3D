@@ -71,7 +71,8 @@ void main()
     v_normal = normalize((vec4(a_normal, 0) * model_mat).xyz);
 
     #if (RECIEVE_SHADOW == 1)
-        v_pos_light_proj = a_pos * model_mat * buf_0_0.u_light_view_projection_matrix;
+		vec4 normal_bias = vec4(v_normal * 0.0, 0.0);
+        v_pos_light_proj = (a_pos * model_mat + normal_bias) * buf_0_0.u_light_view_projection_matrix;
     #endif
 #endif
 	

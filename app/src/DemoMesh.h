@@ -200,12 +200,12 @@ namespace Viry3D
         virtual void Update()
         {
             // update light dir
-            m_light_deg += 0.1f;
+            m_light_deg += 0.05f;
             if (m_light_deg >= 360)
             {
                 m_light_deg = 0;
             }
-            m_light_deg = 79.099f;
+            m_light_deg = 102.452f;
             m_light_param.light_rot = Quaternion::Euler(45, m_light_deg, 0);
 
             Vector3 light_forward = m_light_param.light_rot * Vector3(0, 0, 1);
