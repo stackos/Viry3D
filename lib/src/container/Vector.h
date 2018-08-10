@@ -30,6 +30,8 @@ namespace Viry3D
 		Vector(int size);
         Vector(int size, const V& v);
         Vector(std::initializer_list<V> list);
+        Vector(const Vector& from);
+        Vector(Vector&& from);
 
 		void Add(const V& v);
 		void AddRange(const V* vs, int count);
@@ -49,6 +51,8 @@ namespace Viry3D
 
 		V& operator [](int index);
 		const V& operator [](int index) const;
+        Vector& operator =(const Vector& from);
+        Vector& operator =(Vector&& from);
 
 		typedef typename std::vector<V>::iterator Iterator;
 		typedef typename std::vector<V>::const_iterator ConstIterator;
@@ -59,7 +63,6 @@ namespace Viry3D
 		ConstIterator end() const { return m_vector.end(); }
 
 	private:
-
 		std::vector<V> m_vector;
 	};
 
@@ -78,6 +81,18 @@ namespace Viry3D
     template<class V>
     Vector<V>::Vector(std::initializer_list<V> list):
         m_vector(list)
+    {
+    }
+
+    template<class V>
+    Vector<V>::Vector(const Vector& from):
+        m_vector(from.m_vector)
+    {
+    }
+
+    template<class V>
+    Vector<V>::Vector(Vector&& from):
+        m_vector(std::move(from.m_vector))
     {
     }
 
@@ -192,4 +207,18 @@ namespace Viry3D
 	{
 		return m_vector[index];
 	}
+
+    template<class V>
+    Vector<V>& Vector<V>::operator =(const Vector<V>& from)
+    {
+        m_vector = from.m_vector;
+        return *this;
+    }
+
+    template<class V>
+    Vector<V>& Vector<V>::operator =(Vector<V>&& from)
+    {
+        m_vector = std::move(from.m_vector);
+        return *this;
+    }
 }

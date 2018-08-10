@@ -374,7 +374,7 @@ public class GameObjectExporter
                 bw.Write((int) property_type);
 
                 bw.Write(keys.Length);
-                for (int k = 0; k > keys.Length; ++k)
+                for (int k = 0; k < keys.Length; ++k)
                 {
                     var key = keys[k];
 

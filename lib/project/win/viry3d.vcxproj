@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\android\jni.h" />
+    <ClInclude Include="..\..\src\animation\Animation.h" />
+    <ClInclude Include="..\..\src\animation\AnimationCurve.h" />
     <ClInclude Include="..\..\src\Application.h" />
     <ClInclude Include="..\..\src\container\Array.h" />
     <ClInclude Include="..\..\src\container\FastList.h" />
@@ -289,6 +291,8 @@
     <ClInclude Include="..\..\src\xml\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\animation\Animation.cpp" />
+    <ClCompile Include="..\..\src\animation\AnimationCurve.cpp" />
     <ClCompile Include="..\..\src\Application.cpp" />
     <ClCompile Include="..\..\src\crypto\md5\md5.c" />
     <ClCompile Include="..\..\src\Debug.cpp" />

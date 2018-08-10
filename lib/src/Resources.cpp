@@ -23,6 +23,7 @@
 #include "graphics/MeshRenderer.h"
 #include "graphics/SkinnedMeshRenderer.h"
 #include "graphics/Mesh.h"
+#include "animation/Animation.h"
 
 namespace Viry3D
 {
@@ -69,6 +70,52 @@ namespace Viry3D
         renderer->SetBonePaths(bones);
     }
 
+    static void ReadAnimation(MemoryStream& ms, const Ref<Animation>& animation)
+    {
+        int clip_count = ms.Read<int>();
+
+        Vector<AnimationClip> clips(clip_count);
+
+        for (int i = 0; i < clip_count; ++i)
+        {
+            String clip_name = ReadString(ms);
+            float clip_length = ms.Read<float>();
+            float clip_fps = ms.Read<float>();
+            int clip_wrap_mode = ms.Read<int>();
+            int curve_count = ms.Read<int>();
+
+            AnimationClip& clip = clips[i];
+            clip.name = clip_name;
+            clip.length = clip_length;
+            clip.fps = clip_fps;
+            clip.wrap_mode = (AnimationWrapMode) clip_wrap_mode;
+            clip.curves.Resize(curve_count);
+
+            for (int j = 0; j < curve_count; ++j)
+            {
+                String curve_path = ReadString(ms);
+                int property_type = ms.Read<int>();
+                int key_count = ms.Read<int>();
+
+                AnimationCurveWrapper& curve = clip.curves[j];
+                curve.path = curve_path;
+                curve.property_type = (CurvePropertyType) property_type;
+
+                for (int k = 0; k < key_count; ++k)
+                {
+                    float time = ms.Read<float>();
+                    float value = ms.Read<float>();
+                    float in_tangent = ms.Read<float>();
+                    float out_tangent = ms.Read<float>();
+
+                    curve.curve.AddKey(time, value, in_tangent, out_tangent);
+                }
+            }
+        }
+
+        animation->SetClips(std::move(clips));
+    }
+
     static Ref<Node> ReadNode(MemoryStream& ms, const Ref<Node>& parent)
     {
         Ref<Node> node;
@@ -90,26 +137,34 @@ namespace Viry3D
             {
                 assert(!node);
 
-                auto renderer = RefMake<MeshRenderer>();
-                ReadMeshRenderer(ms, renderer);
-                node = renderer;
+                auto com = RefMake<MeshRenderer>();
+                ReadMeshRenderer(ms, com);
+                node = com;
             }
             else if (com_name == "SkinnedMeshRenderer")
             {
                 assert(!node);
 
-                auto renderer = RefMake<SkinnedMeshRenderer>();
-                ReadSkinnedMeshRenderer(ms, renderer);
-                node = renderer;
+                auto com = RefMake<SkinnedMeshRenderer>();
+                ReadSkinnedMeshRenderer(ms, com);
+                node = com;
 
                 if (parent)
                 {
-                    renderer->SetBonesRoot(Node::GetRoot(parent));
+                    com->SetBonesRoot(Node::GetRoot(parent));
                 }
                 else
                 {
-                    renderer->SetBonesRoot(renderer);
+                    com->SetBonesRoot(com);
                 }
+            }
+            else if (com_name == "Animation")
+            {
+                assert(!node);
+
+                auto com = RefMake<Animation>();
+                ReadAnimation(ms, com);
+                node = com;
             }
         }
 
