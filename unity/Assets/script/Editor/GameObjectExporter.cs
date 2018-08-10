@@ -136,6 +136,11 @@ public class GameObjectExporter
                 com_writers.Add(WriteSkinnedMeshRenderer);
                 write_coms.Add(coms[i]);
             }
+            else if (coms[i] is Animation)
+            {
+                com_writers.Add(WriteAnimation);
+                write_coms.Add(coms[i]);
+            }
         }
 
         bw.Write(write_coms.Count);
@@ -281,6 +286,104 @@ public class GameObjectExporter
         {
             string bone_path = TransformPath(bones[i], root);
             WriteString(bone_path);
+        }
+    }
+
+    enum CurvePropertyType
+    {
+        Unknown = 0,
+
+        LocalPositionX,
+        LocalPositionY,
+        LocalPositionZ,
+        LocalRotationX,
+        LocalRotationY,
+        LocalRotationZ,
+        LocalRotationW,
+        LocalScaleX,
+        LocalScaleY,
+        LocalScaleZ,
+    }
+
+    static void WriteAnimation(Component com)
+    {
+        WriteString("Animation");
+
+        var clips = AnimationUtility.GetAnimationClips(com.gameObject);
+
+        bw.Write(clips.Length);
+        for (int i = 0; i < clips.Length; ++i)
+        {
+            var clip = clips[i];
+            var bindings = AnimationUtility.GetCurveBindings(clip);
+
+            WriteString(clip.name);
+            bw.Write(clip.length);
+            bw.Write(clip.frameRate);
+            bw.Write((int) clip.wrapMode);
+
+            bw.Write(bindings.Length);
+            for (int j = 0; j < bindings.Length; ++j)
+            {
+                var bind = bindings[j];
+                var curve = AnimationUtility.GetEditorCurve(clip, bind);
+                var keys = curve.keys;
+                CurvePropertyType property_type = CurvePropertyType.Unknown;
+
+                switch (bind.propertyName)
+                {
+                    case "m_LocalPosition.x":
+                        property_type = CurvePropertyType.LocalPositionX;
+                        break;
+                    case "m_LocalPosition.y":
+                        property_type = CurvePropertyType.LocalPositionY;
+                        break;
+                    case "m_LocalPosition.z":
+                        property_type = CurvePropertyType.LocalPositionZ;
+                        break;
+
+                    case "m_LocalRotation.x":
+                        property_type = CurvePropertyType.LocalRotationX;
+                        break;
+                    case "m_LocalRotation.y":
+                        property_type = CurvePropertyType.LocalRotationY;
+                        break;
+                    case "m_LocalRotation.z":
+                        property_type = CurvePropertyType.LocalRotationZ;
+                        break;
+                    case "m_LocalRotation.w":
+                        property_type = CurvePropertyType.LocalRotationW;
+                        break;
+
+                    case "m_LocalScale.x":
+                        property_type = CurvePropertyType.LocalScaleX;
+                        break;
+                    case "m_LocalScale.y":
+                        property_type = CurvePropertyType.LocalScaleY;
+                        break;
+                    case "m_LocalScale.z":
+                        property_type = CurvePropertyType.LocalScaleZ;
+                        break;
+
+                    default:
+                        Debug.LogError(bind.propertyName);
+                        break;
+                }
+
+                WriteString(bind.path);
+                bw.Write((int) property_type);
+
+                bw.Write(keys.Length);
+                for (int k = 0; k > keys.Length; ++k)
+                {
+                    var key = keys[k];
+
+                    bw.Write(key.time);
+                    bw.Write(key.value);
+                    bw.Write(key.inTangent);
+                    bw.Write(key.outTangent);
+                }
+            }
         }
     }
 
