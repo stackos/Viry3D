@@ -30,7 +30,6 @@ namespace Viry3D
     public:
         static void SetParent(const Ref<Node>& node, const Ref<Node>& parent);
         static const Ref<Node>& GetRoot(const Ref<Node>& node);
-        static Ref<Node> Find(const Ref<Node>& node, const String& path);
         Node();
         virtual ~Node();
         const String& GetName() const { return m_name; }
@@ -45,6 +44,8 @@ namespace Viry3D
         Ref<Node> GetParent() const { return m_parent.lock(); }
         int GetChildCount() const { return m_children.Size(); }
         const Ref<Node>& GetChild(int index) const { return m_children[index]; }
+        Ref<Node> Find(const String& path);
+        void EnableNotifyChildrenOnMatrixDirty(bool enable) { m_notify_children_on_matrix_dirty = enable; }
 
     protected:
         virtual void OnMatrixDirty() { }
@@ -58,6 +59,7 @@ namespace Viry3D
         Quaternion m_local_rotation;
         Vector3 m_local_scale;
         bool m_matrix_dirty;
+        bool m_notify_children_on_matrix_dirty;
         Matrix4x4 m_local_to_world_matrix;
         Vector<Ref<Node>> m_children;
         WeakRef<Node> m_parent;

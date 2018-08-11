@@ -41,8 +41,8 @@ namespace Viry3D
     struct AnimationCurveWrapper
     {
         String path;
-        CurvePropertyType property_type;
-        AnimationCurve curve;
+        Vector<CurvePropertyType> property_types;
+        Vector<AnimationCurve> curves;
     };
 
     enum class AnimationWrapMode
@@ -69,8 +69,19 @@ namespace Viry3D
         Animation();
         virtual ~Animation();
         void SetClips(Vector<AnimationClip>&& clips) { m_clips = std::move(clips); }
+        int GetClipCount() const { return m_clips.Size(); }
+        const String& GetClipName(int index) const;
+        void Play(int index);
+        void Stop();
+        void Update();
+
+    private:
+        void Sample(const AnimationClip& clip, float time);
 
     private:
         Vector<AnimationClip> m_clips;
+        int m_clip_index;
+        float m_play_start_time;
+        Vector<Node*> m_targets;
     };
 }

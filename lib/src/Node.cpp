@@ -23,7 +23,8 @@ namespace Viry3D
         m_local_position(0, 0, 0),
         m_local_rotation(Quaternion::Identity()),
         m_local_scale(1, 1, 1),
-        m_matrix_dirty(true)
+        m_matrix_dirty(true),
+        m_notify_children_on_matrix_dirty(true)
     {
         
     }
@@ -56,9 +57,12 @@ namespace Viry3D
         m_matrix_dirty = true;
         this->OnMatrixDirty();
 
-        for (auto& i : m_children)
+        if (m_notify_children_on_matrix_dirty)
         {
-            i->MarkMatrixDirty();
+            for (auto& i : m_children)
+            {
+                i->MarkMatrixDirty();
+            }
         }
     }
 
@@ -117,26 +121,28 @@ namespace Viry3D
         }
     }
 
-    Ref<Node> Node::Find(const Ref<Node>& node, const String& path)
+    Ref<Node> Node::Find(const String& path)
     {
         if (path.Empty())
         {
-            return node;
+            return Ref<Node>();
         }
 
-        Ref<Node> find = node;
+        Ref<Node> find;
+        Node* p = this;
 
         auto layers = path.Split("/");
         for (int i = 0; i < layers.Size(); ++i)
         {
             bool find_child = false;
 
-            for (int j = 0; j < find->GetChildCount(); ++j)
+            for (int j = 0; j < p->GetChildCount(); ++j)
             {
-                if (find->GetChild(j)->GetName() == layers[i])
+                if (p->GetChild(j)->GetName() == layers[i])
                 {
                     find_child = true;
-                    find = find->GetChild(j);
+                    find = p->GetChild(j);
+                    p = find.get();
                     break;
                 }
             }

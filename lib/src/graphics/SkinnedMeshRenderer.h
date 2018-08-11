@@ -38,7 +38,6 @@ namespace Viry3D
     private:
         Vector<String> m_bone_paths;
         WeakRef<Node> m_bones_root;
-        bool m_bones_dirty;
         Vector<WeakRef<Node>> m_bones;
     };
 }

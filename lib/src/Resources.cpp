@@ -89,7 +89,6 @@ namespace Viry3D
             clip.length = clip_length;
             clip.fps = clip_fps;
             clip.wrap_mode = (AnimationWrapMode) clip_wrap_mode;
-            clip.curves.Resize(curve_count);
 
             for (int j = 0; j < curve_count; ++j)
             {
@@ -97,9 +96,27 @@ namespace Viry3D
                 int property_type = ms.Read<int>();
                 int key_count = ms.Read<int>();
 
-                AnimationCurveWrapper& curve = clip.curves[j];
-                curve.path = curve_path;
-                curve.property_type = (CurvePropertyType) property_type;
+                AnimationCurveWrapper* curve = nullptr;
+                for (int k = 0; k < clip.curves.Size(); ++k)
+                {
+                    if (clip.curves[k].path == curve_path)
+                    {
+                        curve = &clip.curves[k];
+                        break;
+                    }
+                }
+                if (curve == nullptr)
+                {
+                    AnimationCurveWrapper new_path_curve;
+                    new_path_curve.path = curve_path;
+                    clip.curves.Add(new_path_curve);
+                    curve = &clip.curves[clip.curves.Size() - 1];
+                }
+                
+                curve->property_types.Add((CurvePropertyType) property_type);
+                curve->curves.Add(AnimationCurve());
+
+                AnimationCurve* anim_curve = &curve->curves[curve->curves.Size() - 1];
 
                 for (int k = 0; k < key_count; ++k)
                 {
@@ -108,7 +125,7 @@ namespace Viry3D
                     float in_tangent = ms.Read<float>();
                     float out_tangent = ms.Read<float>();
 
-                    curve.curve.AddKey(time, value, in_tangent, out_tangent);
+                    anim_curve->AddKey(time, value, in_tangent, out_tangent);
                 }
             }
         }

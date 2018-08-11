@@ -23,8 +23,7 @@
 
 namespace Viry3D
 {
-    SkinnedMeshRenderer::SkinnedMeshRenderer():
-        m_bones_dirty(true)
+    SkinnedMeshRenderer::SkinnedMeshRenderer()
     {
 
     }
@@ -44,7 +43,7 @@ namespace Viry3D
         {
             if (m_bone_paths[i].StartsWith(root_name))
             {
-                m_bones[i] = Node::Find(root, m_bone_paths[i].Substring(root_name.Size() + 1));
+                m_bones[i] = root->Find(m_bone_paths[i].Substring(root_name.Size() + 1));
             }
             
             if (m_bones[i].expired())
@@ -59,35 +58,31 @@ namespace Viry3D
         const auto& material = this->GetMaterial();
         const auto& mesh = this->GetMesh();
 
-        if (m_bones_dirty)
+        if (material && mesh && m_bone_paths.Size() > 0)
         {
-            if (material && mesh && m_bone_paths.Size() > 0)
+            const auto& bindposes = mesh->GetBindposes();
+            int bone_count = bindposes.Size();
+
+            assert(m_bone_paths.Size() == bone_count);
+            assert(m_bone_paths.Size() <= BONE_MAX);
+
+            if (m_bones.Empty())
             {
-                const auto& bindposes = mesh->GetBindposes();
-                int bone_count = bindposes.Size();
-
-                assert(m_bone_paths.Size() == bone_count);
-                assert(m_bone_paths.Size() <= BONE_MAX);
-
-                if (m_bones.Empty())
-                {
-                    this->FindBones();
-                }
-
-                Vector<Vector4> bone_vectors(bone_count * 3);
-
-                for (int i = 0; i < bone_count; ++i)
-                {
-                    Matrix4x4 mat = m_bones[i].lock()->GetLocalToWorldMatrix() * bindposes[i];
-
-                    bone_vectors[i * 3 + 0] = mat.GetRow(0);
-                    bone_vectors[i * 3 + 1] = mat.GetRow(1);
-                    bone_vectors[i * 3 + 2] = mat.GetRow(2);
-                }
-
-                m_bones_dirty = false;
-                this->SetInstanceVectorArray("u_bones", bone_vectors);
+                this->FindBones();
             }
+
+            Vector<Vector4> bone_vectors(bone_count * 3);
+
+            for (int i = 0; i < bone_count; ++i)
+            {
+                Matrix4x4 mat = m_bones[i].lock()->GetLocalToWorldMatrix() * bindposes[i];
+
+                bone_vectors[i * 3 + 0] = mat.GetRow(0);
+                bone_vectors[i * 3 + 1] = mat.GetRow(1);
+                bone_vectors[i * 3 + 2] = mat.GetRow(2);
+            }
+
+            this->SetInstanceVectorArray("u_bones", bone_vectors);
         }
 
         MeshRenderer::Update();

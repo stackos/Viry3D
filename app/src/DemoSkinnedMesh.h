@@ -20,13 +20,24 @@
 #include "DemoMesh.h"
 #include "Resources.h"
 #include "graphics/SkinnedMeshRenderer.h"
+#include "animation/Animation.h"
 
 namespace Viry3D
 {
+    enum class ClipIndex
+    {
+        Idle,
+        Run,
+        Shoot,
+
+        Count
+    };
+
     class DemoSkinnedMesh : public DemoMesh
     {
     public:
-        Ref<Node> m_node;
+        Ref<Animation> m_anim;
+        Vector<int> m_clips;
 
         void AddRenderer(const Ref<Node>& node, const Ref<Material>& material)
         {
@@ -70,10 +81,37 @@ namespace Viry3D
             material->SetVector("u_light_dir", m_light_param.light_rot * Vector3(0, 0, 1));
             material->SetFloat("u_light_intensity", m_light_param.light_intensity);
 
-            m_node = Resources::Load(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/ToonSoldier 1.go");
-            this->AddRenderer(m_node, material);
+            auto node = Resources::Load(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/ToonSoldier 1.go");
+            m_anim = RefCast<Animation>(node);
+            this->AddRenderer(m_anim, material);
 
-            m_node->SetLocalPosition(Vector3(0, 0, -0.5f));
+            m_anim->SetLocalPosition(Vector3(0, 0, -0.5f));
+
+            m_clips.Resize((int) ClipIndex::Count, -1);
+
+            int clip_count = m_anim->GetClipCount();
+            for (int i = 0; i < clip_count; ++i)
+            {
+                const String& name = m_anim->GetClipName(i);
+
+                if (name == "assault_combat_idle")
+                {
+                    m_clips[(int) ClipIndex::Idle] = i;
+                }
+                else if (name == "assault_combat_run")
+                {
+                    m_clips[(int) ClipIndex::Run] = i;
+                }
+                else if (name == "assault_combat_shoot")
+                {
+                    m_clips[(int) ClipIndex::Shoot] = i;
+                }
+            }
+
+            if (m_clips[(int) ClipIndex::Idle] >= 0)
+            {
+                m_anim->Play(m_clips[(int) ClipIndex::Idle]);
+            }
         }
 
         virtual void Init()
@@ -85,7 +123,7 @@ namespace Viry3D
 
         virtual void Done()
         {
-            m_node.reset();
+            m_anim.reset();
 
             DemoMesh::Done();
         }
@@ -93,6 +131,8 @@ namespace Viry3D
         virtual void Update()
         {
             DemoMesh::Update();
+
+            m_anim->Update();
         }
 
         virtual void OnResize(int width, int height)

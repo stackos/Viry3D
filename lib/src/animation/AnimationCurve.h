@@ -34,6 +34,10 @@ namespace Viry3D
 
     public:
         void AddKey(float time, float value, float in_tangent, float out_tangent);
+        float Evaluate(float time) const;
+
+    private:
+        static float Evaluate(float time, const Key& k0, const Key& k1);
         
     private:
         Vector<Key> m_keys;
