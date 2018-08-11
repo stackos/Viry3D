@@ -51,7 +51,11 @@ namespace Viry3D
             int color_count = ms.Read<int>();
             for (int i = 0; i < color_count; ++i)
             {
-                (*vertices)[i].color = Color(ms.Read<byte>() / 255.0f, ms.Read<byte>() / 255.0f, ms.Read<byte>() / 255.0f, ms.Read<byte>() / 255.0f);
+                float r = ms.Read<byte>() / 255.0f;
+                float g = ms.Read<byte>() / 255.0f;
+                float b = ms.Read<byte>() / 255.0f;
+                float a = ms.Read<byte>() / 255.0f;
+                (*vertices)[i].color = Color(r, g, b, a);
             }
 
             int uv_count = ms.Read<int>();
@@ -82,7 +86,11 @@ namespace Viry3D
             for (int i = 0; i < bone_weight_count; ++i)
             {
                 (*vertices)[i].bone_weight = ms.Read<Vector4>();
-                (*vertices)[i].bone_indices = Vector4((float) ms.Read<byte>(), (float) ms.Read<byte>(), (float) ms.Read<byte>(), (float) ms.Read<byte>());
+                float index0 = (float) ms.Read<byte>();
+                float index1 = (float) ms.Read<byte>();
+                float index2 = (float) ms.Read<byte>();
+                float index3 = (float) ms.Read<byte>();
+                (*vertices)[i].bone_indices = Vector4(index0, index1, index2, index3);
             }
 
             int index_count = ms.Read<int>();
