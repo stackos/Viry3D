@@ -20,18 +20,23 @@
 
 @implementation VkView
 
--(BOOL)wantsUpdateLayer {
-    return YES;
-}
-
-+(Class)layerClass {
++ (Class)layerClass {
     return [CAMetalLayer class];
 }
 
--(CALayer*)makeBackingLayer {
+- (instancetype)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    self.contentsScale = 1.0f;
+    return self;
+}
+
+- (BOOL)wantsUpdateLayer {
+    return YES;
+}
+
+- (CALayer*)makeBackingLayer {
     CALayer* layer = [self.class.layerClass layer];
-    CGSize viewScale = [self convertSizeToBacking: CGSizeMake(1.0, 1.0)];
-    layer.contentsScale = MIN(viewScale.width, viewScale.height);
+    layer.contentsScale = self.contentsScale;
     return layer;
 }
 

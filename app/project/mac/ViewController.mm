@@ -67,7 +67,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     return kCVReturnSuccess;
 }
 
--(void)loadView {
+- (void)loadView {
     CGSize size = self.window.contentLayoutRect.size;
     size = [self.window contentRectForFrameRect:self.window.contentLayoutRect].size;
     float scale = self.window.backingScaleFactor;
@@ -75,6 +75,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     int window_height = size.height * scale;
     
     VkView* view = [[VkView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height)];
+    view.contentsScale = scale;
     view.wantsLayer = YES;
     self.view = view;
     
@@ -90,14 +91,14 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     CVDisplayLinkStart(m_display_link);
 }
 
--(void)dealloc {
+- (void)dealloc {
     CVDisplayLinkRelease(m_display_link);
     
     delete m_app;
     delete m_display;
 }
 
--(void)drawFrame {
+- (void)drawFrame {
     [self processEvents];
     
     m_app->OnFrameBegin();
@@ -106,7 +107,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     m_app->OnFrameEnd();
 }
 
--(void)processEvents {
+- (void)processEvents {
     g_mutex.lock();
     for (const auto& i : g_events) {
         switch (i.type) {
@@ -128,7 +129,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     g_mutex.unlock();
 }
 
--(void)onMouseDown:(const MouseEvent*)e {
+- (void)onMouseDown:(const MouseEvent*)e {
     if (!g_mouse_down) {
         Touch t;
         t.deltaPosition = Vector2(0, 0);
@@ -154,7 +155,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     g_mouse_button_held[0] = true;
 }
 
--(void)onMouseUp:(const MouseEvent*)e {
+- (void)onMouseUp:(const MouseEvent*)e {
     if (g_mouse_down) {
         Touch t;
         t.deltaPosition = Vector2(0, 0);
@@ -180,12 +181,12 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     g_mouse_button_held[0] = false;
 }
 
--(void)onMouseMove:(const MouseEvent*)e {
+- (void)onMouseMove:(const MouseEvent*)e {
     g_mouse_position.x = e->position.x;
     g_mouse_position.y = e->position.y;
 }
 
--(void)onMouseDrag:(const MouseEvent*)e {
+- (void)onMouseDrag:(const MouseEvent*)e {
     if (g_mouse_down) {
         Touch t;
         t.deltaPosition = Vector2(0, 0);
@@ -215,7 +216,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     g_mouse_position.y = e->position.y;
 }
 
--(void)mouseDown:(NSEvent*)event {
+- (void)mouseDown:(NSEvent*)event {
     float scale = self.window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;
@@ -230,7 +231,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     g_mutex.unlock();
 }
 
--(void)mouseUp:(NSEvent*)event {
+- (void)mouseUp:(NSEvent*)event {
     float scale = self.window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;
@@ -245,7 +246,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     g_mutex.unlock();
 }
 
--(void)mouseMoved:(NSEvent*)event {
+- (void)mouseMoved:(NSEvent*)event {
     float scale = self.window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;
@@ -260,7 +261,7 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     g_mutex.unlock();
 }
 
--(void)mouseDragged:(NSEvent*)event {
+- (void)mouseDragged:(NSEvent*)event {
     float scale = self.window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;

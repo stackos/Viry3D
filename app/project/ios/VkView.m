@@ -19,7 +19,7 @@
 
 @implementation VkView
 
-+(Class)layerClass {
++ (Class)layerClass {
     return [CAMetalLayer class];
 }
 

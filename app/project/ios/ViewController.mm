@@ -128,7 +128,7 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     UIDeviceOrientation m_orientation;
 }
 
--(void)loadView {
+- (void)loadView {
     CGRect bounds = [UIScreen mainScreen].bounds;
     float scale = [UIScreen mainScreen].nativeScale;
     int window_width = bounds.size.width * scale;
@@ -153,25 +153,25 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
--(void)dealloc {
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     delete m_app;
     delete m_display;
 }
 
--(void)drawFrame {
+- (void)drawFrame {
     m_app->OnFrameBegin();
     m_app->Update();
     m_display->OnDraw();
     m_app->OnFrameEnd();
 }
 
--(BOOL)prefersStatusBarHidden {
+- (BOOL)prefersStatusBarHidden {
     return TRUE;
 }
 
--(void)orientationDidChange:(NSNotification*)notification {
+- (void)orientationDidChange:(NSNotification*)notification {
     CGRect bounds = [UIScreen mainScreen].bounds;
     float scale = [UIScreen mainScreen].nativeScale;
     int window_width = bounds.size.width * scale;
@@ -191,19 +191,19 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     }
 }
 
--(void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
     TouchBegin(touches, self.view);
 }
 
--(void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
+- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
     TouchUpdate(touches, self.view);
 }
 
--(void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event {
+- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event {
     TouchUpdate(touches, self.view);
 }
 
--(void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event {
+- (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event {
     TouchUpdate(touches, self.view);
 }
 

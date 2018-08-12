@@ -22,7 +22,7 @@
     NSWindow* m_window;
 }
 
--(void)applicationDidFinishLaunching:(NSNotification*)aNotification {
+- (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
     // Insert code here to initialize your application
     
     const char* name = "viry3d-vk-demo";
@@ -43,20 +43,20 @@
     m_window.contentViewController = view_controller;
 }
 
--(void)applicationWillTerminate:(NSNotification*)aNotification {
+- (void)applicationWillTerminate:(NSNotification*)aNotification {
     // Insert code here to tear down your application
 }
 
--(BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender {
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender {
     return YES;
 }
 
--(NSSize)windowWillResize:(NSWindow*)sender toSize:(NSSize)frameSize {
+- (NSSize)windowWillResize:(NSWindow*)sender toSize:(NSSize)frameSize {
     // resize
     return frameSize;
 }
 
--(BOOL)windowShouldClose:(NSWindow*)sender {
+- (BOOL)windowShouldClose:(NSWindow*)sender {
     // destroy
     return YES;
 }

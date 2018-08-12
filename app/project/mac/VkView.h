@@ -18,4 +18,8 @@
 #import <Cocoa/Cocoa.h>
 
 @interface VkView : NSView
+
+- (instancetype)initWithFrame:(NSRect)frameRect;
+@property CGFloat contentsScale;
+
 @end

@@ -31,6 +31,7 @@
 #include "ui/Label.h"
 
 // TODO:
+// - mac window resize
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView
