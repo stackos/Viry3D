@@ -37,6 +37,11 @@ namespace Viry3D
 
     void Animation::Play(int index, float fade_length)
     {
+        if (m_states.Size() == 0)
+        {
+            fade_length = 0;
+        }
+        
         if (fade_length > 0.0f)
         {
             for (auto& state : m_states)
