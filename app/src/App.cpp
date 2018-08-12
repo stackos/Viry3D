@@ -31,7 +31,6 @@
 #include "ui/Label.h"
 
 // TODO:
-// - Node Animation
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView

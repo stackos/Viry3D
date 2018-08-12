@@ -20,9 +20,7 @@
 
 namespace Viry3D
 {
-    Animation::Animation():
-        m_clip_index(-1),
-        m_play_start_time(0)
+    Animation::Animation()
     {
     
     }
@@ -37,27 +35,59 @@ namespace Viry3D
         return m_clips[index].name;
     }
 
-    void Animation::Play(int index)
+    void Animation::Play(int index, float fade_length)
     {
-        m_clip_index = index;
-        m_play_start_time = Time::GetTime();
-        m_targets.Clear();
+        if (fade_length > 0.0f)
+        {
+            for (auto& state : m_states)
+            {
+                state.fade_state = FadeState::Out;
+                state.fade_start_time = Time::GetTime();
+                state.fade_length = fade_length;
+                state.start_weight = state.weight;
+            }
+        }
+        else
+        {
+            m_states.Clear();
+        }
+
+        AnimationState state;
+        state.clip_index = index;
+        state.play_start_time = Time::GetTime();
+        state.fade_start_time = Time::GetTime();
+        state.fade_length = fade_length;
+        if (fade_length > 0.0f)
+        {
+            state.fade_state = FadeState::In;
+            state.start_weight = 0.0f;
+            state.weight = 0.0f;
+        }
+        else
+        {
+            state.fade_state = FadeState::Normal;
+            state.start_weight = 1.0f;
+            state.weight = 1.0f;
+        }
+
+        m_states.AddLast(state);
     }
 
     void Animation::Stop()
     {
-        m_clip_index = -1;
-        m_play_start_time = 0;
-        m_targets.Clear();
+        m_states.Clear();
     }
 
     void Animation::Update()
     {
-        if (m_clip_index >= 0)
+        bool first_state = true;
+
+        for (auto i = m_states.begin(); i != m_states.end(); )
         {
-            float time = Time::GetTime() - m_play_start_time;
-            const auto& clip = m_clips[m_clip_index];
-            bool stop_later = false;
+            auto& state = *i;
+            float time = Time::GetTime() - state.play_start_time;
+            const auto& clip = m_clips[state.clip_index];
+            bool remove_later = false;
 
             if (time >= clip.length)
             {
@@ -65,7 +95,7 @@ namespace Viry3D
                 {
                     case AnimationWrapMode::Once:
                         time = clip.length;
-                        stop_later = true;
+                        remove_later = true;
                         break;
                     case AnimationWrapMode::Loop:
                         time = fmod(time, clip.length);
@@ -89,30 +119,74 @@ namespace Viry3D
                 }
             }
 
-            this->Sample(clip, time);
-
-            if (stop_later)
+            float fade_time = Time::GetTime() - state.fade_start_time;
+            switch (state.fade_state)
             {
-                this->Stop();
+                case FadeState::In:
+                    if (fade_time < state.fade_length)
+                    {
+                        state.weight = Mathf::Lerp(state.start_weight, 1.0f, fade_time / state.fade_length);
+                    }
+                    else
+                    {
+                        state.fade_state = FadeState::Normal;
+                        state.fade_start_time = Time::GetTime();
+                        state.start_weight = 1.0f;
+                        state.weight = 1.0f;
+                    }
+                    break;
+                case FadeState::Normal:
+                    break;
+                case FadeState::Out:
+                    if (fade_time < state.fade_length)
+                    {
+                        state.weight = Mathf::Lerp(state.start_weight, 0.0f, fade_time / state.fade_length);
+                    }
+                    else
+                    {
+                        state.weight = 0.0f;
+                        remove_later = true;
+                    }
+                    break;
+            }
+
+            bool last_state = false;
+            auto j = i;
+            if (++j == m_states.end())
+            {
+                last_state = true;
+            }
+
+            this->Sample(state, time, state.weight, first_state, last_state);
+            first_state = false;
+
+            if (remove_later)
+            {
+                i = m_states.Remove(i);
+            }
+            else
+            {
+                ++i;
             }
         }
     }
 
-    void Animation::Sample(const AnimationClip& clip, float time)
+    void Animation::Sample(AnimationState& state, float time, float weight, bool first_state, bool last_state)
     {
-        if (m_targets.Size() == 0)
+        const auto& clip = m_clips[state.clip_index];
+        if (state.targets.Size() == 0)
         {
-            m_targets.Resize(clip.curves.Size(), nullptr);
+            state.targets.Resize(clip.curves.Size(), nullptr);
         }
 
         for (int i = 0; i < clip.curves.Size(); ++i)
         {
             const auto& curve = clip.curves[i];
-            Node* target = m_targets[i];
+            Node* target = state.targets[i];
             if (target == nullptr)
             {
                 target = this->Find(curve.path).get();
-                m_targets[i] = target;
+                state.targets[i] = target;
                 if (target)
                 {
                     target->EnableNotifyChildrenOnMatrixDirty(false);
@@ -123,55 +197,117 @@ namespace Viry3D
                 }
             }
 
-            Vector3 local_pos = target->GetLocalPosition();
-            Quaternion local_rot = target->GetLocalRotation();
-            Vector3 local_scale = target->GetLocalScale();
+            Vector3 local_pos;
+            Quaternion local_rot;
+            Vector3 local_scale;
+            bool set_pos = false;
+            bool set_rot = false;
+            bool set_scale = false;
 
             for (int j = 0; j < curve.property_types.Size(); ++j)
             {
                 auto type = curve.property_types[j];
                 float value = curve.curves[j].Evaluate(time);
+                float* target_value = nullptr;
 
                 switch (type)
                 {
                     case CurvePropertyType::LocalPositionX:
                         local_pos.x = value;
+                        set_pos = true;
                         break;
                     case CurvePropertyType::LocalPositionY:
                         local_pos.y = value;
+                        set_pos = true;
                         break;
                     case CurvePropertyType::LocalPositionZ:
                         local_pos.z = value;
+                        set_pos = true;
                         break;
 
                     case CurvePropertyType::LocalRotationX:
                         local_rot.x = value;
+                        set_rot = true;
                         break;
                     case CurvePropertyType::LocalRotationY:
                         local_rot.y = value;
+                        set_rot = true;
                         break;
                     case CurvePropertyType::LocalRotationZ:
                         local_rot.z = value;
+                        set_rot = true;
                         break;
                     case CurvePropertyType::LocalRotationW:
                         local_rot.w = value;
+                        set_rot = true;
                         break;
 
                     case CurvePropertyType::LocalScaleX:
                         local_scale.x = value;
+                        set_scale = true;
                         break;
                     case CurvePropertyType::LocalScaleY:
                         local_scale.y = value;
+                        set_scale = true;
                         break;
                     case CurvePropertyType::LocalScaleZ:
                         local_scale.z = value;
+                        set_scale = true;
                         break;
                 }
             }
 
-            target->SetLocalPosition(local_pos);
-            target->SetLocalRotation(local_rot);
-            target->SetLocalScale(local_scale);
+            if (set_pos)
+            {
+                Vector3 pos;
+                if (first_state)
+                {
+                    pos = local_pos * weight;
+                }
+                else
+                {
+                    pos = target->GetLocalPosition() + local_pos * weight;
+                }
+                target->SetLocalPosition(pos);
+            }
+            if (set_rot)
+            {
+                Quaternion rot;
+                if (first_state)
+                {
+                    rot = local_rot * weight;
+                }
+                else
+                {
+                    rot = Quaternion(target->GetLocalRotation());
+                    if (rot.Dot(local_rot) < 0)
+                    {
+                        local_rot = local_rot * -1.0f;
+                    }
+                    rot.x += local_rot.x * weight;
+                    rot.y += local_rot.y * weight;
+                    rot.z += local_rot.z * weight;
+                    rot.w += local_rot.w * weight;
+                }
+                if (last_state)
+                {
+                    rot.Normalize();
+                }
+                target->SetLocalRotation(rot);
+            }
+            if (set_scale)
+            {
+                Vector3 scale;
+                if (first_state)
+                {
+                    scale = local_scale * weight;
+                }
+                else
+                {
+                    scale = target->GetLocalScale() + local_scale * weight;
+                }
+                target->SetLocalScale(scale);
+            }
         }
     }
 }

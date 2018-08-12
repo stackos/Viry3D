@@ -21,6 +21,7 @@
 #include "Resources.h"
 #include "graphics/SkinnedMeshRenderer.h"
 #include "animation/Animation.h"
+#include "Input.h"
 
 namespace Viry3D
 {
@@ -39,25 +40,13 @@ namespace Viry3D
         Ref<Animation> m_anim;
         Vector<int> m_clips;
 
-        void AddRenderer(const Ref<Node>& node, const Ref<Material>& material)
-        {
-            auto renderer = RefCast<MeshRenderer>(node);
-            if (renderer)
-            {
-                renderer->SetMaterial(material);
-                m_camera->AddRenderer(renderer);
-                m_renderers.Add(renderer);
-            }
-
-            int child_count = node->GetChildCount();
-            for (int i = 0; i < child_count; ++i)
-            {
-                this->AddRenderer(node->GetChild(i), material);
-            }
-        }
-
         void InitSkinnedMesh()
         {
+            // load skinned mesh with animation
+            auto node = Resources::Load(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/ToonSoldier 1.go");
+            m_anim = RefCast<Animation>(node);
+
+            // set material
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
@@ -81,12 +70,17 @@ namespace Viry3D
             material->SetVector("u_light_dir", m_light_param.light_rot * Vector3(0, 0, 1));
             material->SetFloat("u_light_intensity", m_light_param.light_intensity);
 
-            auto node = Resources::Load(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/ToonSoldier 1.go");
-            m_anim = RefCast<Animation>(node);
-            this->AddRenderer(m_anim, material);
+            auto skin = RefCast<SkinnedMeshRenderer>(m_anim->Find("MESH_Infantry"));
+            skin->SetMaterial(material);
 
+            // add to camera
+            m_camera->AddRenderer(skin);
+            m_renderers.Add(skin);
+            
             m_anim->SetLocalPosition(Vector3(0, 0, -0.5f));
+            m_anim->SetLocalRotation(Quaternion::Euler(0, 90, 0));
 
+            // play animation clip
             m_clips.Resize((int) ClipIndex::Count, -1);
 
             int clip_count = m_anim->GetClipCount();
@@ -108,10 +102,7 @@ namespace Viry3D
                 }
             }
 
-            if (m_clips[(int) ClipIndex::Idle] >= 0)
-            {
-                m_anim->Play(m_clips[(int) ClipIndex::Idle]);
-            }
+            m_anim->Play(m_clips[(int) ClipIndex::Idle], 0.3f);
         }
 
         virtual void Init()
@@ -132,6 +123,20 @@ namespace Viry3D
         {
             DemoMesh::Update();
 
+            if (Input::GetTouchCount() > 0)
+            {
+                const Touch& touch = Input::GetTouch(0);
+                if (touch.phase == TouchPhase::Began)
+                {
+                    m_anim->Play(m_clips[(int) ClipIndex::Run], 0.3f);
+                }
+                else if (touch.phase == TouchPhase::Ended)
+                {
+                    m_anim->Play(m_clips[(int) ClipIndex::Idle], 0.3f);
+                }
+            }
+
+            // update bones
             m_anim->Update();
         }
 

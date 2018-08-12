@@ -19,6 +19,7 @@
 
 #include "Node.h"
 #include "AnimationCurve.h"
+#include "container/List.h"
 
 namespace Viry3D
 {
@@ -63,6 +64,25 @@ namespace Viry3D
         Vector<AnimationCurveWrapper> curves;
     };
 
+    enum class FadeState
+    {
+        In,
+        Normal,
+        Out,
+    };
+
+    struct AnimationState
+    {
+        int clip_index;
+        float play_start_time;
+        Vector<Node*> targets;
+        FadeState fade_state;
+        float fade_start_time;
+        float fade_length;
+        float start_weight;
+        float weight;
+    };
+
     class Animation : public Node
     {
     public:
@@ -71,17 +91,15 @@ namespace Viry3D
         void SetClips(Vector<AnimationClip>&& clips) { m_clips = std::move(clips); }
         int GetClipCount() const { return m_clips.Size(); }
         const String& GetClipName(int index) const;
-        void Play(int index);
+        void Play(int index, float fade_length);
         void Stop();
         void Update();
 
     private:
-        void Sample(const AnimationClip& clip, float time);
+        void Sample(AnimationState& state, float time, float weight, bool first_state, bool last_state);
 
     private:
         Vector<AnimationClip> m_clips;
-        int m_clip_index;
-        float m_play_start_time;
-        Vector<Node*> m_targets;
+        List<AnimationState> m_states;
     };
 }
