@@ -39,6 +39,8 @@ extern float g_mouse_scroll_wheel;
 
 static bool g_mouse_down = false;
 static bool g_minimized = false;
+static int g_window_width;
+static int g_window_height;
 
 static int GetKeyCode(int wParam)
 {
@@ -231,10 +233,8 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                     int width = lParam & 0xffff;
                     int height = (lParam & 0xffff0000) >> 16;
 
-                    if (Display::Instance())
-                    {
-                        Display::Instance()->OnResize(width, height);
-                    }
+                    g_window_width = width;
+                    g_window_height = height;
                 }
 
                 g_minimized = false;
@@ -579,6 +579,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     app->SetName(name);
     app->Init();
 
+    g_window_width = window_width;
+    g_window_height = window_height;
+
     bool exit = false;
     MSG msg;
 
@@ -601,6 +604,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (exit)
         {
             break;
+        }
+
+        if (g_window_width != display->GetWidth() || g_window_height != display->GetHeight())
+        {
+            display->OnResize(g_window_width, g_window_height);
         }
 
         app->OnFrameBegin();
