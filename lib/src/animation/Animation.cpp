@@ -213,7 +213,6 @@ namespace Viry3D
             {
                 auto type = curve.property_types[j];
                 float value = curve.curves[j].Evaluate(time);
-                float* target_value = nullptr;
 
                 switch (type)
                 {
@@ -258,6 +257,9 @@ namespace Viry3D
                     case CurvePropertyType::LocalScaleZ:
                         local_scale.z = value;
                         set_scale = true;
+                        break;
+
+                    case CurvePropertyType::Unknown:
                         break;
                 }
             }

@@ -39,6 +39,11 @@ namespace Viry3D
         Vector4 lightmapScaleOffset = ms.Read<Vector4>();
         bool cast_shadow = ms.Read<byte>() == 1;
         bool receive_shadow = ms.Read<byte>() == 1;
+
+        (void) lightmap_index;
+        (void) lightmapScaleOffset;
+        (void) cast_shadow;
+        (void) receive_shadow;
         
         int material_count = ms.Read<int>();
         for (int i = 0; i < material_count; ++i)
@@ -140,6 +145,9 @@ namespace Viry3D
         String name = ReadString(ms);
         int layer = ms.Read<int>();
         bool active = ms.Read<byte>() == 1;
+
+        (void) layer;
+        (void) active;
 
         Vector3 local_pos = ms.Read<Vector3>();
         Quaternion local_rot = ms.Read<Quaternion>();

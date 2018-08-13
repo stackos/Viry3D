@@ -390,6 +390,8 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/lua)
 
 add_library(Viry3D STATIC
+            ${VIRY3D_LIB_SRC_DIR}/animation/Animation.cpp
+            ${VIRY3D_LIB_SRC_DIR}/animation/AnimationCurve.cpp
             ${VIRY3D_LIB_SRC_DIR}/Application.cpp
             ${VIRY3D_LIB_SRC_DIR}/Debug.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Camera.cpp
@@ -401,6 +403,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/graphics/MeshRenderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Renderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Shader.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/SkinnedMeshRenderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Texture.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/VertexAttribute.cpp
             ${VIRY3D_LIB_SRC_DIR}/io/Directory.cpp
@@ -418,6 +421,8 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/math/Vector2.cpp
             ${VIRY3D_LIB_SRC_DIR}/math/Vector3.cpp
             ${VIRY3D_LIB_SRC_DIR}/memory/ByteBuffer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/Node.cpp
+            ${VIRY3D_LIB_SRC_DIR}/Resources.cpp
             ${VIRY3D_LIB_SRC_DIR}/string/String.cpp
             ${VIRY3D_LIB_SRC_DIR}/thread/ThreadPool.cpp
             ${VIRY3D_LIB_SRC_DIR}/time/Time.cpp
