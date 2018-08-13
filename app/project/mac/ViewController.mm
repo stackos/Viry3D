@@ -32,44 +32,24 @@ extern bool g_mouse_button_up[3];
 extern Vector3 g_mouse_position;
 extern bool g_mouse_button_held[3];
 
-enum class MouseEventType
-{
-    Down,
-    Up,
-    Move,
-    Drag,
-};
-
 struct MouseEvent
 {
-    MouseEventType type;
     Vector2 position;
     float time;
 };
 
 static bool g_mouse_down = false;
-static Vector<MouseEvent> g_events;
-static Mutex g_mutex;
 
 @implementation ViewController {
-    CVDisplayLinkRef m_display_link;
+    NSTimer* m_timer;
     Display* m_display;
     App* m_app;
-}
-
-static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
-                          const CVTimeStamp* now,
-                          const CVTimeStamp* outputTime,
-                          CVOptionFlags flagsIn,
-                          CVOptionFlags* flagsOut,
-                          void* target) {
-    [(__bridge ViewController*) target drawFrame];
-    return kCVReturnSuccess;
+    int m_target_width;
+    int m_target_height;
 }
 
 - (void)loadView {
-    CGSize size = self.window.contentLayoutRect.size;
-    size = [self.window contentRectForFrameRect:self.window.contentLayoutRect].size;
+    CGSize size = [self.window contentRectForFrameRect:self.window.contentLayoutRect].size;
     float scale = self.window.backingScaleFactor;
     int window_width = size.width * scale;
     int window_height = size.height * scale;
@@ -86,47 +66,38 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     m_app->SetName(name);
     m_app->Init();
     
-    CVDisplayLinkCreateWithActiveCGDisplays(&m_display_link);
-    CVDisplayLinkSetOutputCallback(m_display_link, &DrawFrame, (__bridge void*) self);
-    CVDisplayLinkStart(m_display_link);
+    m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:self selector:@selector(drawFrame) userInfo:nil repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];
+    
+    m_target_width = window_width;
+    m_target_height = window_height;
+}
+
+- (void)viewWillDisappear {
+    [super viewWillDisappear];
+    
+    [m_timer invalidate];
 }
 
 - (void)dealloc {
-    CVDisplayLinkRelease(m_display_link);
-    
     delete m_app;
     delete m_display;
 }
 
+- (void)onResize:(int)width :(int)height {
+    m_target_width = width;
+    m_target_height = height;
+}
+
 - (void)drawFrame {
-    [self processEvents];
+    if (m_target_width != m_display->GetWidth() || m_target_height != m_display->GetHeight()) {
+        m_display->OnResize(m_target_width, m_target_height);
+    }
     
     m_app->OnFrameBegin();
     m_app->Update();
     m_display->OnDraw();
     m_app->OnFrameEnd();
-}
-
-- (void)processEvents {
-    g_mutex.lock();
-    for (const auto& i : g_events) {
-        switch (i.type) {
-            case MouseEventType::Down:
-                [self onMouseDown:&i];
-                break;
-            case MouseEventType::Up:
-                [self onMouseUp:&i];
-                break;
-            case MouseEventType::Move:
-                [self onMouseMove:&i];
-                break;
-            case MouseEventType::Drag:
-                [self onMouseDrag:&i];
-                break;
-        }
-    }
-    g_events.Clear();
-    g_mutex.unlock();
 }
 
 - (void)onMouseDown:(const MouseEvent*)e {
@@ -222,13 +193,10 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     float y = [event locationInWindow].y * scale;
     
     MouseEvent e;
-    e.type = MouseEventType::Down;
     e.position = Vector2(x, y);
     e.time = [event timestamp];
     
-    g_mutex.lock();
-    g_events.Add(e);
-    g_mutex.unlock();
+    [self onMouseDown:&e];
 }
 
 - (void)mouseUp:(NSEvent*)event {
@@ -237,13 +205,10 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     float y = [event locationInWindow].y * scale;
     
     MouseEvent e;
-    e.type = MouseEventType::Up;
     e.position = Vector2(x, y);
     e.time = [event timestamp];
     
-    g_mutex.lock();
-    g_events.Add(e);
-    g_mutex.unlock();
+    [self onMouseUp:&e];
 }
 
 - (void)mouseMoved:(NSEvent*)event {
@@ -252,13 +217,10 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     float y = [event locationInWindow].y * scale;
     
     MouseEvent e;
-    e.type = MouseEventType::Move;
     e.position = Vector2(x, y);
     e.time = [event timestamp];
     
-    g_mutex.lock();
-    g_events.Add(e);
-    g_mutex.unlock();
+    [self onMouseMove:&e];
 }
 
 - (void)mouseDragged:(NSEvent*)event {
@@ -267,13 +229,10 @@ static CVReturn DrawFrame(CVDisplayLinkRef displayLink,
     float y = [event locationInWindow].y * scale;
     
     MouseEvent e;
-    e.type = MouseEventType::Drag;
     e.position = Vector2(x, y);
     e.time = [event timestamp];
     
-    g_mutex.lock();
-    g_events.Add(e);
-    g_mutex.unlock();
+    [self onMouseDrag:&e];
 }
 
 @end

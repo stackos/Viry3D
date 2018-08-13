@@ -43,22 +43,23 @@
     m_window.contentViewController = view_controller;
 }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
+    return TRUE;
+}
+
 - (void)applicationWillTerminate:(NSNotification*)aNotification {
     // Insert code here to tear down your application
 }
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender {
-    return YES;
-}
-
 - (NSSize)windowWillResize:(NSWindow*)sender toSize:(NSSize)frameSize {
     // resize
+    CGSize size = [m_window contentRectForFrameRect:NSMakeRect(0, 0, frameSize.width, frameSize.height)].size;
+    float scale = m_window.backingScaleFactor;
+    int window_width = size.width * scale;
+    int window_height = size.height * scale;
+    
+    [(ViewController*) m_window.contentViewController onResize:window_width :window_height];
     return frameSize;
-}
-
-- (BOOL)windowShouldClose:(NSWindow*)sender {
-    // destroy
-    return YES;
 }
 
 @end

@@ -21,4 +21,6 @@
 
 @property (weak, nonatomic) NSWindow* window;
 
+- (void)onResize:(int)width :(int)height;
+
 @end
