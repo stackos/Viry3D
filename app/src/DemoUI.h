@@ -30,7 +30,7 @@ namespace Viry3D
         void InitUI()
         {
             auto canvas = RefMake<CanvasRenderer>();
-            m_camera->AddRenderer(canvas);
+            m_ui_camera->AddRenderer(canvas);
 
             auto texture0 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/0.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
             auto texture1 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/1.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);

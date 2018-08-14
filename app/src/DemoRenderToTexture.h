@@ -26,7 +26,6 @@ namespace Viry3D
     public:
         void InitRenderTexture()
         {
-            m_camera->SetDepth(0);
             auto color_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
@@ -50,7 +49,9 @@ namespace Viry3D
             blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
 
             // color -> window
-            Display::Instance()->CreateBlitCamera(0x7fffffff, color_texture);
+            Display::Instance()->CreateBlitCamera(2, color_texture);
+
+            m_ui_camera->SetDepth(3);
         }
 
         virtual void Init()

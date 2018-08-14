@@ -26,7 +26,6 @@ namespace Viry3D
     public:
         void InitPostEffectBlur()
         {
-            m_camera->SetDepth(0);
             auto color_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
@@ -128,7 +127,7 @@ void main()
                 fs,
                 render_state);
 
-            int camera_depth = 2;
+            int camera_depth = 1;
 
             // color -> color2, down sample
             auto blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture);
@@ -152,7 +151,9 @@ void main()
             }
 
             // color -> window
-            Display::Instance()->CreateBlitCamera(0x7fffffff, color_texture_2);
+            Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2);
+
+            m_ui_camera->SetDepth(camera_depth++);
         }
 
         virtual void Init()

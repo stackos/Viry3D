@@ -48,6 +48,7 @@ namespace Viry3D
         void InitShadowCaster()
         {
             m_camera->SetDepth(1);
+            m_ui_camera->SetDepth(2);
 
             m_shadow_texture = Texture::CreateRenderTexture(
                 SHADOW_MAP_SIZE,
@@ -134,7 +135,7 @@ namespace Viry3D
                 m_shadow_camera->AddRenderer(shadow_mesh);
             }
 
-            Display::Instance()->CreateBlitCamera(2, m_shadow_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
+            Display::Instance()->CreateBlitCamera(3, m_shadow_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
         }
 
         void InitShadowReciever()

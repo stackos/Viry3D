@@ -69,11 +69,15 @@ namespace Viry3D
         Matrix4x4 m_projection;
 
         Camera* m_camera;
+        Camera* m_ui_camera;
         Vector<Ref<MeshRenderer>> m_renderers;
         Label* m_label;
 
         void InitCamera()
         {
+            m_camera = Display::Instance()->CreateCamera();
+            m_camera->SetDepth(0);
+
             Vector3 camera_forward = m_camera_param.rot * Vector3(0, 0, 1);
             Vector3 camera_up = m_camera_param.rot * Vector3(0, 1, 0);
             m_view = Matrix4x4::LookTo(m_camera_param.pos, camera_forward, camera_up);
@@ -162,8 +166,12 @@ namespace Viry3D
 
         void InitUI()
         {
+            m_ui_camera = Display::Instance()->CreateCamera();
+            m_ui_camera->SetDepth(1);
+            m_ui_camera->SetClearFlags(CameraClearFlags::Nothing);
+
             auto canvas = RefMake<CanvasRenderer>();
-            m_camera->AddRenderer(canvas);
+            m_ui_camera->AddRenderer(canvas);
 
             auto label = RefMake<Label>();
             canvas->AddView(label);
@@ -181,8 +189,6 @@ namespace Viry3D
 
         virtual void Init()
         {
-            m_camera = Display::Instance()->CreateCamera();
-
             this->InitCamera();
             this->InitMesh();
             this->InitUI();
@@ -192,6 +198,8 @@ namespace Viry3D
         {
             m_renderers.Clear();
 
+            Display::Instance()->DestroyCamera(m_ui_camera);
+            m_ui_camera = nullptr;
             Display::Instance()->DestroyCamera(m_camera);
             m_camera = nullptr;
         }
