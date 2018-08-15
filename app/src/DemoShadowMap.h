@@ -64,6 +64,8 @@ namespace Viry3D
             m_shadow_camera->SetDepth(0);
             m_shadow_camera->SetClearFlags(CameraClearFlags::Depth);
             m_shadow_camera->SetRenderTarget(Ref<Texture>(), m_shadow_texture);
+            m_shadow_camera->SetLocalPosition(m_shadow_param.light_pos);
+            m_shadow_camera->SetLocalRotation(m_light_param.light_rot);
 
             RenderState render_state;
             render_state.cull = RenderState::Cull::Front;
@@ -78,10 +80,6 @@ namespace Viry3D
                 render_state);
             auto material = RefMake<Material>(shader);
 
-            Vector3 light_forward = m_light_param.light_rot * Vector3(0, 0, 1);
-            Vector3 light_up = m_light_param.light_rot * Vector3(0, 1, 0);
-            Matrix4x4 view = Matrix4x4::LookTo(m_shadow_param.light_pos, light_forward, light_up);
-
             int target_width = SHADOW_MAP_SIZE;
             int target_height = SHADOW_MAP_SIZE;
             float ortho_size = m_shadow_param.ortho_size;
@@ -90,10 +88,9 @@ namespace Viry3D
             float plane_h = ortho_size * 2;
             float plane_w = plane_h * target_width / target_height;
             Matrix4x4 projection = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_shadow_param.near_clip, m_shadow_param.far_clip);
-            m_light_view_projection_matrix = projection * view;
+            m_light_view_projection_matrix = projection * m_shadow_camera->GetViewMatrix();
 
-            material->SetMatrix("u_view_matrix", view);
-            material->SetMatrix("u_projection_matrix", projection);
+            material->SetMatrix(PROJECTION_MATRIX, projection);
 
             auto skin_shader = RefMake<Shader>(
                 "#define CAST_SHADOW 1\n#define SKINNED_MESH 1",
@@ -104,8 +101,7 @@ namespace Viry3D
                 "",
                 render_state);
             auto skin_material = RefMake<Material>(skin_shader);
-            skin_material->SetMatrix("u_view_matrix", view);
-            skin_material->SetMatrix("u_projection_matrix", projection);
+            skin_material->SetMatrix(PROJECTION_MATRIX, projection);
 
             m_shadow_renderers.Resize(m_renderers.Size());
             for (int i = 0; i < m_shadow_renderers.Size(); ++i)

@@ -24,16 +24,11 @@ namespace Viry3D
     class DemoSkybox : public DemoMesh
     {
     public:
-        MeshRenderer * m_renderer_sky;
+        MeshRenderer* m_renderer_sky;
 
         void InitSkybox()
         {
             auto cube = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
-
-            Vector3 camera_forward = m_camera_param.rot * Vector3(0, 0, 1);
-            Vector3 camera_up = m_camera_param.rot * Vector3(0, 1, 0);
-            Matrix4x4 view = Matrix4x4::LookTo(m_camera_param.pos, camera_forward, camera_up);
-            Matrix4x4 projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
 
             String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
@@ -89,8 +84,7 @@ void main()
                 render_state);
 
             auto material = RefMake<Material>(shader);
-            material->SetMatrix("u_view_matrix", view);
-            material->SetMatrix("u_projection_matrix", projection);
+            material->SetMatrix(PROJECTION_MATRIX, m_projection);
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
@@ -144,7 +138,7 @@ void main()
             DemoMesh::OnResize(width, height);
 
             Matrix4x4 projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
-            m_renderer_sky->GetMaterial()->SetMatrix("u_projection_matrix", projection);
+            m_renderer_sky->GetMaterial()->SetMatrix(PROJECTION_MATRIX, projection);
         }
     };
 }

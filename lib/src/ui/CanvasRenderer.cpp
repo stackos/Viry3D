@@ -145,13 +145,6 @@ void main()
         }
 
         auto material = RefMake<Material>(shader);
-
-        auto view_matrix = Matrix4x4::LookTo(
-            Vector3(0, 0, 0),
-            Vector3(0, 0, 1),
-            Vector3(0, 1, 0));
-        material->SetMatrix("u_view_matrix", view_matrix);
-
         material->SetColor("u_color", Color(1, 1, 1, 1));
 
         this->SetMaterial(material);
@@ -299,7 +292,7 @@ void main()
         float plane_w = plane_h * target_width / target_height;
         auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1000, 1000);
 
-        this->GetMaterial()->SetMatrix("u_projection_matrix", projection_matrix);
+        this->GetMaterial()->SetMatrix(PROJECTION_MATRIX, projection_matrix);
     }
 
     void CanvasRenderer::UpdateCanvas()

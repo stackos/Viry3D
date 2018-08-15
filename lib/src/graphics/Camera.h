@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "Node.h"
 #include "Display.h"
 #include "CameraClearFlags.h"
 #include "Color.h"
@@ -42,11 +43,11 @@ namespace Viry3D
         }
     };
 
-    class Camera
+    class Camera : public Node
     {
     public:
         Camera();
-        ~Camera();
+        virtual ~Camera();
 
         CameraClearFlags GetClearFlags() const { return m_clear_flags; }
         void SetClearFlags(CameraClearFlags flags);
@@ -73,6 +74,10 @@ namespace Viry3D
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty(Renderer* renderer);
         Vector<VkCommandBuffer> GetInstanceCmds() const;
+        const Matrix4x4& GetViewMatrix();
+
+    protected:
+        virtual void OnMatrixDirty();
 
     private:
         void UpdateRenderPass();
@@ -97,5 +102,7 @@ namespace Viry3D
         Vector<VkFramebuffer> m_framebuffers;
         List<RendererInstance> m_renderers;
         VkCommandPool m_cmd_pool;
+        Matrix4x4 m_view_matrix;
+        bool m_view_matrix_dirty;
     };
 }

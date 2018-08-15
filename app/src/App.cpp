@@ -31,6 +31,7 @@
 #include "ui/Label.h"
 
 // TODO:
+// - set camera projection matrix automatically
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView

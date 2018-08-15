@@ -26,6 +26,10 @@
 #include "string/String.h"
 #include "memory/Memory.h"
 
+#define MODEL_MATRIX "u_model_matrix"
+#define VIEW_MATRIX "u_view_matrix"
+#define PROJECTION_MATRIX "u_projection_matrix"
+
 namespace Viry3D
 {
     class Shader;

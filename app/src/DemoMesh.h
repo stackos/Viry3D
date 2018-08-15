@@ -65,7 +65,6 @@ namespace Viry3D
             0.8f,
             Quaternion::Euler(45, 60, 0)
         };
-        Matrix4x4 m_view;
         Matrix4x4 m_projection;
 
         Camera* m_camera;
@@ -77,10 +76,9 @@ namespace Viry3D
         {
             m_camera = Display::Instance()->CreateCamera();
             m_camera->SetDepth(0);
+            m_camera->SetLocalPosition(m_camera_param.pos);
+            m_camera->SetLocalRotation(m_camera_param.rot);
 
-            Vector3 camera_forward = m_camera_param.rot * Vector3(0, 0, 1);
-            Vector3 camera_up = m_camera_param.rot * Vector3(0, 1, 0);
-            m_view = Matrix4x4::LookTo(m_camera_param.pos, camera_forward, camera_up);
             m_projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
         }
 
@@ -103,8 +101,7 @@ namespace Viry3D
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", texture);
             material->SetVector("u_uv_scale_offset", Vector4(10, 10, 0, 0));
-            material->SetMatrix("u_view_matrix", m_view);
-            material->SetMatrix("u_projection_matrix", m_projection);
+            material->SetMatrix(PROJECTION_MATRIX, m_projection);
             material->SetColor("u_ambient_color", m_light_param.ambient_color);
             material->SetColor("u_light_color", m_light_param.light_color);
             material->SetVector("u_light_dir", m_light_param.light_rot * Vector3(0, 0, 1));
@@ -124,8 +121,7 @@ namespace Viry3D
             material = RefMake<Material>(shader);
             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
             material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
-            material->SetMatrix("u_view_matrix", m_view);
-            material->SetMatrix("u_projection_matrix", m_projection);
+            material->SetMatrix(PROJECTION_MATRIX, m_projection);
             material->SetColor("u_ambient_color", m_light_param.ambient_color);
             material->SetColor("u_light_color", m_light_param.light_color);
             material->SetVector("u_light_dir", m_light_param.light_rot * Vector3(0, 0, 1));
@@ -214,7 +210,7 @@ namespace Viry3D
             m_projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
             for (auto i : m_renderers)
             {
-                i->GetMaterial()->SetMatrix("u_projection_matrix", m_projection);
+                i->GetMaterial()->SetMatrix(PROJECTION_MATRIX, m_projection);
             }
         }
     };
