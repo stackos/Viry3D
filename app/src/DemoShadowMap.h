@@ -67,6 +67,11 @@ namespace Viry3D
             m_shadow_camera->SetLocalPosition(m_shadow_param.light_pos);
             m_shadow_camera->SetLocalRotation(m_light_param.light_rot);
 
+            m_shadow_camera->SetNearClip(m_shadow_param.near_clip);
+            m_shadow_camera->SetFarClip(m_shadow_param.far_clip);
+            m_shadow_camera->SetOthographic(true);
+            m_shadow_camera->SetOthographicSize(m_shadow_param.ortho_size);
+
             RenderState render_state;
             render_state.cull = RenderState::Cull::Front;
 
@@ -80,17 +85,7 @@ namespace Viry3D
                 render_state);
             auto material = RefMake<Material>(shader);
 
-            int target_width = SHADOW_MAP_SIZE;
-            int target_height = SHADOW_MAP_SIZE;
-            float ortho_size = m_shadow_param.ortho_size;
-            float top = ortho_size;
-            float bottom = -ortho_size;
-            float plane_h = ortho_size * 2;
-            float plane_w = plane_h * target_width / target_height;
-            Matrix4x4 projection = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_shadow_param.near_clip, m_shadow_param.far_clip);
-            m_light_view_projection_matrix = projection * m_shadow_camera->GetViewMatrix();
-
-            material->SetMatrix(PROJECTION_MATRIX, projection);
+            m_light_view_projection_matrix = m_shadow_camera->GetProjectionMatrix() * m_shadow_camera->GetViewMatrix();
 
             auto skin_shader = RefMake<Shader>(
                 "#define CAST_SHADOW 1\n#define SKINNED_MESH 1",
@@ -101,7 +96,6 @@ namespace Viry3D
                 "",
                 render_state);
             auto skin_material = RefMake<Material>(skin_shader);
-            skin_material->SetMatrix(PROJECTION_MATRIX, projection);
 
             m_shadow_renderers.Resize(m_renderers.Size());
             for (int i = 0; i < m_shadow_renderers.Size(); ++i)
@@ -201,11 +195,6 @@ namespace Viry3D
         virtual void Update()
         {
             DemoSkinnedMesh::Update();
-        }
-
-        virtual void OnResize(int width, int height)
-        {
-            DemoSkinnedMesh::OnResize(width, height);
         }
     };
 }

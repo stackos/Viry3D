@@ -26,6 +26,5 @@ namespace Viry3D
         virtual void Done() { }
         virtual void Init() { }
         virtual void Update() { }
-        virtual void OnResize(int width, int height) { }
     };
 }

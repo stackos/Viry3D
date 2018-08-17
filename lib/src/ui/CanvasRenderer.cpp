@@ -244,7 +244,7 @@ void main()
 		if (m_canvas_dirty)
 		{
 			m_canvas_dirty = false;
-            this->UpdateProjectionMatrix();
+            this->GetMaterial()->SetMatrix(PROJECTION_MATRIX, this->GetCamera()->GetProjectionMatrix());
             this->UpdateCanvas();
 		}
 
@@ -279,21 +279,6 @@ void main()
 	{
 		m_canvas_dirty = true;
 	}
-
-    void CanvasRenderer::UpdateProjectionMatrix()
-    {
-        auto camera = this->GetCamera();
-        int target_width = camera->GetTargetWidth();
-        int target_height = camera->GetTargetHeight();
-        float ortho_size = target_height / 2.0f;
-        float top = ortho_size;
-        float bottom = -ortho_size;
-        float plane_h = ortho_size * 2;
-        float plane_w = plane_h * target_width / target_height;
-        auto projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, -1000, 1000);
-
-        this->GetMaterial()->SetMatrix(PROJECTION_MATRIX, projection_matrix);
-    }
 
     void CanvasRenderer::UpdateCanvas()
     {

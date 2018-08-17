@@ -84,7 +84,6 @@ void main()
                 render_state);
 
             auto material = RefMake<Material>(shader);
-            material->SetMatrix(PROJECTION_MATRIX, m_projection);
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
@@ -131,14 +130,6 @@ void main()
         virtual void Update()
         {
             DemoMesh::Update();
-        }
-
-        virtual void OnResize(int width, int height)
-        {
-            DemoMesh::OnResize(width, height);
-
-            Matrix4x4 projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
-            m_renderer_sky->GetMaterial()->SetMatrix(PROJECTION_MATRIX, projection);
         }
     };
 }

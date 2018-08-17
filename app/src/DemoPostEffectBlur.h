@@ -172,10 +172,5 @@ void main()
         {
             DemoMesh::Update();
         }
-
-        virtual void OnResize(int width, int height)
-        {
-            DemoMesh::OnResize(width, height);
-        }
     };
 }

@@ -94,10 +94,5 @@ namespace Viry3D
         {
             DemoMesh::Update();
         }
-
-        virtual void OnResize(int width, int height)
-        {
-            DemoMesh::OnResize(width, height);
-        }
     };
 }

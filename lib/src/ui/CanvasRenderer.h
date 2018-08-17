@@ -56,7 +56,6 @@ namespace Viry3D
 	private:
         void CreateMaterial();
         void NewAtlasTextureLayer();
-        void UpdateProjectionMatrix();
         void UpdateCanvas();
         void UpdateAtlas(ViewMesh& mesh, bool& updated);
         AtlasTreeNode* FindAtlasTreeNodeToInsert(int w, int h, AtlasTreeNode* node);

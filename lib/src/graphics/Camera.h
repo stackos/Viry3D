@@ -74,7 +74,18 @@ namespace Viry3D
         void MarkRendererOrderDirty();
         void MarkInstanceCmdDirty(Renderer* renderer);
         Vector<VkCommandBuffer> GetInstanceCmds() const;
+        float GetFieldOfView() const { return m_field_of_view; }
+        void SetFieldOfView(float fov);
+        float GetNearClip() const { return m_near_clip; }
+        void SetNearClip(float clip);
+        float GetFarClip() const { return m_far_clip; }
+        void SetFarClip(float clip);
+        bool IsOthographic() const { return m_othographic; }
+        void SetOthographic(bool enable);
+        float GetOthographicSize() const { return m_othographic_size; }
+        void SetOthographicSize(float size);
         const Matrix4x4& GetViewMatrix();
+        const Matrix4x4& GetProjectionMatrix();
 
     protected:
         virtual void OnMatrixDirty();
@@ -104,5 +115,12 @@ namespace Viry3D
         VkCommandPool m_cmd_pool;
         Matrix4x4 m_view_matrix;
         bool m_view_matrix_dirty;
+        Matrix4x4 m_projection_matrix;
+        bool m_projection_matrix_dirty;
+        float m_field_of_view;
+        float m_near_clip;
+        float m_far_clip;
+        bool m_othographic;
+        float m_othographic_size;
     };
 }

@@ -63,7 +63,6 @@ namespace Viry3D
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", texture);
             material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
-            material->SetMatrix(PROJECTION_MATRIX, m_projection);
             material->SetColor("u_ambient_color", m_light_param.ambient_color);
             material->SetColor("u_light_color", m_light_param.light_color);
             material->SetVector("u_light_dir", m_light_param.light_rot * Vector3(0, 0, 1));
@@ -137,11 +136,6 @@ namespace Viry3D
 
             // update bones
             m_anim->Update();
-        }
-
-        virtual void OnResize(int width, int height)
-        {
-            DemoMesh::OnResize(width, height);
         }
     };
 }

@@ -31,7 +31,7 @@
 #include "ui/Label.h"
 
 // TODO:
-// - set camera projection matrix automatically
+// - update camera projection matrix when window resized
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView
@@ -48,6 +48,10 @@ namespace Viry3D
         void Init()
         {
             m_camera = Display::Instance()->CreateCamera();
+            m_camera->SetNearClip(-1000);
+            m_camera->SetFarClip(1000);
+            m_camera->SetOthographic(true);
+            m_camera->SetOthographicSize(m_camera->GetTargetHeight() / 2.0f);
 
             this->InitUI();
         }
@@ -147,14 +151,6 @@ namespace Viry3D
                 m_demo->Update();
             }
         }
-
-        void OnResize(int width, int height)
-        {
-            if (m_demo)
-            {
-                m_demo->OnResize(width, height);
-            }
-        }
     };
 
     App::App()
@@ -175,10 +171,5 @@ namespace Viry3D
     void App::Update()
     {
         m_app->Update();
-    }
-
-    void App::OnResize(int width, int height)
-    {
-        m_app->OnResize(width, height);
     }
 }

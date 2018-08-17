@@ -30,7 +30,6 @@ namespace Viry3D
         virtual ~App();
         virtual void Init();
         virtual void Update();
-        virtual void OnResize(int width, int height);
 
     private:
         AppImplement* m_app;

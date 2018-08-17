@@ -65,7 +65,6 @@ namespace Viry3D
             0.8f,
             Quaternion::Euler(45, 60, 0)
         };
-        Matrix4x4 m_projection;
 
         Camera* m_camera;
         Camera* m_ui_camera;
@@ -79,7 +78,9 @@ namespace Viry3D
             m_camera->SetLocalPosition(m_camera_param.pos);
             m_camera->SetLocalRotation(m_camera_param.rot);
 
-            m_projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
+            m_camera->SetFieldOfView(m_camera_param.fov);
+            m_camera->SetNearClip(m_camera_param.near_clip);
+            m_camera->SetFarClip(m_camera_param.far_clip);
         }
 
         void InitMesh()
@@ -101,7 +102,6 @@ namespace Viry3D
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", texture);
             material->SetVector("u_uv_scale_offset", Vector4(10, 10, 0, 0));
-            material->SetMatrix(PROJECTION_MATRIX, m_projection);
             material->SetColor("u_ambient_color", m_light_param.ambient_color);
             material->SetColor("u_light_color", m_light_param.light_color);
             material->SetVector("u_light_dir", m_light_param.light_rot * Vector3(0, 0, 1));
@@ -121,7 +121,6 @@ namespace Viry3D
             material = RefMake<Material>(shader);
             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
             material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
-            material->SetMatrix(PROJECTION_MATRIX, m_projection);
             material->SetColor("u_ambient_color", m_light_param.ambient_color);
             material->SetColor("u_light_color", m_light_param.light_color);
             material->SetVector("u_light_dir", m_light_param.light_rot * Vector3(0, 0, 1));
@@ -166,6 +165,11 @@ namespace Viry3D
             m_ui_camera->SetDepth(1);
             m_ui_camera->SetClearFlags(CameraClearFlags::Nothing);
 
+            m_ui_camera->SetNearClip(-1000);
+            m_ui_camera->SetFarClip(1000);
+            m_ui_camera->SetOthographic(true);
+            m_ui_camera->SetOthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
+
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 
@@ -203,15 +207,6 @@ namespace Viry3D
         virtual void Update()
         {
             m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
-        }
-
-        virtual void OnResize(int width, int height)
-        {
-            m_projection = Matrix4x4::Perspective(m_camera_param.fov, m_camera->GetTargetWidth() / (float) m_camera->GetTargetHeight(), m_camera_param.near_clip, m_camera_param.far_clip);
-            for (auto i : m_renderers)
-            {
-                i->GetMaterial()->SetMatrix(PROJECTION_MATRIX, m_projection);
-            }
         }
     };
 }

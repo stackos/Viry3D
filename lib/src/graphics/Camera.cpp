@@ -33,7 +33,13 @@ namespace Viry3D
 		m_depth(0),
 		m_render_pass(VK_NULL_HANDLE),
 		m_cmd_pool(VK_NULL_HANDLE),
-        m_view_matrix_dirty(true)
+        m_view_matrix_dirty(true),
+        m_projection_matrix_dirty(true),
+        m_field_of_view(45),
+        m_near_clip(0.3f),
+        m_far_clip(1000),
+        m_othographic(false),
+        m_othographic_size(1)
 	{
 
 	}
@@ -72,6 +78,71 @@ namespace Viry3D
         }
 
         return m_view_matrix;
+    }
+
+    void Camera::SetFieldOfView(float fov)
+    {
+        m_field_of_view = fov;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetNearClip(float clip)
+    {
+        m_near_clip = clip;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetFarClip(float clip)
+    {
+        m_far_clip = clip;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetOthographic(bool enable)
+    {
+        m_othographic = enable;
+        m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetOthographicSize(float size)
+    {
+        m_othographic_size = size;
+        m_projection_matrix_dirty = true;
+    }
+
+    const Matrix4x4& Camera::GetProjectionMatrix()
+    {
+        if (m_projection_matrix_dirty)
+        {
+            m_projection_matrix_dirty = false;
+
+            if (m_othographic)
+            {
+                int target_width = this->GetTargetWidth();
+                int target_height = this->GetTargetHeight();
+                float ortho_size = m_othographic_size;
+                float top = ortho_size;
+                float bottom = -ortho_size;
+                float plane_h = ortho_size * 2;
+                float plane_w = plane_h * target_width / target_height;
+                m_projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_near_clip, m_far_clip);
+            }
+            else
+            {
+                m_projection_matrix = Matrix4x4::Perspective(m_field_of_view, this->GetTargetWidth() / (float) this->GetTargetHeight(), m_near_clip, m_far_clip);
+            }
+
+            for (auto& i : m_renderers)
+            {
+                const Ref<Material>& material = i.renderer->GetMaterial();
+                if (material)
+                {
+                    material->SetMatrix(PROJECTION_MATRIX, m_projection_matrix);
+                }
+            }
+        }
+
+        return m_projection_matrix;
     }
 
 	void Camera::SetClearFlags(CameraClearFlags flags)
@@ -323,6 +394,7 @@ namespace Viry3D
             if (material)
             {
                 material->SetMatrix(VIEW_MATRIX, this->GetViewMatrix());
+                material->SetMatrix(PROJECTION_MATRIX, this->GetProjectionMatrix());
             }
 
 			m_renderers.AddLast(instance);
