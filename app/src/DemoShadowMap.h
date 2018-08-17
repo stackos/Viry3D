@@ -69,8 +69,8 @@ namespace Viry3D
 
             m_shadow_camera->SetNearClip(m_shadow_param.near_clip);
             m_shadow_camera->SetFarClip(m_shadow_param.far_clip);
-            m_shadow_camera->SetOthographic(true);
-            m_shadow_camera->SetOthographicSize(m_shadow_param.ortho_size);
+            m_shadow_camera->SetOrthographic(true);
+            m_shadow_camera->SetOrthographicSize(m_shadow_param.ortho_size);
 
             RenderState render_state;
             render_state.cull = RenderState::Cull::Front;

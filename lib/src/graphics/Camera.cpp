@@ -38,8 +38,8 @@ namespace Viry3D
         m_field_of_view(45),
         m_near_clip(0.3f),
         m_far_clip(1000),
-        m_othographic(false),
-        m_othographic_size(1)
+        m_orthographic(false),
+        m_orthographic_size(1)
 	{
 
 	}
@@ -98,15 +98,15 @@ namespace Viry3D
         m_projection_matrix_dirty = true;
     }
 
-    void Camera::SetOthographic(bool enable)
+    void Camera::SetOrthographic(bool enable)
     {
-        m_othographic = enable;
+        m_orthographic = enable;
         m_projection_matrix_dirty = true;
     }
 
-    void Camera::SetOthographicSize(float size)
+    void Camera::SetOrthographicSize(float size)
     {
-        m_othographic_size = size;
+        m_orthographic_size = size;
         m_projection_matrix_dirty = true;
     }
 
@@ -116,11 +116,11 @@ namespace Viry3D
         {
             m_projection_matrix_dirty = false;
 
-            if (m_othographic)
+            if (m_orthographic)
             {
                 int target_width = this->GetTargetWidth();
                 int target_height = this->GetTargetHeight();
-                float ortho_size = m_othographic_size;
+                float ortho_size = m_orthographic_size;
                 float top = ortho_size;
                 float bottom = -ortho_size;
                 float plane_h = ortho_size * 2;
@@ -178,6 +178,16 @@ namespace Viry3D
 
 	void Camera::Update()
 	{
+        if (m_view_matrix_dirty)
+        {
+            this->GetViewMatrix();
+        }
+
+        if (m_projection_matrix_dirty)
+        {
+            this->GetProjectionMatrix();
+        }
+
 		if (m_render_pass_dirty)
 		{
 			m_render_pass_dirty = false;
@@ -214,6 +224,7 @@ namespace Viry3D
 
 		m_render_pass_dirty = true;
 		m_instance_cmds_dirty = true;
+        m_projection_matrix_dirty = true;
 
         for (auto& i : m_renderers)
         {

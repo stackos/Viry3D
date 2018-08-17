@@ -48,10 +48,6 @@ namespace Viry3D
         void Init()
         {
             m_camera = Display::Instance()->CreateCamera();
-            m_camera->SetNearClip(-1000);
-            m_camera->SetFarClip(1000);
-            m_camera->SetOthographic(true);
-            m_camera->SetOthographicSize(m_camera->GetTargetHeight() / 2.0f);
 
             this->InitUI();
         }

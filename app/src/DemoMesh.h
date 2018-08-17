@@ -165,11 +165,6 @@ namespace Viry3D
             m_ui_camera->SetDepth(1);
             m_ui_camera->SetClearFlags(CameraClearFlags::Nothing);
 
-            m_ui_camera->SetNearClip(-1000);
-            m_ui_camera->SetFarClip(1000);
-            m_ui_camera->SetOthographic(true);
-            m_ui_camera->SetOthographicSize(m_ui_camera->GetTargetHeight() / 2.0f);
-
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 

@@ -80,10 +80,10 @@ namespace Viry3D
         void SetNearClip(float clip);
         float GetFarClip() const { return m_far_clip; }
         void SetFarClip(float clip);
-        bool IsOthographic() const { return m_othographic; }
-        void SetOthographic(bool enable);
-        float GetOthographicSize() const { return m_othographic_size; }
-        void SetOthographicSize(float size);
+        bool IsOrthographic() const { return m_orthographic; }
+        void SetOrthographic(bool enable);
+        float GetOrthographicSize() const { return m_orthographic_size; }
+        void SetOrthographicSize(float size);
         const Matrix4x4& GetViewMatrix();
         const Matrix4x4& GetProjectionMatrix();
 
@@ -120,7 +120,7 @@ namespace Viry3D
         float m_field_of_view;
         float m_near_clip;
         float m_far_clip;
-        bool m_othographic;
-        float m_othographic_size;
+        bool m_orthographic;
+        float m_orthographic_size;
     };
 }

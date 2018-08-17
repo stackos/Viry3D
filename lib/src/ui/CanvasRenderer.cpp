@@ -244,7 +244,13 @@ void main()
 		if (m_canvas_dirty)
 		{
 			m_canvas_dirty = false;
+
+            this->GetCamera()->SetNearClip(-1000);
+            this->GetCamera()->SetFarClip(1000);
+            this->GetCamera()->SetOrthographic(true);
+            this->GetCamera()->SetOrthographicSize(this->GetCamera()->GetTargetHeight() / 2.0f);
             this->GetMaterial()->SetMatrix(PROJECTION_MATRIX, this->GetCamera()->GetProjectionMatrix());
+
             this->UpdateCanvas();
 		}
 
