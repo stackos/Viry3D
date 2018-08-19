@@ -31,7 +31,7 @@ namespace Viry3D
     class Texture;
     class Material;
     struct RenderState;
-    struct BufferObject;
+    class BufferObject;
     class DisplayPrivate;
 
     class Display

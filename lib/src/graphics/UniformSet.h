@@ -23,7 +23,7 @@
 
 namespace Viry3D
 {
-    struct BufferObject;
+    class BufferObject;
 
     struct UniformMember
     {

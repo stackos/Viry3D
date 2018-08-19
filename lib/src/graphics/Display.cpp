@@ -1354,8 +1354,7 @@ namespace Viry3D
 
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
         {
-            Ref<BufferObject> buffer = RefMake<BufferObject>();
-            buffer->size = size;
+            Ref<BufferObject> buffer = RefMake<BufferObject>(size);
 
             VkBufferCreateInfo buffer_info;
             Memory::Zero(&buffer_info, sizeof(buffer_info));
@@ -1368,36 +1367,36 @@ namespace Viry3D
             buffer_info.queueFamilyIndexCount = 0;
             buffer_info.pQueueFamilyIndices = nullptr;
 
-            VkResult err = vkCreateBuffer(m_device, &buffer_info, nullptr, &buffer->buffer);
+            VkResult err = vkCreateBuffer(m_device, &buffer_info, nullptr, &buffer->m_buffer);
             assert(!err);
 
             VkMemoryRequirements mem_reqs;
-            vkGetBufferMemoryRequirements(m_device, buffer->buffer, &mem_reqs);
+            vkGetBufferMemoryRequirements(m_device, buffer->m_buffer, &mem_reqs);
 
-            Memory::Zero(&buffer->memory_info, sizeof(buffer->memory_info));
-            buffer->memory_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-            buffer->memory_info.pNext = nullptr;
-            buffer->memory_info.allocationSize = mem_reqs.size;
-            buffer->memory_info.memoryTypeIndex = 0;
+            Memory::Zero(&buffer->m_memory_info, sizeof(buffer->m_memory_info));
+            buffer->m_memory_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            buffer->m_memory_info.pNext = nullptr;
+            buffer->m_memory_info.allocationSize = mem_reqs.size;
+            buffer->m_memory_info.memoryTypeIndex = 0;
 
-            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer->memory_info.memoryTypeIndex);
+            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer->m_memory_info.memoryTypeIndex);
             assert(pass);
 
-            err = vkAllocateMemory(m_device, &buffer->memory_info, nullptr, &buffer->memory);
+            err = vkAllocateMemory(m_device, &buffer->m_memory_info, nullptr, &buffer->m_memory);
             assert(!err);
 
-            err = vkBindBufferMemory(m_device, buffer->buffer, buffer->memory, 0);
+            err = vkBindBufferMemory(m_device, buffer->m_buffer, buffer->m_memory, 0);
             assert(!err);
 
             if (data)
             {
                 void* map_data = nullptr;
-                err = vkMapMemory(m_device, buffer->memory, 0, size, 0, (void**) &map_data);
+                err = vkMapMemory(m_device, buffer->m_memory, 0, size, 0, (void**) &map_data);
                 assert(!err);
 
                 Memory::Copy(map_data, data, size);
 
-                vkUnmapMemory(m_device, buffer->memory);
+                vkUnmapMemory(m_device, buffer->m_memory);
             }
 
             return buffer;
@@ -1406,25 +1405,25 @@ namespace Viry3D
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
         {
             void* map_data = nullptr;
-            VkResult err = vkMapMemory(m_device, buffer->memory, buffer_offset, size, 0, (void**) &map_data);
+            VkResult err = vkMapMemory(m_device, buffer->GetMemory(), buffer_offset, size, 0, (void**) &map_data);
             assert(!err);
 
             Memory::Copy(map_data, data, size);
 
-            vkUnmapMemory(m_device, buffer->memory);
+            vkUnmapMemory(m_device, buffer->GetMemory());
         }
 
         void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data)
         {
-            data = ByteBuffer(buffer->size);
+            data = ByteBuffer(buffer->GetSize());
 
             void* map_data = nullptr;
-            VkResult err = vkMapMemory(m_device, buffer->memory, 0, buffer->size, 0, (void**) &map_data);
+            VkResult err = vkMapMemory(m_device, buffer->GetMemory(), 0, buffer->GetSize(), 0, (void**) &map_data);
             assert(!err);
 
-            Memory::Copy(&data[0], map_data, buffer->size);
+            Memory::Copy(&data[0], map_data, buffer->GetSize());
 
-            vkUnmapMemory(m_device, buffer->memory);
+            vkUnmapMemory(m_device, buffer->GetMemory());
         }
 
         void BeginImageCmd()
@@ -2079,7 +2078,7 @@ namespace Viry3D
             buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
             VkDescriptorBufferInfo buffer_info;
-            buffer_info.buffer = buffer.buffer->buffer;
+            buffer_info.buffer = buffer.buffer->GetBuffer();
             buffer_info.offset = 0;
             buffer_info.range = buffer.size;
 
@@ -2178,9 +2177,9 @@ namespace Viry3D
             vkCmdSetScissor(cmd, 0, 1, &scissor);
 
             VkDeviceSize offset = 0;
-            vkCmdBindVertexBuffers(cmd, 0, 1, &vertex_buffer->buffer, &offset);
-            vkCmdBindIndexBuffer(cmd, index_buffer->buffer, 0, VK_INDEX_TYPE_UINT16);
-            vkCmdDrawIndexedIndirect(cmd, draw_buffer->buffer, 0, 1, 0);
+            vkCmdBindVertexBuffers(cmd, 0, 1, &vertex_buffer->GetBuffer(), &offset);
+            vkCmdBindIndexBuffer(cmd, index_buffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+            vkCmdDrawIndexedIndirect(cmd, draw_buffer->GetBuffer(), 0, 1, 0);
 
             err = vkEndCommandBuffer(cmd);
             assert(!err);

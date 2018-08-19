@@ -22,25 +22,34 @@
 
 namespace Viry3D
 {
-    struct BufferObject
+    class BufferObject
     {
-        VkBuffer buffer;
-        VkDeviceMemory memory;
-        VkMemoryAllocateInfo memory_info;
-        int size;
+    private:
+        friend class DisplayPrivate;
 
-        BufferObject():
-            buffer(VK_NULL_HANDLE),
-            memory(VK_NULL_HANDLE),
-            size(0)
+    public:
+        BufferObject(int size):
+            m_buffer(VK_NULL_HANDLE),
+            m_memory(VK_NULL_HANDLE),
+            m_size(size)
         {
-            Memory::Zero(&memory_info, sizeof(memory_info));
+            Memory::Zero(&m_memory_info, sizeof(m_memory_info));
         }
 
         void Destroy(VkDevice device)
         {
-            vkDestroyBuffer(device, buffer, nullptr);
-            vkFreeMemory(device, memory, nullptr);
+            vkDestroyBuffer(device, m_buffer, nullptr);
+            vkFreeMemory(device, m_memory, nullptr);
         }
+
+        const VkBuffer& GetBuffer() const { return m_buffer; }
+        const VkDeviceMemory& GetMemory() const { return m_memory; }
+        int GetSize() const { return m_size; }
+
+    private:
+        VkBuffer m_buffer;
+        VkDeviceMemory m_memory;
+        VkMemoryAllocateInfo m_memory_info;
+        int m_size;
     };
 }

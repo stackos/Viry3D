@@ -563,7 +563,7 @@ namespace Viry3D
     {
         VkDevice device = Display::Instance()->GetDevice();
 
-        if (!m_image_buffer || m_image_buffer->size < pixels.Size())
+        if (!m_image_buffer || m_image_buffer->GetSize() < pixels.Size())
         {
             m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         }
@@ -587,7 +587,7 @@ namespace Viry3D
     {
         VkDevice device = Display::Instance()->GetDevice();
 
-        if (!m_image_buffer || m_image_buffer->size < pixels.Size())
+        if (!m_image_buffer || m_image_buffer->GetSize() < pixels.Size())
         {
             m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         }
@@ -701,7 +701,7 @@ namespace Viry3D
             Display::Instance()->GetImageCmd(),
             m_image,
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            copy_buffer->buffer,
+            copy_buffer->GetBuffer(),
             1,
             &copy);
 
@@ -749,7 +749,7 @@ namespace Viry3D
 
         vkCmdCopyBufferToImage(
             Display::Instance()->GetImageCmd(),
-            image_buffer->buffer,
+            image_buffer->GetBuffer(),
             m_image,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             1,

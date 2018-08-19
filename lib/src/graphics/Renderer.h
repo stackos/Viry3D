@@ -28,7 +28,7 @@ namespace Viry3D
 {
     class Material;
     class Camera;
-    struct BufferObject;
+    class BufferObject;
 
     class Renderer : public Node
     {
