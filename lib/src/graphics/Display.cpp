@@ -767,12 +767,10 @@ namespace Viry3D
             m_depth_texture = Texture::CreateRenderTexture(
                 m_width,
                 m_height,
-                this->ChooseFormatSupported(
-                    { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
+                Texture::ChooseDepthFormatSupported(false),
                 false,
-                VK_FILTER_MAX_ENUM,
-                VK_SAMPLER_ADDRESS_MODE_MAX_ENUM);
+                FilterMode::None,
+                SamplerAddressMode::None);
         }
 
         void DestroySizeDependentResources()

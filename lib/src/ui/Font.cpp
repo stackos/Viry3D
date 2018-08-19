@@ -237,9 +237,9 @@ namespace Viry3D
                 pixels,
                 p_glyph->witdh,
                 p_glyph->height,
-                VK_FORMAT_R8G8B8A8_UNORM,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
                 false,
                 false);
         }

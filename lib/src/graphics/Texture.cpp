@@ -30,6 +30,108 @@ namespace Viry3D
 	Ref<Texture> Texture::m_shared_normal_texture;
 	Ref<Texture> Texture::m_shared_cubemap;
 
+    static VkFormat TextureFormatToVkFormat(TextureFormat format)
+    {
+        switch (format)
+        {
+            case TextureFormat::R8:
+                return VK_FORMAT_R8_UNORM;
+            case TextureFormat::R8G8B8A8:
+                return VK_FORMAT_R8G8B8A8_UNORM;
+            case TextureFormat::D16:
+                return VK_FORMAT_D16_UNORM;
+            case TextureFormat::D24X8:
+                return VK_FORMAT_X8_D24_UNORM_PACK32;
+            case TextureFormat::D32:
+                return VK_FORMAT_D32_SFLOAT;
+            case TextureFormat::D16S8:
+                return VK_FORMAT_D16_UNORM_S8_UINT;
+            case TextureFormat::D24S8:
+                return VK_FORMAT_D24_UNORM_S8_UINT;
+            case TextureFormat::D32S8:
+                return VK_FORMAT_D32_SFLOAT_S8_UINT;
+            case TextureFormat::S8:
+                return VK_FORMAT_S8_UINT;
+            default:
+                return VK_FORMAT_UNDEFINED;
+        }
+    }
+
+    static TextureFormat VkFormatToTextureFormat(VkFormat format)
+    {
+        switch (format)
+        {
+            case VK_FORMAT_R8_UNORM:
+                return TextureFormat::R8;
+            case VK_FORMAT_R8G8B8A8_UNORM:
+                return TextureFormat::R8G8B8A8;
+            case VK_FORMAT_D16_UNORM:
+                return TextureFormat::D16;
+            case VK_FORMAT_X8_D24_UNORM_PACK32:
+                return TextureFormat::D24X8;
+            case VK_FORMAT_D32_SFLOAT:
+                return TextureFormat::D32;
+            case VK_FORMAT_D16_UNORM_S8_UINT:
+                return TextureFormat::D16S8;
+            case VK_FORMAT_D24_UNORM_S8_UINT:
+                return TextureFormat::D24S8;
+            case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                return TextureFormat::D32S8;
+            case VK_FORMAT_S8_UINT:
+                return TextureFormat::S8; 
+            default:
+                return TextureFormat::None;
+        }
+    }
+
+    static VkFilter FilterModeToVkFilter(FilterMode mode)
+    {
+        switch (mode)
+        {
+            case FilterMode::None:
+                return VK_FILTER_MAX_ENUM;
+            case FilterMode::Nearest:
+                return VK_FILTER_NEAREST;
+            case FilterMode::Linear:
+                return VK_FILTER_LINEAR;
+            default:
+                return VK_FILTER_LINEAR;
+        }
+    }
+
+    static VkSamplerAddressMode SamplerAddressModeToVkMode(SamplerAddressMode mode)
+    {
+        switch (mode)
+        {
+            case SamplerAddressMode::None:
+                return VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
+            case SamplerAddressMode::ClampToEdge:
+                return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            case SamplerAddressMode::Repeat:
+                return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+            default:
+                return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        }
+    }
+
+    TextureFormat Texture::ChooseDepthFormatSupported(bool sample)
+    {
+        if (sample)
+        {
+            VkFormat format = Display::Instance()->ChooseFormatSupported(
+                { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
+            return VkFormatToTextureFormat(format);
+        }
+        else
+        {
+            VkFormat format = Display::Instance()->ChooseFormatSupported(
+                { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+            return VkFormatToTextureFormat(format);
+        }
+    }
+
     ByteBuffer Texture::LoadImageFromFile(const String& path, int& width, int& height, int& bpp)
     {
         ByteBuffer pixels;
@@ -72,8 +174,8 @@ namespace Viry3D
 
     Ref<Texture> Texture::LoadTexture2DFromFile(
         const String& path,
-        VkFilter filter_mode,
-        VkSamplerAddressMode wrap_mode,
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode,
         bool gen_mipmap)
     {
         Ref<Texture> texture;
@@ -84,15 +186,15 @@ namespace Viry3D
         ByteBuffer pixels = Texture::LoadImageFromFile(path, width, height, bpp);
         if (pixels.Size() > 0)
         {
-            VkFormat format;
+            TextureFormat format;
 
             if (bpp == 32)
             {
-                format = VK_FORMAT_R8G8B8A8_UNORM;
+                format = TextureFormat::R8G8B8A8;
             }
             else if (bpp == 8)
             {
-                format = VK_FORMAT_R8_UNORM;
+                format = TextureFormat::R8;
             }
             else
             {
@@ -109,9 +211,9 @@ namespace Viry3D
         const ByteBuffer& pixels,
         int width,
         int height,
-        VkFormat format,
-        VkFilter filter_mode,
-        VkSamplerAddressMode wrap_mode,
+        TextureFormat format,
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode,
         bool gen_mipmap,
         bool dynamic)
     {
@@ -128,7 +230,7 @@ namespace Viry3D
             VK_IMAGE_VIEW_TYPE_2D,
             width,
             height,
-            format,
+            TextureFormatToVkFormat(format),
             VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT,
             {
@@ -140,7 +242,7 @@ namespace Viry3D
             mipmap_level_count,
             false,
             1);
-        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
+        Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
 
         texture->m_dynamic = dynamic;
 
@@ -156,9 +258,9 @@ namespace Viry3D
 
     Ref<Texture> Texture::CreateCubemap(
         int size,
-        VkFormat format,
-        VkFilter filter_mode,
-        VkSamplerAddressMode wrap_mode,
+        TextureFormat format,
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode,
         bool mipmap)
     {
         Ref<Texture> texture;
@@ -174,7 +276,7 @@ namespace Viry3D
             VK_IMAGE_VIEW_TYPE_CUBE,
             size,
             size,
-            format,
+            TextureFormatToVkFormat(format),
             VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT,
             {
@@ -186,7 +288,7 @@ namespace Viry3D
             mipmap_level_count,
             true,
             1);
-        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
+        Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
 
         return texture;
     }
@@ -194,10 +296,10 @@ namespace Viry3D
     Ref<Texture> Texture::CreateRenderTexture(
         int width,
         int height,
-        VkFormat format,
+        TextureFormat format,
         bool create_sampler,
-        VkFilter filter_mode,
-        VkSamplerAddressMode wrap_mode)
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode)
     {
         Ref<Texture> texture;
 
@@ -206,19 +308,19 @@ namespace Viry3D
 
         switch (format)
         {
-            case VK_FORMAT_D16_UNORM:
-            case VK_FORMAT_X8_D24_UNORM_PACK32:
-            case VK_FORMAT_D32_SFLOAT:
+            case TextureFormat::D16:
+            case TextureFormat::D24X8:
+            case TextureFormat::D32:
                 usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
                 aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
                 break;
-            case VK_FORMAT_D16_UNORM_S8_UINT:
-            case VK_FORMAT_D24_UNORM_S8_UINT:
-            case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            case TextureFormat::D16S8:
+            case TextureFormat::D24S8:
+            case TextureFormat::D32S8:
                 usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
                 aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
                 break;
-            case VK_FORMAT_S8_UINT:
+            case TextureFormat::S8:
                 usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
                 aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
                 break;
@@ -232,7 +334,7 @@ namespace Viry3D
             VK_IMAGE_VIEW_TYPE_2D,
             width,
             height,
-            format,
+            TextureFormatToVkFormat(format),
             usage,
             aspect,
             {
@@ -246,7 +348,7 @@ namespace Viry3D
             1);
         if (create_sampler)
         {
-            Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
+            Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
         }
 
 		Display::Instance()->BeginImageCmd();
@@ -268,9 +370,9 @@ namespace Viry3D
         int width,
         int height,
         int layer_count,
-        VkFormat format,
-        VkFilter filter_mode,
-        VkSamplerAddressMode wrap_mode,
+        TextureFormat format,
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode,
         bool gen_mipmap,
         bool dynamic)
     {
@@ -287,7 +389,7 @@ namespace Viry3D
             VK_IMAGE_VIEW_TYPE_2D_ARRAY,
             width,
             height,
-            format,
+            TextureFormatToVkFormat(format),
             VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT,
             {
@@ -299,7 +401,7 @@ namespace Viry3D
             mipmap_level_count,
             false,
             layer_count);
-        Display::Instance()->CreateSampler(texture, filter_mode, wrap_mode);
+        Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
 
         texture->m_dynamic = dynamic;
 
@@ -335,9 +437,9 @@ namespace Viry3D
 				pixels,
 				3,
 				3,
-				VK_FORMAT_R8G8B8A8_UNORM,
-				VK_FILTER_NEAREST,
-				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge,
 				false,
 				false);
 		}
@@ -362,9 +464,9 @@ namespace Viry3D
 				pixels,
 				3,
 				3,
-				VK_FORMAT_R8G8B8A8_UNORM,
-				VK_FILTER_NEAREST,
-				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge,
 				false,
 				false);
 		}
@@ -389,9 +491,9 @@ namespace Viry3D
 				pixels,
 				3,
 				3,
-				VK_FORMAT_R8G8B8A8_UNORM,
-				VK_FILTER_NEAREST,
-				VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge,
 				false,
 				false);
 		}
@@ -409,7 +511,12 @@ namespace Viry3D
 			pixels[2] = 255;
 			pixels[3] = 255;
 
-			Ref<Texture> cubemap = Texture::CreateCubemap(1, VK_FORMAT_R8G8B8A8_UNORM, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, false);
+			Ref<Texture> cubemap = Texture::CreateCubemap(
+                1,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge,
+                false);
 			for (int i = 0; i < 6; ++i)
 			{
 				cubemap->UpdateCubemap(pixels, (CubemapFace) i, 0);

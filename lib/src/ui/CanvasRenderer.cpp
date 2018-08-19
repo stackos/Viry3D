@@ -166,9 +166,9 @@ void main()
                 ATLAS_SIZE,
                 ATLAS_SIZE,
                 m_atlas_array_size,
-                VK_FORMAT_R8G8B8A8_UNORM,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
                 false,
                 true);
         }
@@ -183,9 +183,9 @@ void main()
                 ATLAS_SIZE,
                 ATLAS_SIZE,
                 new_array_size,
-                VK_FORMAT_R8G8B8A8_UNORM,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
                 false,
                 true);
 

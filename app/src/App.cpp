@@ -31,7 +31,6 @@
 #include "ui/Label.h"
 
 // TODO:
-// - update camera projection matrix when window resized
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView

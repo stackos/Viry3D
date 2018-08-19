@@ -36,6 +36,34 @@ namespace Viry3D
         Count
     };
 
+    enum class TextureFormat
+    {
+        None,
+        R8,
+        R8G8B8A8,
+        D16,
+        D24X8,
+        D32,
+        D16S8,
+        D24S8,
+        D32S8,
+        S8,
+    };
+
+    enum class FilterMode
+    {
+        None,
+        Nearest,
+        Linear,
+    };
+
+    enum class SamplerAddressMode
+    {
+        None,
+        ClampToEdge,
+        Repeat,
+    };
+
     class Texture : public Thread::Res
     {
     private:
@@ -45,41 +73,42 @@ namespace Viry3D
         static ByteBuffer LoadImageFromFile(const String& path, int& width, int& height, int& bpp);
         static Ref<Texture> LoadTexture2DFromFile(
             const String& path,
-            VkFilter filter_mode,
-            VkSamplerAddressMode wrap_mode,
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode,
             bool gen_mipmap);
         static Ref<Texture> CreateTexture2DFromMemory(
             const ByteBuffer& pixels,
             int width,
             int height,
-            VkFormat format,
-            VkFilter filter_mode,
-            VkSamplerAddressMode wrap_mode,
+            TextureFormat format,
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode,
             bool gen_mipmap,
             bool dynamic);
         static Ref<Texture> CreateCubemap(
             int size,
-            VkFormat format,
-            VkFilter filter_mode,
-            VkSamplerAddressMode wrap_mode,
+            TextureFormat format,
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode,
             bool mipmap);
         static Ref<Texture> CreateRenderTexture(
             int width,
             int height,
-            VkFormat format,
+            TextureFormat format,
             bool create_sampler,
-            VkFilter filter_mode,
-            VkSamplerAddressMode wrap_mode);
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode);
         static Ref<Texture> CreateTexture2DArrayFromMemory(
             const Vector<ByteBuffer>& pixels,
             int width,
             int height,
             int layer_count,
-            VkFormat format,
-            VkFilter filter_mode,
-            VkSamplerAddressMode wrap_mode,
+            TextureFormat format,
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode,
             bool gen_mipmap,
             bool dynamic);
+        static TextureFormat ChooseDepthFormatSupported(bool sample);
 		static Ref<Texture> GetSharedWhiteTexture();
 		static Ref<Texture> GetSharedBlackTexture();
 		static Ref<Texture> GetSharedNormalTexture();

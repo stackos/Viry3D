@@ -58,7 +58,7 @@ namespace Viry3D
                 "",
                 render_state);
 
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/tex.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true);
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/tex.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
 
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", texture);

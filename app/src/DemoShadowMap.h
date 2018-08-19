@@ -53,12 +53,10 @@ namespace Viry3D
             m_shadow_texture = Texture::CreateRenderTexture(
                 SHADOW_MAP_SIZE,
                 SHADOW_MAP_SIZE,
-                Display::Instance()->ChooseFormatSupported(
-                    { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT),
+                Texture::ChooseDepthFormatSupported(true),
                 true,
-                VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge);
 
             m_shadow_camera = Display::Instance()->CreateCamera();
             m_shadow_camera->SetDepth(0);

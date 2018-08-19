@@ -97,7 +97,7 @@ namespace Viry3D
                 render_state);
 
             // plane
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/checkflag.png", VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true);
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/checkflag.png", FilterMode::Linear, SamplerAddressMode::Repeat, true);
 
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", texture);
