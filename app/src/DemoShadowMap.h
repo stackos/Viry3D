@@ -28,13 +28,11 @@ namespace Viry3D
     public:
         struct ShadowParam
         {
-            Vector3 light_pos;
             float ortho_size;
             float near_clip;
             float far_clip;
         };
         ShadowParam m_shadow_param = {
-            Vector3(0, 0, 0),
             2.0f,
             -5,
             5
@@ -62,8 +60,8 @@ namespace Viry3D
             m_shadow_camera->SetDepth(0);
             m_shadow_camera->SetClearFlags(CameraClearFlags::Depth);
             m_shadow_camera->SetRenderTarget(Ref<Texture>(), m_shadow_texture);
-            m_shadow_camera->SetLocalPosition(m_shadow_param.light_pos);
-            m_shadow_camera->SetLocalRotation(m_light_param.light_rot);
+            m_shadow_camera->SetLocalPosition(m_light->GetLocalPosition());
+            m_shadow_camera->SetLocalRotation(m_light->GetLocalRotation());
 
             m_shadow_camera->SetNearClip(m_shadow_param.near_clip);
             m_shadow_camera->SetFarClip(m_shadow_param.far_clip);

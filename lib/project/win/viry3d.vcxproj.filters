@@ -927,6 +927,9 @@
     <ClInclude Include="..\..\src\animation\AnimationCurve.h">
       <Filter>src\animation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Light.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2287,6 +2290,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\animation\AnimationCurve.cpp">
       <Filter>src\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Light.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

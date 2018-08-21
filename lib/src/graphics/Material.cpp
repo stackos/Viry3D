@@ -19,6 +19,7 @@
 #include "Shader.h"
 #include "Renderer.h"
 #include "BufferObject.h"
+#include "Light.h"
 
 namespace Viry3D
 {
@@ -156,6 +157,14 @@ namespace Viry3D
             property.dirty = true;
             m_properties.Add(name, property);
         }
+    }
+
+    void Material::SetLightProperties(const Ref<Light>& light)
+    {
+        this->SetColor(AMBIENT_COLOR, Light::GetAmbientColor());
+        this->SetVector(LIGHT_DIRECTION, light->GetLocalToWorldMatrix().MultiplyDirection(Vector3(0, 0, 1)));
+        this->SetColor(LIGHT_COLOR, light->GetColor());
+        this->SetFloat(LIGHT_ITENSITY, light->GetIntensity());
     }
 
     void Material::UpdateUniformSets()

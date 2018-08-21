@@ -30,10 +30,16 @@
 #define VIEW_MATRIX "u_view_matrix"
 #define PROJECTION_MATRIX "u_projection_matrix"
 
+#define AMBIENT_COLOR "u_ambient_color"
+#define LIGHT_DIRECTION "u_light_dir"
+#define LIGHT_COLOR "u_light_color"
+#define LIGHT_ITENSITY "u_light_intensity"
+
 namespace Viry3D
 {
     class Shader;
     class Renderer;
+    class Light;
 
     struct MaterialProperty
     {
@@ -86,6 +92,7 @@ namespace Viry3D
         void SetInt(const String& name, int value);
         void SetTexture(const String& name, const Ref<Texture>& texture);
         void SetVectorArray(const String& name, const Vector<Vector4>& array);
+        void SetLightProperties(const Ref<Light>& light);
         void UpdateUniformSets();
         int FindUniformSetIndex(const String& name);
         const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
