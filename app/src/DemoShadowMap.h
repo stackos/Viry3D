@@ -60,8 +60,8 @@ namespace Viry3D
             m_shadow_camera->SetDepth(0);
             m_shadow_camera->SetClearFlags(CameraClearFlags::Depth);
             m_shadow_camera->SetRenderTarget(Ref<Texture>(), m_shadow_texture);
-            m_shadow_camera->SetLocalPosition(m_light->GetLocalPosition());
-            m_shadow_camera->SetLocalRotation(m_light->GetLocalRotation());
+            m_shadow_camera->SetLocalPosition(m_light->GetPosition());
+            m_shadow_camera->SetLocalRotation(m_light->GetRotation());
 
             m_shadow_camera->SetNearClip(m_shadow_param.near_clip);
             m_shadow_camera->SetFarClip(m_shadow_param.far_clip);
@@ -113,9 +113,9 @@ namespace Viry3D
                 }
                 
                 shadow_mesh->SetMesh(m_renderers[i]->GetMesh(), m_renderers[i]->GetSubmesh());
-                shadow_mesh->SetLocalPosition(m_renderers[i]->GetLocalPosition());
-                shadow_mesh->SetLocalRotation(m_renderers[i]->GetLocalRotation());
-                shadow_mesh->SetLocalScale(m_renderers[i]->GetLocalScale());
+                shadow_mesh->SetLocalPosition(m_renderers[i]->GetPosition());
+                shadow_mesh->SetLocalRotation(m_renderers[i]->GetRotation());
+                shadow_mesh->SetLocalScale(m_renderers[i]->GetScale());
 
                 m_shadow_renderers[i] = shadow_mesh;
                 m_shadow_camera->AddRenderer(shadow_mesh);

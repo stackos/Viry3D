@@ -85,6 +85,50 @@ namespace Viry3D
         return m_local_to_world_matrix;
     }
 
+    Vector3 Node::GetPosition()
+    {
+        return this->GetLocalToWorldMatrix().MultiplyPoint3x4(Vector3(0, 0, 0));
+    }
+
+    Quaternion Node::GetRotation()
+    {
+        Quaternion rotation = m_local_rotation;
+        if (!m_parent.expired())
+        {
+            Quaternion parent_rotation = m_parent.lock()->GetRotation();
+            rotation = parent_rotation * rotation;
+        }
+        return rotation;
+    }
+
+    Vector3 Node::GetRight()
+    {
+        return this->GetLocalToWorldMatrix().MultiplyDirection(Vector3(1, 0, 0));
+    }
+
+    Vector3 Node::GetUp()
+    {
+        return this->GetLocalToWorldMatrix().MultiplyDirection(Vector3(0, 1, 0));
+    }
+
+    Vector3 Node::GetForward()
+    {
+        return this->GetLocalToWorldMatrix().MultiplyDirection(Vector3(0, 0, 1));
+    }
+
+    Vector3 Node::GetScale()
+    {
+        Vector3 scale = m_local_scale;
+        if (!m_parent.expired())
+        {
+            Vector3 parent_scale = m_parent.lock()->GetScale();
+            scale.x *= parent_scale.x;
+            scale.y *= parent_scale.y;
+            scale.z *= parent_scale.z;
+        }
+        return scale;
+    }
+
     void Node::SetParent(const Ref<Node>& node, const Ref<Node>& parent)
     {
         bool matrix_dirty = false;

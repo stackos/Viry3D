@@ -61,11 +61,7 @@ namespace Viry3D
         {
             m_view_matrix_dirty = false;
 
-            const Matrix4x4& local_to_world = this->GetLocalToWorldMatrix();
-            Vector3 pos = local_to_world.MultiplyPoint3x4(Vector3(0, 0, 0));
-            Vector3 forward = local_to_world.MultiplyDirection(Vector3(0, 0, 1));
-            Vector3 up = local_to_world.MultiplyDirection(Vector3(0, 1, 0));
-            m_view_matrix = Matrix4x4::LookTo(pos, forward, up);
+            m_view_matrix = Matrix4x4::LookTo(this->GetPosition(), this->GetForward(), this->GetUp());
 
             for (auto& i : m_renderers)
             {

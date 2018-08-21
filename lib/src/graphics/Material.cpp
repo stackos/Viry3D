@@ -162,7 +162,14 @@ namespace Viry3D
     void Material::SetLightProperties(const Ref<Light>& light)
     {
         this->SetColor(AMBIENT_COLOR, Light::GetAmbientColor());
-        this->SetVector(LIGHT_DIRECTION, light->GetLocalToWorldMatrix().MultiplyDirection(Vector3(0, 0, 1)));
+        if (light->GetType() == LightType::Directional)
+        {
+            this->SetVector(LIGHT_POSITION, light->GetForward());
+        }
+        else
+        {
+            this->SetVector(LIGHT_POSITION, light->GetPosition());
+        }
         this->SetColor(LIGHT_COLOR, light->GetColor());
         this->SetFloat(LIGHT_ITENSITY, light->GetIntensity());
     }

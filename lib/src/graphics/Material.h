@@ -31,7 +31,7 @@
 #define PROJECTION_MATRIX "u_projection_matrix"
 
 #define AMBIENT_COLOR "u_ambient_color"
-#define LIGHT_DIRECTION "u_light_dir"
+#define LIGHT_POSITION "u_light_pos"
 #define LIGHT_COLOR "u_light_color"
 #define LIGHT_ITENSITY "u_light_intensity"
 

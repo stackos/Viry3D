@@ -41,6 +41,12 @@ namespace Viry3D
         const Vector3& GetLocalScale() const { return m_local_scale; }
         void SetLocalScale(const Vector3& scale);
         const Matrix4x4& GetLocalToWorldMatrix();
+        Vector3 GetPosition();
+        Quaternion GetRotation();
+        Vector3 GetRight();
+        Vector3 GetUp();
+        Vector3 GetForward();
+        Vector3 GetScale();
         Ref<Node> GetParent() const { return m_parent.lock(); }
         int GetChildCount() const { return m_children.Size(); }
         const Ref<Node>& GetChild(int index) const { return m_children[index]; }

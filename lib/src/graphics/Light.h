@@ -36,6 +36,7 @@ namespace Viry3D
         static void SetAmbientColor(const Color& color);
         Light(LightType type);
         virtual ~Light();
+        LightType GetType() const { return m_type; }
         const Color& GetColor() const { return m_color; }
         void SetColor(const Color& color);
         const float GetIntensity() const { return m_intensity; }
