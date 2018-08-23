@@ -45,13 +45,14 @@ namespace Viry3D
     {
         enum class Type
         {
-            Matrix,
-            Vector,
             Color,
+            Vector,
             Float,
-            Int,
+            Range,
             Texture,
+            Matrix,
             VectorArray,
+            Int,
         };
 
         union Data

@@ -31,7 +31,7 @@
 #include "ui/Label.h"
 
 // TODO:
-// - Light
+// - resources loading cache
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView

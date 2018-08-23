@@ -353,12 +353,34 @@ namespace Viry3D
 
 	bool String::StartsWith(const String& str) const
 	{
-		return this->IndexOf(str) == 0;
+        if (str.Size() == 0)
+        {
+            return true;
+        }
+        else if (this->Size() < str.Size())
+        {
+            return false;
+        }
+        else
+        {
+            return Memory::Compare(&(*this)[0], &str[0], str.Size()) == 0;
+        }
 	}
 
 	bool String::EndsWith(const String& str) const
 	{
-		return this->IndexOf(str) == this->Size() - str.Size();
+        if (str.Size() == 0)
+        {
+            return true;
+        }
+        else if (this->Size() < str.Size())
+        {
+            return false;
+        }
+        else
+        {
+            return Memory::Compare(&(*this)[this->Size() - str.Size()], &str[0], str.Size()) == 0;
+        }
 	}
 
 	String String::Substring(int start, int count) const

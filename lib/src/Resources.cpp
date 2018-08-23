@@ -23,6 +23,9 @@
 #include "graphics/MeshRenderer.h"
 #include "graphics/SkinnedMeshRenderer.h"
 #include "graphics/Mesh.h"
+#include "graphics/Material.h"
+#include "graphics/Shader.h"
+#include "graphics/Texture.h"
 #include "animation/Animation.h"
 
 namespace Viry3D
@@ -31,6 +34,107 @@ namespace Viry3D
     {
         int size = ms.Read<int>();
         return ms.ReadString(size);
+    }
+
+    static Ref<Texture> ReadTexture(const String& path)
+    {
+        Ref<Texture> texture;
+
+        if (File::Exist(path))
+        {
+            MemoryStream ms(File::ReadAllBytes(path));
+
+            String texture_name = ReadString(ms);
+            int width = ms.Read<int>();
+            int height = ms.Read<int>();
+            SamplerAddressMode wrap_mode = (SamplerAddressMode) ms.Read<int>();
+            FilterMode filter_mode = (FilterMode) ms.Read<int>();
+            String texture_type = ReadString(ms);
+
+            if (texture_type == "Texture2D")
+            {
+                int mipmap_count = ms.Read<int>();
+                String png_path = ReadString(ms);
+
+                texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1);
+            }
+        }
+
+        return texture;
+    }
+
+    static Ref<Material> ReadMaterial(const String& path)
+    {
+        Ref<Material> material;
+
+        if (File::Exist(path))
+        {
+            MemoryStream ms(File::ReadAllBytes(path));
+
+            String material_name = ReadString(ms);
+            String shader_name = ReadString(ms);
+            int property_count = ms.Read<int>();
+
+            Ref<Shader> shader = Shader::Find(shader_name);
+            if (shader)
+            {
+                material = RefMake<Material>(shader);
+            }
+
+            for (int i = 0; i < property_count; i++)
+            {
+                String property_name = ReadString(ms);
+                MaterialProperty::Type property_type = (MaterialProperty::Type) ms.Read<int>();
+
+                switch (property_type)
+                {
+                    case MaterialProperty::Type::Color:
+                    {
+                        Color value = ms.Read<Color>();
+                        if (material)
+                        {
+                            material->SetColor(property_name, value);
+                        }
+                        break;
+                    }
+                    case MaterialProperty::Type::Vector:
+                    {
+                        Vector4 value = ms.Read<Vector4>();
+                        if (material)
+                        {
+                            material->SetVector(property_name, value);
+                        }
+                        break;
+                    }
+                    case MaterialProperty::Type::Float:
+                    case MaterialProperty::Type::Range:
+                    {
+                        float value = ms.Read<float>();
+                        if (material)
+                        {
+                            material->SetFloat(property_name, value);
+                        }
+                        break;
+                    }
+                    case MaterialProperty::Type::Texture:
+                    {
+                        Vector4 uv_scale_offset = ms.Read<Vector4>();
+                        String texture_path = ReadString(ms);
+                        if (texture_path.Size() > 0)
+                        {
+                            Ref<Texture> texture = ReadTexture(Application::Instance()->GetDataPath() + "/" + texture_path);
+                            if (material && texture)
+                            {
+                                material->SetTexture(property_name, texture);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return material;
     }
 
     static void ReadRenderer(MemoryStream& ms, const Ref<Renderer>& renderer)
@@ -48,7 +152,15 @@ namespace Viry3D
         int material_count = ms.Read<int>();
         for (int i = 0; i < material_count; ++i)
         {
-            String mat_path = ReadString(ms);
+            String material_path = ReadString(ms);
+            if (material_path.Size() > 0)
+            {
+                Ref<Material> material = ReadMaterial(Application::Instance()->GetDataPath() + "/" + material_path);
+                if (material)
+                {
+                    renderer->SetMaterial(material);
+                }
+            }
         }
     }
 

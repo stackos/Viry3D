@@ -42,13 +42,8 @@ namespace Viry3D
 
         void InitSkinnedMesh()
         {
-            // load skinned mesh with animation
-            auto node = Resources::Load(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/ToonSoldier 1.go");
-            m_anim = RefCast<Animation>(node);
-
-            // set material
+            // pre cache shader
             RenderState render_state;
-
             auto shader = RefMake<Shader>(
                 "#define SKINNED_MESH 1",
                 Vector<String>({ "Skin.in", "Diffuse.vs.in" }),
@@ -57,16 +52,14 @@ namespace Viry3D
                 Vector<String>({ "Diffuse.fs.in" }),
                 "",
                 render_state);
+            Shader::AddCache("SkinnedMesh/Diffuse", shader);
 
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/tex.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
-
-            auto material = RefMake<Material>(shader);
-            material->SetTexture("u_texture", texture);
-            material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
-            material->SetLightProperties(m_light);
+            // load skinned mesh with animation
+            auto node = Resources::Load(Application::Instance()->GetDataPath() + "/res/model/ToonSoldier 1/ToonSoldier 1.go");
+            m_anim = RefCast<Animation>(node);
 
             auto skin = RefCast<SkinnedMeshRenderer>(m_anim->Find("MESH_Infantry"));
-            skin->SetMaterial(material);
+            skin->GetMaterial()->SetLightProperties(m_light);
 
             // add to camera
             m_camera->AddRenderer(skin);

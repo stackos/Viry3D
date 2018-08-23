@@ -52,16 +52,19 @@ namespace Viry3D
 
     enum class FilterMode
     {
-        None,
+        None = -1,
         Nearest,
         Linear,
+        Trilinear,
     };
 
     enum class SamplerAddressMode
     {
-        None,
-        ClampToEdge,
+        None = -1,
         Repeat,
+        ClampToEdge,
+        Mirror,
+        MirrorOnce,
     };
 
     class Texture : public Thread::Res
