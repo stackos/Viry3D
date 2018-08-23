@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\script\Editor\GameObjectExporter.cs" />
+     <Compile Include="Assets\script\Editor\TextureImportProcess.cs" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>D:/Project/stack/Viry3D-master/unity/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>

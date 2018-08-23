@@ -29,6 +29,7 @@ public class GameObjectExporter
     {
         public Dictionary<string, Mesh> meshes = new Dictionary<string, Mesh>();
         public Dictionary<string, Material> materials = new Dictionary<string, Material>();
+        public Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
     }
 
     static BinaryWriter bw;
@@ -58,13 +59,13 @@ public class GameObjectExporter
             var prefab = PrefabUtility.GetPrefabParent(obj);
             if (prefab)
             {
-                string prefab_path = AssetDatabase.GetAssetPath(prefab);
-                if (prefab_path.StartsWith("Assets/"))
+                string asset_path = AssetDatabase.GetAssetPath(prefab);
+                if (asset_path.StartsWith("Assets/"))
                 {
-                    prefab_path = prefab_path.Substring("Assets/".Length);
+                    asset_path = asset_path.Substring("Assets/".Length);
                 }
-                string prefab_dir = prefab_path.Substring(0, prefab_path.LastIndexOf('/'));
-                go_name = prefab_dir + "/" + obj.name + ".go";
+                string asset_dir = asset_path.Substring(0, asset_path.LastIndexOf('/'));
+                go_name = asset_dir + "/" + obj.name + ".go";
             }
             else
             {
@@ -73,10 +74,10 @@ public class GameObjectExporter
 
             WriteTransform(obj.transform);
 
-            string go_path = out_dir + "/" + go_name;
-            CreateFileDirIfNeed(go_path);
+            string file_path = out_dir + "/" + go_name;
+            CreateFileDirIfNeed(file_path);
 
-            File.WriteAllBytes(go_path, ms.ToArray());
+            File.WriteAllBytes(file_path, ms.ToArray());
 
             Debug.Log("GameObject " + obj.name + " export complete.");
 
@@ -389,18 +390,18 @@ public class GameObjectExporter
 
     static void WriteMesh(Mesh mesh)
     {
-        string mesh_path = AssetDatabase.GetAssetPath(mesh) + "." + mesh.name + ".mesh";
-        if (mesh_path.StartsWith("Assets/"))
+        string asset_path = AssetDatabase.GetAssetPath(mesh) + "." + mesh.name + ".mesh";
+        if (asset_path.StartsWith("Assets/"))
         {
-            mesh_path = mesh_path.Substring("Assets/".Length);
+            asset_path = asset_path.Substring("Assets/".Length);
         }
-        WriteString(mesh_path);
+        WriteString(asset_path);
 
-        if (cache.meshes.ContainsKey(mesh_path))
+        if (cache.meshes.ContainsKey(asset_path))
         {
             return;
         }
-        cache.meshes.Add(mesh_path, mesh);
+        cache.meshes.Add(asset_path, mesh);
 
         var bw_save = bw;
         var ms = new MemoryStream();
@@ -497,44 +498,275 @@ public class GameObjectExporter
             }
         }
 
-        string mesh_file_path = out_dir + "/" + mesh_path;
-        CreateFileDirIfNeed(mesh_file_path);
+        string file_path = out_dir + "/" + asset_path;
+        CreateFileDirIfNeed(file_path);
 
-        File.WriteAllBytes(mesh_file_path, ms.ToArray());
+        File.WriteAllBytes(file_path, ms.ToArray());
 
         bw = bw_save;
     }
 
     static void WriteMaterial(Material material)
     {
-        string mat_path = AssetDatabase.GetAssetPath(material);
-        if (mat_path.StartsWith("Assets/"))
+        string asset_path = AssetDatabase.GetAssetPath(material);
+        if (asset_path.StartsWith("Assets/"))
         {
-            mat_path = mat_path.Substring("Assets/".Length);
+            asset_path = asset_path.Substring("Assets/".Length);
         }
         else
         {
-            mat_path = mat_path + "." + material.name + ".mat";
+            asset_path = asset_path + "." + material.name + ".mat";
         }
-        WriteString(mat_path);
+        WriteString(asset_path);
 
-        if (cache.materials.ContainsKey(mat_path))
+        if (cache.materials.ContainsKey(asset_path))
         {
             return;
         }
-        cache.materials.Add(mat_path, material);
+        cache.materials.Add(asset_path, material);
 
         var bw_save = bw;
         var ms = new MemoryStream();
         bw = new BinaryWriter(ms);
 
+        var shader = material.shader;
+        int property_count = ShaderUtil.GetPropertyCount(shader);
+
         WriteString(material.name);
-        WriteString(material.shader.name);
+        WriteString(shader.name);
+        bw.Write(property_count);
 
-        string mat_file_path = out_dir + "/" + mat_path;
-        CreateFileDirIfNeed(mat_file_path);
+        for (int i = 0; i < property_count; i++)
+        {
+            var property_name = ShaderUtil.GetPropertyName(shader, i);
+            var property_type = ShaderUtil.GetPropertyType(shader, i);
 
-        File.WriteAllBytes(mat_file_path, ms.ToArray());
+            WriteString(property_name);
+            bw.Write((int) property_type);
+
+            switch (property_type)
+            {
+                case ShaderUtil.ShaderPropertyType.Color:
+                    WriteColor32(material.GetColor(property_name));
+                    break;
+                case ShaderUtil.ShaderPropertyType.Vector:
+                    WriteVector4(material.GetVector(property_name));
+                    break;
+                case ShaderUtil.ShaderPropertyType.Float:
+                case ShaderUtil.ShaderPropertyType.Range:
+                    bw.Write(material.GetFloat(property_name));
+                    break;
+                case ShaderUtil.ShaderPropertyType.TexEnv:
+                    var scale = material.GetTextureScale(property_name);
+                    var offset = material.GetTextureOffset(property_name);
+                    
+                    WriteVector4(new Vector4(scale.x, scale.y, offset.x, offset.y));
+
+                    var texture = material.GetTexture(property_name);
+                    if (texture != null)
+                    {
+                        WriteTexture(texture);
+                    }
+                    else
+                    {
+                        WriteString("");
+                    }
+                    break;
+            }
+        }
+
+        string file_path = out_dir + "/" + asset_path;
+        CreateFileDirIfNeed(file_path);
+
+        File.WriteAllBytes(file_path, ms.ToArray());
+
+        bw = bw_save;
+    }
+
+    static void WriteTexture(Texture texture)
+    {
+        string asset_path = AssetDatabase.GetAssetPath(texture);
+        string asset_path_src = asset_path;
+        if (asset_path.StartsWith("Assets/"))
+        {
+            asset_path = asset_path.Substring("Assets/".Length) + ".tex";
+        }
+        else
+        {
+            asset_path = asset_path + "." + texture.name + ".tex";
+        }
+        WriteString(asset_path);
+
+        if (cache.textures.ContainsKey(asset_path))
+        {
+            return;
+        }
+        cache.textures.Add(asset_path, texture);
+
+        var bw_save = bw;
+        var ms = new MemoryStream();
+        bw = new BinaryWriter(ms);
+
+        WriteString(texture.name);
+        bw.Write(texture.width);
+        bw.Write(texture.height);
+        bw.Write((int) texture.wrapMode);
+        bw.Write((int) texture.filterMode);
+
+        string file_path = out_dir + "/" + asset_path;
+        CreateFileDirIfNeed(file_path);
+
+        if (texture is Texture2D)
+        {
+            var tex2d = (texture as Texture2D);
+
+            if (tex2d.format == TextureFormat.RGB24 ||
+                tex2d.format == TextureFormat.RGBA32 ||
+                tex2d.format == TextureFormat.ARGB32)
+            {
+                WriteString("Texture2D");
+                bw.Write(tex2d.mipmapCount);
+
+                var png_path = asset_path + ".png";
+
+                WriteString(png_path);
+
+                png_path = out_dir + "/" + png_path;
+
+                var importer = AssetImporter.GetAtPath(asset_path_src) as TextureImporter;
+                if (importer != null && importer.textureType == TextureImporterType.NormalMap)
+                {
+                    if (asset_path_src.EndsWith(".png") || asset_path_src.EndsWith(".PNG"))
+                    {
+                        File.Copy(asset_path_src, png_path, true);
+                    }
+                    else
+                    {
+                        Debug.LogError("need png format normal map:" + asset_path_src);
+                    }
+                }
+                else
+                {
+                    var bytes = tex2d.EncodeToPNG();
+                    File.WriteAllBytes(png_path, bytes);
+                }
+            }
+            else if (tex2d.format == TextureFormat.RGBAHalf)
+            {
+                WriteString("Texture2DRGBFloat");
+                bw.Write(tex2d.mipmapCount);
+
+                var data_path = asset_path + ".f";
+
+                WriteString(data_path);
+
+                var colors = tex2d.GetPixels();
+                var bytes = new byte[colors.Length * 12];
+                for (int k = 0; k < colors.Length; k++)
+                {
+                    var r = System.BitConverter.GetBytes(colors[k].r);
+                    var g = System.BitConverter.GetBytes(colors[k].g);
+                    var b = System.BitConverter.GetBytes(colors[k].b);
+
+                    System.Array.Copy(r, 0, bytes, k * 12 + 0, 4);
+                    System.Array.Copy(g, 0, bytes, k * 12 + 4, 4);
+                    System.Array.Copy(b, 0, bytes, k * 12 + 8, 4);
+                }
+
+                data_path = out_dir + "/" + data_path;
+                File.WriteAllBytes(data_path, bytes);
+            }
+            else
+            {
+                Debug.LogError("texture format not support:" + asset_path_src);
+            }
+        }
+        else if (texture is Cubemap)
+        {
+            var cubemap = (texture as Cubemap);
+
+            if (cubemap.format == TextureFormat.RGB24 ||
+                cubemap.format == TextureFormat.RGBA32 ||
+                cubemap.format == TextureFormat.ARGB32)
+            {
+                WriteString("Cubemap");
+                bw.Write(cubemap.mipmapCount);
+
+                int size = cubemap.width;
+                for (int i = 0; i < cubemap.mipmapCount; i++)
+                {
+                    for (int j = 0; j < 6; j++)
+                    {
+                        var face_path = string.Format("{0}.cubemap/{1}_{2}.png", asset_path, i, j);
+
+                        WriteString(face_path);
+
+                        var colors = cubemap.GetPixels((CubemapFace) j, i);
+                        var face = new Texture2D(size, size, cubemap.format, false);
+                        for (int k = 0; k < size; k++)
+                        {
+                            Color[] line = new Color[size];
+                            System.Array.Copy(colors, k * size, line, 0, size);
+                            face.SetPixels(0, size - k - 1, size, 1, line);
+                        }
+
+                        face_path = out_dir + "/" + face_path;
+                        CreateFileDirIfNeed(face_path);
+
+                        var bytes = face.EncodeToPNG();
+                        File.WriteAllBytes(face_path, bytes);
+                    }
+
+                    size >>= 1;
+                }
+            }
+            else if (cubemap.format == TextureFormat.RGBAHalf)
+            {
+                WriteString("CubemapRGBFloat");
+                bw.Write(cubemap.mipmapCount);
+
+                int size = cubemap.width;
+                for (int i = 0; i < cubemap.mipmapCount; i++)
+                {
+                    for (int j = 0; j < 6; j++)
+                    {
+                        var face_path = string.Format("{0}.cubemap/{1}_{2}.f", asset_path, i, j);
+
+                        WriteString(face_path);
+
+                        var colors = cubemap.GetPixels((CubemapFace) j, i);
+                        var bytes = new byte[colors.Length * 12];
+                        for (int k = 0; k < colors.Length; k++)
+                        {
+                            var r = System.BitConverter.GetBytes(colors[k].r);
+                            var g = System.BitConverter.GetBytes(colors[k].g);
+                            var b = System.BitConverter.GetBytes(colors[k].b);
+
+                            System.Array.Copy(r, 0, bytes, k * 12 + 0, 4);
+                            System.Array.Copy(g, 0, bytes, k * 12 + 4, 4);
+                            System.Array.Copy(b, 0, bytes, k * 12 + 8, 4);
+                        }
+
+                        face_path = out_dir + "/" + face_path;
+                        CreateFileDirIfNeed(face_path);
+
+                        File.WriteAllBytes(face_path, bytes);
+                    }
+
+                    size >>= 1;
+                }
+            }
+            else
+            {
+                Debug.LogError("texture format not support:" + asset_path_src);
+            }
+        }
+        else
+        {
+            Debug.LogError("texture type not support:" + asset_path_src);
+        }
+
+        File.WriteAllBytes(file_path, ms.ToArray());
 
         bw = bw_save;
     }
