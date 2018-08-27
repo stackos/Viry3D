@@ -44,7 +44,6 @@
 
         sampler2D _MainTex, _TopAlbedo, _BumpMap, _TopNormal, _TopNormal2, _Emission, _OcclusionMap, _MetallicRough, _TopMetallicRough;
         sampler2D _PaintNormal, _DetailBump;
-        float4 _Top_ST;
         half _Glossiness, _FresnelAmount, _FresnelPower, _TopNormal2Scale, _TopScale, _Metallic, _TopMetallic, _TopGlossiness, _OcclusionStrength, _noiseScale, _MaskNormalScale;
         half4 _EmissiveColor;
         half _MaskNormalAmount, _MossAmount, _DetailScale;
