@@ -2,7 +2,7 @@
 {
 	Properties
 	{
-        _MainTex ("MainTex", 2D) = "white" {}
+        [NoScaleOffset] _MainTex ("MainTex", 2D) = "white" {}
         [NoScaleOffset] _Normal ("Normal", 2D) = "bump" {}
         [NoScaleOffset] _MetallicSmoothness ("MetallicSmoothness (RA)", 2D) = "white" {}
 		_Metallic ("Metallic", Range(0, 1)) = 0.0
@@ -38,23 +38,14 @@
 
             #include "PBR.cginc"
 
-            float3 blend_rnm(float3 n1, float3 n2)
-            {
-                n1.z += 1;
-                n2.xy = -n2.xy;
-
-                return n1 * dot(n1, n2) / n1.z - n2;
-            }
-
             void surf_in(v2f i, inout Input IN)
             {
-                IN.uv = i.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+                IN.uv = i.uv.xy;
             }
 
             void surf(Input IN, inout SurfaceOutputStandard o)
             {
                 fixed4 albedo = tex2D(_MainTex, IN.uv);
-
                 float3 normal = UnpackNormal(tex2D(_Normal, IN.uv));
                 half4 metallicSmoothness = tex2D(_MetallicSmoothness, IN.uv);
                 half metallic = metallicSmoothness.r * _Metallic;

@@ -49,9 +49,9 @@
 
             #include "../PBR.cginc"
 
+            float4 _MainTex_ST;
             sampler2D _DetailNormal;
             half _DetailScale;
-
             sampler2D _TopAlbedo;
             float4 _TopAlbedo_ST;
             sampler2D _TopNormal;
@@ -61,19 +61,19 @@
             half _TopMetallic;
             half _TopSmoothness;
 
+            void surf_in(v2f i, inout Input IN)
+            {
+                IN.uv = i.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+                IN.uv_TopAlbedo = i.uv.xy * _TopAlbedo_ST.xy + _TopAlbedo_ST.zw;
+                IN.uv_TopDetailNormal = i.uv.xy * _TopDetailNormal_ST.xy + _TopDetailNormal_ST.zw;
+            }
+
             float3 blend_rnm(float3 n1, float3 n2)
             {
                 n1.z += 1;
                 n2.xy = -n2.xy;
 
                 return n1 * dot(n1, n2) / n1.z - n2;
-            }
-
-            void surf_in(v2f i, inout Input IN)
-            {
-                IN.uv = i.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw;
-                IN.uv_TopAlbedo = i.uv.xy * _TopAlbedo_ST.xy + _TopAlbedo_ST.zw;
-                IN.uv_TopDetailNormal = i.uv.xy * _TopDetailNormal_ST.xy + _TopDetailNormal_ST.zw;
             }
 
             void surf(Input IN, inout SurfaceOutputStandard o)
@@ -91,8 +91,8 @@
                 half mask = albedo.a;
                 fixed4 albedoTop = tex2D(_TopAlbedo, IN.uv_TopAlbedo);
                 albedo = lerp(albedo, albedoTop * occlusion, mask);
-                half3 normalTop = UnpackNormal(tex2D(_TopNormal, IN.uv));
-                half3 detailNormalTop = UnpackNormal(tex2D(_TopDetailNormal, IN.uv_TopDetailNormal));
+                float3 normalTop = UnpackNormal(tex2D(_TopNormal, IN.uv));
+                float3 detailNormalTop = UnpackNormal(tex2D(_TopDetailNormal, IN.uv_TopDetailNormal));
                 normalTop = blend_rnm(normalTop, normal);
                 normalTop = blend_rnm(normalTop, detailNormalTop);
                 normal = lerp(normal, normalTop, mask);

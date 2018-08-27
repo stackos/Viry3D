@@ -17,20 +17,14 @@
 #define SPECCUBE_LOD_STEPS 6
 
 sampler2D _MainTex;
-float4 _MainTex_ST;
-
 sampler2D _Normal;
-
 sampler2D _MetallicSmoothness;
 half _Metallic;
 half _Smoothness;
-
 sampler2D _Occlusion;
 half _OcclusionStrength;
-
 sampler2D _Emission;
 half3 _EmissionColor;
-
 samplerCUBE _Environment;
 half3 _Ambient;
 half3 _LightDir;
