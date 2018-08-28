@@ -536,7 +536,7 @@ public class GameObjectExporter
         WriteString(shader.name);
         bw.Write(property_count);
 
-        for (int i = 0; i < property_count; i++)
+        for (int i = 0; i < property_count; ++i)
         {
             var property_name = ShaderUtil.GetPropertyName(shader, i);
             var property_type = ShaderUtil.GetPropertyType(shader, i);
@@ -636,14 +636,24 @@ public class GameObjectExporter
                 var importer = AssetImporter.GetAtPath(asset_path_src) as TextureImporter;
                 if (importer != null && importer.textureType == TextureImporterType.NormalMap)
                 {
-                    if (asset_path_src.EndsWith(".png") || asset_path_src.EndsWith(".PNG"))
+                    // DXT5nm
+                    var colors = tex2d.GetPixels();
+                    var pixels = new Color32[colors.Length];
+                    for (int i = 0; i < colors.Length; ++i)
                     {
-                        File.Copy(asset_path_src, png_path, true);
+                        float x = colors[i].a * 2 - 1;
+                        float y = colors[i].g * 2 - 1;
+                        float z = Mathf.Sqrt(1 - x * x - y * y);
+
+                        pixels[i].r = (byte) ((x + 1) * 0.5f * 255);
+                        pixels[i].g = (byte) ((y + 1) * 0.5f * 255);
+                        pixels[i].b = (byte) ((z + 1) * 0.5f * 255);
+                        pixels[i].a = 255;
                     }
-                    else
-                    {
-                        Debug.LogError("need png format normal map:" + asset_path_src);
-                    }
+                    var tex = new Texture2D(tex2d.width, tex2d.height, TextureFormat.RGBA32, false);
+                    tex.SetPixels32(pixels);
+                    var bytes = tex.EncodeToPNG();
+                    File.WriteAllBytes(png_path, bytes);
                 }
                 else
                 {
@@ -662,15 +672,15 @@ public class GameObjectExporter
 
                 var colors = tex2d.GetPixels();
                 var bytes = new byte[colors.Length * 12];
-                for (int k = 0; k < colors.Length; k++)
+                for (int i = 0; i < colors.Length; ++i)
                 {
-                    var r = System.BitConverter.GetBytes(colors[k].r);
-                    var g = System.BitConverter.GetBytes(colors[k].g);
-                    var b = System.BitConverter.GetBytes(colors[k].b);
+                    var r = System.BitConverter.GetBytes(colors[i].r);
+                    var g = System.BitConverter.GetBytes(colors[i].g);
+                    var b = System.BitConverter.GetBytes(colors[i].b);
 
-                    System.Array.Copy(r, 0, bytes, k * 12 + 0, 4);
-                    System.Array.Copy(g, 0, bytes, k * 12 + 4, 4);
-                    System.Array.Copy(b, 0, bytes, k * 12 + 8, 4);
+                    System.Array.Copy(r, 0, bytes, i * 12 + 0, 4);
+                    System.Array.Copy(g, 0, bytes, i * 12 + 4, 4);
+                    System.Array.Copy(b, 0, bytes, i * 12 + 8, 4);
                 }
 
                 data_path = out_dir + "/" + data_path;
@@ -693,9 +703,9 @@ public class GameObjectExporter
                 bw.Write(cubemap.mipmapCount);
 
                 int size = cubemap.width;
-                for (int i = 0; i < cubemap.mipmapCount; i++)
+                for (int i = 0; i < cubemap.mipmapCount; ++i)
                 {
-                    for (int j = 0; j < 6; j++)
+                    for (int j = 0; j < 6; ++j)
                     {
                         var face_path = string.Format("{0}.cubemap/{1}_{2}.png", asset_path, i, j);
 
@@ -703,7 +713,7 @@ public class GameObjectExporter
 
                         var colors = cubemap.GetPixels((CubemapFace) j, i);
                         var face = new Texture2D(size, size, cubemap.format, false);
-                        for (int k = 0; k < size; k++)
+                        for (int k = 0; k < size; ++k)
                         {
                             Color[] line = new Color[size];
                             System.Array.Copy(colors, k * size, line, 0, size);
@@ -726,9 +736,9 @@ public class GameObjectExporter
                 bw.Write(cubemap.mipmapCount);
 
                 int size = cubemap.width;
-                for (int i = 0; i < cubemap.mipmapCount; i++)
+                for (int i = 0; i < cubemap.mipmapCount; ++i)
                 {
-                    for (int j = 0; j < 6; j++)
+                    for (int j = 0; j < 6; ++j)
                     {
                         var face_path = string.Format("{0}.cubemap/{1}_{2}.f", asset_path, i, j);
 
@@ -736,7 +746,7 @@ public class GameObjectExporter
 
                         var colors = cubemap.GetPixels((CubemapFace) j, i);
                         var bytes = new byte[colors.Length * 12];
-                        for (int k = 0; k < colors.Length; k++)
+                        for (int k = 0; k < colors.Length; ++k)
                         {
                             var r = System.BitConverter.GetBytes(colors[k].r);
                             var g = System.BitConverter.GetBytes(colors[k].g);
