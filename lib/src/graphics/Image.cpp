@@ -68,7 +68,7 @@ namespace Viry3D
 
             unsigned char *pixel_data = buffer[0];
 
-            for (int j = 0; j < width; j++)
+            for (int j = 0; j < width; ++j)
             {
                 memcpy(pPixel, pixel_data, cinfo.output_components);
 
@@ -136,7 +136,7 @@ namespace Viry3D
 
             unsigned char* pPixel = colors.Bytes();
 
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < height; ++i)
             {
                 memcpy(pPixel, row_pointers[i], width * 4);
                 pPixel += width * 4;
@@ -152,7 +152,7 @@ namespace Viry3D
 
             unsigned char* pPixel = colors.Bytes();
 
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < height; ++i)
             {
                 memcpy(pPixel, row_pointers[i], width * 3);
                 pPixel += width * 3;
@@ -168,7 +168,7 @@ namespace Viry3D
 
             unsigned char* pPixel = colors.Bytes();
 
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < height; ++i)
             {
                 memcpy(pPixel, row_pointers[i], width * 1);
                 pPixel += width * 1;
@@ -184,9 +184,9 @@ namespace Viry3D
 
             byte* pPixel = colors.Bytes();
 
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < height; ++i)
             {
-                for (int j = 0; j < width; j++)
+                for (int j = 0; j < width; ++j)
                 {
                     png_byte g = row_pointers[i][j * 2];
                     png_byte a = row_pointers[i][j * 2 + 1];
@@ -243,7 +243,7 @@ namespace Viry3D
         png_write_info(png_ptr, info_ptr);
 
         png_bytepp row_pointers = new png_bytep[height];
-        for (int i = 0; i < height; i++)
+        for (int i = 0; i < height; ++i)
         {
             row_pointers[i] = (png_bytep) &colors[i * width * bpp / 8];
         }

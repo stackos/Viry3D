@@ -215,7 +215,7 @@ namespace Viry3D
 			folder = "/" + folder;
 		}
 
-		for (int i = 1; i < splits.Size(); i++)
+		for (int i = 1; i < splits.Size(); ++i)
 		{
 			folder += "/" + splits[i];
 

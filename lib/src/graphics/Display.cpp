@@ -100,7 +100,7 @@ namespace Viry3D
         MD5_Update(&md5_context, (void*) glsl.CString(), glsl.Size());
         MD5_Final(hash_bytes, &md5_context);
         String md5_str;
-        for (int i = 0; i < sizeof(hash_bytes); i++)
+        for (int i = 0; i < sizeof(hash_bytes); ++i)
         {
             md5_str += String::Format("%02x", hash_bytes[i]);
         }

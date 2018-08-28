@@ -81,7 +81,7 @@ namespace Viry3D
                 material = RefMake<Material>(shader);
             }
 
-            for (int i = 0; i < property_count; i++)
+            for (int i = 0; i < property_count; ++i)
             {
                 String property_name = ReadString(ms);
                 MaterialProperty::Type property_type = (MaterialProperty::Type) ms.Read<int>();

@@ -338,13 +338,13 @@ namespace Viry3D
 		int is[4];
 		int js[4];
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; ++i)
 		{
 			float max = 0.0f;
 
-			for (int j = i; j < 4; j++)
+			for (int j = i; j < 4; ++j)
 			{
-				for (int k = i; k < 4; k++)
+				for (int k = i; k < 4; ++k)
 				{
 					const float f = fabs(mat[j * 4 + k]);
 					if (f > max)
@@ -384,7 +384,7 @@ namespace Viry3D
 			float& key = mat[i * 4 + i];
 			key = 1.0f / key;
 
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; ++j)
 			{
 				if (j != i)
 				{
@@ -392,11 +392,11 @@ namespace Viry3D
 				}
 			}
 
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; ++j)
 			{
 				if (j != i)
 				{
-					for (int k = 0; k < 4; k++)
+					for (int k = 0; k < 4; ++k)
 					{
 						if (k != i)
 						{
@@ -406,7 +406,7 @@ namespace Viry3D
 				}
 			}
 
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; ++j)
 			{
 				if (j != i)
 				{
@@ -415,7 +415,7 @@ namespace Viry3D
 			}
 		}
 
-		for (int i = 3; i >= 0; i--)
+		for (int i = 3; i >= 0; --i)
 		{
 			if (js[i] != i)
 			{

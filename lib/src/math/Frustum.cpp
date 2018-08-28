@@ -121,7 +121,7 @@ namespace Viry3D
 
 	void Frustum::NormalizePlanes()
 	{
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 6; ++i)
 		{
 			Vector4 &plane = m_planes[i];
 
@@ -132,7 +132,7 @@ namespace Viry3D
 
 	ContainsResult Frustum::ContainsPoint(const Vector3& point) const
 	{
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 6; ++i)
 		{
 			float dis = DistanceToPlane(point, i);
 			if (dis < 0)
@@ -148,7 +148,7 @@ namespace Viry3D
 	{
 		bool all_in = true;
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 6; ++i)
 		{
 			float dis = DistanceToPlane(center, i);
 			if (dis < -radius)
@@ -188,7 +188,7 @@ namespace Viry3D
 	ContainsResult Frustum::ContainsPoints(const Vector<Vector3>& points, const Matrix4x4* matrix) const
 	{
 		Vector<Vector3> ps(points.Size());
-		for (int i = 0; i < points.Size(); i++)
+		for (int i = 0; i < points.Size(); ++i)
 		{
 			if (matrix != nullptr)
 			{
@@ -202,11 +202,11 @@ namespace Viry3D
 
 		int in_plane_count = 0;
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 6; ++i)
 		{
 			int in_count = 0;
 
-			for (int j = 0; j < ps.Size(); j++)
+			for (int j = 0; j < ps.Size(); ++j)
 			{
 				float dis = DistanceToPlane(ps[j], i);
 				if (dis >= 0)

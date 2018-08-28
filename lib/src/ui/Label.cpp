@@ -46,7 +46,7 @@ namespace Viry3D
         bool match = true;
         auto tag_cstr = tag_str.CString();
 
-        for (int i = 0; i < tag_str.Size(); i++)
+        for (int i = 0; i < tag_str.Size(); ++i)
         {
             if (tag_cstr[i] != str[char_index + i])
             {
@@ -60,7 +60,7 @@ namespace Viry3D
             if (value_length > 0)
             {
                 Vector<char32_t> value;
-                for (int i = 0; i < value_length; i++)
+                for (int i = 0; i < value_length; ++i)
                 {
                     value.Add(str[char_index + tag_str.Size() + i]);
                 }
@@ -89,7 +89,7 @@ namespace Viry3D
         bool match = true;
         auto tag_cstr = tag_str.CString();
 
-        for (int i = 0; i < tag_str.Size(); i++)
+        for (int i = 0; i < tag_str.Size(); ++i)
         {
             if (tag_cstr[i] != str[char_index + i])
             {
@@ -102,7 +102,7 @@ namespace Viry3D
         {
             auto tag = tag_str.Substring(2, tag_str.Size() - 3);
 
-            for (int i = tag_find.Size() - 1; i >= 0; i--)
+            for (int i = tag_find.Size() - 1; i >= 0; --i)
             {
                 auto &t = tag_find[i];
 
@@ -140,7 +140,7 @@ namespace Viry3D
         Vector<TagInfo> tags;
         Vector<TagInfo> tag_find;
 
-        for (int i = 0; i < str.Size(); i++)
+        for (int i = 0; i < str.Size(); ++i)
         {
             TagInfo tag;
 

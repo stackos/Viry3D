@@ -42,7 +42,7 @@ namespace Viry3D
 
         for (int i = 0; i < m_uniform_sets.Size(); ++i)
         {
-            for (int j = 0; j < m_uniform_sets[i].buffers.Size(); j++)
+            for (int j = 0; j < m_uniform_sets[i].buffers.Size(); ++j)
             {
                 if (m_uniform_sets[i].buffers[j].buffer)
                 {

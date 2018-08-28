@@ -157,7 +157,7 @@ namespace Viry3D
             {
                 int pixel_count = pixels.Size() / 3;
                 ByteBuffer rgba(pixel_count * 4);
-                for (int i = 0; i < pixel_count; i++)
+                for (int i = 0; i < pixel_count; ++i)
                 {
                     rgba[i * 4 + 0] = pixels[i * 3 + 0];
                     rgba[i * 4 + 1] = pixels[i * 3 + 1];

@@ -66,7 +66,7 @@ namespace Viry3D
 	{
 		T max = a[0];
 
-		for (int i = 1; i < a.Size(); i++)
+		for (int i = 1; i < a.Size(); ++i)
 		{
 			if (a[i] > max)
 			{
@@ -82,7 +82,7 @@ namespace Viry3D
 	{
 		T min = a[0];
 
-		for (int i = 1; i < a.Size(); i++)
+		for (int i = 1; i < a.Size(); ++i)
 		{
 			if (a[i] < min)
 			{

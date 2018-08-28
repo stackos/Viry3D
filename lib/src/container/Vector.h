@@ -110,7 +110,7 @@ namespace Viry3D
 			auto old_size = m_vector.size();
 			m_vector.resize(old_size + count);
 
-			for (int i = 0; i < count; i++)
+			for (int i = 0; i < count; ++i)
 			{
 				m_vector[old_size + i] = vs[i];
 			}

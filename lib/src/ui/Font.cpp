@@ -203,9 +203,9 @@ namespace Viry3D
 
             if (mono)
             {
-                for (int i = 0; i < p_glyph->height; i++)
+                for (int i = 0; i < p_glyph->height; ++i)
                 {
-                    for (int j = 0; j < p_glyph->witdh; j++)
+                    for (int j = 0; j < p_glyph->witdh; ++j)
                     {
                         unsigned char bit = slot->bitmap.buffer[i * slot->bitmap.pitch + j / 8] & (0x1 << (7 - j % 8));
                         bit = bit == 0 ? 0 : 255;
@@ -219,9 +219,9 @@ namespace Viry3D
             }
             else
             {
-                for (int i = 0; i < p_glyph->height; i++)
+                for (int i = 0; i < p_glyph->height; ++i)
                 {
-                    for (int j = 0; j < p_glyph->witdh; j++)
+                    for (int j = 0; j < p_glyph->witdh; ++j)
                     {
                         unsigned char alpha = slot->bitmap.buffer[i * slot->bitmap.pitch + j];
 
