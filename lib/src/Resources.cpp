@@ -40,9 +40,10 @@ namespace Viry3D
     {
         Ref<Texture> texture;
 
-        if (File::Exist(path))
+        String full_path = Application::Instance()->GetDataPath() + "/" + path;
+        if (File::Exist(full_path))
         {
-            MemoryStream ms(File::ReadAllBytes(path));
+            MemoryStream ms(File::ReadAllBytes(full_path));
 
             String texture_name = ReadString(ms);
             int width = ms.Read<int>();
@@ -57,6 +58,7 @@ namespace Viry3D
                 String png_path = ReadString(ms);
 
                 texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1);
+                texture->SetName(texture_name);
             }
         }
 
@@ -67,9 +69,10 @@ namespace Viry3D
     {
         Ref<Material> material;
 
-        if (File::Exist(path))
+        String full_path = Application::Instance()->GetDataPath() + "/" + path;
+        if (File::Exist(full_path))
         {
-            MemoryStream ms(File::ReadAllBytes(path));
+            MemoryStream ms(File::ReadAllBytes(full_path));
 
             String material_name = ReadString(ms);
             String shader_name = ReadString(ms);
@@ -79,6 +82,7 @@ namespace Viry3D
             if (shader)
             {
                 material = RefMake<Material>(shader);
+                material->SetName(material_name);
             }
 
             for (int i = 0; i < property_count; ++i)
@@ -122,7 +126,7 @@ namespace Viry3D
                         String texture_path = ReadString(ms);
                         if (texture_path.Size() > 0)
                         {
-                            Ref<Texture> texture = ReadTexture(Application::Instance()->GetDataPath() + "/" + texture_path);
+                            Ref<Texture> texture = ReadTexture(texture_path);
                             if (material && texture)
                             {
                                 material->SetTexture(property_name, texture);
@@ -155,7 +159,7 @@ namespace Viry3D
             String material_path = ReadString(ms);
             if (material_path.Size() > 0)
             {
-                Ref<Material> material = ReadMaterial(Application::Instance()->GetDataPath() + "/" + material_path);
+                Ref<Material> material = ReadMaterial(material_path);
                 if (material)
                 {
                     renderer->SetMaterial(material);
@@ -333,9 +337,10 @@ namespace Viry3D
     {
         Ref<Node> node;
 
-        if (File::Exist(path))
+        String full_path = Application::Instance()->GetDataPath() + "/" + path;
+        if (File::Exist(full_path))
         {
-            MemoryStream ms(File::ReadAllBytes(path));
+            MemoryStream ms(File::ReadAllBytes(full_path));
 
             node = ReadNode(ms, Ref<Node>());
         }

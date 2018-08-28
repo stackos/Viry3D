@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "string/String.h"
+#include "Object.h"
 #include "math/Vector3.h"
 #include "math/Quaternion.h"
 #include "math/Matrix4x4.h"
@@ -25,15 +25,13 @@
 
 namespace Viry3D
 {
-    class Node
+    class Node : public Object
     {
     public:
         static void SetParent(const Ref<Node>& node, const Ref<Node>& parent);
         static const Ref<Node>& GetRoot(const Ref<Node>& node);
         Node();
         virtual ~Node();
-        const String& GetName() const { return m_name; }
-        void SetName(const String& name) { m_name = name; }
         const Vector3& GetLocalPosition() const { return m_local_position; }
         void SetLocalPosition(const Vector3& pos);
         const Quaternion& GetLocalRotation() const { return m_local_rotation; }
@@ -60,7 +58,6 @@ namespace Viry3D
         void MarkMatrixDirty();
 
     private:
-        String m_name;
         Vector3 m_local_position;
         Quaternion m_local_rotation;
         Vector3 m_local_scale;

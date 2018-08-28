@@ -108,7 +108,7 @@ void main()
                 }
                 return cubemap;
             };
-            task.complete = [=](const Ref<Thread::Res>& res) {
+            task.complete = [=](const Ref<Object>& res) {
                 material->SetTexture("u_texture", RefCast<Texture>(res));
                 m_camera->AddRenderer(renderer);
             };

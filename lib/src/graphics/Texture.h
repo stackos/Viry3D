@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "Object.h"
 #include "Display.h"
 #include "thread/ThreadPool.h"
 
@@ -67,7 +68,7 @@ namespace Viry3D
         MirrorOnce,
     };
 
-    class Texture : public Thread::Res
+    class Texture : public Object
     {
     private:
         friend class DisplayPrivate;

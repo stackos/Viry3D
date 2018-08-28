@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "Object.h"
 #include "Display.h"
 #include "Color.h"
 #include "container/List.h"
@@ -73,11 +74,11 @@ namespace Viry3D
         bool dirty;
     };
 
-    class Material
+    class Material : public Object
     {
     public:
         Material(const Ref<Shader>& shader);
-        ~Material();
+        virtual ~Material();
         const Ref<Shader>& GetShader() const { return m_shader; }
         void SetShader(const Ref<Shader>& shader);
         int GetQueue() const;

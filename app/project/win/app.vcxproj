@@ -70,22 +70,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/MoltenVK/include;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x86;../../../lib/src/vulkan/vulkan_sdk/lib/x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>../../../lib/src/vulkan/vulkan_sdk/lib/x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/MoltenVK/include;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x86;../../../lib/src/vulkan/vulkan_sdk/lib/x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>../../../lib/src/vulkan/vulkan_sdk/lib/x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/MoltenVK/include;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x64;../../../lib/src/vulkan/vulkan_sdk/lib/x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>../../../lib/src/vulkan/vulkan_sdk/lib/x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>../../src;../../../lib/src;../../../lib/src/vulkan/MoltenVK/include;../../../lib/src/vulkan/vulkan_sdk/include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../lib/src/ffmpeg/lib/x64;../../../lib/src/vulkan/vulkan_sdk/lib/x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>../../../lib/src/vulkan/vulkan_sdk/lib/x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

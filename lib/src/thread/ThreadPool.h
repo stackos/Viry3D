@@ -27,20 +27,15 @@
 namespace Viry3D
 {
 	typedef std::mutex Mutex;
+    class Object;
 
 	class Thread
 	{
 	public:
-        class Res
-        {
-        public:
-            virtual ~Res() { }
-        };
-
 		struct Task
 		{
-            typedef std::function<Ref<Res>()> Job;
-            typedef std::function<void(const Ref<Res>&)> CompleteCallback;
+            typedef std::function<Ref<Object>()> Job;
+            typedef std::function<void(const Ref<Object>&)> CompleteCallback;
 
 			Job job;
             CompleteCallback complete;

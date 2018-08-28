@@ -109,6 +109,7 @@ namespace Viry3D
             }
             
             mesh = RefMake<Mesh>(*vertices, *indices, *submeshes);
+            mesh->SetName(mesh_name);
             mesh->SetBindposes(*bindposes);
 
             delete vertices;

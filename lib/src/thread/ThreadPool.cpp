@@ -16,6 +16,7 @@
 */
 
 #include "ThreadPool.h"
+#include "Object.h"
 #include "Application.h"
 
 namespace Viry3D
@@ -92,7 +93,7 @@ namespace Viry3D
 
             if (task.job)
             {
-                Ref<Res> res = task.job();
+                Ref<Object> res = task.job();
 
                 if (task.complete)
                 {

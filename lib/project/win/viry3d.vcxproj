@@ -109,6 +109,7 @@
     <ClInclude Include="..\..\src\memory\Memory.h" />
     <ClInclude Include="..\..\src\memory\Ref.h" />
     <ClInclude Include="..\..\src\Node.h" />
+    <ClInclude Include="..\..\src\Object.h" />
     <ClInclude Include="..\..\src\openal\win\config.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />
     <ClInclude Include="..\..\src\physics\bullet\src\BulletCollision\BroadphaseCollision\btBroadphaseInterface.h" />
