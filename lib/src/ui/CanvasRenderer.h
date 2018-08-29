@@ -45,7 +45,9 @@ namespace Viry3D
 		virtual ~CanvasRenderer();
 		virtual Ref<BufferObject> GetVertexBuffer() const;
 		virtual Ref<BufferObject> GetIndexBuffer() const;
+#if VR_VULKAN
         virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
+#endif
 		virtual void Update();
         virtual void OnFrameEnd();
         virtual void OnResize(int width, int height);
@@ -64,6 +66,9 @@ namespace Viry3D
         void HitViews(const Touch& t);
 
 	private:
+#if VR_VULKAN
+        Ref<BufferObject> m_draw_buffer;
+#endif
 		Vector<Ref<View>> m_views;
 		bool m_canvas_dirty;
 		Ref<Mesh> m_mesh;
@@ -71,7 +76,6 @@ namespace Viry3D
         int m_atlas_array_size;
         Vector<AtlasTreeNode*> m_atlas_tree;
         Map<Texture*, AtlasTreeNode*> m_atlas_cache;
-        Ref<BufferObject> m_draw_buffer;
         Vector<ViewMesh> m_view_meshes;
         Map<int, List<View*>> m_touch_down_views;
 	};

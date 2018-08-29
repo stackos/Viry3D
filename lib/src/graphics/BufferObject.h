@@ -29,13 +29,24 @@ namespace Viry3D
 
     public:
         BufferObject(int size):
+#if VR_VULKAN
             m_buffer(VK_NULL_HANDLE),
             m_memory(VK_NULL_HANDLE),
+#elif VR_GLES
+            m_buffer(0),
+            m_target(0),
+            m_usage(0),
+#endif
             m_size(size)
         {
+#if VR_VULKAN
             Memory::Zero(&m_memory_info, sizeof(m_memory_info));
+#endif
         }
 
+        int GetSize() const { return m_size; }
+
+#if VR_VULKAN
         void Destroy(VkDevice device)
         {
             vkDestroyBuffer(device, m_buffer, nullptr);
@@ -44,12 +55,30 @@ namespace Viry3D
 
         const VkBuffer& GetBuffer() const { return m_buffer; }
         const VkDeviceMemory& GetMemory() const { return m_memory; }
-        int GetSize() const { return m_size; }
+#elif VR_GLES
+        ~BufferObject()
+        {
+            if (m_buffer != 0)
+            {
+                glDeleteBuffers(1, &m_buffer);
+            }
+        }
+
+        GLuint GetBuffer() const { return m_buffer; }
+        GLenum GetTarget() const { return m_target; }
+        GLenum GetUsage() const { return m_usage; }
+#endif
 
     private:
+#if VR_VULKAN
         VkBuffer m_buffer;
         VkDeviceMemory m_memory;
         VkMemoryAllocateInfo m_memory_info;
+#elif VR_GLES
+        GLuint m_buffer;
+        GLenum m_target;
+        GLenum m_usage;
+#endif
         int m_size;
     };
 }

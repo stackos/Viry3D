@@ -29,11 +29,13 @@ namespace Viry3D
 
     MeshRenderer::~MeshRenderer()
     {
+#if VR_VULKAN
         if (m_draw_buffer)
         {
             m_draw_buffer->Destroy(Display::Instance()->GetDevice());
             m_draw_buffer.reset();
         }
+#endif
     }
 
     Ref<BufferObject> MeshRenderer::GetVertexBuffer() const
@@ -65,6 +67,7 @@ namespace Viry3D
         m_mesh = mesh;
         m_submesh = submesh;
 
+#if VR_VULKAN
         VkDrawIndexedIndirectCommand draw;
         draw.indexCount = m_mesh->GetSubmesh(m_submesh).index_count;
         draw.instanceCount = 1;
@@ -82,5 +85,6 @@ namespace Viry3D
         }
 
         this->MarkInstanceCmdDirty();
+#endif
     }
 }

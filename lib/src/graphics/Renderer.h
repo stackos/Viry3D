@@ -37,7 +37,9 @@ namespace Viry3D
         virtual ~Renderer();
         virtual Ref<BufferObject> GetVertexBuffer() const = 0;
         virtual Ref<BufferObject> GetIndexBuffer() const = 0;
+#if VR_VULKAN
         virtual Ref<BufferObject> GetDrawBuffer() const = 0;
+#endif
         virtual void Update();
         virtual void OnFrameEnd() { }
         virtual void OnResize(int width, int height) { }
@@ -48,7 +50,9 @@ namespace Viry3D
         void OnRemoveFromCamera(Camera* camera);
         Camera* GetCamera() const { return m_camera; }
         void MarkRendererOrderDirty();
+#if VR_VULKAN
         void MarkInstanceCmdDirty();
+#endif
 
     protected:
         virtual void OnMatrixDirty();

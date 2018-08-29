@@ -18,15 +18,17 @@
 #include "Material.h"
 #include "Shader.h"
 #include "Renderer.h"
-#include "BufferObject.h"
 #include "Light.h"
+#include "BufferObject.h"
 
 namespace Viry3D
 {
     Material::Material(const Ref<Shader>& shader):
         m_shader(shader)
     {
+#if VR_VULKAN
         m_shader->CreateDescriptorSets(m_descriptor_sets, m_uniform_sets);
+#endif
     }
 
     Material::~Material()
@@ -36,6 +38,7 @@ namespace Viry3D
 
     void Material::Release()
     {
+#if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
         m_descriptor_sets.Clear();
@@ -52,6 +55,7 @@ namespace Viry3D
             }
         }
         m_uniform_sets.Clear();
+#endif
     }
     
     void Material::SetShader(const Ref<Shader>& shader)
@@ -59,9 +63,12 @@ namespace Viry3D
         this->Release();
 
         m_shader = shader;
+
+#if VR_VULKAN
         m_shader->CreateDescriptorSets(m_descriptor_sets, m_uniform_sets);
 
         this->MarkInstanceCmdDirty();
+#endif
     }
 
     int Material::GetQueue() const
@@ -174,6 +181,23 @@ namespace Viry3D
         this->SetFloat(LIGHT_ITENSITY, light->GetIntensity());
     }
 
+    void Material::MarkRendererOrderDirty()
+    {
+        for (auto i : m_renderers)
+        {
+            i->MarkRendererOrderDirty();
+        }
+    }
+
+#if VR_VULKAN
+    void Material::MarkInstanceCmdDirty()
+    {
+        for (auto i : m_renderers)
+        {
+            i->MarkInstanceCmdDirty();
+        }
+    }
+
     void Material::UpdateUniformSets()
     {
         bool instance_cmd_dirty = false;
@@ -284,20 +308,5 @@ namespace Viry3D
             }
         }
     }
-
-    void Material::MarkRendererOrderDirty()
-    {
-        for (auto i : m_renderers)
-        {
-            i->MarkRendererOrderDirty();
-        }
-    }
-
-    void Material::MarkInstanceCmdDirty()
-    {
-        for (auto i : m_renderers)
-        {
-            i->MarkInstanceCmdDirty();
-        }
-    }
+#endif
 }

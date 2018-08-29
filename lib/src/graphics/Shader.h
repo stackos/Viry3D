@@ -51,8 +51,6 @@ namespace Viry3D
     private:
         static List<Shader*> m_shaders;
 		static Map<String, Ref<Shader>> m_shader_cache;
-        RenderState m_render_state;
-        Vector<UniformSet> m_uniform_sets;
 #if VR_VULKAN
         VkShaderModule m_vs_module;
         VkShaderModule m_fs_module;
@@ -62,5 +60,7 @@ namespace Viry3D
         VkDescriptorPool m_descriptor_pool;
         Map<VkRenderPass, VkPipeline> m_pipelines;
 #endif
+        RenderState m_render_state;
+        Vector<UniformSet> m_uniform_sets;
     };
 }

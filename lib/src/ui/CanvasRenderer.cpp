@@ -52,11 +52,13 @@ namespace Viry3D
         }
         m_atlas_tree.Clear();
 
+#if VR_VULKAN
         if (m_draw_buffer)
         {
             m_draw_buffer->Destroy(Display::Instance()->GetDevice());
             m_draw_buffer.reset();
         }
+#endif
 	}
 
     void CanvasRenderer::ReleaseAtlasTreeNode(AtlasTreeNode* node)
@@ -383,8 +385,11 @@ void main()
         {
             if (!m_mesh || vertices.Size() > m_mesh->GetVertexCount() || indices.Size() > m_mesh->GetIndexCount())
             {
-                m_mesh = RefMake<Mesh>(vertices, indices);
+                m_mesh = RefMake<Mesh>(vertices, indices, Vector<Mesh::Submesh>(), true);
+
+#if VR_VULKAN
                 this->MarkInstanceCmdDirty();
+#endif
             }
             else
             {
@@ -396,6 +401,7 @@ void main()
             m_mesh.reset();
         }
 
+#if VR_VULKAN
         if (draw_buffer_dirty)
         {
             VkDrawIndexedIndirectCommand draw;
@@ -440,6 +446,7 @@ void main()
             }
         }
         */
+#endif
     }
 
     void CanvasRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)

@@ -46,6 +46,7 @@ namespace Viry3D
 		m_shader_cache.Clear();
 	}
 
+#if VR_VULKAN
 	void Shader::OnRenderPassDestroy(VkRenderPass render_pass)
 	{
 		VkDevice device = Display::Instance()->GetDevice();
@@ -60,6 +61,7 @@ namespace Viry3D
 			}
 		}
 	}
+#endif
 
     Shader::Shader(
         const String& vs_predefine,
@@ -69,15 +71,18 @@ namespace Viry3D
         const Vector<String>& fs_includes,
         const String& fs_source,
         const RenderState& render_state):
-        m_render_state(render_state),
+#if VR_VULKAN
         m_vs_module(VK_NULL_HANDLE),
         m_fs_module(VK_NULL_HANDLE),
         m_pipeline_cache(VK_NULL_HANDLE),
         m_pipeline_layout(VK_NULL_HANDLE),
-        m_descriptor_pool(VK_NULL_HANDLE)
+        m_descriptor_pool(VK_NULL_HANDLE),
+#endif
+        m_render_state(render_state)
     {
         m_shaders.AddLast(this);
 
+#if VR_VULKAN
         Display::Instance()->CreateShaderModule(
             vs_predefine,
             vs_includes,
@@ -91,10 +96,12 @@ namespace Viry3D
         Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
         Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
         Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+#endif
     }
 
     Shader::~Shader()
     {
+#if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
         for (auto i : m_pipelines)
@@ -112,10 +119,12 @@ namespace Viry3D
         vkDestroyPipelineCache(device, m_pipeline_cache, nullptr);
         vkDestroyShaderModule(device, m_vs_module, nullptr);
         vkDestroyShaderModule(device, m_fs_module, nullptr);
+#endif
 
         m_shaders.Remove(this);
     }
 
+#if VR_VULKAN
     VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment)
     {
         VkPipeline* pipeline_ptr;
@@ -151,4 +160,5 @@ namespace Viry3D
             descriptor_sets);
         uniform_sets = m_uniform_sets;
     }
+#endif
 }

@@ -125,6 +125,7 @@ namespace Viry3D
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
         void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
         void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
+        void GenMipmaps();
         void CopyTexture(
             const Ref<Texture>& src_texture,
             int src_layer, int src_level,
@@ -132,9 +133,8 @@ namespace Viry3D
             int layer, int level,
             int x, int y,
             int w, int h);
-        void CopyToMemory(ByteBuffer& pixels, int layer, int level);
-        void GenMipmaps();
 #if VR_VULKAN
+        void CopyToMemory(ByteBuffer& pixels, int layer, int level);
         VkFormat GetFormat() const { return m_format; }
         VkImage GetImage() const { return m_image; }
         VkImageView GetImageView() const { return m_image_view; }
@@ -153,13 +153,6 @@ namespace Viry3D
 		static Ref<Texture> m_shared_black_texture;
 		static Ref<Texture> m_shared_normal_texture;
 		static Ref<Texture> m_shared_cubemap;
-        int m_width;
-        int m_height;
-        Ref<BufferObject> m_image_buffer;
-        int m_mipmap_level_count;
-        bool m_dynamic;
-        bool m_cubemap;
-        int m_array_size;
 #if VR_VULKAN
         VkFormat m_format;
         VkImage m_image;
@@ -167,6 +160,13 @@ namespace Viry3D
         VkDeviceMemory m_memory;
         VkMemoryAllocateInfo m_memory_info;
         VkSampler m_sampler;
+        Ref<BufferObject> m_image_buffer;
 #endif
+        int m_width;
+        int m_height;
+        int m_mipmap_level_count;
+        bool m_dynamic;
+        bool m_cubemap;
+        int m_array_size;
     };
 }

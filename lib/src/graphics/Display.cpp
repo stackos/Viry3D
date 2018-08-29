@@ -19,9 +19,9 @@
 #include "Application.h"
 #include "Debug.h"
 #include "RenderState.h"
-#include "BufferObject.h"
 #include "Color.h"
 #include "VertexAttribute.h"
+#include "BufferObject.h"
 #include "Camera.h"
 #include "Texture.h"
 #include "Shader.h"
@@ -45,16 +45,17 @@ extern "C"
 #undef max
 #endif
 
+#if VR_ANDROID
+#include "android/jni.h"
+#endif
+
+#if VR_VULKAN
 #include "vulkan/spirv_cross/spirv_glsl.hpp"
 
 #if VR_WINDOWS || VR_ANDROID
 #include "vulkan/vulkan_shader_compiler.h"
 #elif VR_IOS || VR_MAC
 #include "GLSLConversion.h"
-#endif
-
-#if VR_ANDROID
-#include "android/jni.h"
 #endif
 
 static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
@@ -72,9 +73,11 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
 #define VSYNC 0
 #define DESCRIPTOR_POOL_SIZE_MAX 65536
+#endif
 
 namespace Viry3D
 {
+#if VR_VULKAN
     static void StringVectorAdd(Vector<char*>& vec, const char* str)
     {
         int size = (int) strlen(str);
@@ -233,6 +236,7 @@ namespace Viry3D
         VkImageView image_view;
         VkCommandBuffer cmd = VK_NULL_HANDLE;
     };
+#endif
 
     class DisplayPrivate
     {
@@ -242,6 +246,10 @@ namespace Viry3D
         void* m_window;
         int m_width;
         int m_height;
+        List<Ref<Camera>> m_cameras;
+        Ref<Shader> m_blit_shader;
+        Ref<Mesh> m_blit_mesh;
+#if VR_VULKAN
         Vector<char*> m_enabled_layers;
         Vector<char*> m_instance_extension_names;
         Vector<char*> m_device_extension_names;
@@ -282,11 +290,9 @@ namespace Viry3D
         VkCommandBuffer m_image_cmd = VK_NULL_HANDLE;
         Mutex m_image_cmd_mutex;
         Ref<Texture> m_depth_texture;
-        List<Ref<Camera>> m_cameras;
         bool m_primary_cmd_dirty = true;
-        Ref<Shader> m_blit_shader;
-        Ref<Mesh> m_blit_mesh;
         bool m_pause_draw = false;
+#endif
 
         DisplayPrivate(Display* display, void* window, int width, int height):
             m_public(display),
@@ -297,6 +303,7 @@ namespace Viry3D
             m_display = m_public;
         }
 
+#if VR_VULKAN
         ~DisplayPrivate()
         {
             vkDeviceWaitIdle(m_device);
@@ -328,6 +335,7 @@ namespace Viry3D
             StringVectorClear(m_enabled_layers);
             StringVectorClear(m_instance_extension_names);
             StringVectorClear(m_device_extension_names);
+
             m_public = nullptr;
 
             m_display = nullptr;
@@ -2391,15 +2399,6 @@ namespace Viry3D
             }
         }
 
-        void OnFrameEnd()
-        {
-            List<Ref<Camera>> cameras = m_cameras;
-            for (auto i : cameras)
-            {
-                i->OnFrameEnd();
-            }
-        }
-
         void OnDraw()
         {
             if (m_pause_draw)
@@ -2462,6 +2461,137 @@ namespace Viry3D
 
             err = fpQueuePresentKHR(m_graphics_queue, &present_info);
             assert(!err);
+        }
+#endif
+
+#if VR_GLES
+        ~DisplayPrivate()
+        {
+            m_blit_mesh.reset();
+            m_blit_shader.reset();
+            m_cameras.Clear();
+
+#if VR_WINDOWS
+            this->DoneWGL();
+#endif
+
+            m_public = nullptr;
+            m_display = nullptr;
+        }
+
+#if VR_WINDOWS
+        HDC m_hdc = nullptr;
+        HGLRC m_context = nullptr;
+        HGLRC m_shared_context = nullptr;
+
+        void InitWGL()
+        {
+            m_hdc = GetDC((HWND) m_window);
+
+            PIXELFORMATDESCRIPTOR pfd = {
+                sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd
+                1,                     // version number
+                PFD_DRAW_TO_WINDOW |   // support window
+                PFD_SUPPORT_OPENGL |   // support OpenGL
+                PFD_DOUBLEBUFFER,      // double buffered
+                PFD_TYPE_RGBA,         // RGBA type
+                24,                    // 24-bit color depth
+                0, 0, 0, 0, 0, 0,      // color bits ignored
+                0,                     // no alpha buffer
+                0,                     // shift bit ignored
+                0,                     // no accumulation buffer
+                0, 0, 0, 0,            // accum bits ignored
+                32,                    // 32-bit z-buffer
+                0,                     // no stencil buffer
+                0,                     // no auxiliary buffer
+                PFD_MAIN_PLANE,        // main layer
+                0,                     // reserved
+                0, 0, 0                // layer masks ignored
+            };
+            int format_index = ChoosePixelFormat(m_hdc, &pfd);
+            SetPixelFormat(m_hdc, format_index, &pfd);
+
+            m_context = wglCreateContext(m_hdc);
+
+            m_shared_context = wglCreateContext(m_hdc);
+            wglShareLists(m_context, m_shared_context);
+
+            wglMakeCurrent(m_hdc, m_context);
+            wglewInit();
+            wglSwapIntervalEXT(0);
+
+            glewInit();
+        }
+
+        void DoneWGL()
+        {
+            wglMakeCurrent(nullptr, nullptr);
+            wglDeleteContext(m_shared_context);
+            wglDeleteContext(m_context);
+            ReleaseDC((HWND) m_window, m_hdc);
+        }
+
+        void SwapBuffers()
+        {
+            ::SwapBuffers(m_hdc);
+        }
+#endif
+
+        Ref<BufferObject> CreateBuffer(const void* data, int size, GLenum target, GLenum usage)
+        {
+            Ref<BufferObject> buffer = RefMake<BufferObject>(size);
+            buffer->m_target = target;
+            buffer->m_usage = usage;
+
+            glGenBuffers(1, &buffer->m_buffer);
+            glBindBuffer(target, buffer->m_buffer);
+            glBufferData(target, size, data, usage);
+            glBindBuffer(target, 0);
+
+            return buffer;
+        }
+
+        void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
+        {
+            glBindBuffer(buffer->GetTarget(), buffer->GetBuffer());
+            glBufferSubData(buffer->GetTarget(), buffer_offset, size, data);
+            glBindBuffer(buffer->GetTarget(), 0);
+        }
+
+        void OnResize(int width, int height)
+        {
+            m_width = width;
+            m_height = height;
+
+            for (auto i : m_cameras)
+            {
+                i->OnResize(m_width, m_height);
+            }
+        }
+
+        void OnPause()
+        {
+        
+        }
+
+        void OnResume()
+        {
+        
+        }
+
+        void OnDraw()
+        {
+            this->SwapBuffers();
+        }
+#endif
+
+        void OnFrameEnd()
+        {
+            List<Ref<Camera>> cameras = m_cameras;
+            for (auto i : cameras)
+            {
+                i->OnFrameEnd();
+            }
         }
 
         void CreateBlitShader()
@@ -2538,6 +2668,7 @@ void main()
     Display::Display(const String& name, void* window, int width, int height):
         m_private(new DisplayPrivate(this, window, width, height))
     {
+#if VR_VULKAN
 #if VR_WINDOWS
         InitShaderCompiler();
 #elif VR_ANDROID
@@ -2555,14 +2686,30 @@ void main()
         m_private->CreateSignals();
         m_private->CreateImageCmd();
         m_private->CreateSizeDependentResources();
+#elif VR_GLES
+#if VR_WINDOWS
+        m_private->InitWGL();
+#endif
+
+#if VR_WINDOWS || VR_MAC
+        glClearDepth(1.0f);
+#else
+        glClearDepthf(1.0f);
+#endif
+
+        glClearStencil(0);
+        glFrontFace(GL_CCW);
+#endif
     }
 
     Display::~Display()
     {
         delete m_private;
 
+#if VR_VULKAN
 #if VR_WINDOWS
         DeinitShaderCompiler();
+#endif
 #endif
     }
 
@@ -2597,21 +2744,15 @@ void main()
         return m_private->m_height;
     }
 
-    VkDevice Display::GetDevice() const
-    {
-        return m_private->m_device;
-    }
-
-    void Display::WaitDevice() const
-    {
-        vkDeviceWaitIdle(m_private->m_device);
-    }
-
     Camera* Display::CreateCamera()
     {
         Ref<Camera> camera = RefMake<Camera>();
         m_private->m_cameras.AddLast(camera);
+
+#if VR_VULKAN
         this->MarkPrimaryCmdDirty();
+#endif
+
         return camera.get();
     }
 
@@ -2655,7 +2796,9 @@ void main()
 
     void Display::DestroyCamera(Camera* camera)
     {
+#if VR_VULKAN
         this->WaitDevice();
+#endif
 
         for (const auto& i : m_private->m_cameras)
         {
@@ -2665,7 +2808,21 @@ void main()
                 break;
             }
         }
+
+#if VR_VULKAN
         this->MarkPrimaryCmdDirty();
+#endif
+    }
+
+#if VR_VULKAN
+    VkDevice Display::GetDevice() const
+    {
+        return m_private->m_device;
+    }
+
+    void Display::WaitDevice() const
+    {
+        vkDeviceWaitIdle(m_private->m_device);
     }
 
     void Display::MarkPrimaryCmdDirty()
@@ -2966,4 +3123,15 @@ void main()
     {
         return m_private->m_image_cmd;
     }
+#elif VR_GLES
+    Ref<BufferObject> Display::CreateBuffer(const void* data, int size, GLenum target, GLenum usage)
+    {
+        return m_private->CreateBuffer(data, size, target, usage);
+    }
+
+    void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
+    {
+        m_private->UpdateBuffer(buffer, buffer_offset, data, size);
+    }
+#endif
 }

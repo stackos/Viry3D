@@ -31,7 +31,7 @@
 #include "ui/Label.h"
 
 // TODO:
-// - gles2 graphics
+// - gles2 port
 // - WebAssembly port
 // - demo 3DGamekit
 // - demo ARKit

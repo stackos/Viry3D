@@ -94,10 +94,10 @@ namespace Viry3D
         void SetTexture(const String& name, const Ref<Texture>& texture);
         void SetVectorArray(const String& name, const Vector<Vector4>& array);
         void SetLightProperties(const Ref<Light>& light);
-        void UpdateUniformSets();
-        int FindUniformSetIndex(const String& name);
         const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
 #if VR_VULKAN
+        void UpdateUniformSets();
+        int FindUniformSetIndex(const String& name);
         const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
 #endif
 
@@ -139,16 +139,19 @@ namespace Viry3D
         void UpdateUniformMember(const String& name, const void* data, int size, bool& instance_cmd_dirty);
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty);
         void MarkRendererOrderDirty();
-        void MarkInstanceCmdDirty();
         void Release();
+
+#if VR_VULKAN
+        void MarkInstanceCmdDirty();
+#endif
 
     private:
         Ref<Shader> m_shader;
         Ref<int> m_queue;
         List<Renderer*> m_renderers;
-        Vector<UniformSet> m_uniform_sets;
         Map<String, MaterialProperty> m_properties;
 #if VR_VULKAN
+        Vector<UniformSet> m_uniform_sets;
         Vector<VkDescriptorSet> m_descriptor_sets;
 #endif
     };

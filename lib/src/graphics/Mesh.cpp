@@ -121,15 +121,20 @@ namespace Viry3D
         return mesh;
     }
 
-    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes):
+    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes, bool dynamic):
         m_vertex_count(0),
         m_index_count(0),
         m_buffer_vertex_count(0),
         m_buffer_index_count(0)
     {
+#if VR_VULKAN
         m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
         m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-    
+#elif VR_GLES
+        m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), GL_ARRAY_BUFFER, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+        m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), GL_ELEMENT_ARRAY_BUFFER, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+#endif
+
         m_vertex_count = vertices.Size();
         m_index_count = indices.Size();
         m_buffer_vertex_count = m_vertex_count;
@@ -143,11 +148,13 @@ namespace Viry3D
     
     Mesh::~Mesh()
     {
+#if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
-
         m_vertex_buffer->Destroy(device);
-        m_vertex_buffer.reset();
         m_index_buffer->Destroy(device);
+#endif
+        
+        m_vertex_buffer.reset();
         m_index_buffer.reset();
     }
 

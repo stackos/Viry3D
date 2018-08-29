@@ -49,7 +49,9 @@ namespace Viry3D
             m_material->OnSetRenderer(this);
         }
 
+#if VR_VULKAN
         this->MarkInstanceCmdDirty();
+#endif
 
         if (m_instance_material)
         {
@@ -121,6 +123,7 @@ namespace Viry3D
 		}
     }
 
+#if VR_VULKAN
     void Renderer::MarkInstanceCmdDirty()
     {
 		if (m_camera)
@@ -128,6 +131,7 @@ namespace Viry3D
 			m_camera->MarkInstanceCmdDirty(this);
 		}
     }
+#endif
 
     void Renderer::OnMatrixDirty()
     {
@@ -142,6 +146,7 @@ namespace Viry3D
             this->SetInstanceMatrix(MODEL_MATRIX, this->GetLocalToWorldMatrix());
         }
 
+#if VR_VULKAN
         if (m_material)
         {
             m_material->UpdateUniformSets();
@@ -151,6 +156,7 @@ namespace Viry3D
         {
             m_instance_material->UpdateUniformSets();
         }
+#endif
     }
 
     void Renderer::SetInstanceMatrix(const String& name, const Matrix4x4& mat)

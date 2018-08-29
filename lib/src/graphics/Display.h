@@ -142,6 +142,9 @@ namespace Viry3D
             VkImageLayout new_image_layout,
             VkAccessFlagBits src_access_mask);
         VkCommandBuffer GetImageCmd() const;
+#elif VR_GLES
+        Ref<BufferObject> CreateBuffer(const void* data, int size, GLenum target, GLenum usage);
+        void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
 #endif
 
     private:

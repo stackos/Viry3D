@@ -37,7 +37,7 @@ namespace Viry3D
 
     public:
         static Ref<Mesh> LoadFromFile(const String& path);
-        Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
+        Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool dynamic = false);
         virtual ~Mesh();
         void Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
         const Ref<BufferObject>& GetVertexBuffer() const { return m_vertex_buffer; }

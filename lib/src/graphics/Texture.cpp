@@ -30,6 +30,7 @@ namespace Viry3D
 	Ref<Texture> Texture::m_shared_normal_texture;
 	Ref<Texture> Texture::m_shared_cubemap;
 
+#if VR_VULKAN
     static VkFormat TextureFormatToVkFormat(TextureFormat format)
     {
         switch (format)
@@ -113,9 +114,11 @@ namespace Viry3D
                 return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         }
     }
+#endif
 
     TextureFormat Texture::ChooseDepthFormatSupported(bool sample)
     {
+#if VR_VULKAN
         if (sample)
         {
             VkFormat format = Display::Instance()->ChooseFormatSupported(
@@ -130,6 +133,9 @@ namespace Viry3D
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
             return VkFormatToTextureFormat(format);
         }
+#elif VR_GLES
+        return TextureFormat::D32;
+#endif
     }
 
     ByteBuffer Texture::LoadImageFromFile(const String& path, int& width, int& height, int& bpp)
@@ -225,6 +231,7 @@ namespace Viry3D
             mipmap_level_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
         }
 
+#if VR_VULKAN
         texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_2D,
@@ -243,6 +250,7 @@ namespace Viry3D
             false,
             1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
+#endif
 
         texture->m_dynamic = dynamic;
 
@@ -271,6 +279,7 @@ namespace Viry3D
             mipmap_level_count = (int) floor(Mathf::Log2((float) size)) + 1;
         }
 
+#if VR_VULKAN
         texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_CUBE,
@@ -289,6 +298,7 @@ namespace Viry3D
             true,
             1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
+#endif
 
         return texture;
     }
@@ -303,6 +313,7 @@ namespace Viry3D
     {
         Ref<Texture> texture;
 
+#if VR_VULKAN
         VkImageUsageFlags usage = VK_IMAGE_USAGE_SAMPLED_BIT;
         VkImageAspectFlags aspect;
 
@@ -361,6 +372,7 @@ namespace Viry3D
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			(VkAccessFlagBits) 0);
 		Display::Instance()->EndImageCmd();
+#endif
 
         return texture;
     }
@@ -384,6 +396,7 @@ namespace Viry3D
             mipmap_level_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
         }
 
+#if VR_VULKAN
         texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_2D_ARRAY,
@@ -402,6 +415,9 @@ namespace Viry3D
             false,
             layer_count);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
+#elif VR_GLES
+        texture = Ref<Texture>(new Texture());
+#endif
 
         texture->m_dynamic = dynamic;
 
@@ -537,6 +553,7 @@ namespace Viry3D
 
     void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h)
     {
+#if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
         if (!m_image_buffer)
@@ -557,10 +574,12 @@ namespace Viry3D
             m_image_buffer->Destroy(device);
             m_image_buffer.reset();
         }
+#endif
     }
 
     void Texture::UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level)
     {
+#if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
         if (!m_image_buffer || m_image_buffer->GetSize() < pixels.Size())
@@ -581,10 +600,12 @@ namespace Viry3D
             m_image_buffer->Destroy(device);
             m_image_buffer.reset();
         }
+#endif
     }
 
     void Texture::UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level)
     {
+#if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
         if (!m_image_buffer || m_image_buffer->GetSize() < pixels.Size())
@@ -605,8 +626,10 @@ namespace Viry3D
             m_image_buffer->Destroy(device);
             m_image_buffer.reset();
         }
+#endif
     }
 
+#if VR_VULKAN
     void Texture::CopyTexture(
         const Ref<Texture>& src_texture,
         int src_layer, int src_level,
@@ -769,6 +792,18 @@ namespace Viry3D
 
         Display::Instance()->EndImageCmd();
     }
+#elif VR_GLES
+    void Texture::CopyTexture(
+        const Ref<Texture>& src_texture,
+        int src_layer, int src_level,
+        int src_x, int src_y,
+        int layer, int level,
+        int x, int y,
+        int w, int h)
+    {
+
+    }
+#endif
 
     int Texture::GetLayerCount()
     {
@@ -790,6 +825,7 @@ namespace Viry3D
 
         uint32_t layer_count = (uint32_t) this->GetLayerCount();
 
+#if VR_VULKAN
         Display::Instance()->BeginImageCmd();
 
         Display::Instance()->SetImageLayout(
@@ -854,25 +890,31 @@ namespace Viry3D
             VK_ACCESS_TRANSFER_READ_BIT);
 
         Display::Instance()->EndImageCmd();
+#endif
     }
 
     Texture::Texture():
-        m_width(0),
-        m_height(0),
+#if VR_VULKAN
         m_format(VK_FORMAT_UNDEFINED),
         m_image(VK_NULL_HANDLE),
         m_image_view(VK_NULL_HANDLE),
         m_memory(VK_NULL_HANDLE),
         m_sampler(VK_NULL_HANDLE),
+#endif
+        m_width(0),
+        m_height(0),
         m_mipmap_level_count(1),
         m_dynamic(false),
         m_cubemap(false)
     {
+#if VR_VULKAN
         Memory::Zero(&m_memory_info, sizeof(m_memory_info));
+#endif
     }
 
     Texture::~Texture()
     {
+#if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
         if (m_image_buffer)
@@ -887,5 +929,6 @@ namespace Viry3D
         vkDestroyImage(device, m_image, nullptr);
         vkDestroyImageView(device, m_image_view, nullptr);
         vkFreeMemory(device, m_memory, nullptr);
+#endif
     }
 }

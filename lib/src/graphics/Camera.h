@@ -83,8 +83,8 @@ namespace Viry3D
         void SetOrthographicSize(float size);
         const Matrix4x4& GetViewMatrix();
         const Matrix4x4& GetProjectionMatrix();
-#if VR_VULKAN
         void MarkRendererOrderDirty();
+#if VR_VULKAN
         void MarkInstanceCmdDirty(Renderer* renderer);
         VkRenderPass GetRenderPass() const { return m_render_pass; }
         VkFramebuffer GetFramebuffer(int index) const;
@@ -95,20 +95,25 @@ namespace Viry3D
         virtual void OnMatrixDirty();
 
     private:
-        void UpdateRenderPass();
-        void ClearRenderPass();
         void SortRenderers();
         void UpdateRenderers();
 #if VR_VULKAN
+        void UpdateRenderPass();
+        void ClearRenderPass();
         void UpdateInstanceCmds();
         void ClearInstanceCmds();
         void BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer);
 #endif
 
     private:
+#if VR_VULKAN
+        VkRenderPass m_render_pass;
+        Vector<VkFramebuffer> m_framebuffers;
+        VkCommandPool m_cmd_pool;
         bool m_render_pass_dirty;
-        bool m_renderer_order_dirty;
         bool m_instance_cmds_dirty;
+#endif
+        bool m_renderer_order_dirty;
         CameraClearFlags m_clear_flags;
         Color m_clear_color;
         Rect m_viewport_rect;
@@ -125,10 +130,5 @@ namespace Viry3D
         float m_far_clip;
         bool m_orthographic;
         float m_orthographic_size;
-#if VR_VULKAN
-        VkRenderPass m_render_pass;
-        Vector<VkFramebuffer> m_framebuffers;
-        VkCommandPool m_cmd_pool;
-#endif
     };
 }
