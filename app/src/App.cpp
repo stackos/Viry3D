@@ -31,7 +31,8 @@
 #include "ui/Label.h"
 
 // TODO:
-// - resources loading cache
+// - gles2 graphics
+// - ARKit
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView

@@ -30,6 +30,8 @@
 
 namespace Viry3D
 {
+    static Map<String, Ref<Object>> g_loading_cache;
+
     static String ReadString(MemoryStream& ms)
     {
         int size = ms.Read<int>();
@@ -38,6 +40,11 @@ namespace Viry3D
 
     static Ref<Texture> ReadTexture(const String& path)
     {
+        if (g_loading_cache.Contains(path))
+        {
+            return RefCast<Texture>(g_loading_cache[path]);
+        }
+
         Ref<Texture> texture;
 
         String full_path = Application::Instance()->GetDataPath() + "/" + path;
@@ -62,11 +69,18 @@ namespace Viry3D
             }
         }
 
+        g_loading_cache.Add(path, texture);
+
         return texture;
     }
 
     static Ref<Material> ReadMaterial(const String& path)
     {
+        if (g_loading_cache.Contains(path))
+        {
+            return RefCast<Material>(g_loading_cache[path]);
+        }
+
         Ref<Material> material;
 
         String full_path = Application::Instance()->GetDataPath() + "/" + path;
@@ -137,6 +151,8 @@ namespace Viry3D
                 }
             }
         }
+
+        g_loading_cache.Add(path, material);
 
         return material;
     }
@@ -343,6 +359,8 @@ namespace Viry3D
             MemoryStream ms(File::ReadAllBytes(full_path));
 
             node = ReadNode(ms, Ref<Node>());
+
+            g_loading_cache.Clear();
         }
 
         return node;
