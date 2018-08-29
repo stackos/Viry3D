@@ -115,6 +115,9 @@
     <Filter Include="src\animation">
       <UniqueIdentifier>{b28a4d71-7e94-4e72-a972-0692c86303b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\gles">
+      <UniqueIdentifier>{1d677bcb-9193-41d0-9845-2309f53ca652}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -932,6 +935,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\Object.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gles\gles_include.h">
+      <Filter>src\gles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2296,6 +2302,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Light.cpp">
       <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gles\glew\src\glew.c">
+      <Filter>src\gles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

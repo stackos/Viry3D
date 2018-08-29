@@ -30,6 +30,7 @@
     <ClInclude Include="..\..\src\container\Vector.h" />
     <ClInclude Include="..\..\src\crypto\md5\md5.h" />
     <ClInclude Include="..\..\src\Debug.h" />
+    <ClInclude Include="..\..\src\gles\gles_include.h" />
     <ClInclude Include="..\..\src\graphics\BufferObject.h" />
     <ClInclude Include="..\..\src\graphics\Camera.h" />
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
@@ -337,6 +338,7 @@
     <ClCompile Include="..\..\src\freetype\src\type1\type1.c" />
     <ClCompile Include="..\..\src\freetype\src\type42\type42.c" />
     <ClCompile Include="..\..\src\freetype\src\winfonts\winfnt.c" />
+    <ClCompile Include="..\..\src\gles\glew\src\glew.c" />
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />

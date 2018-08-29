@@ -34,8 +34,10 @@ namespace Viry3D
     struct RendererInstance
     {
         Ref<Renderer> renderer;
+#if VR_VULKAN
         bool cmd_dirty = true;
         VkCommandBuffer cmd = VK_NULL_HANDLE;
+#endif
 
         bool operator ==(const RendererInstance& a) const
         {
@@ -65,15 +67,10 @@ namespace Viry3D
         void OnFrameEnd();
         void OnResize(int width, int height);
         void OnPause();
-        VkRenderPass GetRenderPass() const { return m_render_pass; }
-        VkFramebuffer GetFramebuffer(int index) const;
         int GetTargetWidth() const;
         int GetTargetHeight() const;
         void AddRenderer(const Ref<Renderer>& renderer);
         void RemoveRenderer(const Ref<Renderer>& renderer);
-        void MarkRendererOrderDirty();
-        void MarkInstanceCmdDirty(Renderer* renderer);
-        Vector<VkCommandBuffer> GetInstanceCmds() const;
         float GetFieldOfView() const { return m_field_of_view; }
         void SetFieldOfView(float fov);
         float GetNearClip() const { return m_near_clip; }
@@ -86,6 +83,13 @@ namespace Viry3D
         void SetOrthographicSize(float size);
         const Matrix4x4& GetViewMatrix();
         const Matrix4x4& GetProjectionMatrix();
+#if VR_VULKAN
+        void MarkRendererOrderDirty();
+        void MarkInstanceCmdDirty(Renderer* renderer);
+        VkRenderPass GetRenderPass() const { return m_render_pass; }
+        VkFramebuffer GetFramebuffer(int index) const;
+        Vector<VkCommandBuffer> GetInstanceCmds() const;
+#endif
 
     protected:
         virtual void OnMatrixDirty();
@@ -94,10 +98,12 @@ namespace Viry3D
         void UpdateRenderPass();
         void ClearRenderPass();
         void SortRenderers();
+        void UpdateRenderers();
+#if VR_VULKAN
         void UpdateInstanceCmds();
         void ClearInstanceCmds();
         void BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer);
-        void UpdateRenderers();
+#endif
 
     private:
         bool m_render_pass_dirty;
@@ -109,10 +115,7 @@ namespace Viry3D
         int m_depth;
         Ref<Texture> m_render_target_color;
         Ref<Texture> m_render_target_depth;
-        VkRenderPass m_render_pass;
-        Vector<VkFramebuffer> m_framebuffers;
         List<RendererInstance> m_renderers;
-        VkCommandPool m_cmd_pool;
         Matrix4x4 m_view_matrix;
         bool m_view_matrix_dirty;
         Matrix4x4 m_projection_matrix;
@@ -122,5 +125,10 @@ namespace Viry3D
         float m_far_clip;
         bool m_orthographic;
         float m_orthographic_size;
+#if VR_VULKAN
+        VkRenderPass m_render_pass;
+        Vector<VkFramebuffer> m_framebuffers;
+        VkCommandPool m_cmd_pool;
+#endif
     };
 }

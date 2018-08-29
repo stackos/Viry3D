@@ -17,7 +17,11 @@
 
 #pragma once
 
+#if VR_VULKAN
 #include "vulkan/vulkan_include.h"
+#elif VR_GLES
+#include "gles/gles_include.h"
+#endif
 #include "memory/Ref.h"
 #include "container/Vector.h"
 #include "CameraClearFlags.h"
@@ -46,11 +50,12 @@ namespace Viry3D
         void OnDraw();
         int GetWidth() const;
         int GetHeight() const;
-        VkDevice GetDevice() const;
-        void WaitDevice() const;
         Camera* CreateCamera();
         Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, const Ref<Material>& material = Ref<Material>(), const String& texture_name = "", CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
         void DestroyCamera(Camera* camera);
+#if VR_VULKAN
+        VkDevice GetDevice() const;
+        void WaitDevice() const;
         void MarkPrimaryCmdDirty();
         void CreateRenderPass(
             const Ref<Texture>& color_texture,
@@ -137,6 +142,7 @@ namespace Viry3D
             VkImageLayout new_image_layout,
             VkAccessFlagBits src_access_mask);
         VkCommandBuffer GetImageCmd() const;
+#endif
 
     private:
         DisplayPrivate* m_private;

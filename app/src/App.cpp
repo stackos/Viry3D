@@ -32,7 +32,9 @@
 
 // TODO:
 // - gles2 graphics
-// - ARKit
+// - WebAssembly port
+// - demo 3DGamekit
+// - demo ARKit
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView

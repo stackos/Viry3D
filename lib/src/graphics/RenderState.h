@@ -23,6 +23,7 @@ namespace Viry3D
 {
     struct RenderState
     {
+#if VR_VULKAN
         enum class Cull
         {
             Off = VK_CULL_MODE_NONE,
@@ -41,6 +42,26 @@ namespace Viry3D
             NotEqual = VK_COMPARE_OP_NOT_EQUAL,
             Always = VK_COMPARE_OP_ALWAYS,
         };
+#elif VR_GLES
+        enum class Cull
+        {
+            Off = 0,
+            Back = GL_BACK,
+            Front = GL_FRONT,
+        };
+
+        enum class ZTest
+        {
+            Off = 0,
+            Less = GL_LESS,
+            Greater = GL_GREATER,
+            LEqual = GL_LEQUAL,
+            GEqual = GL_GEQUAL,
+            Equal = GL_EQUAL,
+            NotEqual = GL_NOTEQUAL,
+            Always = GL_ALWAYS,
+        };
+#endif
 
         enum class ZWrite
         {
@@ -54,6 +75,7 @@ namespace Viry3D
             On = 1,
         };
 
+#if VR_VULKAN
         enum class BlendMode
         {
             Zero = VK_BLEND_FACTOR_ZERO,
@@ -67,6 +89,21 @@ namespace Viry3D
             OneMinusDstColor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
             OneMinusDstAlpha = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
         };
+#elif VR_GLES
+        enum class BlendMode
+        {
+            Zero = GL_ZERO,
+            One = GL_ONE,
+            SrcColor = GL_SRC_COLOR,
+            SrcAlpha = GL_SRC_ALPHA,
+            DstColor = GL_DST_COLOR,
+            DstAlpha = GL_DST_ALPHA,
+            OneMinusSrcColor = GL_ONE_MINUS_SRC_COLOR,
+            OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA,
+            OneMinusDstColor = GL_ONE_MINUS_DST_COLOR,
+            OneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA,
+        };
+#endif
 
         enum class Queue
         {

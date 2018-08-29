@@ -85,7 +85,6 @@ namespace Viry3D
         void SetQueue(int queue);
         void OnSetRenderer(Renderer* renderer);
         void OnUnSetRenderer(Renderer* renderer);
-        const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
         const Matrix4x4* GetMatrix(const String& name) const;
         void SetMatrix(const String& name, const Matrix4x4& value);
         void SetVector(const String& name, const Vector4& value);
@@ -98,6 +97,9 @@ namespace Viry3D
         void UpdateUniformSets();
         int FindUniformSetIndex(const String& name);
         const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
+#if VR_VULKAN
+        const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
+#endif
 
     private:
         template <class T>
@@ -144,8 +146,10 @@ namespace Viry3D
         Ref<Shader> m_shader;
         Ref<int> m_queue;
         List<Renderer*> m_renderers;
-        Vector<VkDescriptorSet> m_descriptor_sets;
         Vector<UniformSet> m_uniform_sets;
         Map<String, MaterialProperty> m_properties;
+#if VR_VULKAN
+        Vector<VkDescriptorSet> m_descriptor_sets;
+#endif
     };
 }

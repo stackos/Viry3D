@@ -31,7 +31,6 @@ namespace Viry3D
 		static Ref<Shader> Find(const String& name);
 		static void AddCache(const String& name, const Ref<Shader>& shader);
 		static void Done();
-        static void OnRenderPassDestroy(VkRenderPass render_pass);
         Shader(
             const String& vs_predefine,
             const Vector<String>& vs_includes,
@@ -42,21 +41,26 @@ namespace Viry3D
             const RenderState& render_state);
         ~Shader();
         const RenderState& GetRenderState() const { return m_render_state; }
+#if VR_VULKAN
+        static void OnRenderPassDestroy(VkRenderPass render_pass);
         VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment);
         void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
         VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
+#endif
 
     private:
         static List<Shader*> m_shaders;
 		static Map<String, Ref<Shader>> m_shader_cache;
         RenderState m_render_state;
+        Vector<UniformSet> m_uniform_sets;
+#if VR_VULKAN
         VkShaderModule m_vs_module;
         VkShaderModule m_fs_module;
-        Vector<UniformSet> m_uniform_sets;
         VkPipelineCache m_pipeline_cache;
         Vector<VkDescriptorSetLayout> m_descriptor_layouts;
         VkPipelineLayout m_pipeline_layout;
         VkDescriptorPool m_descriptor_pool;
         Map<VkRenderPass, VkPipeline> m_pipelines;
+#endif
     };
 }
