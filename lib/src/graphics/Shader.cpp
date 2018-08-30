@@ -378,14 +378,36 @@ namespace Viry3D
 
     void Shader::ApplyRenderState()
     {
-        if (m_render_state.blend == RenderState::Blend::On)
+        if (m_render_state.cull == RenderState::Cull::Off)
         {
-            glEnable(GL_BLEND);
-            glBlendFunc((GLenum) m_render_state.srcBlendMode, (GLenum) m_render_state.dstBlendMode);
+            glDisable(GL_CULL_FACE);
         }
         else
         {
+            glEnable(GL_CULL_FACE);
+            glCullFace((GLenum) m_render_state.cull);
+        }
+
+        if (m_render_state.zTest == RenderState::ZTest::Off)
+        {
+            glDisable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc((GLenum) m_render_state.zTest);
+        }
+
+        glDepthMask((GLboolean) m_render_state.zWrite);
+
+        if (m_render_state.blend == RenderState::Blend::Off)
+        {
             glDisable(GL_BLEND);
+        }
+        else
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc((GLenum) m_render_state.srcBlendMode, (GLenum) m_render_state.dstBlendMode);
         }
     }
 #endif
