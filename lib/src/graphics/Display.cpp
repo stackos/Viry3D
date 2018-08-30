@@ -2581,6 +2581,20 @@ namespace Viry3D
 
         void OnDraw()
         {
+            m_cameras.Sort([](const Ref<Camera>& a, const Ref<Camera>& b) {
+                return a->GetDepth() < b->GetDepth();
+            });
+
+            for (auto i : m_cameras)
+            {
+                i->Update();
+            }
+
+            for (auto i : m_cameras)
+            {
+                i->OnDraw();
+            }
+
             this->SwapBuffers();
         }
 #endif

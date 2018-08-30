@@ -46,6 +46,33 @@ namespace Viry3D
         VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment);
         void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
         VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
+#elif VR_GLES
+        bool Use() const;
+        void EnableVertexAttribs() const;
+        void DisableVertexAttribs() const;
+        void SetUniform1f(const String& name, float value) const;
+        void SetUniform4f(const String& name, int count, const float* value) const;
+        void SetUniform1i(const String& name, int value) const;
+        void SetUniformMatrix(const String& name, int count, const float* value) const;
+#endif
+
+    private:
+#if VR_GLES
+        struct Uniform
+        {
+            String name;
+            GLenum type;
+            int size;
+            int loc;
+        };
+
+        void CreateProgram(
+            const String& vs_predefine,
+            const Vector<String>& vs_includes,
+            const String& vs_source,
+            const String& fs_predefine,
+            const Vector<String>& fs_includes,
+            const String& fs_source);
 #endif
 
     private:
@@ -59,6 +86,9 @@ namespace Viry3D
         VkPipelineLayout m_pipeline_layout;
         VkDescriptorPool m_descriptor_pool;
         Map<VkRenderPass, VkPipeline> m_pipelines;
+#elif VR_GLES
+        GLuint m_program;
+        Vector<Uniform> m_uniforms;
 #endif
         RenderState m_render_state;
         Vector<UniformSet> m_uniform_sets;

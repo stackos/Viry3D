@@ -20,6 +20,7 @@
 #include "Renderer.h"
 #include "Light.h"
 #include "BufferObject.h"
+#include "Texture.h"
 
 namespace Viry3D
 {
@@ -305,6 +306,45 @@ namespace Viry3D
                     instance_cmd_dirty = true;
                     return;
                 }
+            }
+        }
+    }
+#elif VR_GLES
+    void Material::ApplyUniforms() const
+    {
+        int texture_unit = 0;
+        for (const auto& i : m_properties)
+        {
+            const MaterialProperty& p = i.second;
+            switch (p.type)
+            {
+            case MaterialProperty::Type::Color:
+                m_shader->SetUniform4f(p.name, 1, (const float*) &p.data.color);
+                break;
+            case MaterialProperty::Type::Vector:
+                m_shader->SetUniform4f(p.name, 1, (const float*) &p.data.vector);
+                break;
+            case MaterialProperty::Type::Float:
+                m_shader->SetUniform1f(p.name, p.data.float_value);
+                break;
+            case MaterialProperty::Type::Texture:
+                if (p.texture)
+                {
+                    glActiveTexture(GL_TEXTURE0);
+                    p.texture->Bind();
+                    m_shader->SetUniform1i(p.name, texture_unit);
+                    texture_unit += 1;
+                }
+                break;
+            case MaterialProperty::Type::Matrix:
+                m_shader->SetUniformMatrix(p.name, 1, (const float*) &p.data.matrix);
+                break;
+            case MaterialProperty::Type::VectorArray:
+                m_shader->SetUniform4f(p.name, p.vector_array.Size(), (const float*) &p.vector_array[0]);
+                break;
+            case MaterialProperty::Type::Int:
+                m_shader->SetUniform1i(p.name, p.data.int_value);
+                break;
             }
         }
     }

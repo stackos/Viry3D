@@ -18,6 +18,8 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Material.h"
+#include "Shader.h"
+#include "BufferObject.h"
 #include "Debug.h"
 
 namespace Viry3D
@@ -64,23 +66,26 @@ namespace Viry3D
                 {
                     switch (i.second.type)
                     {
-                        case MaterialProperty::Type::Matrix:
-                            m_instance_material->SetMatrix(i.second.name, *(Matrix4x4*) &i.second.data);
+                        case MaterialProperty::Type::Color:
+                            m_instance_material->SetColor(i.second.name, *(Color*) &i.second.data);
                             break;
                         case MaterialProperty::Type::Vector:
                             m_instance_material->SetVector(i.second.name, *(Vector4*) &i.second.data);
                             break;
-                        case MaterialProperty::Type::Color:
-                            m_instance_material->SetColor(i.second.name, *(Color*) &i.second.data);
-                            break;
                         case MaterialProperty::Type::Float:
                             m_instance_material->SetFloat(i.second.name, *(float*) &i.second.data);
                             break;
-                        case MaterialProperty::Type::Int:
-                            m_instance_material->SetInt(i.second.name, *(int*) &i.second.data);
-                            break;
                         case MaterialProperty::Type::Texture:
                             m_instance_material->SetTexture(i.second.name, i.second.texture);
+                            break;
+                        case MaterialProperty::Type::Matrix:
+                            m_instance_material->SetMatrix(i.second.name, *(Matrix4x4*) &i.second.data);
+                            break;
+                        case MaterialProperty::Type::VectorArray:
+                            m_instance_material->SetVectorArray(i.second.name, i.second.vector_array);
+                            break;
+                        case MaterialProperty::Type::Int:
+                            m_instance_material->SetInt(i.second.name, *(int*) &i.second.data);
                             break;
                     }
                 }
@@ -184,4 +189,40 @@ namespace Viry3D
             m_instance_material->SetVectorArray(name, array);
         }
     }
+
+#if VR_GLES
+    void Renderer::OnDraw()
+    {
+        const Ref<Material>& material = this->GetMaterial();
+        Ref<BufferObject> vertex_buffer = this->GetVertexBuffer();
+        Ref<BufferObject> index_buffer = this->GetIndexBuffer();
+
+        if (!material || !vertex_buffer || !index_buffer)
+        {
+            return;
+        }
+
+        vertex_buffer->Bind();
+        index_buffer->Bind();
+
+        const Ref<Shader>& shader = material->GetShader();
+        if (!shader->Use())
+        {
+            return;
+        }
+
+        shader->EnableVertexAttribs();
+        material->ApplyUniforms();
+
+        const Ref<Material>& instance_material = this->GetInstanceMaterial();
+        if (instance_material)
+        {
+            instance_material->ApplyUniforms();
+        }
+
+        shader->DisableVertexAttribs();
+
+        LogGLError();
+    }
+#endif
 }

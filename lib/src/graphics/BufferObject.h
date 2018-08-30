@@ -58,7 +58,7 @@ namespace Viry3D
 #elif VR_GLES
         ~BufferObject()
         {
-            if (m_buffer != 0)
+            if (m_buffer)
             {
                 glDeleteBuffers(1, &m_buffer);
             }
@@ -67,6 +67,7 @@ namespace Viry3D
         GLuint GetBuffer() const { return m_buffer; }
         GLenum GetTarget() const { return m_target; }
         GLenum GetUsage() const { return m_usage; }
+        void Bind() const { glBindBuffer(m_target, m_buffer); }
 #endif
 
     private:

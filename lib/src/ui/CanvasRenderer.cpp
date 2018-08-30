@@ -76,6 +76,7 @@ namespace Viry3D
         auto shader = Shader::Find("UI");
         if (!shader)
         {
+#if VR_VULKAN
             String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
@@ -126,6 +127,43 @@ void main()
     o_frag = texture(u_texture, v_uv) * v_color * buf_0_2.u_color;
 }
 )";
+#elif VR_GLES
+            String vs = R"(
+uniform mat4 u_view_matrix;
+uniform mat4 u_projection_matrix;
+uniform mat4 u_model_matrix;
+
+attribute vec4 a_pos;
+attribute vec4 a_color;
+attribute vec2 a_uv;
+attribute vec2 a_uv2;
+
+varying vec3 v_uv;
+varying vec4 v_color;
+
+void main()
+{
+	gl_Position = a_pos * u_model_matrix * u_view_matrix * u_projection_matrix;
+	v_uv = vec3(a_uv, a_uv2.x);
+	v_color = a_color;
+}
+)";
+            String fs = R"(
+precision highp float;
+precision lowp samplerCube;
+
+uniform samplerCube u_texture;
+uniform vec4 u_color;
+
+varying vec3 v_uv;
+varying vec4 v_color;
+
+void main()
+{
+    gl_FragColor = textureCube(u_texture, v_uv) * v_color * u_color;
+}
+)";
+#endif
             RenderState render_state;
             render_state.cull = RenderState::Cull::Off;
             render_state.zTest = RenderState::ZTest::Off;
@@ -163,6 +201,7 @@ void main()
 
             Vector<ByteBuffer> pixels(m_atlas_array_size, buffer);
 
+#if VR_VULKAN
             m_atlas = Texture::CreateTexture2DArrayFromMemory(
                 pixels,
                 ATLAS_SIZE,
@@ -173,6 +212,19 @@ void main()
                 SamplerAddressMode::ClampToEdge,
                 false,
                 true);
+#elif VR_GLES
+            m_atlas = Texture::CreateCubemap(
+                ATLAS_SIZE,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false);
+
+            for (int i = 0; i < 6; ++i)
+            {
+                m_atlas->UpdateCubemap(buffer, (CubemapFace) i, 0);
+            }
+#endif
         }
         else
         {
@@ -180,6 +232,7 @@ void main()
 
             Vector<ByteBuffer> pixels(new_array_size, buffer);
 
+#if VR_VULKAN
             Ref<Texture> new_atlas = Texture::CreateTexture2DArrayFromMemory(
                 pixels,
                 ATLAS_SIZE,
@@ -204,6 +257,7 @@ void main()
 
             m_atlas = new_atlas;
             m_atlas_array_size = new_array_size;
+#endif
         }
 
         AtlasTreeNode* layer = new AtlasTreeNode();

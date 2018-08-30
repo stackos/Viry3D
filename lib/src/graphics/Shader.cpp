@@ -17,6 +17,10 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Application.h"
+#include "VertexAttribute.h"
+#include "io/File.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
@@ -77,6 +81,8 @@ namespace Viry3D
         m_pipeline_cache(VK_NULL_HANDLE),
         m_pipeline_layout(VK_NULL_HANDLE),
         m_descriptor_pool(VK_NULL_HANDLE),
+#elif VR_GLES
+        m_program(0),
 #endif
         m_render_state(render_state)
     {
@@ -96,6 +102,14 @@ namespace Viry3D
         Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
         Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
         Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+#elif VR_GLES
+        this->CreateProgram(
+            vs_predefine,
+            vs_includes,
+            vs_source,
+            fs_predefine,
+            fs_includes,
+            fs_source);
 #endif
     }
 
@@ -119,6 +133,11 @@ namespace Viry3D
         vkDestroyPipelineCache(device, m_pipeline_cache, nullptr);
         vkDestroyShaderModule(device, m_vs_module, nullptr);
         vkDestroyShaderModule(device, m_fs_module, nullptr);
+#elif VR_GLES
+        if (m_program)
+        {
+            glDeleteProgram(m_program);
+        }
 #endif
 
         m_shaders.Remove(this);
@@ -159,6 +178,202 @@ namespace Viry3D
             m_descriptor_layouts,
             descriptor_sets);
         uniform_sets = m_uniform_sets;
+    }
+#elif VR_GLES
+    static String ProcessShaderSource(const String& glsl, const String& predefine, const Vector<String>& includes)
+    {
+        static const String s_shader_header =
+#if VR_WINDOWS || VR_MAC
+            "#version 120\n";
+#else
+            "";
+#endif
+
+        String source = s_shader_header;
+        source += predefine + "\n";
+
+        for (const auto& i : includes)
+        {
+            auto include_path = Application::Instance()->GetDataPath() + "/shader/Include/" + i;
+            auto bytes = File::ReadAllBytes(include_path);
+            auto include_str = String(bytes);
+            source += include_str + "\n";
+        }
+        source += glsl;
+
+        return source;
+    }
+
+    static GLuint CompileShader(const String& source, GLenum type)
+    {
+        GLuint shader = glCreateShader(type);
+        const char* str = source.CString();
+        glShaderSource(shader, 1, &str, nullptr);
+        glCompileShader(shader);
+
+        int log_size = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
+        if (log_size > 0)
+        {
+            ByteBuffer buffer(log_size);
+            glGetShaderInfoLog(shader, log_size, nullptr, (GLchar*) buffer.Bytes());
+            Log("shader compile error: %s", buffer.Bytes());
+
+            glDeleteShader(shader);
+            shader = 0;
+        }
+
+        return shader;
+    }
+
+    void Shader::CreateProgram(
+        const String& vs_predefine,
+        const Vector<String>& vs_includes,
+        const String& vs_source,
+        const String& fs_predefine,
+        const Vector<String>& fs_includes,
+        const String& fs_source)
+    {
+        GLuint vs = CompileShader(ProcessShaderSource(vs_source, vs_predefine, vs_includes), GL_VERTEX_SHADER);
+        GLuint fs = CompileShader(ProcessShaderSource(fs_source, fs_predefine, fs_includes), GL_FRAGMENT_SHADER);
+
+        if (vs && fs)
+        {
+            GLuint program = glCreateProgram();
+            glAttachShader(program, vs);
+            glAttachShader(program, fs);
+            glLinkProgram(program);
+
+            int log_size = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_size);
+            if (log_size > 0)
+            {
+                ByteBuffer buffer(log_size);
+                glGetProgramInfoLog(program, log_size, nullptr, (GLchar*) buffer.Bytes());
+                Log("program link error: %s", buffer.Bytes());
+
+                glDeleteProgram(program);
+            }
+            else
+            {
+                int uniform_count = 0;
+                glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &uniform_count);
+
+                const int name_size = 1024;
+                char name[name_size];
+
+                for (int i = 0; i < uniform_count; ++i)
+                {
+                    Uniform u;
+                    glGetActiveUniform(program, i, name_size, nullptr, &u.size, &u.type, name);
+                    u.name = name;
+                    u.loc = glGetUniformLocation(program, name);
+
+                    m_uniforms.Add(u);
+                }
+
+                m_program = program;
+            }
+        }
+       
+        if (vs)
+        {
+            glDeleteShader(vs);
+        }
+        if (fs)
+        {
+            glDeleteShader(fs);
+        }
+    }
+
+    bool Shader::Use() const
+    {
+        if (m_program)
+        {
+            glUseProgram(m_program);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void Shader::EnableVertexAttribs() const
+    {
+        for (int i = 0; i < (int) VertexAttributeType::Count; ++i)
+        {
+            int loc = glGetAttribLocation(m_program, VERTEX_ATTR_NAMES[i]);
+            if (loc >= 0)
+            {
+                glEnableVertexAttribArray(loc);
+                glVertexAttribPointer(loc, VERTEX_ATTR_SIZES[i] / 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*) (size_t) VERTEX_ATTR_OFFSETS[i]);
+            }
+        }
+    }
+
+    void Shader::DisableVertexAttribs() const
+    {
+        for (int i = 0; i < (int) VertexAttributeType::Count; ++i)
+        {
+            int loc = glGetAttribLocation(m_program, VERTEX_ATTR_NAMES[i]);
+            if (loc >= 0)
+            {
+                glDisableVertexAttribArray(loc);
+            }
+        }
+    }
+
+    void Shader::SetUniform1f(const String& name, float value) const
+    {
+        for (int i = 0; i < m_uniforms.Size(); ++i)
+        {
+            const Uniform& u = m_uniforms[i];
+            if (u.name == name)
+            {
+                glUniform1f(u.loc, value);
+                break;
+            }
+        }
+    }
+
+    void Shader::SetUniform4f(const String& name, int count, const float* value) const
+    {
+        for (int i = 0; i < m_uniforms.Size(); ++i)
+        {
+            const Uniform& u = m_uniforms[i];
+            if (u.name == name)
+            {
+                glUniform4fv(u.loc, count, value);
+                break;
+            }
+        }
+    }
+
+    void Shader::SetUniform1i(const String& name, int value) const
+    {
+        for (int i = 0; i < m_uniforms.Size(); ++i)
+        {
+            const Uniform& u = m_uniforms[i];
+            if (u.name == name)
+            {
+                glUniform1i(u.loc, value);
+                break;
+            }
+        }
+    }
+
+    void Shader::SetUniformMatrix(const String& name, int count, const float* value) const
+    {
+        for (int i = 0; i < m_uniforms.Size(); ++i)
+        {
+            const Uniform& u = m_uniforms[i];
+            if (u.name == name)
+            {
+                glUniformMatrix4fv(u.loc, count, GL_FALSE, value);
+                break;
+            }
+        }
     }
 #endif
 }

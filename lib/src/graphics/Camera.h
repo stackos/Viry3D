@@ -89,6 +89,8 @@ namespace Viry3D
         VkRenderPass GetRenderPass() const { return m_render_pass; }
         VkFramebuffer GetFramebuffer(int index) const;
         Vector<VkCommandBuffer> GetInstanceCmds() const;
+#elif VR_GLES
+        void OnDraw();
 #endif
 
     protected:
@@ -103,6 +105,9 @@ namespace Viry3D
         void UpdateInstanceCmds();
         void ClearInstanceCmds();
         void BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer);
+#elif VR_GLES
+        void BindTarget();
+        void ClearTarget();
 #endif
 
     private:
@@ -112,6 +117,8 @@ namespace Viry3D
         VkCommandPool m_cmd_pool;
         bool m_render_pass_dirty;
         bool m_instance_cmds_dirty;
+#elif VR_GLES
+        GLuint m_framebuffer;
 #endif
         bool m_renderer_order_dirty;
         CameraClearFlags m_clear_flags;

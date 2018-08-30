@@ -52,6 +52,8 @@ namespace Viry3D
         void MarkRendererOrderDirty();
 #if VR_VULKAN
         void MarkInstanceCmdDirty();
+#elif VR_GLES
+        void OnDraw();
 #endif
 
     protected:

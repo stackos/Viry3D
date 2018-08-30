@@ -250,6 +250,13 @@ namespace Viry3D
             false,
             1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
+#elif VR_GLES
+        texture = CreateTexture(
+            GL_TEXTURE_2D,
+            width,
+            height,
+            format,
+            mipmap_level_count);
 #endif
 
         texture->m_dynamic = dynamic;
@@ -298,6 +305,13 @@ namespace Viry3D
             true,
             1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
+#elif VR_GLES
+        texture = CreateTexture(
+            GL_TEXTURE_CUBE_MAP,
+            size,
+            size,
+            format,
+            mipmap_level_count);
 #endif
 
         return texture;
@@ -416,7 +430,7 @@ namespace Viry3D
             layer_count);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
 #elif VR_GLES
-        texture = Ref<Texture>(new Texture());
+
 #endif
 
         texture->m_dynamic = dynamic;
@@ -573,6 +587,26 @@ namespace Viry3D
         {
             m_image_buffer->Destroy(device);
             m_image_buffer.reset();
+        }
+#elif VR_GLES
+        this->Bind();
+
+        if (m_have_storage)
+        {
+            glTexSubImage2D(m_target, 0, x, y, w, h, m_format, m_pixel_type, pixels.Bytes());
+        }
+        else
+        {
+            m_have_storage = true;
+            if (x == 0 && y == 0 && w == m_width && h == m_height)
+            {
+                glTexImage2D(m_target, 0, m_internal_format, m_width, m_height, 0, m_format, m_pixel_type, pixels.Bytes());
+            }
+            else
+            {
+                glTexImage2D(m_target, 0, m_internal_format, m_width, m_height, 0, m_format, m_pixel_type, nullptr);
+                glTexSubImage2D(m_target, 0, x, y, w, h, m_format, m_pixel_type, pixels.Bytes());
+            }
         }
 #endif
     }
@@ -900,12 +934,20 @@ namespace Viry3D
         m_image_view(VK_NULL_HANDLE),
         m_memory(VK_NULL_HANDLE),
         m_sampler(VK_NULL_HANDLE),
+#elif VR_GLES
+        m_texture(0),
+        m_target(0),
+        m_internal_format(0),
+        m_format(0),
+        m_pixel_type(0),
+        m_have_storage(false),
 #endif
         m_width(0),
         m_height(0),
         m_mipmap_level_count(1),
         m_dynamic(false),
-        m_cubemap(false)
+        m_cubemap(false),
+        m_array_size(1)
     {
 #if VR_VULKAN
         Memory::Zero(&m_memory_info, sizeof(m_memory_info));
@@ -929,6 +971,59 @@ namespace Viry3D
         vkDestroyImage(device, m_image, nullptr);
         vkDestroyImageView(device, m_image_view, nullptr);
         vkFreeMemory(device, m_memory, nullptr);
+#elif VR_GLES
+        if (m_texture)
+        {
+            glDeleteTextures(1, &m_texture);
+        }
 #endif
     }
+
+#if VR_GLES
+    Ref<Texture> Texture::CreateTexture(
+        GLenum target,
+        int width,
+        int height,
+        TextureFormat format,
+        int mipmap_level_count)
+    {
+        Ref<Texture> texture = Ref<Texture>(new Texture());
+
+        glGenTextures(1, &texture->m_texture);
+        texture->m_target = target;
+        texture->m_width = width;
+        texture->m_height = height;
+        texture->m_mipmap_level_count = mipmap_level_count;
+        texture->m_cubemap = target == GL_TEXTURE_CUBE_MAP;
+
+        switch (format)
+        {
+        case TextureFormat::R8:
+            texture->m_internal_format = GL_LUMINANCE;
+            texture->m_format = GL_LUMINANCE;
+            texture->m_pixel_type = GL_UNSIGNED_BYTE;
+            break;
+        case TextureFormat::R8G8B8A8:
+            texture->m_internal_format = GL_RGBA;
+            texture->m_format = GL_RGBA;
+            texture->m_pixel_type = GL_UNSIGNED_BYTE;
+            break;
+        case TextureFormat::D16:
+            texture->m_internal_format = GL_DEPTH_COMPONENT;
+            texture->m_format = GL_DEPTH_COMPONENT;
+            texture->m_pixel_type = GL_UNSIGNED_SHORT;
+            break;
+        case TextureFormat::D32:
+            texture->m_internal_format = GL_DEPTH_COMPONENT;
+            texture->m_format = GL_DEPTH_COMPONENT;
+            texture->m_pixel_type = GL_UNSIGNED_INT;
+            break;
+        default:
+            Log("texture format not support");
+            break;
+        }
+
+        return texture;
+    }
+#endif
 }

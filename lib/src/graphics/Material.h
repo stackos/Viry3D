@@ -99,6 +99,8 @@ namespace Viry3D
         void UpdateUniformSets();
         int FindUniformSetIndex(const String& name);
         const Vector<VkDescriptorSet>& GetDescriptorSets() const { return m_descriptor_sets; }
+#elif VR_GLES
+        void ApplyUniforms() const;
 #endif
 
     private:

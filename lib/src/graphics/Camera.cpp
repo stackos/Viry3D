@@ -20,6 +20,7 @@
 #include "Renderer.h"
 #include "Material.h"
 #include "Shader.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
@@ -29,6 +30,8 @@ namespace Viry3D
         m_cmd_pool(VK_NULL_HANDLE),
         m_render_pass_dirty(true),
         m_instance_cmds_dirty(true),
+#elif VR_GLES
+        m_framebuffer(0),
 #endif
 		m_renderer_order_dirty(true),
 		m_clear_flags(CameraClearFlags::ColorAndDepth),
@@ -51,6 +54,11 @@ namespace Viry3D
 #if VR_VULKAN
 		this->ClearRenderPass();
 		this->ClearInstanceCmds();
+#elif VR_GLES
+        if (m_framebuffer)
+        {
+            glDeleteFramebuffers(1, &m_framebuffer);
+        }
 #endif
 	}
 
@@ -230,6 +238,94 @@ namespace Viry3D
 		this->UpdateInstanceCmds();
 #endif
 	}
+
+#if VR_GLES
+    void Camera::OnDraw()
+    {
+        this->BindTarget();
+        this->ClearTarget();
+
+        for (auto& i : m_renderers)
+        {
+            i.renderer->OnDraw();
+        }
+    }
+
+    void Camera::BindTarget()
+    {
+        if (this->HasRenderTarget())
+        {
+            if (m_framebuffer == 0)
+            {
+                glGenFramebuffers(1, &m_framebuffer);
+            }
+            glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+            
+            if (m_render_target_color)
+            {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_render_target_color->GetTexture(), 0);
+            }
+
+            if (m_render_target_depth)
+            {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_render_target_depth->GetTexture(), 0);
+            }
+
+            GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            if (status != GL_FRAMEBUFFER_COMPLETE)
+            {
+                Log("frame buffer attachment error: %x", status);
+            }
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+
+        int x = (int) (this->GetTargetWidth() * m_viewport_rect.x);
+        int y = (int) (this->GetTargetHeight() * m_viewport_rect.y);
+        int w = (int) (this->GetTargetWidth() * m_viewport_rect.width);
+        int h = (int) (this->GetTargetHeight() * m_viewport_rect.height);
+        glViewport(x, y, w, h);
+    }
+
+    void Camera::ClearTarget()
+    {
+        GLbitfield clear_bits = 0;
+
+        switch (m_clear_flags)
+        {
+        case CameraClearFlags::Nothing:
+        case CameraClearFlags::Invalidate:
+            break;
+        case CameraClearFlags::Color:
+            clear_bits = GL_COLOR_BUFFER_BIT;
+            break;
+        case CameraClearFlags::Depth:
+            clear_bits = GL_DEPTH_BUFFER_BIT;
+            break;
+        case CameraClearFlags::ColorAndDepth:
+            clear_bits = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+            break;
+        }
+
+        if (clear_bits)
+        {
+            if (clear_bits & GL_COLOR_BUFFER_BIT)
+            {
+                glClearColor(m_clear_color.r, m_clear_color.g, m_clear_color.b, m_clear_color.a);
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+            }
+
+            if (clear_bits & GL_DEPTH_BUFFER_BIT)
+            {
+                glDepthMask(GL_TRUE);
+            }
+            
+            glClear(clear_bits);
+        }
+    }
+#endif
 
     void Camera::OnFrameEnd()
     {

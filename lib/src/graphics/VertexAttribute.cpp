@@ -19,16 +19,16 @@
 
 namespace Viry3D
 {
-    const char* VERTEX_ATTR_TYPES[(int) VertexAttributeType::Count] =
+    const char* VERTEX_ATTR_NAMES[(int) VertexAttributeType::Count] =
     {
-        "Vertex",
-        "Color",
-        "Texcoord",
-        "Texcoord2",
-        "Normal",
-        "Tangent",
-        "BlendWeight",
-        "BlendIndices"
+        "a_pos",
+        "a_color",
+        "a_uv",
+        "a_uv2",
+        "a_normal",
+        "a_tangent",
+        "a_bone_weights",
+        "a_bone_indices"
     };
 
     const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count] = {

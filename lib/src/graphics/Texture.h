@@ -139,9 +139,21 @@ namespace Viry3D
         VkImage GetImage() const { return m_image; }
         VkImageView GetImageView() const { return m_image_view; }
         VkSampler GetSampler() const { return m_sampler; }
+#elif VR_GLES
+        GLuint GetTexture() const { return m_texture; }
+        GLenum GetTarget() const { return m_target; }
+        void Bind() const { glBindTexture(m_target, m_texture); };
 #endif
 
     private:
+#if VR_GLES
+        static Ref<Texture> CreateTexture(
+            GLenum target,
+            int width,
+            int height,
+            TextureFormat format,
+            int mipmap_level_count);
+#endif
         Texture();
         void CopyBufferToImageBegin();
         void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
@@ -161,6 +173,13 @@ namespace Viry3D
         VkMemoryAllocateInfo m_memory_info;
         VkSampler m_sampler;
         Ref<BufferObject> m_image_buffer;
+#elif VR_GLES
+        GLuint m_texture;
+        GLuint m_target;
+        GLint m_internal_format;
+        GLenum m_format;
+        GLenum m_pixel_type;
+        bool m_have_storage;
 #endif
         int m_width;
         int m_height;
