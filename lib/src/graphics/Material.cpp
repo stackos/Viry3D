@@ -330,7 +330,7 @@ namespace Viry3D
             case MaterialProperty::Type::Texture:
                 if (p.texture)
                 {
-                    glActiveTexture(GL_TEXTURE0);
+                    glActiveTexture(GL_TEXTURE0 + texture_unit);
                     p.texture->Bind();
                     m_shader->SetUniform1i(p.name, texture_unit);
                     texture_unit += 1;

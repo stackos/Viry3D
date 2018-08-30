@@ -68,6 +68,7 @@ namespace Viry3D
         GLenum GetTarget() const { return m_target; }
         GLenum GetUsage() const { return m_usage; }
         void Bind() const { glBindBuffer(m_target, m_buffer); }
+        void Unind() const { glBindBuffer(m_target, 0); }
 #endif
 
     private:

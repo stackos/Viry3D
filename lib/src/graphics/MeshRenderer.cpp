@@ -24,7 +24,10 @@ namespace Viry3D
     MeshRenderer::MeshRenderer():
         m_submesh(-1)
     {
-
+#if VR_GLES
+        m_draw_buffer.first_index = 0;
+        m_draw_buffer.index_count = 0;
+#endif
     }
 
     MeshRenderer::~MeshRenderer()
@@ -85,6 +88,9 @@ namespace Viry3D
         }
 
         this->MarkInstanceCmdDirty();
+#elif VR_GLES
+        m_draw_buffer.first_index = m_mesh->GetSubmesh(m_submesh).index_first;
+        m_draw_buffer.index_count = m_mesh->GetSubmesh(m_submesh).index_count;
 #endif
     }
 }

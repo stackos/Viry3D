@@ -32,6 +32,8 @@ namespace Viry3D
         virtual Ref<BufferObject> GetIndexBuffer() const;
 #if VR_VULKAN
         virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
+#elif VR_GLES
+        virtual const DrawBuffer& GetDrawBuffer() const { return m_draw_buffer; }
 #endif
         const Ref<Mesh>& GetMesh() const { return m_mesh; }
         int GetSubmesh() const { return m_submesh; }
@@ -42,6 +44,8 @@ namespace Viry3D
         int m_submesh;
 #if VR_VULKAN
         Ref<BufferObject> m_draw_buffer;
+#elif VR_GLES
+        DrawBuffer m_draw_buffer;
 #endif
     };
 }

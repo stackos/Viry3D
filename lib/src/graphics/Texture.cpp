@@ -257,6 +257,7 @@ namespace Viry3D
             height,
             format,
             mipmap_level_count);
+        texture->CreateSampler(filter_mode, wrap_mode);
 #endif
 
         texture->m_dynamic = dynamic;
@@ -312,6 +313,7 @@ namespace Viry3D
             size,
             format,
             mipmap_level_count);
+        texture->CreateSampler(filter_mode, wrap_mode);
 #endif
 
         return texture;
@@ -429,8 +431,6 @@ namespace Viry3D
             false,
             layer_count);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
-#elif VR_GLES
-
 #endif
 
         texture->m_dynamic = dynamic;
@@ -608,6 +608,8 @@ namespace Viry3D
                 glTexSubImage2D(m_target, 0, x, y, w, h, m_format, m_pixel_type, pixels.Bytes());
             }
         }
+
+        this->Unbind();
 #endif
     }
 
@@ -634,6 +636,12 @@ namespace Viry3D
             m_image_buffer->Destroy(device);
             m_image_buffer.reset();
         }
+#elif VR_GLES
+        this->Bind();
+
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) face, level, m_internal_format, m_width >> level, m_height >> level, 0, m_format, m_pixel_type, pixels.Bytes());
+
+        this->Unbind();
 #endif
     }
 
@@ -835,7 +843,55 @@ namespace Viry3D
         int x, int y,
         int w, int h)
     {
+        this->Bind();
 
+        if (m_copy_framebuffer == 0)
+        {
+            glGenFramebuffers(1, &m_copy_framebuffer);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, m_copy_framebuffer);
+        if (src_texture->GetTarget() == GL_TEXTURE_CUBE_MAP)
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + src_layer, src_texture->GetTexture(), src_level);
+        }
+        else
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, src_texture->GetTarget(), src_texture->GetTexture(), src_level);
+        }
+
+        if (m_target == GL_TEXTURE_CUBE_MAP)
+        {
+            glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, level, x, y, src_x, src_y, w, h);
+        }
+        else
+        {
+            glCopyTexSubImage2D(m_target, level, x, y, src_x, src_y, w, h);
+        }
+
+        this->Unbind();
+    }
+
+    void Texture::CopyToMemory(ByteBuffer& pixels, int layer, int level)
+    {
+        this->Bind();
+
+        if (m_copy_framebuffer == 0)
+        {
+            glGenFramebuffers(1, &m_copy_framebuffer);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, m_copy_framebuffer);
+        if (m_target == GL_TEXTURE_CUBE_MAP)
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, m_texture, level);
+        }
+        else
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_target, m_texture, level);
+        }
+
+        glReadPixels(0, 0, m_width, m_height, m_format, m_pixel_type, pixels.Bytes());
+
+        this->Unbind();
     }
 #endif
 
@@ -941,6 +997,7 @@ namespace Viry3D
         m_format(0),
         m_pixel_type(0),
         m_have_storage(false),
+        m_copy_framebuffer(0),
 #endif
         m_width(0),
         m_height(0),
@@ -975,6 +1032,10 @@ namespace Viry3D
         if (m_texture)
         {
             glDeleteTextures(1, &m_texture);
+        }
+        if (m_copy_framebuffer)
+        {
+            glDeleteFramebuffers(1, &m_copy_framebuffer);
         }
 #endif
     }
@@ -1019,11 +1080,74 @@ namespace Viry3D
             texture->m_pixel_type = GL_UNSIGNED_INT;
             break;
         default:
-            Log("texture format not support");
+            Log("texture format not support: %d", format);
             break;
         }
 
         return texture;
+    }
+
+    void Texture::CreateSampler(FilterMode filter_mode, SamplerAddressMode wrap_mode)
+    {
+        GLint min_filter = 0;
+        GLint mag_filter = 0;
+        GLint wrap_s = 0;
+        GLint wrap_t = 0;
+
+        switch (filter_mode)
+        {
+            case FilterMode::Nearest:
+                if (m_mipmap_level_count > 1)
+                {
+                    min_filter = GL_NEAREST_MIPMAP_NEAREST;
+                }
+                else
+                {
+                    min_filter = GL_NEAREST;
+                }
+                mag_filter = GL_NEAREST;
+                break;
+            case FilterMode::Linear:
+            case FilterMode::Trilinear:
+                if (m_mipmap_level_count > 1)
+                {
+                    min_filter = GL_LINEAR_MIPMAP_LINEAR;
+                }
+                else
+                {
+                    min_filter = GL_LINEAR;
+                }
+                mag_filter = GL_LINEAR;
+                break;
+        }
+
+        switch (wrap_mode)
+        {
+            case SamplerAddressMode::Repeat:
+                wrap_s = GL_REPEAT;
+                wrap_t = GL_REPEAT;
+                break;
+            case SamplerAddressMode::ClampToEdge:
+                wrap_s = GL_CLAMP_TO_EDGE;
+                wrap_t = GL_CLAMP_TO_EDGE;
+                break;
+            case SamplerAddressMode::Mirror:
+                wrap_s = GL_MIRRORED_REPEAT;
+                wrap_t = GL_MIRRORED_REPEAT;
+                break;
+            case SamplerAddressMode::MirrorOnce:
+                Log("texture wrap mode not support: MirrorOnce");
+                break;
+        }
+
+        this->Bind();
+
+        glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, min_filter);
+        glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, mag_filter);
+        glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap_s);
+        glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap_t);
+
+        this->Unbind();
     }
 #endif
 }

@@ -39,6 +39,10 @@ namespace Viry3D
 		m_canvas_dirty(true),
         m_atlas_array_size(0)
 	{
+#if VR_GLES
+        m_draw_buffer.first_index = 0;
+        m_draw_buffer.index_count = 0;
+#endif
 		this->CreateMaterial();
         this->NewAtlasTextureLayer();
 	}
@@ -144,7 +148,33 @@ varying vec4 v_color;
 void main()
 {
 	gl_Position = a_pos * u_model_matrix * u_view_matrix * u_projection_matrix;
-	v_uv = vec3(a_uv, a_uv2.x);
+
+    int index = int(a_uv2.x);
+    if (index == 0)
+    {
+        v_uv = normalize(vec3(1.0, -(a_uv.y * 2.0 - 1.0), -(a_uv.x * 2.0 - 1.0)));
+    }
+    else if (index == 1)
+    {
+        v_uv = normalize(vec3(-1.0, -(a_uv.y * 2.0 - 1.0), (a_uv.x * 2.0 - 1.0)));
+    }
+    else if (index == 2)
+    {
+        v_uv = normalize(vec3((a_uv.x * 2.0 - 1.0), 1.0, (a_uv.y * 2.0 - 1.0)));
+    }
+    else if (index == 3)
+    {
+        v_uv = normalize(vec3((a_uv.x * 2.0 - 1.0), -1.0, -(a_uv.y * 2.0 - 1.0)));
+    }
+    else if (index == 4)
+    {
+        v_uv = normalize(vec3((a_uv.x * 2.0 - 1.0), -(a_uv.y * 2.0 - 1.0), 1.0));
+    }
+    else
+    {
+        v_uv = normalize(vec3(-(a_uv.x * 2.0 - 1.0), -(a_uv.y * 2.0 - 1.0), -1.0));
+    }
+
 	v_color = a_color;
 }
 )";
@@ -199,9 +229,9 @@ void main()
         {
             m_atlas_array_size = 1;
 
+#if VR_VULKAN
             Vector<ByteBuffer> pixels(m_atlas_array_size, buffer);
 
-#if VR_VULKAN
             m_atlas = Texture::CreateTexture2DArrayFromMemory(
                 pixels,
                 ATLAS_SIZE,
@@ -230,9 +260,9 @@ void main()
         {
             int new_array_size = m_atlas_array_size + 1;
 
+#if VR_VULKAN
             Vector<ByteBuffer> pixels(new_array_size, buffer);
 
-#if VR_VULKAN
             Ref<Texture> new_atlas = Texture::CreateTexture2DArrayFromMemory(
                 pixels,
                 ATLAS_SIZE,
@@ -256,8 +286,11 @@ void main()
             }
 
             m_atlas = new_atlas;
-            m_atlas_array_size = new_array_size;
 #endif
+
+            m_atlas_array_size = new_array_size;
+
+            assert(m_atlas_array_size <= 6);
         }
 
         AtlasTreeNode* layer = new AtlasTreeNode();
@@ -474,33 +507,24 @@ void main()
                 Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
             }
         }
+#elif VR_GLES
+        m_draw_buffer.first_index = 0;
+        m_draw_buffer.index_count = m_mesh->GetIndexCount();
+#endif
 
         /*
         // test output atlas texture
         if (atlas_updated)
         {
-            ByteBuffer pixels;
-
-            if (m_atlas_array_size > 0)
+            ByteBuffer pixels(ATLAS_SIZE * ATLAS_SIZE * 4);
+            
+            for (int i = 0; i < m_atlas_array_size; ++i)
             {
-                m_atlas->CopyToMemory(pixels, 0, 0);
-                Image::EncodeToPNG("atlas0.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
-            }
-
-            if (m_atlas_array_size > 1)
-            {
-                m_atlas->CopyToMemory(pixels, 1, 0);
-                Image::EncodeToPNG("atlas1.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
-            }
-
-            if (m_atlas_array_size > 2)
-            {
-                m_atlas->CopyToMemory(pixels, 2, 0);
-                Image::EncodeToPNG("atlas2.png", pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+                m_atlas->CopyToMemory(pixels, i, 0);
+                Image::EncodeToPNG(String::Format("atlas%d.png", i), pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
             }
         }
         */
-#endif
     }
 
     void CanvasRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)

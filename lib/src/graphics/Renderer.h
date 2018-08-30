@@ -30,6 +30,14 @@ namespace Viry3D
     class Camera;
     class BufferObject;
 
+#if VR_GLES
+    struct DrawBuffer
+    {
+        int first_index;
+        int index_count;
+    };
+#endif
+
     class Renderer : public Node
     {
     public:
@@ -39,6 +47,8 @@ namespace Viry3D
         virtual Ref<BufferObject> GetIndexBuffer() const = 0;
 #if VR_VULKAN
         virtual Ref<BufferObject> GetDrawBuffer() const = 0;
+#elif VR_GLES
+        virtual const DrawBuffer& GetDrawBuffer() const = 0;
 #endif
         virtual void Update();
         virtual void OnFrameEnd() { }

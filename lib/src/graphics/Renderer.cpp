@@ -196,14 +196,12 @@ namespace Viry3D
         const Ref<Material>& material = this->GetMaterial();
         Ref<BufferObject> vertex_buffer = this->GetVertexBuffer();
         Ref<BufferObject> index_buffer = this->GetIndexBuffer();
+        const DrawBuffer& draw_buffer = this->GetDrawBuffer();
 
-        if (!material || !vertex_buffer || !index_buffer)
+        if (!material || !vertex_buffer || !index_buffer || draw_buffer.index_count == 0)
         {
             return;
         }
-
-        vertex_buffer->Bind();
-        index_buffer->Bind();
 
         const Ref<Shader>& shader = material->GetShader();
         if (!shader->Use())
@@ -211,7 +209,10 @@ namespace Viry3D
             return;
         }
 
+        vertex_buffer->Bind();
+        index_buffer->Bind();
         shader->EnableVertexAttribs();
+        shader->ApplyRenderState();
         material->ApplyUniforms();
 
         const Ref<Material>& instance_material = this->GetInstanceMaterial();
@@ -220,7 +221,11 @@ namespace Viry3D
             instance_material->ApplyUniforms();
         }
 
+        glDrawElements(GL_TRIANGLES, draw_buffer.index_count, GL_UNSIGNED_SHORT, (const void*) (draw_buffer.first_index * sizeof(unsigned short)));
+
         shader->DisableVertexAttribs();
+        vertex_buffer->Unind();
+        index_buffer->Unind();
 
         LogGLError();
     }

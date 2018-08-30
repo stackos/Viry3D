@@ -54,6 +54,7 @@ namespace Viry3D
         void SetUniform4f(const String& name, int count, const float* value) const;
         void SetUniform1i(const String& name, int value) const;
         void SetUniformMatrix(const String& name, int count, const float* value) const;
+        void ApplyRenderState();
 #endif
 
     private:

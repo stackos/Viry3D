@@ -1423,7 +1423,10 @@ namespace Viry3D
 
         void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data)
         {
-            data = ByteBuffer(buffer->GetSize());
+            if (pixels.Size() < buffer->GetSize())
+            {
+                return;
+            }
 
             void* map_data = nullptr;
             VkResult err = vkMapMemory(m_device, buffer->GetMemory(), 0, buffer->GetSize(), 0, (void**) &map_data);

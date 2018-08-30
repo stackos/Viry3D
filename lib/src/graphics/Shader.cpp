@@ -375,5 +375,18 @@ namespace Viry3D
             }
         }
     }
+
+    void Shader::ApplyRenderState()
+    {
+        if (m_render_state.blend == RenderState::Blend::On)
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc((GLenum) m_render_state.srcBlendMode, (GLenum) m_render_state.dstBlendMode);
+        }
+        else
+        {
+            glDisable(GL_BLEND);
+        }
+    }
 #endif
 }

@@ -133,8 +133,8 @@ namespace Viry3D
             int layer, int level,
             int x, int y,
             int w, int h);
-#if VR_VULKAN
         void CopyToMemory(ByteBuffer& pixels, int layer, int level);
+#if VR_VULKAN
         VkFormat GetFormat() const { return m_format; }
         VkImage GetImage() const { return m_image; }
         VkImageView GetImageView() const { return m_image_view; }
@@ -142,22 +142,25 @@ namespace Viry3D
 #elif VR_GLES
         GLuint GetTexture() const { return m_texture; }
         GLenum GetTarget() const { return m_target; }
-        void Bind() const { glBindTexture(m_target, m_texture); };
+        void Bind() const { glBindTexture(m_target, m_texture); }
+        void Unbind() const { glBindTexture(m_target, 0); }
 #endif
 
     private:
-#if VR_GLES
+#if VR_VULKAN
+        void CopyBufferToImageBegin();
+        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
+        void CopyBufferToImageEnd();
+#elif VR_GLES
         static Ref<Texture> CreateTexture(
             GLenum target,
             int width,
             int height,
             TextureFormat format,
             int mipmap_level_count);
+        void CreateSampler(FilterMode filter_mode, SamplerAddressMode wrap_mode);
 #endif
         Texture();
-        void CopyBufferToImageBegin();
-        void CopyBufferToImage(const Ref<BufferObject>& image_buffer, int x, int y, int w, int h, int face, int level);
-        void CopyBufferToImageEnd();
         int GetLayerCount();
 
     private:
@@ -180,6 +183,7 @@ namespace Viry3D
         GLenum m_format;
         GLenum m_pixel_type;
         bool m_have_storage;
+        GLuint m_copy_framebuffer;
 #endif
         int m_width;
         int m_height;

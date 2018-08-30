@@ -47,6 +47,8 @@ namespace Viry3D
 		virtual Ref<BufferObject> GetIndexBuffer() const;
 #if VR_VULKAN
         virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
+#elif VR_GLES
+        virtual const DrawBuffer& GetDrawBuffer() const { return m_draw_buffer; }
 #endif
 		virtual void Update();
         virtual void OnFrameEnd();
@@ -68,6 +70,8 @@ namespace Viry3D
 	private:
 #if VR_VULKAN
         Ref<BufferObject> m_draw_buffer;
+#elif VR_GLES
+        DrawBuffer m_draw_buffer;
 #endif
 		Vector<Ref<View>> m_views;
 		bool m_canvas_dirty;
