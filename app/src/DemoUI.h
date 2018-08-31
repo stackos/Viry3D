@@ -32,7 +32,7 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 
-            auto texture0 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/0.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+            auto texture0 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/checkflag.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
             auto texture1 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/1.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
             auto texture2 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/2.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
             auto texture3 = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/3.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);

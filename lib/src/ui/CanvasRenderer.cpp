@@ -140,57 +140,29 @@ uniform mat4 u_model_matrix;
 attribute vec4 a_pos;
 attribute vec4 a_color;
 attribute vec2 a_uv;
-attribute vec2 a_uv2;
 
-varying vec3 v_uv;
+varying vec2 v_uv;
 varying vec4 v_color;
 
 void main()
 {
 	gl_Position = a_pos * u_model_matrix * u_view_matrix * u_projection_matrix;
-
-    int index = int(a_uv2.x);
-    if (index == 0)
-    {
-        v_uv = normalize(vec3(1.0, -(a_uv.y * 2.0 - 1.0), -(a_uv.x * 2.0 - 1.0)));
-    }
-    else if (index == 1)
-    {
-        v_uv = normalize(vec3(-1.0, -(a_uv.y * 2.0 - 1.0), (a_uv.x * 2.0 - 1.0)));
-    }
-    else if (index == 2)
-    {
-        v_uv = normalize(vec3((a_uv.x * 2.0 - 1.0), 1.0, (a_uv.y * 2.0 - 1.0)));
-    }
-    else if (index == 3)
-    {
-        v_uv = normalize(vec3((a_uv.x * 2.0 - 1.0), -1.0, -(a_uv.y * 2.0 - 1.0)));
-    }
-    else if (index == 4)
-    {
-        v_uv = normalize(vec3((a_uv.x * 2.0 - 1.0), -(a_uv.y * 2.0 - 1.0), 1.0));
-    }
-    else
-    {
-        v_uv = normalize(vec3(-(a_uv.x * 2.0 - 1.0), -(a_uv.y * 2.0 - 1.0), -1.0));
-    }
-
+    v_uv = a_uv;
 	v_color = a_color;
 }
 )";
             String fs = R"(
 precision highp float;
-precision lowp samplerCube;
 
-uniform samplerCube u_texture;
+uniform sampler2D u_texture;
 uniform vec4 u_color;
 
-varying vec3 v_uv;
+varying vec2 v_uv;
 varying vec4 v_color;
 
 void main()
 {
-    gl_FragColor = textureCube(u_texture, v_uv) * v_color * u_color;
+    gl_FragColor = texture2D(u_texture, v_uv) * v_color * u_color;
 }
 )";
 #endif
@@ -243,24 +215,22 @@ void main()
                 false,
                 true);
 #elif VR_GLES
-            m_atlas = Texture::CreateCubemap(
+            m_atlas = Texture::CreateTexture2DFromMemory(
+                buffer,
+                ATLAS_SIZE,
                 ATLAS_SIZE,
                 TextureFormat::R8G8B8A8,
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge,
-                false);
-
-            for (int i = 0; i < 6; ++i)
-            {
-                m_atlas->UpdateCubemap(buffer, (CubemapFace) i, 0);
-            }
+                false,
+                true);
 #endif
         }
         else
         {
+#if VR_VULKAN
             int new_array_size = m_atlas_array_size + 1;
 
-#if VR_VULKAN
             Vector<ByteBuffer> pixels(new_array_size, buffer);
 
             Ref<Texture> new_atlas = Texture::CreateTexture2DArrayFromMemory(
@@ -286,11 +256,10 @@ void main()
             }
 
             m_atlas = new_atlas;
-#endif
-
             m_atlas_array_size = new_array_size;
-
-            assert(m_atlas_array_size <= 6);
+#elif VR_GLES
+            assert(!"gles2 has only 1 texture layer");
+#endif
         }
 
         AtlasTreeNode* layer = new AtlasTreeNode();
