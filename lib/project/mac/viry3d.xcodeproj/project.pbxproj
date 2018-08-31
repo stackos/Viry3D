@@ -313,6 +313,7 @@
 		BAB2431B21204FA800BA07DE /* SkinnedMeshRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431A21204FA700BA07DE /* SkinnedMeshRenderer.cpp */; };
 		BAB2432021204FBE00BA07DE /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431D21204FBE00BA07DE /* Node.cpp */; };
 		BAB2432121204FBE00BA07DE /* Resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431E21204FBE00BA07DE /* Resources.cpp */; };
+		BAF169902139B5A30033BC76 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF1698E2139B5A30033BC76 /* Light.cpp */; };
 		BB393E15187A98506C06C966 /* jcmainct.c in Sources */ = {isa = PBXBuildFile; fileRef = BC003CC8AB58FC7D8985EEED /* jcmainct.c */; };
 		BE23953337BFCC13007C42B8 /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4906D5BC63457FF760B44 /* type1cid.c */; };
 		C22DF12CCC26CE22FCC7C86C /* pngread.c in Sources */ = {isa = PBXBuildFile; fileRef = 0BBF6630E36DDBFC3236E770 /* pngread.c */; };
@@ -871,6 +872,8 @@
 		BAB2431D21204FBE00BA07DE /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
 		BAB2431E21204FBE00BA07DE /* Resources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Resources.cpp; sourceTree = "<group>"; };
 		BAB2431F21204FBE00BA07DE /* Resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
+		BAF1698E2139B5A30033BC76 /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
+		BAF1698F2139B5A30033BC76 /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
 		BC003CC8AB58FC7D8985EEED /* jcmainct.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcmainct.c; sourceTree = "<group>"; };
 		BD6590FCB01711D4A7A154E8 /* jcparam.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcparam.c; sourceTree = "<group>"; };
 		BE720F2FE61D07146C412849 /* sfnt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sfnt.c; sourceTree = "<group>"; };
@@ -1033,6 +1036,8 @@
 				D1D42A1E211155FB0016A265 /* Display.h */,
 				D1D42A11211155FA0016A265 /* Image.cpp */,
 				D1D42A24211155FB0016A265 /* Image.h */,
+				BAF1698E2139B5A30033BC76 /* Light.cpp */,
+				BAF1698F2139B5A30033BC76 /* Light.h */,
 				D1D42A0D211155F90016A265 /* Material.cpp */,
 				D1D42A1F211155FB0016A265 /* Material.h */,
 				D1D42A0B211155F90016A265 /* Mesh.cpp */,
@@ -2287,6 +2292,7 @@
 				BA4FAC0C1FBB558500C1ADB7 /* btTypedConstraint.cpp in Sources */,
 				BA4FAC0D1FBB558500C1ADB7 /* btUniversalConstraint.cpp in Sources */,
 				BA4FAC0E1FBB558500C1ADB7 /* btDiscreteDynamicsWorld.cpp in Sources */,
+				BAF169902139B5A30033BC76 /* Light.cpp in Sources */,
 				BA42E6151FF54251009C3C01 /* lcorolib.c in Sources */,
 				BA4FAC0F1FBB558500C1ADB7 /* btRigidBody.cpp in Sources */,
 				BA4FAC101FBB558500C1ADB7 /* btSimpleDynamicsWorld.cpp in Sources */,
@@ -2626,11 +2632,11 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
-					VR_GLES,
+					"VR_VULKAN=1",
+					"VR_GLES=0",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,
-					"DEBUG=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					../../src,
@@ -2664,7 +2670,8 @@
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
-					VR_GLES,
+					"VR_VULKAN=1",
+					"VR_GLES=0",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,
