@@ -30,6 +30,7 @@ namespace Viry3D
         {
             auto cube = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
 
+#if VR_VULKAN
             String vs = R"(
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
@@ -69,6 +70,36 @@ void main()
     o_frag = pow(c, vec4(1.0 / 2.2));
 }
 )";
+#elif VR_GLES
+            String vs = R"(
+uniform mat4 u_view_matrix;
+uniform mat4 u_projection_matrix;
+uniform mat4 u_model_matrix;
+
+attribute vec4 a_pos;
+
+varying vec3 v_uv;
+
+void main()
+{
+	gl_Position = (a_pos * u_model_matrix * u_view_matrix * u_projection_matrix).xyww;
+	v_uv = a_pos.xyz;
+}
+)";
+            String fs = R"(
+precision highp float;
+      
+uniform samplerCube u_texture;
+
+varying vec3 v_uv;
+
+void main()
+{
+    vec4 c = textureCube(u_texture, v_uv);
+    gl_FragColor = pow(c, vec4(1.0 / 2.2));
+}
+)";
+#endif
             RenderState render_state;
             render_state.cull = RenderState::Cull::Front;
             render_state.zWrite = RenderState::ZWrite::Off;
@@ -94,7 +125,15 @@ void main()
 
             Thread::Task task;
             task.job = []() {
-                auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
+#if VR_VULKAN
+                bool mipmap = true;
+#elif VR_GLES
+                // MARK:
+                // gl texture upload failed on some mipmap level, don't know why.
+                // disable mipmap temporary.
+                bool mipmap = false;
+#endif
+                auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, mipmap);
                 for (int i = 0; i < cubemap->GetMipmapLevelCount(); ++i)
                 {
                     for (int j = 0; j < 6; ++j)
@@ -112,7 +151,11 @@ void main()
                 material->SetTexture("u_texture", RefCast<Texture>(res));
                 m_camera->AddRenderer(renderer);
             };
+#if VR_VULKAN
             Application::Instance()->GetThreadPool()->AddTask(task);
+#elif VR_GLES
+            Application::Instance()->GetResourceThreadPool()->AddTask(task);
+#endif
         }
 
         virtual void Init()

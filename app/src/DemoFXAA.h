@@ -47,6 +47,12 @@ namespace Viry3D
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
+            RenderState render_state;
+            render_state.cull = RenderState::Cull::Off;
+            render_state.zTest = RenderState::ZTest::Off;
+            render_state.zWrite = RenderState::ZWrite::Off;
+
+#if VR_VULKAN
             String vs = R"(
 Input(0) vec4 a_pos;
 Input(2) vec2 a_uv;
@@ -96,19 +102,76 @@ void main()
     );
 }
 )";
-            RenderState render_state;
-            render_state.cull = RenderState::Cull::Off;
-            render_state.zTest = RenderState::ZTest::Off;
-            render_state.zWrite = RenderState::ZWrite::Off;
 
             auto shader = RefMake<Shader>(
                 "",
                 Vector<String>(),
                 vs,
-                String::Format("#define FXAA_QUALITY__PRESET %d", FXAA_QUALITY_EXTREME),
+                String::Format(
+                    "#define FXAA_QUALITY__PRESET %d\n"
+                    "#define FXAA_GLSL_130 1",
+                    FXAA_QUALITY_EXTREME),
                 Vector<String>({ "FXAA.in" }),
                 fs,
                 render_state);
+#elif VR_GLES
+            String vs = R"(
+attribute vec4 a_pos;
+attribute vec2 a_uv;
+
+varying vec2 v_uv;
+
+void main()
+{
+	gl_Position = a_pos;
+	v_uv = a_uv;
+    v_uv.y = 1.0 - v_uv.y;
+}
+)";
+            String fs = R"(
+precision highp float;
+      
+uniform sampler2D u_texture;
+
+uniform vec4 u_rcp_frame;
+
+varying vec2 v_uv;
+
+void main()
+{
+    gl_FragColor = FxaaPixelShader(v_uv,
+		FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsolePosPos,
+        u_texture,							    // FxaaTex tex,
+        u_texture,							    // FxaaTex fxaaConsole360TexExpBiasNegOne,
+        u_texture,							    // FxaaTex fxaaConsole360TexExpBiasNegTwo,
+        u_rcp_frame.xy,					        // FxaaFloat2 fxaaQualityRcpFrame,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsoleRcpFrameOpt,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsoleRcpFrameOpt2,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsole360RcpFrameOpt2,
+        0.75f,									// FxaaFloat fxaaQualitySubpix,
+        0.166f,									// FxaaFloat fxaaQualityEdgeThreshold,
+        0.0833f,								// FxaaFloat fxaaQualityEdgeThresholdMin,
+        0.0f,									// FxaaFloat fxaaConsoleEdgeSharpness,
+        0.0f,									// FxaaFloat fxaaConsoleEdgeThreshold,
+        0.0f,									// FxaaFloat fxaaConsoleEdgeThresholdMin,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f)		// FxaaFloat fxaaConsole360ConstDir,
+    );
+}
+)";
+
+            auto shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
+                vs,
+                String::Format(
+                    "#define FXAA_QUALITY__PRESET %d\n"
+                    "#define FXAA_GLSL_120 1",
+                    FXAA_QUALITY_EXTREME),
+                Vector<String>({ "FXAA.in" }),
+                fs,
+                render_state);
+#endif
+
             auto material = RefMake<Material>(shader);
             material->SetVector("u_rcp_frame", Vector4(1.0f / Display::Instance()->GetWidth(), 1.0f / Display::Instance()->GetHeight()));
 

@@ -144,6 +144,7 @@ namespace Viry3D
         GLenum GetTarget() const { return m_target; }
         void Bind() const { glBindTexture(m_target, m_texture); }
         void Unbind() const { glBindTexture(m_target, 0); }
+        bool IsRenderTexture() const { return m_render_texture; }
 #endif
 
     private:
@@ -184,6 +185,7 @@ namespace Viry3D
         GLenum m_pixel_type;
         bool m_have_storage;
         GLuint m_copy_framebuffer;
+        bool m_render_texture;
 #endif
         int m_width;
         int m_height;

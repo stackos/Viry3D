@@ -2518,8 +2518,9 @@ namespace Viry3D
 
             m_shared_context = wglCreateContext(m_hdc);
             wglShareLists(m_context, m_shared_context);
-
+            
             wglMakeCurrent(m_hdc, m_context);
+            
             wglewInit();
             wglSwapIntervalEXT(0);
 
@@ -2537,6 +2538,16 @@ namespace Viry3D
         void SwapBuffers()
         {
             ::SwapBuffers(m_hdc);
+        }
+
+        void BindSharedContext()
+        {
+            wglMakeCurrent(m_hdc, m_shared_context);
+        }
+
+        void UnbindSharedContext()
+        {
+            wglMakeCurrent(nullptr, nullptr);
         }
 #endif
 
@@ -2613,6 +2624,7 @@ namespace Viry3D
 
         void CreateBlitShader()
         {
+#if VR_VULKAN
             String vs = R"(
 Input(0) vec4 a_pos;
 Input(2) vec2 a_uv;
@@ -2641,6 +2653,39 @@ void main()
     o_frag = texture(u_texture, v_uv);
 }
 )";
+#elif VR_GLES
+            String vs = R"(
+uniform int u_flip_y;
+
+attribute vec4 a_pos;
+attribute vec2 a_uv;
+
+varying vec2 v_uv;
+
+void main()
+{
+	gl_Position = a_pos;
+	v_uv = a_uv;
+
+    if (u_flip_y == 1)
+    {
+        v_uv.y = 1.0 - v_uv.y;
+    }
+}
+)";
+            String fs = R"(
+precision highp float;
+      
+uniform sampler2D u_texture;
+
+varying vec2 v_uv;
+
+void main()
+{
+    gl_FragColor = texture2D(u_texture, v_uv);
+}
+)";
+#endif
             RenderState render_state;
             render_state.cull = RenderState::Cull::Off;
             render_state.zTest = RenderState::ZTest::Off;
@@ -2708,6 +2753,9 @@ void main()
         m_private->InitWGL();
 #endif
 
+        String version = (const char*) glGetString(GL_VERSION);
+        Log("GL Version: %s", version.CString());
+
 #if VR_WINDOWS || VR_MAC
         glClearDepth(1.0f);
 #else
@@ -2716,6 +2764,8 @@ void main()
 
         glClearStencil(0);
         glFrontFace(GL_CCW);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 #endif
     }
 
@@ -2807,6 +2857,10 @@ void main()
             blit_texture_name = "u_texture";
         }
         blit_material->SetTexture(blit_texture_name, texture);
+
+#if VR_GLES
+        blit_material->SetInt("u_flip_y", texture->IsRenderTexture() ? 1 : 0);
+#endif
 
         return camera;
     }
@@ -3149,6 +3203,16 @@ void main()
     void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
     {
         m_private->UpdateBuffer(buffer, buffer_offset, data, size);
+    }
+
+    void Display::BindSharedContext() const
+    {
+        m_private->BindSharedContext();
+    }
+
+    void Display::UnbindSharedContext() const
+    {
+        m_private->UnbindSharedContext();
     }
 #endif
 }

@@ -71,6 +71,7 @@ namespace Viry3D
             RenderState render_state;
             render_state.cull = RenderState::Cull::Front;
 
+#if VR_VULKAN
             auto shader = RefMake<Shader>(
                 "#define CAST_SHADOW 1",
                 Vector<String>({ "Diffuse.vs.in" }),
@@ -79,10 +80,6 @@ namespace Viry3D
                 Vector<String>({ "Diffuse.fs.in" }),
                 "",
                 render_state);
-            auto material = RefMake<Material>(shader);
-
-            m_light_view_projection_matrix = m_shadow_camera->GetProjectionMatrix() * m_shadow_camera->GetViewMatrix();
-
             auto skin_shader = RefMake<Shader>(
                 "#define CAST_SHADOW 1\n#define SKINNED_MESH 1",
                 Vector<String>({ "Skin.in", "Diffuse.vs.in" }),
@@ -91,7 +88,29 @@ namespace Viry3D
                 Vector<String>({ "Diffuse.fs.in" }),
                 "",
                 render_state);
+#elif VR_GLES
+            auto shader = RefMake<Shader>(
+                "#define CAST_SHADOW 1",
+                Vector<String>({ "Diffuse.100.vs.in" }),
+                "",
+                "#define CAST_SHADOW 1",
+                Vector<String>({ "Diffuse.100.fs.in" }),
+                "",
+                render_state);
+            auto skin_shader = RefMake<Shader>(
+                "#define CAST_SHADOW 1\n#define SKINNED_MESH 1",
+                Vector<String>({ "Skin.in", "Diffuse.100.vs.in" }),
+                "",
+                "#define CAST_SHADOW 1",
+                Vector<String>({ "Diffuse.100.fs.in" }),
+                "",
+                render_state);
+#endif
+
+            auto material = RefMake<Material>(shader);
             auto skin_material = RefMake<Material>(skin_shader);
+
+            m_light_view_projection_matrix = m_shadow_camera->GetProjectionMatrix() * m_shadow_camera->GetViewMatrix();
 
             m_shadow_renderers.Resize(m_renderers.Size());
             for (int i = 0; i < m_shadow_renderers.Size(); ++i)
@@ -128,6 +147,7 @@ namespace Viry3D
         {
             RenderState render_state;
 
+#if VR_VULKAN
             auto shader = RefMake<Shader>(
                 "#define RECIEVE_SHADOW 1",
                 Vector<String>({ "Diffuse.vs.in" }),
@@ -136,7 +156,6 @@ namespace Viry3D
                 Vector<String>({ "Shadow.in", "Diffuse.fs.in" }),
                 "",
                 render_state);
-
             auto skin_shader = RefMake<Shader>(
                 "#define RECIEVE_SHADOW 1\n#define SKINNED_MESH 1",
                 Vector<String>({ "Skin.in", "Diffuse.vs.in" }),
@@ -145,6 +164,26 @@ namespace Viry3D
                 Vector<String>({ "Shadow.in", "Diffuse.fs.in" }),
                 "",
                 render_state);
+#elif VR_GLES
+            auto shader = RefMake<Shader>(
+                "#define RECIEVE_SHADOW 1",
+                Vector<String>({ "Diffuse.100.vs.in" }),
+                "",
+                "#define RECIEVE_SHADOW 1\n"
+                "#define VERSION_100_ES 1",
+                Vector<String>({ "Shadow.in", "Diffuse.100.fs.in" }),
+                "",
+                render_state);
+            auto skin_shader = RefMake<Shader>(
+                "#define RECIEVE_SHADOW 1\n#define SKINNED_MESH 1",
+                Vector<String>({ "Skin.in", "Diffuse.100.vs.in" }),
+                "",
+                "#define RECIEVE_SHADOW 1\n"
+                "#define VERSION_100_ES 1",
+                Vector<String>({ "Shadow.in", "Diffuse.100.fs.in" }),
+                "",
+                render_state);
+#endif
 
             for (int i = 0; i < m_renderers.Size(); ++i)
             {

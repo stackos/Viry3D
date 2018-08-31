@@ -44,6 +44,8 @@ namespace Viry3D
         {
             // pre cache shader
             RenderState render_state;
+
+#if VR_VULKAN
             auto shader = RefMake<Shader>(
                 "#define SKINNED_MESH 1",
                 Vector<String>({ "Skin.in", "Diffuse.vs.in" }),
@@ -52,6 +54,17 @@ namespace Viry3D
                 Vector<String>({ "Diffuse.fs.in" }),
                 "",
                 render_state);
+#elif VR_GLES
+            auto shader = RefMake<Shader>(
+                "#define SKINNED_MESH 1",
+                Vector<String>({ "Skin.in", "Diffuse.100.vs.in" }),
+                "",
+                "",
+                Vector<String>({ "Diffuse.100.fs.in" }),
+                "",
+                render_state);
+#endif
+            
             Shader::AddCache("SkinnedMesh/Diffuse", shader);
 
             // load skinned mesh with animation

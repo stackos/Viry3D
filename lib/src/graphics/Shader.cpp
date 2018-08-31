@@ -267,7 +267,12 @@ namespace Viry3D
                     Uniform u;
                     glGetActiveUniform(program, i, name_size, nullptr, &u.size, &u.type, name);
                     u.name = name;
-                    u.loc = glGetUniformLocation(program, name);
+                    // array maybe ends with '[0]'
+                    if (u.size > 1 && u.name.EndsWith("[0]"))
+                    {
+                        u.name = u.name.Substring(0, u.name.Size() - 3);
+                    }
+                    u.loc = glGetUniformLocation(program, u.name.CString());
 
                     m_uniforms.Add(u);
                 }

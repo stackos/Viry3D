@@ -71,6 +71,7 @@ namespace Viry3D
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge);
 
+#if VR_VULKAN
             String vs = R"(
 Input(0) vec4 a_pos;
 Input(2) vec2 a_uv;
@@ -111,6 +112,41 @@ void main()
     o_frag = c;
 }
 )";
+#elif VR_GLES
+            String vs = R"(
+attribute vec4 a_pos;
+attribute vec2 a_uv;
+
+varying vec2 v_uv;
+
+void main()
+{
+	gl_Position = a_pos;
+	v_uv = a_uv;
+}
+)";
+            String fs = R"(
+precision highp float;
+      
+uniform sampler2D u_texture;
+
+uniform vec4 u_texel_size;
+
+varying vec2 v_uv;
+
+const float kernel[7] = float[7]( 0.0205, 0.0855, 0.232, 0.324, 0.232, 0.0855, 0.0205 );
+
+void main()
+{
+    vec4 c = vec4(0.0);
+    for (int i = 0; i < 7; ++i)
+    {
+        c += texture2D(u_texture, v_uv + u_texel_size.xy * float(i - 3)) * kernel[i];
+    }
+    gl_FragColor = c;
+}
+)";
+#endif
             RenderState render_state;
             render_state.cull = RenderState::Cull::Off;
             render_state.zTest = RenderState::ZTest::Off;

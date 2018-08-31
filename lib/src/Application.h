@@ -18,15 +18,12 @@
 #pragma once
 
 #include "string/String.h"
-#include <functional>
+#include "thread/ThreadPool.h"
 
 #define APP_VERSION_NAME "1.0.0"
 
 namespace Viry3D
 {
-    typedef std::function<void()> Event;
-
-    class ThreadPool;
     class ApplicationPrivate;
 
     class Application
@@ -46,12 +43,17 @@ namespace Viry3D
         void SetSavePath(const String& path);
 #endif
         ThreadPool* GetThreadPool() const;
-        void PostEvent(Event event);
-        void ProcessEvents();
+#if VR_GLES
+        ThreadPool* GetResourceThreadPool() const;
+#endif
+        void PostAction(Action action);
         void OnFrameBegin();
         void OnFrameEnd();
         void Quit();
         bool HasQuit();
+
+    private:
+        void ProcessActions();
 
     private:
         ApplicationPrivate* m_private;

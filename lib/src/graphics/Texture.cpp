@@ -388,6 +388,21 @@ namespace Viry3D
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			(VkAccessFlagBits) 0);
 		Display::Instance()->EndImageCmd();
+#elif VR_GLES
+        texture = CreateTexture(
+            GL_TEXTURE_2D,
+            width,
+            height,
+            format,
+            1);
+        if (create_sampler)
+        {
+            texture->CreateSampler(filter_mode, wrap_mode);
+        }
+
+        texture->UpdateTexture2D(ByteBuffer(), 0, 0, width, height);
+
+        texture->m_render_texture = true;
 #endif
 
         return texture;
@@ -913,9 +928,9 @@ namespace Viry3D
     {
         assert(m_mipmap_level_count > 1);
 
+#if VR_VULKAN
         uint32_t layer_count = (uint32_t) this->GetLayerCount();
 
-#if VR_VULKAN
         Display::Instance()->BeginImageCmd();
 
         Display::Instance()->SetImageLayout(
@@ -980,6 +995,12 @@ namespace Viry3D
             VK_ACCESS_TRANSFER_READ_BIT);
 
         Display::Instance()->EndImageCmd();
+#elif VR_GLES
+        this->Bind();
+
+        glGenerateMipmap(m_target);
+
+        this->Unbind();
 #endif
     }
 
@@ -998,6 +1019,7 @@ namespace Viry3D
         m_pixel_type(0),
         m_have_storage(false),
         m_copy_framebuffer(0),
+        m_render_texture(false),
 #endif
         m_width(0),
         m_height(0),
@@ -1091,8 +1113,7 @@ namespace Viry3D
     {
         GLint min_filter = 0;
         GLint mag_filter = 0;
-        GLint wrap_s = 0;
-        GLint wrap_t = 0;
+        GLint wrap = 0;
 
         switch (filter_mode)
         {
@@ -1107,7 +1128,19 @@ namespace Viry3D
                 }
                 mag_filter = GL_NEAREST;
                 break;
+
             case FilterMode::Linear:
+                if (m_mipmap_level_count > 1)
+                {
+                    min_filter = GL_LINEAR_MIPMAP_NEAREST;
+                }
+                else
+                {
+                    min_filter = GL_LINEAR;
+                }
+                mag_filter = GL_LINEAR;
+                break;
+
             case FilterMode::Trilinear:
                 if (m_mipmap_level_count > 1)
                 {
@@ -1124,16 +1157,13 @@ namespace Viry3D
         switch (wrap_mode)
         {
             case SamplerAddressMode::Repeat:
-                wrap_s = GL_REPEAT;
-                wrap_t = GL_REPEAT;
+                wrap = GL_REPEAT;
                 break;
             case SamplerAddressMode::ClampToEdge:
-                wrap_s = GL_CLAMP_TO_EDGE;
-                wrap_t = GL_CLAMP_TO_EDGE;
+                wrap = GL_CLAMP_TO_EDGE;
                 break;
             case SamplerAddressMode::Mirror:
-                wrap_s = GL_MIRRORED_REPEAT;
-                wrap_t = GL_MIRRORED_REPEAT;
+                wrap = GL_MIRRORED_REPEAT;
                 break;
             case SamplerAddressMode::MirrorOnce:
                 Log("texture wrap mode not support: MirrorOnce");
@@ -1144,8 +1174,8 @@ namespace Viry3D
 
         glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, min_filter);
         glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, mag_filter);
-        glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap_s);
-        glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap_t);
+        glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap);
+        glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap);
 
         this->Unbind();
     }

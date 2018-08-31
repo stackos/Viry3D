@@ -1,5 +1,9 @@
 precision highp float;
 
+#ifndef VERSION_100_ES
+	#define VERSION_100_ES 0
+#endif
+
 const vec2 Poisson25[25] = vec2[](
     vec2(-0.978698, -0.0884121),
     vec2(-0.841121, 0.521165),
@@ -36,7 +40,11 @@ float texture_shadow(highp sampler2D shadow_texture, vec2 uv)
     }
     else
     {
-        return texture(shadow_texture, uv).r;
+#if VERSION_100_ES
+		return texture2D(shadow_texture, vec2(uv.x, 1.0 - uv.y)).r;
+#else
+		return texture(shadow_texture, uv).r;
+#endif
     }
 }
 

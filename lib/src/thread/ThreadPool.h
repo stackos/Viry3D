@@ -26,7 +26,9 @@
 
 namespace Viry3D
 {
+    typedef std::function<void()> Action;
 	typedef std::mutex Mutex;
+
     class Object;
 
 	class Thread
@@ -42,7 +44,7 @@ namespace Viry3D
 		};
 
 		static void Sleep(int ms);
-		Thread();
+        Thread(Action init, Action done);
 		~Thread();
         void Wait();
         int GetQueueLength();
@@ -56,12 +58,14 @@ namespace Viry3D
         Mutex m_mutex;
 		std::condition_variable m_condition;
 		bool m_close;
+        Action m_init_action;
+        Action m_done_action;
 	};
 
 	class ThreadPool
 	{
 	public:
-		ThreadPool(int thread_count);
+		ThreadPool(int thread_count, Action init = nullptr, Action done = nullptr);
 		void WaitAll();
 		int GetThreadCount() const { return m_threads.Size(); }
         void AddTask(const Thread::Task& task, int thread_index = -1);

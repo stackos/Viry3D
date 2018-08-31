@@ -41,28 +41,28 @@ namespace Viry3D
 
             auto sprite = RefMake<Sprite>();
             sprite->SetSize(Vector2i(100, 100));
-            sprite->SetTexture(texture3);
+            sprite->SetTexture(texture0);
 
             canvas->AddView(sprite);
 
             sprite = RefMake<Sprite>();
             sprite->SetSize(Vector2i(100, 100));
             sprite->SetOffset(Vector2i(400, 100));
-            sprite->SetTexture(texture2);
+            sprite->SetTexture(texture1);
 
             canvas->AddView(sprite);
 
             sprite = RefMake<Sprite>();
             sprite->SetSize(Vector2i(100, 100));
             sprite->SetOffset(Vector2i(-400, -100));
-            sprite->SetTexture(texture4);
+            sprite->SetTexture(texture2);
 
             canvas->AddView(sprite);
 
             sprite = RefMake<Sprite>();
             sprite->SetSize(Vector2i(100, 100));
             sprite->SetOffset(Vector2i(400, -100));
-            sprite->SetTexture(texture1);
+            sprite->SetTexture(texture5);
             sprite->SetLocalRotation(Quaternion::Euler(Vector3(0, 0, 45)));
 
             canvas->AddView(sprite);

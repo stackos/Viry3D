@@ -509,7 +509,14 @@ void main()
         }
 #elif VR_GLES
         m_draw_buffer.first_index = 0;
-        m_draw_buffer.index_count = m_mesh->GetIndexCount();
+        if (m_mesh)
+        {
+            m_draw_buffer.index_count = m_mesh->GetIndexCount();
+        }
+        else
+        {
+            m_draw_buffer.index_count = 0;
+        }
 #endif
 
         /*
@@ -524,7 +531,7 @@ void main()
                 Image::EncodeToPNG(String::Format("atlas%d.png", i), pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
             }
         }
-        */
+        //*/
     }
 
     void CanvasRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)
@@ -562,18 +569,39 @@ void main()
 
             // split node
             AtlasTreeNode* left = new AtlasTreeNode();
-            left->x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
-            left->y = node->y;
-            left->w = node->w - mesh.texture->GetWidth() - PADDING_SIZE;
-            left->h = mesh.texture->GetHeight();
-            left->layer = node->layer;
-
             AtlasTreeNode* right = new AtlasTreeNode();
-            right->x = node->x;
-            right->y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
-            right->w = node->w;
-            right->h = node->h - mesh.texture->GetHeight() - PADDING_SIZE;
-            right->layer = node->layer;
+
+            int remain_w = node->w - mesh.texture->GetWidth() - PADDING_SIZE;
+            int remain_h = node->h - mesh.texture->GetHeight() - PADDING_SIZE;
+
+            if (remain_w <= remain_h)
+            {
+                left->x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
+                left->y = node->y;
+                left->w = remain_w;
+                left->h = mesh.texture->GetHeight();
+                left->layer = node->layer;
+
+                right->x = node->x;
+                right->y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
+                right->w = node->w;
+                right->h = remain_h;
+                right->layer = node->layer;
+            }
+            else
+            {
+                left->x = node->x;
+                left->y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
+                left->w = mesh.texture->GetWidth();
+                left->h = remain_h;
+                left->layer = node->layer;
+
+                right->x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
+                right->y = node->y;
+                right->w = remain_w;
+                right->h = node->h;
+                right->layer = node->layer;
+            }
 
             node->w = mesh.texture->GetWidth();
             node->h = mesh.texture->GetHeight();

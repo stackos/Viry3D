@@ -286,6 +286,7 @@ namespace Viry3D
         int y = (int) (this->GetTargetHeight() * m_viewport_rect.y);
         int w = (int) (this->GetTargetWidth() * m_viewport_rect.width);
         int h = (int) (this->GetTargetHeight() * m_viewport_rect.height);
+        y = this->GetTargetHeight() - (y + h);
         glViewport(x, y, w, h);
     }
 

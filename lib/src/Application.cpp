@@ -20,6 +20,7 @@
 #include "container/List.h"
 #include "thread/ThreadPool.h"
 #include "time/Time.h"
+#include "graphics/Display.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "ui/Font.h"
@@ -43,16 +44,28 @@ namespace Viry3D
         String m_name;
         String m_data_path;
         String m_save_path;
-        List<Event> m_events;
+        List<Action> m_actions;
         Mutex m_mutex;
-        Ref<ThreadPool> m_thread_pool;
         bool m_quit;
+        Ref<ThreadPool> m_thread_pool;
+#if VR_GLES
+        Ref<ThreadPool> m_resource_thread_pool;
+#endif
 
         ApplicationPrivate(Application* app):
             m_quit(false)
         {
             m_app = app;
             m_thread_pool = RefMake<ThreadPool>(8);
+#if VR_GLES
+            m_resource_thread_pool = RefMake<ThreadPool>(1,
+                []() {
+                    Display::Instance()->BindSharedContext();
+                },
+                []() {
+                    Display::Instance()->UnbindSharedContext();
+                });
+#endif
             Font::Init();
         }
 
@@ -62,6 +75,9 @@ namespace Viry3D
 			Texture::Done();
 			Shader::Done();
             m_thread_pool.reset();
+#if VR_GLES
+            m_resource_thread_pool.reset();
+#endif
             m_app = nullptr;
         }
     };
@@ -194,31 +210,38 @@ namespace Viry3D
         return m_private->m_thread_pool.get();
     }
 
-    void Application::PostEvent(Event event)
+#if VR_GLES
+    ThreadPool* Application::GetResourceThreadPool() const
+    {
+        return m_private->m_resource_thread_pool.get();
+    }
+#endif
+
+    void Application::PostAction(Action action)
     {
         m_private->m_mutex.lock();
-        m_private->m_events.AddLast(event);
+        m_private->m_actions.AddLast(action);
         m_private->m_mutex.unlock();
     }
 
-    void Application::ProcessEvents()
+    void Application::ProcessActions()
     {
         m_private->m_mutex.lock();
-        for (const auto& event : m_private->m_events)
+        for (const auto& action : m_private->m_actions)
         {
-            if (event)
+            if (action)
             {
-                event();
+                action();
             }
         }
-        m_private->m_events.Clear();
+        m_private->m_actions.Clear();
         m_private->m_mutex.unlock();
     }
 
     void Application::OnFrameBegin()
     {
         Time::Update();
-        this->ProcessEvents();
+        this->ProcessActions();
     }
 
     void Application::OnFrameEnd()

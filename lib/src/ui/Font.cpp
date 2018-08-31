@@ -242,6 +242,9 @@ namespace Viry3D
                 SamplerAddressMode::ClampToEdge,
                 false,
                 false);
+
+            char32_t buffer[2] = { c, 0 };
+            p_glyph->texture->SetName(String(buffer));
         }
 
 		return *p_glyph;
