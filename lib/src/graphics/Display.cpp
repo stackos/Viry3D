@@ -1423,7 +1423,7 @@ namespace Viry3D
 
         void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data)
         {
-            if (pixels.Size() < buffer->GetSize())
+            if (data.Size() < buffer->GetSize())
             {
                 return;
             }
