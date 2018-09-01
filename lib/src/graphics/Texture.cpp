@@ -1082,8 +1082,13 @@ namespace Viry3D
         switch (format)
         {
         case TextureFormat::R8:
+#if VR_WINDOWS || VR_MAC
+            texture->m_internal_format = GL_RED;
+            texture->m_format = GL_RED;
+#else
             texture->m_internal_format = GL_LUMINANCE;
             texture->m_format = GL_LUMINANCE;
+#endif
             texture->m_pixel_type = GL_UNSIGNED_BYTE;
             break;
         case TextureFormat::R8G8B8A8:

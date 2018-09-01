@@ -60,7 +60,16 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_camera->AddRenderer(canvas);
 
-            Vector<String> titles({ "Mesh", "SkinnedMesh", "Skybox", "RenderToTexture", "FXAA", "PostEffectBlur", "UI", "ShadowMap" });
+            Vector<String> titles({
+                "Mesh",
+                "SkinnedMesh",
+                "Skybox",
+                "RenderToTexture",
+                "FXAA",
+                "PostEffectBlur",
+                "UI",
+                "ShadowMap"
+            });
 
 #if VR_WINDOWS || VR_MAC
             float scale = 0.4f;
@@ -86,6 +95,19 @@ namespace Viry3D
                 button->SetOnClick([=]() {
                     this->ClickDemo(i);
                 });
+                
+#if VR_MAC
+                // MARK:
+                // mac opengl 4.1 and 3.2 not support glsl 120, then use opengl legacy,
+                // but opengl legacy not support some feature in fxaa glsl 120 shader,
+                // so disable fxaa on mac.
+                if (i == 4)
+                {
+                    button->GetLabel()->SetText("FXAA (disabled on mac gl)");
+                    button->GetLabel()->SetColor(Color(0.8f, 0.8f, 0.8f, 1));
+                    button->SetOnClick(nullptr);
+                }
+#endif
             }
         }
 
@@ -124,7 +146,10 @@ namespace Viry3D
                     break;
             }
 
-            m_demo->Init();
+            if (m_demo)
+            {
+                m_demo->Init();
+            }
         }
 
         ~AppImplement()

@@ -18,7 +18,7 @@
 #import "VkView.h"
 #import <QuartzCore/CAMetalLayer.h>
 
-@implementation VkView
+@implementation View
 
 + (Class)layerClass {
     return [CAMetalLayer class];

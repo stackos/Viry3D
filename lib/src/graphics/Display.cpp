@@ -73,6 +73,10 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
 #define VSYNC 0
 #define DESCRIPTOR_POOL_SIZE_MAX 65536
+#elif VR_GLES
+#if VR_MAC
+#import <AppKit/NSOpenGL.h>
+#endif
 #endif
 
 namespace Viry3D
@@ -301,6 +305,8 @@ namespace Viry3D
             m_height(height)
         {
             m_display = m_public;
+            
+            this->InitContext();
         }
 
 #if VR_VULKAN
@@ -2473,10 +2479,8 @@ namespace Viry3D
             m_blit_mesh.reset();
             m_blit_shader.reset();
             m_cameras.Clear();
-
-#if VR_WINDOWS
-            this->DoneWGL();
-#endif
+            
+            this->DoneContext();
 
             m_public = nullptr;
             m_display = nullptr;
@@ -2487,7 +2491,7 @@ namespace Viry3D
         HGLRC m_context = nullptr;
         HGLRC m_shared_context = nullptr;
 
-        void InitWGL()
+        void InitContext()
         {
             m_hdc = GetDC((HWND) m_window);
 
@@ -2527,7 +2531,7 @@ namespace Viry3D
             glewInit();
         }
 
-        void DoneWGL()
+        void DoneContext()
         {
             wglMakeCurrent(nullptr, nullptr);
             wglDeleteContext(m_shared_context);
@@ -2548,6 +2552,36 @@ namespace Viry3D
         void UnbindSharedContext()
         {
             wglMakeCurrent(nullptr, nullptr);
+        }
+#elif VR_MAC
+        NSOpenGLContext* m_context = nil;
+        NSOpenGLContext* m_shared_context = nil;
+        
+        void InitContext()
+        {
+            m_context = [NSOpenGLContext currentContext];
+            m_shared_context = [[NSOpenGLContext alloc] initWithFormat:[m_context pixelFormat] shareContext:m_context];
+        }
+        
+        void DoneContext()
+        {
+            m_context = nil;
+            m_shared_context = nil;
+        }
+        
+        void SwapBuffers()
+        {
+            [m_context flushBuffer];
+        }
+        
+        void BindSharedContext()
+        {
+            [m_shared_context makeCurrentContext];
+        }
+        
+        void UnbindSharedContext()
+        {
+            [NSOpenGLContext clearCurrentContext];
         }
 #endif
 
@@ -2749,10 +2783,6 @@ void main()
         m_private->CreateImageCmd();
         m_private->CreateSizeDependentResources();
 #elif VR_GLES
-#if VR_WINDOWS
-        m_private->InitWGL();
-#endif
-
         String version = (const char*) glGetString(GL_VERSION);
         Log("GL Version: %s", version.CString());
 
@@ -2772,7 +2802,7 @@ void main()
     Display::~Display()
     {
         delete m_private;
-
+        
 #if VR_VULKAN
 #if VR_WINDOWS
         DeinitShaderCompiler();

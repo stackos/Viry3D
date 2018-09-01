@@ -183,8 +183,14 @@ namespace Viry3D
     static String ProcessShaderSource(const String& glsl, const String& predefine, const Vector<String>& includes)
     {
         static const String s_shader_header =
-#if VR_WINDOWS || VR_MAC
+#if VR_WINDOWS
             "#version 120\n";
+#elif VR_MAC
+            "#version 120\n"
+            "#define precision\n"
+            "#define highp\n"
+            "#define mediump\n"
+            "#define lowp\n";
 #else
             "";
 #endif

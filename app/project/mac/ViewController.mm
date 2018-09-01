@@ -54,9 +54,27 @@ static bool g_mouse_down = false;
     int window_width = size.width * scale;
     int window_height = size.height * scale;
     
-    VkView* view = [[VkView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height)];
+#if VR_VULKAN
+    View* view = [[View alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height)];
     view.contentsScale = scale;
     view.wantsLayer = YES;
+#elif VR_GLES
+    NSOpenGLPixelFormatAttribute attribs[] = {
+        NSOpenGLPFADoubleBuffer,
+        NSOpenGLPFAColorSize, 24,
+        NSOpenGLPFAAlphaSize, 0,
+        NSOpenGLPFADepthSize, 32,
+        NSOpenGLPFAStencilSize, 0,
+        NSOpenGLPFAAccelerated,
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
+        0
+    };
+    NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
+    NSOpenGLView* view = [[NSOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height) pixelFormat:format];
+    // this call will create context
+    [view openGLContext];
+#endif
+    
     self.view = view;
     
     String name = "viry3d-vk-demo";

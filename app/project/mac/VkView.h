@@ -17,7 +17,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface VkView : NSView
+@interface View : NSView
 
 - (instancetype)initWithFrame:(NSRect)frameRect;
 @property CGFloat contentsScale;

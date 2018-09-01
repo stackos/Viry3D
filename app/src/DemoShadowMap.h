@@ -62,6 +62,21 @@ namespace Viry3D
             m_shadow_camera->SetRenderTarget(Ref<Texture>(), m_shadow_texture);
             m_shadow_camera->SetLocalPosition(m_light->GetPosition());
             m_shadow_camera->SetLocalRotation(m_light->GetRotation());
+            
+#if VR_GLES
+#if VR_MAC
+            // MARK:
+            // mac gl framebuffer need a color attachment
+            Ref<Texture> shadow_color_texture = Texture::CreateRenderTexture(
+                SHADOW_MAP_SIZE,
+                SHADOW_MAP_SIZE,
+                TextureFormat::R8G8B8A8,
+                false,
+                FilterMode::None,
+                SamplerAddressMode::None);
+            m_shadow_camera->SetRenderTarget(shadow_color_texture, m_shadow_texture);
+#endif
+#endif
 
             m_shadow_camera->SetNearClip(m_shadow_param.near_clip);
             m_shadow_camera->SetFarClip(m_shadow_param.far_clip);

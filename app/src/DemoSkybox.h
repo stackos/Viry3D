@@ -125,13 +125,13 @@ void main()
 
             Thread::Task task;
             task.job = []() {
-#if VR_VULKAN
-                bool mipmap = true;
-#elif VR_GLES
+#if VR_GLES && VR_WINDOWS
                 // MARK:
-                // gl texture upload failed on some mipmap level, don't know why.
+                // gl texture upload failed on some mipmap level on windows, don't know why.
                 // disable mipmap temporary.
                 bool mipmap = false;
+#else
+                bool mipmap = true;
 #endif
                 auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, mipmap);
                 for (int i = 0; i < cubemap->GetMipmapLevelCount(); ++i)

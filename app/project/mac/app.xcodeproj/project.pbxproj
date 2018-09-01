@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BAF169A4213AC9460033BC76 /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = BAF169A2213AC9460033BC76 /* VkView.m */; };
 		D1B25E1F2109F50E001A3EC9 /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E1E2109F50E001A3EC9 /* Main.m */; };
 		D1B25E222109F66A001A3EC9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E212109F669001A3EC9 /* AppDelegate.m */; };
 		D1B25E242109FBFE001A3EC9 /* libz.1.2.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B25E232109FBFE001A3EC9 /* libz.1.2.8.tbd */; };
 		D1B25E272109FCD6001A3EC9 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E262109FCD6001A3EC9 /* ViewController.mm */; };
-		D1B25E2A2109FECF001A3EC9 /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E292109FECF001A3EC9 /* VkView.m */; };
 		D1D42B2621115A3D0016A265 /* App.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1D42B2421115A3D0016A265 /* App.cpp */; };
 		D1D42B2721115AA20016A265 /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1D42A08211155B10016A265 /* libviry3d.a */; };
 		D1D42B2921115AF20016A265 /* MoltenVK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1D42B2821115AF20016A265 /* MoltenVK.framework */; };
@@ -39,14 +39,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BAF169A2213AC9460033BC76 /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
+		BAF169A3213AC9460033BC76 /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
 		D1B25E1E2109F50E001A3EC9 /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
 		D1B25E202109F5DD001A3EC9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D1B25E212109F669001A3EC9 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D1B25E232109FBFE001A3EC9 /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = usr/lib/libz.1.2.8.tbd; sourceTree = SDKROOT; };
 		D1B25E252109FCD6001A3EC9 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		D1B25E262109FCD6001A3EC9 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
-		D1B25E282109FECF001A3EC9 /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
-		D1B25E292109FECF001A3EC9 /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
 		D1D42A03211155B00016A265 /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/mac/viry3d.xcodeproj; sourceTree = "<group>"; };
 		D1D42B2421115A3D0016A265 /* App.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = App.cpp; path = ../../src/App.cpp; sourceTree = "<group>"; };
 		D1D42B2521115A3D0016A265 /* App.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = App.h; path = ../../src/App.h; sourceTree = "<group>"; };
@@ -85,8 +85,8 @@
 				D1B25E212109F669001A3EC9 /* AppDelegate.m */,
 				D1B25E252109FCD6001A3EC9 /* ViewController.h */,
 				D1B25E262109FCD6001A3EC9 /* ViewController.mm */,
-				D1B25E282109FECF001A3EC9 /* VkView.h */,
-				D1B25E292109FECF001A3EC9 /* VkView.m */,
+				BAF169A3213AC9460033BC76 /* VkView.h */,
+				BAF169A2213AC9460033BC76 /* VkView.m */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -229,8 +229,8 @@
 				D1B25E222109F66A001A3EC9 /* AppDelegate.m in Sources */,
 				D1B25E1F2109F50E001A3EC9 /* Main.m in Sources */,
 				D1B25E272109FCD6001A3EC9 /* ViewController.mm in Sources */,
-				D1B25E2A2109FECF001A3EC9 /* VkView.m in Sources */,
 				D1D42B2621115A3D0016A265 /* App.cpp in Sources */,
+				BAF169A4213AC9460033BC76 /* VkView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,8 +359,8 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
-					"VR_VULKAN=1",
-					"VR_GLES=0",
+					"VR_VULKAN=0",
+					"VR_GLES=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,
@@ -389,8 +389,8 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
-					"VR_VULKAN=1",
-					"VR_GLES=0",
+					"VR_VULKAN=0",
+					"VR_GLES=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,

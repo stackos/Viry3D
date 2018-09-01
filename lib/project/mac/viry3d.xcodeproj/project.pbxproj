@@ -874,6 +874,7 @@
 		BAB2431F21204FBE00BA07DE /* Resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
 		BAF1698E2139B5A30033BC76 /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
 		BAF1698F2139B5A30033BC76 /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
+		BAF169A12139B8A50033BC76 /* gles_include.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gles_include.h; sourceTree = "<group>"; };
 		BC003CC8AB58FC7D8985EEED /* jcmainct.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcmainct.c; sourceTree = "<group>"; };
 		BD6590FCB01711D4A7A154E8 /* jcparam.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcparam.c; sourceTree = "<group>"; };
 		BE720F2FE61D07146C412849 /* sfnt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sfnt.c; sourceTree = "<group>"; };
@@ -918,7 +919,7 @@
 		D1D42A1E211155FB0016A265 /* Display.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Display.h; sourceTree = "<group>"; };
 		D1D42A1F211155FB0016A265 /* Material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Material.h; sourceTree = "<group>"; };
 		D1D42A20211155FB0016A265 /* BufferObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferObject.h; sourceTree = "<group>"; };
-		D1D42A21211155FB0016A265 /* Display.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Display.cpp; sourceTree = "<group>"; };
+		D1D42A21211155FB0016A265 /* Display.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Display.cpp; sourceTree = "<group>"; };
 		D1D42A22211155FB0016A265 /* RenderState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderState.h; sourceTree = "<group>"; };
 		D1D42A23211155FB0016A265 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
 		D1D42A24211155FB0016A265 /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
@@ -1091,6 +1092,7 @@
 				BA2800671F69A45900215483 /* crypto */,
 				2C82477E194A5A54681047AB /* container */,
 				3F8D4A1A474392B554EBEEDD /* freetype/src */,
+				BAF169952139B8A50033BC76 /* gles */,
 				0DA4C2F8E6F069DDBD908726 /* graphics */,
 				920D14E025F9291B533D1EBA /* io */,
 				E0C982B89BBB7A3BE1140E0B /* jpeg */,
@@ -1937,6 +1939,14 @@
 			path = animation;
 			sourceTree = "<group>";
 		};
+		BAF169952139B8A50033BC76 /* gles */ = {
+			isa = PBXGroup;
+			children = (
+				BAF169A12139B8A50033BC76 /* gles_include.h */,
+			);
+			path = gles;
+			sourceTree = "<group>";
+		};
 		C8959F715DC647DA449D735B /* base */ = {
 			isa = PBXGroup;
 			children = (
@@ -2632,8 +2642,8 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
-					"VR_VULKAN=1",
-					"VR_GLES=0",
+					"VR_VULKAN=0",
+					"VR_GLES=1",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,
@@ -2670,8 +2680,8 @@
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
-					"VR_VULKAN=1",
-					"VR_GLES=0",
+					"VR_VULKAN=0",
+					"VR_GLES=1",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,
