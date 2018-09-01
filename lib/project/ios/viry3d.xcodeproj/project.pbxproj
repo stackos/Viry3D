@@ -313,6 +313,7 @@
 		BAB2432E2120AD0E00BA07DE /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2432B2120AD0E00BA07DE /* Node.cpp */; };
 		BAB2432F2120AD0E00BA07DE /* Resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2432C2120AD0E00BA07DE /* Resources.cpp */; };
 		BAB243322120AD5800BA07DE /* SkinnedMeshRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB243312120AD5800BA07DE /* SkinnedMeshRenderer.cpp */; };
+		BAF169A8213AE77C0033BC76 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF169A6213AE77C0033BC76 /* Light.cpp */; };
 		BB393E15187A98506C06C966 /* jcmainct.c in Sources */ = {isa = PBXBuildFile; fileRef = BC003CC8AB58FC7D8985EEED /* jcmainct.c */; };
 		BE23953337BFCC13007C42B8 /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4906D5BC63457FF760B44 /* type1cid.c */; };
 		C22DF12CCC26CE22FCC7C86C /* pngread.c in Sources */ = {isa = PBXBuildFile; fileRef = 0BBF6630E36DDBFC3236E770 /* pngread.c */; };
@@ -871,6 +872,8 @@
 		BAB2432D2120AD0E00BA07DE /* Resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
 		BAB243302120AD5700BA07DE /* SkinnedMeshRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkinnedMeshRenderer.h; sourceTree = "<group>"; };
 		BAB243312120AD5800BA07DE /* SkinnedMeshRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkinnedMeshRenderer.cpp; sourceTree = "<group>"; };
+		BAF169A6213AE77C0033BC76 /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
+		BAF169A7213AE77C0033BC76 /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
 		BC003CC8AB58FC7D8985EEED /* jcmainct.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcmainct.c; sourceTree = "<group>"; };
 		BD6590FCB01711D4A7A154E8 /* jcparam.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcparam.c; sourceTree = "<group>"; };
 		BE720F2FE61D07146C412849 /* sfnt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sfnt.c; sourceTree = "<group>"; };
@@ -899,7 +902,7 @@
 		D137754020FEDFD500E4F19B /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
 		D137754120FEDFD500E4F19B /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		D137754220FEDFD500E4F19B /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
-		D137754320FEDFD500E4F19B /* Display.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Display.cpp; sourceTree = "<group>"; };
+		D137754320FEDFD500E4F19B /* Display.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Display.cpp; sourceTree = "<group>"; };
 		D137754420FEDFD500E4F19B /* Color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Color.cpp; sourceTree = "<group>"; };
 		D137754520FEDFD500E4F19B /* MeshRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshRenderer.cpp; sourceTree = "<group>"; };
 		D137754620FEDFD500E4F19B /* RenderState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderState.h; sourceTree = "<group>"; };
@@ -1034,6 +1037,8 @@
 				D137754B20FEDFD600E4F19B /* Display.h */,
 				D137755420FEDFD700E4F19B /* Image.cpp */,
 				D137755120FEDFD700E4F19B /* Image.h */,
+				BAF169A6213AE77C0033BC76 /* Light.cpp */,
+				BAF169A7213AE77C0033BC76 /* Light.h */,
 				D137753E20FEDFD400E4F19B /* Material.cpp */,
 				D137754A20FEDFD600E4F19B /* Material.h */,
 				D137755520FEDFD700E4F19B /* Mesh.cpp */,
@@ -2298,6 +2303,7 @@
 				BA42E6901FF5455E009C3C01 /* lbaselib.c in Sources */,
 				BA17953C1FBB594000D0B77E /* btSimpleDynamicsWorld.cpp in Sources */,
 				BA17953D1FBB594000D0B77E /* btAlignedAllocator.cpp in Sources */,
+				BAF169A8213AE77C0033BC76 /* Light.cpp in Sources */,
 				BA17953E1FBB594000D0B77E /* btConvexHull.cpp in Sources */,
 				BA17953F1FBB594000D0B77E /* btConvexHullComputer.cpp in Sources */,
 				D137759620FEFAA100E4F19B /* spirv_glsl.cpp in Sources */,
@@ -2638,12 +2644,12 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					VR_IOS,
-					VR_VULKAN,
+					"VR_IOS=1",
+					"VR_VULKAN=0",
+					"VR_GLES=1",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,
-					"DEBUG=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					../../src,
@@ -2677,8 +2683,9 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					VR_IOS,
-					VR_VULKAN,
+					"VR_IOS=1",
+					"VR_VULKAN=0",
+					"VR_GLES=1",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
 					HAVE_ASSERT_H,

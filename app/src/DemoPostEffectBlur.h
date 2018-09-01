@@ -133,11 +133,18 @@ uniform sampler2D u_texture;
 uniform vec4 u_texel_size;
 
 varying vec2 v_uv;
-
-const float kernel[7] = float[7]( 0.0205, 0.0855, 0.232, 0.324, 0.232, 0.0855, 0.0205 );
-
+            
 void main()
 {
+    float kernel[7];
+    kernel[0] = 0.0205;
+    kernel[1] = 0.0855;
+    kernel[2] = 0.232;
+    kernel[3] = 0.324;
+    kernel[4] = 0.232;
+    kernel[5] = 0.0855;
+    kernel[6] = 0.0205;
+    
     vec4 c = vec4(0.0);
     for (int i = 0; i < 7; ++i)
     {

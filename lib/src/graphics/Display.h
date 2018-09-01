@@ -28,6 +28,7 @@
 #include "string/String.h"
 #include "math/Rect.h"
 #include "UniformSet.h"
+#include "thread/ThreadPool.h"
 
 namespace Viry3D
 {
@@ -147,6 +148,10 @@ namespace Viry3D
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
         void BindSharedContext() const;
         void UnbindSharedContext() const;
+#if VR_IOS
+        void SetBindDefaultFramebufferImplemment(Action action);
+        void BindDefaultFramebuffer();
+#endif
 #endif
 
     private:

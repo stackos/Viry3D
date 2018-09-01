@@ -882,6 +882,12 @@ namespace Viry3D
         {
             glCopyTexSubImage2D(m_target, level, x, y, src_x, src_y, w, h);
         }
+        
+#if VR_IOS
+        Display::Instance()->BindDefaultFramebuffer();
+#else
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
 
         this->Unbind();
     }
@@ -906,6 +912,12 @@ namespace Viry3D
 
         glReadPixels(0, 0, m_width, m_height, m_format, m_pixel_type, pixels.Bytes());
 
+#if VR_IOS
+        Display::Instance()->BindDefaultFramebuffer();
+#else
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
+        
         this->Unbind();
     }
 #endif

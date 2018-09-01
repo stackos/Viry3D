@@ -17,5 +17,10 @@
 
 #import <UIKit/UIKit.h>
 
+#if VR_VULKAN
 @interface ViewController : UIViewController
+#elif VR_GLES
+#import <GLKit/GLKit.h>
+@interface ViewController : UIViewController <GLKViewDelegate>
+#endif
 @end

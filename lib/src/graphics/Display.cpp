@@ -76,6 +76,8 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 #elif VR_GLES
 #if VR_MAC
 #import <AppKit/NSOpenGL.h>
+#elif VR_IOS
+#import <OpenGLES/EAGL.h>
 #endif
 #endif
 
@@ -306,7 +308,9 @@ namespace Viry3D
         {
             m_display = m_public;
             
+#if VR_GLES
             this->InitContext();
+#endif
         }
 
 #if VR_VULKAN
@@ -2583,6 +2587,50 @@ namespace Viry3D
         {
             [NSOpenGLContext clearCurrentContext];
         }
+#elif VR_IOS
+        EAGLContext* m_context = nil;
+        EAGLContext* m_shared_context = nil;
+        Action m_bind_default_framebuffer = nullptr;
+        
+        void InitContext()
+        {
+            m_context = [EAGLContext currentContext];
+            m_shared_context = [[EAGLContext alloc] initWithAPI:[m_context API] sharegroup:[m_context sharegroup]];
+        }
+        
+        void DoneContext()
+        {
+            m_context = nil;
+            m_shared_context = nil;
+        }
+        
+        void SwapBuffers()
+        {
+            
+        }
+        
+        void BindSharedContext()
+        {
+            [EAGLContext setCurrentContext:m_shared_context];
+        }
+        
+        void UnbindSharedContext()
+        {
+            [EAGLContext setCurrentContext:nil];
+        }
+        
+        void SetBindDefaultFramebufferImplemment(Action action)
+        {
+            m_bind_default_framebuffer = action;
+        }
+        
+        void BindDefaultFramebuffer()
+        {
+            if (m_bind_default_framebuffer)
+            {
+                m_bind_default_framebuffer();
+            }
+        }
 #endif
 
         Ref<BufferObject> CreateBuffer(const void* data, int size, GLenum target, GLenum usage)
@@ -3244,5 +3292,17 @@ void main()
     {
         m_private->UnbindSharedContext();
     }
+    
+#if VR_IOS
+    void Display::SetBindDefaultFramebufferImplemment(Action action)
+    {
+        m_private->SetBindDefaultFramebufferImplemment(action);
+    }
+    
+    void Display::BindDefaultFramebuffer()
+    {
+        m_private->BindDefaultFramebuffer();
+    }
+#endif
 #endif
 }

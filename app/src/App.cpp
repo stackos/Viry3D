@@ -96,14 +96,15 @@ namespace Viry3D
                     this->ClickDemo(i);
                 });
                 
-#if VR_MAC
+#if VR_MAC || VR_IOS
                 // MARK:
-                // mac opengl 4.1 and 3.2 not support glsl 120, then use opengl legacy,
-                // but opengl legacy not support some feature in fxaa glsl 120 shader,
-                // so disable fxaa on mac.
+                // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
+                // but opengl 2.1 not support some feature in fxaa glsl 120 shader,
+                // and gles 2.0 not support too,
+                // so disable fxaa on mac / gles 2.0.
                 if (i == 4)
                 {
-                    button->GetLabel()->SetText("FXAA (disabled on mac gl)");
+                    button->GetLabel()->SetText("FXAA (disabled on mac gl / gles2)");
                     button->GetLabel()->SetColor(Color(0.8f, 0.8f, 0.8f, 1));
                     button->SetOnClick(nullptr);
                 }

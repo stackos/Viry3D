@@ -279,7 +279,11 @@ namespace Viry3D
         }
         else
         {
+#if VR_IOS
+            Display::Instance()->BindDefaultFramebuffer();
+#else
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
         }
 
         int x = (int) (this->GetTargetWidth() * m_viewport_rect.x);

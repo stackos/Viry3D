@@ -22,6 +22,10 @@
 #include "App.h"
 #include "Input.h"
 
+#if VR_GLES
+#import <GLKit/GLKit.h>
+#endif
+
 using namespace Viry3D;
 
 extern Vector<Touch> g_input_touches;
@@ -134,8 +138,22 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     int window_width = bounds.size.width * scale;
     int window_height = bounds.size.height * scale;
     
-    self.view = [[VkView alloc] initWithFrame:bounds];
-    self.view.contentScaleFactor = UIScreen.mainScreen.nativeScale;
+#if VR_VULKAN
+    VkView* view = [[VkView alloc] initWithFrame:bounds];
+    view.contentScaleFactor = UIScreen.mainScreen.nativeScale;
+#elif VR_GLES
+    EAGLContext* context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    GLKView* view = [[GLKView alloc] initWithFrame:bounds context:context];
+    view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
+    view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+    view.drawableStencilFormat = GLKViewDrawableStencilFormatNone;
+    view.enableSetNeedsDisplay = FALSE;
+    view.delegate = self;
+    
+    [EAGLContext setCurrentContext:context];
+#endif
+    
+    self.view = view;
     
     String name = "viry3d-vk-demo";
     m_display = new Display(name, (__bridge void*) self.view, window_width, window_height);
@@ -151,6 +169,12 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     m_orientation = [UIDevice currentDevice].orientation;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
+#if VR_GLES
+    m_display->SetBindDefaultFramebufferImplemment([=]() {
+        [view bindDrawable];
+    });
+#endif
 }
 
 - (void)dealloc {
@@ -160,7 +184,19 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     delete m_display;
 }
 
+- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
+    [self doDraw];
+}
+
 - (void)drawFrame {
+#if VR_VULKAN
+    [self doDraw];
+#elif VR_GLES
+    [((GLKView*) self.view) display];
+#endif
+}
+
+- (void)doDraw {
     m_app->OnFrameBegin();
     m_app->Update();
     m_display->OnDraw();
