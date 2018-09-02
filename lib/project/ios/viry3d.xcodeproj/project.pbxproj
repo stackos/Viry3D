@@ -818,6 +818,7 @@
 		BA2800BC1F69A53400215483 /* noiseutils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = noiseutils.cpp; sourceTree = "<group>"; };
 		BA410F861FAA325D005937F1 /* FastList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastList.h; sourceTree = "<group>"; };
 		BA410F871FAA325D005937F1 /* Array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
+		BA4190B2213BF031004595B8 /* gles_include.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gles_include.h; sourceTree = "<group>"; };
 		BA42E6361FF5455D009C3C01 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
 		BA42E63C1FF5455D009C3C01 /* liolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = liolib.c; sourceTree = "<group>"; };
 		BA42E63D1FF5455D009C3C01 /* lopcodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lopcodes.c; sourceTree = "<group>"; };
@@ -1092,6 +1093,7 @@
 				2C82477E194A5A54681047AB /* container */,
 				BA2800671F69A45900215483 /* crypto */,
 				3F8D4A1A474392B554EBEEDD /* freetype/src */,
+				BA4190A6213BF031004595B8 /* gles */,
 				0DA4C2F8E6F069DDBD908726 /* graphics */,
 				920D14E025F9291B533D1EBA /* io */,
 				E0C982B89BBB7A3BE1140E0B /* jpeg */,
@@ -1867,6 +1869,14 @@
 				BA2800B71F69A53400215483 /* voronoi.cpp */,
 			);
 			path = module;
+			sourceTree = "<group>";
+		};
+		BA4190A6213BF031004595B8 /* gles */ = {
+			isa = PBXGroup;
+			children = (
+				BA4190B2213BF031004595B8 /* gles_include.h */,
+			);
+			path = gles;
 			sourceTree = "<group>";
 		};
 		BA42E6351FF5455D009C3C01 /* lua */ = {

@@ -1109,14 +1109,68 @@ namespace Viry3D
             texture->m_pixel_type = GL_UNSIGNED_BYTE;
             break;
         case TextureFormat::D16:
-            texture->m_internal_format = GL_DEPTH_COMPONENT;
-            texture->m_format = GL_DEPTH_COMPONENT;
-            texture->m_pixel_type = GL_UNSIGNED_SHORT;
+            if (Display::Instance()->IsGLESv3())
+            {
+                texture->m_internal_format = GL_DEPTH_COMPONENT16;
+                texture->m_format = GL_DEPTH_COMPONENT;
+                texture->m_pixel_type = GL_UNSIGNED_SHORT;
+            }
+            else
+            {
+                texture->m_internal_format = GL_DEPTH_COMPONENT;
+                texture->m_format = GL_DEPTH_COMPONENT;
+                texture->m_pixel_type = GL_UNSIGNED_SHORT;
+            }
             break;
         case TextureFormat::D32:
-            texture->m_internal_format = GL_DEPTH_COMPONENT;
-            texture->m_format = GL_DEPTH_COMPONENT;
-            texture->m_pixel_type = GL_UNSIGNED_INT;
+            if (Display::Instance()->IsGLESv3())
+            {
+                texture->m_internal_format = GL_DEPTH_COMPONENT32F;
+                texture->m_format = GL_DEPTH_COMPONENT;
+                texture->m_pixel_type = GL_FLOAT;
+            }
+            else
+            {
+                texture->m_internal_format = GL_DEPTH_COMPONENT;
+                texture->m_format = GL_DEPTH_COMPONENT;
+                texture->m_pixel_type = GL_UNSIGNED_INT;
+            }
+            break;
+        case TextureFormat::D24X8:
+            if (Display::Instance()->IsGLESv3())
+            {
+                texture->m_internal_format = GL_DEPTH_COMPONENT24;
+                texture->m_format = GL_DEPTH_COMPONENT;
+                texture->m_pixel_type = GL_UNSIGNED_INT;
+            }
+            else
+            {
+                Log("texture format not support: %d", format);
+            }
+            break;
+        case TextureFormat::D24S8:
+            if (Display::Instance()->IsGLESv3())
+            {
+                texture->m_internal_format = GL_DEPTH24_STENCIL8;
+                texture->m_format = GL_DEPTH_STENCIL;
+                texture->m_pixel_type = GL_UNSIGNED_INT_24_8;
+            }
+            else
+            {
+                Log("texture format not support: %d", format);
+            }
+            break;
+        case TextureFormat::D32S8:
+            if (Display::Instance()->IsGLESv3())
+            {
+                texture->m_internal_format = GL_DEPTH32F_STENCIL8;
+                texture->m_format = GL_DEPTH_STENCIL;
+                texture->m_pixel_type = GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
+            }
+            else
+            {
+                Log("texture format not support: %d", format);
+            }
             break;
         default:
             Log("texture format not support: %d", format);

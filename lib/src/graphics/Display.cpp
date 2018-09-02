@@ -2478,6 +2478,8 @@ namespace Viry3D
 #endif
 
 #if VR_GLES
+        bool m_is_glesv3 = false;
+        
         ~DisplayPrivate()
         {
             m_blit_mesh.reset();
@@ -2488,6 +2490,16 @@ namespace Viry3D
 
             m_public = nullptr;
             m_display = nullptr;
+        }
+        
+        void EnableGLESv3()
+        {
+            m_is_glesv3 = true;
+        }
+        
+        bool IsGLESv3()
+        {
+            return m_is_glesv3;
         }
 
 #if VR_WINDOWS
@@ -3369,6 +3381,16 @@ void main()
         return m_private->m_image_cmd;
     }
 #elif VR_GLES
+    void Display::EnableGLESv3()
+    {
+        m_private->EnableGLESv3();
+    }
+    
+    bool Display::IsGLESv3()
+    {
+        return m_private->IsGLESv3();
+    }
+    
     Ref<BufferObject> Display::CreateBuffer(const void* data, int size, GLenum target, GLenum usage)
     {
         return m_private->CreateBuffer(data, size, target, usage);

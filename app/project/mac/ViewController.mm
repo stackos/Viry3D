@@ -62,9 +62,7 @@ static bool g_mouse_down = false;
     NSOpenGLPixelFormatAttribute attribs[] = {
         NSOpenGLPFADoubleBuffer,
         NSOpenGLPFAColorSize, 24,
-        NSOpenGLPFAAlphaSize, 0,
-        NSOpenGLPFADepthSize, 32,
-        NSOpenGLPFAStencilSize, 0,
+        NSOpenGLPFADepthSize, 24,
         NSOpenGLPFAAccelerated,
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
         0

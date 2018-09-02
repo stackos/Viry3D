@@ -142,11 +142,18 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     VkView* view = [[VkView alloc] initWithFrame:bounds];
     view.contentScaleFactor = UIScreen.mainScreen.nativeScale;
 #elif VR_GLES
-    EAGLContext* context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    bool glesv3 = false;
+    EAGLContext* context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    if (context == nil) {
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    } else {
+        glesv3 = true;
+    }
     GLKView* view = [[GLKView alloc] initWithFrame:bounds context:context];
     view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     view.drawableStencilFormat = GLKViewDrawableStencilFormatNone;
+    view.drawableMultisample = GLKViewDrawableMultisampleNone;
     view.enableSetNeedsDisplay = FALSE;
     view.delegate = self;
     
@@ -157,6 +164,15 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     
     String name = "viry3d-vk-demo";
     m_display = new Display(name, (__bridge void*) self.view, window_width, window_height);
+    
+#if VR_GLES
+    m_display->SetBindDefaultFramebufferImplemment([=]() {
+        [view bindDrawable];
+    });
+    if (glesv3) {
+        m_display->EnableGLESv3();
+    }
+#endif
     
     m_app = new App();
     m_app->SetName(name);
@@ -169,12 +185,6 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     m_orientation = [UIDevice currentDevice].orientation;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-    
-#if VR_GLES
-    m_display->SetBindDefaultFramebufferImplemment([=]() {
-        [view bindDrawable];
-    });
-#endif
 }
 
 - (void)dealloc {
