@@ -64,7 +64,7 @@ static bool g_mouse_down = false;
         NSOpenGLPFAColorSize, 24,
         NSOpenGLPFADepthSize, 24,
         NSOpenGLPFAAccelerated,
-        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy, // mac gl 3.2 or 4.1 not support glsl 120
         0
     };
     NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
