@@ -17,10 +17,10 @@ get_filename_component(VIRY3D_APP_SRC_DIR
                        ABSOLUTE)
 
 set(CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} -Wall -DVR_ANDROID -DVR_GLES=0 -DVR_VULKAN=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
+    "${CMAKE_C_FLAGS} -Wall -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
 
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -frtti -Wall -DVR_ANDROID -DVR_GLES=0 -DVR_VULKAN=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
+    "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -frtti -Wall -DVR_ANDROID -DVR_VULKAN=0 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFT2_BUILD_LIBRARY -DIOAPI_NO_64 -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DHAVE_GCC_DESTRUCTOR -DFPM_DEFAULT")
 
 set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
@@ -398,6 +398,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/graphics/Color.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Display.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Image.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Light.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Material.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Mesh.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/MeshRenderer.cpp
@@ -459,7 +460,7 @@ target_include_directories(Viry3DApp PRIVATE
                            ${VIRY3D_APP_SRC_DIR})
 
 target_link_libraries(Viry3DApp
-                      android log z
+                      android log z OpenSLES EGL GLESv2
                       Viry3D Viry3DDep
                       shaderc_lib       # for vulkan shader compile
                       )

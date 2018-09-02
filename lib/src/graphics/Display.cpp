@@ -2506,13 +2506,13 @@ namespace Viry3D
                 PFD_SUPPORT_OPENGL |   // support OpenGL
                 PFD_DOUBLEBUFFER,      // double buffered
                 PFD_TYPE_RGBA,         // RGBA type
-                24,                    // 24-bit color depth
+                24,                    // color size
                 0, 0, 0, 0, 0, 0,      // color bits ignored
                 0,                     // no alpha buffer
                 0,                     // shift bit ignored
                 0,                     // no accumulation buffer
                 0, 0, 0, 0,            // accum bits ignored
-                32,                    // 32-bit z-buffer
+                24,                    // depth size
                 0,                     // no stencil buffer
                 0,                     // no auxiliary buffer
                 PFD_MAIN_PLANE,        // main layer
@@ -2631,6 +2631,112 @@ namespace Viry3D
                 m_bind_default_framebuffer();
             }
         }
+#elif VR_ANDROID
+        EGLDisplay m_egl_display = EGL_NO_DISPLAY;
+        EGLConfig m_egl_config = nullptr;
+        EGLSurface m_egl_surface = EGL_NO_SURFACE;
+        EGLContext m_context = EGL_NO_CONTEXT;
+        EGLContext m_shared_context = EGL_NO_CONTEXT;
+
+        void InitContext()
+        {
+            m_egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+            if (m_egl_display == EGL_NO_DISPLAY)
+            {
+                return;
+            }
+
+            EGLint major;
+            EGLint minor;
+            EGLBoolean ret = eglInitialize(m_egl_display, &major, &minor);
+            if (ret == EGL_FALSE)
+            {
+                return;
+            }
+
+            const EGLint config_attribs[] = {
+                EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+                EGL_RED_SIZE, 8,
+                EGL_GREEN_SIZE, 8,
+                EGL_BLUE_SIZE, 8,
+                EGL_DEPTH_SIZE, 24,
+                EGL_SAMPLE_BUFFERS, EGL_FALSE,
+                EGL_SAMPLES, 0,
+                EGL_NONE
+            };
+
+            int config_count;
+            ret = eglChooseConfig(m_egl_display, config_attribs, &m_egl_config, 1, &config_count);
+            if (ret == EGL_FALSE || config_count == 0)
+            {
+                Log("no egl config count choose");
+                return;
+            }
+
+            m_egl_surface = eglCreateWindowSurface(m_egl_display, m_egl_config, (EGLNativeWindowType) m_window, nullptr);
+
+            EGLint context_attribs[] = {
+                    EGL_CONTEXT_CLIENT_VERSION, 2,
+                    EGL_NONE
+            };
+            m_context = eglCreateContext(m_egl_display, m_egl_config, nullptr, context_attribs);
+
+            m_shared_context = eglCreateContext(m_egl_display, m_egl_config, m_context, context_attribs);
+
+            eglMakeCurrent(m_egl_display, m_egl_surface, m_egl_surface, m_context);
+        }
+
+        void DoneContext()
+        {
+            eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            eglDestroyContext(m_egl_display, m_context);
+            eglDestroyContext(m_egl_display, m_shared_context);
+            if (m_egl_surface != EGL_NO_SURFACE)
+            {
+                eglDestroySurface(m_egl_display, m_egl_surface);
+            }
+            eglTerminate(m_egl_display);
+        }
+
+        void SwapBuffers()
+        {
+            eglSwapBuffers(m_egl_display, m_egl_surface);
+        }
+
+        void BindSharedContext()
+        {
+            eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, m_shared_context);
+        }
+
+        void UnbindSharedContext()
+        {
+            eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+#endif
+
+#if VR_ANDROID
+        void OnPause()
+        {
+            eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, m_context);
+            eglDestroySurface(m_egl_display, m_egl_surface);
+            m_egl_surface = EGL_NO_SURFACE;
+        }
+
+        void OnResume()
+        {
+            m_egl_surface = eglCreateWindowSurface(m_egl_display, m_egl_config, (EGLNativeWindowType) m_window, nullptr);
+            eglMakeCurrent(m_egl_display, m_egl_surface, m_egl_surface, m_context);
+        }
+#else
+        void OnPause()
+        {
+
+        }
+
+        void OnResume()
+        {
+
+        }
 #endif
 
         Ref<BufferObject> CreateBuffer(const void* data, int size, GLenum target, GLenum usage)
@@ -2663,16 +2769,6 @@ namespace Viry3D
             {
                 i->OnResize(m_width, m_height);
             }
-        }
-
-        void OnPause()
-        {
-        
-        }
-
-        void OnResume()
-        {
-        
         }
 
         void OnDraw()

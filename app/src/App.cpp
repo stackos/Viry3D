@@ -31,7 +31,6 @@
 #include "ui/Label.h"
 
 // TODO:
-// - gles2 port
 // - WebAssembly port
 // - demo 3DGamekit
 // - demo ARKit
@@ -96,7 +95,7 @@ namespace Viry3D
                     this->ClickDemo(i);
                 });
                 
-#if VR_MAC || VR_IOS
+#if VR_MAC || VR_IOS || VR_ANDROID
                 // MARK:
                 // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
                 // but opengl 2.1 not support some feature in fxaa glsl 120 shader,

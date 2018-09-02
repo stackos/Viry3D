@@ -96,7 +96,8 @@ namespace Viry3D
                 "",
                 render_state);
             auto skin_shader = RefMake<Shader>(
-                "#define CAST_SHADOW 1\n#define SKINNED_MESH 1",
+                "#define CAST_SHADOW 1\n"
+                "#define SKINNED_MESH 1",
                 Vector<String>({ "Skin.in", "Diffuse.vs.in" }),
                 "",
                 "#define CAST_SHADOW 1",
@@ -113,8 +114,9 @@ namespace Viry3D
                 "",
                 render_state);
             auto skin_shader = RefMake<Shader>(
-                "#define CAST_SHADOW 1\n#define SKINNED_MESH 1",
-                Vector<String>({ "Skin.in", "Diffuse.100.vs.in" }),
+                "#define CAST_SHADOW 1\n"
+                "#define SKINNED_MESH 1",
+                Vector<String>({ "Diffuse.100.vs.in" }),
                 "",
                 "#define CAST_SHADOW 1",
                 Vector<String>({ "Diffuse.100.fs.in" }),
@@ -172,7 +174,8 @@ namespace Viry3D
                 "",
                 render_state);
             auto skin_shader = RefMake<Shader>(
-                "#define RECIEVE_SHADOW 1\n#define SKINNED_MESH 1",
+                "#define RECIEVE_SHADOW 1\n"
+                "#define SKINNED_MESH 1",
                 Vector<String>({ "Skin.in", "Diffuse.vs.in" }),
                 "",
                 "#define RECIEVE_SHADOW 1",
@@ -190,8 +193,9 @@ namespace Viry3D
                 "",
                 render_state);
             auto skin_shader = RefMake<Shader>(
-                "#define RECIEVE_SHADOW 1\n#define SKINNED_MESH 1",
-                Vector<String>({ "Skin.in", "Diffuse.100.vs.in" }),
+                "#define RECIEVE_SHADOW 1\n"
+                "#define SKINNED_MESH 1",
+                Vector<String>({ "Diffuse.100.vs.in" }),
                 "",
                 "#define RECIEVE_SHADOW 1\n"
                 "#define VERSION_100_ES 1",

@@ -57,7 +57,7 @@ static android_app* g_android_app = nullptr;
 static bool g_can_draw = false;
 static Display* g_display = nullptr;
 static App* g_app = nullptr;
-static FastList<Event> g_events;
+static FastList<Action> g_actions;
 static Mutex g_mutex;
 static int g_display_width = 0;
 static int g_display_height = 0;
@@ -310,23 +310,23 @@ static void process_events()
 {
     g_mutex.lock();
 
-    for (auto i : g_events)
+    for (auto i : g_actions)
     {
         if (i)
         {
             i();
         }
     }
-    g_events.Clear();
+    g_actions.Clear();
 
     g_mutex.unlock();
 }
 
-static void queue_event(Event event)
+static void queue_event(Action action)
 {
     g_mutex.lock();
 
-    g_events.AddLast(event);
+    g_actions.AddLast(action);
 
     g_mutex.unlock();
 }

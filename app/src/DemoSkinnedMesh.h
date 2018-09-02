@@ -57,7 +57,7 @@ namespace Viry3D
 #elif VR_GLES
             auto shader = RefMake<Shader>(
                 "#define SKINNED_MESH 1",
-                Vector<String>({ "Skin.in", "Diffuse.100.vs.in" }),
+                Vector<String>({ "Diffuse.100.vs.in" }),
                 "",
                 "",
                 Vector<String>({ "Diffuse.100.fs.in" }),
