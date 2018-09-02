@@ -2545,6 +2545,15 @@ namespace Viry3D
             wglSwapIntervalEXT(0);
 
             glewInit();
+
+            GLint major;
+            GLint minor;
+            glGetIntegerv(GL_MAJOR_VERSION, &major);
+            glGetIntegerv(GL_MINOR_VERSION, &minor);
+            if (major >= 3)
+            {
+                this->EnableGLESv3();
+            }
         }
 
         void DoneContext()
@@ -2658,9 +2667,7 @@ namespace Viry3D
                 return;
             }
 
-            EGLint major;
-            EGLint minor;
-            EGLBoolean ret = eglInitialize(m_egl_display, &major, &minor);
+            EGLBoolean ret = eglInitialize(m_egl_display, nullptr, nullptr);
             if (ret == EGL_FALSE)
             {
                 return;
@@ -2688,10 +2695,21 @@ namespace Viry3D
             m_egl_surface = eglCreateWindowSurface(m_egl_display, m_egl_config, (EGLNativeWindowType) m_window, nullptr);
 
             EGLint context_attribs[] = {
-                    EGL_CONTEXT_CLIENT_VERSION, 2,
-                    EGL_NONE
+                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_NONE
             };
+
             m_context = eglCreateContext(m_egl_display, m_egl_config, nullptr, context_attribs);
+            if (m_context == EGL_NO_CONTEXT)
+            {
+                // down grade to OpenGL ES 2.0
+                context_attribs[1] = 2;
+                m_context = eglCreateContext(m_egl_display, m_egl_config, nullptr, context_attribs);
+            }
+            else
+            {
+                this->EnableGLESv3();
+            }
 
             m_shared_context = eglCreateContext(m_egl_display, m_egl_config, m_context, context_attribs);
 

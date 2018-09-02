@@ -460,7 +460,7 @@ target_include_directories(Viry3DApp PRIVATE
                            ${VIRY3D_APP_SRC_DIR})
 
 target_link_libraries(Viry3DApp
-                      android log z OpenSLES EGL GLESv2
+                      android log z OpenSLES EGL GLESv3
                       Viry3D Viry3DDep
                       shaderc_lib       # for vulkan shader compile
                       )

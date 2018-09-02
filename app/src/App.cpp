@@ -31,6 +31,7 @@
 #include "ui/Label.h"
 
 // TODO:
+// - android gles3 depth texture problem
 // - WebAssembly port
 // - demo 3DGamekit
 // - demo ARKit

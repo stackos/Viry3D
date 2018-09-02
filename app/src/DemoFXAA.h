@@ -175,6 +175,9 @@ void main()
 #else
                     "#version 330\n"
 #endif
+#if VR_WINDOWS
+                    "#extension GL_ARB_gpu_shader5: enable\n"
+#endif
                     "#define FXAA_QUALITY__PRESET %d\n"
                     "#define FXAA_GLSL_130 1",
                     FXAA_QUALITY_EXTREME),

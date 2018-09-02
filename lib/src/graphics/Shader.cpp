@@ -182,20 +182,25 @@ namespace Viry3D
 #elif VR_GLES
     static String ProcessShaderSource(const String& glsl, const String& predefine, const Vector<String>& includes)
     {
-        static const String s_shader_header =
-#if VR_WINDOWS
-            "#version 120\n";
-#elif VR_MAC
+#if VR_MAC
+        String shader_header =
             "#version 120\n"
             "#define precision\n"
             "#define highp\n"
             "#define mediump\n"
             "#define lowp\n";
 #else
-            "";
+        String shader_header = "";
 #endif
 
-        String source = s_shader_header;
+#if VR_WINDOWS
+        if (!predefine.StartsWith("#version"))
+        {
+            shader_header = "#version 120\n";
+        }
+#endif
+
+        String source = shader_header;
         source += predefine + "\n";
 
         for (const auto& i : includes)
