@@ -21,7 +21,7 @@
 
 #if VR_WINDOWS
 #include <windows.h>
-#elif VR_IOS || VR_ANDROID || VR_MAC
+#elif VR_IOS || VR_ANDROID || VR_MAC || VR_WASM
 #include <sys/time.h>
 #endif
 
@@ -74,7 +74,7 @@ namespace Viry3D
 		tm.tm_isdst = -1;
 
 		t = mktime(&tm) * (long long) 1000 + sys_time.wMilliseconds;
-#elif VR_IOS || VR_ANDROID || VR_MAC
+#elif VR_IOS || VR_ANDROID || VR_MAC || VR_WASM
 		struct timeval tv;
 		gettimeofday(&tv, nullptr);
 		t = tv.tv_sec;

@@ -38,7 +38,7 @@ namespace Viry3D
                 Display::Instance()->GetHeight(),
                 Texture::ChooseDepthFormatSupported(true),
                 true,
-                FilterMode::Linear,
+                FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 

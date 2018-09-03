@@ -1032,6 +1032,7 @@ namespace Viry3D
         m_have_storage(false),
         m_copy_framebuffer(0),
         m_render_texture(false),
+        m_depth_texture(false),
 #endif
         m_width(0),
         m_height(0),
@@ -1121,6 +1122,7 @@ namespace Viry3D
                 texture->m_format = GL_DEPTH_COMPONENT;
                 texture->m_pixel_type = GL_UNSIGNED_SHORT;
             }
+            texture->m_depth_texture = true;
             break;
         case TextureFormat::D32:
             if (Display::Instance()->IsGLESv3())
@@ -1135,6 +1137,7 @@ namespace Viry3D
                 texture->m_format = GL_DEPTH_COMPONENT;
                 texture->m_pixel_type = GL_UNSIGNED_INT;
             }
+            texture->m_depth_texture = true;
             break;
         case TextureFormat::D24X8:
             if (Display::Instance()->IsGLESv3())
@@ -1147,6 +1150,7 @@ namespace Viry3D
             {
                 Log("texture format not support: %d", format);
             }
+            texture->m_depth_texture = true;
             break;
         case TextureFormat::D24S8:
             if (Display::Instance()->IsGLESv3())
@@ -1159,6 +1163,7 @@ namespace Viry3D
             {
                 Log("texture format not support: %d", format);
             }
+            texture->m_depth_texture = true;
             break;
         case TextureFormat::D32S8:
             if (Display::Instance()->IsGLESv3())
@@ -1171,6 +1176,7 @@ namespace Viry3D
             {
                 Log("texture format not support: %d", format);
             }
+            texture->m_depth_texture = true;
             break;
         default:
             Log("texture format not support: %d", format);
@@ -1186,8 +1192,18 @@ namespace Viry3D
         GLint mag_filter = 0;
         GLint wrap = 0;
 
-        switch (filter_mode)
+        // MARK:
+        // GLESv3 depth texture not support linear filter,
+        // so use nearest filter always.
+        if (m_depth_texture)
         {
+            min_filter = GL_NEAREST;
+            mag_filter = GL_NEAREST;
+        }
+        else
+        {
+            switch (filter_mode)
+            {
             case FilterMode::Nearest:
                 if (m_mipmap_level_count > 1)
                 {
@@ -1223,6 +1239,7 @@ namespace Viry3D
                 }
                 mag_filter = GL_LINEAR;
                 break;
+            }
         }
 
         switch (wrap_mode)

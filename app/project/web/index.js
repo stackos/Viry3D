@@ -16,29 +16,90 @@
 */
 
 let gl = null;
-let InitEngine = null;
-let DoneEngine = null;
-let UpdateEngine = null;
+const Engine = {
+    Init: null,
+    Done: null,
+    Update: null,
+    events: new Array(),
+    down: false,
+};
+
+function OnMouseDown(e) {
+    const x = e.clientX - gl.canvas.offsetLeft;
+    const y = e.clientY - gl.canvas.offsetTop;
+
+    Engine.events.push({
+        type: "MouseDown",
+        x: x,
+        y: y,
+    });
+    Engine.down = true;
+}
+
+function OnMouseMove(e) {
+    const x = e.clientX - gl.canvas.offsetLeft;
+    const y = e.clientY - gl.canvas.offsetTop;
+
+    if (Engine.down) {
+        Engine.events.push({
+            type: "MouseMove",
+            x: x,
+            y: y,
+        });
+    }
+}
+
+function OnMouseUp(e) {
+    const x = e.clientX - gl.canvas.offsetLeft;
+    const y = e.clientY - gl.canvas.offsetTop;
+
+    Engine.events.push({
+        type: "MouseUp",
+        x: x,
+        y: y,
+    });
+    Engine.down = false;
+}
 
 function IsMobilePlatform() {
     return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent);
 }
 
 function Render() {
-    UpdateEngine("");
+    const msg = {
+        events: Engine.events,
+    };
+
+    Engine.Update(JSON.stringify(msg));
+
+    // clear events
+    Engine.events.splice(0, Engine.events.length);
 
     window.requestAnimationFrame(Render);
 }
 
 function Main() {
-    InitEngine = Module.cwrap("InitEngine", null, ["string"]);
-    DoneEngine = Module.cwrap("DoneEngine", null, ["string"]);
-    UpdateEngine = Module.cwrap("UpdateEngine", null, ["string"]);
+    Engine.Init = Module.cwrap("InitEngine", null, ["string"]);
+    Engine.Done = Module.cwrap("DoneEngine", null, ["string"]);
+    Engine.Update = Module.cwrap("UpdateEngine", null, ["string"]);
 
+    let glesv3 = false;
     const canvas = Module.canvas;
-    GL.makeContextCurrent(GL.createContext(canvas, {}));
+    let context = GL.createContext(canvas, {
+        majorVersion: 2,
+        minorVersion: 0,
+    })
+    if (context == 0) {
+        context = GL.createContext(canvas, {
+            majorVersion: 1,
+            minorVersion: 0,
+        })
+    } else {
+        glesv3 = true;
+    }
+    GL.makeContextCurrent(context);
     gl = Module.ctx;
-    
+
     if (IsMobilePlatform()) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -47,17 +108,27 @@ function Main() {
         canvas.height = 720;
     }
 
-    let canvas_width = canvas.width;
-    let canvas_height = canvas.height;
+    canvas.onmousedown = function (e) {
+        OnMouseDown(e);
+    };
+    canvas.onmousemove = function (e) {
+        OnMouseMove(e);
+    };
+    canvas.onmouseup = function (e) {
+        OnMouseUp(e);
+    };
 
-    let msg = {
+    const canvas_width = canvas.width;
+    const canvas_height = canvas.height;
+
+    const msg = {
         name: "Viry3D",
         width: canvas_width,
         height: canvas_height,
-        glesv3: false,
+        glesv3: glesv3,
     };
 
-    InitEngine(JSON.stringify(msg));
+    Engine.Init(JSON.stringify(msg));
 
     Render();
 }

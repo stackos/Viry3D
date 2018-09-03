@@ -186,6 +186,7 @@ namespace Viry3D
         bool m_have_storage;
         GLuint m_copy_framebuffer;
         bool m_render_texture;
+        bool m_depth_texture;
 #endif
         int m_width;
         int m_height;

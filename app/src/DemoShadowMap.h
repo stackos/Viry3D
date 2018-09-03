@@ -53,7 +53,7 @@ namespace Viry3D
                 SHADOW_MAP_SIZE,
                 Texture::ChooseDepthFormatSupported(true),
                 true,
-                FilterMode::Linear,
+                FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
 
             m_shadow_camera = Display::Instance()->CreateCamera();

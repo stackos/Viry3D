@@ -177,9 +177,10 @@ emcc Main.cpp \
 	-I ../../../lib/src/freetype/include \
 	-I ../../../lib/src/zlib \
 	-D VR_WASM -D VR_GLES -D FT2_BUILD_LIBRARY \
-	-std=c++11 -s WASM=1 -O0 -c
+	-std=c++11 -s WASM=1 -O3 -c
 
-emcc *.o -s WASM=1 -O0 -o viry3d.js \
+emcc *.o -s WASM=1 -O3 -o viry3d.js \
 	-s NO_EXIT_RUNTIME=1 -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' \
 	-s ALLOW_MEMORY_GROWTH=1 \
+	-s USE_WEBGL2=1 \
 	--preload-file Assets
