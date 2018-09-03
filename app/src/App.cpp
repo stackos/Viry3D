@@ -31,9 +31,10 @@
 #include "ui/Label.h"
 
 // TODO:
+// - program link may have log info but no error on Microsoft Edge, need check shader & program in right way
 // - WebAssembly port
-// - demo 3DGamekit
 // - demo ARKit
+// - demo 3DGamekit
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView
@@ -103,14 +104,14 @@ namespace Viry3D
                 // but opengl 2.1 not support some feature in fxaa glsl 120 shader,
                 // and gles 2.0 not support too,
                 // so disable fxaa on mac / gles 2.0,
-                // webgl 2.0 has wrong result, disable too.
+                // webgl 1.0 not support shader, and 2.0 has wrong result, disable too.
 #if !VR_WASM
                 if (!Display::Instance()->IsGLESv3())
 #endif
                 {
                     if (i == 4)
                     {
-                        button->GetLabel()->SetText("FXAA (disabled on mac gl / gles2 / webgl2)");
+                        button->GetLabel()->SetText("FXAA (disabled on mac gl / gles2 / webgl)");
                         button->GetLabel()->SetColor(Color(0.8f, 0.8f, 0.8f, 1));
                         button->SetOnClick(nullptr);
                     }
