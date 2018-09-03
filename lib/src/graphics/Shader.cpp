@@ -224,7 +224,7 @@ namespace Viry3D
 
         int log_size = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
-        if (log_size > 0)
+        if (log_size > 1)
         {
             ByteBuffer buffer(log_size);
             glGetShaderInfoLog(shader, log_size, nullptr, (GLchar*) buffer.Bytes());
@@ -257,7 +257,7 @@ namespace Viry3D
 
             int log_size = 0;
             glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_size);
-            if (log_size > 0)
+            if (log_size > 1)
             {
                 ByteBuffer buffer(log_size);
                 glGetProgramInfoLog(program, log_size, nullptr, (GLchar*) buffer.Bytes());

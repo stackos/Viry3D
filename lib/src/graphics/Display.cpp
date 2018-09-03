@@ -2742,6 +2742,31 @@ namespace Viry3D
         {
             eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         }
+#else
+        void InitContext()
+        {
+
+        }
+
+        void DoneContext()
+        {
+
+        }
+
+        void SwapBuffers()
+        {
+
+        }
+
+        void BindSharedContext()
+        {
+
+        }
+
+        void UnbindSharedContext()
+        {
+
+        }
 #endif
 
 #if VR_ANDROID

@@ -28,4 +28,6 @@
 #include <OpenGLES/ES3/gl.h>
 #elif VR_MAC
 #include <OpenGL/gl3.h>
+#elif VR_WASM
+#include <GLES3/gl3.h>
 #endif

@@ -67,7 +67,7 @@ Output(0) vec4 o_frag;
 void main()
 {
     vec4 c = textureLod(u_texture, v_uv, 0.0);
-    o_frag = pow(c, vec4(1.0 / 2.2));
+    o_frag = c;
 }
 )";
 #elif VR_GLES
@@ -96,7 +96,7 @@ varying vec3 v_uv;
 void main()
 {
     vec4 c = textureCube(u_texture, v_uv);
-    gl_FragColor = pow(c, vec4(1.0 / 2.2));
+    gl_FragColor = c;
 }
 )";
 #endif
@@ -125,25 +125,14 @@ void main()
 
             Thread::Task task;
             task.job = []() {
-#if VR_GLES && VR_WINDOWS
-                // MARK:
-                // gl texture upload failed on some mipmap level on windows, don't know why.
-                // disable mipmap temporary.
-                bool mipmap = false;
-#else
-                bool mipmap = true;
-#endif
-                auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, mipmap);
-                for (int i = 0; i < cubemap->GetMipmapLevelCount(); ++i)
+                auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+                for (int i = 0; i < 6; ++i)
                 {
-                    for (int j = 0; j < 6; ++j)
-                    {
-                        int width;
-                        int height;
-                        int bpp;
-                        ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
-                        cubemap->UpdateCubemap(pixels, (CubemapFace) j, i);
-                    }
+                    int width;
+                    int height;
+                    int bpp;
+                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/dawn/%d.png").CString(), i), width, height, bpp);
+                    cubemap->UpdateCubemap(pixels, (CubemapFace) i, 0);
                 }
                 return cubemap;
             };
@@ -151,7 +140,9 @@ void main()
                 material->SetTexture("u_texture", RefCast<Texture>(res));
                 m_camera->AddRenderer(renderer);
             };
-#if VR_VULKAN
+#if VR_WASM
+            task.complete(task.job());
+#elif VR_VULKAN
             Application::Instance()->GetThreadPool()->AddTask(task);
 #elif VR_GLES
             Application::Instance()->GetResourceThreadPool()->AddTask(task);

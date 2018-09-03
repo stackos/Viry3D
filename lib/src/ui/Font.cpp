@@ -99,6 +99,10 @@ namespace Viry3D
 				font->m_font = (void*) face;
 			}
 		}
+        else
+        {
+            Log("Font::LoadFromFile font file not exist: %s", file.CString());
+        }
 
 		return font;
 	}

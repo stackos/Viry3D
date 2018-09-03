@@ -56,5 +56,10 @@ namespace Viry3D
     {
         __android_log_print(ANDROID_LOG_ERROR, "Viry3D", "%s", str.CString());
     }
+#elif VR_WASM
+    void Debug::LogString(const String& str, bool end_line)
+    {
+        printf("%s\n", str.CString());
+    }
 #endif
 }

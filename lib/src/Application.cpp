@@ -24,6 +24,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "ui/Font.h"
+#include "Debug.h"
 
 #if VR_WINDOWS
 #include <Windows.h>
@@ -56,6 +57,7 @@ namespace Viry3D
             m_quit(false)
         {
             m_app = app;
+#if !VR_WASM
             m_thread_pool = RefMake<ThreadPool>(8);
 #if VR_GLES
             m_resource_thread_pool = RefMake<ThreadPool>(1,
@@ -65,6 +67,7 @@ namespace Viry3D
                 []() {
                     Display::Instance()->UnbindSharedContext();
                 });
+#endif
 #endif
             Font::Init();
         }
@@ -202,6 +205,22 @@ namespace Viry3D
     void Application::SetSavePath(const String& path)
     {
         m_private->m_save_path = path;
+    }
+#elif VR_WASM
+    const String& Application::GetDataPath()
+    {
+        if (m_private->m_data_path.Empty())
+        {
+            m_private->m_data_path = "Assets";
+        }
+        return m_private->m_data_path;
+    }
+
+    const String& Application::GetSavePath()
+    {
+        Log("web has no save path");
+
+        return m_private->m_save_path;
     }
 #endif
 

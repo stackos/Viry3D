@@ -31,7 +31,6 @@
 #include "ui/Label.h"
 
 // TODO:
-// - android gles3 depth texture problem
 // - WebAssembly port
 // - demo 3DGamekit
 // - demo ARKit
@@ -72,6 +71,8 @@ namespace Viry3D
             });
 
 #if VR_WINDOWS || VR_MAC
+            float scale = 0.4f;
+#elif VR_WASM
             float scale = 0.4f;
 #else
             float scale = 1.0f;

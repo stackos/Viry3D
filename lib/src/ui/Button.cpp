@@ -53,7 +53,7 @@ namespace Viry3D
         {
             m_label = RefMake<Label>();
             m_label->SetSize(this->GetSize());
-            m_label->SetFont(Font::GetFont(FontType::PingFangSC));
+            m_label->SetFont(Font::GetFont(FontType::Consola));
             m_label->SetColor(Color(0, 0, 0, 1));
 
             this->AddSubview(m_label);

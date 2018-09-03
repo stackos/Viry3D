@@ -15,12 +15,10 @@
 * limitations under the License.
 */
 
-#include "Application.h"
+#include "App.h"
+#include "graphics/Display.h"
 #include "Input.h"
 #include "time/Time.h"
-#include "thread/ThreadPool.h"
-#include "graphics/Display.h"
-#include "App.h"
 #include <Windows.h>
 #include <windowsx.h>
 
