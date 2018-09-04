@@ -31,7 +31,7 @@
 #include "ui/Label.h"
 
 // TODO:
-// - program link may have log info but no error on Microsoft Edge, need check shader & program in right way
+// - demo back button
 // - WebAssembly port
 // - demo ARKit
 // - demo 3DGamekit

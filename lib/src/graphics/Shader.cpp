@@ -222,16 +222,21 @@ namespace Viry3D
         glShaderSource(shader, 1, &str, nullptr);
         glCompileShader(shader);
 
-        int log_size = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
-        if (log_size > 1)
+        int success = 0;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success)
         {
-            ByteBuffer buffer(log_size);
-            glGetShaderInfoLog(shader, log_size, nullptr, (GLchar*) buffer.Bytes());
-            Log("shader compile error: %s", buffer.Bytes());
+            int log_size = 0;
+            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
+            if (log_size > 1)
+            {
+                ByteBuffer buffer(log_size);
+                glGetShaderInfoLog(shader, log_size, nullptr, (GLchar*) buffer.Bytes());
+                Log("shader compile error: %s", buffer.Bytes());
 
-            glDeleteShader(shader);
-            shader = 0;
+                glDeleteShader(shader);
+                shader = 0;
+            }
         }
 
         return shader;
@@ -255,15 +260,20 @@ namespace Viry3D
             glAttachShader(program, fs);
             glLinkProgram(program);
 
-            int log_size = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_size);
-            if (log_size > 1)
+            int success = 0;
+            glGetProgramiv(program, GL_LINK_STATUS, &success);
+            if (!success)
             {
-                ByteBuffer buffer(log_size);
-                glGetProgramInfoLog(program, log_size, nullptr, (GLchar*) buffer.Bytes());
-                Log("program link error: %s", buffer.Bytes());
+                int log_size = 0;
+                glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_size);
+                if (log_size > 1)
+                {
+                    ByteBuffer buffer(log_size);
+                    glGetProgramInfoLog(program, log_size, nullptr, (GLchar*) buffer.Bytes());
+                    Log("program link error: %s", buffer.Bytes());
 
-                glDeleteProgram(program);
+                    glDeleteProgram(program);
+                }
             }
             else
             {

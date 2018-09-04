@@ -100,9 +100,9 @@ function Main() {
     GL.makeContextCurrent(context);
     gl = Module.ctx;
 
-    if (IsMobilePlatform()) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    if (IsMobilePlatform() || document.body.clientWidth < 1280) {
+        canvas.width = document.body.clientWidth;
+        canvas.height = canvas.width * 720 / 1280;
     } else {
         canvas.width = 1280;
         canvas.height = 720;
