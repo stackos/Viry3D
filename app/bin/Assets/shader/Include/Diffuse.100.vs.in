@@ -21,7 +21,7 @@ uniform mat4 u_projection_matrix;
 #endif
 
 #if (SKINNED_MESH == 1)
-    #define BONE_VECTOR_MAX 210
+    #define BONE_VECTOR_MAX 90
 
 	uniform vec4 u_bones[BONE_VECTOR_MAX];
 

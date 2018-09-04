@@ -19,8 +19,6 @@
 #include "Mesh.h"
 #include "Debug.h"
 
-#define BONE_MAX 70
-
 namespace Viry3D
 {
     SkinnedMeshRenderer::SkinnedMeshRenderer()
@@ -63,8 +61,22 @@ namespace Viry3D
             const auto& bindposes = mesh->GetBindposes();
             int bone_count = bindposes.Size();
 
+#if VR_GLES
+            int bone_max;
+            if (Display::Instance()->IsGLESv3())
+            {
+                bone_max = 70;
+            }
+            else
+            {
+                bone_max = 30;
+            }
+#else
+            const int bone_max = 70;
+#endif  
+
             assert(m_bone_paths.Size() == bone_count);
-            assert(m_bone_paths.Size() <= BONE_MAX);
+            assert(m_bone_paths.Size() <= bone_max);
 
             if (m_bones.Empty())
             {
