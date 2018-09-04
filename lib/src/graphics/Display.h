@@ -145,14 +145,25 @@ namespace Viry3D
         VkCommandBuffer GetImageCmd() const;
 #elif VR_GLES
         void EnableGLESv3();
-        bool IsGLESv3();
+        bool IsGLESv3() const;
         Ref<BufferObject> CreateBuffer(const void* data, int size, GLenum target, GLenum usage);
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
         void BindSharedContext() const;
         void UnbindSharedContext() const;
 #if VR_IOS
         void SetBindDefaultFramebufferImplemment(Action action);
-        void BindDefaultFramebuffer();
+        void BindDefaultFramebuffer(); const
+#elif VR_WASM
+        enum class Platform
+        {
+            Android,
+            iOS,
+            Mac,
+            Windows,
+            Other,
+        };
+        void SetPlatform(Platform platform);
+        Platform GetPlatform() const;
 #endif
 #endif
 

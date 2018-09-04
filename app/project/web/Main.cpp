@@ -51,12 +51,14 @@ extern "C" void EMSCRIPTEN_KEEPALIVE InitEngine(const char* msg)
     int width = value["width"].asInt();
     int height = value["height"].asInt();
     bool glesv3 = value["glesv3"].asBool();
+    int platform = value["platform"].asInt();
 
     g_display = new Display(name, nullptr, width, height);
     if (glesv3)
     {
         g_display->EnableGLESv3();
     }
+    g_display->SetPlatform((Display::Platform) platform);
 
     g_app = new App();
     g_app->SetName(name);

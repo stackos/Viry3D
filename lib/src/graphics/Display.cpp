@@ -2497,7 +2497,7 @@ namespace Viry3D
             m_is_glesv3 = true;
         }
         
-        bool IsGLESv3()
+        bool IsGLESv3() const
         {
             return m_is_glesv3;
         }
@@ -2564,17 +2564,17 @@ namespace Viry3D
             ReleaseDC((HWND) m_window, m_hdc);
         }
 
-        void SwapBuffers()
+        void SwapBuffers() const
         {
             ::SwapBuffers(m_hdc);
         }
 
-        void BindSharedContext()
+        void BindSharedContext() const
         {
             wglMakeCurrent(m_hdc, m_shared_context);
         }
 
-        void UnbindSharedContext()
+        void UnbindSharedContext() const
         {
             wglMakeCurrent(nullptr, nullptr);
         }
@@ -2594,17 +2594,17 @@ namespace Viry3D
             m_shared_context = nil;
         }
         
-        void SwapBuffers()
+        void SwapBuffers() const
         {
             [m_context flushBuffer];
         }
         
-        void BindSharedContext()
+        void BindSharedContext() const
         {
             [m_shared_context makeCurrentContext];
         }
         
-        void UnbindSharedContext()
+        void UnbindSharedContext() const
         {
             [NSOpenGLContext clearCurrentContext];
         }
@@ -2625,17 +2625,17 @@ namespace Viry3D
             m_shared_context = nil;
         }
         
-        void SwapBuffers()
+        void SwapBuffers() const
         {
             
         }
         
-        void BindSharedContext()
+        void BindSharedContext() const
         {
             [EAGLContext setCurrentContext:m_shared_context];
         }
         
-        void UnbindSharedContext()
+        void UnbindSharedContext() const
         {
             [EAGLContext setCurrentContext:nil];
         }
@@ -2645,7 +2645,7 @@ namespace Viry3D
             m_bind_default_framebuffer = action;
         }
         
-        void BindDefaultFramebuffer()
+        void BindDefaultFramebuffer() const
         {
             if (m_bind_default_framebuffer)
             {
@@ -2728,17 +2728,17 @@ namespace Viry3D
             eglTerminate(m_egl_display);
         }
 
-        void SwapBuffers()
+        void SwapBuffers() const
         {
             eglSwapBuffers(m_egl_display, m_egl_surface);
         }
 
-        void BindSharedContext()
+        void BindSharedContext() const
         {
             eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, m_shared_context);
         }
 
-        void UnbindSharedContext()
+        void UnbindSharedContext() const
         {
             eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         }
@@ -2753,17 +2753,17 @@ namespace Viry3D
 
         }
 
-        void SwapBuffers()
+        void SwapBuffers() const
         {
 
         }
 
-        void BindSharedContext()
+        void BindSharedContext() const
         {
 
         }
 
-        void UnbindSharedContext()
+        void UnbindSharedContext() const
         {
 
         }
@@ -2791,6 +2791,20 @@ namespace Viry3D
         void OnResume()
         {
 
+        }
+#endif
+        
+#if VR_WASM
+        Platform m_platform = Platform::Other;
+        
+        void SetPlatform(Platform platform)
+        {
+            m_platform = platform;
+        }
+        
+        Platform GetPlatform() const
+        {
+            return m_platform;
         }
 #endif
 
@@ -3429,7 +3443,7 @@ void main()
         m_private->EnableGLESv3();
     }
     
-    bool Display::IsGLESv3()
+    bool Display::IsGLESv3() const
     {
         return m_private->IsGLESv3();
     }
@@ -3460,9 +3474,19 @@ void main()
         m_private->SetBindDefaultFramebufferImplemment(action);
     }
     
-    void Display::BindDefaultFramebuffer()
+    void Display::BindDefaultFramebuffer() const
     {
         m_private->BindDefaultFramebuffer();
+    }
+#elif VR_WASM
+    void SetPlatform(Platform platform)
+    {
+        m_private->SetPlatform(platform);
+    }
+    
+    Platform GetPlatform() const
+    {
+        return m_private->GetPlatform();
     }
 #endif
 #endif

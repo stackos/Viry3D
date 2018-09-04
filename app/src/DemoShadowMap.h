@@ -64,18 +64,26 @@ namespace Viry3D
             m_shadow_camera->SetLocalRotation(m_light->GetRotation());
             
 #if VR_GLES
+            bool mac = false;
 #if VR_MAC
-            // MARK:
-            // mac gl framebuffer need a color attachment
-            Ref<Texture> shadow_color_texture = Texture::CreateRenderTexture(
-                SHADOW_MAP_SIZE,
-                SHADOW_MAP_SIZE,
-                TextureFormat::R8G8B8A8,
-                false,
-                FilterMode::None,
-                SamplerAddressMode::None);
-            m_shadow_camera->SetRenderTarget(shadow_color_texture, m_shadow_texture);
+            mac = true;
+#elif VR_WASM
+            mac = Display::Instance()->GetPlatform() == Display::Platform::Mac;
 #endif
+
+            // MARK:
+            // mac gl / webgl framebuffer need a color attachment
+            if (mac)
+            {
+                Ref<Texture> shadow_color_texture = Texture::CreateRenderTexture(
+                    SHADOW_MAP_SIZE,
+                    SHADOW_MAP_SIZE,
+                    TextureFormat::R8G8B8A8,
+                    false,
+                    FilterMode::None,
+                    SamplerAddressMode::None);
+                m_shadow_camera->SetRenderTarget(shadow_color_texture, m_shadow_texture);
+            }
 #endif
 
             m_shadow_camera->SetNearClip(m_shadow_param.near_clip);

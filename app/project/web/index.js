@@ -68,7 +68,9 @@ function OnMouseUp(e) {
 const Platform = {
     Android: 0,
     iOS: 1,
-    Other: 2,
+    Mac: 2,
+    Windows: 3,
+    Other: 4,
 };
 
 function GetPlatform() {
@@ -77,6 +79,10 @@ function GetPlatform() {
         return Platform.Android;
     } else if (agent.indexOf("iPhone") >= 0 || agent.indexOf("iPad") >= 0 || agent.indexOf("iPod") >= 0) {
         return Platform.iOS;
+    } else if (agent.indexOf("Mac") >= 0) {
+        return Platform.Mac;
+    } else if (agent.indexOf("Windows") >= 0) {
+        return Platform.Windows;
     } else {
         return Platform.Other;
     }
@@ -121,13 +127,6 @@ function Main() {
     const has_touch = !!(('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch));
 
     console.log(navigator.userAgent);
-    if (platform == Platform.Android) {
-        console.log("Running on Android platform");
-    } else if (platform == Platform.iOS) {
-        console.log("Running on iOS platform");
-    } else {
-        console.log("Running on desktop platform");
-    }
     console.log("Has touch " + has_touch);
 
     if (platform == Platform.Android || platform == Platform.iOS || document.body.clientWidth < 1280) {
@@ -181,6 +180,7 @@ function Main() {
         width: canvas_width,
         height: canvas_height,
         glesv3: glesv3,
+        platform: platform,
     };
 
     Engine.Init(JSON.stringify(msg));
