@@ -28,12 +28,14 @@ function OnMouseDown(e) {
     const x = e.clientX - gl.canvas.offsetLeft;
     const y = e.clientY - gl.canvas.offsetTop;
 
-    Engine.events.push({
-        type: "MouseDown",
-        x: x,
-        y: y,
-    });
-    Engine.down = true;
+    if (!Engine.down) {
+        Engine.events.push({
+            type: "MouseDown",
+            x: x,
+            y: y,
+        });
+        Engine.down = true;
+    }
 }
 
 function OnMouseMove(e) {
@@ -53,16 +55,31 @@ function OnMouseUp(e) {
     const x = e.clientX - gl.canvas.offsetLeft;
     const y = e.clientY - gl.canvas.offsetTop;
 
-    Engine.events.push({
-        type: "MouseUp",
-        x: x,
-        y: y,
-    });
-    Engine.down = false;
+    if (Engine.down) {
+        Engine.events.push({
+            type: "MouseUp",
+            x: x,
+            y: y,
+        });
+        Engine.down = false;
+    }
 }
 
-function IsMobilePlatform() {
-    return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent);
+const Platform = {
+    Android: 0,
+    iOS: 1,
+    Other: 2,
+};
+
+function GetPlatform() {
+    const agent = navigator.userAgent;
+    if (agent.indexOf("Android") >= 0) {
+        return Platform.Android;
+    } else if (agent.indexOf("iPhone") >= 0 || agent.indexOf("iPad") >= 0 || agent.indexOf("iPod") >= 0) {
+        return Platform.iOS;
+    } else {
+        return Platform.Other;
+    }
 }
 
 function Render() {
@@ -100,7 +117,20 @@ function Main() {
     GL.makeContextCurrent(context);
     gl = Module.ctx;
 
-    if (IsMobilePlatform() || document.body.clientWidth < 1280) {
+    const platform = GetPlatform();
+    const has_touch = !!(('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch));
+
+    console.log(navigator.userAgent);
+    if (platform == Platform.Android) {
+        console.log("Running on Android platform");
+    } else if (platform == Platform.iOS) {
+        console.log("Running on iOS platform");
+    } else {
+        console.log("Running on desktop platform");
+    }
+    console.log("Has touch " + has_touch);
+
+    if (platform == Platform.Android || platform == Platform.iOS || document.body.clientWidth < 1280) {
         canvas.width = document.body.clientWidth;
         canvas.height = canvas.width * 720 / 1280;
     } else {
@@ -108,15 +138,40 @@ function Main() {
         canvas.height = 720;
     }
 
-    canvas.onmousedown = function (e) {
-        OnMouseDown(e);
-    };
-    canvas.onmousemove = function (e) {
-        OnMouseMove(e);
-    };
-    canvas.onmouseup = function (e) {
-        OnMouseUp(e);
-    };
+    if (has_touch) {
+        canvas.addEventListener("touchstart", function(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            if (touches.length > 0) {
+                OnMouseDown(touches[0]);
+            }
+        });
+        canvas.addEventListener("touchmove", function(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            if (touches.length > 0) {
+                OnMouseMove(touches[0]);
+            }
+        });
+        canvas.addEventListener("touchend", function(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            if (touches.length > 0) {
+                OnMouseUp(touches[0]);
+            }
+        });
+        canvas.addEventListener("touchcancel", function(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            if (touches.length > 0) {
+                OnMouseUp(touches[0]);
+            }
+        });
+    } else {
+        canvas.addEventListener("mousedown", OnMouseDown, false);
+        canvas.addEventListener("mousemove", OnMouseMove, false);
+        canvas.addEventListener("mouseup", OnMouseUp, false);
+    }
 
     const canvas_width = canvas.width;
     const canvas_height = canvas.height;

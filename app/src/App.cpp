@@ -32,7 +32,6 @@
 
 // TODO:
 // - demo back button
-// - wasm touch event instead of mouse event
 // - WebAssembly port
 // - demo ARKit
 // - demo 3DGamekit
