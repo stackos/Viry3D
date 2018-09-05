@@ -2795,14 +2795,14 @@ namespace Viry3D
 #endif
         
 #if VR_WASM
-        Platform m_platform = Platform::Other;
+        Display::Platform m_platform = Display::Platform::Other;
         
-        void SetPlatform(Platform platform)
+        void SetPlatform(Display::Platform platform)
         {
             m_platform = platform;
         }
         
-        Platform GetPlatform() const
+        Display::Platform GetPlatform() const
         {
             return m_platform;
         }
@@ -3479,12 +3479,12 @@ void main()
         m_private->BindDefaultFramebuffer();
     }
 #elif VR_WASM
-    void SetPlatform(Platform platform)
+    void Display::SetPlatform(Platform platform)
     {
         m_private->SetPlatform(platform);
     }
     
-    Platform GetPlatform() const
+    Display::Platform Display::GetPlatform() const
     {
         return m_private->GetPlatform();
     }
