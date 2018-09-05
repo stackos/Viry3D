@@ -23,6 +23,9 @@
 #include "DemoFXAA.h"
 #include "DemoPostEffectBlur.h"
 #include "DemoUI.h"
+#if VR_IOS
+#include "DemoAR.h"
+#endif
 #include "DemoShadowMap.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
@@ -31,8 +34,6 @@
 #include "ui/Label.h"
 
 // TODO:
-// - demo back button
-// - WebAssembly port
 // - demo ARKit
 // - demo 3DGamekit
 // - SwitchControl
@@ -80,7 +81,8 @@ namespace Viry3D
                 "FXAA",
                 "PostEffectBlur",
                 "UI",
-                "ShadowMap"
+                "ShadowMap",
+                "AR"
                 });
 
             int top = 90;
@@ -102,25 +104,45 @@ namespace Viry3D
                     this->ClickDemo(i);
                 });
 
+                bool disabled = false;
+                
 #if VR_GLES
+                bool disable_fxaa = false;
                 // MARK:
                 // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
                 // but opengl 2.1 not support some feature in fxaa glsl 120 shader,
                 // and gles 2.0 / webgl 1.0 not support too,
                 // so disable fxaa on mac / gles 2.0,
                 // webgl 2.0 has wrong result, disable too.
-#if !VR_WASM
-                if (!Display::Instance()->IsGLESv3())
+#if VR_WASM
+                disable_fxaa = true;
+#else
+                disable_fxaa = !Display::Instance()->IsGLESv3();
 #endif
+                if (disable_fxaa && i == 4)
                 {
-                    if (i == 4)
-                    {
-                        button->GetLabel()->SetText("FXAA (disabled on mac gl / gles2 / webgl)");
-                        button->GetLabel()->SetColor(Color(0.8f, 0.8f, 0.8f, 1));
-                        button->SetOnClick(nullptr);
-                    }
+                    disabled = true;
+                    button->GetLabel()->SetText("FXAA (disabled on mac gl / gles2 / webgl)");
                 }
 #endif
+                
+                bool disable_ar = false;
+#if VR_IOS
+                disable_ar = !ARScene::IsSupported();
+#else
+                disable_ar = true;
+#endif
+                if (disable_ar && i == 8)
+                {
+                    disabled = true;
+                    button->GetLabel()->SetText("AR (available on ios arkit only)");
+                }
+                
+                if (disabled)
+                {
+                    button->GetLabel()->SetColor(Color(0.8f, 0.8f, 0.8f, 1));
+                    button->SetOnClick(nullptr);
+                }
             }
         }
 
@@ -151,6 +173,11 @@ namespace Viry3D
                     break;
                 case 7:
                     m_demo = new DemoShadowMap();
+                    break;
+                case 8:
+#if VR_IOS
+                    m_demo = new DemoAR();
+#endif
                     break;
                 default:
                     break;

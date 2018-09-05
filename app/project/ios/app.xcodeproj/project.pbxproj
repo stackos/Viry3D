@@ -10,6 +10,7 @@
 		BA12989820FE36B400DC815A /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = BA12989720FE36B400DC815A /* Main.m */; };
 		BA12989C20FE387700DC815A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BA12989B20FE387700DC815A /* AppDelegate.m */; };
 		BA2800E71F69A71100215483 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = BA2800E61F69A71100215483 /* Assets */; };
+		BA4551DA21405029003188B1 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA4551D921405029003188B1 /* ARKit.framework */; };
 		BA4A325D1D7B34D400DEEE5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */; };
 		BA4A32601D7B34D400DEEE5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BA4A325E1D7B34D400DEEE5A /* LaunchScreen.storyboard */; };
 		BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A31D92F2A200173EDC /* UIKit.framework */; };
@@ -44,6 +45,17 @@
 		BA12989720FE36B400DC815A /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
 		BA12989B20FE387700DC815A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		BA2800E61F69A71100215483 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
+		BA4551CF21404D8C003188B1 /* DemoPostEffectBlur.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoPostEffectBlur.h; path = ../../src/DemoPostEffectBlur.h; sourceTree = "<group>"; };
+		BA4551D021404D8D003188B1 /* DemoSkybox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoSkybox.h; path = ../../src/DemoSkybox.h; sourceTree = "<group>"; };
+		BA4551D121404D8D003188B1 /* DemoMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoMesh.h; path = ../../src/DemoMesh.h; sourceTree = "<group>"; };
+		BA4551D221404D8D003188B1 /* DemoRenderToTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoRenderToTexture.h; path = ../../src/DemoRenderToTexture.h; sourceTree = "<group>"; };
+		BA4551D321404D8D003188B1 /* DemoFXAA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoFXAA.h; path = ../../src/DemoFXAA.h; sourceTree = "<group>"; };
+		BA4551D421404D8D003188B1 /* DemoAR.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoAR.h; path = ../../src/DemoAR.h; sourceTree = "<group>"; };
+		BA4551D521404D8D003188B1 /* DemoUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoUI.h; path = ../../src/DemoUI.h; sourceTree = "<group>"; };
+		BA4551D621404D8D003188B1 /* DemoShadowMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoShadowMap.h; path = ../../src/DemoShadowMap.h; sourceTree = "<group>"; };
+		BA4551D721404D8E003188B1 /* DemoSkinnedMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoSkinnedMesh.h; path = ../../src/DemoSkinnedMesh.h; sourceTree = "<group>"; };
+		BA4551D821404D8E003188B1 /* Demo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Demo.h; path = ../../src/Demo.h; sourceTree = "<group>"; };
+		BA4551D921405029003188B1 /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
 		BA4A32491D7B34D400DEEE5A /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA4A325C1D7B34D400DEEE5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = app/Assets.xcassets; sourceTree = "<group>"; };
 		BA4A325F1D7B34D400DEEE5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -68,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA4551DA21405029003188B1 /* ARKit.framework in Frameworks */,
 				BAF169AA213AED660033BC76 /* GLKit.framework in Frameworks */,
 				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
 				D137757F20FEF7D000E4F19B /* MoltenVK.framework in Frameworks */,
@@ -115,6 +128,16 @@
 			children = (
 				D13775A520FF327C00E4F19B /* App.cpp */,
 				D13775A420FF320C00E4F19B /* App.h */,
+				BA4551D821404D8E003188B1 /* Demo.h */,
+				BA4551D421404D8D003188B1 /* DemoAR.h */,
+				BA4551D321404D8D003188B1 /* DemoFXAA.h */,
+				BA4551D121404D8D003188B1 /* DemoMesh.h */,
+				BA4551CF21404D8C003188B1 /* DemoPostEffectBlur.h */,
+				BA4551D221404D8D003188B1 /* DemoRenderToTexture.h */,
+				BA4551D621404D8D003188B1 /* DemoShadowMap.h */,
+				BA4551D721404D8E003188B1 /* DemoSkinnedMesh.h */,
+				BA4551D021404D8D003188B1 /* DemoSkybox.h */,
+				BA4551D521404D8D003188B1 /* DemoUI.h */,
 				BA12989720FE36B400DC815A /* Main.m */,
 				BA981FF020FE45890068E5B2 /* AppDelegate.h */,
 				BA12989B20FE387700DC815A /* AppDelegate.m */,
@@ -129,6 +152,7 @@
 		BABF7B931E97E7A2000C2116 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BA4551D921405029003188B1 /* ARKit.framework */,
 				BAF169A9213AED660033BC76 /* GLKit.framework */,
 				BA5924A31D92F2A200173EDC /* UIKit.framework */,
 				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,

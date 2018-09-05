@@ -303,6 +303,7 @@
 		BA42E6931FF5455E009C3C01 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = BA42E66D1FF5455D009C3C01 /* llex.c */; };
 		BA42E6941FF5455E009C3C01 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA42E66F1FF5455D009C3C01 /* ltm.c */; };
 		BA42E6951FF5455E009C3C01 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6711FF5455D009C3C01 /* ldo.c */; };
+		BA4551CE21404CEC003188B1 /* ARScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA4551CD21404CEC003188B1 /* ARScene.mm */; };
 		BA8AA381200523BD00B7FDC2 /* lpprint.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA376200523BC00B7FDC2 /* lpprint.c */; };
 		BA8AA382200523BD00B7FDC2 /* lpvm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA377200523BC00B7FDC2 /* lpvm.c */; };
 		BA8AA383200523BD00B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA379200523BC00B7FDC2 /* lpcap.c */; };
@@ -852,6 +853,8 @@
 		BA42E66D1FF5455D009C3C01 /* llex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = llex.c; sourceTree = "<group>"; };
 		BA42E66F1FF5455D009C3C01 /* ltm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltm.c; sourceTree = "<group>"; };
 		BA42E6711FF5455D009C3C01 /* ldo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldo.c; sourceTree = "<group>"; };
+		BA4551CC21404C20003188B1 /* ARScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ARScene.h; sourceTree = "<group>"; };
+		BA4551CD21404CEC003188B1 /* ARScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ARScene.mm; sourceTree = "<group>"; };
 		BA8AA376200523BC00B7FDC2 /* lpprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpprint.c; sourceTree = "<group>"; };
 		BA8AA377200523BC00B7FDC2 /* lpvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpvm.c; sourceTree = "<group>"; };
 		BA8AA378200523BC00B7FDC2 /* lptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptypes.h; sourceTree = "<group>"; };
@@ -1096,6 +1099,7 @@
 				BA4190A6213BF031004595B8 /* gles */,
 				0DA4C2F8E6F069DDBD908726 /* graphics */,
 				920D14E025F9291B533D1EBA /* io */,
+				BA4551CB21404C20003188B1 /* ios */,
 				E0C982B89BBB7A3BE1140E0B /* jpeg */,
 				906E4A46A91AC6ED34766165 /* json */,
 				BA42E6351FF5455D009C3C01 /* lua */,
@@ -1920,6 +1924,15 @@
 			path = lua;
 			sourceTree = "<group>";
 		};
+		BA4551CB21404C20003188B1 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				BA4551CC21404C20003188B1 /* ARScene.h */,
+				BA4551CD21404CEC003188B1 /* ARScene.mm */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
 		BA8AA375200523BC00B7FDC2 /* lpeg */ = {
 			isa = PBXGroup;
 			children = (
@@ -2519,6 +2532,7 @@
 				3C4112DB6B3153AC811F2B54 /* pngwtran.c in Sources */,
 				BA42E68B1FF5455E009C3C01 /* lcorolib.c in Sources */,
 				7700DC5EBE1A9CA58EE1BADB /* pngwutil.c in Sources */,
+				BA4551CE21404CEC003188B1 /* ARScene.mm in Sources */,
 				6E748E34A07662185EE0A540 /* tinyxml2.cpp in Sources */,
 				4F2C23D0DD60FBE3A04AD1F7 /* ioapi.c in Sources */,
 				EE103C0F2F4FD6B2D868844C /* unzip.c in Sources */,

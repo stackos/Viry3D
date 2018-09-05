@@ -152,7 +152,7 @@ namespace Viry3D
         void UnbindSharedContext() const;
 #if VR_IOS
         void SetBindDefaultFramebufferImplemment(Action action);
-        void BindDefaultFramebuffer(); const
+        void BindDefaultFramebuffer() const;
 #elif VR_WASM
         enum class Platform
         {
