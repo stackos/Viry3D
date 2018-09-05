@@ -29,6 +29,8 @@ namespace Viry3D
     class DemoFXAA : public DemoMesh
     {
     public:
+        Camera* m_blit_camera = nullptr;
+
         void InitRenderTexture()
         {
             auto color_texture = Texture::CreateRenderTexture(
@@ -190,7 +192,7 @@ void main()
             material->SetVector("u_rcp_frame", Vector4(1.0f / Display::Instance()->GetWidth(), 1.0f / Display::Instance()->GetHeight()));
 
             // color -> window
-            Display::Instance()->CreateBlitCamera(1, color_texture, material);
+            m_blit_camera = Display::Instance()->CreateBlitCamera(1, color_texture, material);
 
             m_ui_camera->SetDepth(2);
         }
@@ -204,6 +206,9 @@ void main()
 
         virtual void Done()
         {
+            Display::Instance()->DestroyCamera(m_blit_camera);
+            m_blit_camera = nullptr;
+
             DemoMesh::Done();
         }
 

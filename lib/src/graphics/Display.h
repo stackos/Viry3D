@@ -28,7 +28,7 @@
 #include "string/String.h"
 #include "math/Rect.h"
 #include "UniformSet.h"
-#include "thread/ThreadPool.h"
+#include "Action.h"
 
 namespace Viry3D
 {

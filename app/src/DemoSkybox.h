@@ -24,7 +24,8 @@ namespace Viry3D
     class DemoSkybox : public DemoMesh
     {
     public:
-        MeshRenderer* m_renderer_sky;
+        MeshRenderer* m_renderer_sky = nullptr;
+        bool m_async_load_complete = false;
 
         void InitSkybox()
         {
@@ -139,6 +140,7 @@ void main()
             task.complete = [=](const Ref<Object>& res) {
                 material->SetTexture("u_texture", RefCast<Texture>(res));
                 m_camera->AddRenderer(renderer);
+                m_async_load_complete = true;
             };
 #if VR_WASM
             task.complete(task.job());
@@ -154,6 +156,11 @@ void main()
             DemoMesh::Init();
 
             this->InitSkybox();
+        }
+
+        virtual bool IsInitComplete() const
+        {
+            return m_async_load_complete;
         }
 
         virtual void Done()

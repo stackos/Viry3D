@@ -18,6 +18,7 @@
 #include "Button.h"
 #include "Label.h"
 #include "Font.h"
+#include "Application.h"
 
 namespace Viry3D
 {
@@ -66,7 +67,7 @@ namespace Viry3D
     {
         if (m_on_click)
         {
-            m_on_click();
+            Application::Instance()->PostAction(m_on_click);
         }
     }
 }

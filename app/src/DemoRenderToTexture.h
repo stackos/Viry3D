@@ -24,6 +24,9 @@ namespace Viry3D
     class DemoRenderToTexture : public DemoMesh
     {
     public:
+        Camera* m_blit_depth_camera = nullptr;
+        Camera* m_blit_color_camera = nullptr;
+
         void InitRenderTexture()
         {
             auto color_texture = Texture::CreateRenderTexture(
@@ -43,11 +46,11 @@ namespace Viry3D
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
             // depth -> color
-            auto blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
-            blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
+            m_blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
+            m_blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
 
             // color -> window
-            Display::Instance()->CreateBlitCamera(2, color_texture);
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(2, color_texture);
 
             m_ui_camera->SetDepth(3);
         }
@@ -61,6 +64,11 @@ namespace Viry3D
 
         virtual void Done()
         {
+            Display::Instance()->DestroyCamera(m_blit_depth_camera);
+            m_blit_depth_camera = nullptr;
+            Display::Instance()->DestroyCamera(m_blit_color_camera);
+            m_blit_color_camera = nullptr;
+
             DemoMesh::Done();
         }
 

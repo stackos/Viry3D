@@ -939,6 +939,9 @@
     <ClInclude Include="..\..\src\gles\gles_include.h">
       <Filter>src\gles</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\Action.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">

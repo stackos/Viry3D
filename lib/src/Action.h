@@ -17,15 +17,9 @@
 
 #pragma once
 
+#include <functional>
+
 namespace Viry3D
 {
-    class Demo
-    {
-    public:
-        virtual ~Demo() { }
-        virtual void Init() { }
-        virtual void Done() { }
-        virtual bool IsInitComplete() const { return true; }
-        virtual void Update() { }
-    };
+    typedef std::function<void()> Action;
 }

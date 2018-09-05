@@ -39,6 +39,12 @@
 // - SliderControl
 // - ScrollView TabView TreeView
 
+#if VR_WINDOWS || VR_MAC || VR_WASM
+#define UI_SCALE 0.4
+#else
+#define UI_SCALE 1.0
+#endif
+
 namespace Viry3D
 {
     class AppImplement
@@ -46,6 +52,7 @@ namespace Viry3D
     private:
         Camera* m_camera = nullptr;
         Demo* m_demo = nullptr;
+        Ref<CanvasRenderer> m_canvas;
 
     public:
         void Init()
@@ -57,9 +64,14 @@ namespace Viry3D
 
         void InitUI()
         {
-            auto canvas = RefMake<CanvasRenderer>();
-            m_camera->AddRenderer(canvas);
+            m_canvas = RefMake<CanvasRenderer>();
+            m_camera->AddRenderer(m_canvas);
 
+            this->AddDemoButtons();
+        }
+
+        void AddDemoButtons()
+        {
             Vector<String> titles({
                 "Mesh",
                 "SkinnedMesh",
@@ -69,15 +81,7 @@ namespace Viry3D
                 "PostEffectBlur",
                 "UI",
                 "ShadowMap"
-            });
-
-#if VR_WINDOWS || VR_MAC
-            float scale = 0.4f;
-#elif VR_WASM
-            float scale = 0.4f;
-#else
-            float scale = 1.0f;
-#endif
+                });
 
             int top = 90;
             int button_height = 160;
@@ -86,25 +90,25 @@ namespace Viry3D
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
-                canvas->AddView(button);
+                m_canvas->AddView(button);
 
-                button->SetSize(Vector2i(Display::Instance()->GetWidth(), (int) (button_height * scale)));
+                button->SetSize(Vector2i(Display::Instance()->GetWidth(), (int) (button_height * UI_SCALE)));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, (int) (top * scale) + i * (2 + (int) (button_height * scale))));
+                button->SetOffset(Vector2i(0, (int) (top * UI_SCALE) + i * (2 + (int) (button_height * UI_SCALE))));
                 button->GetLabel()->SetText(titles[i]);
-                button->GetLabel()->SetFontSize((int) (font_size * scale));
+                button->GetLabel()->SetFontSize((int) (font_size * UI_SCALE));
                 button->SetOnClick([=]() {
                     this->ClickDemo(i);
                 });
-                
+
 #if VR_GLES
                 // MARK:
                 // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
                 // but opengl 2.1 not support some feature in fxaa glsl 120 shader,
-                // and gles 2.0 not support too,
+                // and gles 2.0 / webgl 1.0 not support too,
                 // so disable fxaa on mac / gles 2.0,
-                // webgl 1.0 not support shader, and 2.0 has wrong result, disable too.
+                // webgl 2.0 has wrong result, disable too.
 #if !VR_WASM
                 if (!Display::Instance()->IsGLESv3())
 #endif
@@ -122,9 +126,6 @@ namespace Viry3D
 
         void ClickDemo(int index)
         {
-            Display::Instance()->DestroyCamera(m_camera);
-            m_camera = nullptr;
-
             switch (index)
             {
                 case 0:
@@ -157,7 +158,46 @@ namespace Viry3D
 
             if (m_demo)
             {
+                m_canvas->RemoveAllViews();
+                m_camera->SetClearFlags(CameraClearFlags::Nothing);
+                m_camera->SetDepth(0x7FFFFFFF);
+                this->AddBackButton();
+
                 m_demo->Init();
+            }
+        }
+
+        void AddBackButton()
+        {
+            int button_width = 400;
+            int button_height = 160;
+            int font_size = 40;
+
+            auto button = RefMake<Button>();
+            m_canvas->AddView(button);
+
+            button->SetSize(Vector2i((int) (button_width * UI_SCALE), (int) (button_height * UI_SCALE)));
+            button->SetAlignment(ViewAlignment::Right | ViewAlignment::Bottom);
+            button->SetPivot(Vector2(1, 1));
+            button->GetLabel()->SetText("Back");
+            button->GetLabel()->SetFontSize((int) (font_size * UI_SCALE));
+            button->SetOnClick([=]() {
+                this->ClickBack();
+            });
+        }
+
+        void ClickBack()
+        {
+            if (m_demo->IsInitComplete())
+            {
+                m_demo->Done();
+                delete m_demo;
+                m_demo = nullptr;
+
+                m_canvas->RemoveAllViews();
+                m_camera->SetClearFlags(CameraClearFlags::Color);
+                m_camera->SetDepth(0);
+                this->AddDemoButtons();
             }
         }
 

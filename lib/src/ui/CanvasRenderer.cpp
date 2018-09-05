@@ -339,6 +339,15 @@ void main()
 		this->MarkCanvasDirty();
 	}
 
+    void CanvasRenderer::RemoveAllViews()
+    {
+        Vector<Ref<View>> views = m_views;
+        for (const auto& i : views)
+        {
+            this->RemoveView(i);
+        }
+    }
+
 	void CanvasRenderer::MarkCanvasDirty()
 	{
 		m_canvas_dirty = true;

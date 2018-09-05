@@ -24,6 +24,8 @@ namespace Viry3D
     class DemoPostEffectBlur : public DemoMesh
     {
     public:
+        Vector<Camera*> m_blit_cameras;
+
         void InitPostEffectBlur()
         {
             auto color_texture = Texture::CreateRenderTexture(
@@ -173,6 +175,7 @@ void main()
             // color -> color2, down sample
             auto blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture);
             blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
+            m_blit_cameras.Add(blit_color_camera);
 
             for (int i = 0; i < iter_count; ++i)
             {
@@ -182,6 +185,7 @@ void main()
 
                 blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2, material_h);
                 blit_color_camera->SetRenderTarget(color_texture, Ref<Texture>());
+                m_blit_cameras.Add(blit_color_camera);
 
                 // color -> color2, v blur
                 auto material_v = RefMake<Material>(shader);
@@ -189,10 +193,12 @@ void main()
 
                 blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture, material_v);
                 blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
+                m_blit_cameras.Add(blit_color_camera);
             }
 
             // color -> window
-            Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2);
+            blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2);
+            m_blit_cameras.Add(blit_color_camera);
 
             m_ui_camera->SetDepth(camera_depth++);
         }
@@ -206,6 +212,12 @@ void main()
 
         virtual void Done()
         {
+            for (auto i : m_blit_cameras)
+            {
+                Display::Instance()->DestroyCamera(i);
+            }
+            m_blit_cameras.Clear();
+
             DemoMesh::Done();
         }
 

@@ -38,7 +38,8 @@ namespace Viry3D
             5
         };
 
-        Camera* m_shadow_camera;
+        Camera* m_shadow_camera = nullptr;
+        Camera* m_blit_depth_camera = nullptr;
         Vector<Ref<MeshRenderer>> m_shadow_renderers;
         Ref<Texture> m_shadow_texture;
         Matrix4x4 m_light_view_projection_matrix;
@@ -165,7 +166,7 @@ namespace Viry3D
                 m_shadow_camera->AddRenderer(shadow_mesh);
             }
 
-            Display::Instance()->CreateBlitCamera(3, m_shadow_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
+            m_blit_depth_camera = Display::Instance()->CreateBlitCamera(3, m_shadow_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
         }
 
         void InitShadowReciever()
@@ -250,6 +251,8 @@ namespace Viry3D
 
             Display::Instance()->DestroyCamera(m_shadow_camera);
             m_shadow_camera = nullptr;
+            Display::Instance()->DestroyCamera(m_blit_depth_camera);
+            m_blit_depth_camera = nullptr;
 
             DemoSkinnedMesh::Done();
         }

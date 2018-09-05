@@ -55,6 +55,7 @@ namespace Viry3D
         virtual void OnResize(int width, int height);
 		void AddView(const Ref<View>& view);
 		void RemoveView(const Ref<View>& view);
+        void RemoveAllViews();
 		void MarkCanvasDirty();
 
 	private:

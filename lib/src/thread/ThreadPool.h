@@ -20,13 +20,13 @@
 #include "container/Vector.h"
 #include "container/List.h"
 #include "memory/Ref.h"
+#include "Action.h"
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 
 namespace Viry3D
 {
-    typedef std::function<void()> Action;
 	typedef std::mutex Mutex;
 
     class Object;

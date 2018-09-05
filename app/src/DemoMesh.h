@@ -65,10 +65,10 @@ namespace Viry3D
             0.8f
         };
 
-        Camera* m_camera;
-        Camera* m_ui_camera;
+        Camera* m_camera = nullptr;
+        Camera* m_ui_camera = nullptr;
         Vector<Ref<MeshRenderer>> m_renderers;
-        Label* m_label;
+        Label* m_label = nullptr;
         Ref<Light> m_light;
 
         void InitCamera()
