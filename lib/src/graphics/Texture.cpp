@@ -1104,6 +1104,22 @@ namespace Viry3D
 #endif
             texture->m_pixel_type = GL_UNSIGNED_BYTE;
             break;
+        case TextureFormat::R8G8:
+#if VR_WINDOWS || VR_MAC
+            texture->m_internal_format = GL_RG;
+            texture->m_format = GL_RG;
+            texture->m_pixel_type = GL_UNSIGNED_BYTE;
+#else
+            texture->m_internal_format = GL_LUMINANCE_ALPHA;
+            texture->m_format = GL_LUMINANCE_ALPHA;
+            texture->m_pixel_type = GL_UNSIGNED_BYTE;
+#endif
+            break;
+        case TextureFormat::R8G8B8:
+            texture->m_internal_format = GL_RGB;
+            texture->m_format = GL_RGB;
+            texture->m_pixel_type = GL_UNSIGNED_BYTE;
+            break;
         case TextureFormat::R8G8B8A8:
             texture->m_internal_format = GL_RGBA;
             texture->m_format = GL_RGBA;

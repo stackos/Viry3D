@@ -17,8 +17,13 @@
 
 #pragma once
 
+#include "memory/Ref.h"
+#include "math/Matrix4x4.h"
+
 namespace Viry3D
 {
+    class Texture;
+    
     class ARScene
     {
     public:
@@ -27,5 +32,8 @@ namespace Viry3D
         ~ARScene();
         void Run();
         void Pause();
+        const Ref<Texture>& GetCameraTextureY() const;
+        const Ref<Texture>& GetCameraTextureUV() const;
+        const Matrix4x4& GetDisplayTransform() const;
     };
 }

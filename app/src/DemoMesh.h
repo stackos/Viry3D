@@ -208,15 +208,24 @@ namespace Viry3D
         {
             m_renderers.Clear();
 
-            Display::Instance()->DestroyCamera(m_ui_camera);
-            m_ui_camera = nullptr;
-            Display::Instance()->DestroyCamera(m_camera);
-            m_camera = nullptr;
+            if (m_ui_camera)
+            {
+                Display::Instance()->DestroyCamera(m_ui_camera);
+                m_ui_camera = nullptr;
+            }
+            if (m_camera)
+            {
+                Display::Instance()->DestroyCamera(m_camera);
+                m_camera = nullptr;
+            }
         }
 
         virtual void Update()
         {
-            m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+            if (m_label)
+            {
+                m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+            }
         }
     };
 }

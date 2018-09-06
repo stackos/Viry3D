@@ -17,19 +17,21 @@
 
 #include "ARScene.h"
 #include "Debug.h"
-#include "math/Matrix4x4.h"
+#include "graphics/Texture.h"
 #import <ARKit/ARKit.h>
 
-Viry3D::Matrix4x4 matrix_float4x4_matrix(const matrix_float4x4& mat)
+using namespace Viry3D;
+
+Matrix4x4 matrix_float4x4_matrix(const matrix_float4x4& mat)
 {
-    return Viry3D::Matrix4x4(
+    return Matrix4x4(
         mat.columns[0].x, mat.columns[1].x, mat.columns[2].x, mat.columns[3].x,
         mat.columns[0].y, mat.columns[1].y, mat.columns[2].y, mat.columns[3].y,
         mat.columns[0].z, mat.columns[1].z, mat.columns[2].z, mat.columns[3].z,
         mat.columns[0].w, mat.columns[1].w, mat.columns[2].w, mat.columns[3].w);
 }
 
-matrix_float4x4 matrix_float4x4_matrix(const Viry3D::Matrix4x4& mat)
+matrix_float4x4 matrix_float4x4_matrix(const Matrix4x4& mat)
 {
     matrix_float4x4 matrix;
     matrix.columns[0] = { mat.m00, mat.m10, mat.m20, mat.m30 };
@@ -48,7 +50,9 @@ API_AVAILABLE(ios(11.0))
 
 @implementation SessionDelegate
 {
-
+    Ref<Texture> m_texture_y;
+    Ref<Texture> m_texture_uv;
+    Matrix4x4 m_display_transform;
 }
 
 - (instancetype)init
@@ -65,7 +69,8 @@ API_AVAILABLE(ios(11.0))
 
 - (void)dealloc
 {
-
+    m_texture_y.reset();
+    m_texture_uv.reset();
 }
 
 - (void)run
@@ -81,7 +86,22 @@ API_AVAILABLE(ios(11.0))
     [self.session pause];
 }
 
-- (void)session:(ARSession *)session didUpdateFrame:(ARFrame *)frame
+- (const Ref<Texture>&)getCameraImageY
+{
+    return m_texture_y;
+}
+
+- (const Ref<Texture>&)getCameraImageUV
+{
+    return m_texture_uv;
+}
+
+- (const Matrix4x4&)getDisplayTransform
+{
+    return m_display_transform;
+}
+
+- (void)session:(ARSession*)session didUpdateFrame:(ARFrame*)frame
 {
     CVPixelBufferRef pixel_buffer = frame.capturedImage;
     if (CVPixelBufferGetPlaneCount(pixel_buffer) < 2)
@@ -90,6 +110,7 @@ API_AVAILABLE(ios(11.0))
     }
     
     [self updateCapturedTexture:pixel_buffer];
+    [self updateDisplayRotation:frame];
 }
 
 - (void)updateCapturedTexture:(CVPixelBufferRef)pixel_buffer
@@ -102,29 +123,72 @@ API_AVAILABLE(ios(11.0))
     
     int width = (int) CVPixelBufferGetWidthOfPlane(pixel_buffer, 0);
     int height = (int) CVPixelBufferGetHeightOfPlane(pixel_buffer, 0);
+    int size = (int) CVPixelBufferGetBytesPerRowOfPlane(pixel_buffer, 0) * height;
     void* pixels = CVPixelBufferGetBaseAddressOfPlane(pixel_buffer, 0);
+    
+    ByteBuffer buffer((byte*) pixels, size);
+    if (!m_texture_y || m_texture_y->GetWidth() != width || m_texture_y->GetHeight() != height)
+    {
+        m_texture_y = Texture::CreateTexture2DFromMemory(
+            buffer,
+            width, height,
+            TextureFormat::R8,
+            FilterMode::Linear,
+            SamplerAddressMode::ClampToEdge,
+            false,
+            true);
+    }
+    else
+    {
+        m_texture_y->UpdateTexture2D(buffer, 0, 0, width, height);
+    }
     
     width = (int) CVPixelBufferGetWidthOfPlane(pixel_buffer, 1);
     height = (int) CVPixelBufferGetHeightOfPlane(pixel_buffer, 1);
+    size = (int) CVPixelBufferGetBytesPerRowOfPlane(pixel_buffer, 1) * height;
     pixels = CVPixelBufferGetBaseAddressOfPlane(pixel_buffer, 1);
     
-    // y
-    // GL_LUMINANCE GL_LUMINANCE GL_UNSIGNED_BYTE
-    // uv
-    // GL_RG8 GL_RG GL_UNSIGNED_BYTE
+    buffer = ByteBuffer((byte*) pixels, size);
+    if (!m_texture_uv || m_texture_uv->GetWidth() != width || m_texture_uv->GetHeight() != height)
+    {
+        m_texture_uv = Texture::CreateTexture2DFromMemory(
+            buffer,
+            width, height,
+            TextureFormat::R8G8,
+            FilterMode::Linear,
+            SamplerAddressMode::ClampToEdge,
+            false,
+            true);
+    }
+    else
+    {
+        m_texture_uv->UpdateTexture2D(buffer, 0, 0, width, height);
+    }
     
     CVPixelBufferUnlockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);
 }
 
-- (Viry3D::String)addAnchor:(Viry3D::Matrix4x4)transform
+- (void)updateDisplayRotation:(ARFrame*)frame
+{
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    CGAffineTransform transform = [frame displayTransformForOrientation:orientation viewportSize:CGSizeMake(m_texture_y->GetWidth(), m_texture_y->GetHeight())];
+    CGPoint a = CGPointMake(0, 0);
+    CGPoint b = CGPointMake(1, 0);
+    CGPoint a_ = CGPointApplyAffineTransform(a, transform);
+    CGPoint b_ = CGPointApplyAffineTransform(b, transform);
+    Quaternion rot = Quaternion::FromToRotation(Vector3(b.x - a.x, -(b.y - a.y), 0), Vector3(b_.x - a_.x, -(b_.y - a_.y), 0));
+    m_display_transform = Matrix4x4::Rotation(rot);
+}
+
+- (String)addAnchor:(Matrix4x4)transform
 {
     ARAnchor* anchor = [[ARAnchor alloc] initWithTransform:matrix_float4x4_matrix(transform)];
     [self.session addAnchor:anchor];
-    Viry3D::String id = anchor.identifier.UUIDString.UTF8String;
+    String id = anchor.identifier.UUIDString.UTF8String;
     return id;
 }
 
-- (void)removeAnchor:(const Viry3D::String&)id
+- (void)removeAnchor:(const String&)id
 {
     NSArray<ARAnchor*>* anchors = self.session.currentFrame.anchors;
     int anchor_count = (int) [anchors count];
@@ -132,7 +196,7 @@ API_AVAILABLE(ios(11.0))
     for (int i = 0; i < anchor_count; i++)
     {
         ARAnchor* anchor = [anchors objectAtIndex:i];
-        if (Viry3D::String(anchor.identifier.UUIDString.UTF8String) == id)
+        if (String(anchor.identifier.UUIDString.UTF8String) == id)
         {
             [self.session removeAnchor:anchor];
             break;
@@ -145,13 +209,13 @@ API_AVAILABLE(ios(11.0))
     Log("ARSession didFailWithError:%s", [[error localizedDescription] UTF8String]);
 }
 
-- (void)sessionWasInterrupted:(ARSession *)session
+- (void)sessionWasInterrupted:(ARSession*)session
 {
     // Inform the user that the session has been interrupted, for example, by presenting an overlay
     Log("ARSession sessionWasInterrupted");
 }
 
-- (void)sessionInterruptionEnded:(ARSession *)session
+- (void)sessionInterruptionEnded:(ARSession*)session
 {
     // Reset tracking and/or remove existing anchors if consistent tracking is required
     Log("ARSession sessionInterruptionEnded");
@@ -193,5 +257,20 @@ namespace Viry3D
     void ARScene::Pause()
     {
         [g_session pause];
+    }
+    
+    const Ref<Texture>& ARScene::GetCameraTextureY() const
+    {
+        return [g_session getCameraImageY];
+    }
+    
+    const Ref<Texture>& ARScene::GetCameraTextureUV() const
+    {
+        return [g_session getCameraImageUV];
+    }
+    
+    const Matrix4x4& ARScene::GetDisplayTransform() const
+    {
+        return [g_session getDisplayTransform];
     }
 }

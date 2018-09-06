@@ -34,6 +34,7 @@
 #include "ui/Label.h"
 
 // TODO:
+// - add r8g8 r8g8b8 texture format support
 // - demo ARKit
 // - demo 3DGamekit
 // - SwitchControl

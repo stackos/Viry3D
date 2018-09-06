@@ -3086,16 +3086,19 @@ void main()
         camera->SetDepth(depth);
         camera->AddRenderer(renderer);
 
-        String blit_texture_name = texture_name;
-        if (blit_texture_name.Empty())
+        if (texture)
         {
-            blit_texture_name = "u_texture";
-        }
-        blit_material->SetTexture(blit_texture_name, texture);
-
+            String blit_texture_name = texture_name;
+            if (blit_texture_name.Empty())
+            {
+                blit_texture_name = "u_texture";
+            }
+            blit_material->SetTexture(blit_texture_name, texture);
+            
 #if VR_GLES
-        blit_material->SetInt("u_flip_y", texture->IsRenderTexture() ? 1 : 0);
+            blit_material->SetInt("u_flip_y", texture->IsRenderTexture() ? 1 : 0);
 #endif
+        }
 
         return camera;
     }
