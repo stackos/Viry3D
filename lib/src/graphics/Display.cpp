@@ -2821,13 +2821,6 @@ namespace Viry3D
             return buffer;
         }
 
-        void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
-        {
-            glBindBuffer(buffer->GetTarget(), buffer->GetBuffer());
-            glBufferSubData(buffer->GetTarget(), buffer_offset, size, data);
-            glBindBuffer(buffer->GetTarget(), 0);
-        }
-
         void OnResize(int width, int height)
         {
             m_width = width;
@@ -3454,7 +3447,9 @@ void main()
 
     void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
     {
-        m_private->UpdateBuffer(buffer, buffer_offset, data, size);
+        glBindBuffer(buffer->GetTarget(), buffer->GetBuffer());
+        glBufferSubData(buffer->GetTarget(), buffer_offset, size, data);
+        glBindBuffer(buffer->GetTarget(), 0);
     }
 
     void Display::BindSharedContext() const
@@ -3465,6 +3460,11 @@ void main()
     void Display::UnbindSharedContext() const
     {
         m_private->UnbindSharedContext();
+    }
+
+    void Display::Flush() const
+    {
+        glFlush();
     }
     
 #if VR_IOS

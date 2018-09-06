@@ -18,6 +18,7 @@
 #include "ThreadPool.h"
 #include "Object.h"
 #include "Application.h"
+#include "graphics/Display.h"
 
 namespace Viry3D
 {
@@ -101,6 +102,10 @@ namespace Viry3D
             if (task.job)
             {
                 Ref<Object> res = task.job();
+
+#if VR_GLES
+                Display::Instance()->Flush();
+#endif
 
                 if (task.complete)
                 {

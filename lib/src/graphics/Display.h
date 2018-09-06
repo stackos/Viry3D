@@ -150,6 +150,7 @@ namespace Viry3D
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
         void BindSharedContext() const;
         void UnbindSharedContext() const;
+        void Flush() const;
 #if VR_IOS
         void SetBindDefaultFramebufferImplemment(Action action);
         void BindDefaultFramebuffer() const;

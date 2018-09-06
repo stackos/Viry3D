@@ -26,6 +26,7 @@ namespace Viry3D
     public:
         MeshRenderer* m_renderer_sky = nullptr;
         bool m_async_load_complete = false;
+        Vector2 m_last_touch_pos;
 
         void InitSkybox()
         {
@@ -102,7 +103,8 @@ void main()
 )";
 #endif
             RenderState render_state;
-            render_state.cull = RenderState::Cull::Front;
+            render_state.cull = RenderState::Cull::Off;
+            render_state.zTest = RenderState::ZTest::Off;
             render_state.zWrite = RenderState::ZWrite::Off;
             render_state.queue = (int) RenderState::Queue::Background;
 
@@ -123,6 +125,9 @@ void main()
             m_renderer_sky = renderer.get();
 
             renderer->SetLocalPosition(m_camera_param.pos);
+
+            m_camera_param.rot = Vector3(0, 0, 0);
+            m_camera->SetLocalRotation(Quaternion::Euler(m_camera_param.rot));
 
             Thread::Task task;
             task.job = []() {
@@ -153,8 +158,8 @@ void main()
 
         virtual void Init()
         {
-            DemoMesh::Init();
-
+            this->InitCamera();
+            this->InitUI();
             this->InitSkybox();
         }
 
@@ -171,6 +176,24 @@ void main()
         virtual void Update()
         {
             DemoMesh::Update();
+
+            if (Input::GetTouchCount() > 0)
+            {
+                const Touch& touch = Input::GetTouch(0);
+                if (touch.phase == TouchPhase::Began)
+                {
+                    m_last_touch_pos = touch.position;
+                }
+                else if (touch.phase == TouchPhase::Moved)
+                {
+                    Vector2 delta = touch.position - m_last_touch_pos;
+                    m_last_touch_pos = touch.position;
+
+                    m_camera_param.rot.y += -delta.x * 0.1f;
+                    m_camera_param.rot.x += delta.y * 0.1f;
+                    m_camera->SetLocalRotation(Quaternion::Euler(m_camera_param.rot));
+                }
+            }
         }
     };
 }

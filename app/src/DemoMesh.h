@@ -41,14 +41,14 @@ namespace Viry3D
         struct CameraParam
         {
             Vector3 pos;
-            Quaternion rot;
+            Vector3 rot;
             float fov;
             float near_clip;
             float far_clip;
         };
         CameraParam m_camera_param = {
             Vector3(0, 3, -4),
-            Quaternion::Euler(30, 0, 0),
+            Vector3(30, 0, 0),
             45,
             0.3f,
             1000
@@ -76,7 +76,7 @@ namespace Viry3D
             m_camera = Display::Instance()->CreateCamera();
             m_camera->SetDepth(0);
             m_camera->SetLocalPosition(m_camera_param.pos);
-            m_camera->SetLocalRotation(m_camera_param.rot);
+            m_camera->SetLocalRotation(Quaternion::Euler(m_camera_param.rot));
 
             m_camera->SetFieldOfView(m_camera_param.fov);
             m_camera->SetNearClip(m_camera_param.near_clip);
