@@ -15,8 +15,8 @@
 * limitations under the License.
 */
 
-#include "App.h"
 #include "graphics/Display.h"
+#include "App.h"
 #include "Input.h"
 #include "time/Time.h"
 #include <Windows.h>

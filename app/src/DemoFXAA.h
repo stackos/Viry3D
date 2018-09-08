@@ -164,7 +164,7 @@ void main()
 )";
             
             auto shader = RefMake<Shader>(
-#if VR_IOS || VR_ANDROID
+#if VR_IOS || VR_ANDROID || VR_UWP
                 "#version 300 es",
 #else
                 "#version 330",
@@ -172,7 +172,7 @@ void main()
                 Vector<String>(),
                 vs,
                 String::Format(
-#if VR_IOS || VR_ANDROID
+#if VR_IOS || VR_ANDROID || VR_UWP
                     "#version 300 es\n"
 #else
                     "#version 330\n"

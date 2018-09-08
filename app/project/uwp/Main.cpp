@@ -25,7 +25,10 @@
 #include "graphics/Display.h"
 #include "App.h"
 #include "Debug.h"
+#include "Input.h"
+#include "time/Time.h"
 
+using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
 using namespace Windows::ApplicationModel::Activation;
 using namespace Windows::UI::Core;
@@ -36,6 +39,10 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Storage;
 using namespace Microsoft::WRL;
 using namespace Platform;
+
+static void OnPointerPressed(CoreWindow^ window, PointerEventArgs^ e);
+static void OnPointerMoved(CoreWindow^ window, PointerEventArgs^ e);
+static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e);
 
 static Viry3D::String ConvertString(Platform::String^ src)
 {
@@ -63,59 +70,14 @@ static Platform::String^ ConvertString(const Viry3D::String& src)
     return ref new Platform::String(data16);
 }
 
-namespace Viry3D
-{
-    bool FileExist(const String& path)
-    {
-        Ref<bool> exist;
-
-        String root = Application::Instance()->GetDataPath().Replace("/", "\\");
-        String local_path = path.Substring(root.Size() + 1).Replace("/", "\\");
-
-        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(root))).then([&](StorageFolder^ assets) {
-            return assets->TryGetItemAsync(ConvertString(local_path));
-        }).then([&](IStorageItem^ item) {
-            exist = RefMake<bool>(item != nullptr);
-        });
-
-        while (!exist)
-        {
-            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
-        }
-
-        return *exist;
-    }
-
-    ByteBuffer FileReadAllBytes(const String& path)
-    {
-        Ref<ByteBuffer> bufer;
-
-        String root = Application::Instance()->GetDataPath().Replace("/", "\\");
-        String local_path = path.Substring(root.Size() + 1).Replace("/", "\\");
-
-        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(root))).then([&](StorageFolder^ assets) {
-            return assets->TryGetItemAsync(ConvertString(local_path));
-        }).then([&](IStorageItem^ item) {
-            return FileIO::ReadBufferAsync((StorageFile^) item);
-        }).then([&](Streams::IBuffer^ ib) {
-            auto reader = Streams::DataReader::FromBuffer(ib);
-            bufer = RefMake<ByteBuffer>(ib->Length);
-            reader->ReadBytes(Platform::ArrayReference<byte>(bufer->Bytes(), bufer->Size()));
-        });
-
-        while (!bufer)
-        {
-            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
-        }
-
-        return *bufer;
-    }
-}
-
+static EGLDisplay g_egl_display = EGL_NO_DISPLAY;
+static EGLContext g_egl_context = EGL_NO_CONTEXT;
+static EGLContext g_egl_shared_context = EGL_NO_CONTEXT;
+static EGLSurface g_egl_surface = EGL_NO_SURFACE;
 
 namespace app
 {
-    ref class App sealed: public Windows::ApplicationModel::Core::IFrameworkView
+    ref class App sealed: public IFrameworkView
     {
     public:
         App()
@@ -123,7 +85,7 @@ namespace app
         }
 
         // IFrameworkView Methods.
-        virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView)
+        virtual void Initialize(CoreApplicationView^ applicationView)
         {
             // Register event handlers for app lifecycle. This example includes Activated, so that we
             // can make the CoreWindow active and start rendering on the window.
@@ -135,13 +97,17 @@ namespace app
             // http://msdn.microsoft.com/en-us/library/windows/apps/xaml/hh994930.aspx
         }
 
-        virtual void SetWindow(Windows::UI::Core::CoreWindow^ window)
+        virtual void SetWindow(CoreWindow^ window)
         {
             window->VisibilityChanged +=
                 ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &App::OnVisibilityChanged);
 
             window->Closed +=
                 ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::OnWindowClosed);
+
+            window->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerPressed);
+            window->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerMoved);
+            window->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerReleased);
 
             // The CoreWindow has been created, so EGL can be initialized.
             this->InitEGL(window);
@@ -162,14 +128,14 @@ namespace app
 
                     EGLint window_width = 0;
                     EGLint window_height = 0;
-                    eglQuerySurface(m_egl_display, m_egl_surface, EGL_WIDTH, &window_width);
-                    eglQuerySurface(m_egl_display, m_egl_surface, EGL_HEIGHT, &window_height);
+                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &window_width);
+                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &window_height);
 
                     this->Draw(window_width, window_height);
 
                     // The call to eglSwapBuffers might not be successful (e.g. due to Device Lost)
                     // If the call fails, then we must reinitialize EGL and the GL resources.
-                    if (eglSwapBuffers(m_egl_display, m_egl_surface) != GL_TRUE)
+                    if (eglSwapBuffers(g_egl_display, g_egl_surface) != GL_TRUE)
                     {
                         this->DoneEGL();
                         this->InitEGL(CoreWindow::GetForCurrentThread());
@@ -190,8 +156,18 @@ namespace app
         {
         }
 
+        void BindSharedContext()
+        {
+            eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, g_egl_shared_context);
+        }
+
+        void UnbindSharedContext()
+        {
+            eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+
     private:
-        void InitEGL(Windows::UI::Core::CoreWindow^ window)
+        void InitEGL(CoreWindow^ window)
         {
             const EGLint config_attribs[] =
             {
@@ -276,31 +252,31 @@ namespace app
             //
 
             // This tries to initialize EGL to D3D11 Feature Level 10_0+. See above comment for details.
-            m_egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, default_display_attribs);
-            if (m_egl_display == EGL_NO_DISPLAY)
+            g_egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, default_display_attribs);
+            if (g_egl_display == EGL_NO_DISPLAY)
             {
                 throw Exception::CreateException(E_FAIL, L"Failed to get EGL display");
             }
 
-            if (eglInitialize(m_egl_display, NULL, NULL) == EGL_FALSE)
+            if (eglInitialize(g_egl_display, NULL, NULL) == EGL_FALSE)
             {
                 // This tries to initialize EGL to D3D11 Feature Level 9_3, if 10_0+ is unavailable (e.g. on some mobile devices).
-                m_egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, level_9_3_display_attribs);
-                if (m_egl_display == EGL_NO_DISPLAY)
+                g_egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, level_9_3_display_attribs);
+                if (g_egl_display == EGL_NO_DISPLAY)
                 {
                     throw Exception::CreateException(E_FAIL, L"Failed to get EGL display");
                 }
 
-                if (eglInitialize(m_egl_display, NULL, NULL) == EGL_FALSE)
+                if (eglInitialize(g_egl_display, NULL, NULL) == EGL_FALSE)
                 {
                     // This initializes EGL to D3D11 Feature Level 11_0 on WARP, if 9_3+ is unavailable on the default GPU.
-                    m_egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, warp_display_attribs);
-                    if (m_egl_display == EGL_NO_DISPLAY)
+                    g_egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, warp_display_attribs);
+                    if (g_egl_display == EGL_NO_DISPLAY)
                     {
                         throw Exception::CreateException(E_FAIL, L"Failed to get EGL display");
                     }
 
-                    if (eglInitialize(m_egl_display, NULL, NULL) == EGL_FALSE)
+                    if (eglInitialize(g_egl_display, NULL, NULL) == EGL_FALSE)
                     {
                         // If all of the calls to eglInitialize returned EGL_FALSE then an error has occurred.
                         throw Exception::CreateException(E_FAIL, L"Failed to initialize EGL");
@@ -309,7 +285,7 @@ namespace app
             }
 
             EGLint config_count = 0;
-            if ((eglChooseConfig(m_egl_display, config_attribs, &config, 1, &config_count) == EGL_FALSE) || (config_count == 0))
+            if ((eglChooseConfig(g_egl_display, config_attribs, &config, 1, &config_count) == EGL_FALSE) || (config_count == 0))
             {
                 throw Exception::CreateException(E_FAIL, L"Failed to choose first EGLConfig");
             }
@@ -330,18 +306,18 @@ namespace app
             // float customResolutionScale = 0.5f;
             // surfaceCreationProperties->Insert(ref new String(EGLRenderResolutionScaleProperty), PropertyValue::CreateSingle(customResolutionScale));
 
-            m_egl_surface = eglCreateWindowSurface(m_egl_display, config, reinterpret_cast<IInspectable*>(surface_properties), surface_attribs);
-            if (m_egl_surface == EGL_NO_SURFACE)
+            g_egl_surface = eglCreateWindowSurface(g_egl_display, config, reinterpret_cast<IInspectable*>(surface_properties), surface_attribs);
+            if (g_egl_surface == EGL_NO_SURFACE)
             {
                 throw Exception::CreateException(E_FAIL, L"Failed to create EGL fullscreen surface");
             }
 
-            m_egl_context = eglCreateContext(m_egl_display, config, EGL_NO_CONTEXT, context_attribs);
-            if (m_egl_context == EGL_NO_CONTEXT)
+            g_egl_context = eglCreateContext(g_egl_display, config, EGL_NO_CONTEXT, context_attribs);
+            if (g_egl_context == EGL_NO_CONTEXT)
             {
                 context_attribs[1] = 2;
-                m_egl_context = eglCreateContext(m_egl_display, config, EGL_NO_CONTEXT, context_attribs);
-                if (m_egl_context == EGL_NO_CONTEXT)
+                g_egl_context = eglCreateContext(g_egl_display, config, EGL_NO_CONTEXT, context_attribs);
+                if (g_egl_context == EGL_NO_CONTEXT)
                 {
                     throw Exception::CreateException(E_FAIL, L"Failed to create EGL context");
                 }
@@ -351,7 +327,9 @@ namespace app
                 m_is_glesv3 = true;
             }
 
-            if (eglMakeCurrent(m_egl_display, m_egl_surface, m_egl_surface, m_egl_context) == EGL_FALSE)
+            g_egl_shared_context = eglCreateContext(g_egl_display, config, g_egl_context, context_attribs);
+
+            if (eglMakeCurrent(g_egl_display, g_egl_surface, g_egl_surface, g_egl_context) == EGL_FALSE)
             {
                 throw Exception::CreateException(E_FAIL, L"Failed to make fullscreen EGLSurface current");
             }
@@ -359,39 +337,48 @@ namespace app
 
         void DoneEGL()
         {
-            if (m_egl_display != EGL_NO_DISPLAY && m_egl_surface != EGL_NO_SURFACE)
+            if (g_egl_display != EGL_NO_DISPLAY)
             {
-                eglDestroySurface(m_egl_display, m_egl_surface);
-                m_egl_surface = EGL_NO_SURFACE;
-            }
+                if (g_egl_surface != EGL_NO_SURFACE)
+                {
+                    eglDestroySurface(g_egl_display, g_egl_surface);
+                    g_egl_surface = EGL_NO_SURFACE;
+                }
 
-            if (m_egl_display != EGL_NO_DISPLAY && m_egl_context != EGL_NO_CONTEXT)
-            {
-                eglDestroyContext(m_egl_display, m_egl_context);
-                m_egl_context = EGL_NO_CONTEXT;
-            }
+                if (g_egl_shared_context != EGL_NO_CONTEXT)
+                {
+                    eglDestroyContext(g_egl_display, g_egl_shared_context);
+                    g_egl_shared_context = EGL_NO_CONTEXT;
+                }
 
-            if (m_egl_display != EGL_NO_DISPLAY)
-            {
-                eglTerminate(m_egl_display);
-                m_egl_display = EGL_NO_DISPLAY;
+                if (g_egl_context != EGL_NO_CONTEXT)
+                {
+                    eglDestroyContext(g_egl_display, g_egl_context);
+                    g_egl_context = EGL_NO_CONTEXT;
+                }
+
+                if (g_egl_display != EGL_NO_DISPLAY)
+                {
+                    eglTerminate(g_egl_display);
+                    g_egl_display = EGL_NO_DISPLAY;
+                }
             }
         }
 
         // Application lifecycle event handlers.
-        void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args)
+        void OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
         {
             // Run() won't start until the CoreWindow is activated.
             CoreWindow::GetForCurrentThread()->Activate();
         }
 
         // Window event handlers.
-        void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args)
+        void OnVisibilityChanged(CoreWindow^ window, VisibilityChangedEventArgs^ e)
         {
-            m_window_visible = args->Visible;
+            m_window_visible = e->Visible;
         }
 
-        void OnWindowClosed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CoreWindowEventArgs^ args)
+        void OnWindowClosed(CoreWindow^ window, CoreWindowEventArgs^ e)
         {
             m_window_closed = true;
         }
@@ -402,11 +389,11 @@ namespace app
 
             EGLint window_width = 0;
             EGLint window_height = 0;
-            eglQuerySurface(m_egl_display, m_egl_surface, EGL_WIDTH, &window_width);
-            eglQuerySurface(m_egl_display, m_egl_surface, EGL_HEIGHT, &window_height);
+            eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &window_width);
+            eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &window_height);
 
             Viry3D::String name = "Viry3D";
-            Viry3D::String data_path = ConvertString(Windows::ApplicationModel::Package::Current->InstalledLocation->Path);
+            Viry3D::String data_path = ConvertString(Package::Current->InstalledLocation->Path);
             data_path = data_path.Replace("\\", "/") + "/Assets";
 
             m_display = new Viry3D::Display(name, nullptr, window_width, window_height);
@@ -450,9 +437,6 @@ namespace app
 
         bool m_window_closed = false;
         bool m_window_visible = true;
-        EGLDisplay m_egl_display = EGL_NO_DISPLAY;
-        EGLContext m_egl_context = EGL_NO_CONTEXT;
-        EGLSurface m_egl_surface = EGL_NO_SURFACE;
         bool m_is_glesv3 = false;
         Viry3D::Display* m_display = nullptr;
         Viry3D::App* m_app = nullptr;
@@ -460,10 +444,10 @@ namespace app
 }
 
 // Implementation of the IFrameworkViewSource interface, necessary to run our app.
-ref class AppSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
+ref class AppSource sealed : IFrameworkViewSource
 {
 public:
-    virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView()
+    virtual IFrameworkView^ CreateView()
     {
         return ref new app::App();
     }
@@ -471,9 +455,200 @@ public:
 
 // The main function creates an IFrameworkViewSource for our app, and runs the app.
 [Platform::MTAThread]
-int main(Platform::Array<Platform::String^>^)
+int main(Array<String^>^)
 {
     auto app_source = ref new AppSource();
     CoreApplication::Run(app_source);
     return 0;
+}
+
+// Input
+using namespace Viry3D;
+
+extern Vector<Touch> g_input_touches;
+extern List<Touch> g_input_touch_buffer;
+extern bool g_mouse_button_down[3];
+extern bool g_mouse_button_up[3];
+extern Vector3 g_mouse_position;
+extern bool g_mouse_button_held[3];
+
+static bool g_mouse_down = false;
+
+static void OnPointerPressed(CoreWindow^ window, PointerEventArgs^ e)
+{
+    int x = (int) e->CurrentPoint->Position.X;
+    int y = (int) e->CurrentPoint->Position.Y;
+
+    if (!g_mouse_down)
+    {
+        Touch t;
+        t.deltaPosition = Vector2(0, 0);
+        t.deltaTime = 0;
+        t.fingerId = 0;
+        t.phase = TouchPhase::Began;
+        t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+        t.tapCount = 1;
+        t.time = Time::GetRealTimeSinceStartup();
+
+        if (!g_input_touches.Empty())
+        {
+            g_input_touch_buffer.AddLast(t);
+        }
+        else
+        {
+            g_input_touches.Add(t);
+        }
+
+        g_mouse_down = true;
+    }
+
+    g_mouse_button_down[0] = true;
+    g_mouse_position.x = (float) x;
+    g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+    g_mouse_button_held[0] = true;
+}
+
+static void OnPointerMoved(CoreWindow^ window, PointerEventArgs^ e)
+{
+    int x = (int) e->CurrentPoint->Position.X;
+    int y = (int) e->CurrentPoint->Position.Y;
+
+    if (g_mouse_down)
+    {
+        Touch t;
+        t.deltaPosition = Vector2(0, 0);
+        t.deltaTime = 0;
+        t.fingerId = 0;
+        t.phase = TouchPhase::Moved;
+        t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+        t.tapCount = 1;
+        t.time = Time::GetRealTimeSinceStartup();
+
+        if (!g_input_touches.Empty())
+        {
+            if (g_input_touch_buffer.Empty())
+            {
+                g_input_touch_buffer.AddLast(t);
+            }
+            else
+            {
+                if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
+                {
+                    g_input_touch_buffer.Last() = t;
+                }
+                else
+                {
+                    g_input_touch_buffer.AddLast(t);
+                }
+            }
+        }
+        else
+        {
+            g_input_touches.Add(t);
+        }
+    }
+
+    g_mouse_position.x = (float) x;
+    g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+}
+
+static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
+{
+    int x = (int) e->CurrentPoint->Position.X;
+    int y = (int) e->CurrentPoint->Position.Y;
+
+    if (g_mouse_down)
+    {
+        Touch t;
+        t.deltaPosition = Vector2(0, 0);
+        t.deltaTime = 0;
+        t.fingerId = 0;
+        t.phase = TouchPhase::Ended;
+        t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+        t.tapCount = 1;
+        t.time = Time::GetRealTimeSinceStartup();
+
+        if (!g_input_touches.Empty())
+        {
+            g_input_touch_buffer.AddLast(t);
+        }
+        else
+        {
+            g_input_touches.Add(t);
+        }
+
+        g_mouse_down = false;
+    }
+
+    g_mouse_button_up[0] = true;
+    g_mouse_position.x = (float) x;
+    g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+    g_mouse_button_held[0] = false;
+}
+
+namespace Viry3D
+{
+    bool FileExist(const String& path)
+    {
+        Ref<bool> exist;
+
+        String root = Application::Instance()->GetDataPath().Replace("/", "\\");
+        String local_path = path.Substring(root.Size() + 1).Replace("/", "\\");
+
+        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(root))).then([&](StorageFolder^ assets) {
+            return assets->TryGetItemAsync(ConvertString(local_path));
+        }).then([&](IStorageItem^ item) {
+            exist = RefMake<bool>(item != nullptr);
+        });
+
+        while (!exist)
+        {
+            auto window = CoreWindow::GetForCurrentThread();
+            if (window)
+            {
+                window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+            }
+        }
+
+        return *exist;
+    }
+
+    ByteBuffer FileReadAllBytes(const String& path)
+    {
+        Ref<ByteBuffer> bufer;
+
+        String root = Application::Instance()->GetDataPath().Replace("/", "\\");
+        String local_path = path.Substring(root.Size() + 1).Replace("/", "\\");
+
+        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(root))).then([&](StorageFolder^ assets) {
+            return assets->TryGetItemAsync(ConvertString(local_path));
+        }).then([&](IStorageItem^ item) {
+            return FileIO::ReadBufferAsync((StorageFile^) item);
+        }).then([&](Streams::IBuffer^ ib) {
+            auto reader = Streams::DataReader::FromBuffer(ib);
+            bufer = RefMake<ByteBuffer>(ib->Length);
+            reader->ReadBytes(Platform::ArrayReference<byte>(bufer->Bytes(), bufer->Size()));
+        });
+
+        while (!bufer)
+        {
+            auto window = CoreWindow::GetForCurrentThread();
+            if (window)
+            {
+                window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+            }
+        }
+
+        return *bufer;
+    }
+
+    void BindSharedContext()
+    {
+        eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, g_egl_shared_context);
+    }
+
+    void UnbindSharedContext()
+    {
+        eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    }
 }

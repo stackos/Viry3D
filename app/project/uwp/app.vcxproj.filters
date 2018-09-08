@@ -32,10 +32,82 @@
     <Filter Include="Assets\font">
       <UniqueIdentifier>{07133f44-3d22-41e5-9590-2999a6fe8446}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Library">
+      <UniqueIdentifier>{ca8d69a8-d731-44a0-a764-cd51272b4a13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\shader">
+      <UniqueIdentifier>{32fa28ee-0a18-4421-ab0d-e2f3d12650e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\shader\Include">
+      <UniqueIdentifier>{0804ddb0-4fb0-47ee-b078-a30ae6707643}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\texture">
+      <UniqueIdentifier>{2f1dd083-ef74-4ab2-8b70-c44ac861666f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\texture\dawn">
+      <UniqueIdentifier>{e43cffb0-358e-47ea-be5d-1b4a61ee7682}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\res">
+      <UniqueIdentifier>{13cb41e5-61b5-4e21-9b0f-f8756a59b1bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\texture\ui">
+      <UniqueIdentifier>{c96eb039-0465-4de2-bcae-94846da18f1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\res\model">
+      <UniqueIdentifier>{9cda1dac-0c58-475c-97f3-3a22fdd32808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\res\model\ToonSoldier 1">
+      <UniqueIdentifier>{7c9f997b-82a0-4ba8-b555-86aa5112c830}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
       <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\texture\checkflag.png">
+      <Filter>Assets\texture</Filter>
+    </Image>
+    <Image Include="Assets\texture\logo.jpg">
+      <Filter>Assets\texture</Filter>
+    </Image>
+    <Image Include="Assets\texture\dawn\0.png">
+      <Filter>Assets\texture\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\dawn\1.png">
+      <Filter>Assets\texture\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\dawn\2.png">
+      <Filter>Assets\texture\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\dawn\3.png">
+      <Filter>Assets\texture\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\dawn\4.png">
+      <Filter>Assets\texture\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\dawn\5.png">
+      <Filter>Assets\texture\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\0.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\1.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\2.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\3.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\4.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\5.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\res\model\ToonSoldier 1\tex.png.tex.png">
+      <Filter>Assets\res\model\ToonSoldier 1</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +120,63 @@
     </None>
     <None Include="$(AngleBinPath)libGLESv2.dll">
       <Filter>Binary</Filter>
+    </None>
+    <None Include="Assets\Library\unity default resources.Capsule.mesh">
+      <Filter>Assets\Library</Filter>
+    </None>
+    <None Include="Assets\Library\unity default resources.Cube.mesh">
+      <Filter>Assets\Library</Filter>
+    </None>
+    <None Include="Assets\Library\unity default resources.Cylinder.mesh">
+      <Filter>Assets\Library</Filter>
+    </None>
+    <None Include="Assets\Library\unity default resources.Plane.mesh">
+      <Filter>Assets\Library</Filter>
+    </None>
+    <None Include="Assets\Library\unity default resources.Quad.mesh">
+      <Filter>Assets\Library</Filter>
+    </None>
+    <None Include="Assets\Library\unity default resources.Sphere.mesh">
+      <Filter>Assets\Library</Filter>
+    </None>
+    <None Include="Assets\shader\Include\Base.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\shader\Include\Diffuse.100.fs.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\shader\Include\Diffuse.100.vs.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\shader\Include\Diffuse.fs.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\shader\Include\Diffuse.vs.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\shader\Include\FXAA.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\shader\Include\Shadow.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\shader\Include\Skin.in">
+      <Filter>Assets\shader\Include</Filter>
+    </None>
+    <None Include="Assets\texture\black.bmp.tex">
+      <Filter>Assets\texture</Filter>
+    </None>
+    <None Include="Assets\res\model\ToonSoldier 1\mat.mat">
+      <Filter>Assets\res\model\ToonSoldier 1</Filter>
+    </None>
+    <None Include="Assets\res\model\ToonSoldier 1\tex.png.tex">
+      <Filter>Assets\res\model\ToonSoldier 1</Filter>
+    </None>
+    <None Include="Assets\res\model\ToonSoldier 1\ToonSoldier 1.go">
+      <Filter>Assets\res\model\ToonSoldier 1</Filter>
+    </None>
+    <None Include="Assets\res\model\ToonSoldier 1\ToonSoldier.FBX.MESH_Infantry.mesh">
+      <Filter>Assets\res\model\ToonSoldier 1</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

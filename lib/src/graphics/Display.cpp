@@ -241,6 +241,9 @@ namespace Viry3D
         VkImageView image_view;
         VkCommandBuffer cmd = VK_NULL_HANDLE;
     };
+#elif VR_UWP
+extern void BindSharedContext();
+extern void UnbindSharedContext();
 #endif
 
     class DisplayPrivate
@@ -2740,6 +2743,31 @@ namespace Viry3D
         void UnbindSharedContext() const
         {
             eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+#elif VR_UWP
+        void InitContext()
+        {
+
+        }
+
+        void DoneContext()
+        {
+
+        }
+
+        void SwapBuffers() const
+        {
+
+        }
+
+        void BindSharedContext() const
+        {
+            Viry3D::BindSharedContext();
+        }
+
+        void UnbindSharedContext() const
+        {
+            Viry3D::UnbindSharedContext();
         }
 #else
         void InitContext()
