@@ -34,11 +34,10 @@
 #include "ui/Label.h"
 
 // TODO:
-// - uwp app data / save path
-// - uwp port base on angle
-// - add r8g8 r8g8b8 texture format support
 // - demo ARKit
 // - demo 3DGamekit
+// - uwp save path
+// - wasm save path
 // - SwitchControl
 // - SliderControl
 // - ScrollView TabView TreeView
@@ -225,7 +224,7 @@ namespace Viry3D
                 m_demo = nullptr;
 
                 m_canvas->RemoveAllViews();
-                m_camera->SetClearFlags(CameraClearFlags::Color);
+                m_camera->SetClearFlags(CameraClearFlags::ColorAndDepth);
                 m_camera->SetDepth(0);
                 this->AddDemoButtons();
             }

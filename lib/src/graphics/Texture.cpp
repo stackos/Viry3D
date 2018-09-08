@@ -37,6 +37,8 @@ namespace Viry3D
         {
             case TextureFormat::R8:
                 return VK_FORMAT_R8_UNORM;
+            case TextureFormat::R8G8:
+                return VK_FORMAT_R8G8_UNORM;
             case TextureFormat::R8G8B8A8:
                 return VK_FORMAT_R8G8B8A8_UNORM;
             case TextureFormat::D16:
@@ -64,6 +66,8 @@ namespace Viry3D
         {
             case VK_FORMAT_R8_UNORM:
                 return TextureFormat::R8;
+            case VK_FORMAT_R8G8_UNORM:
+                return TextureFormat::R8G8;
             case VK_FORMAT_R8G8B8A8_UNORM:
                 return TextureFormat::R8G8B8A8;
             case VK_FORMAT_D16_UNORM:
@@ -119,20 +123,10 @@ namespace Viry3D
     TextureFormat Texture::ChooseDepthFormatSupported(bool sample)
     {
 #if VR_VULKAN
-        if (sample)
-        {
-            VkFormat format = Display::Instance()->ChooseFormatSupported(
-                { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
-            return VkFormatToTextureFormat(format);
-        }
-        else
-        {
-            VkFormat format = Display::Instance()->ChooseFormatSupported(
-                { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-            return VkFormatToTextureFormat(format);
-        }
+        VkFormat format = Display::Instance()->ChooseFormatSupported(
+            { VK_FORMAT_D32_SFLOAT, VK_FORMAT_X8_D24_UNORM_PACK32, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | (sample ? VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT : 0));
+        return VkFormatToTextureFormat(format);
 #elif VR_GLES
         return TextureFormat::D32;
 #endif
@@ -159,6 +153,7 @@ namespace Viry3D
                 assert(!"image file format not support");
             }
 
+            // vulkan not support R8G8B8, convert to R8G8B8A8 always
             if (bpp == 24)
             {
                 int pixel_count = pixels.Size() / 3;
@@ -193,7 +188,7 @@ namespace Viry3D
         if (pixels.Size() > 0)
         {
             TextureFormat format;
-
+            
             if (bpp == 32)
             {
                 format = TextureFormat::R8G8B8A8;
@@ -1114,11 +1109,6 @@ namespace Viry3D
             texture->m_format = GL_LUMINANCE_ALPHA;
             texture->m_pixel_type = GL_UNSIGNED_BYTE;
 #endif
-            break;
-        case TextureFormat::R8G8B8:
-            texture->m_internal_format = GL_RGB;
-            texture->m_format = GL_RGB;
-            texture->m_pixel_type = GL_UNSIGNED_BYTE;
             break;
         case TextureFormat::R8G8B8A8:
             texture->m_internal_format = GL_RGBA;

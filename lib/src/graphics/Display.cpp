@@ -1050,10 +1050,10 @@ extern void UnbindSharedContext();
 
             switch (clear_flag)
             {
-                case CameraClearFlags::ColorAndDepth:
+                case CameraClearFlags::Color:
                 {
                     color_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
-                    depth_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                    depth_load = VK_ATTACHMENT_LOAD_OP_LOAD;
                     break;
                 }
                 case CameraClearFlags::Depth:
@@ -1061,6 +1061,12 @@ extern void UnbindSharedContext();
                     color_load = VK_ATTACHMENT_LOAD_OP_LOAD;
                     depth_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
 					color_initial_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                    break;
+                }
+                case CameraClearFlags::ColorAndDepth:
+                {
+                    color_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                    depth_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
                     break;
                 }
                 case CameraClearFlags::Nothing:
