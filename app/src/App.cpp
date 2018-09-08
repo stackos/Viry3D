@@ -34,6 +34,8 @@
 #include "ui/Label.h"
 
 // TODO:
+// - uwp app data / save path
+// - uwp port base on angle
 // - add r8g8 r8g8b8 texture format support
 // - demo ARKit
 // - demo 3DGamekit
@@ -41,7 +43,7 @@
 // - SliderControl
 // - ScrollView TabView TreeView
 
-#if VR_WINDOWS || VR_MAC || VR_WASM
+#if VR_WINDOWS || VR_MAC || VR_WASM || VR_UWP
 #define UI_SCALE 0.4
 #else
 #define UI_SCALE 1.0

@@ -91,12 +91,15 @@ namespace Viry3D
 
 		if (File::Exist(file))
 		{
-			FT_Face face;
-			auto err = FT_New_Face(g_ft_lib, file.CString(), 0, &face);
+            auto buffer = File::ReadAllBytes(file);
+
+            FT_Face face;
+            auto err = FT_New_Memory_Face(g_ft_lib, buffer.Bytes(), buffer.Size(), 0, &face);
 			if (!err)
 			{
 				font = Ref<Font>(new Font());
 				font->m_font = (void*) face;
+                font->m_face_buffer = buffer;
 			}
 		}
         else

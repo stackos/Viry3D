@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app", "app.vcxproj", "{2F2CEFF8-BD3A-41EF-88F1-DFE7CAF0E24E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1995D180-B8C1-4E04-9142-BD5DAF905946} = {1995D180-B8C1-4E04-9142-BD5DAF905946}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "viry3d", "..\..\..\lib\project\uwp\viry3d.vcxproj", "{1995D180-B8C1-4E04-9142-BD5DAF905946}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +38,18 @@ Global
 		{2F2CEFF8-BD3A-41EF-88F1-DFE7CAF0E24E}.Release|x86.ActiveCfg = Release|Win32
 		{2F2CEFF8-BD3A-41EF-88F1-DFE7CAF0E24E}.Release|x86.Build.0 = Release|Win32
 		{2F2CEFF8-BD3A-41EF-88F1-DFE7CAF0E24E}.Release|x86.Deploy.0 = Release|Win32
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Debug|ARM.ActiveCfg = Debug|ARM
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Debug|ARM.Build.0 = Debug|ARM
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Debug|x64.ActiveCfg = Debug|x64
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Debug|x64.Build.0 = Debug|x64
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Debug|x86.ActiveCfg = Debug|Win32
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Debug|x86.Build.0 = Debug|Win32
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Release|ARM.ActiveCfg = Release|ARM
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Release|ARM.Build.0 = Release|ARM
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Release|x64.ActiveCfg = Release|x64
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Release|x64.Build.0 = Release|x64
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Release|x86.ActiveCfg = Release|Win32
+		{1995D180-B8C1-4E04-9142-BD5DAF905946}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

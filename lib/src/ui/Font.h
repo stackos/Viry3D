@@ -69,6 +69,7 @@ namespace Viry3D
     private:
         static Map<FontType, Ref<Font>> m_fonts;
 		void* m_font;
+        ByteBuffer m_face_buffer;
 		Map<char32_t, Map<int, GlyphInfo>> m_glyphs;
 	};
 }

@@ -19,7 +19,7 @@
 #include "Debug.h"
 #include <time.h>
 
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_UWP
 #include <windows.h>
 #elif VR_IOS || VR_ANDROID || VR_MAC || VR_WASM
 #include <sys/time.h>
@@ -60,7 +60,7 @@ namespace Viry3D
 	{
 		long long t;
 
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_UWP
 		SYSTEMTIME sys_time;
 		::GetLocalTime(&sys_time);
 

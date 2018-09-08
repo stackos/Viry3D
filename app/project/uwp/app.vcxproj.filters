@@ -26,12 +26,12 @@
     <Filter Include="Binary">
       <UniqueIdentifier>{4e36b3cc-a620-4d7a-9d7b-f9447cbe9402}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="App.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="App.h" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{60d2001a-6f76-433d-ada6-237fb5fd9261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\font">
+      <UniqueIdentifier>{07133f44-3d22-41e5-9590-2999a6fe8446}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -49,5 +49,53 @@
     <None Include="$(AngleBinPath)libGLESv2.dll">
       <Filter>Binary</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\App.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\App.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Demo.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoAR.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoFXAA.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoMesh.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoPostEffectBlur.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoRenderToTexture.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoShadowMap.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoSkinnedMesh.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoSkybox.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\DemoUI.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Assets\font\Consola.ttf">
+      <Filter>Assets\font</Filter>
+    </Font>
   </ItemGroup>
 </Project>

@@ -308,7 +308,7 @@ signed long id3_tag_query(id3_byte_t const *data, id3_length_t length)
 
   case TAGTYPE_ID3V2_FOOTER:
     parse_header(&data, &version, &flags, &size);
-    return -size - 10;
+    return -(signed long) size - 10;
 
   case TAGTYPE_NONE:
     break;

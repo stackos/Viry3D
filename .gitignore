@@ -8,6 +8,7 @@
 *.iml
 *.mp4
 *.o
+*.pri
 local.properties
 app.exe
 viry3d.lib

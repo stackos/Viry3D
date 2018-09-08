@@ -522,7 +522,7 @@ void dct32(mad_fixed_t const in[32], unsigned int slot,
 #  endif
 #  define ML0(hi, lo, x, y)	((lo)  = (x) * (y))
 #  define MLA(hi, lo, x, y)	((lo) += (x) * (y))
-#  define MLN(hi, lo)		((lo)  = -(lo))
+#  define MLN(hi, lo)		((lo)  = -((signed long) lo))
 #  define MLZ(hi, lo)		((void) (hi), (mad_fixed_t) (lo))
 #  define SHIFT(x)		((x) >> 2)
 #  define PRESHIFT(x)		((MAD_F(x) + (1L << 13)) >> 14)

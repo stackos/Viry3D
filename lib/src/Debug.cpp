@@ -17,7 +17,7 @@
 
 #include "Debug.h"
 
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_UWP
 #include <Windows.h>
 #elif VR_IOS
 #import <UIKit/UIKit.h>
@@ -29,16 +29,16 @@
 
 namespace Viry3D
 {
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_UWP
     void Debug::LogString(const String& str, bool end_line)
     {
         if (end_line)
         {
-            OutputDebugString((str + "\n").CString());
+            OutputDebugStringA((str + "\n").CString());
         }
         else
         {
-            OutputDebugString(str.CString());
+            OutputDebugStringA(str.CString());
         }
     }
 #elif VR_IOS

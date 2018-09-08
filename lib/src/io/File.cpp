@@ -27,39 +27,54 @@
 
 namespace Viry3D
 {
-	bool File::Exist(const String& path)
-	{
-		std::ifstream is(path.CString(), std::ios::binary);
+#if VR_UWP
+    extern bool FileExist(const String& path);
+    extern ByteBuffer FileReadAllBytes(const String& path);
 
-		bool exist = !(!is);
+    bool File::Exist(const String& path)
+    {
+        return FileExist(path);
+    }
 
-		if (exist)
-		{
-			is.close();
-		}
+    ByteBuffer File::ReadAllBytes(const String& path)
+    {
+        return FileReadAllBytes(path);
+    }
+#else
+    bool File::Exist(const String& path)
+    {
+        std::ifstream is(path.CString(), std::ios::binary);
 
-		return exist;
-	}
+        bool exist = !(!is);
 
-	ByteBuffer File::ReadAllBytes(const String& path)
-	{
-		ByteBuffer buffer;
+        if (exist)
+        {
+            is.close();
+        }
 
-		std::ifstream is(path.CString(), std::ios::binary);
-		if (is)
-		{
-			is.seekg(0, std::ios::end);
-			int size = (int) is.tellg();
-			is.seekg(0, std::ios::beg);
+        return exist;
+    }
 
-			buffer = ByteBuffer(size);
+    ByteBuffer File::ReadAllBytes(const String& path)
+    {
+        ByteBuffer buffer;
 
-			is.read((char*) buffer.Bytes(), size);
-			is.close();
-		}
+        std::ifstream is(path.CString(), std::ios::binary);
+        if (is)
+        {
+            is.seekg(0, std::ios::end);
+            int size = (int) is.tellg();
+            is.seekg(0, std::ios::beg);
 
-		return buffer;
-	}
+            buffer = ByteBuffer(size);
+
+            is.read((char*) buffer.Bytes(), size);
+            is.close();
+        }
+
+        return buffer;
+    }
+#endif
 
 	void File::WriteAllBytes(const String& path, const ByteBuffer& buffer)
 	{

@@ -30,4 +30,7 @@
 #include <OpenGL/gl3.h>
 #elif VR_WASM
 #include <GLES3/gl3.h>
+#elif VR_UWP
+#define GL_GLEXT_PROTOTYPES
+#include <GLES3/gl3.h>
 #endif

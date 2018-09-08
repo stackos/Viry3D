@@ -38,7 +38,7 @@ namespace Viry3D
         void SetName(const String& name);
         const String& GetDataPath();
         const String& GetSavePath();
-#if VR_ANDROID
+#if VR_ANDROID || VR_UWP
         void SetDataPath(const String& path);
         void SetSavePath(const String& path);
 #endif

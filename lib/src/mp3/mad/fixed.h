@@ -87,8 +87,8 @@ typedef mad_fixed_t mad_sample_t;
 #  endif
 # endif
 
-# define MAD_F_MIN		((mad_fixed_t) -0x80000000L)
-# define MAD_F_MAX		((mad_fixed_t) +0x7fffffffL)
+# define MAD_F_MIN		(-(mad_fixed_t) 0x80000000L)
+# define MAD_F_MAX		((mad_fixed_t) 0x7fffffffL)
 
 # define MAD_F_ONE		MAD_F(0x10000000)
 
