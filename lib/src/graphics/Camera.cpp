@@ -44,7 +44,9 @@ namespace Viry3D
         m_near_clip(0.3f),
         m_far_clip(1000),
         m_orthographic(false),
-        m_orthographic_size(1)
+        m_orthographic_size(1),
+        m_view_matrix_external(false),
+        m_projection_matrix_external(false)
 	{
 
 	}
@@ -67,13 +69,23 @@ namespace Viry3D
         m_view_matrix_dirty = true;
     }
 
+    void Camera::SetViewMatrixExternal(const Matrix4x4& mat)
+    {
+        m_view_matrix = mat;
+        m_view_matrix_dirty = true;
+        m_view_matrix_external = true;
+    }
+    
     const Matrix4x4& Camera::GetViewMatrix()
     {
         if (m_view_matrix_dirty)
         {
             m_view_matrix_dirty = false;
 
-            m_view_matrix = Matrix4x4::LookTo(this->GetPosition(), this->GetForward(), this->GetUp());
+            if (!m_view_matrix_external)
+            {
+                m_view_matrix = Matrix4x4::LookTo(this->GetPosition(), this->GetForward(), this->GetUp());
+            }
 
             for (auto& i : m_renderers)
             {
@@ -118,26 +130,37 @@ namespace Viry3D
         m_projection_matrix_dirty = true;
     }
 
+    void Camera::SetProjectionMatrixExternal(const Matrix4x4& mat)
+    {
+        m_projection_matrix = mat;
+        m_projection_matrix_dirty = true;
+        m_projection_matrix_external = true;
+    }
+    
     const Matrix4x4& Camera::GetProjectionMatrix()
     {
         if (m_projection_matrix_dirty)
         {
             m_projection_matrix_dirty = false;
 
-            if (m_orthographic)
+            if (!m_projection_matrix_external)
             {
-                int target_width = this->GetTargetWidth();
-                int target_height = this->GetTargetHeight();
-                float ortho_size = m_orthographic_size;
-                float top = ortho_size;
-                float bottom = -ortho_size;
-                float plane_h = ortho_size * 2;
-                float plane_w = plane_h * target_width / target_height;
-                m_projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_near_clip, m_far_clip);
-            }
-            else
-            {
-                m_projection_matrix = Matrix4x4::Perspective(m_field_of_view, this->GetTargetWidth() / (float) this->GetTargetHeight(), m_near_clip, m_far_clip);
+                float view_width = this->GetTargetWidth() * m_viewport_rect.width;
+                float view_height = this->GetTargetHeight() * m_viewport_rect.height;
+                
+                if (m_orthographic)
+                {
+                    float ortho_size = m_orthographic_size;
+                    float top = ortho_size;
+                    float bottom = -ortho_size;
+                    float plane_h = ortho_size * 2;
+                    float plane_w = plane_h * view_width / view_height;
+                    m_projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_near_clip, m_far_clip);
+                }
+                else
+                {
+                    m_projection_matrix = Matrix4x4::Perspective(m_field_of_view, view_width / view_height, m_near_clip, m_far_clip);
+                }
             }
 
             for (auto& i : m_renderers)
@@ -174,7 +197,8 @@ namespace Viry3D
 	void Camera::SetViewportRect(const Rect& rect)
 	{
 		m_viewport_rect = rect;
-
+        m_projection_matrix_dirty = true;
+        
 #if VR_VULKAN
 		m_instance_cmds_dirty = true;
 #endif

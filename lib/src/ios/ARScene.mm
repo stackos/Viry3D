@@ -22,7 +22,7 @@
 
 using namespace Viry3D;
 
-Matrix4x4 matrix_float4x4_matrix(const matrix_float4x4& mat)
+static Matrix4x4 matrix_float4x4_matrix(const matrix_float4x4& mat)
 {
     return Matrix4x4(
         mat.columns[0].x, mat.columns[1].x, mat.columns[2].x, mat.columns[3].x,
@@ -31,7 +31,7 @@ Matrix4x4 matrix_float4x4_matrix(const matrix_float4x4& mat)
         mat.columns[0].w, mat.columns[1].w, mat.columns[2].w, mat.columns[3].w);
 }
 
-matrix_float4x4 matrix_float4x4_matrix(const Matrix4x4& mat)
+static matrix_float4x4 matrix_float4x4_matrix(const Matrix4x4& mat)
 {
     matrix_float4x4 matrix;
     matrix.columns[0] = { mat.m00, mat.m10, mat.m20, mat.m30 };
@@ -53,6 +53,13 @@ API_AVAILABLE(ios(11.0))
     Ref<Texture> m_texture_y;
     Ref<Texture> m_texture_uv;
     Matrix4x4 m_display_transform;
+    Vector3 m_camera_pos;
+    Quaternion m_camera_rot;
+    float m_camera_fov;
+    float m_camera_near;
+    float m_camera_far;
+    Matrix4x4 m_camera_view_matrix;
+    Matrix4x4 m_camera_projection_matrix;
 }
 
 - (instancetype)init
@@ -101,6 +108,41 @@ API_AVAILABLE(ios(11.0))
     return m_display_transform;
 }
 
+- (const Vector3&)getCameraPosition
+{
+    return m_camera_pos;
+}
+
+- (const Quaternion&)getCameraRotation
+{
+    return m_camera_rot;
+}
+
+- (float)getCameraFov
+{
+    return m_camera_fov;
+}
+
+- (float)getCameraNear
+{
+    return m_camera_near;
+}
+
+- (float)getCameraFar
+{
+    return m_camera_far;
+}
+
+- (const Matrix4x4&)getCameraViewMatrix
+{
+    return m_camera_view_matrix;
+}
+
+- (const Matrix4x4&)getCameraProjectionMatrix
+{
+    return m_camera_projection_matrix;
+}
+
 - (void)session:(ARSession*)session didUpdateFrame:(ARFrame*)frame
 {
     CVPixelBufferRef pixel_buffer = frame.capturedImage;
@@ -111,6 +153,7 @@ API_AVAILABLE(ios(11.0))
     
     [self updateCapturedTexture:pixel_buffer];
     [self updateDisplayRotation:frame];
+    [self updateCamera:frame.camera];
 }
 
 - (void)updateCapturedTexture:(CVPixelBufferRef)pixel_buffer
@@ -168,10 +211,35 @@ API_AVAILABLE(ios(11.0))
     CVPixelBufferUnlockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);
 }
 
+- (UIInterfaceOrientation)orientation
+{
+    return [[UIApplication sharedApplication] statusBarOrientation];
+}
+
+- (CGSize)viewportSize
+{
+    UIInterfaceOrientation orientation = [self orientation];
+    CGSize viewport_size = CGSizeMake(m_texture_y->GetWidth(), m_texture_y->GetHeight());
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
+    {
+        if (m_texture_y->GetWidth() > m_texture_y->GetHeight())
+        {
+            viewport_size = CGSizeMake(m_texture_y->GetHeight(), m_texture_y->GetWidth());
+        }
+    }
+    else
+    {
+        if (m_texture_y->GetWidth() < m_texture_y->GetHeight())
+        {
+            viewport_size = CGSizeMake(m_texture_y->GetHeight(), m_texture_y->GetWidth());
+        }
+    }
+    return viewport_size;
+}
+
 - (void)updateDisplayRotation:(ARFrame*)frame
 {
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    CGAffineTransform transform = [frame displayTransformForOrientation:orientation viewportSize:CGSizeMake(m_texture_y->GetWidth(), m_texture_y->GetHeight())];
+    CGAffineTransform transform = [frame displayTransformForOrientation:[self orientation] viewportSize:[self viewportSize]];
     CGPoint a = CGPointMake(0, 0);
     CGPoint b = CGPointMake(1, 0);
     CGPoint a_ = CGPointApplyAffineTransform(a, transform);
@@ -180,7 +248,26 @@ API_AVAILABLE(ios(11.0))
     m_display_transform = Matrix4x4::Rotation(rot);
 }
 
-- (String)addAnchor:(Matrix4x4)transform
+- (void)updateCamera:(ARCamera*)camera
+{
+    m_camera_near = 0.001f;
+    m_camera_far = 100.0f;
+    
+    UIInterfaceOrientation orientation = [self orientation];
+    Matrix4x4 view = matrix_float4x4_matrix([camera viewMatrixForOrientation:orientation]);
+    Matrix4x4 proj = matrix_float4x4_matrix([camera projectionMatrixForOrientation:orientation viewportSize:[self viewportSize] zNear:m_camera_near zFar:m_camera_far]);
+    Matrix4x4 transform = matrix_float4x4_matrix([camera transform]);
+    
+    m_camera_pos = transform.MultiplyPoint3x4(Vector3(0, 0, 0));
+    Vector3 camera_forward = transform.MultiplyDirection(Vector3(0, 0, -1));
+    Vector3 camera_up = transform.MultiplyDirection(Vector3(0, 1, 0));
+    m_camera_rot = Quaternion::LookRotation(camera_forward, camera_up);
+    m_camera_fov = atan(1.0f / proj.m11) * Mathf::Rad2Deg * 2;
+    m_camera_view_matrix = view;
+    m_camera_projection_matrix = proj;
+}
+
+- (String)addAnchor:(const Matrix4x4&)transform
 {
     ARAnchor* anchor = [[ARAnchor alloc] initWithTransform:matrix_float4x4_matrix(transform)];
     [self.session addAnchor:anchor];
@@ -272,5 +359,40 @@ namespace Viry3D
     const Matrix4x4& ARScene::GetDisplayTransform() const
     {
         return [g_session getDisplayTransform];
+    }
+    
+    const Vector3& ARScene::GetCameraPosition() const
+    {
+        return [g_session getCameraPosition];
+    }
+    
+    const Quaternion& ARScene::GetCameraRotation() const
+    {
+        return [g_session getCameraRotation];
+    }
+    
+    float ARScene::GetCameraFov() const
+    {
+        return [g_session getCameraFov];
+    }
+    
+    float ARScene::GetCameraNear() const
+    {
+        return [g_session getCameraNear];
+    }
+    
+    float ARScene::GetCameraFar() const
+    {
+        return [g_session getCameraFar];
+    }
+    
+    const Matrix4x4& ARScene::GetCameraViewMatrix() const
+    {
+        return [g_session getCameraViewMatrix];
+    }
+    
+    const Matrix4x4& ARScene::GetCameraProjectionMatrix() const
+    {
+        return [g_session getCameraProjectionMatrix];
     }
 }

@@ -19,6 +19,8 @@
 
 #include "memory/Ref.h"
 #include "math/Matrix4x4.h"
+#include "math/Vector3.h"
+#include "math/Quaternion.h"
 
 namespace Viry3D
 {
@@ -35,5 +37,12 @@ namespace Viry3D
         const Ref<Texture>& GetCameraTextureY() const;
         const Ref<Texture>& GetCameraTextureUV() const;
         const Matrix4x4& GetDisplayTransform() const;
+        const Vector3& GetCameraPosition() const;
+        const Quaternion& GetCameraRotation() const;
+        float GetCameraFov() const;
+        float GetCameraNear() const;
+        float GetCameraFar() const;
+        const Matrix4x4& GetCameraViewMatrix() const;
+        const Matrix4x4& GetCameraProjectionMatrix() const;
     };
 }
