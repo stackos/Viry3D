@@ -19,6 +19,7 @@
 #include "View.h"
 #include "Debug.h"
 #include "Input.h"
+#include "Application.h"
 #include "graphics/Mesh.h"
 #include "graphics/Shader.h"
 #include "graphics/Material.h"
@@ -506,7 +507,7 @@ void main()
             for (int i = 0; i < m_atlas_array_size; ++i)
             {
                 m_atlas->CopyToMemory(pixels, i, 0);
-                Image::EncodeToPNG(String::Format("atlas%d.png", i), pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
+                Image::EncodeToPNG(String::Format("%s/atlas%d.png", Application::Instance()->GetSavePath().CString(), i), pixels, ATLAS_SIZE, ATLAS_SIZE, 32);
             }
         }
         //*/

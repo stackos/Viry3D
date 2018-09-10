@@ -394,7 +394,9 @@ namespace app
 
             Viry3D::String name = "Viry3D";
             Viry3D::String data_path = ConvertString(Package::Current->InstalledLocation->Path);
+            Viry3D::String save_path = ConvertString(ApplicationData::Current->LocalFolder->Path);
             data_path = data_path.Replace("\\", "/") + "/Assets";
+            save_path = save_path.Replace("\\", "/");
 
             m_display = new Viry3D::Display(name, nullptr, window_width, window_height);
             if (m_is_glesv3)
@@ -405,6 +407,7 @@ namespace app
             m_app = new Viry3D::App();
             m_app->SetName(name);
             m_app->SetDataPath(data_path);
+            m_app->SetSavePath(save_path);
             m_app->Init();
         }
 
@@ -588,15 +591,68 @@ static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
 
 namespace Viry3D
 {
+    static bool GetPathFolder(const String& path, String& folder, String& local_path)
+    {
+        const String& data_path = Application::Instance()->GetDataPath();
+        const String& save_path = Application::Instance()->GetSavePath();
+        if (path.StartsWith(data_path))
+        {
+            folder = data_path.Replace("/", "\\");
+        }
+        else if (path.StartsWith(save_path))
+        {
+            folder = save_path.Replace("/", "\\");
+        }
+        else
+        {
+            Log("path error: %s", path.CString());
+            return false;
+        }
+        local_path = path.Substring(folder.Size() + 1).Replace("/", "\\");
+
+        return true;
+    }
+
+    static void CreateFileIfNotExist(const String& path)
+    {
+        Ref<bool> result;
+
+        String folder;
+        String local_path;
+        if (!GetPathFolder(path, folder, local_path))
+        {
+            return;
+        }
+
+        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(folder))).then([&](StorageFolder^ root) {
+            return root->CreateFileAsync(ConvertString(local_path), CreationCollisionOption::OpenIfExists);
+        }).then([&](StorageFile^ file) {
+            result = RefMake<bool>(true);
+        });
+
+        while (!result)
+        {
+            auto window = CoreWindow::GetForCurrentThread();
+            if (window)
+            {
+                window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+            }
+        }
+    }
+
     bool FileExist(const String& path)
     {
         Ref<bool> exist;
 
-        String root = Application::Instance()->GetDataPath().Replace("/", "\\");
-        String local_path = path.Substring(root.Size() + 1).Replace("/", "\\");
+        String folder;
+        String local_path;
+        if (!GetPathFolder(path, folder, local_path))
+        {
+            return false;
+        }
 
-        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(root))).then([&](StorageFolder^ assets) {
-            return assets->TryGetItemAsync(ConvertString(local_path));
+        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(folder))).then([&](StorageFolder^ root) {
+            return root->TryGetItemAsync(ConvertString(local_path));
         }).then([&](IStorageItem^ item) {
             exist = RefMake<bool>(item != nullptr);
         });
@@ -615,22 +671,26 @@ namespace Viry3D
 
     ByteBuffer FileReadAllBytes(const String& path)
     {
-        Ref<ByteBuffer> bufer;
+        Ref<ByteBuffer> buffer;
 
-        String root = Application::Instance()->GetDataPath().Replace("/", "\\");
-        String local_path = path.Substring(root.Size() + 1).Replace("/", "\\");
+        String folder;
+        String local_path;
+        if (!GetPathFolder(path, folder, local_path))
+        {
+            return ByteBuffer();
+        }
 
-        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(root))).then([&](StorageFolder^ assets) {
-            return assets->TryGetItemAsync(ConvertString(local_path));
+        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(folder))).then([&](StorageFolder^ root) {
+            return root->TryGetItemAsync(ConvertString(local_path));
         }).then([&](IStorageItem^ item) {
             return FileIO::ReadBufferAsync((StorageFile^) item);
         }).then([&](Streams::IBuffer^ ib) {
             auto reader = Streams::DataReader::FromBuffer(ib);
-            bufer = RefMake<ByteBuffer>(ib->Length);
-            reader->ReadBytes(Platform::ArrayReference<byte>(bufer->Bytes(), bufer->Size()));
+            buffer = RefMake<ByteBuffer>(ib->Length);
+            reader->ReadBytes(Platform::ArrayReference<byte>(buffer->Bytes(), buffer->Size()));
         });
 
-        while (!bufer)
+        while (!buffer)
         {
             auto window = CoreWindow::GetForCurrentThread();
             if (window)
@@ -639,7 +699,40 @@ namespace Viry3D
             }
         }
 
-        return *bufer;
+        return *buffer;
+    }
+
+    bool FileWriteAllBytes(const String& path, const ByteBuffer& buffer)
+    {
+        Ref<bool> result;
+
+        CreateFileIfNotExist(path);
+
+        String folder;
+        String local_path;
+        if (!GetPathFolder(path, folder, local_path))
+        {
+            return false;
+        }
+
+        Concurrency::create_task(StorageFolder::GetFolderFromPathAsync(ConvertString(folder))).then([&](StorageFolder^ root) {
+            return root->TryGetItemAsync(ConvertString(local_path));
+        }).then([&](IStorageItem^ item) {
+            return FileIO::WriteBytesAsync((StorageFile^) item, Platform::ArrayReference<byte>(buffer.Bytes(), buffer.Size()));
+        }).then([&]() {
+            result = RefMake<bool>(true);
+        });
+
+        while (!result)
+        {
+            auto window = CoreWindow::GetForCurrentThread();
+            if (window)
+            {
+                window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+            }
+        }
+
+        return *result;
     }
 
     void BindSharedContext()

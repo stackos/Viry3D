@@ -30,6 +30,7 @@ namespace Viry3D
 #if VR_UWP
     extern bool FileExist(const String& path);
     extern ByteBuffer FileReadAllBytes(const String& path);
+    extern bool FileWriteAllBytes(const String& path, const ByteBuffer& buffer);
 
     bool File::Exist(const String& path)
     {
@@ -39,6 +40,11 @@ namespace Viry3D
     ByteBuffer File::ReadAllBytes(const String& path)
     {
         return FileReadAllBytes(path);
+    }
+
+    bool File::WriteAllBytes(const String& path, const ByteBuffer& buffer)
+    {
+        return FileWriteAllBytes(path, buffer);
     }
 #else
     bool File::Exist(const String& path)
@@ -74,28 +80,28 @@ namespace Viry3D
 
         return buffer;
     }
+
+    bool File::WriteAllBytes(const String& path, const ByteBuffer& buffer)
+    {
+        std::ofstream os(path.CString(), std::ios::binary);
+
+        if (os)
+        {
+            os.write((const char*) buffer.Bytes(), buffer.Size());
+            os.close();
+        }
+    }
 #endif
-
-	void File::WriteAllBytes(const String& path, const ByteBuffer& buffer)
-	{
-		std::ofstream os(path.CString(), std::ios::binary);
-
-		if (os)
-		{
-			os.write((const char*) buffer.Bytes(), buffer.Size());
-			os.close();
-		}
-	}
 
 	String File::ReadAllText(const String& path)
 	{
 		return String(File::ReadAllBytes(path));
 	}
 
-	void File::WriteAllText(const String& path, const String& text)
+    bool File::WriteAllText(const String& path, const String& text)
 	{
 		ByteBuffer buffer((byte*) text.CString(), text.Size());
-        File::WriteAllBytes(path, buffer);
+        return File::WriteAllBytes(path, buffer);
 	}
 
     void File::Delete(const String& path)

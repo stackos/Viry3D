@@ -27,9 +27,9 @@ namespace Viry3D
 	public:
 		static bool Exist(const String& path);
 		static ByteBuffer ReadAllBytes(const String& path);
-		static void WriteAllBytes(const String& path, const ByteBuffer& buffer);
+		static bool WriteAllBytes(const String& path, const ByteBuffer& buffer);
 		static String ReadAllText(const String& path);
-		static void WriteAllText(const String& path, const String& text);
+		static bool WriteAllText(const String& path, const String& text);
         static void Delete(const String& path);
 		static void Unzip(const String& path, const String& source, const String& dest, bool directory);
 	};

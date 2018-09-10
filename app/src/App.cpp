@@ -36,7 +36,6 @@
 // TODO:
 // - demo ARKit
 // - demo 3DGamekit
-// - uwp save path
 // - wasm save path
 // - SwitchControl
 // - SliderControl
