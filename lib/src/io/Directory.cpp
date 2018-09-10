@@ -17,7 +17,7 @@
 
 #include "Directory.h"
 
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_UWP
 #include <io.h>
 #include <Windows.h>
 #else
@@ -28,7 +28,7 @@
 
 namespace Viry3D
 {
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_UWP
 	static Vector<String> GetDirFiles(const String& path, bool recursive, bool* exist, bool get_dirs_only = false)
 	{
 		Vector<String> files;
@@ -219,7 +219,7 @@ namespace Viry3D
 		{
 			folder += "/" + splits[i];
 
-#if VR_WINDOWS
+#if VR_WINDOWS || VR_UWP
 			CreateDirectoryA(folder.CString(), nullptr);
 #else
 			mkdir(folder.CString(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
