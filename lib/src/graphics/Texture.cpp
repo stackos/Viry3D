@@ -169,6 +169,10 @@ namespace Viry3D
                 bpp = 32;
             }
         }
+        else
+        {
+            Log("image file not exist: %s", path.CString());
+        }
 
         return pixels;
     }

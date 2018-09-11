@@ -109,6 +109,9 @@
     <Image Include="Assets\res\model\ToonSoldier 1\tex.png.tex.png">
       <Filter>Assets\res\model\ToonSoldier 1</Filter>
     </Image>
+    <Image Include="Assets\texture\touch.png">
+      <Filter>Assets\texture</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

@@ -148,6 +148,7 @@
     <Image Include="Assets\texture\dawn\4.png" />
     <Image Include="Assets\texture\dawn\5.png" />
     <Image Include="Assets\texture\logo.jpg" />
+    <Image Include="Assets\texture\touch.png" />
     <Image Include="Assets\texture\ui\0.png" />
     <Image Include="Assets\texture\ui\1.png" />
     <Image Include="Assets\texture\ui\2.png" />

@@ -84,11 +84,16 @@ namespace Viry3D
     bool File::WriteAllBytes(const String& path, const ByteBuffer& buffer)
     {
         std::ofstream os(path.CString(), std::ios::binary);
-
         if (os)
         {
             os.write((const char*) buffer.Bytes(), buffer.Size());
             os.close();
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 #endif
