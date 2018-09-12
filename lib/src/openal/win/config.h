@@ -23,7 +23,7 @@
 /* #undef HAVE_SNDIO */
 
 /* Define if we have the XAudio2 backend */
-//#define HAVE_XAUDIO2
+#define HAVE_XAUDIO2
 
 /* Define if we have the WASAPIDevApi backend */
 //#define HAVE_WASAPIDEVAPI
@@ -35,7 +35,7 @@
 //#define HAVE_DSOUND
 
 /* Define if we have the Windows Multimedia backend */
-#define HAVE_WINMM
+//#define HAVE_WINMM
 
 /* Define if we have the PortAudio backend */
 /* #undef HAVE_PORTAUDIO */

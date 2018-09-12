@@ -32,14 +32,20 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Button.h"
 #include "ui/Label.h"
+#include "audio/AudioManager.h"
 
 // TODO:
+// - audio clip load wav
+// - audio play
+// - audio source play mp3 / ogg streaming
+// - audio
 // - demo ARKit
 // - demo 3DGamekit
 // - wasm save path
+// - ScrollView
 // - SwitchControl
 // - SliderControl
-// - ScrollView TabView TreeView
+// - TabView TreeView
 
 #if VR_WINDOWS || VR_MAC || VR_WASM || VR_UWP
 #define UI_SCALE 0.4
@@ -64,6 +70,8 @@ namespace Viry3D
             m_camera = Display::Instance()->CreateCamera();
 
             this->InitUI();
+
+            AudioManager::GetListener();
         }
 
         void InitUI()

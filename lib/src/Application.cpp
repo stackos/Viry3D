@@ -24,6 +24,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "ui/Font.h"
+#include "audio/AudioManager.h"
 #include "Debug.h"
 
 #if VR_WINDOWS
@@ -70,10 +71,12 @@ namespace Viry3D
 #endif
 #endif
             Font::Init();
+            AudioManager::Init();
         }
 
         ~ApplicationPrivate()
         {
+            AudioManager::Done();
             Font::Done();
 			Texture::Done();
 			Shader::Done();

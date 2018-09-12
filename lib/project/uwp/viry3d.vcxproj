@@ -44,6 +44,10 @@
     <ClInclude Include="..\..\src\animation\Animation.h" />
     <ClInclude Include="..\..\src\animation\AnimationCurve.h" />
     <ClInclude Include="..\..\src\Application.h" />
+    <ClInclude Include="..\..\src\audio\AudioClip.h" />
+    <ClInclude Include="..\..\src\audio\AudioListener.h" />
+    <ClInclude Include="..\..\src\audio\AudioManager.h" />
+    <ClInclude Include="..\..\src\audio\AudioSource.h" />
     <ClInclude Include="..\..\src\container\Array.h" />
     <ClInclude Include="..\..\src\container\FastList.h" />
     <ClInclude Include="..\..\src\container\List.h" />
@@ -306,6 +310,10 @@
     <ClCompile Include="..\..\src\animation\Animation.cpp" />
     <ClCompile Include="..\..\src\animation\AnimationCurve.cpp" />
     <ClCompile Include="..\..\src\Application.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioClip.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioListener.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioManager.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioSource.cpp" />
     <ClCompile Include="..\..\src\crypto\md5\md5.c" />
     <ClCompile Include="..\..\src\Debug.cpp" />
     <ClCompile Include="..\..\src\freetype\src\autofit\autofit.c" />
@@ -535,6 +543,7 @@
     <ClCompile Include="..\..\src\openal\Alc\alcReverb.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcRing.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcThread.c" />
+    <ClCompile Include="..\..\src\openal\Alc\alcThreadCpp11.cpp" />
     <ClCompile Include="..\..\src\openal\Alc\ALc_cpp11.cpp" />
     <ClCompile Include="..\..\src\openal\Alc\ALu.c" />
     <ClCompile Include="..\..\src\openal\Alc\backends\loopback.c" />

@@ -44,12 +44,15 @@ namespace Viry3D
                 block = nullptr;
             }
         }
+
+        template<class T>
+        inline static void SafeDelete(T*& p)
+        {
+            if (p)
+            {
+                delete p;
+                p = nullptr;
+            }
+        }
 	};
 }
-
-#define SafeDelete(p) \
-    if (p) \
-    { \
-        delete p; \
-        p = nullptr; \
-    }

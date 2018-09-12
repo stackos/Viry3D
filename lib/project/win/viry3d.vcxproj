@@ -24,6 +24,10 @@
     <ClInclude Include="..\..\src\animation\Animation.h" />
     <ClInclude Include="..\..\src\animation\AnimationCurve.h" />
     <ClInclude Include="..\..\src\Application.h" />
+    <ClInclude Include="..\..\src\audio\AudioClip.h" />
+    <ClInclude Include="..\..\src\audio\AudioListener.h" />
+    <ClInclude Include="..\..\src\audio\AudioManager.h" />
+    <ClInclude Include="..\..\src\audio\AudioSource.h" />
     <ClInclude Include="..\..\src\container\Array.h" />
     <ClInclude Include="..\..\src\container\FastList.h" />
     <ClInclude Include="..\..\src\container\List.h" />
@@ -298,6 +302,10 @@
     <ClCompile Include="..\..\src\animation\Animation.cpp" />
     <ClCompile Include="..\..\src\animation\AnimationCurve.cpp" />
     <ClCompile Include="..\..\src\Application.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioClip.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioListener.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioManager.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioSource.cpp" />
     <ClCompile Include="..\..\src\crypto\md5\md5.c" />
     <ClCompile Include="..\..\src\Debug.cpp" />
     <ClCompile Include="..\..\src\freetype\src\autofit\autofit.c" />
@@ -533,7 +541,7 @@
     <ClCompile Include="..\..\src\openal\Alc\backends\loopback.c" />
     <ClCompile Include="..\..\src\openal\Alc\backends\null.c" />
     <ClCompile Include="..\..\src\openal\Alc\backends\thread_msg_queue_cpp11.cpp" />
-    <ClCompile Include="..\..\src\openal\Alc\backends\winmm.c" />
+    <ClCompile Include="..\..\src\openal\Alc\backends\xaudio2.cpp" />
     <ClCompile Include="..\..\src\openal\Alc\bs2b.c" />
     <ClCompile Include="..\..\src\openal\Alc\helpers.c" />
     <ClCompile Include="..\..\src\openal\Alc\hrtf.c" />
@@ -808,19 +816,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
+    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
+    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
+    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/ffmpeg/include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
+    <IncludePath>../../src;../../src/zlib;../../src/freetype/include;../../src/openal/include;../../src/mp3/mad;../../src/openal/win;../../src/openal/OpenAL32/Include;../../src/physics/bullet/src;../../src/gles/glew/include;../../src/vulkan/MoltenVK/include;../../src/vulkan/vulkan_sdk/include;../../src/lua;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\app\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

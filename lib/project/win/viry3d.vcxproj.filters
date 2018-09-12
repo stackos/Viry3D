@@ -118,6 +118,9 @@
     <Filter Include="src\gles">
       <UniqueIdentifier>{1d677bcb-9193-41d0-9845-2309f53ca652}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\audio">
+      <UniqueIdentifier>{9aec5cdc-4032-4136-bc33-53da5f432b6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -942,6 +945,18 @@
     <ClInclude Include="..\..\src\Action.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioListener.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioSource.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioManager.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio\AudioClip.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -1494,9 +1509,6 @@
       <Filter>src\openal\Alc\backends</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\openal\Alc\backends\thread_msg_queue_cpp11.cpp">
-      <Filter>src\openal\Alc\backends</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\openal\Alc\backends\winmm.c">
       <Filter>src\openal\Alc\backends</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\openal\Alc\alcThread.c">
@@ -2308,6 +2320,21 @@
     </ClCompile>
     <ClCompile Include="..\..\src\gles\glew\src\glew.c">
       <Filter>src\gles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioListener.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioSource.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioManager.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio\AudioClip.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\openal\Alc\backends\xaudio2.cpp">
+      <Filter>src\openal\Alc\backends</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
