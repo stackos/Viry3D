@@ -17,10 +17,25 @@
 
 #pragma once
 
+#include "Object.h"
+#include "memory/ByteBuffer.h"
+
 namespace Viry3D
 {
-    class AudioClip
+    class AudioClip : public Object
     {
+    public:
+        static Ref<AudioClip> LoadWaveFromFile(const String& path);
+        virtual ~AudioClip();
 
+    private:
+        AudioClip();
+
+    private:
+        int m_channel;
+        int m_sample_rate;
+        int m_byte_rate;
+        int m_sample_bits;
+        ByteBuffer m_samples;
     };
 }

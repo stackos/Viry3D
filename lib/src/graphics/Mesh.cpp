@@ -117,6 +117,10 @@ namespace Viry3D
             delete submeshes;
             delete bindposes;
         }
+        else
+        {
+            Log("mesh file not exist: %s", path.CString());
+        }
 
         return mesh;
     }

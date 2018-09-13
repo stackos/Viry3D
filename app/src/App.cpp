@@ -33,10 +33,10 @@
 #include "ui/Button.h"
 #include "ui/Label.h"
 #include "audio/AudioManager.h"
+#include "audio/AudioClip.h"
 
 // TODO:
-// - audio clip load wav
-// - audio play
+// - audio source play clip
 // - audio source play mp3 / ogg streaming
 // - audio
 // - demo ARKit
@@ -71,7 +71,8 @@ namespace Viry3D
 
             this->InitUI();
 
-            AudioManager::GetListener();
+            auto listener = AudioManager::GetListener();
+            auto clip = AudioClip::LoadWaveFromFile(Application::Instance()->GetDataPath() + "/audio/click.wav");
         }
 
         void InitUI()
