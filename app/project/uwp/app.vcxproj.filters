@@ -59,6 +59,9 @@
     <Filter Include="Assets\res\model\ToonSoldier 1">
       <UniqueIdentifier>{7c9f997b-82a0-4ba8-b555-86aa5112c830}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\audio">
+      <UniqueIdentifier>{9da22983-d40c-4520-8bb9-19367e6a46cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -229,5 +232,13 @@
     <Font Include="Assets\font\Consola.ttf">
       <Filter>Assets\font</Filter>
     </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\audio\back.wav">
+      <Filter>Assets\audio</Filter>
+    </Media>
+    <Media Include="Assets\audio\click.wav">
+      <Filter>Assets\audio</Filter>
+    </Media>
   </ItemGroup>
 </Project>

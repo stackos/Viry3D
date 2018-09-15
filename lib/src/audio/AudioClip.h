@@ -22,20 +22,26 @@
 
 namespace Viry3D
 {
+    class AudioClipPrivate;
+
     class AudioClip : public Object
     {
     public:
         static Ref<AudioClip> LoadWaveFromFile(const String& path);
         virtual ~AudioClip();
+        void* GetBuffer() const;
 
     private:
         AudioClip();
 
     private:
+        AudioClipPrivate* m_private;
         int m_channel;
         int m_sample_rate;
         int m_byte_rate;
         int m_sample_bits;
         ByteBuffer m_samples;
+        float m_length;
+        int m_sample_count;
     };
 }

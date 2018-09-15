@@ -34,11 +34,13 @@
 #include "ui/Label.h"
 #include "audio/AudioManager.h"
 #include "audio/AudioClip.h"
+#include "audio/AudioSource.h"
+#include "audio/AudioListener.h"
 
 // TODO:
-// - audio source play clip
-// - audio source play mp3 / ogg streaming
-// - audio
+// - audio source play mp3 streaming
+// - audio source play ogg streaming
+// - openal audio
 // - demo ARKit
 // - demo 3DGamekit
 // - wasm save path
@@ -63,6 +65,8 @@ namespace Viry3D
         Sprite* m_touch_cursor = nullptr;
         Vector2i m_touch_cursor_pos = Vector2i(0, 0);
         Ref<CanvasRenderer> m_canvas;
+        Ref<AudioSource> m_audio_source_click;
+        Ref<AudioSource> m_audio_source_back;
 
     public:
         void Init()
@@ -72,7 +76,16 @@ namespace Viry3D
             this->InitUI();
 
             auto listener = AudioManager::GetListener();
+            listener->SetLocalPosition(Vector3(0, 0, 0));
+            listener->SetLocalRotation(Quaternion::Euler(0, 0, 0));
+
             auto clip = AudioClip::LoadWaveFromFile(Application::Instance()->GetDataPath() + "/audio/click.wav");
+            m_audio_source_click = RefMake<AudioSource>();
+            m_audio_source_click->SetClip(clip);
+
+            clip = AudioClip::LoadWaveFromFile(Application::Instance()->GetDataPath() + "/audio/back.wav");
+            m_audio_source_back = RefMake<AudioSource>();
+            m_audio_source_back->SetClip(clip);
         }
 
         void InitUI()
@@ -161,6 +174,8 @@ namespace Viry3D
 
         void ClickDemo(int index)
         {
+            m_audio_source_click->Play();
+
             switch (index)
             {
                 case 0:
@@ -229,6 +244,8 @@ namespace Viry3D
 
         void ClickBack()
         {
+            m_audio_source_back->Play();
+
             if (m_demo->IsInitComplete())
             {
                 m_demo->Done();
@@ -261,6 +278,9 @@ namespace Viry3D
 
         ~AppImplement()
         {
+            m_audio_source_click.reset();
+            m_audio_source_back.reset();
+
             if (m_camera)
             {
                 Display::Instance()->DestroyCamera(m_camera);

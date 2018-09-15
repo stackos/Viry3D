@@ -16,16 +16,64 @@
 */
 
 #include "AudioListener.h"
+#include "memory/Memory.h"
+#include <AL/al.h>
 
 namespace Viry3D
 {
-    AudioListener::AudioListener()
+    class AudioListenerPrivate
+    {
+    public:
+        AudioListenerPrivate()
+        {
+            this->SetPosition(Vector3(0, 0, 0));
+            this->SetVelocity(Vector3(0, 0, 0));
+            this->SetOrientation(Vector3(0, 0, 1), Vector3(0, 1, 0));
+        }
+
+        ~AudioListenerPrivate()
+        {
+            
+        }
+
+        void SetPosition(const Vector3& pos)
+        {
+            alListenerfv(AL_POSITION, (const ALfloat*) &pos);
+        }
+
+        void SetVelocity(const Vector3& velocity)
+        {
+            alListenerfv(AL_VELOCITY, (const ALfloat*) &velocity);
+        }
+
+        void SetOrientation(const Vector3& forward, const Vector3& up)
+        {
+            Vector3 orientation[2] = {
+                forward,
+                up
+            };
+            alListenerfv(AL_ORIENTATION, (const ALfloat*) &orientation);
+        }
+    };
+
+    AudioListener::AudioListener():
+        m_private(new AudioListenerPrivate())
     {
     
     }
 
     AudioListener::~AudioListener()
     {
-    
+        Memory::SafeDelete(m_private);
+    }
+
+    void AudioListener::OnMatrixDirty()
+    {
+        Vector3 pos = this->GetPosition();
+        Vector3 forward = this->GetForward();
+        Vector3 up = this->GetUp();
+
+        m_private->SetPosition(pos);
+        m_private->SetOrientation(forward, up);
     }
 }

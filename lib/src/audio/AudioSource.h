@@ -21,8 +21,37 @@
 
 namespace Viry3D
 {
+    class AudioClip;
+    class AudioSourcePrivate;
+
     class AudioSource: public Node
     {
+    public:
+        enum class State
+        {
+            Unknown,
 
+            Initial,
+            Playing,
+            Paused,
+            Stopped,
+        };
+
+        AudioSource();
+        virtual ~AudioSource();
+        const Ref<AudioClip>& GetClip() const { return m_clip; }
+        void SetClip(const Ref<AudioClip>& clip);
+        void SetLoop(bool loop);
+        void Play();
+        void Pause();
+        void Stop();
+        State GetState() const;
+
+    protected:
+        virtual void OnMatrixDirty();
+
+    private:
+        AudioSourcePrivate* m_private;
+        Ref<AudioClip> m_clip;
     };
 }

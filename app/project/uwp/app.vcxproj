@@ -343,5 +343,9 @@
   <ItemGroup>
     <Font Include="Assets\font\Consola.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\audio\back.wav" />
+    <Media Include="Assets\audio\click.wav" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

@@ -21,13 +21,21 @@
 
 namespace Viry3D
 {
+    class AudioListenerPrivate;
+
     class AudioListener : public Node
     {
     public:
         virtual ~AudioListener();
 
+    protected:
+        virtual void OnMatrixDirty();
+
     private:
         friend class AudioManager;
         AudioListener();
+
+    private:
+        AudioListenerPrivate* m_private;
     };
 }
