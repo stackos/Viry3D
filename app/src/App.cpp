@@ -23,19 +23,16 @@
 #include "DemoFXAA.h"
 #include "DemoPostEffectBlur.h"
 #include "DemoUI.h"
+#include "DemoShadowMap.h"
+#include "DemoAudio.h"
 #if VR_IOS
 #include "DemoAR.h"
 #endif
-#include "DemoShadowMap.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
 #include "ui/Button.h"
 #include "ui/Label.h"
-#include "audio/AudioManager.h"
-#include "audio/AudioClip.h"
-#include "audio/AudioSource.h"
-#include "audio/AudioListener.h"
 
 // TODO:
 // - audio source play mp3 streaming
@@ -49,12 +46,6 @@
 // - SliderControl
 // - TabView TreeView
 
-#if VR_WINDOWS || VR_MAC || VR_WASM || VR_UWP
-#define UI_SCALE 0.4
-#else
-#define UI_SCALE 1.0
-#endif
-
 namespace Viry3D
 {
     class AppImplement
@@ -65,8 +56,6 @@ namespace Viry3D
         Sprite* m_touch_cursor = nullptr;
         Vector2i m_touch_cursor_pos = Vector2i(0, 0);
         Ref<CanvasRenderer> m_canvas;
-        Ref<AudioSource> m_audio_source_click;
-        Ref<AudioSource> m_audio_source_back;
 
     public:
         void Init()
@@ -74,18 +63,6 @@ namespace Viry3D
             m_camera = Display::Instance()->CreateCamera();
 
             this->InitUI();
-
-            auto listener = AudioManager::GetListener();
-            listener->SetLocalPosition(Vector3(0, 0, 0));
-            listener->SetLocalRotation(Quaternion::Euler(0, 0, 0));
-
-            auto clip = AudioClip::LoadWaveFromFile(Application::Instance()->GetDataPath() + "/audio/click.wav");
-            m_audio_source_click = RefMake<AudioSource>();
-            m_audio_source_click->SetClip(clip);
-
-            clip = AudioClip::LoadWaveFromFile(Application::Instance()->GetDataPath() + "/audio/back.wav");
-            m_audio_source_back = RefMake<AudioSource>();
-            m_audio_source_back->SetClip(clip);
         }
 
         void InitUI()
@@ -108,24 +85,25 @@ namespace Viry3D
                 "PostEffectBlur",
                 "UI",
                 "ShadowMap",
+                "Audio",
                 "AR"
                 });
 
-            int top = 90;
-            int button_height = 160;
-            int font_size = 40;
+            int top = (int) (90 * UI_SCALE);
+            int button_height = (int) (160 * UI_SCALE);
+            int font_size = (int) (40 * UI_SCALE);
 
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
                 m_canvas->AddView(button);
 
-                button->SetSize(Vector2i(Display::Instance()->GetWidth(), (int) (button_height * UI_SCALE)));
+                button->SetSize(Vector2i(Display::Instance()->GetWidth(), button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, (int) (top * UI_SCALE) + i * (2 + (int) (button_height * UI_SCALE))));
+                button->SetOffset(Vector2i(0, top + i * (2 + button_height)));
                 button->GetLabel()->SetText(titles[i]);
-                button->GetLabel()->SetFontSize((int) (font_size * UI_SCALE));
+                button->GetLabel()->SetFontSize(font_size);
                 button->SetOnClick([=]() {
                     this->ClickDemo(i);
                 });
@@ -158,7 +136,7 @@ namespace Viry3D
 #else
                 disable_ar = true;
 #endif
-                if (disable_ar && i == 8)
+                if (disable_ar && i == 9)
                 {
                     disabled = true;
                     button->GetLabel()->SetText("AR (available on ios arkit only)");
@@ -174,8 +152,6 @@ namespace Viry3D
 
         void ClickDemo(int index)
         {
-            m_audio_source_click->Play();
-
             switch (index)
             {
                 case 0:
@@ -203,6 +179,9 @@ namespace Viry3D
                     m_demo = new DemoShadowMap();
                     break;
                 case 8:
+                    m_demo = new DemoAudio();
+                    break;
+                case 9:
 #if VR_IOS
                     m_demo = new DemoAR();
 #endif
@@ -225,18 +204,18 @@ namespace Viry3D
 
         void AddBackButton()
         {
-            int button_width = 400;
-            int button_height = 160;
-            int font_size = 40;
+            int button_width = (int) (400 * UI_SCALE);
+            int button_height = (int) (160 * UI_SCALE);
+            int font_size = (int) (40 * UI_SCALE);
 
             auto button = RefMake<Button>();
             m_canvas->AddView(button);
 
-            button->SetSize(Vector2i((int) (button_width * UI_SCALE), (int) (button_height * UI_SCALE)));
+            button->SetSize(Vector2i(button_width, button_height));
             button->SetAlignment(ViewAlignment::Right | ViewAlignment::Bottom);
             button->SetPivot(Vector2(1, 1));
             button->GetLabel()->SetText("Back");
-            button->GetLabel()->SetFontSize((int) (font_size * UI_SCALE));
+            button->GetLabel()->SetFontSize(font_size);
             button->SetOnClick([=]() {
                 this->ClickBack();
             });
@@ -244,8 +223,6 @@ namespace Viry3D
 
         void ClickBack()
         {
-            m_audio_source_back->Play();
-
             if (m_demo->IsInitComplete())
             {
                 m_demo->Done();
@@ -278,9 +255,6 @@ namespace Viry3D
 
         ~AppImplement()
         {
-            m_audio_source_click.reset();
-            m_audio_source_back.reset();
-
             if (m_camera)
             {
                 Display::Instance()->DestroyCamera(m_camera);

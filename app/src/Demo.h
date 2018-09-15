@@ -17,6 +17,12 @@
 
 #pragma once
 
+#if VR_WINDOWS || VR_MAC || VR_WASM || VR_UWP
+#define UI_SCALE 0.4
+#else
+#define UI_SCALE 1.0
+#endif
+
 namespace Viry3D
 {
     class Demo
