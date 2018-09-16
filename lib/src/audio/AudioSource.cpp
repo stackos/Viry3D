@@ -18,6 +18,9 @@
 #include "AudioSource.h"
 #include "AudioClip.h"
 #include "memory/Memory.h"
+#include "container/List.h"
+#include "thread/ThreadPool.h"
+#include "Debug.h"
 #include <AL/al.h>
 
 namespace Viry3D
@@ -26,8 +29,12 @@ namespace Viry3D
     {
     public:
         ALuint m_source;
+        bool m_loop;
+        List<ALuint> m_stream_buffers;
 
-        AudioSourcePrivate()
+        AudioSourcePrivate():
+            m_source(0),
+            m_loop(false)
         {
             alGenSources(1, &m_source);
 
@@ -42,6 +49,21 @@ namespace Viry3D
 
         ~AudioSourcePrivate()
         {
+            this->Stop();
+
+            if (m_stream_buffers.Size() > 0)
+            {
+                Vector<ALuint> buffers(m_stream_buffers.Size());
+                for (int i = 0; i < buffers.Size(); ++i)
+                {
+                    buffers[i] = m_stream_buffers.First();
+                    m_stream_buffers.RemoveFirst();
+                }
+
+                alSourceUnqueueBuffers(m_source, buffers.Size(), &buffers[0]);
+                alDeleteBuffers(buffers.Size(), &buffers[0]);
+            }
+
             alDeleteSources(1, &m_source);
         }
 
@@ -104,6 +126,44 @@ namespace Viry3D
 
             return AudioSource::State::Unknown;
         }
+
+        void QueueBuffers(const Vector<void*>& buffers)
+        {
+            if (buffers.Size() > 0)
+            {
+                for (int i = 0; i < buffers.Size(); ++i)
+                {
+                    ALuint buffer = (ALuint) (size_t) buffers[i];
+                    m_stream_buffers.AddLast(buffer);
+
+                    alSourceQueueBuffers(m_source, 1, &buffer);
+                }
+
+                AudioSource::State state = this->GetState();
+                if (state == AudioSource::State::Initial)
+                {
+                    this->Play();
+                }
+            }
+        }
+
+        void UnqueueBuffers()
+        {
+            int processed = 0;
+            alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);
+            if (processed > 0)
+            {
+                Vector<ALuint> buffers_remove(processed);
+                for (int i = 0; i < buffers_remove.Size(); ++i)
+                {
+                    buffers_remove[i] = m_stream_buffers.First();
+                    m_stream_buffers.RemoveFirst();
+                }
+
+                alSourceUnqueueBuffers(m_source, buffers_remove.Size(), &buffers_remove[0]);
+                alDeleteBuffers(buffers_remove.Size(), &buffers_remove[0]);
+            }
+        }
     };
 
     AudioSource::AudioSource():
@@ -119,25 +179,56 @@ namespace Viry3D
 
     void AudioSource::SetClip(const Ref<AudioClip>& clip)
     {
+        this->Stop();
+
         m_clip = clip;
 
-        ALuint buffer = 0;
         if (m_clip)
         {
-            buffer = (ALuint) (size_t) m_clip->GetBuffer();
-        }
+            if (!m_clip->IsStream())
+            {
+                ALuint buffer = (ALuint) (size_t) m_clip->GetBuffer();
+                m_private->SourceBuffer(buffer);
+            }
+            else
+            {
+                m_private->SetLoop(false);
 
-        m_private->SourceBuffer(buffer);
+                if (m_private->m_loop)
+                {
+                    m_clip->SetStreamLoop(true);
+                }
+            }
+        }
     }
 
     void AudioSource::SetLoop(bool loop)
     {
-        m_private->SetLoop(loop);
+        m_private->m_loop = loop;
+
+        if (m_clip && m_clip->IsStream())
+        {
+            m_clip->SetStreamLoop(true);
+        }
+        else
+        {
+            m_private->SetLoop(loop);
+        }
     }
 
     void AudioSource::Play()
     {
-        m_private->Play();
+        if (m_clip)
+        {
+            if (m_clip->IsStream())
+            {
+                m_clip->RunMp3Decoder();
+            }
+            else
+            {
+                m_private->Play();
+            }
+        }
     }
 
     void AudioSource::Pause()
@@ -162,5 +253,18 @@ namespace Viry3D
     AudioSource::State AudioSource::GetState() const
     {
         return m_private->GetState();
+    }
+
+    void AudioSource::Update()
+    {
+        if (m_clip && m_clip->IsStream())
+        {
+            if (m_private->m_stream_buffers.Size() < STREAM_BUFFER_MAX)
+            {
+                m_private->QueueBuffers(m_clip->GetStreamBuffers());
+            }
+            
+            m_private->UnqueueBuffers();
+        }
     }
 }

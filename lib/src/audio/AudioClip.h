@@ -19,6 +19,9 @@
 
 #include "Object.h"
 #include "memory/ByteBuffer.h"
+#include <functional>
+
+#define STREAM_BUFFER_MAX 100
 
 namespace Viry3D
 {
@@ -28,8 +31,17 @@ namespace Viry3D
     {
     public:
         static Ref<AudioClip> LoadWaveFromFile(const String& path);
+#if !VR_WASM
+        static Ref<AudioClip> LoadMp3FromFile(const String& path);
+#endif
         virtual ~AudioClip();
         void* GetBuffer() const;
+        bool IsStream() const { return m_stream; }
+        void SetStreamLoop(bool loop);
+        Vector<void*> GetStreamBuffers();
+#if !VR_WASM
+        void RunMp3Decoder();
+#endif
 
     private:
         AudioClip();
@@ -43,5 +55,6 @@ namespace Viry3D
         ByteBuffer m_samples;
         float m_length;
         int m_sample_count;
+        bool m_stream;
     };
 }

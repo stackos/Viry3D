@@ -46,6 +46,7 @@ namespace Viry3D
         void Pause();
         void Stop();
         State GetState() const;
+        virtual void Update();
 
     protected:
         virtual void OnMatrixDirty();

@@ -37,6 +37,7 @@ namespace Viry3D
     public:
         Ref<AudioSource> m_audio_source_click;
         Ref<AudioSource> m_audio_source_back;
+        Ref<AudioSource> m_audio_source_bgm;
         Camera* m_ui_camera = nullptr;
         Label* m_label = nullptr;
 
@@ -53,6 +54,10 @@ namespace Viry3D
             clip = AudioClip::LoadWaveFromFile(Application::Instance()->GetDataPath() + "/audio/back.wav");
             m_audio_source_back = RefMake<AudioSource>();
             m_audio_source_back->SetClip(clip);
+
+            clip = AudioClip::LoadMp3FromFile(Application::Instance()->GetDataPath() + "/audio/bgm.mp3");
+            m_audio_source_bgm = RefMake<AudioSource>();
+            m_audio_source_bgm->SetClip(clip);
         }
 
         void InitUI()
@@ -115,6 +120,7 @@ namespace Viry3D
                     m_audio_source_back->Play();
                     break;
                 case 2:
+                    m_audio_source_bgm->Play();
                     break;
             }
         }
@@ -135,10 +141,13 @@ namespace Viry3D
 
             m_audio_source_click.reset();
             m_audio_source_back.reset();
+            m_audio_source_bgm.reset();
         }
 
         virtual void Update()
         {
+            m_audio_source_bgm->Update();
+
             if (m_label)
             {
                 m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
