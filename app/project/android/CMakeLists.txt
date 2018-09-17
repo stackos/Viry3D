@@ -392,6 +392,10 @@ target_include_directories(Viry3DDep PRIVATE
 add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/animation/Animation.cpp
             ${VIRY3D_LIB_SRC_DIR}/animation/AnimationCurve.cpp
+            ${VIRY3D_LIB_SRC_DIR}/audio/AudioClip.cpp
+            ${VIRY3D_LIB_SRC_DIR}/audio/AudioListener.cpp
+            ${VIRY3D_LIB_SRC_DIR}/audio/AudioManager.cpp
+            ${VIRY3D_LIB_SRC_DIR}/audio/AudioSource.cpp
             ${VIRY3D_LIB_SRC_DIR}/Application.cpp
             ${VIRY3D_LIB_SRC_DIR}/Debug.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Camera.cpp

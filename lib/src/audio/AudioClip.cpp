@@ -97,7 +97,7 @@ namespace Viry3D
 
         static void BufferData(ALuint buffer, int channel, int sample_bits, const void* data, int size, int frequency)
         {
-            ALenum format;
+            ALenum format = 0;
 
             if (channel == 1)
             {
