@@ -21,7 +21,12 @@
 #include "container/List.h"
 #include "thread/ThreadPool.h"
 #include "Debug.h"
+
+#if VR_MAC
+#include <OpenAL/OpenAL.h>
+#else
 #include <AL/al.h>
+#endif
 
 namespace Viry3D
 {
@@ -308,7 +313,10 @@ namespace Viry3D
                 }
             }
             
-            m_private->UnqueueBuffers();
+            if (!m_private->m_wait_for_play)
+            {
+                m_private->UnqueueBuffers();
+            }
         }
 #endif
     }

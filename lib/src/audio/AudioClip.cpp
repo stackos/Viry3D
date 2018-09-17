@@ -21,7 +21,12 @@
 #include "memory/Memory.h"
 #include "Debug.h"
 #include "Application.h"
+
+#if VR_MAC
+#include <OpenAL/OpenAL.h>
+#else
 #include <AL/al.h>
+#endif
 
 #if !VR_WASM
 #include "mp3/mad/mad.h"

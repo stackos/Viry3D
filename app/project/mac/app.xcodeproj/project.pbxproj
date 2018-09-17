@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BAED934A2150287A002D2856 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAED934921502879002D2856 /* OpenAL.framework */; };
 		BAF169A4213AC9460033BC76 /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = BAF169A2213AC9460033BC76 /* VkView.m */; };
 		D1B25E1F2109F50E001A3EC9 /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E1E2109F50E001A3EC9 /* Main.m */; };
 		D1B25E222109F66A001A3EC9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E212109F669001A3EC9 /* AppDelegate.m */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BAED934921502879002D2856 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		BAF169A2213AC9460033BC76 /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
 		BAF169A3213AC9460033BC76 /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
 		D1B25E1E2109F50E001A3EC9 /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
@@ -64,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BAED934A2150287A002D2856 /* OpenAL.framework in Frameworks */,
 				D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */,
 				D1D42B2921115AF20016A265 /* MoltenVK.framework in Frameworks */,
 				D1D42B2B21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
@@ -122,6 +125,7 @@
 		D1EA4E421F2DEABD0034D59B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BAED934921502879002D2856 /* OpenAL.framework */,
 				D1D42B2A21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework */,
 				D1D42B2821115AF20016A265 /* MoltenVK.framework */,
 				D1F3BBBF1F86903800B738FA /* AppKit.framework */,

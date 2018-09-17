@@ -19,8 +19,13 @@
 #include "AudioListener.h"
 #include "memory/Memory.h"
 #include "Debug.h"
+
+#if VR_MAC
+#include <OpenAL/OpenAL.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 
 #if VR_WASM
 #include <emscripten.h>

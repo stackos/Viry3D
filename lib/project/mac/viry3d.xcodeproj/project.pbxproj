@@ -313,6 +313,10 @@
 		BAB2431B21204FA800BA07DE /* SkinnedMeshRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431A21204FA700BA07DE /* SkinnedMeshRenderer.cpp */; };
 		BAB2432021204FBE00BA07DE /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431D21204FBE00BA07DE /* Node.cpp */; };
 		BAB2432121204FBE00BA07DE /* Resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431E21204FBE00BA07DE /* Resources.cpp */; };
+		BAED9342215026F4002D2856 /* AudioListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAED933D215026F4002D2856 /* AudioListener.cpp */; };
+		BAED9343215026F4002D2856 /* AudioClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAED933E215026F4002D2856 /* AudioClip.cpp */; };
+		BAED9344215026F4002D2856 /* AudioSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAED933F215026F4002D2856 /* AudioSource.cpp */; };
+		BAED9345215026F4002D2856 /* AudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAED9341215026F4002D2856 /* AudioManager.cpp */; };
 		BAF169902139B5A30033BC76 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF1698E2139B5A30033BC76 /* Light.cpp */; };
 		BB393E15187A98506C06C966 /* jcmainct.c in Sources */ = {isa = PBXBuildFile; fileRef = BC003CC8AB58FC7D8985EEED /* jcmainct.c */; };
 		BE23953337BFCC13007C42B8 /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4906D5BC63457FF760B44 /* type1cid.c */; };
@@ -872,6 +876,14 @@
 		BAB2431D21204FBE00BA07DE /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
 		BAB2431E21204FBE00BA07DE /* Resources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Resources.cpp; sourceTree = "<group>"; };
 		BAB2431F21204FBE00BA07DE /* Resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
+		BAED933A215026F4002D2856 /* AudioClip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioClip.h; sourceTree = "<group>"; };
+		BAED933B215026F4002D2856 /* AudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioManager.h; sourceTree = "<group>"; };
+		BAED933C215026F4002D2856 /* AudioSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioSource.h; sourceTree = "<group>"; };
+		BAED933D215026F4002D2856 /* AudioListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioListener.cpp; sourceTree = "<group>"; };
+		BAED933E215026F4002D2856 /* AudioClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioClip.cpp; sourceTree = "<group>"; };
+		BAED933F215026F4002D2856 /* AudioSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioSource.cpp; sourceTree = "<group>"; };
+		BAED9340215026F4002D2856 /* AudioListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioListener.h; sourceTree = "<group>"; };
+		BAED9341215026F4002D2856 /* AudioManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioManager.cpp; sourceTree = "<group>"; };
 		BAF1698E2139B5A30033BC76 /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
 		BAF1698F2139B5A30033BC76 /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
 		BAF169A12139B8A50033BC76 /* gles_include.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gles_include.h; sourceTree = "<group>"; };
@@ -1089,6 +1101,7 @@
 			isa = PBXGroup;
 			children = (
 				BAB2430C21204F5A00BA07DE /* animation */,
+				BAED9339215026F4002D2856 /* audio */,
 				BA2800671F69A45900215483 /* crypto */,
 				2C82477E194A5A54681047AB /* container */,
 				3F8D4A1A474392B554EBEEDD /* freetype/src */,
@@ -1939,6 +1952,21 @@
 			path = animation;
 			sourceTree = "<group>";
 		};
+		BAED9339215026F4002D2856 /* audio */ = {
+			isa = PBXGroup;
+			children = (
+				BAED933E215026F4002D2856 /* AudioClip.cpp */,
+				BAED933A215026F4002D2856 /* AudioClip.h */,
+				BAED933D215026F4002D2856 /* AudioListener.cpp */,
+				BAED9340215026F4002D2856 /* AudioListener.h */,
+				BAED9341215026F4002D2856 /* AudioManager.cpp */,
+				BAED933B215026F4002D2856 /* AudioManager.h */,
+				BAED933F215026F4002D2856 /* AudioSource.cpp */,
+				BAED933C215026F4002D2856 /* AudioSource.h */,
+			);
+			path = audio;
+			sourceTree = "<group>";
+		};
 		BAF169952139B8A50033BC76 /* gles */ = {
 			isa = PBXGroup;
 			children = (
@@ -2244,6 +2272,7 @@
 				BA4FABDC1FBB558500C1ADB7 /* btCylinderShape.cpp in Sources */,
 				BA4FABDD1FBB558500C1ADB7 /* btEmptyShape.cpp in Sources */,
 				BA4FABDE1FBB558500C1ADB7 /* btHeightfieldTerrainShape.cpp in Sources */,
+				BAED9343215026F4002D2856 /* AudioClip.cpp in Sources */,
 				BA4FABDF1FBB558500C1ADB7 /* btMinkowskiSumShape.cpp in Sources */,
 				BA4FABE01FBB558500C1ADB7 /* btMultimaterialTriangleMeshShape.cpp in Sources */,
 				BA4FABE11FBB558500C1ADB7 /* btMultiSphereShape.cpp in Sources */,
@@ -2275,6 +2304,7 @@
 				BA4FABF51FBB558500C1ADB7 /* btGjkEpaPenetrationDepthSolver.cpp in Sources */,
 				BA4FABF61FBB558500C1ADB7 /* btGjkPairDetector.cpp in Sources */,
 				BA4FABF71FBB558500C1ADB7 /* btMinkowskiPenetrationDepthSolver.cpp in Sources */,
+				BAED9342215026F4002D2856 /* AudioListener.cpp in Sources */,
 				BA4FABF81FBB558500C1ADB7 /* btPersistentManifold.cpp in Sources */,
 				BA42E60D1FF54251009C3C01 /* ltable.c in Sources */,
 				BA4FABF91FBB558500C1ADB7 /* btPolyhedralContactClipping.cpp in Sources */,
@@ -2333,6 +2363,7 @@
 				6DFE0BD2C3CE34DA54CE4AAF /* ftglyph.c in Sources */,
 				632D68128E2FB2A39FC36F75 /* ftgxval.c in Sources */,
 				28302C36C4F70A68D2B45CAA /* ftinit.c in Sources */,
+				BAED9345215026F4002D2856 /* AudioManager.cpp in Sources */,
 				BA42E60E1FF54251009C3C01 /* ldump.c in Sources */,
 				530C8434E311FB24B6C12A73 /* ftlcdfil.c in Sources */,
 				4DD88F1C68120783DB587603 /* ftmm.c in Sources */,
@@ -2416,6 +2447,7 @@
 				BA2800D91F69A59F00215483 /* select.cpp in Sources */,
 				FD7B7BCEFDF1070F749E3C48 /* jdatasrc.c in Sources */,
 				A9DC9555B50C5E01EC90F433 /* jdcoefct.c in Sources */,
+				BAED9344215026F4002D2856 /* AudioSource.cpp in Sources */,
 				F5FA752ACD7F033A7898DA97 /* jdcolor.c in Sources */,
 				84EAD4BB3F63CB409D493DD1 /* jddctmgr.c in Sources */,
 				E4849CD9A9054ADE3501103C /* jdhuff.c in Sources */,

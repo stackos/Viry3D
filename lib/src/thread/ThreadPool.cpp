@@ -74,6 +74,8 @@ namespace Viry3D
 
     void Thread::Run()
     {
+        bool gl_thread = m_init_action && m_done_action;
+        
         if (m_init_action)
         {
             m_init_action();
@@ -104,7 +106,10 @@ namespace Viry3D
                 Ref<Object> res = task.job();
 
 #if VR_GLES
-                Display::Instance()->Flush();
+                if (gl_thread)
+                {
+                    Display::Instance()->Flush();
+                }
 #endif
 
                 if (task.complete)
