@@ -31,10 +31,14 @@ namespace Viry3D
         ALuint m_source;
         bool m_loop;
         List<ALuint> m_stream_buffers;
+        bool m_wait_for_play;
+        bool m_paused;
 
         AudioSourcePrivate():
             m_source(0),
-            m_loop(false)
+            m_loop(false),
+            m_wait_for_play(false),
+            m_paused(false)
         {
             alGenSources(1, &m_source);
 
@@ -50,7 +54,13 @@ namespace Viry3D
         ~AudioSourcePrivate()
         {
             this->Stop();
+            this->ClearStreamBuffers();
 
+            alDeleteSources(1, &m_source);
+        }
+
+        void ClearStreamBuffers()
+        {
             if (m_stream_buffers.Size() > 0)
             {
                 Vector<ALuint> buffers(m_stream_buffers.Size());
@@ -63,8 +73,6 @@ namespace Viry3D
                 alSourceUnqueueBuffers(m_source, buffers.Size(), &buffers[0]);
                 alDeleteBuffers(buffers.Size(), &buffers[0]);
             }
-
-            alDeleteSources(1, &m_source);
         }
 
         void SourceBuffer(ALuint buffer)
@@ -94,16 +102,22 @@ namespace Viry3D
 
         void Play()
         {
+            m_paused = false;
             alSourcePlay(m_source);
         }
 
         void Pause()
         {
-            alSourcePause(m_source);
+            if (this->GetState() == AudioSource::State::Playing)
+            {
+                m_paused = true;
+                alSourcePause(m_source);
+            }
         }
 
         void Stop()
         {
+            m_paused = false;
             alSourceStop(m_source);
         }
 
@@ -129,21 +143,12 @@ namespace Viry3D
 
         void QueueBuffers(const Vector<void*>& buffers)
         {
-            if (buffers.Size() > 0)
+            for (int i = 0; i < buffers.Size(); ++i)
             {
-                for (int i = 0; i < buffers.Size(); ++i)
-                {
-                    ALuint buffer = (ALuint) (size_t) buffers[i];
-                    m_stream_buffers.AddLast(buffer);
+                ALuint buffer = (ALuint) (size_t) buffers[i];
+                m_stream_buffers.AddLast(buffer);
 
-                    alSourceQueueBuffers(m_source, 1, &buffer);
-                }
-
-                AudioSource::State state = this->GetState();
-                if (state == AudioSource::State::Initial)
-                {
-                    this->Play();
-                }
+                alSourceQueueBuffers(m_source, 1, &buffer);
             }
         }
 
@@ -222,7 +227,18 @@ namespace Viry3D
         {
             if (m_clip->IsStream())
             {
-                m_clip->RunMp3Decoder();
+                if (m_private->m_paused)
+                {
+                    m_private->Play();
+                }
+                else
+                {
+                    this->Stop();
+
+                    m_clip->RunMp3Decoder();
+
+                    m_private->m_wait_for_play = true;
+                }
             }
             else
             {
@@ -238,7 +254,21 @@ namespace Viry3D
 
     void AudioSource::Stop()
     {
-        m_private->Stop();
+        if (m_clip)
+        {
+            if (m_clip->IsStream())
+            {
+                m_private->Stop();
+                m_private->ClearStreamBuffers();
+                m_clip->StopMp3Decoder();
+
+                m_private->m_wait_for_play = false;
+            }
+            else
+            {
+                m_private->Stop();
+            }
+        }
     }
 
     void AudioSource::OnMatrixDirty()
@@ -262,6 +292,14 @@ namespace Viry3D
             if (m_private->m_stream_buffers.Size() < STREAM_BUFFER_MAX)
             {
                 m_private->QueueBuffers(m_clip->GetStreamBuffers());
+            }
+            else
+            {
+                if (m_private->m_wait_for_play)
+                {
+                    m_private->m_wait_for_play = false;
+                    m_private->Play();
+                }
             }
             
             m_private->UnqueueBuffers();

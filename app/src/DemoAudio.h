@@ -58,6 +58,7 @@ namespace Viry3D
             clip = AudioClip::LoadMp3FromFile(Application::Instance()->GetDataPath() + "/audio/bgm.mp3");
             m_audio_source_bgm = RefMake<AudioSource>();
             m_audio_source_bgm->SetClip(clip);
+            m_audio_source_bgm->SetLoop(true);
         }
 
         void InitUI()
@@ -82,8 +83,11 @@ namespace Viry3D
 
             Vector<String> buttons({
                 "Play click.wav",
+                "Pause click.wav",
                 "Play back.wav",
+                "Pause back.wav",
                 "Play bgm.mp3",
+                "Pause bgm.mp3",
                 });
 
             int button_width = (int) (600 * UI_SCALE);
@@ -117,10 +121,19 @@ namespace Viry3D
                     m_audio_source_click->Play();
                     break;
                 case 1:
-                    m_audio_source_back->Play();
+                    m_audio_source_click->Pause();
                     break;
                 case 2:
+                    m_audio_source_back->Play();
+                    break;
+                case 3:
+                    m_audio_source_back->Pause();
+                    break;
+                case 4:
                     m_audio_source_bgm->Play();
+                    break;
+                case 5:
+                    m_audio_source_bgm->Pause();
                     break;
             }
         }

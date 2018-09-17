@@ -80,21 +80,11 @@ namespace Viry3D
 #if !VR_WASM
             if (m_mp3_decoder)
             {
-                if (m_decoder_running)
-                {
-                    this->StopMp3Decoder();
-                    m_decoder_running = false;
-                }
+                this->StopMp3Decoder();
 
                 mad_decoder_finish(m_mp3_decoder);
                 delete m_mp3_decoder;
                 m_mp3_decoder = nullptr;
-
-                for (auto i : m_stream_buffers)
-                {
-                    alDeleteBuffers(1, &i);
-                }
-                m_stream_buffers.Clear();
             }
 #endif
 
@@ -158,13 +148,32 @@ namespace Viry3D
         }
 
 #if !VR_WASM
+        void StopMp3Decoder()
+        {
+            if (m_decoder_running)
+            {
+                this->ExitMp3Decoder();
+                m_decoder_running = false;
+            }
+
+            for (auto i : m_stream_buffers)
+            {
+                alDeleteBuffers(1, &i);
+            }
+            m_stream_buffers.Clear();
+        }
+
         void InitMp3Decoder(const ByteBuffer& buffer);
 
         void RunMp3Decoder()
         {
+            this->StopMp3Decoder();
+
             if (!m_decoder_running)
             {
                 m_decoder_running = true;
+                m_decoder_exit = false;
+                m_decoder_exited = false;
 
                 m_mp3_write_size = 0;
 
@@ -182,7 +191,7 @@ namespace Viry3D
             }
         }
 
-        void StopMp3Decoder()
+        void ExitMp3Decoder()
         {
             m_mutex.lock();
             m_decoder_exit = true;
@@ -539,6 +548,11 @@ namespace Viry3D
     void AudioClip::RunMp3Decoder()
     {
         m_private->RunMp3Decoder();
+    }
+
+    void AudioClip::StopMp3Decoder()
+    {
+        m_private->StopMp3Decoder();
     }
 #endif
 }

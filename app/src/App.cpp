@@ -35,16 +35,13 @@
 #include "ui/Label.h"
 
 // TODO:
-// - audio source play mp3 streaming
-// - audio source play ogg streaming
-// - openal audio
-// - demo ARKit
-// - demo 3DGamekit
-// - wasm save path
+// - audio port
 // - ScrollView
+// - demo ARKit
 // - SwitchControl
 // - SliderControl
 // - TabView TreeView
+// - wasm save path
 
 namespace Viry3D
 {

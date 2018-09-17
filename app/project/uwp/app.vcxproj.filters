@@ -227,6 +227,9 @@
     <ClInclude Include="..\..\src\DemoUI.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\DemoAudio.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Assets\font\Consola.ttf">
@@ -238,6 +241,9 @@
       <Filter>Assets\audio</Filter>
     </Media>
     <Media Include="Assets\audio\click.wav">
+      <Filter>Assets\audio</Filter>
+    </Media>
+    <Media Include="Assets\audio\bgm.mp3">
       <Filter>Assets\audio</Filter>
     </Media>
   </ItemGroup>

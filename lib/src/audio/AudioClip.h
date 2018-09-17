@@ -41,6 +41,7 @@ namespace Viry3D
         Vector<void*> GetStreamBuffers();
 #if !VR_WASM
         void RunMp3Decoder();
+        void StopMp3Decoder();
 #endif
 
     private:

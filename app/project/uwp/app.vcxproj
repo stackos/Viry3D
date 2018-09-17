@@ -331,6 +331,7 @@
     <ClInclude Include="..\..\src\App.h" />
     <ClInclude Include="..\..\src\Demo.h" />
     <ClInclude Include="..\..\src\DemoAR.h" />
+    <ClInclude Include="..\..\src\DemoAudio.h" />
     <ClInclude Include="..\..\src\DemoFXAA.h" />
     <ClInclude Include="..\..\src\DemoMesh.h" />
     <ClInclude Include="..\..\src\DemoPostEffectBlur.h" />
@@ -345,6 +346,7 @@
   </ItemGroup>
   <ItemGroup>
     <Media Include="Assets\audio\back.wav" />
+    <Media Include="Assets\audio\bgm.mp3" />
     <Media Include="Assets\audio\click.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
