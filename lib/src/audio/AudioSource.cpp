@@ -227,6 +227,7 @@ namespace Viry3D
         {
             if (m_clip->IsStream())
             {
+#if !VR_WASM
                 if (m_private->m_paused)
                 {
                     m_private->Play();
@@ -239,6 +240,7 @@ namespace Viry3D
 
                     m_private->m_wait_for_play = true;
                 }
+#endif
             }
             else
             {
@@ -258,11 +260,14 @@ namespace Viry3D
         {
             if (m_clip->IsStream())
             {
+#if !VR_WASM
                 m_private->Stop();
                 m_private->ClearStreamBuffers();
+
                 m_clip->StopMp3Decoder();
 
                 m_private->m_wait_for_play = false;
+#endif
             }
             else
             {
@@ -287,6 +292,7 @@ namespace Viry3D
 
     void AudioSource::Update()
     {
+#if !VR_WASM
         if (m_clip && m_clip->IsStream())
         {
             if (m_private->m_stream_buffers.Size() < STREAM_BUFFER_MAX)
@@ -304,5 +310,6 @@ namespace Viry3D
             
             m_private->UnqueueBuffers();
         }
+#endif
     }
 }

@@ -38,8 +38,8 @@ namespace Viry3D
         void* GetBuffer() const;
         bool IsStream() const { return m_stream; }
         void SetStreamLoop(bool loop);
-        Vector<void*> GetStreamBuffers();
 #if !VR_WASM
+        Vector<void*> GetStreamBuffers();
         void RunMp3Decoder();
         void StopMp3Decoder();
 #endif

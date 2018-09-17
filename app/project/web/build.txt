@@ -131,6 +131,10 @@ emcc Main.cpp \
 	../../src/App.cpp \
 	../../../lib/src/animation/Animation.cpp \
     ../../../lib/src/animation/AnimationCurve.cpp \
+    ../../../lib/src/audio/AudioClip.cpp \
+    ../../../lib/src/audio/AudioListener.cpp \
+    ../../../lib/src/audio/AudioManager.cpp \
+    ../../../lib/src/audio/AudioSource.cpp \
     ../../../lib/src/Application.cpp \
     ../../../lib/src/Debug.cpp \
     ../../../lib/src/graphics/Camera.cpp \

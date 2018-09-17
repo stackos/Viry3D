@@ -21,7 +21,22 @@
 #include "Debug.h"
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alext.h>
+
+#if VR_WASM
+#include <emscripten.h>
+
+EM_JS(void, PlayAudio, (const char* msg), {
+    PlayAudio(UTF8ToString(msg));
+});
+
+EM_JS(void, PauseAudio, (const char* msg), {
+    PauseAudio(UTF8ToString(msg));
+});
+
+EM_JS(void, StopAudio, (const char* msg), {
+    StopAudio(UTF8ToString(msg));
+});
+#endif
 
 namespace Viry3D
 {
@@ -94,4 +109,22 @@ namespace Viry3D
         }
         return g_listener;
     }
+
+#if VR_WASM
+    void AudioManager::PlayAudio(const String& url, bool loop)
+    {
+        String msg = String::Format(R"({ "url": "%s", "loop": %s })", url.CString(), loop ? "true" : "false");
+        ::PlayAudio(msg.CString());
+    }
+
+    void AudioManager::PauseAudio()
+    {
+        ::PauseAudio("");
+    }
+
+    void AudioManager::StopAudio()
+    {
+        ::StopAudio("");
+    }
+#endif
 }

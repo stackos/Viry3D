@@ -37,7 +37,9 @@ namespace Viry3D
     public:
         Ref<AudioSource> m_audio_source_click;
         Ref<AudioSource> m_audio_source_back;
+#if !VR_WASM
         Ref<AudioSource> m_audio_source_bgm;
+#endif
         Camera* m_ui_camera = nullptr;
         Label* m_label = nullptr;
 
@@ -55,10 +57,12 @@ namespace Viry3D
             m_audio_source_back = RefMake<AudioSource>();
             m_audio_source_back->SetClip(clip);
 
+#if !VR_WASM
             clip = AudioClip::LoadMp3FromFile(Application::Instance()->GetDataPath() + "/audio/bgm.mp3");
             m_audio_source_bgm = RefMake<AudioSource>();
             m_audio_source_bgm->SetClip(clip);
             m_audio_source_bgm->SetLoop(true);
+#endif
         }
 
         void InitUI()
@@ -129,12 +133,23 @@ namespace Viry3D
                 case 3:
                     m_audio_source_back->Pause();
                     break;
+
                 case 4:
+#if VR_WASM
+                    AudioManager::PlayAudio("Assets/audio/bgm.mp3", true);
+#else
+
                     m_audio_source_bgm->Play();
+#endif
                     break;
                 case 5:
+#if VR_WASM
+                    AudioManager::PauseAudio();
+#else
                     m_audio_source_bgm->Pause();
+#endif
                     break;
+                    
             }
         }
 
@@ -154,12 +169,19 @@ namespace Viry3D
 
             m_audio_source_click.reset();
             m_audio_source_back.reset();
+
+#if VR_WASM
+            AudioManager::StopAudio();
+#else
             m_audio_source_bgm.reset();
+#endif
         }
 
         virtual void Update()
         {
+#if !VR_WASM
             m_audio_source_bgm->Update();
+#endif
 
             if (m_label)
             {

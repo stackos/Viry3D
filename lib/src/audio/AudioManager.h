@@ -29,5 +29,10 @@ namespace Viry3D
         static void Init();
         static void Done();
         static AudioListener* GetListener();
+#if VR_WASM
+        static void PlayAudio(const String& url, bool loop);
+        static void PauseAudio();
+        static void StopAudio();
+#endif
     };
 }

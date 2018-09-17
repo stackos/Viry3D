@@ -529,6 +529,7 @@ namespace Viry3D
         m_private->m_mutex.unlock();
     }
 
+#if !VR_WASM
     Vector<void*> AudioClip::GetStreamBuffers()
     {
         Vector<void*> buffers;
@@ -544,7 +545,6 @@ namespace Viry3D
         return buffers;
     }
 
-#if !VR_WASM
     void AudioClip::RunMp3Decoder()
     {
         m_private->RunMp3Decoder();

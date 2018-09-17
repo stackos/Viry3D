@@ -22,6 +22,9 @@ const Engine = {
     Update: null,
     events: new Array(),
     down: false,
+    audio: null,
+    audio_src: "",
+    audio_paused: false,
 };
 
 function OnMouseDown(e) {
@@ -100,6 +103,40 @@ function Render() {
 
     window.requestAnimationFrame(Render);
 }
+
+// functions for C call
+function PlayAudio(msg) {
+    const params = JSON.parse(msg);
+
+    if (Engine.audio == null) {
+        Engine.audio = document.createElement("audio");
+        Engine.audio.autoplay = true;
+    }
+
+    if (Engine.audio_src == params.url && Engine.audio.loop == params.loop && Engine.audio_paused) {
+        Engine.audio.play();
+        Engine.audio_paused = false;
+    } else {
+        Engine.audio.src = params.url;
+        Engine.audio.loop = params.loop;
+        Engine.audio_src = params.url;
+    }
+}
+
+function PauseAudio(msg) {
+    if (Engine.audio != null) {
+        Engine.audio.pause();
+        Engine.audio_paused = true;
+    }
+}
+
+function StopAudio(msg) {
+    if (Engine.audio != null) {
+        Engine.audio.pause();
+        Engine.audio.currentTime = 0;
+    }
+}
+//
 
 function Main() {
     Engine.Init = Module.cwrap("InitEngine", null, ["string"]);
