@@ -2678,6 +2678,7 @@
 					"VR_GLES=1",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
+					"SIZEOF_INT=4",
 					HAVE_ASSERT_H,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -2716,6 +2717,7 @@
 					"VR_GLES=1",
 					FT2_BUILD_LIBRARY,
 					FPM_DEFAULT,
+					"SIZEOF_INT=4",
 					HAVE_ASSERT_H,
 				);
 				HEADER_SEARCH_PATHS = (
