@@ -16,6 +16,7 @@
 		BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA5924A31D92F2A200173EDC /* UIKit.framework */; };
 		BA981FF320FE45F00068E5B2 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA981FF220FE45F00068E5B2 /* ViewController.mm */; };
 		BAF169AA213AED660033BC76 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAF169A9213AED660033BC76 /* GLKit.framework */; };
+		D12113B82150FF2B00D20456 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D12113B72150FF2B00D20456 /* OpenAL.framework */; };
 		D137753620FED5E900E4F19B /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = D137753420FED5E800E4F19B /* VkView.m */; };
 		D137757B20FEF64500E4F19B /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D137753C20FEDF4A00E4F19B /* libviry3d.a */; };
 		D137757D20FEF68200E4F19B /* libz.1.2.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */; };
@@ -65,6 +66,7 @@
 		BA981FF120FE45F00068E5B2 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		BA981FF220FE45F00068E5B2 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		BAF169A9213AED660033BC76 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		D12113B72150FF2B00D20456 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		D137753420FED5E800E4F19B /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
 		D137753520FED5E900E4F19B /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
 		D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/ios/viry3d.xcodeproj; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D12113B82150FF2B00D20456 /* OpenAL.framework in Frameworks */,
 				BA4551DA21405029003188B1 /* ARKit.framework in Frameworks */,
 				BAF169AA213AED660033BC76 /* GLKit.framework in Frameworks */,
 				BA5924A41D92F2A200173EDC /* UIKit.framework in Frameworks */,
@@ -152,6 +155,7 @@
 		BABF7B931E97E7A2000C2116 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D12113B72150FF2B00D20456 /* OpenAL.framework */,
 				BA4551D921405029003188B1 /* ARKit.framework */,
 				BAF169A9213AED660033BC76 /* GLKit.framework */,
 				BA5924A31D92F2A200173EDC /* UIKit.framework */,

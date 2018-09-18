@@ -22,7 +22,7 @@
 #include "Debug.h"
 #include "Application.h"
 
-#if VR_MAC
+#if VR_MAC || VR_IOS
 #include <OpenAL/OpenAL.h>
 #else
 #include <AL/al.h>

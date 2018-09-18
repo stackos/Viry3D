@@ -43,6 +43,17 @@
 		BAED934921502879002D2856 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		BAF169A2213AC9460033BC76 /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
 		BAF169A3213AC9460033BC76 /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
+		D121139E2150F51B00D20456 /* Demo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Demo.h; path = ../../src/Demo.h; sourceTree = "<group>"; };
+		D121139F2150F51B00D20456 /* DemoSkybox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoSkybox.h; path = ../../src/DemoSkybox.h; sourceTree = "<group>"; };
+		D12113A02150F51B00D20456 /* DemoFXAA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoFXAA.h; path = ../../src/DemoFXAA.h; sourceTree = "<group>"; };
+		D12113A12150F51B00D20456 /* DemoAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoAudio.h; path = ../../src/DemoAudio.h; sourceTree = "<group>"; };
+		D12113A22150F51B00D20456 /* DemoSkinnedMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoSkinnedMesh.h; path = ../../src/DemoSkinnedMesh.h; sourceTree = "<group>"; };
+		D12113A32150F51B00D20456 /* DemoMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoMesh.h; path = ../../src/DemoMesh.h; sourceTree = "<group>"; };
+		D12113A42150F51B00D20456 /* DemoRenderToTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoRenderToTexture.h; path = ../../src/DemoRenderToTexture.h; sourceTree = "<group>"; };
+		D12113A52150F51B00D20456 /* DemoShadowMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoShadowMap.h; path = ../../src/DemoShadowMap.h; sourceTree = "<group>"; };
+		D12113A62150F51B00D20456 /* DemoUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoUI.h; path = ../../src/DemoUI.h; sourceTree = "<group>"; };
+		D12113A72150F51B00D20456 /* DemoPostEffectBlur.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoPostEffectBlur.h; path = ../../src/DemoPostEffectBlur.h; sourceTree = "<group>"; };
+		D12113A82150F51B00D20456 /* DemoAR.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoAR.h; path = ../../src/DemoAR.h; sourceTree = "<group>"; };
 		D1B25E1E2109F50E001A3EC9 /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
 		D1B25E202109F5DD001A3EC9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D1B25E212109F669001A3EC9 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -83,6 +94,17 @@
 			children = (
 				D1D42B2421115A3D0016A265 /* App.cpp */,
 				D1D42B2521115A3D0016A265 /* App.h */,
+				D121139E2150F51B00D20456 /* Demo.h */,
+				D12113A82150F51B00D20456 /* DemoAR.h */,
+				D12113A12150F51B00D20456 /* DemoAudio.h */,
+				D12113A02150F51B00D20456 /* DemoFXAA.h */,
+				D12113A32150F51B00D20456 /* DemoMesh.h */,
+				D12113A72150F51B00D20456 /* DemoPostEffectBlur.h */,
+				D12113A42150F51B00D20456 /* DemoRenderToTexture.h */,
+				D12113A52150F51B00D20456 /* DemoShadowMap.h */,
+				D12113A22150F51B00D20456 /* DemoSkinnedMesh.h */,
+				D121139F2150F51B00D20456 /* DemoSkybox.h */,
+				D12113A62150F51B00D20456 /* DemoUI.h */,
 				D1B25E1E2109F50E001A3EC9 /* Main.m */,
 				D1B25E202109F5DD001A3EC9 /* AppDelegate.h */,
 				D1B25E212109F669001A3EC9 /* AppDelegate.m */,

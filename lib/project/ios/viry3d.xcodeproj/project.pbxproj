@@ -327,6 +327,10 @@
 		CBC4159CB68EA3B9DB94CF2F /* utf16.c in Sources */ = {isa = PBXBuildFile; fileRef = CE486EB38211E33C2E1D2BEF /* utf16.c */; };
 		CD0C4489A674F1C6A432E2E4 /* jidctint.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F9944524889F2271EED8E6E /* jidctint.c */; };
 		D054A53CAD44041A2F4677FC /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = 627396E34AEE1FCF0F3387B5 /* frame.c */; };
+		D12113B32150FED100D20456 /* AudioListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D12113AE2150FED100D20456 /* AudioListener.cpp */; };
+		D12113B42150FED100D20456 /* AudioClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D12113AF2150FED100D20456 /* AudioClip.cpp */; };
+		D12113B52150FED100D20456 /* AudioSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D12113B02150FED100D20456 /* AudioSource.cpp */; };
+		D12113B62150FED100D20456 /* AudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D12113B22150FED100D20456 /* AudioManager.cpp */; };
 		D137755720FEDFD800E4F19B /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137753E20FEDFD400E4F19B /* Material.cpp */; };
 		D137755820FEDFD800E4F19B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137754020FEDFD500E4F19B /* Renderer.cpp */; };
 		D137755920FEDFD800E4F19B /* Display.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137754320FEDFD500E4F19B /* Display.cpp */; };
@@ -900,6 +904,14 @@
 		CF77BB5B28AA83340C5F3DC4 /* compat.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = compat.c; sourceTree = "<group>"; };
 		D00B3047ECAF341162434A11 /* jcarith.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jcarith.c; sourceTree = "<group>"; };
 		D102BB0C76447D2EF5452F38 /* ftbzip2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ftbzip2.c; sourceTree = "<group>"; };
+		D12113AB2150FED100D20456 /* AudioClip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioClip.h; sourceTree = "<group>"; };
+		D12113AC2150FED100D20456 /* AudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioManager.h; sourceTree = "<group>"; };
+		D12113AD2150FED100D20456 /* AudioSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioSource.h; sourceTree = "<group>"; };
+		D12113AE2150FED100D20456 /* AudioListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioListener.cpp; sourceTree = "<group>"; };
+		D12113AF2150FED100D20456 /* AudioClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioClip.cpp; sourceTree = "<group>"; };
+		D12113B02150FED100D20456 /* AudioSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioSource.cpp; sourceTree = "<group>"; };
+		D12113B12150FED100D20456 /* AudioListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioListener.h; sourceTree = "<group>"; };
+		D12113B22150FED100D20456 /* AudioManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioManager.cpp; sourceTree = "<group>"; };
 		D137753D20FEDFD400E4F19B /* BufferObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferObject.h; sourceTree = "<group>"; };
 		D137753E20FEDFD400E4F19B /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
 		D137753F20FEDFD500E4F19B /* CameraClearFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraClearFlags.h; sourceTree = "<group>"; };
@@ -1093,6 +1105,7 @@
 			isa = PBXGroup;
 			children = (
 				BAB243232120ACE300BA07DE /* animation */,
+				D12113AA2150FED100D20456 /* audio */,
 				2C82477E194A5A54681047AB /* container */,
 				BA2800671F69A45900215483 /* crypto */,
 				3F8D4A1A474392B554EBEEDD /* freetype/src */,
@@ -2030,6 +2043,21 @@
 			path = bdf;
 			sourceTree = "<group>";
 		};
+		D12113AA2150FED100D20456 /* audio */ = {
+			isa = PBXGroup;
+			children = (
+				D12113AF2150FED100D20456 /* AudioClip.cpp */,
+				D12113AB2150FED100D20456 /* AudioClip.h */,
+				D12113AE2150FED100D20456 /* AudioListener.cpp */,
+				D12113B12150FED100D20456 /* AudioListener.h */,
+				D12113B22150FED100D20456 /* AudioManager.cpp */,
+				D12113AC2150FED100D20456 /* AudioManager.h */,
+				D12113B02150FED100D20456 /* AudioSource.cpp */,
+				D12113AD2150FED100D20456 /* AudioSource.h */,
+			);
+			path = audio;
+			sourceTree = "<group>";
+		};
 		D137757920FEE09E00E4F19B /* vulkan */ = {
 			isa = PBXGroup;
 			children = (
@@ -2207,6 +2235,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D12113B62150FED100D20456 /* AudioManager.cpp in Sources */,
 				BA1794D51FBB594000D0B77E /* btAxisSweep3.cpp in Sources */,
 				BA1794D61FBB594000D0B77E /* btBroadphaseProxy.cpp in Sources */,
 				BA1794D71FBB594000D0B77E /* btCollisionAlgorithm.cpp in Sources */,
@@ -2272,6 +2301,7 @@
 				BA17950D1FBB594000D0B77E /* btMultiSphereShape.cpp in Sources */,
 				BA42E67B1FF5455E009C3C01 /* lfunc.c in Sources */,
 				BA17950E1FBB594000D0B77E /* btOptimizedBvh.cpp in Sources */,
+				D12113B32150FED100D20456 /* AudioListener.cpp in Sources */,
 				BA17950F1FBB594000D0B77E /* btPolyhedralConvexShape.cpp in Sources */,
 				BA1795101FBB594000D0B77E /* btScaledBvhTriangleMeshShape.cpp in Sources */,
 				BA1795111FBB594000D0B77E /* btShapeHull.cpp in Sources */,
@@ -2365,6 +2395,7 @@
 				A94CE3E636B45B7E766E2098 /* ftsystem.c in Sources */,
 				BA42E68D1FF5455E009C3C01 /* ltablib.c in Sources */,
 				39FFE80C13B0BE7538993503 /* fttype1.c in Sources */,
+				D12113B52150FED100D20456 /* AudioSource.cpp in Sources */,
 				BA42E6731FF5455E009C3C01 /* lauxlib.c in Sources */,
 				BA2800C91F69A59F00215483 /* const.cpp in Sources */,
 				F32307B2866177C2AC4B83F4 /* ftwinfnt.c in Sources */,
@@ -2414,6 +2445,7 @@
 				B7F992C9053E2A6FE7964ECC /* jcdctmgr.c in Sources */,
 				F654D7AA16B9567E344EBA73 /* jchuff.c in Sources */,
 				E3ABC21968FA2F26D46D2E96 /* jcinit.c in Sources */,
+				D12113B42150FED100D20456 /* AudioClip.cpp in Sources */,
 				BA42E68A1FF5455E009C3C01 /* lmem.c in Sources */,
 				BB393E15187A98506C06C966 /* jcmainct.c in Sources */,
 				BAB243282120ACE300BA07DE /* Animation.cpp in Sources */,

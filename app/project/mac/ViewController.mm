@@ -69,6 +69,8 @@ static bool g_mouse_down = false;
     };
     NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
     NSOpenGLView* view = [[NSOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height) pixelFormat:format];
+    view.wantsBestResolutionOpenGLSurface = YES;
+
     // this call will create context
     [view openGLContext];
 #endif
