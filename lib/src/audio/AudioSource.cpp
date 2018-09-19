@@ -66,6 +66,8 @@ namespace Viry3D
 
         void ClearStreamBuffers()
         {
+            alSourcei(m_source, AL_BUFFER, 0);
+
             if (m_stream_buffers.Size() > 0)
             {
                 Vector<ALuint> buffers(m_stream_buffers.Size());
@@ -75,7 +77,6 @@ namespace Viry3D
                     m_stream_buffers.RemoveFirst();
                 }
 
-                alSourceUnqueueBuffers(m_source, buffers.Size(), &buffers[0]);
                 alDeleteBuffers(buffers.Size(), &buffers[0]);
             }
         }

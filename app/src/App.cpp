@@ -35,7 +35,6 @@
 #include "ui/Label.h"
 
 // TODO:
-// - click play mp3 fast cause problem on mac and ios
 // - ScrollView
 // - demo ARKit
 // - SwitchControl
