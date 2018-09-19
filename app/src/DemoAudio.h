@@ -136,7 +136,7 @@ namespace Viry3D
 
                 case 4:
 #if VR_WASM
-                    AudioManager::PlayAudio("Assets/audio/bgm.mp3", true);
+                    AudioManager::PlayAudio("audio/bgm.mp3", true);
 #else
 
                     m_audio_source_bgm->Play();

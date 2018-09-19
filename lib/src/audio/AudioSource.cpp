@@ -59,12 +59,12 @@ namespace Viry3D
         ~AudioSourcePrivate()
         {
             this->Stop();
-            this->ClearStreamBuffers();
+            this->ClearBuffers();
 
             alDeleteSources(1, &m_source);
         }
 
-        void ClearStreamBuffers()
+        void ClearBuffers()
         {
             alSourcei(m_source, AL_BUFFER, 0);
 
@@ -264,20 +264,16 @@ namespace Viry3D
     {
         if (m_clip)
         {
+            m_private->Stop();
+            m_private->ClearBuffers();
+
             if (m_clip->IsStream())
             {
 #if !VR_WASM
-                m_private->Stop();
-                m_private->ClearStreamBuffers();
-
                 m_clip->StopMp3Decoder();
 
                 m_private->m_wait_for_play = false;
 #endif
-            }
-            else
-            {
-                m_private->Stop();
             }
         }
     }
