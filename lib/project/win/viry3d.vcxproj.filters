@@ -957,6 +957,9 @@
     <ClInclude Include="..\..\src\audio\AudioClip.h">
       <Filter>src\audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ui\ScrollView.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2335,6 +2338,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\openal\Alc\backends\xaudio2.cpp">
       <Filter>src\openal\Alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\ScrollView.cpp">
+      <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

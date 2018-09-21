@@ -17,21 +17,24 @@
 
 #pragma once
 
-#if VR_WINDOWS || VR_MAC || VR_WASM || VR_UWP
-#define UI_SCALE 0.5
-#else
-#define UI_SCALE 1.0
-#endif
+#include "View.h"
 
 namespace Viry3D
 {
-    class Demo
+    class ScrollView: public View
     {
     public:
-        virtual ~Demo() { }
-        virtual void Init() { }
-        virtual void Done() { }
-        virtual bool IsInitComplete() const { return true; }
-        virtual void Update() { }
+        ScrollView();
+        virtual ~ScrollView();
+        const Ref<View>& GetContentView() const { return m_content_view; }
+        void SetContentViewSize(const Vector2i& size);
+        void SetScrollThrehold(float threhold);
+
+    private:
+        bool OnTouchUp();
+
+    private:
+        Ref<View> m_content_view;
+        float m_scroll_threhold;
     };
 }

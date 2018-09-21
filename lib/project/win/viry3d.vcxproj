@@ -282,6 +282,7 @@
     <ClInclude Include="..\..\src\ui\CanvasRenderer.h" />
     <ClInclude Include="..\..\src\ui\Font.h" />
     <ClInclude Include="..\..\src\ui\Label.h" />
+    <ClInclude Include="..\..\src\ui\ScrollView.h" />
     <ClInclude Include="..\..\src\ui\Sprite.h" />
     <ClInclude Include="..\..\src\ui\View.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h" />
@@ -687,6 +688,7 @@
     <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp" />
     <ClCompile Include="..\..\src\ui\Font.cpp" />
     <ClCompile Include="..\..\src\ui\Label.cpp" />
+    <ClCompile Include="..\..\src\ui\ScrollView.cpp" />
     <ClCompile Include="..\..\src\ui\Sprite.cpp" />
     <ClCompile Include="..\..\src\ui\View.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />

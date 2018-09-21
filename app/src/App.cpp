@@ -33,10 +33,10 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Button.h"
 #include "ui/Label.h"
+#include "ui/ScrollView.h"
 
 // TODO:
 // - ScrollView
-// - demo ARKit
 // - SwitchControl
 // - SliderControl
 // - TabView TreeView
@@ -72,6 +72,14 @@ namespace Viry3D
 
         void AddDemoButtons()
         {
+            auto scroll = RefMake<ScrollView>();
+            m_canvas->AddView(scroll);
+
+            scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
+            scroll->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
+            scroll->SetPivot(Vector2(0.5f, 0.5f));
+            scroll->SetOffset(Vector2i(0, 0));
+
             Vector<String> titles({
                 "Mesh",
                 "SkinnedMesh",
@@ -85,19 +93,23 @@ namespace Viry3D
                 "AR"
                 });
 
-            int top = (int) (90 * UI_SCALE);
-            int button_height = (int) (160 * UI_SCALE);
-            int font_size = (int) (40 * UI_SCALE);
+            const int top = (int) (90 * UI_SCALE);
+            const int button_height = (int) (160 * UI_SCALE);
+            const int button_space = 2;
+            const int font_size = (int) (40 * UI_SCALE);
+            const int content_height = top + (button_height + button_space) * titles.Size();
+
+            scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), content_height));
 
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
-                m_canvas->AddView(button);
+                scroll->GetContentView()->AddSubview(button);
 
                 button->SetSize(Vector2i(Display::Instance()->GetWidth(), button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, top + i * (2 + button_height)));
+                button->SetOffset(Vector2i(0, top + i * (button_height + button_space)));
                 button->GetLabel()->SetText(titles[i]);
                 button->GetLabel()->SetFontSize(font_size);
                 button->SetOnClick([=]() {
