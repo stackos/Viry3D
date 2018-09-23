@@ -58,6 +58,8 @@ namespace Viry3D
 	class View
 	{
 	public:
+        typedef std::function<bool(const Vector2i& pos)> InputAction;
+
 		View();
 		virtual ~View();
         virtual void UpdateLayout();
@@ -89,16 +91,16 @@ namespace Viry3D
         const Quaternion& GetRotation() const { return m_rotation; }
         const Vector2& GetScale() const { return m_scale; }
         void FillMeshes(Vector<ViewMesh>& mesh);
-        void SetOnTouchDownInside(std::function<bool()> func) { m_on_touch_down_inside = func; }
-        void SetOnTouchMoveInside(std::function<bool()> func) { m_on_touch_move_inside = func; }
-        void SetOnTouchUpInside(std::function<bool()> func) { m_on_touch_up_inside = func; }
-        void SetOnTouchUpOutside(std::function<bool()> func) { m_on_touch_up_outside = func; }
-        void SetOnTouchDrag(std::function<bool()> func) { m_on_touch_drag = func; }
-        bool OnTouchDownInside() const;
-        bool OnTouchMoveInside() const;
-        bool OnTouchUpInside() const;
-        bool OnTouchUpOutside() const;
-        bool OnTouchDrag() const;
+        void SetOnTouchDownInside(InputAction func) { m_on_touch_down_inside = func; }
+        void SetOnTouchMoveInside(InputAction func) { m_on_touch_move_inside = func; }
+        void SetOnTouchUpInside(InputAction func) { m_on_touch_up_inside = func; }
+        void SetOnTouchUpOutside(InputAction func) { m_on_touch_up_outside = func; }
+        void SetOnTouchDrag(InputAction func) { m_on_touch_drag = func; }
+        bool OnTouchDownInside(const Vector2i& pos) const;
+        bool OnTouchMoveInside(const Vector2i& pos) const;
+        bool OnTouchUpInside(const Vector2i& pos) const;
+        bool OnTouchUpOutside(const Vector2i& pos) const;
+        bool OnTouchDrag(const Vector2i& pos) const;
 
     protected:
         void MarkCanvasDirty() const;
@@ -119,10 +121,10 @@ namespace Viry3D
         Rect m_rect;
         Quaternion m_rotation;
         Vector2 m_scale;
-        std::function<bool()> m_on_touch_down_inside;
-        std::function<bool()> m_on_touch_move_inside;
-        std::function<bool()> m_on_touch_up_inside;
-        std::function<bool()> m_on_touch_up_outside;
-        std::function<bool()> m_on_touch_drag;
+        InputAction m_on_touch_down_inside;
+        InputAction m_on_touch_move_inside;
+        InputAction m_on_touch_up_inside;
+        InputAction m_on_touch_up_outside;
+        InputAction m_on_touch_drag;
 	};
 }

@@ -25,11 +25,11 @@ namespace Viry3D
     Button::Button():
         m_touch_down(false)
     {
-        this->SetOnTouchDownInside([this]() {
+        this->SetOnTouchDownInside([this](const Vector2i& pos) {
             this->m_touch_down = true;
             return true;
         });
-        this->SetOnTouchUpInside([this]() {
+        this->SetOnTouchUpInside([this](const Vector2i& pos) {
             if (this->m_touch_down)
             {
                 this->OnClick();
@@ -37,7 +37,7 @@ namespace Viry3D
             }
             return true;
         });
-        this->SetOnTouchUpOutside([this]() {
+        this->SetOnTouchUpOutside([this](const Vector2i& pos) {
             this->m_touch_down = false;
             return false;
         });

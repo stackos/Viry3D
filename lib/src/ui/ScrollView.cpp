@@ -30,17 +30,17 @@ namespace Viry3D
         m_content_view->SetPivot(Vector2(0.5f, 0));
         m_content_view->SetOffset(Vector2i(0, 0));
 
-        this->SetOnTouchDownInside([this]() {
+        this->SetOnTouchDownInside([this](const Vector2i& pos) {
             return false;
         });
-        this->SetOnTouchDrag([this]() {
+        this->SetOnTouchDrag([this](const Vector2i& pos) {
             return false;
         });
-        this->SetOnTouchUpInside([this]() {
-            return this->OnTouchUp();
+        this->SetOnTouchUpInside([this](const Vector2i& pos) {
+            return this->OnTouchUp(pos);
         });
-        this->SetOnTouchUpOutside([this]() {
-            return this->OnTouchUp();
+        this->SetOnTouchUpOutside([this](const Vector2i& pos) {
+            return this->OnTouchUp(pos);
         });
     }
 
@@ -59,7 +59,7 @@ namespace Viry3D
         m_scroll_threhold = threhold;
     }
 
-    bool ScrollView::OnTouchUp()
+    bool ScrollView::OnTouchUp(const Vector2i& pos)
     {
         return false;
     }

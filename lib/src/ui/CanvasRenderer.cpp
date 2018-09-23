@@ -651,7 +651,7 @@ void main()
         }
     }
 
-    static bool IsPointInView(const Vector2& pos, const Vector<Vertex>& vertices)
+    static bool IsPointInView(const Vector2i& pos, const Vector<Vertex>& vertices)
     {
         // ax + by + c = 0
         // a = y1 - y0
@@ -685,7 +685,7 @@ void main()
 
     void CanvasRenderer::HitViews(const Touch& t)
     {
-        Vector2 pos = t.position;
+        Vector2i pos = Vector2i((int) t.position.x, (int) t.position.y);
         pos.x -= this->GetCamera()->GetTargetWidth() / 2;
         pos.y -= this->GetCamera()->GetTargetHeight() / 2;
 
@@ -711,7 +711,7 @@ void main()
                             m_touch_down_views.Add(t.fingerId, views);
                         }
 
-                        bool block_event = view->OnTouchDownInside();
+                        bool block_event = view->OnTouchDownInside(pos);
 
                         if (block_event)
                         {
@@ -728,7 +728,7 @@ void main()
             {
                 for (View* j : *touch_down_views_ptr)
                 {
-                    bool block_event = j->OnTouchDrag();
+                    bool block_event = j->OnTouchDrag(pos);
 
                     if (block_event)
                     {
@@ -745,7 +745,7 @@ void main()
                     {
                         View* view = m_view_meshes[i].view;
 
-                        bool block_event = view->OnTouchMoveInside();
+                        bool block_event = view->OnTouchMoveInside(pos);
 
                         if (block_event)
                         {
@@ -773,7 +773,7 @@ void main()
                             touch_down_views_ptr->Remove(view);
                         }
 
-                        bool block_event = view->OnTouchUpInside();
+                        bool block_event = view->OnTouchUpInside(pos);
 
                         if (block_event)
                         {
@@ -787,7 +787,7 @@ void main()
             {
                 for (View* j : *touch_down_views_ptr)
                 {
-                    bool block_event = j->OnTouchUpOutside();
+                    bool block_event = j->OnTouchUpOutside(pos);
 
                     if (block_event)
                     {

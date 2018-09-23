@@ -31,7 +31,7 @@ namespace Viry3D
         void SetScrollThrehold(float threhold);
 
     private:
-        bool OnTouchUp();
+        bool OnTouchUp(const Vector2i& pos);
 
     private:
         Ref<View> m_content_view;

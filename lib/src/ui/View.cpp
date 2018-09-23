@@ -270,47 +270,47 @@ namespace Viry3D
         }
     }
 
-    bool View::OnTouchDownInside() const
+    bool View::OnTouchDownInside(const Vector2i& pos) const
     {
         if (m_on_touch_down_inside)
         {
-            return m_on_touch_down_inside();
+            return m_on_touch_down_inside(pos);
         }
         return false;
     }
 
-    bool View::OnTouchMoveInside() const
+    bool View::OnTouchMoveInside(const Vector2i& pos) const
     {
         if (m_on_touch_move_inside)
         {
-            return m_on_touch_move_inside();
+            return m_on_touch_move_inside(pos);
         }
         return false;
     }
     
-    bool View::OnTouchUpInside() const
+    bool View::OnTouchUpInside(const Vector2i& pos) const
     {
         if (m_on_touch_up_inside)
         {
-            return m_on_touch_up_inside();
+            return m_on_touch_up_inside(pos);
         }
         return false;
     }
 
-    bool View::OnTouchUpOutside() const
+    bool View::OnTouchUpOutside(const Vector2i& pos) const
     {
         if (m_on_touch_up_outside)
         {
-            return m_on_touch_up_outside();
+            return m_on_touch_up_outside(pos);
         }
         return false;
     }
 
-    bool View::OnTouchDrag() const
+    bool View::OnTouchDrag(const Vector2i& pos) const
     {
         if (m_on_touch_drag)
         {
-            return m_on_touch_drag();
+            return m_on_touch_drag(pos);
         }
         return false;
     }
