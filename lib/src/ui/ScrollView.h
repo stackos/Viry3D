@@ -36,5 +36,9 @@ namespace Viry3D
     private:
         Ref<View> m_content_view;
         float m_scroll_threhold;
+        Vector2i m_down_pos;
+        bool m_scroll_start_x;
+        bool m_scroll_start_y;
+        Vector2i m_scroll_pos;
     };
 }
