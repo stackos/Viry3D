@@ -82,10 +82,11 @@ API_AVAILABLE(ios(11.0))
 
 - (void)run
 {
-    ARWorldTrackingConfiguration* configuration = [ARWorldTrackingConfiguration new];
-    configuration.planeDetection = ARPlaneDetectionHorizontal;
+    ARWorldTrackingConfiguration* config = [ARWorldTrackingConfiguration new];
+    config.planeDetection = ARPlaneDetectionHorizontal;
+    config.environmentTexturing = AREnvironmentTexturingAutomatic;
     
-    [self.session runWithConfiguration:configuration];
+    [self.session runWithConfiguration:config];
 }
 
 - (void)pause
@@ -154,6 +155,26 @@ API_AVAILABLE(ios(11.0))
     [self updateCapturedTexture:pixel_buffer];
     [self updateDisplayRotation:frame];
     [self updateCamera:frame.camera];
+}
+
+- (void)session:(ARSession *)session didUpdateAnchors:(NSArray<ARAnchor*>*)anchors
+{
+    for (int i = 0; i < [anchors count]; ++i)
+    {
+        ARAnchor* anchor = [anchors objectAtIndex:i];
+        if ([anchor isKindOfClass:[AREnvironmentProbeAnchor class]])
+        {
+            AREnvironmentProbeAnchor* env = (AREnvironmentProbeAnchor*) anchor;
+            id<MTLTexture> texture = [env environmentTexture];
+            MTLTextureType type = [texture textureType];
+            MTLPixelFormat format = [texture pixelFormat];
+            int level_count = (int) [texture mipmapLevelCount];
+            int width = (int) [texture width];
+            int height = (int) [texture height];
+            
+            //(void)getBytes:(void *)pixelBytes bytesPerRow:(NSUInteger)bytesPerRow bytesPerImage:(NSUInteger)bytesPerImage fromRegion:(MTLRegion)region mipmapLevel:(NSUInteger)level slice:(NSUInteger)slice;
+        }
+    }
 }
 
 - (void)updateCapturedTexture:(CVPixelBufferRef)pixel_buffer

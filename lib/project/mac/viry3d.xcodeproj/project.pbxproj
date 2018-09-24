@@ -303,6 +303,7 @@
 		BA4FAC161FBB558500C1ADB7 /* btQuickprof.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAB8D1FBB54E400C1ADB7 /* btQuickprof.cpp */; };
 		BA4FAC171FBB558500C1ADB7 /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAB911FBB54E400C1ADB7 /* btSerializer.cpp */; };
 		BA4FAC181FBB558500C1ADB7 /* btVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAB971FBB54E400C1ADB7 /* btVector3.cpp */; };
+		BA66598C2157FE08009822E7 /* ScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA66598A2157FE08009822E7 /* ScrollView.cpp */; };
 		BA8AA36F2005213500B7FDC2 /* lpprint.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3642005213500B7FDC2 /* lpprint.c */; };
 		BA8AA3702005213500B7FDC2 /* lpvm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3652005213500B7FDC2 /* lpvm.c */; };
 		BA8AA3712005213500B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3672005213500B7FDC2 /* lpcap.c */; };
@@ -855,6 +856,8 @@
 		BA4FAB981FBB54E400C1ADB7 /* btVector3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = btVector3.h; sourceTree = "<group>"; };
 		BA4FAB991FBB54E400C1ADB7 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		BA4FAB9A1FBB54E400C1ADB7 /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; };
+		BA66598A2157FE08009822E7 /* ScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollView.cpp; sourceTree = "<group>"; };
+		BA66598B2157FE08009822E7 /* ScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollView.h; sourceTree = "<group>"; };
 		BA8AA3642005213500B7FDC2 /* lpprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpprint.c; sourceTree = "<group>"; };
 		BA8AA3652005213500B7FDC2 /* lpvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpvm.c; sourceTree = "<group>"; };
 		BA8AA3662005213500B7FDC2 /* lptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptypes.h; sourceTree = "<group>"; };
@@ -1279,6 +1282,8 @@
 				D1D42A39211156340016A265 /* Font.h */,
 				D1D42A35211156340016A265 /* Label.cpp */,
 				D1D42A3D211156350016A265 /* Label.h */,
+				BA66598A2157FE08009822E7 /* ScrollView.cpp */,
+				BA66598B2157FE08009822E7 /* ScrollView.h */,
 				D1D42A3A211156340016A265 /* Sprite.cpp */,
 				D1D42A38211156340016A265 /* Sprite.h */,
 				D1D42A36211156340016A265 /* View.cpp */,
@@ -2518,6 +2523,7 @@
 				BA2800C31F69A59F00215483 /* add.cpp in Sources */,
 				7A306583892BF0B936E38FD5 /* synth.c in Sources */,
 				5419A991A72DE53F8D3BA07A /* version.c in Sources */,
+				BA66598C2157FE08009822E7 /* ScrollView.cpp in Sources */,
 				A34E9273DBBB556ED74A4E47 /* png.c in Sources */,
 				84BD1A1E3722E1162FD2FE0A /* pngerror.c in Sources */,
 				D1D42A43211156350016A265 /* Sprite.cpp in Sources */,
