@@ -52,6 +52,7 @@ API_AVAILABLE(ios(11.0))
 {
     Ref<Texture> m_texture_y;
     Ref<Texture> m_texture_uv;
+    Ref<Texture> m_texture_env;
     Matrix4x4 m_display_transform;
     Vector3 m_camera_pos;
     Quaternion m_camera_rot;
@@ -78,6 +79,7 @@ API_AVAILABLE(ios(11.0))
 {
     m_texture_y.reset();
     m_texture_uv.reset();
+    m_texture_env.reset();
 }
 
 - (void)run
@@ -172,7 +174,30 @@ API_AVAILABLE(ios(11.0))
             int width = (int) [texture width];
             int height = (int) [texture height];
             
-            //(void)getBytes:(void *)pixelBytes bytesPerRow:(NSUInteger)bytesPerRow bytesPerImage:(NSUInteger)bytesPerImage fromRegion:(MTLRegion)region mipmapLevel:(NSUInteger)level slice:(NSUInteger)slice;
+            assert(type == MTLTextureTypeCube);
+            assert(format == MTLPixelFormatBGRA8Unorm_sRGB);
+            assert(width == height);
+            
+            if (!m_texture_env || m_texture_env->GetWidth() != width || m_texture_env->GetHeight() != height)
+            {
+                m_texture_env = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, FilterMode::Trilinear, SamplerAddressMode::ClampToEdge, true);
+            }
+            
+            ByteBuffer buffer(width * height * 4);
+            int w = width;
+            int h = height;
+            
+            for (int j = 0; j < level_count;  ++j)
+            {
+                for (int k = 0; k < 6; ++k)
+                {
+                    [texture getBytes:buffer.Bytes() bytesPerRow:width * 4 bytesPerImage:width * height * 4 fromRegion:MTLRegionMake2D(0, 0, w, h) mipmapLevel:j slice:k];
+                    
+                    m_texture_env->UpdateCubemap(buffer, (CubemapFace) k, j);
+                }
+                w = w >> 1;
+                h = h >> 1;
+            }
         }
     }
 }

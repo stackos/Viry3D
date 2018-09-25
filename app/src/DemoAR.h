@@ -185,8 +185,17 @@ void main()
                 
                 const auto& camera_pos = m_scene->GetCameraPosition();
                 const auto& camera_rot = m_scene->GetCameraRotation();
-                auto camera_forward = camera_rot * Vector3(0, 0, 1);
-                renderer->SetLocalPosition(camera_pos + camera_forward * 0.2f);
+                renderer->SetLocalPosition(camera_pos + camera_rot * Vector3(0, 0, 1) * 0.2f);
+                renderer->SetLocalScale(Vector3(1, 1, 1) * 0.1f);
+                
+                // test sphere
+                auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
+                renderer = RefMake<MeshRenderer>();
+                renderer->SetMaterial(material);
+                renderer->SetMesh(sphere);
+                m_scene_camera->AddRenderer(renderer);
+                
+                renderer->SetLocalPosition(camera_pos + camera_rot * Vector3(-0.6f, 0, 1) * 0.2f);
                 renderer->SetLocalScale(Vector3(1, 1, 1) * 0.1f);
             }
             else
