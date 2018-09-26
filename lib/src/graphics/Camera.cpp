@@ -93,6 +93,7 @@ namespace Viry3D
                 if (material)
                 {
                     material->SetMatrix(VIEW_MATRIX, m_view_matrix);
+                    material->SetVector(CAMERA_POSITION, this->GetPosition());
                 }
             }
         }
@@ -457,6 +458,7 @@ namespace Viry3D
             {
                 material->SetMatrix(VIEW_MATRIX, this->GetViewMatrix());
                 material->SetMatrix(PROJECTION_MATRIX, this->GetProjectionMatrix());
+                material->SetVector(CAMERA_POSITION, this->GetPosition());
             }
 
             m_renderers.AddLast(instance);

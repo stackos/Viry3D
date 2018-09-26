@@ -106,6 +106,11 @@ API_AVAILABLE(ios(11.0))
     return m_texture_uv;
 }
 
+- (const Ref<Texture>&)getEnvironmentTexture
+{
+    return m_texture_env;
+}
+
 - (const Matrix4x4&)getDisplayTransform
 {
     return m_display_transform;
@@ -174,7 +179,11 @@ API_AVAILABLE(ios(11.0))
             int width = (int) [texture width];
             int height = (int) [texture height];
             
-            assert(type == MTLTextureTypeCube);
+            if (type != MTLTextureTypeCube)
+            {
+                continue;
+            }
+
             assert(format == MTLPixelFormatBGRA8Unorm_sRGB);
             assert(width == height);
             
@@ -191,7 +200,7 @@ API_AVAILABLE(ios(11.0))
             {
                 for (int k = 0; k < 6; ++k)
                 {
-                    [texture getBytes:buffer.Bytes() bytesPerRow:width * 4 bytesPerImage:width * height * 4 fromRegion:MTLRegionMake2D(0, 0, w, h) mipmapLevel:j slice:k];
+                    [texture getBytes:buffer.Bytes() bytesPerRow:w * 4 bytesPerImage:w * h * 4 fromRegion:MTLRegionMake2D(0, 0, w, h) mipmapLevel:j slice:k];
                     
                     m_texture_env->UpdateCubemap(buffer, (CubemapFace) k, j);
                 }
@@ -400,6 +409,11 @@ namespace Viry3D
     const Ref<Texture>& ARScene::GetCameraTextureUV() const
     {
         return [g_session getCameraImageUV];
+    }
+    
+    const Ref<Texture>& ARScene::GetEnvironmentTexture() const
+    {
+        return [g_session getEnvironmentTexture];
     }
     
     const Matrix4x4& ARScene::GetDisplayTransform() const

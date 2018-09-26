@@ -36,6 +36,8 @@
 #define LIGHT_COLOR "u_light_color"
 #define LIGHT_ITENSITY "u_light_intensity"
 
+#define CAMERA_POSITION "u_camera_pos"
+
 namespace Viry3D
 {
     class Shader;

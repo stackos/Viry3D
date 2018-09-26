@@ -33,6 +33,7 @@ namespace Viry3D
         Camera* m_scene_camera = nullptr;
         Ref<Material> m_bg_material;
         Rect m_viewport;
+        Ref<MeshRenderer> m_sphere;
         
         void InitAR()
         {
@@ -50,6 +51,8 @@ namespace Viry3D
         
         virtual void Done()
         {
+            m_sphere.reset();
+            
             if (m_scene_camera)
             {
                 Display::Instance()->DestroyCamera(m_scene_camera);
@@ -189,7 +192,59 @@ void main()
                 renderer->SetLocalScale(Vector3(1, 1, 1) * 0.1f);
                 
                 // test sphere
+                vs = R"(
+uniform mat4 u_view_matrix;
+uniform mat4 u_projection_matrix;
+uniform mat4 u_model_matrix;
+                
+in vec4 a_pos;
+in vec3 a_normal;
+
+out vec3 v_pos;
+out vec3 v_normal;
+
+void main()
+{
+    vec4 pos_world = a_pos * u_model_matrix;
+    gl_Position = pos_world * u_view_matrix * u_projection_matrix;
+    v_pos = pos_world.xyz;
+    v_normal = normalize((vec4(a_normal, 0) * u_model_matrix).xyz);
+}
+)";
+                fs = R"(
+precision highp float;
+
+uniform samplerCube u_texture;
+uniform vec4 u_camera_pos;
+
+in vec3 v_pos;
+in vec3 v_normal;
+
+out vec4 o_frag;
+                
+void main()
+{
+    vec3 v = normalize(v_pos - u_camera_pos.xyz);
+    vec3 n = normalize(v_normal);
+    vec3 r = reflect(v, n);
+    vec4 c = texture(u_texture, r);
+    o_frag = c;
+}
+)";
+                shader = RefMake<Shader>(
+                    "#version 300 es",
+                    Vector<String>(),
+                    vs,
+                    "#version 300 es",
+                    Vector<String>(),
+                    fs,
+                    render_state);
+                
                 auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
+                
+                material = RefMake<Material>(shader);
+                material->SetTexture("u_texture", Texture::GetSharedCubemap());
+                
                 renderer = RefMake<MeshRenderer>();
                 renderer->SetMaterial(material);
                 renderer->SetMesh(sphere);
@@ -197,12 +252,19 @@ void main()
                 
                 renderer->SetLocalPosition(camera_pos + camera_rot * Vector3(-0.6f, 0, 1) * 0.2f);
                 renderer->SetLocalScale(Vector3(1, 1, 1) * 0.1f);
+                
+                m_sphere = renderer;
             }
             else
             {
                 m_bg_material->SetTexture("u_texture_y", texture_y);
                 m_bg_material->SetTexture("u_texture_uv", texture_uv);
                 m_bg_material->SetMatrix("u_display_matrix", m_scene->GetDisplayTransform());
+                
+                if (m_scene->GetEnvironmentTexture())
+                {
+                    m_sphere->GetMaterial()->SetTexture("u_texture", m_scene->GetEnvironmentTexture());
+                }
             }
             
             this->UpdateCamera(texture_y->GetWidth(), texture_y->GetHeight());

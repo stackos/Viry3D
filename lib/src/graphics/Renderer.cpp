@@ -102,6 +102,7 @@ namespace Viry3D
             {
                 m_material->SetMatrix(VIEW_MATRIX, m_camera->GetViewMatrix());
                 m_material->SetMatrix(PROJECTION_MATRIX, m_camera->GetProjectionMatrix());
+                m_material->SetVector(CAMERA_POSITION, m_camera->GetPosition());
             }
         }
 

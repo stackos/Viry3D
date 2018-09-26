@@ -36,6 +36,7 @@ namespace Viry3D
         void Pause();
         const Ref<Texture>& GetCameraTextureY() const;
         const Ref<Texture>& GetCameraTextureUV() const;
+        const Ref<Texture>& GetEnvironmentTexture() const;
         const Matrix4x4& GetDisplayTransform() const;
         const Vector3& GetCameraPosition() const;
         const Quaternion& GetCameraRotation() const;
