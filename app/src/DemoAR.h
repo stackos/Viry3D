@@ -228,7 +228,7 @@ void main()
     vec3 n = normalize(v_normal);
     vec3 r = reflect(v, n);
     vec4 c = texture(u_texture, r);
-    o_frag = c;
+    o_frag = c.bgra; // bgra -> rgba
 }
 )";
                 shader = RefMake<Shader>(
