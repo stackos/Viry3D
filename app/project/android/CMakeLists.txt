@@ -435,6 +435,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/ui/CanvasRenderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Font.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Label.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/ScrollView.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Sprite.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/View.cpp
             ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_shader_compiler.cpp
