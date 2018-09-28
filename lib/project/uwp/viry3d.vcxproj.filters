@@ -912,6 +912,9 @@
     <ClInclude Include="..\..\src\audio\AudioSource.h">
       <Filter>src\audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ui\ScrollView.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -1462,9 +1465,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\openal\Alc\backends\thread_msg_queue_cpp11.cpp">
       <Filter>src\openal\Alc\backends</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\openal\Alc\alcThread.c">
-      <Filter>src\openal\Alc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\math\Frustum.cpp">
       <Filter>src\math</Filter>
@@ -2137,6 +2137,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\openal\Alc\backends\null.c">
       <Filter>src\openal\Alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\ScrollView.cpp">
+      <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

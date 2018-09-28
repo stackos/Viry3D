@@ -302,6 +302,7 @@
     <ClInclude Include="..\..\src\ui\CanvasRenderer.h" />
     <ClInclude Include="..\..\src\ui\Font.h" />
     <ClInclude Include="..\..\src\ui\Label.h" />
+    <ClInclude Include="..\..\src\ui\ScrollView.h" />
     <ClInclude Include="..\..\src\ui\Sprite.h" />
     <ClInclude Include="..\..\src\ui\View.h" />
     <ClInclude Include="..\..\src\xml\tinyxml2.h" />
@@ -542,7 +543,6 @@
     <ClCompile Include="..\..\src\openal\Alc\alcModulator.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcReverb.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcRing.c" />
-    <ClCompile Include="..\..\src\openal\Alc\alcThread.c" />
     <ClCompile Include="..\..\src\openal\Alc\alcThreadCpp11.cpp" />
     <ClCompile Include="..\..\src\openal\Alc\ALc_cpp11.cpp" />
     <ClCompile Include="..\..\src\openal\Alc\ALu.c" />
@@ -695,6 +695,7 @@
     <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp" />
     <ClCompile Include="..\..\src\ui\Font.cpp" />
     <ClCompile Include="..\..\src\ui\Label.cpp" />
+    <ClCompile Include="..\..\src\ui\ScrollView.cpp" />
     <ClCompile Include="..\..\src\ui\Sprite.cpp" />
     <ClCompile Include="..\..\src\ui\View.cpp" />
     <ClCompile Include="..\..\src\xml\tinyxml2.cpp" />
