@@ -131,6 +131,11 @@ namespace Viry3D
     
     }
 
+    const Vector2i& ScrollView::GetContentViewSize() const
+    {
+        return m_content_view->GetSize();
+    }
+
     void ScrollView::SetContentViewSize(const Vector2i& size)
     {
         m_content_view->SetSize(size);

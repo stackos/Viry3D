@@ -2864,6 +2864,8 @@ extern void UnbindSharedContext();
             {
                 i->OnResize(m_width, m_height);
             }
+
+            Application::Instance()->OnResize(m_width, m_height);
         }
 
         void OnDraw()

@@ -36,7 +36,10 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - ScrollView OnResize
+// - update web demo
+// - demo menu buttons OnResize
+// - ScrollView inertia
+// - ScrollView over scroll
 // - SwitchControl
 // - SliderControl
 // - TabView TreeView
@@ -51,7 +54,8 @@ namespace Viry3D
         Demo* m_demo = nullptr;
         Sprite* m_touch_cursor = nullptr;
         Vector2i m_touch_cursor_pos = Vector2i(0, 0);
-        Ref<CanvasRenderer> m_canvas;
+        CanvasRenderer* m_canvas = nullptr;
+        ScrollView* m_scroll = nullptr;
 
     public:
         void Init()
@@ -63,8 +67,9 @@ namespace Viry3D
 
         void InitUI()
         {
-            m_canvas = RefMake<CanvasRenderer>();
-            m_camera->AddRenderer(m_canvas);
+            auto canvas = RefMake<CanvasRenderer>();
+            m_camera->AddRenderer(canvas);
+            m_canvas = canvas.get();
 
             this->AddDemoButtons();
             this->AddTouchCursor();
@@ -74,11 +79,12 @@ namespace Viry3D
         {
             auto scroll = RefMake<ScrollView>();
             m_canvas->AddView(scroll);
+            m_scroll = scroll.get();
 
-            scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
-            scroll->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
-            scroll->SetPivot(Vector2(0.5f, 0.5f));
-            scroll->SetOffset(Vector2i(0, 0));
+            m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
+            m_scroll->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
+            m_scroll->SetPivot(Vector2(0.5f, 0.5f));
+            m_scroll->SetOffset(Vector2i(0, 0));
 
             Vector<String> titles({
                 "Mesh",
@@ -99,12 +105,12 @@ namespace Viry3D
             const int font_size = (int) (40 * UI_SCALE);
             const int content_height = top + (button_height + button_space) * titles.Size();
 
-            scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), content_height));
+            m_scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), content_height));
 
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
-                scroll->GetContentView()->AddSubview(button);
+                m_scroll->GetContentView()->AddSubview(button);
 
                 button->SetSize(Vector2i(Display::Instance()->GetWidth(), button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
@@ -294,6 +300,12 @@ namespace Viry3D
                 }
             }
         }
+
+        void OnResize(int width, int height)
+        {
+            m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
+            m_scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), m_scroll->GetContentViewSize().y));
+        }
     };
 
     App::App()
@@ -314,5 +326,10 @@ namespace Viry3D
     void App::Update()
     {
         m_app->Update();
+    }
+
+    void App::OnResize(int width, int height)
+    {
+        m_app->OnResize(width, height);
     }
 }
