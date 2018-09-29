@@ -305,6 +305,7 @@ namespace Viry3D
         {
             m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
             m_scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), m_scroll->GetContentViewSize().y));
+            m_scroll->SetScrollOffset(Vector2i(0, 0));
         }
     };
 

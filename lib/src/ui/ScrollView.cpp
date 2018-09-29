@@ -146,6 +146,11 @@ namespace Viry3D
         m_scroll_threhold = threhold;
     }
 
+    void ScrollView::SetScrollOffset(const Vector2i& pos)
+    {
+        m_content_view->SetOffset(pos);
+    }
+
     bool ScrollView::OnTouchUp(const Vector2i& pos)
     {
         bool block_event = m_scroll_start_x || m_scroll_start_y;

@@ -30,6 +30,7 @@ namespace Viry3D
         const Vector2i& GetContentViewSize() const;
         void SetContentViewSize(const Vector2i& size);
         void SetScrollThrehold(float threhold);
+        void SetScrollOffset(const Vector2i& pos);
 
     private:
         bool OnTouchUp(const Vector2i& pos);
