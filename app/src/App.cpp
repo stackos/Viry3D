@@ -36,8 +36,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - update web demo
-// - demo menu buttons OnResize
 // - ScrollView inertia
 // - ScrollView over scroll
 // - SwitchControl
@@ -209,6 +207,8 @@ namespace Viry3D
                 m_canvas->RemoveAllViews();
                 m_camera->SetClearFlags(CameraClearFlags::Nothing);
                 m_camera->SetDepth(0x7FFFFFFF);
+                m_scroll = nullptr;
+
                 this->AddBackButton();
                 this->AddTouchCursor();
 
@@ -303,9 +303,21 @@ namespace Viry3D
 
         void OnResize(int width, int height)
         {
-            m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
-            m_scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), m_scroll->GetContentViewSize().y));
-            m_scroll->SetScrollOffset(Vector2i(0, 0));
+            if (m_scroll)
+            {
+                m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
+                m_scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), m_scroll->GetContentViewSize().y));
+                m_scroll->SetScrollOffset(Vector2i(0, 0));
+
+                for (int i = 0; i < m_scroll->GetContentView()->GetSubviewCount(); ++i)
+                {
+                    auto button = RefCast<Button>(m_scroll->GetContentView()->GetSubview(i));
+                    if (button)
+                    {
+                        button->SetSize(Vector2i(Display::Instance()->GetWidth(), button->GetSize().y));
+                    }
+                }
+            }
         }
     };
 
