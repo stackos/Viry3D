@@ -138,6 +138,39 @@ function StopAudio(msg) {
 }
 //
 
+function InitLoading() {
+    const canvas = document.getElementById("canvas2d");
+    const c = canvas.getContext("2d");
+
+    SetCanvasSize(canvas, GetPlatform());
+
+    const img = new Image();
+    img.src = "image/logo720p.png";
+    if (img.complete) {
+        c.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+    } else {
+        img.onload = function () {
+            c.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+        }
+    }
+}
+InitLoading();
+
+function RemoveLoading() {
+    const canvas = document.getElementById("canvas2d");
+    canvas.remove();
+}
+
+function SetCanvasSize(canvas, platform) {
+    if (platform == Platform.Android || platform == Platform.iOS || document.body.clientWidth < 1280) {
+        canvas.width = document.body.clientWidth;
+        canvas.height = canvas.width * 720 / 1280;
+    } else {
+        canvas.width = 1280;
+        canvas.height = 720;
+    }
+}
+
 function Main() {
     Engine.Init = Module.cwrap("InitEngine", null, ["string"]);
     Engine.Done = Module.cwrap("DoneEngine", null, ["string"]);
@@ -166,13 +199,7 @@ function Main() {
     console.log(navigator.userAgent);
     console.log("Has touch " + has_touch);
 
-    if (platform == Platform.Android || platform == Platform.iOS || document.body.clientWidth < 1280) {
-        canvas.width = document.body.clientWidth;
-        canvas.height = canvas.width * 720 / 1280;
-    } else {
-        canvas.width = 1280;
-        canvas.height = 720;
-    }
+    SetCanvasSize(canvas, platform);
 
     if (has_touch) {
         canvas.addEventListener("touchstart", function(e) {
@@ -223,6 +250,9 @@ function Main() {
     Engine.Init(JSON.stringify(msg));
 
     Render();
+
+    RemoveLoading();
+    canvas.style = "display: initial;";
 }
 
 var Module = {
