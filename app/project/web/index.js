@@ -142,15 +142,23 @@ function InitLoading() {
     const canvas = document.getElementById("canvas2d");
     const c = canvas.getContext("2d");
 
+    const draw = function () {
+        c.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+        c.font = "40px Arial";
+        c.fillStyle = "#ffffff";
+        c.textAlign = "center";
+        c.fillText("Loading...", canvas.width / 2, canvas.height - 60);
+    };
+
     SetCanvasSize(canvas, GetPlatform());
 
     const img = new Image();
     img.src = "image/logo720p.png";
     if (img.complete) {
-        c.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+        draw();
     } else {
         img.onload = function () {
-            c.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+            draw();
         }
     }
 }
