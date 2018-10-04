@@ -284,6 +284,7 @@
     <ClInclude Include="..\..\src\ui\Label.h" />
     <ClInclude Include="..\..\src\ui\ScrollView.h" />
     <ClInclude Include="..\..\src\ui\Sprite.h" />
+    <ClInclude Include="..\..\src\ui\SwitchButton.h" />
     <ClInclude Include="..\..\src\ui\View.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\GLSL.std.450.h" />
     <ClInclude Include="..\..\src\vulkan\spirv_cross\spirv.hpp" />
@@ -690,6 +691,7 @@
     <ClCompile Include="..\..\src\ui\Label.cpp" />
     <ClCompile Include="..\..\src\ui\ScrollView.cpp" />
     <ClCompile Include="..\..\src\ui\Sprite.cpp" />
+    <ClCompile Include="..\..\src\ui\SwitchButton.cpp" />
     <ClCompile Include="..\..\src\ui\View.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\CodeGen.cpp" />
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\GenericCodeGen\Link.cpp" />

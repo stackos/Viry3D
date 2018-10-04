@@ -18,6 +18,7 @@
 #pragma once
 
 #include "DemoMesh.h"
+#include "ui/SwitchButton.h"
 
 #define FXAA_QUALITY_FAST		10
 #define FXAA_QUALITY_DEFAULT	12
@@ -197,11 +198,32 @@ void main()
             m_ui_camera->SetDepth(2);
         }
 
+        void InitUI()
+        {
+            auto canvas = RefMake<CanvasRenderer>();
+            m_ui_camera->AddRenderer(canvas);
+
+            auto on = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_on.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+            auto off = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_off.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+
+            auto switch_button = RefMake<SwitchButton>();
+            switch_button->SetOnTexture(on);
+            switch_button->SetOffTexture(off);
+            switch_button->SetSwitchState(true);
+            switch_button->SetSize(Vector2i(182, 57));
+            switch_button->SetOnSwitchStateChange([this]() {
+                
+            });
+
+            canvas->AddView(switch_button);
+        }
+
         virtual void Init()
         {
             DemoMesh::Init();
 
             this->InitRenderTexture();
+            this->InitUI();
         }
 
         virtual void Done()
