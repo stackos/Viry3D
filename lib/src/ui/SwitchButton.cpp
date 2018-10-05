@@ -36,7 +36,7 @@ namespace Viry3D
 
             if (m_on_state_change)
             {
-                m_on_state_change();
+                m_on_state_change(m_on);
             }
         });
     }
@@ -83,12 +83,12 @@ namespace Viry3D
 
             if (m_on_state_change)
             {
-                m_on_state_change();
+                m_on_state_change(m_on);
             }
         }
     }
 
-    void SwitchButton::SetOnSwitchStateChange(Action func)
+    void SwitchButton::SetOnSwitchStateChange(OnSwitchStateChange func)
     {
         m_on_state_change = func;
     }

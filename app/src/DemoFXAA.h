@@ -203,19 +203,52 @@ void main()
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 
+            auto label = RefMake<Label>();
+            canvas->AddView(label);
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(40, 110));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetText("FXAA");
+
             auto on = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_on.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
             auto off = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_off.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
 
             auto switch_button = RefMake<SwitchButton>();
+            switch_button->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            switch_button->SetPivot(Vector2(0, 0.5f));
+            switch_button->SetSize(Vector2i(182, 57));
+            switch_button->SetOffset(Vector2i(130, 110));
             switch_button->SetOnTexture(on);
             switch_button->SetOffTexture(off);
             switch_button->SetSwitchState(true);
-            switch_button->SetSize(Vector2i(182, 57));
-            switch_button->SetOnSwitchStateChange([this]() {
-                
+            switch_button->SetOnSwitchStateChange([this](bool on) {
+                this->OnSwitch(on);
             });
 
             canvas->AddView(switch_button);
+        }
+
+        void OnSwitch(bool on)
+        {
+            if (on)
+            {
+                this->InitRenderTexture();
+            }
+            else
+            {
+                m_camera->SetRenderTarget(Ref<Texture>(), Ref<Texture>());
+                
+                if (m_blit_camera)
+                {
+                    Display::Instance()->DestroyCamera(m_blit_camera);
+                    m_blit_camera = nullptr;
+                }
+            }
         }
 
         virtual void Init()
@@ -228,8 +261,11 @@ void main()
 
         virtual void Done()
         {
-            Display::Instance()->DestroyCamera(m_blit_camera);
-            m_blit_camera = nullptr;
+            if (m_blit_camera)
+            {
+                Display::Instance()->DestroyCamera(m_blit_camera);
+                m_blit_camera = nullptr;
+            }
 
             DemoMesh::Done();
         }

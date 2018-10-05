@@ -24,18 +24,20 @@ namespace Viry3D
     class SwitchButton : public Button
     {
     public:
+        typedef std::function<void(bool)> OnSwitchStateChange;
+
         SwitchButton();
         virtual ~SwitchButton();
         void SetOnTexture(const Ref<Texture>& texture);
         void SetOffTexture(const Ref<Texture>& texture);
         void SetSwitchState(bool on);
         bool GetSwitchState() const { return m_on; }
-        void SetOnSwitchStateChange(Action func);
+        void SetOnSwitchStateChange(OnSwitchStateChange func);
 
     private:
         bool m_on;
         Ref<Texture> m_on_texture;
         Ref<Texture> m_off_texture;
-        Action m_on_state_change;
+        OnSwitchStateChange m_on_state_change;
     };
 }

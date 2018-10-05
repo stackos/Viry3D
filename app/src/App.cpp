@@ -36,7 +36,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - SwitchControl
+// - SelectControl
 // - SliderControl
 // - wasm save path
 
