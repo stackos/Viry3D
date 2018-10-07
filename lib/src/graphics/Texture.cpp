@@ -1050,6 +1050,9 @@ namespace Viry3D
 #if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
+        // All submitted commands that refer to image, either directly or via a VkImageView, must have completed execution
+        Display::Instance()->WaitDevice();
+
         if (m_image_buffer)
         {
             m_image_buffer->Destroy(device);
