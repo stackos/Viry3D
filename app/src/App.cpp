@@ -38,6 +38,13 @@
 // TODO:
 // - SelectControl
 // - SliderControl
+// - MSAA
+// - Instancing
+// - PBR
+// - SSAO
+// - VR Multiview
+// - GPU Particle
+// - Ray Tracing
 // - wasm save path
 
 namespace Viry3D
