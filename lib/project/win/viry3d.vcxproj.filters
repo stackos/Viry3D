@@ -963,6 +963,9 @@
     <ClInclude Include="..\..\src\ui\SwitchButton.h">
       <Filter>src\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ui\SelectButton.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2346,6 +2349,9 @@
       <Filter>src\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\SwitchButton.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SelectButton.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>

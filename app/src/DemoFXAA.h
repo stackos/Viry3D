@@ -19,6 +19,7 @@
 
 #include "DemoMesh.h"
 #include "ui/SwitchButton.h"
+#include "ui/SelectButton.h"
 
 #define FXAA_QUALITY_FAST		10
 #define FXAA_QUALITY_DEFAULT	12
@@ -203,13 +204,14 @@ void main()
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 
+            // fxaa on/off
             auto label = RefMake<Label>();
             canvas->AddView(label);
 
             label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetPivot(Vector2(0, 0.5f));
             label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 110));
+            label->SetOffset(Vector2i(40, 120));
             label->SetFont(Font::GetFont(FontType::Consola));
             label->SetFontSize(28);
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
@@ -222,7 +224,7 @@ void main()
             switch_button->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
             switch_button->SetPivot(Vector2(0, 0.5f));
             switch_button->SetSize(Vector2i(182, 57));
-            switch_button->SetOffset(Vector2i(130, 110));
+            switch_button->SetOffset(Vector2i(130, 120));
             switch_button->SetOnTexture(on);
             switch_button->SetOffTexture(off);
             switch_button->SetSwitchState(true);
@@ -231,13 +233,49 @@ void main()
             });
 
             canvas->AddView(switch_button);
+
+            // quality
+            label = RefMake<Label>();
+            canvas->AddView(label);
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(40, 185));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetText("Quality");
+
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+
+            auto quality_select = RefMake<SelectButton>();
+            quality_select->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            quality_select->SetPivot(Vector2(0, 0.5f));
+            quality_select->SetSize(Vector2i(165, 68));
+            quality_select->SetOffset(Vector2i(190, 185));
+            quality_select->SetTexture(texture);
+            quality_select->SetColor(Color(230, 230, 230, 255) / 255.0f);
+            quality_select->GetLabel()->SetColor(Color::Black());
+            quality_select->SetSelectNames({
+                "FAST",
+                "DEFAULT",
+                "HIGH",
+                "EXTREME",
+                });
+            quality_select->SetSelect(3);
+
+            canvas->AddView(quality_select);
         }
 
         void OnSwitch(bool on)
         {
             if (on)
             {
-                this->InitRenderTexture();
+                if (m_blit_camera == nullptr)
+                {
+                    this->InitRenderTexture();
+                }
             }
             else
             {
