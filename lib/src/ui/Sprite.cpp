@@ -31,7 +31,7 @@ namespace Viry3D
     
     }
 
-    void Sprite::SetTexture(Ref<Texture>& texture)
+    void Sprite::SetTexture(const Ref<Texture>& texture)
     {
         m_texture = texture;
         this->MarkCanvasDirty();
@@ -49,12 +49,16 @@ namespace Viry3D
         }
         else
         {
+            mesh.texture = Texture::GetSharedWhiteTexture();
+        }
+
+        if (mesh.texture == Texture::GetSharedWhiteTexture() ||
+            mesh.texture == Texture::GetSharedBlackTexture())
+        {
             mesh.vertices[0].uv = Vector2(1.0f / 3, 1.0f / 3);
             mesh.vertices[1].uv = Vector2(1.0f / 3, 2.0f / 3);
             mesh.vertices[2].uv = Vector2(2.0f / 3, 2.0f / 3);
             mesh.vertices[3].uv = Vector2(2.0f / 3, 1.0f / 3);
-
-            mesh.texture = Texture::GetSharedWhiteTexture();
         }
     }
 }

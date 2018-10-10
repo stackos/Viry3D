@@ -691,7 +691,7 @@ void main()
 
         if (t.phase == TouchPhase::Began)
         {
-            for (int i = 0; i < m_view_meshes.Size(); ++i)
+            for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
             {
                 if (m_view_meshes[i].base_view)
                 {
@@ -737,7 +737,7 @@ void main()
                 }
             }
 
-            for (int i = 0; i < m_view_meshes.Size(); ++i)
+            for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
             {
                 if (m_view_meshes[i].base_view)
                 {
@@ -760,7 +760,7 @@ void main()
             List<View*>* touch_down_views_ptr = nullptr;
             m_touch_down_views.TryGet(t.fingerId, &touch_down_views_ptr);
 
-            for (int i = 0; i < m_view_meshes.Size(); ++i)
+            for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
             {
                 if (m_view_meshes[i].base_view)
                 {

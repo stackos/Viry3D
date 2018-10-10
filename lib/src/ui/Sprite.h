@@ -29,7 +29,7 @@ namespace Viry3D
         Sprite();
         virtual ~Sprite();
         const Ref<Texture>& GetTexture() const { return m_texture; }
-        void SetTexture(Ref<Texture>& texture);
+        void SetTexture(const Ref<Texture>& texture);
     
     protected:
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);

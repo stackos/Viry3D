@@ -36,7 +36,10 @@
 #include "ui/ScrollView.h"
 
 // TODO:
+// - fix scroll view
 // - SelectControl
+// - switch fxaa quality
+// - view size with FILL_PARENT
 // - SliderControl
 // - MSAA
 // - Instancing

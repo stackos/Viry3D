@@ -37,5 +37,6 @@ namespace Viry3D
         Vector<String> m_names;
         int m_select;
         OnSelectChange m_on_select_change;
+        Ref<View> m_select_view;
     };
 }
