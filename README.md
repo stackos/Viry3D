@@ -1,19 +1,22 @@
 ![](https://raw.githubusercontent.com/stackos/Viry3D/master/app/bin/Assets/texture/logo720p.png)
 
 # Viry3D
-C++ ¿çÆ½Ì¨ 3D ÓÎÏ·ÒıÇæ¡£
 
-Ö§³Ö Android¡¢iOS¡¢macOS¡¢Windows¡¢
+[![Join the chat at https://gitter.im/viry3d_community/Lobby](https://badges.gitter.im/viry3d_community/Lobby.svg)](https://gitter.im/viry3d_community/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-UWP£¨Windows Í¨ÓÃÆ½Ì¨£©¡¢
+C++ è·¨å¹³å° 3D æ¸¸æˆå¼•æ“ã€‚
 
-Web£¨»ùÓÚ WebAssembly£©¡£
+æ”¯æŒ Androidã€iOSã€macOSã€Windowsã€
+
+UWPï¼ˆWindows é€šç”¨å¹³å°ï¼‰ã€
+
+Webï¼ˆåŸºäº WebAssemblyï¼‰ã€‚
 
 Stack
 
-ÓÊÏä£ºstackos@qq.com
+é‚®ç®±ï¼šstackos@qq.com
 
-QQ ½»Á÷Èº£º428374717
+QQ äº¤æµç¾¤ï¼š428374717
 
 ## Build
 ### Windows
@@ -27,7 +30,7 @@ QQ ½»Á÷Èº£º428374717
 ### Android
 * Android Studio
 * app/project/android
-* ÈçÊ¹ÓÃ Vulkan £¬²ÎÕÕ [https://developer.android.google.cn/ndk/guides/graphics/getting-started.html](https://developer.android.google.cn/ndk/guides/graphics/getting-started.html) ±àÒë shaderc
+* å¦‚ä½¿ç”¨ Vulkan ï¼Œå‚ç…§ [https://developer.android.google.cn/ndk/guides/graphics/getting-started.html](https://developer.android.google.cn/ndk/guides/graphics/getting-started.html) ç¼–è¯‘ shaderc
 ```
 cd (your android sdk dir)\ndk-bundle\sources\third_party\shaderc
 ..\..\..\ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk \
@@ -43,31 +46,31 @@ cd (your android sdk dir)\ndk-bundle\sources\third_party\shaderc
 * Xcode
 * app/project/mac/app.xcodeproj
 
-## ÒıÇæ¹¦ÄÜ
-±à³ÌÓïÑÔ
+## å¼•æ“åŠŸèƒ½
+ç¼–ç¨‹è¯­è¨€
 
     C++11
 
-Æ½Ì¨ & 3D API Ö§³Ö
+å¹³å° & 3D API æ”¯æŒ
 
-    Vulkan¡¢OpenGL ES 2.0/3.0
-    Android¡¢iOS¡¢macOS¡¢Windows¡¢UWP£¨Windows Í¨ÓÃÆ½Ì¨£©¡¢Web£¨»ùÓÚ WebAssembly£©
+    Vulkanã€OpenGL ES 2.0/3.0
+    Androidã€iOSã€macOSã€Windowsã€UWPï¼ˆWindows é€šç”¨å¹³å°ï¼‰ã€Webï¼ˆåŸºäº WebAssemblyï¼‰
 
 Mesh
 
-    Ê¹ÓÃ Unity3D µ¼³ö³¡¾°ºÍÍø¸ñÊı¾İ
-    °üº¬²ÄÖÊºÍÎÆÀíµ¼³ö
+    ä½¿ç”¨ Unity3D å¯¼å‡ºåœºæ™¯å’Œç½‘æ ¼æ•°æ®
+    åŒ…å«æè´¨å’Œçº¹ç†å¯¼å‡º
 
-¶¯»­
+åŠ¨ç”»
 
-    Ê¹ÓÃ Unity3D µ¼³ö¶¯»­Êı¾İ
-    Ö§³Ö¹Ç÷À¶¯»­
-        ²»Í¬¶¯×÷¼äµÄÈ¨ÖØ»ìºÏ
-        4 ¹Ç÷ÀÈ¨ÖØÃÉÆ¤
-        ÃÉÆ¤Ó²¼ş¼ÓËÙ
-    »ùÓÚ±´Èû¶ûÇúÏßµÄµÄ AnimationCurve
+    ä½¿ç”¨ Unity3D å¯¼å‡ºåŠ¨ç”»æ•°æ®
+    æ”¯æŒéª¨éª¼åŠ¨ç”»
+        ä¸åŒåŠ¨ä½œé—´çš„æƒé‡æ··åˆ
+        4 éª¨éª¼æƒé‡è’™çš®
+        è’™çš®ç¡¬ä»¶åŠ é€Ÿ
+    åŸºäºè´å¡å°”æ›²çº¿çš„çš„ AnimationCurve
 
-äÖÈ¾
+æ¸²æŸ“
 
     Camera
     Mesh Renderer
@@ -87,20 +90,20 @@ UI
     Freetype Font
     Button
 
-ÊäÈë
+è¾“å…¥
 
-    Êó±ê¡¢¼üÅÌ¡¢´¥ÃşÊÂ¼ş´¦Àí
+    é¼ æ ‡ã€é”®ç›˜ã€è§¦æ‘¸äº‹ä»¶å¤„ç†
 
-ÒôÆµ
+éŸ³é¢‘
 
-    »ùÓÚ OpenAL µÄ¿çÆ½Ì¨ 3D ÒôÆµ²¥·Å
-    Ö§³Ö wav¡¢Á÷Ê½ mp3 ¸ñÊ½
+    åŸºäº OpenAL çš„è·¨å¹³å° 3D éŸ³é¢‘æ’­æ”¾
+    æ”¯æŒ wavã€æµå¼ mp3 æ ¼å¼
 
-ÆäËü
+å…¶å®ƒ
 
-    ÎÄ¼ş IO
-    UTF8¡¢UTF32 ×Ö·û´®±àÂë
-    ÊıÑ§¿â
+    æ–‡ä»¶ IO
+    UTF8ã€UTF32 å­—ç¬¦ä¸²ç¼–ç 
+    æ•°å­¦åº“
 
-## ÔÚÏß Demo
+## åœ¨çº¿ Demo
 [http://www.viry3d.com/](http://www.viry3d.com/)
