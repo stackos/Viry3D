@@ -36,7 +36,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - fix scroll view
 // - SelectControl
 // - switch fxaa quality
 // - view size with FILL_PARENT
@@ -86,9 +85,9 @@ namespace Viry3D
             m_canvas->AddView(scroll);
             m_scroll = scroll.get();
 
-            m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
             m_scroll->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
             m_scroll->SetPivot(Vector2(0.5f, 0.5f));
+            m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
             m_scroll->SetOffset(Vector2i(0, 0));
 
             Vector<String> titles({

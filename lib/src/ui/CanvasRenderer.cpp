@@ -674,7 +674,7 @@ void main()
         for (int i = 0; i < 4; ++i)
         {
             float sign = lines[i].x * pos.x + lines[i].y * pos.y + lines[i].z;
-            if (sign > 0)
+            if (sign >= 0)
             {
                 return false;
             }

@@ -29,17 +29,25 @@ namespace Viry3D
         m_content_view = RefMake<View>();
         this->AddSubview(m_content_view);
 
-        m_content_view->SetSize(Vector2i(0, 0));
         m_content_view->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
         m_content_view->SetPivot(Vector2(0.5f, 0));
+        m_content_view->SetSize(Vector2i(0, 0));
         m_content_view->SetOffset(Vector2i(0, 0));
 
-        this->SetOnTouchDownInside([this](const Vector2i& pos) {
+        m_scroll_view = RefMake<View>();
+        this->AddSubview(m_scroll_view);
+
+        m_scroll_view->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
+        m_scroll_view->SetPivot(Vector2(0.5f, 0.5f));
+        m_scroll_view->SetSize(Vector2i(0, 0));
+        m_scroll_view->SetOffset(Vector2i(0, 0));
+
+        m_scroll_view->SetOnTouchDownInside([this](const Vector2i& pos) {
             m_down_pos = pos;
             m_scroll_pos = m_content_view->GetOffset();
             return false;
         });
-        this->SetOnTouchDrag([this](const Vector2i& pos) {
+        m_scroll_view->SetOnTouchDrag([this](const Vector2i& pos) {
             Vector2i offset = pos - m_down_pos;
 
             if (m_content_view->GetSize().x > this->GetSize().x)
@@ -118,10 +126,10 @@ namespace Viry3D
             bool block_event = m_scroll_start_x || m_scroll_start_y;
             return block_event;
         });
-        this->SetOnTouchUpInside([this](const Vector2i& pos) {
+        m_scroll_view->SetOnTouchUpInside([this](const Vector2i& pos) {
             return this->OnTouchUp(pos);
         });
-        this->SetOnTouchUpOutside([this](const Vector2i& pos) {
+        m_scroll_view->SetOnTouchUpOutside([this](const Vector2i& pos) {
             return this->OnTouchUp(pos);
         });
     }
@@ -129,6 +137,12 @@ namespace Viry3D
     ScrollView::~ScrollView()
     {
     
+    }
+
+    void ScrollView::SetSize(const Vector2i& size)
+    {
+        View::SetSize(size);
+        m_scroll_view->SetSize(size);
     }
 
     const Vector2i& ScrollView::GetContentViewSize() const
