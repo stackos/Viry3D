@@ -32,9 +32,18 @@ namespace Viry3D
     {
     public:
         Camera* m_blit_camera = nullptr;
+        int m_target_quality = 1;
 
         void InitRenderTexture()
         {
+            const int qualities[] = {
+                FXAA_QUALITY_FAST,
+                FXAA_QUALITY_DEFAULT,
+                FXAA_QUALITY_HIGH,
+                FXAA_QUALITY_EXTREME,
+            };
+            int quality = qualities[m_target_quality];
+
             auto color_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
@@ -115,7 +124,7 @@ void main()
                     "#extension GL_ARB_gpu_shader5: enable\n"
                     "#define FXAA_QUALITY__PRESET %d\n"
                     "#define FXAA_GLSL_130 1",
-                    FXAA_QUALITY_EXTREME),
+                    quality),
                 Vector<String>({ "FXAA.in" }),
                 fs,
                 render_state);
@@ -184,7 +193,7 @@ void main()
 #endif
                     "#define FXAA_QUALITY__PRESET %d\n"
                     "#define FXAA_GLSL_130 1",
-                    FXAA_QUALITY_EXTREME),
+                    quality),
                 Vector<String>({ "FXAA.in" }),
                 fs,
                 render_state);
@@ -263,7 +272,10 @@ void main()
                 "HIGH",
                 "EXTREME",
                 });
-            quality_select->SetSelect(3);
+            quality_select->SetSelect(m_target_quality);
+            quality_select->SetOnSelectChange([this](int index) {
+                this->OnSelectQuality(index);
+            });
 
             canvas->AddView(quality_select);
         }
@@ -286,6 +298,18 @@ void main()
                     Display::Instance()->DestroyCamera(m_blit_camera);
                     m_blit_camera = nullptr;
                 }
+            }
+        }
+
+        void OnSelectQuality(int index)
+        {
+            m_target_quality = index;
+
+            if (m_blit_camera)
+            {
+                Display::Instance()->DestroyCamera(m_blit_camera);
+                m_blit_camera = nullptr;
+                this->InitRenderTexture();
             }
         }
 

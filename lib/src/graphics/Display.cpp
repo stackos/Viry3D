@@ -826,6 +826,8 @@ extern void UnbindSharedContext();
 
             vkDeviceWaitIdle(m_device);
 
+            Application::Instance()->OnResize(m_width, m_height);
+
             for (auto i : m_cameras)
             {
                 i->OnResize(m_width, m_height);
