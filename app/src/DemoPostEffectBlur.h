@@ -18,6 +18,7 @@
 #pragma once
 
 #include "DemoMesh.h"
+#include "ui/Slider.h"
 
 namespace Viry3D
 {
@@ -203,11 +204,102 @@ void main()
             m_ui_camera->SetDepth(camera_depth++);
         }
 
+        void InitUI()
+        {
+            auto canvas = RefMake<CanvasRenderer>();
+            m_ui_camera->AddRenderer(canvas);
+
+            // Downsample
+            auto label = RefMake<Label>();
+            canvas->AddView(label);
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(40, 120));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetText("Downsample");
+
+            auto slider = RefMake<Slider>();
+            canvas->AddView(slider);
+
+            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            slider->SetPivot(Vector2(0, 0.5f));
+            slider->SetSize(Vector2i(200, 30));
+            slider->SetOffset(Vector2i(280, 120));
+
+            // TexelOffset
+            label = RefMake<Label>();
+            canvas->AddView(label);
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(40, 185));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetText("TexelOffset");
+
+            slider = RefMake<Slider>();
+            canvas->AddView(slider);
+
+            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            slider->SetPivot(Vector2(0, 0.5f));
+            slider->SetSize(Vector2i(200, 30));
+            slider->SetOffset(Vector2i(280, 185));
+
+            // IterCount
+            label = RefMake<Label>();
+            canvas->AddView(label);
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(40, 250));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetText("IterCount");
+
+            slider = RefMake<Slider>();
+            canvas->AddView(slider);
+
+            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            slider->SetPivot(Vector2(0, 0.5f));
+            slider->SetSize(Vector2i(200, 30));
+            slider->SetOffset(Vector2i(280, 250));
+
+            // IterStep
+            label = RefMake<Label>();
+            canvas->AddView(label);
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(40, 315));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetText("IterStep");
+
+            slider = RefMake<Slider>();
+            canvas->AddView(slider);
+
+            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            slider->SetPivot(Vector2(0, 0.5f));
+            slider->SetSize(Vector2i(200, 30));
+            slider->SetOffset(Vector2i(280, 315));
+        }
+
         virtual void Init()
         {
             DemoMesh::Init();
 
             this->InitPostEffectBlur();
+            this->InitUI();
         }
 
         virtual void Done()

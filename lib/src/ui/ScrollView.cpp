@@ -151,6 +151,7 @@ namespace Viry3D
     void ScrollView::SetSize(const Vector2i& size)
     {
         View::SetSize(size);
+
         m_scroll_view->SetSize(size);
     }
 

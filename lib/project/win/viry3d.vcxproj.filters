@@ -966,6 +966,9 @@
     <ClInclude Include="..\..\src\ui\SelectButton.h">
       <Filter>src\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ui\Slider.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2352,6 +2355,9 @@
       <Filter>src\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\SelectButton.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\Slider.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>
