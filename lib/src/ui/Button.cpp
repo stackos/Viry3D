@@ -53,7 +53,7 @@ namespace Viry3D
         if (!m_label)
         {
             m_label = RefMake<Label>();
-            m_label->SetSize(this->GetSize());
+            m_label->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
             m_label->SetFont(Font::GetFont(FontType::Consola));
             m_label->SetColor(Color(0, 0, 0, 1));
 

@@ -49,8 +49,10 @@ namespace Viry3D
         });
         m_scroll_view->SetOnTouchDrag([this](const Vector2i& pos) {
             Vector2i offset = pos - m_down_pos;
+            Vector2i scroll_size = this->GetCalculateddSize();
+            Vector2i content_size = m_content_view->GetCalculateddSize();
 
-            if (m_content_view->GetSize().x > this->GetSize().x)
+            if (content_size.x > scroll_size.x)
             {
                 if (!m_scroll_start_x)
                 {
@@ -60,7 +62,7 @@ namespace Viry3D
                     }
                 }
             }
-            else if (m_content_view->GetSize().y > this->GetSize().y)
+            else if (content_size.y > scroll_size.y)
             {
                 if (!m_scroll_start_y)
                 {
@@ -88,9 +90,9 @@ namespace Viry3D
             Vector2i new_pos = m_scroll_pos + offset;
             
             // limit
-            if (m_content_view->GetSize().x > this->GetSize().x)
+            if (content_size.x > scroll_size.x)
             {
-                int max_scroll = m_content_view->GetSize().x - this->GetSize().x;
+                int max_scroll = content_size.x - scroll_size.x;
                 if (new_pos.x < -max_scroll)
                 {
                     new_pos.x = -max_scroll;
@@ -104,9 +106,9 @@ namespace Viry3D
                     m_scroll_pos = new_pos;
                 }
             }
-            else if (m_content_view->GetSize().y > this->GetSize().y)
+            else if (content_size.y > scroll_size.y)
             {
-                int max_scroll = m_content_view->GetSize().y - this->GetSize().y;
+                int max_scroll = content_size.y - scroll_size.y;
                 if (new_pos.y < -max_scroll)
                 {
                     new_pos.y = -max_scroll;
@@ -139,15 +141,17 @@ namespace Viry3D
     
     }
 
+    void ScrollView::OnResize(int width, int height)
+    {
+        View::OnResize(width, height);
+
+        this->SetScrollOffset(Vector2i(0, 0));
+    }
+
     void ScrollView::SetSize(const Vector2i& size)
     {
         View::SetSize(size);
         m_scroll_view->SetSize(size);
-    }
-
-    const Vector2i& ScrollView::GetContentViewSize() const
-    {
-        return m_content_view->GetSize();
     }
 
     void ScrollView::SetContentViewSize(const Vector2i& size)

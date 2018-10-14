@@ -323,6 +323,11 @@ void main()
 
     void CanvasRenderer::OnResize(int width, int height)
     {
+        for (int i = 0; i < m_views.Size(); ++i)
+        {
+            m_views[i]->OnResize(width, height);
+        }
+
         this->MarkCanvasDirty();
     }
 

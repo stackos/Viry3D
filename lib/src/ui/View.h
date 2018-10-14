@@ -27,6 +27,8 @@
 #include "math/Matrix4x4.h"
 #include <functional>
 
+#define VIEW_SIZE_FILL_PARENT -1
+
 namespace Viry3D
 {
 	class CanvasRenderer;
@@ -63,6 +65,7 @@ namespace Viry3D
 		View();
 		virtual ~View();
         virtual void UpdateLayout();
+        virtual void OnResize(int width, int height);
 		void OnAddToCanvas(CanvasRenderer* canvas);
 		void OnRemoveFromCanvas(CanvasRenderer* canvas);
         CanvasRenderer* GetCanvas() const;
@@ -81,6 +84,7 @@ namespace Viry3D
 		void SetPivot(const Vector2& pivot);
 		const Vector2i& GetSize() const { return m_size; }
 		void SetSize(const Vector2i& size);
+        Vector2i GetCalculateddSize();
 		const Vector2i& GetOffset() const { return m_offset; }
         // offset y direction is down
 		void SetOffset(const Vector2i& offset);

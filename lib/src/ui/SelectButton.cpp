@@ -32,7 +32,7 @@ namespace Viry3D
                 Ref<View> view = RefMake<View>();
                 view->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Bottom);
                 view->SetPivot(Vector2(0.5f, 0));
-                view->SetSize(Vector2i(this->GetSize().x, this->GetSize().y * m_names.Size()));
+                view->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, this->GetSize().y * m_names.Size()));
                 view->SetOffset(Vector2i(0, 0));
 
                 for (int i = 0; i < m_names.Size(); ++i)
@@ -40,7 +40,7 @@ namespace Viry3D
                     auto button = RefMake<Button>();
                     button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                     button->SetPivot(Vector2(0.5f, 0));
-                    button->SetSize(this->GetSize());
+                    button->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, this->GetSize().y));
                     button->SetOffset(Vector2i(0, this->GetSize().y * i));
                     button->SetTexture(this->GetTexture());
                     button->SetColor(this->GetColor());

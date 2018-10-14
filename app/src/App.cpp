@@ -36,7 +36,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - view size with FILL_PARENT
 // - SliderControl
 // - MSAA
 // - Instancing
@@ -85,7 +84,7 @@ namespace Viry3D
 
             m_scroll->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
             m_scroll->SetPivot(Vector2(0.5f, 0.5f));
-            m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
+            m_scroll->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
             m_scroll->SetOffset(Vector2i(0, 0));
 
             Vector<String> titles({
@@ -107,14 +106,14 @@ namespace Viry3D
             const int font_size = (int) (40 * UI_SCALE);
             const int content_height = top + (button_height + button_space) * titles.Size();
 
-            m_scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), content_height));
+            m_scroll->SetContentViewSize(Vector2i(VIEW_SIZE_FILL_PARENT, content_height));
 
             for (int i = 0; i < titles.Size(); ++i)
             {
                 auto button = RefMake<Button>();
                 m_scroll->GetContentView()->AddSubview(button);
 
-                button->SetSize(Vector2i(Display::Instance()->GetWidth(), button_height));
+                button->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
                 button->SetOffset(Vector2i(0, top + i * (button_height + button_space)));
@@ -304,25 +303,6 @@ namespace Viry3D
                 }
             }
         }
-
-        void OnResize(int width, int height)
-        {
-            if (m_scroll)
-            {
-                m_scroll->SetSize(Vector2i(Display::Instance()->GetWidth(), Display::Instance()->GetHeight()));
-                m_scroll->SetContentViewSize(Vector2i(Display::Instance()->GetWidth(), m_scroll->GetContentViewSize().y));
-                m_scroll->SetScrollOffset(Vector2i(0, 0));
-
-                for (int i = 0; i < m_scroll->GetContentView()->GetSubviewCount(); ++i)
-                {
-                    auto button = RefCast<Button>(m_scroll->GetContentView()->GetSubview(i));
-                    if (button)
-                    {
-                        button->SetSize(Vector2i(Display::Instance()->GetWidth(), button->GetSize().y));
-                    }
-                }
-            }
-        }
     };
 
     App::App()
@@ -343,10 +323,5 @@ namespace Viry3D
     void App::Update()
     {
         m_app->Update();
-    }
-
-    void App::OnResize(int width, int height)
-    {
-        m_app->OnResize(width, height);
     }
 }

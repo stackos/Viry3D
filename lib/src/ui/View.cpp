@@ -124,6 +124,39 @@ namespace Viry3D
         this->MarkCanvasDirty();
 	}
 
+    Vector2i View::GetCalculateddSize()
+    {
+        Vector2i size = m_size;
+        
+        if (size.x == VIEW_SIZE_FILL_PARENT ||
+            size.y == VIEW_SIZE_FILL_PARENT)
+        {
+            Vector2i parent_size;
+
+            if (m_parent_view)
+            {
+                parent_size = m_parent_view->GetCalculateddSize();
+            }
+            else
+            {
+                parent_size.x = m_canvas->GetCamera()->GetTargetWidth();
+                parent_size.y = m_canvas->GetCamera()->GetTargetHeight();
+            }
+
+            if (size.x == VIEW_SIZE_FILL_PARENT)
+            {
+                size.x = parent_size.x;
+            }
+
+            if (size.y == VIEW_SIZE_FILL_PARENT)
+            {
+                size.y = parent_size.y;
+            }
+        }
+
+        return size;
+    }
+
 	void View::SetOffset(const Vector2i& offset)
 	{
 		m_offset = offset;
@@ -185,10 +218,20 @@ namespace Viry3D
 
         local_pos += m_offset;
 
-        m_rect.x = parent_rect.x + local_pos.x - Mathf::Round(m_pivot.x * m_size.x);
-        m_rect.y = parent_rect.y + local_pos.y - Mathf::Round(m_pivot.y * m_size.y);
-        m_rect.width = (float) m_size.x;
-        m_rect.height = (float) m_size.y;
+        Vector2i size = this->GetSize();
+        if (size.x == VIEW_SIZE_FILL_PARENT)
+        {
+            size.x = (int) parent_rect.width;
+        }
+        if (size.y == VIEW_SIZE_FILL_PARENT)
+        {
+            size.y = (int) parent_rect.height;
+        }
+
+        m_rect.x = parent_rect.x + local_pos.x - Mathf::Round(m_pivot.x * size.x);
+        m_rect.y = parent_rect.y + local_pos.y - Mathf::Round(m_pivot.y * size.y);
+        m_rect.width = (float) size.x;
+        m_rect.height = (float) size.y;
 
         if (m_parent_view)
         {
@@ -203,6 +246,14 @@ namespace Viry3D
             m_scale = m_local_scale;
         }
 
+        for (auto& i : m_subviews)
+        {
+            i->UpdateLayout();
+        }
+    }
+
+    void View::OnResize(int width, int height)
+    {
         for (auto& i : m_subviews)
         {
             i->UpdateLayout();
