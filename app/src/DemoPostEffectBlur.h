@@ -229,6 +229,7 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 120));
+            slider->SetProgress(0);
 
             // TexelOffset
             label = RefMake<Label>();
@@ -250,6 +251,7 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 185));
+            slider->SetProgress(0.33f);
 
             // IterCount
             label = RefMake<Label>();
@@ -271,6 +273,7 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 250));
+            slider->SetProgress(0.66f);
 
             // IterStep
             label = RefMake<Label>();
@@ -292,6 +295,7 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 315));
+            slider->SetProgress(1.0f);
         }
 
         virtual void Init()

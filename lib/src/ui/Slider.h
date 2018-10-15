@@ -26,14 +26,48 @@ namespace Viry3D
     class Slider : public View
     {
     public:
+        enum class ValueType
+        {
+            Float,
+            Int,
+        };
+
+        union Value
+        {
+            float float_value;
+            int int_value;
+
+            Value(float value):
+                float_value(value)
+            {
+            }
+
+            Value(int value):
+                int_value(value)
+            {
+            }
+        };
+        typedef std::function<void(Value)> OnValueChange;
+
         Slider();
         virtual ~Slider();
         void SetSize(const Vector2i& size);
+        void SetProgress(float progress);
+        void SetValueType(ValueType type);
+        void SetMinValue(const Value& value);
+        void SetMaxValue(const Value& value);
+        void SetOnValueChange(OnValueChange func);
 
     private:
         Ref<Sprite> m_bar_left;
         Ref<Sprite> m_bar_right;
-        Ref<Sprite> m_bar_center;
+        Ref<Sprite> m_bar_center_left;
+        Ref<Sprite> m_bar_center_right;
         Ref<Sprite> m_slider;
+        float m_progress;
+        ValueType m_type;
+        Value m_min_value;
+        Value m_max_value;
+        OnValueChange m_on_value_change;
     };
 }

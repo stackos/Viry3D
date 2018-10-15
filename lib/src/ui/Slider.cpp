@@ -22,7 +22,11 @@
 
 namespace Viry3D
 {
-    Slider::Slider()
+    Slider::Slider():
+        m_progress(0),
+        m_type(ValueType::Float),
+        m_min_value(0.0f),
+        m_max_value(1.0f)
     {
         auto circle = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/circle.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
 
@@ -38,7 +42,7 @@ namespace Viry3D
         m_bar_left->SetSize(Vector2i(bar_height, bar_height));
         m_bar_left->SetOffset(Vector2i(0, 0));
         m_bar_left->SetTexture(circle);
-        m_bar_left->SetColor(bar_color);
+        m_bar_left->SetColor(bar_fill_color);
         
         m_bar_right = RefMake<Sprite>();
         this->AddSubview(m_bar_right);
@@ -50,23 +54,33 @@ namespace Viry3D
         m_bar_right->SetTexture(circle);
         m_bar_right->SetColor(bar_color);
 
-        m_bar_center = RefMake<Sprite>();
-        this->AddSubview(m_bar_center);
+        m_bar_center_left = RefMake<Sprite>();
+        this->AddSubview(m_bar_center_left);
 
-        m_bar_center->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
-        m_bar_center->SetPivot(Vector2(0.5f, 0.5f));
-        m_bar_center->SetSize(Vector2i(this->GetSize().x - bar_height, bar_height));
-        m_bar_center->SetOffset(Vector2i(0, 0));
-        m_bar_center->SetTexture(Texture::GetSharedWhiteTexture());
-        m_bar_center->SetColor(bar_color);
+        m_bar_center_left->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
+        m_bar_center_left->SetPivot(Vector2(0, 0.5f));
+        m_bar_center_left->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * m_progress), bar_height));
+        m_bar_center_left->SetOffset(Vector2i(bar_height / 2, 0));
+        m_bar_center_left->SetTexture(Texture::GetSharedWhiteTexture());
+        m_bar_center_left->SetColor(bar_fill_color);
+
+        m_bar_center_right = RefMake<Sprite>();
+        this->AddSubview(m_bar_center_right);
+
+        m_bar_center_right->SetAlignment(ViewAlignment::Right | ViewAlignment::VCenter);
+        m_bar_center_right->SetPivot(Vector2(1, 0.5f));
+        m_bar_center_right->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * (1.0f - m_progress)), bar_height));
+        m_bar_center_right->SetOffset(Vector2i(-bar_height / 2, 0));
+        m_bar_center_right->SetTexture(Texture::GetSharedWhiteTexture());
+        m_bar_center_right->SetColor(bar_color);
 
         m_slider = RefMake<Sprite>();
         this->AddSubview(m_slider);
 
-        m_slider->SetAlignment(ViewAlignment::HCenter | ViewAlignment::VCenter);
+        m_slider->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
         m_slider->SetPivot(Vector2(0.5f, 0.5f));
         m_slider->SetSize(Vector2i(this->GetSize().y, this->GetSize().y));
-        m_slider->SetOffset(Vector2i(0, 0));
+        m_slider->SetOffset(Vector2i(bar_height / 2 + (int) ((this->GetSize().x - bar_height) * m_progress), 0));
         m_slider->SetTexture(circle);
     }
     
@@ -83,7 +97,42 @@ namespace Viry3D
 
         m_bar_left->SetSize(Vector2i(bar_height, bar_height));
         m_bar_right->SetSize(Vector2i(bar_height, bar_height));
-        m_bar_center->SetSize(Vector2i(this->GetSize().x - bar_height, bar_height));
+        m_bar_center_left->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * m_progress), bar_height));
+        m_bar_center_left->SetOffset(Vector2i(bar_height / 2, 0));
+        m_bar_center_right->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * (1.0f - m_progress)), bar_height));
+        m_bar_center_right->SetOffset(Vector2i(-bar_height / 2, 0));
         m_slider->SetSize(Vector2i(this->GetSize().y, this->GetSize().y));
+        m_slider->SetOffset(Vector2i(bar_height / 2 + (int) ((this->GetSize().x - bar_height) * m_progress), 0));
+    }
+
+    void Slider::SetProgress(float progress)
+    {
+        m_progress = progress;
+
+        int bar_height = this->GetSize().y / 3;
+
+        m_bar_center_left->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * m_progress), bar_height));
+        m_bar_center_right->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * (1.0f - m_progress)), bar_height));
+        m_slider->SetOffset(Vector2i(bar_height / 2 + (int) ((this->GetSize().x - bar_height) * m_progress), 0));
+    }
+
+    void Slider::SetValueType(ValueType type)
+    {
+        m_type = type;
+    }
+
+    void Slider::SetMinValue(const Value& value)
+    {
+        m_min_value = value;
+    }
+
+    void Slider::SetMaxValue(const Value& value)
+    {
+        m_max_value = value;
+    }
+
+    void Slider::SetOnValueChange(OnValueChange func)
+    {
+        m_on_value_change = func;
     }
 }
