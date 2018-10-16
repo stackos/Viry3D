@@ -26,7 +26,10 @@ namespace Viry3D
         m_progress(0),
         m_type(ValueType::Float),
         m_min_value(0.0f),
-        m_max_value(1.0f)
+        m_max_value(1.0f),
+        m_value(0.0f),
+        m_down_pos(0, 0),
+        m_slider_pos(0, 0)
     {
         auto circle = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/circle.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
 
@@ -82,11 +85,59 @@ namespace Viry3D
         m_slider->SetSize(Vector2i(this->GetSize().y, this->GetSize().y));
         m_slider->SetOffset(Vector2i(bar_height / 2 + (int) ((this->GetSize().x - bar_height) * m_progress), 0));
         m_slider->SetTexture(circle);
+
+        m_slider->SetOnTouchDownInside([this](const Vector2i& pos) {
+            m_down_pos = pos;
+            m_slider_pos = m_slider->GetOffset();
+            return true;
+        });
+        m_slider->SetOnTouchDrag([this](const Vector2i& pos) {
+            Vector2i offset = pos - m_down_pos;
+            Vector2i new_pos = m_slider_pos + Vector2i(offset.x, 0);
+
+            // limit
+            int bar_height = this->GetSize().y / 3;
+            int x_min = bar_height / 2 + (int) ((this->GetSize().x - bar_height) * 0.0f);
+            int x_max = bar_height / 2 + (int) ((this->GetSize().x - bar_height) * 1.0);
+
+            float progress = (new_pos.x - bar_height / 2) / (float) (this->GetSize().x - bar_height);
+
+            if (new_pos.x < x_min)
+            {
+                new_pos.x = x_min;
+                m_down_pos.x = pos.x;
+                m_slider_pos = new_pos;
+                progress = 0;
+            }
+            if (new_pos.x > x_max)
+            {
+                new_pos.x = x_max;
+                m_down_pos.x = pos.x;
+                m_slider_pos = new_pos;
+                progress = 1;
+            }
+            
+            this->SetProgress(progress);
+
+            return true;
+        });
+        m_slider->SetOnTouchUpInside([this](const Vector2i& pos) {
+            return this->OnTouchUp(pos);
+        });
+        m_slider->SetOnTouchUpOutside([this](const Vector2i& pos) {
+            return this->OnTouchUp(pos);
+        });
     }
     
     Slider::~Slider()
     {
     
+    }
+
+    bool Slider::OnTouchUp(const Vector2i& pos)
+    {
+        m_slider_pos = m_slider->GetOffset();
+        return true;
     }
 
     void Slider::SetSize(const Vector2i& size)
@@ -114,21 +165,46 @@ namespace Viry3D
         m_bar_center_left->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * m_progress), bar_height));
         m_bar_center_right->SetSize(Vector2i((int) ((this->GetSize().x - bar_height) * (1.0f - m_progress)), bar_height));
         m_slider->SetOffset(Vector2i(bar_height / 2 + (int) ((this->GetSize().x - bar_height) * m_progress), 0));
+
+        this->UpdateValue();
     }
 
-    void Slider::SetValueType(ValueType type)
+    void Slider::UpdateValue()
+    {
+        if (m_type == ValueType::Float)
+        {
+            float value = m_min_value.float_value + (m_max_value.float_value - m_min_value.float_value) * m_progress;
+            m_value.float_value = value;
+
+            if (m_on_value_change)
+            {
+                m_on_value_change(m_value);
+            }
+        }
+        else if (m_type == ValueType::Int)
+        {
+            float value = m_min_value.int_value + (m_max_value.int_value - m_min_value.int_value) * m_progress;
+            int int_value = Mathf::RoundToInt(value);
+
+            if (m_value.int_value != int_value)
+            {
+                m_value.int_value = int_value;
+
+                if (m_on_value_change)
+                {
+                    m_on_value_change(m_value);
+                }
+            }
+        }
+    }
+
+    void Slider::SetValueType(ValueType type, const Value& min_value, const Value& max_value)
     {
         m_type = type;
-    }
+        m_min_value = min_value;
+        m_max_value = max_value;
 
-    void Slider::SetMinValue(const Value& value)
-    {
-        m_min_value = value;
-    }
-
-    void Slider::SetMaxValue(const Value& value)
-    {
-        m_max_value = value;
+        this->UpdateValue();
     }
 
     void Slider::SetOnValueChange(OnValueChange func)

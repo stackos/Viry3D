@@ -47,16 +47,18 @@ namespace Viry3D
             {
             }
         };
-        typedef std::function<void(Value)> OnValueChange;
+        typedef std::function<void(const Value&)> OnValueChange;
 
         Slider();
         virtual ~Slider();
         void SetSize(const Vector2i& size);
         void SetProgress(float progress);
-        void SetValueType(ValueType type);
-        void SetMinValue(const Value& value);
-        void SetMaxValue(const Value& value);
+        void SetValueType(ValueType type, const Value& min_value, const Value& max_value);
         void SetOnValueChange(OnValueChange func);
+
+    private:
+        bool OnTouchUp(const Vector2i& pos);
+        void UpdateValue();
 
     private:
         Ref<Sprite> m_bar_left;
@@ -68,6 +70,9 @@ namespace Viry3D
         ValueType m_type;
         Value m_min_value;
         Value m_max_value;
+        Value m_value;
         OnValueChange m_on_value_change;
+        Vector2i m_down_pos;
+        Vector2i m_slider_pos;
     };
 }

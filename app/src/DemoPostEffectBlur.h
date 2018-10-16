@@ -19,6 +19,7 @@
 
 #include "DemoMesh.h"
 #include "ui/Slider.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
@@ -26,9 +27,29 @@ namespace Viry3D
     {
     public:
         Vector<Camera*> m_blit_cameras;
+        int m_downsample = 2;
+        float m_texel_offset = 1.6f;
+        int m_iter_count = 3;
+        float m_iter_step = 0.0f;
+        int m_downsample_target = m_downsample;
+        float m_texel_offset_target = m_texel_offset;
+        int m_iter_count_target = m_iter_count;
+        float m_iter_step_target = m_iter_step;
 
         void InitPostEffectBlur()
         {
+            int width = Display::Instance()->GetWidth();
+            int height = Display::Instance()->GetHeight();
+            for (int i = 0; i < m_downsample; ++i)
+            {
+                width >>= 1;
+                height >>= 1;
+            }
+            if (width == 0 || height == 0)
+            {
+                return;
+            }
+
             auto color_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
@@ -46,19 +67,6 @@ namespace Viry3D
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
             // blur
-            int downsample = 1;
-            float texel_offset = 1.6f;
-            int iter_count = 3;
-            float iter_step = 0.0f;
-
-            int width = color_texture->GetWidth();
-            int height = color_texture->GetHeight();
-            for (int i = 0; i < downsample; ++i)
-            {
-                width >>= 1;
-                height >>= 1;
-            }
-
             auto color_texture_2 = Texture::CreateRenderTexture(
                 width,
                 height,
@@ -178,11 +186,11 @@ void main()
             blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
             m_blit_cameras.Add(blit_color_camera);
 
-            for (int i = 0; i < iter_count; ++i)
+            for (int i = 0; i < m_iter_count; ++i)
             {
                 // color2 -> color, h blur
                 auto material_h = RefMake<Material>(shader);
-                material_h->SetVector("u_texel_size", Vector4(1.0f / width * texel_offset * (1.0f + i * iter_step), 0, 0, 0));
+                material_h->SetVector("u_texel_size", Vector4(1.0f / width * m_texel_offset * (1.0f + i * m_iter_step), 0, 0, 0));
 
                 blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2, material_h);
                 blit_color_camera->SetRenderTarget(color_texture, Ref<Texture>());
@@ -190,7 +198,7 @@ void main()
 
                 // color -> color2, v blur
                 auto material_v = RefMake<Material>(shader);
-                material_v->SetVector("u_texel_size", Vector4(0, 1.0f / height * texel_offset * (1.0f + i * iter_step), 0, 0));
+                material_v->SetVector("u_texel_size", Vector4(0, 1.0f / height * m_texel_offset * (1.0f + i * m_iter_step), 0, 0));
 
                 blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture, material_v);
                 blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
@@ -229,7 +237,11 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 120));
-            slider->SetProgress(0);
+            slider->SetProgress((m_downsample - 1) / (float) (10 - 1));
+            slider->SetValueType(Slider::ValueType::Int, Slider::Value(1), Slider::Value(10));
+            slider->SetOnValueChange([this](const Slider::Value& value) {
+                m_downsample_target = value.int_value;
+            });
 
             // TexelOffset
             label = RefMake<Label>();
@@ -251,7 +263,11 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 185));
-            slider->SetProgress(0.33f);
+            slider->SetProgress((m_texel_offset - 0.0f) / (10.0f - 0.0f));
+            slider->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(10.0f));
+            slider->SetOnValueChange([this](const Slider::Value& value) {
+                m_texel_offset_target = value.float_value;
+            });
 
             // IterCount
             label = RefMake<Label>();
@@ -273,7 +289,11 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 250));
-            slider->SetProgress(0.66f);
+            slider->SetProgress((m_iter_count - 1) / (float) (10 - 1));
+            slider->SetValueType(Slider::ValueType::Int, Slider::Value(1), Slider::Value(10));
+            slider->SetOnValueChange([this](const Slider::Value& value) {
+                m_iter_count_target = value.int_value;
+            });
 
             // IterStep
             label = RefMake<Label>();
@@ -295,7 +315,11 @@ void main()
             slider->SetPivot(Vector2(0, 0.5f));
             slider->SetSize(Vector2i(200, 30));
             slider->SetOffset(Vector2i(280, 315));
-            slider->SetProgress(1.0f);
+            slider->SetProgress((m_iter_step - 0.0f) / (10.0f - 0.0f));
+            slider->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(10.0f));
+            slider->SetOnValueChange([this](const Slider::Value& value) {
+                m_iter_step_target = value.float_value;
+            });
         }
 
         virtual void Init()
@@ -320,6 +344,27 @@ void main()
         virtual void Update()
         {
             DemoMesh::Update();
+
+            if (m_downsample != m_downsample_target ||
+                m_texel_offset != m_texel_offset_target ||
+                m_iter_count != m_iter_count_target ||
+                m_iter_step != m_iter_step_target)
+            {
+                m_downsample = m_downsample_target;
+                m_texel_offset = m_texel_offset_target;
+                m_iter_count = m_iter_count_target;
+                m_iter_step = m_iter_step_target;
+
+                m_camera->SetRenderTarget(Ref<Texture>(), Ref<Texture>());
+
+                for (auto i : m_blit_cameras)
+                {
+                    Display::Instance()->DestroyCamera(i);
+                }
+                m_blit_cameras.Clear();
+
+                this->InitPostEffectBlur();
+            }
         }
     };
 }
