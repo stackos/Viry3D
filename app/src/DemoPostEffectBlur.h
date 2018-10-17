@@ -217,109 +217,85 @@ void main()
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 
-            // Downsample
-            auto label = RefMake<Label>();
-            canvas->AddView(label);
+            Vector<String> slider_names({
+                "Downsample",
+                "TexelOffset",
+                "IterCount",
+                "IterStep",
+                });
+            Vector<Ref<Slider>> sliders;
+            Vector<Ref<Label>> values;
 
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0.5f));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 120));
-            label->SetFont(Font::GetFont(FontType::Consola));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetText("Downsample");
+            for (int i = 0; i < slider_names.Size(); ++i)
+            {
+                auto label = RefMake<Label>();
+                canvas->AddView(label);
 
-            auto slider = RefMake<Slider>();
-            canvas->AddView(slider);
+                int y = 120 + i * 65;
 
-            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            slider->SetPivot(Vector2(0, 0.5f));
-            slider->SetSize(Vector2i(200, 30));
-            slider->SetOffset(Vector2i(280, 120));
-            slider->SetProgress((m_downsample - 1) / (float) (10 - 1));
-            slider->SetValueType(Slider::ValueType::Int, Slider::Value(1), Slider::Value(10));
-            slider->SetOnValueChange([this](const Slider::Value& value) {
+                label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label->SetPivot(Vector2(0, 0.5f));
+                label->SetSize(Vector2i(100, 30));
+                label->SetOffset(Vector2i(40, y));
+                label->SetFont(Font::GetFont(FontType::Consola));
+                label->SetFontSize(28);
+                label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label->SetText(slider_names[i]);
+
+                auto slider = RefMake<Slider>();
+                canvas->AddView(slider);
+                sliders.Add(slider);
+
+                slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                slider->SetPivot(Vector2(0, 0.5f));
+                slider->SetSize(Vector2i(200, 30));
+                slider->SetOffset(Vector2i(280, y));
+
+                label = RefMake<Label>();
+                canvas->AddView(label);
+                values.Add(label);
+
+                label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label->SetPivot(Vector2(0, 0.5f));
+                label->SetSize(Vector2i(100, 30));
+                label->SetOffset(Vector2i(500, y));
+                label->SetFont(Font::GetFont(FontType::Consola));
+                label->SetFontSize(28);
+                label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label->SetText("0");
+            }
+
+            sliders[0]->SetProgress((m_downsample - 1) / (float) (10 - 1));
+            sliders[0]->SetValueType(Slider::ValueType::Int, Slider::Value(1), Slider::Value(10));
+            sliders[0]->SetOnValueChange([=](const Slider::Value& value) {
                 m_downsample_target = value.int_value;
+                values[0]->SetText(String::Format("%d", m_downsample_target));
             });
+            values[0]->SetText(String::Format("%d", m_downsample));
 
-            // TexelOffset
-            label = RefMake<Label>();
-            canvas->AddView(label);
-
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0.5f));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 185));
-            label->SetFont(Font::GetFont(FontType::Consola));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetText("TexelOffset");
-
-            slider = RefMake<Slider>();
-            canvas->AddView(slider);
-
-            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            slider->SetPivot(Vector2(0, 0.5f));
-            slider->SetSize(Vector2i(200, 30));
-            slider->SetOffset(Vector2i(280, 185));
-            slider->SetProgress((m_texel_offset - 0.0f) / (10.0f - 0.0f));
-            slider->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(10.0f));
-            slider->SetOnValueChange([this](const Slider::Value& value) {
+            sliders[1]->SetProgress((m_texel_offset - 0.0f) / (10.0f - 0.0f));
+            sliders[1]->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(10.0f));
+            sliders[1]->SetOnValueChange([=](const Slider::Value& value) {
                 m_texel_offset_target = value.float_value;
+                values[1]->SetText(String::Format("%.2f", m_texel_offset_target));
             });
+            values[1]->SetText(String::Format("%.2f", m_texel_offset));
 
-            // IterCount
-            label = RefMake<Label>();
-            canvas->AddView(label);
-
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0.5f));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 250));
-            label->SetFont(Font::GetFont(FontType::Consola));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetText("IterCount");
-
-            slider = RefMake<Slider>();
-            canvas->AddView(slider);
-
-            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            slider->SetPivot(Vector2(0, 0.5f));
-            slider->SetSize(Vector2i(200, 30));
-            slider->SetOffset(Vector2i(280, 250));
-            slider->SetProgress((m_iter_count - 1) / (float) (10 - 1));
-            slider->SetValueType(Slider::ValueType::Int, Slider::Value(1), Slider::Value(10));
-            slider->SetOnValueChange([this](const Slider::Value& value) {
+            sliders[2]->SetProgress((m_iter_count - 1) / (float) (10 - 1));
+            sliders[2]->SetValueType(Slider::ValueType::Int, Slider::Value(1), Slider::Value(10));
+            sliders[2]->SetOnValueChange([=](const Slider::Value& value) {
                 m_iter_count_target = value.int_value;
+                values[2]->SetText(String::Format("%d", m_iter_count_target));
             });
+            values[2]->SetText(String::Format("%d", m_iter_count));
 
-            // IterStep
-            label = RefMake<Label>();
-            canvas->AddView(label);
-
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0.5f));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 315));
-            label->SetFont(Font::GetFont(FontType::Consola));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetText("IterStep");
-
-            slider = RefMake<Slider>();
-            canvas->AddView(slider);
-
-            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            slider->SetPivot(Vector2(0, 0.5f));
-            slider->SetSize(Vector2i(200, 30));
-            slider->SetOffset(Vector2i(280, 315));
-            slider->SetProgress((m_iter_step - 0.0f) / (10.0f - 0.0f));
-            slider->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(10.0f));
-            slider->SetOnValueChange([this](const Slider::Value& value) {
+            sliders[3]->SetProgress((m_iter_step - 0.0f) / (10.0f - 0.0f));
+            sliders[3]->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(10.0f));
+            sliders[3]->SetOnValueChange([=](const Slider::Value& value) {
                 m_iter_step_target = value.float_value;
+                values[3]->SetText(String::Format("%.2f", m_iter_step_target));
             });
+            values[3]->SetText(String::Format("%.2f", m_iter_step));
         }
 
         virtual void Init()

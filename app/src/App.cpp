@@ -36,7 +36,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - SliderControl
 // - MSAA
 // - Instancing
 // - PBR
