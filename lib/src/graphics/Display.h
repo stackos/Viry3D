@@ -116,6 +116,7 @@ namespace Viry3D
             const Ref<BufferObject>& draw_buffer);
 		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass);
         VkFormat ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features);
+        int GetMaxSamples();
         Ref<Texture> CreateTexture(
             VkImageType type,
             VkImageViewType view_type,
@@ -127,7 +128,8 @@ namespace Viry3D
             const VkComponentMapping& component,
             int mipmap_level_count,
             bool cubemap,
-            int array_size);
+            int array_size,
+            int sample_count);
         void CreateSampler(
             const Ref<Texture>& texture,
             VkFilter filter_mode,

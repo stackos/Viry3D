@@ -100,6 +100,7 @@ namespace Viry3D
             int width,
             int height,
             TextureFormat format,
+            int sample_count,
             bool create_sampler,
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode);

@@ -21,19 +21,21 @@
 
 namespace Viry3D
 {
-    class DemoRenderToTexture : public DemoMesh
+    class DemoMSAA: public DemoMesh
     {
     public:
-        Camera* m_blit_depth_camera = nullptr;
-        Camera* m_blit_color_camera = nullptr;
+        Camera* m_blit_camera = nullptr;
+        int m_target_sample_count = 4;
 
         void InitRenderTexture()
         {
+            m_target_sample_count = Mathf::Min(m_target_sample_count, Display::Instance()->GetMaxSamples());
+
             auto color_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
                 TextureFormat::R8G8B8A8,
-                1,
+                m_target_sample_count,
                 true,
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge);
@@ -41,35 +43,32 @@ namespace Viry3D
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
                 Texture::ChooseDepthFormatSupported(true),
-                1,
+                m_target_sample_count,
                 true,
-                FilterMode::Nearest,
+                FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
-            // depth -> color
-            m_blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
-            m_blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
-
             // color -> window
-            m_blit_color_camera = Display::Instance()->CreateBlitCamera(2, color_texture);
+            m_blit_camera = Display::Instance()->CreateBlitCamera(1, color_texture);
 
-            m_ui_camera->SetDepth(3);
+            m_ui_camera->SetDepth(2);
         }
 
         virtual void Init()
         {
             DemoMesh::Init();
 
-            this->InitRenderTexture();
+           this->InitRenderTexture();
         }
 
         virtual void Done()
         {
-            Display::Instance()->DestroyCamera(m_blit_depth_camera);
-            m_blit_depth_camera = nullptr;
-            Display::Instance()->DestroyCamera(m_blit_color_camera);
-            m_blit_color_camera = nullptr;
+            if (m_blit_camera)
+            {
+                Display::Instance()->DestroyCamera(m_blit_camera);
+                m_blit_camera = nullptr;
+            }
 
             DemoMesh::Done();
         }

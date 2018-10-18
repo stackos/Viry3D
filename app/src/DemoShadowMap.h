@@ -53,6 +53,7 @@ namespace Viry3D
                 SHADOW_MAP_SIZE,
                 SHADOW_MAP_SIZE,
                 Texture::ChooseDepthFormatSupported(true),
+                1,
                 true,
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);

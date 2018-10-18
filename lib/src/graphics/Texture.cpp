@@ -247,6 +247,7 @@ namespace Viry3D
             },
             mipmap_level_count,
             false,
+            1,
             1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
 #elif VR_GLES
@@ -303,6 +304,7 @@ namespace Viry3D
             },
             mipmap_level_count,
             true,
+            1,
             1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
 #elif VR_GLES
@@ -322,6 +324,7 @@ namespace Viry3D
         int width,
         int height,
         TextureFormat format,
+        int sample_count,
         bool create_sampler,
         FilterMode filter_mode,
         SamplerAddressMode wrap_mode)
@@ -371,7 +374,8 @@ namespace Viry3D
             },
             1,
             false,
-            1);
+            1,
+            sample_count);
         if (create_sampler)
         {
             Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
@@ -443,7 +447,8 @@ namespace Viry3D
             },
             mipmap_level_count,
             false,
-            layer_count);
+            layer_count,
+            1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
 #endif
 

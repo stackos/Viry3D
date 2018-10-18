@@ -788,6 +788,7 @@ extern void UnbindSharedContext();
                 m_width,
                 m_height,
                 Texture::ChooseDepthFormatSupported(false),
+                1,
                 false,
                 FilterMode::None,
                 SamplerAddressMode::None);
@@ -1257,6 +1258,18 @@ extern void UnbindSharedContext();
             return VK_FORMAT_UNDEFINED;
         }
 
+        int GetMaxSamples()
+        {
+            VkSampleCountFlags counts = Mathf::Min(m_gpu_properties.limits.framebufferColorSampleCounts, m_gpu_properties.limits.framebufferDepthSampleCounts);
+            if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
+            if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
+            if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
+            if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
+            if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
+            if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+            return VK_SAMPLE_COUNT_1_BIT;
+        }
+
         Ref<Texture> CreateTexture(
             VkImageType type,
             VkImageViewType view_type,
@@ -1268,7 +1281,8 @@ extern void UnbindSharedContext();
             const VkComponentMapping& component,
             int mipmap_level_count,
             bool cubemap,
-            int array_size)
+            int array_size,
+            int sample_count)
         {
             Ref<Texture> texture = Ref<Texture>(new Texture());
             texture->m_width = width;
@@ -3397,6 +3411,11 @@ void main()
         return m_private->ChooseFormatSupported(formats, features);
     }
 
+    int Display::GetMaxSamples()
+    {
+        return m_private->GetMaxSamples();
+    }
+
     Ref<Texture> Display::CreateTexture(
         VkImageType type,
         VkImageViewType view_type,
@@ -3408,7 +3427,8 @@ void main()
         const VkComponentMapping& component,
         int mipmap_level_count,
         bool cubemap,
-        int array_size)
+        int array_size,
+        int sample_count)
     {
         return m_private->CreateTexture(
             type,
@@ -3421,7 +3441,8 @@ void main()
             component,
             mipmap_level_count,
             cubemap,
-            array_size);
+            array_size,
+            sample_count);
     }
 
     void Display::CreateSampler(

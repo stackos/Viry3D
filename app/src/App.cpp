@@ -21,6 +21,7 @@
 #include "DemoSkybox.h"
 #include "DemoRenderToTexture.h"
 #include "DemoFXAA.h"
+#include "DemoMSAA.h"
 #include "DemoPostEffectBlur.h"
 #include "DemoUI.h"
 #include "DemoShadowMap.h"
@@ -92,6 +93,7 @@ namespace Viry3D
                 "Skybox",
                 "RenderToTexture",
                 "FXAA",
+                "MSAA",
                 "PostEffectBlur",
                 "UI",
                 "ShadowMap",
@@ -150,7 +152,7 @@ namespace Viry3D
 #else
                 disable_ar = true;
 #endif
-                if (disable_ar && i == 9)
+                if (disable_ar && i == 10)
                 {
                     disabled = true;
                     button->GetLabel()->SetText("AR (available on ios arkit only)");
@@ -184,18 +186,21 @@ namespace Viry3D
                     m_demo = new DemoFXAA();
                     break;
                 case 5:
-                    m_demo = new DemoPostEffectBlur();
+                    m_demo = new DemoMSAA();
                     break;
                 case 6:
-                    m_demo = new DemoUI();
+                    m_demo = new DemoPostEffectBlur();
                     break;
                 case 7:
-                    m_demo = new DemoShadowMap();
+                    m_demo = new DemoUI();
                     break;
                 case 8:
-                    m_demo = new DemoAudio();
+                    m_demo = new DemoShadowMap();
                     break;
                 case 9:
+                    m_demo = new DemoAudio();
+                    break;
+                case 10:
 #if VR_IOS
                     m_demo = new DemoAR();
 #endif
