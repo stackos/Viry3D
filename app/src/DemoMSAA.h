@@ -25,7 +25,7 @@ namespace Viry3D
     {
     public:
         Camera* m_blit_camera = nullptr;
-        int m_target_sample_count = 4;
+        int m_target_sample_count = 64;
 
         void InitRenderTexture()
         {

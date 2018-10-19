@@ -658,17 +658,26 @@ namespace Viry3D
 
         bool color_attachment = true;
         bool depth_attachment = true;
+        int sample_count = 1;
         if (this->HasRenderTarget())
         {
             color_attachment = (bool) this->GetRenderTargetColor();
             depth_attachment = (bool) this->GetRenderTargetDepth();
+            if (color_attachment)
+            {
+                sample_count = this->GetRenderTargetColor()->GetSampleCount();
+            }
+            if (depth_attachment)
+            {
+                sample_count = this->GetRenderTargetDepth()->GetSampleCount();
+            }
         }
 
         Display::Instance()->BuildInstanceCmd(
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
-            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment),
+            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count),
             descriptor_sets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),

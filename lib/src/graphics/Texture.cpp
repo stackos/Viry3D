@@ -390,6 +390,17 @@ namespace Viry3D
 			VK_IMAGE_LAYOUT_UNDEFINED,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			(VkAccessFlagBits) 0);
+        if (sample_count > 1)
+        {
+            Display::Instance()->SetImageLayout(
+                texture->GetImageMultiSample(),
+                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                { aspect, 0, 1, 0, 1 },
+                VK_IMAGE_LAYOUT_UNDEFINED,
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                (VkAccessFlagBits) 0);
+        }
 		Display::Instance()->EndImageCmd();
 #elif VR_GLES
         texture = CreateTexture(
@@ -1023,6 +1034,9 @@ namespace Viry3D
     Texture::Texture():
 #if VR_VULKAN
         m_format(VK_FORMAT_UNDEFINED),
+        m_image_multi_sample(VK_NULL_HANDLE),
+        m_image_view_multi_sample(VK_NULL_HANDLE),
+        m_memory_multi_sample(VK_NULL_HANDLE),
         m_image(VK_NULL_HANDLE),
         m_image_view(VK_NULL_HANDLE),
         m_memory(VK_NULL_HANDLE),
@@ -1043,9 +1057,11 @@ namespace Viry3D
         m_mipmap_level_count(1),
         m_dynamic(false),
         m_cubemap(false),
-        m_array_size(1)
+        m_array_size(1),
+        m_sample_count(1)
     {
 #if VR_VULKAN
+        Memory::Zero(&m_memory_info_multi_sample, sizeof(m_memory_info_multi_sample));
         Memory::Zero(&m_memory_info, sizeof(m_memory_info));
 #endif
     }
@@ -1066,6 +1082,12 @@ namespace Viry3D
         if (m_sampler)
         {
             vkDestroySampler(device, m_sampler, nullptr);
+        }
+        if (m_sample_count > 1)
+        {
+            vkDestroyImage(device, m_image_multi_sample, nullptr);
+            vkDestroyImageView(device, m_image_view_multi_sample, nullptr);
+            vkFreeMemory(device, m_memory_multi_sample, nullptr);
         }
         vkDestroyImage(device, m_image, nullptr);
         vkDestroyImageView(device, m_image_view, nullptr);

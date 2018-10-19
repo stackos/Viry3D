@@ -1039,6 +1039,7 @@ extern void UnbindSharedContext();
             VkFormat color_format,
             VkFormat depth_format,
             CameraClearFlags clear_flag,
+            int sample_count,
             bool present,
             VkRenderPass* render_pass)
         {
@@ -1116,7 +1117,7 @@ extern void UnbindSharedContext();
                 Memory::Zero(&attachment, sizeof(attachment));
                 attachment.flags = 0;
                 attachment.format = color_format;
-                attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+                attachment.samples = (VkSampleCountFlagBits) sample_count;
                 attachment.loadOp = color_load;
                 attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -1135,7 +1136,7 @@ extern void UnbindSharedContext();
                 Memory::Zero(&attachment, sizeof(attachment));
                 attachment.flags = 0;
                 attachment.format = depth_format;
-                attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+                attachment.samples = (VkSampleCountFlagBits) sample_count;
                 attachment.loadOp = depth_load;
                 attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -1291,6 +1292,7 @@ extern void UnbindSharedContext();
             texture->m_mipmap_level_count = mipmap_level_count;
             texture->m_cubemap = cubemap;
             texture->m_array_size = array_size;
+            texture->m_sample_count = sample_count;
 
             VkImageCreateFlags flags = 0;
             uint32_t layer_count = 1;
@@ -1318,7 +1320,14 @@ extern void UnbindSharedContext();
             image_info.arrayLayers = layer_count;
             image_info.samples = VK_SAMPLE_COUNT_1_BIT;
             image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
-            image_info.usage = usage;
+            if (sample_count > 1)
+            {
+                image_info.usage = usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            }
+            else
+            {
+                image_info.usage = usage;
+            }
             image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
             image_info.queueFamilyIndexCount = 0;
             image_info.pQueueFamilyIndices = nullptr;
@@ -1326,6 +1335,14 @@ extern void UnbindSharedContext();
 
             VkResult err = vkCreateImage(m_device, &image_info, nullptr, &texture->m_image);
             assert(!err);
+
+            if (sample_count > 1)
+            {
+                image_info.samples = (VkSampleCountFlagBits) sample_count;
+                image_info.usage = usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+                err = vkCreateImage(m_device, &image_info, nullptr, &texture->m_image_multi_sample);
+                assert(!err);
+            }
 
             VkMemoryRequirements mem_reqs;
             vkGetImageMemoryRequirements(m_device, texture->m_image, &mem_reqs);
@@ -1345,6 +1362,26 @@ extern void UnbindSharedContext();
             err = vkBindImageMemory(m_device, texture->m_image, texture->m_memory, 0);
             assert(!err);
 
+            if (sample_count > 1)
+            {
+                vkGetImageMemoryRequirements(m_device, texture->m_image_multi_sample, &mem_reqs);
+
+                Memory::Zero(&texture->m_memory_info_multi_sample, sizeof(texture->m_memory_info_multi_sample));
+                texture->m_memory_info_multi_sample.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                texture->m_memory_info_multi_sample.pNext = nullptr;
+                texture->m_memory_info_multi_sample.allocationSize = mem_reqs.size;
+                texture->m_memory_info_multi_sample.memoryTypeIndex = 0;
+
+                pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture->m_memory_info_multi_sample.memoryTypeIndex);
+                assert(pass);
+
+                err = vkAllocateMemory(m_device, &texture->m_memory_info_multi_sample, nullptr, &texture->m_memory_multi_sample);
+                assert(!err);
+
+                err = vkBindImageMemory(m_device, texture->m_image_multi_sample, texture->m_memory_multi_sample, 0);
+                assert(!err);
+            }
+
             VkImageViewCreateInfo view_info;
             Memory::Zero(&view_info, sizeof(view_info));
             view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -1358,6 +1395,13 @@ extern void UnbindSharedContext();
             
             err = vkCreateImageView(m_device, &view_info, nullptr, &texture->m_image_view);
             assert(!err);
+
+            if (sample_count > 1)
+            {
+                view_info.image = texture->m_image_multi_sample;
+                err = vkCreateImageView(m_device, &view_info, nullptr, &texture->m_image_view_multi_sample);
+                assert(!err);
+            }
 
             return texture;
         }
@@ -1817,7 +1861,8 @@ extern void UnbindSharedContext();
             VkPipelineCache pipeline_cache,
             VkPipeline* pipeline,
             bool color_attachment,
-            bool depth_attachment)
+            bool depth_attachment,
+            int sample_count)
         {
             Vector<VkPipelineShaderStageCreateInfo> shader_stages;
             {
@@ -1959,7 +2004,7 @@ extern void UnbindSharedContext();
             ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
             ms.pNext = nullptr;
             ms.flags = 0;
-            ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+            ms.rasterizationSamples = (VkSampleCountFlagBits) sample_count;
             ms.sampleShadingEnable = VK_FALSE;
             ms.minSampleShading = 0;
             ms.pSampleMask = nullptr;
@@ -2289,10 +2334,19 @@ extern void UnbindSharedContext();
         {
 			bool color_attachment = true;
 			bool depth_attachment = true;
+            int sample_count = 1;
 			if (color_texture || depth_texture)
 			{
 				color_attachment = (bool) color_texture;
 				depth_attachment = (bool) depth_texture;
+                if (color_attachment)
+                {
+                    sample_count = color_texture->GetSampleCount();
+                }
+                if (depth_attachment)
+                {
+                    sample_count = depth_texture->GetSampleCount();
+                }
 			}
 
             Vector<VkClearValue> clear_values;
@@ -2334,7 +2388,7 @@ extern void UnbindSharedContext();
                 {
                     this->SetImageLayout(
                         cmd,
-                        color_texture->GetImage(),
+                        sample_count > 1 ? color_texture->GetImageMultiSample() : color_texture->GetImage(),
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
@@ -2346,7 +2400,7 @@ extern void UnbindSharedContext();
                 {
                     this->SetImageLayout(
                         cmd,
-                        depth_texture->GetImage(),
+                        sample_count > 1 ? depth_texture->GetImageMultiSample() : depth_texture->GetImage(),
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                         { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 },
@@ -2377,6 +2431,70 @@ extern void UnbindSharedContext();
                 vkCmdExecuteCommands(cmd, (uint32_t) instance_cmds.Size(), &instance_cmds[0]);
             }
             vkCmdEndRenderPass(cmd);
+
+            if (sample_count > 1)
+            {
+                // resolve multi sample image
+                if (color_texture)
+                {
+                    this->SetImageLayout(
+                        cmd,
+                        color_texture->GetImageMultiSample(),
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        (VkAccessFlagBits) 0);
+
+                    this->SetImageLayout(
+                        cmd,
+                        color_texture->GetImage(),
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        (VkAccessFlagBits) 0);
+
+                    VkImageResolve resolve;
+                    Memory::Zero(&resolve, sizeof(resolve));
+                    resolve.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+                    resolve.srcOffset = { 0, 0, 0 };
+                    resolve.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+                    resolve.dstOffset = { 0, 0, 0 };
+                    resolve.extent = { (uint32_t) color_texture->GetWidth(), (uint32_t) color_texture->GetHeight(), 1 };
+
+                    vkCmdResolveImage(
+                        cmd,
+                        color_texture->GetImageMultiSample(),
+                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        color_texture->GetImage(),
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        1,
+                        &resolve);
+
+                    this->SetImageLayout(
+                        cmd,
+                        color_texture->GetImageMultiSample(),
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_ACCESS_TRANSFER_READ_BIT);
+
+                    this->SetImageLayout(
+                        cmd,
+                        color_texture->GetImage(),
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_ACCESS_TRANSFER_WRITE_BIT);
+                }
+            }
 
             vkCmdPipelineBarrier(cmd,
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -3202,6 +3320,7 @@ void main()
                 m_private->m_swapchain_image_resources[0].format,
                 m_private->m_depth_texture->GetFormat(),
                 clear_flag,
+                1,
                 true,
                 render_pass);
 
@@ -3227,27 +3346,45 @@ void main()
             VkImageView depth_image_view = VK_NULL_HANDLE;
             int image_width = 0;
             int image_height = 0;
+            int sample_count = 1;
 
             if (color_texture)
             {
+                sample_count = color_texture->GetSampleCount();
                 color_format = color_texture->GetFormat();
-                color_image_view = color_texture->GetImageView();
                 image_width = color_texture->GetWidth();
                 image_height = color_texture->GetHeight();
+                if (sample_count > 1)
+                {
+                    color_image_view = color_texture->GetImageViewMultiSample();
+                }
+                else
+                {
+                    color_image_view = color_texture->GetImageView();
+                }
             }
 
             if (depth_texture)
             {
+                sample_count = color_texture->GetSampleCount();
                 depth_format = depth_texture->GetFormat();
-                depth_image_view = depth_texture->GetImageView();
                 image_width = depth_texture->GetWidth();
                 image_height = depth_texture->GetHeight();
+                if (sample_count > 1)
+                {
+                    depth_image_view = depth_texture->GetImageViewMultiSample();
+                }
+                else
+                {
+                    depth_image_view = depth_texture->GetImageView();
+                }
             }
 
             m_private->CreateRenderPass(
                 color_format,
                 depth_format,
                 clear_flag,
+                sample_count,
                 false,
                 render_pass);
 
@@ -3317,7 +3454,8 @@ void main()
         VkPipelineCache pipeline_cache,
         VkPipeline* pipeline,
         bool color_attachment,
-        bool depth_attachment)
+        bool depth_attachment,
+        int sample_count)
     {
         m_private->CreatePipeline(
             render_pass,
@@ -3328,7 +3466,8 @@ void main()
             pipeline_cache,
             pipeline,
             color_attachment,
-            depth_attachment);
+            depth_attachment,
+            sample_count);
     }
 
     void Display::CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)

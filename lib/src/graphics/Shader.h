@@ -43,7 +43,7 @@ namespace Viry3D
         const RenderState& GetRenderState() const { return m_render_state; }
 #if VR_VULKAN
         static void OnRenderPassDestroy(VkRenderPass render_pass);
-        VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment);
+        VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count);
         void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
         VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
 #elif VR_GLES

@@ -124,6 +124,7 @@ namespace Viry3D
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
         int GetMipmapLevelCount() const { return m_mipmap_level_count; }
+        int GetSampleCount() const { return m_sample_count; }
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
         void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
         void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
@@ -138,6 +139,8 @@ namespace Viry3D
         void CopyToMemory(ByteBuffer& pixels, int layer, int level);
 #if VR_VULKAN
         VkFormat GetFormat() const { return m_format; }
+        VkImage GetImageMultiSample() const { return m_image_multi_sample; }
+        VkImageView GetImageViewMultiSample() const { return m_image_view_multi_sample; }
         VkImage GetImage() const { return m_image; }
         VkImageView GetImageView() const { return m_image_view; }
         VkSampler GetSampler() const { return m_sampler; }
@@ -173,6 +176,10 @@ namespace Viry3D
 		static Ref<Texture> m_shared_cubemap;
 #if VR_VULKAN
         VkFormat m_format;
+        VkImage m_image_multi_sample;
+        VkImageView m_image_view_multi_sample;
+        VkDeviceMemory m_memory_multi_sample;
+        VkMemoryAllocateInfo m_memory_info_multi_sample;
         VkImage m_image;
         VkImageView m_image_view;
         VkDeviceMemory m_memory;
@@ -196,5 +203,6 @@ namespace Viry3D
         bool m_dynamic;
         bool m_cubemap;
         int m_array_size;
+        int m_sample_count;
     };
 }

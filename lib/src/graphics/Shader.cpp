@@ -144,7 +144,7 @@ namespace Viry3D
     }
 
 #if VR_VULKAN
-    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment)
+    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count)
     {
         VkPipeline* pipeline_ptr;
         if (m_pipelines.TryGet(render_pass, &pipeline_ptr))
@@ -163,7 +163,8 @@ namespace Viry3D
                 m_pipeline_cache,
                 &pipeline,
                 color_attachment,
-                depth_attachment);
+                depth_attachment,
+                sample_count);
             m_pipelines.Add(render_pass, pipeline);
 
             return pipeline;
