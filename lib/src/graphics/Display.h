@@ -54,6 +54,7 @@ namespace Viry3D
         Camera* CreateCamera();
         Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, const Ref<Material>& material = Ref<Material>(), const String& texture_name = "", CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
         void DestroyCamera(Camera* camera);
+        int GetMaxSamples();
 #if VR_VULKAN
         VkDevice GetDevice() const;
         void WaitDevice() const;
@@ -117,7 +118,6 @@ namespace Viry3D
             const Ref<BufferObject>& draw_buffer);
 		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass);
         VkFormat ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features);
-        int GetMaxSamples();
         Ref<Texture> CreateTexture(
             VkImageType type,
             VkImageViewType view_type,

@@ -110,6 +110,7 @@ namespace Viry3D
 #elif VR_GLES
         void BindTarget();
         void ClearTarget();
+        void ResolveMultiSample();
 #endif
 
     private:
@@ -121,6 +122,7 @@ namespace Viry3D
         bool m_instance_cmds_dirty;
 #elif VR_GLES
         GLuint m_framebuffer;
+        GLuint m_framebuffer_resolve;
 #endif
         bool m_renderer_order_dirty;
         CameraClearFlags m_clear_flags;

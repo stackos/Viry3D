@@ -150,6 +150,7 @@ namespace Viry3D
         void Bind() const { glBindTexture(m_target, m_texture); }
         void Unbind() const { glBindTexture(m_target, 0); }
         bool IsRenderTexture() const { return m_render_texture; }
+        GLuint GetRenderbufferMultiSample() const { return m_renderbuffer_multi_sample; }
 #endif
 
     private:
@@ -165,6 +166,7 @@ namespace Viry3D
             TextureFormat format,
             int mipmap_level_count);
         void CreateSampler(FilterMode filter_mode, SamplerAddressMode wrap_mode);
+        void CreateRenderbufferMultiSample();
 #endif
         Texture();
         int GetLayerCount();
@@ -176,14 +178,14 @@ namespace Viry3D
 		static Ref<Texture> m_shared_cubemap;
 #if VR_VULKAN
         VkFormat m_format;
-        VkImage m_image_multi_sample;
-        VkImageView m_image_view_multi_sample;
-        VkDeviceMemory m_memory_multi_sample;
-        VkMemoryAllocateInfo m_memory_info_multi_sample;
         VkImage m_image;
         VkImageView m_image_view;
         VkDeviceMemory m_memory;
         VkMemoryAllocateInfo m_memory_info;
+        VkImage m_image_multi_sample;
+        VkImageView m_image_view_multi_sample;
+        VkDeviceMemory m_memory_multi_sample;
+        VkMemoryAllocateInfo m_memory_info_multi_sample;
         VkSampler m_sampler;
         Ref<BufferObject> m_image_buffer;
 #elif VR_GLES
@@ -196,6 +198,7 @@ namespace Viry3D
         GLuint m_copy_framebuffer;
         bool m_render_texture;
         bool m_depth_texture;
+        GLuint m_renderbuffer_multi_sample;
 #endif
         int m_width;
         int m_height;

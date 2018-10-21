@@ -2973,6 +2973,20 @@ extern void UnbindSharedContext();
         }
 #endif
 
+        int GetMaxSamples()
+        {
+            if (this->IsGLESv3())
+            {
+                GLint count;
+                glGetIntegerv(GL_MAX_SAMPLES, &count);
+                return count;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
         Ref<BufferObject> CreateBuffer(const void* data, int size, GLenum target, GLenum usage)
         {
             Ref<BufferObject> buffer = RefMake<BufferObject>(size);
@@ -3289,6 +3303,11 @@ void main()
 #endif
     }
 
+    int Display::GetMaxSamples()
+    {
+        return m_private->GetMaxSamples();
+    }
+
 #if VR_VULKAN
     VkDevice Display::GetDevice() const
     {
@@ -3366,7 +3385,7 @@ void main()
 
             if (depth_texture)
             {
-                sample_count = color_texture->GetSampleCount();
+                sample_count = depth_texture->GetSampleCount();
                 depth_format = depth_texture->GetFormat();
                 image_width = depth_texture->GetWidth();
                 image_height = depth_texture->GetHeight();
@@ -3548,11 +3567,6 @@ void main()
     VkFormat Display::ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features)
     {
         return m_private->ChooseFormatSupported(formats, features);
-    }
-
-    int Display::GetMaxSamples()
-    {
-        return m_private->GetMaxSamples();
     }
 
     Ref<Texture> Display::CreateTexture(

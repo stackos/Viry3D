@@ -142,7 +142,14 @@ namespace Viry3D
                 if (disable_fxaa && i == 4)
                 {
                     disabled = true;
-                    button->GetLabel()->SetText("FXAA (disabled on mac gl / gles2 / webgl)");
+                    button->GetLabel()->SetText("FXAA (disabled on gles2 / webgl)");
+                }
+
+                bool disable_msaa = !Display::Instance()->IsGLESv3();
+                if (disable_msaa && i == 5)
+                {
+                    disabled = true;
+                    button->GetLabel()->SetText("MSAA (disabled on gles2)");
                 }
 #endif
                 
@@ -157,7 +164,7 @@ namespace Viry3D
                     disabled = true;
                     button->GetLabel()->SetText("AR (available on ios arkit only)");
                 }
-                
+
                 if (disabled)
                 {
                     button->GetLabel()->SetColor(Color(0.8f, 0.8f, 0.8f, 1));

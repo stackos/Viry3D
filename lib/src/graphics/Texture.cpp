@@ -417,6 +417,12 @@ namespace Viry3D
         texture->UpdateTexture2D(ByteBuffer(), 0, 0, width, height);
 
         texture->m_render_texture = true;
+
+        texture->m_sample_count = sample_count;
+        if (sample_count > 1)
+        {
+            texture->CreateRenderbufferMultiSample();
+        }
 #endif
 
         return texture;
@@ -1034,12 +1040,12 @@ namespace Viry3D
     Texture::Texture():
 #if VR_VULKAN
         m_format(VK_FORMAT_UNDEFINED),
-        m_image_multi_sample(VK_NULL_HANDLE),
-        m_image_view_multi_sample(VK_NULL_HANDLE),
-        m_memory_multi_sample(VK_NULL_HANDLE),
         m_image(VK_NULL_HANDLE),
         m_image_view(VK_NULL_HANDLE),
         m_memory(VK_NULL_HANDLE),
+        m_image_multi_sample(VK_NULL_HANDLE),
+        m_image_view_multi_sample(VK_NULL_HANDLE),
+        m_memory_multi_sample(VK_NULL_HANDLE),
         m_sampler(VK_NULL_HANDLE),
 #elif VR_GLES
         m_texture(0),
@@ -1051,6 +1057,7 @@ namespace Viry3D
         m_copy_framebuffer(0),
         m_render_texture(false),
         m_depth_texture(false),
+        m_renderbuffer_multi_sample(0),
 #endif
         m_width(0),
         m_height(0),
@@ -1061,8 +1068,8 @@ namespace Viry3D
         m_sample_count(1)
     {
 #if VR_VULKAN
-        Memory::Zero(&m_memory_info_multi_sample, sizeof(m_memory_info_multi_sample));
         Memory::Zero(&m_memory_info, sizeof(m_memory_info));
+        Memory::Zero(&m_memory_info_multi_sample, sizeof(m_memory_info_multi_sample));
 #endif
     }
 
@@ -1100,6 +1107,10 @@ namespace Viry3D
         if (m_copy_framebuffer)
         {
             glDeleteFramebuffers(1, &m_copy_framebuffer);
+        }
+        if (m_renderbuffer_multi_sample)
+        {
+            glDeleteRenderbuffers(1, &m_renderbuffer_multi_sample);
         }
 #endif
     }
@@ -1306,6 +1317,14 @@ namespace Viry3D
         glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap);
 
         this->Unbind();
+    }
+
+    void Texture::CreateRenderbufferMultiSample()
+    {
+        glGenRenderbuffers(1, &m_renderbuffer_multi_sample);
+        glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer_multi_sample);
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_sample_count, m_internal_format, m_width, m_height);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 #endif
 }

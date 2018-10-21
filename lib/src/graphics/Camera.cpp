@@ -32,6 +32,7 @@ namespace Viry3D
         m_instance_cmds_dirty(true),
 #elif VR_GLES
         m_framebuffer(0),
+        m_framebuffer_resolve(0),
 #endif
 		m_renderer_order_dirty(true),
 		m_clear_flags(CameraClearFlags::ColorAndDepth),
@@ -60,6 +61,10 @@ namespace Viry3D
         if (m_framebuffer)
         {
             glDeleteFramebuffers(1, &m_framebuffer);
+        }
+        if (m_framebuffer_resolve)
+        {
+            glDeleteFramebuffers(1, &m_framebuffer_resolve);
         }
 #endif
 	}
@@ -274,6 +279,8 @@ namespace Viry3D
         {
             i.renderer->OnDraw();
         }
+
+        this->ResolveMultiSample();
     }
 
     void Camera::BindTarget()
@@ -288,12 +295,26 @@ namespace Viry3D
             
             if (m_render_target_color)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_render_target_color->GetTexture(), 0);
+                if (m_render_target_color->GetSampleCount() > 1)
+                {
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_render_target_color->GetRenderbufferMultiSample());
+                }
+                else
+                {
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_render_target_color->GetTexture(), 0);
+                }
             }
 
             if (m_render_target_depth)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_render_target_depth->GetTexture(), 0);
+                if (m_render_target_depth->GetSampleCount() > 1)
+                {
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_render_target_depth->GetRenderbufferMultiSample());
+                }
+                else
+                {
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_render_target_depth->GetTexture(), 0);
+                }
             }
 
             GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -353,6 +374,66 @@ namespace Viry3D
             }
             
             glClear(clear_bits);
+        }
+    }
+
+    void Camera::ResolveMultiSample()
+    {
+        if (this->HasRenderTarget())
+        {
+            bool resolve_color = false;
+            bool resolve_depth = false;
+
+            if (m_render_target_color && m_render_target_color->GetSampleCount() > 1)
+            {
+                resolve_color = true;
+            }
+
+            if (m_render_target_depth && m_render_target_depth->GetSampleCount() > 1)
+            {
+                resolve_depth = true;
+            }
+
+            if (resolve_color || resolve_depth)
+            {
+                if (m_framebuffer_resolve == 0)
+                {
+                    glGenFramebuffers(1, &m_framebuffer_resolve);
+                }
+                glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer_resolve);
+
+                if (resolve_color)
+                {
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_render_target_color->GetTexture(), 0);
+                }
+
+                if (resolve_depth)
+                {
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_render_target_depth->GetTexture(), 0);
+                }
+
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, m_framebuffer);
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebuffer_resolve);
+
+                if (resolve_color)
+                {
+                    glBlitFramebuffer(
+                        0, 0, m_render_target_color->GetWidth(), m_render_target_color->GetHeight(),
+                        0, 0, m_render_target_color->GetWidth(), m_render_target_color->GetHeight(),
+                        GL_COLOR_BUFFER_BIT, GL_NEAREST);
+                }
+
+                if (resolve_depth)
+                {
+                    glBlitFramebuffer(
+                        0, 0, m_render_target_depth->GetWidth(), m_render_target_depth->GetHeight(),
+                        0, 0, m_render_target_depth->GetWidth(), m_render_target_depth->GetHeight(),
+                        GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+                }
+
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+            }
         }
     }
 #endif

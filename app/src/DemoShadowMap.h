@@ -81,6 +81,7 @@ namespace Viry3D
                     SHADOW_MAP_SIZE,
                     SHADOW_MAP_SIZE,
                     TextureFormat::R8G8B8A8,
+                    1,
                     false,
                     FilterMode::None,
                     SamplerAddressMode::None);
