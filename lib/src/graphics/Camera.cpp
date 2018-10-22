@@ -711,6 +711,8 @@ namespace Viry3D
         Ref<BufferObject> vertex_buffer = renderer->GetVertexBuffer();
         Ref<BufferObject> index_buffer = renderer->GetIndexBuffer();
         Ref<BufferObject> draw_buffer = renderer->GetDrawBuffer();
+        Ref<BufferObject> instance_buffer = renderer->GetInstanceBuffer();
+        int instance_count = renderer->GetInstanceCount();
 
         if (!material || !vertex_buffer || !index_buffer || !draw_buffer)
         {
@@ -758,14 +760,15 @@ namespace Viry3D
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
-            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count),
+            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count, instance_count),
             descriptor_sets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),
             m_viewport_rect,
             vertex_buffer,
             index_buffer,
-            draw_buffer);
+            draw_buffer,
+            instance_buffer);
     }
 #endif
 }

@@ -25,15 +25,23 @@
 namespace Viry3D
 {
     Renderer::Renderer():
+        m_draw_buffer_dirty(true),
 		m_camera(nullptr),
-        m_model_matrix_dirty(true)
+        m_model_matrix_dirty(true),
+        m_instance_buffer_dirty(false)
     {
     
     }
 
     Renderer::~Renderer()
     {
-    
+#if VR_VULKAN
+        if (m_instance_buffer)
+        {
+            m_instance_buffer->Destroy(Display::Instance()->GetDevice());
+            m_instance_buffer.reset();
+        }
+#endif
     }
 
     void Renderer::SetMaterial(const Ref<Material>& material)
@@ -163,6 +171,18 @@ namespace Viry3D
             m_instance_material->UpdateUniformSets();
         }
 #endif
+
+        if (m_instance_buffer_dirty)
+        {
+            m_instance_buffer_dirty = false;
+            this->UpdateInstanceBuffer();
+        }
+
+        if (m_draw_buffer_dirty)
+        {
+            m_draw_buffer_dirty = false;
+            this->UpdateDrawBuffer();
+        }
     }
 
     void Renderer::SetInstanceMatrix(const String& name, const Matrix4x4& mat)
@@ -231,4 +251,75 @@ namespace Viry3D
         LogGLError();
     }
 #endif
+
+    void Renderer::AddInstance(const Vector3& pos, const Quaternion& rot, const Vector3& scale)
+    {
+        if (m_instances.Empty())
+        {
+            m_instances.Resize(1);
+
+            m_instances[0].position = Vector3(0, 0, 0);
+            m_instances[0].rotation = Quaternion::Identity();
+            m_instances[0].scale = Vector3(1, 1, 1);
+        }
+
+        RendererInstanceTransform instacne;
+        instacne.position = pos;
+        instacne.rotation = rot;
+        instacne.scale = scale;
+
+        m_instances.Add(instacne);
+
+        m_instance_buffer_dirty = true;
+        m_draw_buffer_dirty = true;
+
+#if VR_VULKAN
+        this->MarkInstanceCmdDirty();
+#endif
+    }
+
+    int Renderer::GetInstanceCount() const
+    {
+        int count = m_instances.Size();
+
+        if (count == 0)
+        {
+            count = 1;
+        }
+
+        return count;
+    }
+
+    void Renderer::UpdateInstanceBuffer()
+    {
+        int instance_count = this->GetInstanceCount();
+        if (instance_count > 1)
+        {
+            Vector<Matrix4x4> mats(instance_count);
+            for (int i = 0; i < mats.Size(); ++i)
+            {
+                mats[i] = Matrix4x4::TRS(m_instances[i].position, m_instances[i].rotation, m_instances[i].scale);
+            }
+
+            int buffer_size = mats.SizeInBytes();
+
+#if VR_VULKAN
+            if (!m_instance_buffer || m_instance_buffer->GetSize() < buffer_size)
+            {
+                if (m_instance_buffer)
+                {
+                    m_instance_buffer->Destroy(Display::Instance()->GetDevice());
+                    m_instance_buffer.reset();
+                }
+                m_instance_buffer = Display::Instance()->CreateBuffer(mats.Bytes(), buffer_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+            }
+            else
+            {
+                Display::Instance()->UpdateBuffer(m_instance_buffer, 0, mats.Bytes(), buffer_size);
+            }
+#elif VR_GLES
+
+#endif
+        }
+    }
 }

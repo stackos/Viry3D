@@ -92,7 +92,8 @@ namespace Viry3D
             VkPipeline* pipeline,
             bool color_attachment,
             bool depth_attachment,
-            int sample_count);
+            int sample_count,
+            int instance_count);
         void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool);
         void CreateDescriptorSets(
             const Vector<UniformSet>& uniform_sets,
@@ -115,7 +116,8 @@ namespace Viry3D
             const Rect& view_rect,
             const Ref<BufferObject>& vertex_buffer,
             const Ref<BufferObject>& index_buffer,
-            const Ref<BufferObject>& draw_buffer);
+            const Ref<BufferObject>& draw_buffer,
+            const Ref<BufferObject>& instance_buffer);
 		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass);
         VkFormat ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features);
         Ref<Texture> CreateTexture(

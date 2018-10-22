@@ -472,36 +472,10 @@ void main()
             m_mesh.reset();
         }
 
-#if VR_VULKAN
         if (draw_buffer_dirty)
         {
-            VkDrawIndexedIndirectCommand draw;
-            draw.indexCount = m_mesh->GetIndexCount();
-            draw.instanceCount = 1;
-            draw.firstIndex = 0;
-            draw.vertexOffset = 0;
-            draw.firstInstance = 0;
-
-            if (!m_draw_buffer)
-            {
-                m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
-            }
-            else
-            {
-                Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
-            }
+            m_draw_buffer_dirty = true;
         }
-#elif VR_GLES
-        m_draw_buffer.first_index = 0;
-        if (m_mesh)
-        {
-            m_draw_buffer.index_count = m_mesh->GetIndexCount();
-        }
-        else
-        {
-            m_draw_buffer.index_count = 0;
-        }
-#endif
 
         /*
         // test output atlas texture
@@ -516,6 +490,37 @@ void main()
             }
         }
         //*/
+    }
+
+    void CanvasRenderer::UpdateDrawBuffer()
+    {
+#if VR_VULKAN
+        VkDrawIndexedIndirectCommand draw;
+        draw.indexCount = m_mesh->GetIndexCount();
+        draw.instanceCount = 1;
+        draw.firstIndex = 0;
+        draw.vertexOffset = 0;
+        draw.firstInstance = 0;
+
+        if (!m_draw_buffer)
+        {
+            m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
+        }
+        else
+        {
+            Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
+        }
+#elif VR_GLES
+        m_draw_buffer.first_index = 0;
+        if (m_mesh)
+        {
+            m_draw_buffer.index_count = m_mesh->GetIndexCount();
+        }
+        else
+        {
+            m_draw_buffer.index_count = 0;
+        }
+#endif
     }
 
     void CanvasRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)

@@ -69,11 +69,15 @@ namespace Viry3D
     {
         m_mesh = mesh;
         m_submesh = submesh;
+        m_draw_buffer_dirty = true;
+    }
 
+    void MeshRenderer::UpdateDrawBuffer()
+    {
 #if VR_VULKAN
         VkDrawIndexedIndirectCommand draw;
         draw.indexCount = m_mesh->GetSubmesh(m_submesh).index_count;
-        draw.instanceCount = 1;
+        draw.instanceCount = this->GetInstanceCount();
         draw.firstIndex = m_mesh->GetSubmesh(m_submesh).index_first;
         draw.vertexOffset = 0;
         draw.firstInstance = 0;

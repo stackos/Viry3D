@@ -45,11 +45,6 @@ namespace Viry3D
 		virtual ~CanvasRenderer();
 		virtual Ref<BufferObject> GetVertexBuffer() const;
 		virtual Ref<BufferObject> GetIndexBuffer() const;
-#if VR_VULKAN
-        virtual Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
-#elif VR_GLES
-        virtual const DrawBuffer& GetDrawBuffer() const { return m_draw_buffer; }
-#endif
 		virtual void Update();
         virtual void OnFrameEnd();
         virtual void OnResize(int width, int height);
@@ -57,6 +52,9 @@ namespace Viry3D
 		void RemoveView(const Ref<View>& view);
         void RemoveAllViews();
 		void MarkCanvasDirty();
+
+    protected:
+        virtual void UpdateDrawBuffer();
 
 	private:
         void CreateMaterial();
@@ -69,11 +67,6 @@ namespace Viry3D
         void HitViews(const Touch& t);
 
 	private:
-#if VR_VULKAN
-        Ref<BufferObject> m_draw_buffer;
-#elif VR_GLES
-        DrawBuffer m_draw_buffer;
-#endif
 		Vector<Ref<View>> m_views;
 		bool m_canvas_dirty;
 		Ref<Mesh> m_mesh;

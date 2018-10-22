@@ -38,6 +38,13 @@ namespace Viry3D
     };
 #endif
 
+    struct RendererInstanceTransform
+    {
+        Vector3 position;
+        Quaternion rotation;
+        Vector3 scale;
+    };
+
     class Renderer : public Node
     {
     public:
@@ -46,10 +53,11 @@ namespace Viry3D
         virtual Ref<BufferObject> GetVertexBuffer() const = 0;
         virtual Ref<BufferObject> GetIndexBuffer() const = 0;
 #if VR_VULKAN
-        virtual Ref<BufferObject> GetDrawBuffer() const = 0;
+        Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
 #elif VR_GLES
-        virtual const DrawBuffer& GetDrawBuffer() const = 0;
+        const DrawBuffer& GetDrawBuffer() const { return m_draw_buffer; }
 #endif
+        Ref<BufferObject> GetInstanceBuffer() const { return m_instance_buffer; }
         virtual void Update();
         virtual void OnFrameEnd() { }
         virtual void OnResize(int width, int height) { }
@@ -65,16 +73,33 @@ namespace Viry3D
 #elif VR_GLES
         void OnDraw();
 #endif
+        void AddInstance(const Vector3& pos, const Quaternion& rot, const Vector3& scale);
+        int GetInstanceCount() const;
 
     protected:
         virtual void OnMatrixDirty();
+        virtual void UpdateDrawBuffer() = 0;
         void SetInstanceMatrix(const String& name, const Matrix4x4& mat);
         void SetInstanceVectorArray(const String& name, const Vector<Vector4>& array);
+
+    private:
+        void UpdateInstanceBuffer();
+
+    protected:
+#if VR_VULKAN
+        Ref<BufferObject> m_draw_buffer;
+#elif VR_GLES
+        DrawBuffer m_draw_buffer;
+#endif
+        bool m_draw_buffer_dirty;
 
     private:
         Ref<Material> m_material;
         Ref<Material> m_instance_material;
         Camera* m_camera;
         bool m_model_matrix_dirty;
+        Vector<RendererInstanceTransform> m_instances;
+        Ref<BufferObject> m_instance_buffer;
+        bool m_instance_buffer_dirty;
     };
 }

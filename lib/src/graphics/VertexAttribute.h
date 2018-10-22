@@ -40,6 +40,14 @@ namespace Viry3D
 		Count
 	};
 
+    enum class InstanceVertexAttributeLocation
+    {
+        TransformMatrixRow0 = (int) VertexAttributeType::Count,
+        TransformMatrixRow1,
+        TransformMatrixRow2,
+        TransformMatrixRow3,
+    };
+
 	struct Vertex
 	{
 		Vector3 vertex;

@@ -57,10 +57,13 @@ namespace Viry3D
 
 		for (auto i : m_shaders)
 		{
-			VkPipeline* pipeline = nullptr;
-			if (i->m_pipelines.TryGet(render_pass, &pipeline))
+            Vector<Pipeline>* pipelines_ptr = nullptr;
+			if (i->m_pipelines.TryGet(render_pass, &pipelines_ptr))
 			{
-				vkDestroyPipeline(device, *pipeline, nullptr);
+                for (auto& j : *pipelines_ptr)
+                {
+                    vkDestroyPipeline(device, j.pipeline, nullptr);
+                }
 				i->m_pipelines.Remove(render_pass);
 			}
 		}
@@ -120,7 +123,10 @@ namespace Viry3D
 
         for (auto i : m_pipelines)
         {
-            vkDestroyPipeline(device, i.second, nullptr);
+            for (auto& j : i.second)
+            {
+                vkDestroyPipeline(device, j.pipeline, nullptr);
+            }
         }
         m_pipelines.Clear();
         vkDestroyDescriptorPool(device, m_descriptor_pool, nullptr);
@@ -144,31 +150,49 @@ namespace Viry3D
     }
 
 #if VR_VULKAN
-    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count)
+    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count, int instance_count)
     {
-        VkPipeline* pipeline_ptr;
-        if (m_pipelines.TryGet(render_pass, &pipeline_ptr))
+        Vector<Pipeline>* pipelines_ptr = nullptr;
+        if (m_pipelines.TryGet(render_pass, &pipelines_ptr))
         {
-            return *pipeline_ptr;
+            for (int i = 0; i < pipelines_ptr->Size(); ++i)
+            {
+                if ((*pipelines_ptr)[i].instance_count == instance_count)
+                {
+                    return (*pipelines_ptr)[i].pipeline;
+                }
+            }
+        }
+
+        Pipeline p;
+        p.instance_count = instance_count;
+
+        Display::Instance()->CreatePipeline(
+            render_pass,
+            m_vs_module,
+            m_fs_module,
+            m_render_state,
+            m_pipeline_layout,
+            m_pipeline_cache,
+            &p.pipeline,
+            color_attachment,
+            depth_attachment,
+            sample_count,
+            instance_count);
+
+        if (pipelines_ptr)
+        {
+            pipelines_ptr->Add(p);
         }
         else
         {
-            VkPipeline pipeline;
-            Display::Instance()->CreatePipeline(
-                render_pass,
-                m_vs_module,
-                m_fs_module,
-                m_render_state,
-                m_pipeline_layout,
-                m_pipeline_cache,
-                &pipeline,
-                color_attachment,
-                depth_attachment,
-                sample_count);
-            m_pipelines.Add(render_pass, pipeline);
+            Vector<Pipeline> pipelines;
+            pipelines.Add(p);
 
-            return pipeline;
+            m_pipelines.Add(render_pass, pipelines);
         }
+
+        return p.pipeline;
     }
 
     void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets)

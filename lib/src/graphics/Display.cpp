@@ -1862,7 +1862,8 @@ extern void UnbindSharedContext();
             VkPipeline* pipeline,
             bool color_attachment,
             bool depth_attachment,
-            int sample_count)
+            int sample_count,
+            int instance_count)
         {
             Vector<VkPipelineShaderStageCreateInfo> shader_stages;
             {
@@ -1894,11 +1895,13 @@ extern void UnbindSharedContext();
                 shader_stages.Add(stage_info);
             }
 
+            Vector<VkVertexInputBindingDescription> vi_binds;
             VkVertexInputBindingDescription vi_bind;
             Memory::Zero(&vi_bind, sizeof(vi_bind));
             vi_bind.binding = 0;
             vi_bind.stride = sizeof(Vertex);
             vi_bind.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            vi_binds.Add(vi_bind);
 
             Vector<VkVertexInputAttributeDescription> vi_attrs((int) VertexAttributeType::Count);
             Memory::Zero(&vi_attrs[0], vi_attrs.SizeInBytes());
@@ -1943,13 +1946,48 @@ extern void UnbindSharedContext();
             vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
 
+            if (instance_count > 1)
+            {
+                Memory::Zero(&vi_bind, sizeof(vi_bind));
+                vi_bind.binding = 1;
+                vi_bind.stride = sizeof(RendererInstanceTransform);
+                vi_bind.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
+                vi_binds.Add(vi_bind);
+
+                vi_attrs.Resize((int) VertexAttributeType::Count + 4);
+
+                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow0;
+                vi_attrs[location].location = location;
+                vi_attrs[location].binding = 1;
+                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+                vi_attrs[location].offset = 0;
+
+                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow1;
+                vi_attrs[location].location = location;
+                vi_attrs[location].binding = 1;
+                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+                vi_attrs[location].offset = sizeof(float) * 4;
+
+                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow2;
+                vi_attrs[location].location = location;
+                vi_attrs[location].binding = 1;
+                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+                vi_attrs[location].offset = sizeof(float) * 8;
+
+                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow3;
+                vi_attrs[location].location = location;
+                vi_attrs[location].binding = 1;
+                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+                vi_attrs[location].offset = sizeof(float) * 12;
+            }
+
             VkPipelineVertexInputStateCreateInfo vi;
             Memory::Zero(&vi, sizeof(vi));
             vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             vi.pNext = nullptr;
             vi.flags = 0;
-            vi.vertexBindingDescriptionCount = 1;
-            vi.pVertexBindingDescriptions = &vi_bind;
+            vi.vertexBindingDescriptionCount = (uint32_t) vi_binds.Size();
+            vi.pVertexBindingDescriptions = &vi_binds[0];
             vi.vertexAttributeDescriptionCount = (uint32_t) vi_attrs.Size();
             vi.pVertexAttributeDescriptions = &vi_attrs[0];
 
@@ -2220,7 +2258,8 @@ extern void UnbindSharedContext();
             const Rect& view_rect,
             const Ref<BufferObject>& vertex_buffer,
             const Ref<BufferObject>& index_buffer,
-            const Ref<BufferObject>& draw_buffer)
+            const Ref<BufferObject>& draw_buffer,
+            const Ref<BufferObject>& instance_buffer)
         {
             VkCommandBufferInheritanceInfo inheritance_info;
             Memory::Zero(&inheritance_info, sizeof(inheritance_info));
@@ -2266,6 +2305,10 @@ extern void UnbindSharedContext();
 
             VkDeviceSize offset = 0;
             vkCmdBindVertexBuffers(cmd, 0, 1, &vertex_buffer->GetBuffer(), &offset);
+            if (instance_buffer)
+            {
+                vkCmdBindVertexBuffers(cmd, 1, 1, &instance_buffer->GetBuffer(), &offset);
+            }
             vkCmdBindIndexBuffer(cmd, index_buffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
             vkCmdDrawIndexedIndirect(cmd, draw_buffer->GetBuffer(), 0, 1, 0);
 
@@ -3474,7 +3517,8 @@ void main()
         VkPipeline* pipeline,
         bool color_attachment,
         bool depth_attachment,
-        int sample_count)
+        int sample_count,
+        int instance_count)
     {
         m_private->CreatePipeline(
             render_pass,
@@ -3486,7 +3530,8 @@ void main()
             pipeline,
             color_attachment,
             depth_attachment,
-            sample_count);
+            sample_count,
+            instance_count);
     }
 
     void Display::CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)
@@ -3543,7 +3588,8 @@ void main()
         const Rect& view_rect,
         const Ref<BufferObject>& vertex_buffer,
         const Ref<BufferObject>& index_buffer,
-        const Ref<BufferObject>& draw_buffer)
+        const Ref<BufferObject>& draw_buffer,
+        const Ref<BufferObject>& instance_buffer)
     {
         m_private->BuildInstanceCmd(
             cmd,
@@ -3556,7 +3602,8 @@ void main()
             view_rect,
             vertex_buffer,
             index_buffer,
-            draw_buffer);
+            draw_buffer,
+            instance_buffer);
     }
 
 	void Display::BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass)
