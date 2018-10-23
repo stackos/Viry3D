@@ -29,6 +29,7 @@
 #if VR_IOS
 #include "DemoAR.h"
 #endif
+#include "DemoInstancing.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -37,8 +38,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - Instancing
-// - PBR
+// - PBR & Instancing
 // - SSAO
 // - VR Multiview
 // - GPU Particle
@@ -97,7 +97,8 @@ namespace Viry3D
                 "UI",
                 "ShadowMap",
                 "Audio",
-                "AR"
+                "AR",
+                "Instancing"
                 });
 
             const int top = (int) (90 * UI_SCALE);
@@ -210,6 +211,9 @@ namespace Viry3D
 #if VR_IOS
                     m_demo = new DemoAR();
 #endif
+                    break;
+                case 11:
+                    m_demo = new DemoInstancing();
                     break;
                 default:
                     break;

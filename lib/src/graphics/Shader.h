@@ -28,7 +28,7 @@ namespace Viry3D
     struct Pipeline
     {
         VkPipeline pipeline;
-        int instance_count;
+        bool instancing;
     };
 
     class Shader
@@ -49,7 +49,7 @@ namespace Viry3D
         const RenderState& GetRenderState() const { return m_render_state; }
 #if VR_VULKAN
         static void OnRenderPassDestroy(VkRenderPass render_pass);
-        VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count, int instance_count);
+        VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count, bool instancing);
         void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
         VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
 #elif VR_GLES

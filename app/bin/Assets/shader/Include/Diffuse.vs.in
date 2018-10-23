@@ -10,6 +10,10 @@
     #define RECIEVE_SHADOW 0
 #endif
 
+#ifndef INSTANCING
+    #define INSTANCING 0
+#endif
+
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
 	mat4 u_view_matrix;
@@ -55,6 +59,13 @@ Input(0) vec4 a_pos;
     #endif
 #endif
 
+#if (INSTANCING == 1)
+    Input(8) vec4 a_instance_matrix_row_0;
+	Input(9) vec4 a_instance_matrix_row_1;
+    Input(10) vec4 a_instance_matrix_row_2;
+    Input(11) vec4 a_instance_matrix_row_3;
+#endif
+
 void main()
 {
 #if (SKINNED_MESH == 1)
@@ -62,6 +73,11 @@ void main()
     SKIN_MAT(model_mat, a_bone_weights, a_bone_indices, buf_1_0.u_bones);
 #else
     mat4 model_mat = buf_1_0.u_model_matrix;
+#endif
+
+#if (INSTANCING == 1)
+    mat4 instance_mat = mat4(a_instance_matrix_row_0, a_instance_matrix_row_1, a_instance_matrix_row_2, a_instance_matrix_row_3);
+    model_mat = model_mat * instance_mat;
 #endif
 
 	gl_Position = a_pos * model_mat * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;

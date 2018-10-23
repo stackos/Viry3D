@@ -1863,7 +1863,7 @@ extern void UnbindSharedContext();
             bool color_attachment,
             bool depth_attachment,
             int sample_count,
-            int instance_count)
+            bool instancing)
         {
             Vector<VkPipelineShaderStageCreateInfo> shader_stages;
             {
@@ -1946,11 +1946,11 @@ extern void UnbindSharedContext();
             vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
 
-            if (instance_count > 1)
+            if (instancing)
             {
                 Memory::Zero(&vi_bind, sizeof(vi_bind));
                 vi_bind.binding = 1;
-                vi_bind.stride = sizeof(RendererInstanceTransform);
+                vi_bind.stride = sizeof(Matrix4x4);
                 vi_bind.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
                 vi_binds.Add(vi_bind);
 
@@ -3518,7 +3518,7 @@ void main()
         bool color_attachment,
         bool depth_attachment,
         int sample_count,
-        int instance_count)
+        bool instancing)
     {
         m_private->CreatePipeline(
             render_pass,
@@ -3531,7 +3531,7 @@ void main()
             color_attachment,
             depth_attachment,
             sample_count,
-            instance_count);
+            instancing);
     }
 
     void Display::CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)

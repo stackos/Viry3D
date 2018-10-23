@@ -43,6 +43,9 @@
     <ClInclude Include="..\..\src\DemoMSAA.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\DemoInstancing.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

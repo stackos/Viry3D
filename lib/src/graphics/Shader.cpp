@@ -150,14 +150,14 @@ namespace Viry3D
     }
 
 #if VR_VULKAN
-    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count, int instance_count)
+    VkPipeline Shader::GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int sample_count, bool instancing)
     {
         Vector<Pipeline>* pipelines_ptr = nullptr;
         if (m_pipelines.TryGet(render_pass, &pipelines_ptr))
         {
             for (int i = 0; i < pipelines_ptr->Size(); ++i)
             {
-                if ((*pipelines_ptr)[i].instance_count == instance_count)
+                if ((*pipelines_ptr)[i].instancing == instancing)
                 {
                     return (*pipelines_ptr)[i].pipeline;
                 }
@@ -165,7 +165,7 @@ namespace Viry3D
         }
 
         Pipeline p;
-        p.instance_count = instance_count;
+        p.instancing = instancing;
 
         Display::Instance()->CreatePipeline(
             render_pass,
@@ -178,7 +178,7 @@ namespace Viry3D
             color_attachment,
             depth_attachment,
             sample_count,
-            instance_count);
+            instancing);
 
         if (pipelines_ptr)
         {
