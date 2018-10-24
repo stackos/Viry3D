@@ -95,6 +95,7 @@ namespace Viry3D
 #elif VR_GLES
         m_draw_buffer.first_index = m_mesh->GetSubmesh(m_submesh).index_first;
         m_draw_buffer.index_count = m_mesh->GetSubmesh(m_submesh).index_count;
+        m_draw_buffer.instance_count = this->GetInstanceCount();
 #endif
     }
 }

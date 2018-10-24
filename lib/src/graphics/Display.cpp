@@ -1954,7 +1954,7 @@ extern void UnbindSharedContext();
                 vi_bind.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
                 vi_binds.Add(vi_bind);
 
-                vi_attrs.Resize((int) VertexAttributeType::Count + 4);
+                vi_attrs.Resize((int) VertexAttributeType::Count + INSTANCE_VERTEX_ATTR_COUNT);
 
                 location = (int) InstanceVertexAttributeLocation::TransformMatrixRow0;
                 vi_attrs[location].location = location;

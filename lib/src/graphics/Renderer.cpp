@@ -39,9 +39,10 @@ namespace Viry3D
         if (m_instance_buffer)
         {
             m_instance_buffer->Destroy(Display::Instance()->GetDevice());
-            m_instance_buffer.reset();
         }
 #endif
+
+        m_instance_buffer.reset();
     }
 
     void Renderer::SetMaterial(const Ref<Material>& material)
@@ -218,8 +219,9 @@ namespace Viry3D
         Ref<BufferObject> vertex_buffer = this->GetVertexBuffer();
         Ref<BufferObject> index_buffer = this->GetIndexBuffer();
         const DrawBuffer& draw_buffer = this->GetDrawBuffer();
+        Ref<BufferObject> instance_buffer = this->GetInstanceBuffer();
 
-        if (!material || !vertex_buffer || !index_buffer || draw_buffer.index_count == 0)
+        if (!material || !vertex_buffer || !index_buffer || draw_buffer.index_count == 0 || draw_buffer.instance_count == 0)
         {
             return;
         }
@@ -231,8 +233,17 @@ namespace Viry3D
         }
 
         vertex_buffer->Bind();
-        index_buffer->Bind();
         shader->EnableVertexAttribs();
+
+        if (draw_buffer.instance_count > 1 && Display::Instance()->IsGLESv3())
+        {
+            assert(instance_buffer);
+
+            instance_buffer->Bind();
+            shader->EnableInstanceVertexAttribs();
+        }
+
+        index_buffer->Bind();
         shader->ApplyRenderState();
         material->ApplyUniforms();
 
@@ -242,9 +253,22 @@ namespace Viry3D
             instance_material->ApplyUniforms();
         }
 
-        glDrawElements(GL_TRIANGLES, draw_buffer.index_count, GL_UNSIGNED_SHORT, (const void*) (draw_buffer.first_index * sizeof(unsigned short)));
+        if (draw_buffer.instance_count > 1 && Display::Instance()->IsGLESv3())
+        {
+            glDrawElementsInstanced(GL_TRIANGLES, draw_buffer.index_count, GL_UNSIGNED_SHORT, (const void*) (draw_buffer.first_index * sizeof(unsigned short)), draw_buffer.instance_count);
+        }
+        else
+        {
+            glDrawElements(GL_TRIANGLES, draw_buffer.index_count, GL_UNSIGNED_SHORT, (const void*) (draw_buffer.first_index * sizeof(unsigned short)));
+        }
 
         shader->DisableVertexAttribs();
+
+        if (draw_buffer.instance_count > 1 && Display::Instance()->IsGLESv3())
+        {
+            shader->DisableInstanceVertexAttribs();
+        }
+
         vertex_buffer->Unind();
         index_buffer->Unind();
 
@@ -318,7 +342,14 @@ namespace Viry3D
                 Display::Instance()->UpdateBuffer(m_instance_buffer, 0, mats.Bytes(), buffer_size);
             }
 #elif VR_GLES
-
+            if (!m_instance_buffer || m_instance_buffer->GetSize() < buffer_size)
+            {
+                m_instance_buffer = Display::Instance()->CreateBuffer(mats.Bytes(), buffer_size, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+            }
+            else
+            {
+                Display::Instance()->UpdateBuffer(m_instance_buffer, 0, mats.Bytes(), buffer_size);
+            }
 #endif
         }
     }

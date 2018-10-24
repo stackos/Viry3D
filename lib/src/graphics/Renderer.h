@@ -35,6 +35,7 @@ namespace Viry3D
     {
         int first_index;
         int index_count;
+        int instance_count;
     };
 #endif
 

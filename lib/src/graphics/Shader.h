@@ -25,11 +25,13 @@
 
 namespace Viry3D
 {
+#if VR_VULKAN
     struct Pipeline
     {
         VkPipeline pipeline;
         bool instancing;
     };
+#endif
 
     class Shader
     {
@@ -56,6 +58,8 @@ namespace Viry3D
         bool Use() const;
         void EnableVertexAttribs() const;
         void DisableVertexAttribs() const;
+        void EnableInstanceVertexAttribs() const;
+        void DisableInstanceVertexAttribs() const;
         void SetUniform1f(const String& name, float value) const;
         void SetUniform4f(const String& name, int count, const float* value) const;
         void SetUniform1i(const String& name, int value) const;

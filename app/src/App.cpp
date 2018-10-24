@@ -145,13 +145,20 @@ namespace Viry3D
                     button->GetLabel()->SetText("FXAA (disabled on gles2 / webgl)");
                 }
 
-                bool disable_msaa = !Display::Instance()->IsGLESv3();
-                if (disable_msaa && i == 5)
+                if (!Display::Instance()->IsGLESv3())
                 {
-                    disabled = true;
-                    button->GetLabel()->SetText("MSAA (disabled on gles2)");
+                    if (i == 5)
+                    {
+                        disabled = true;
+                        button->GetLabel()->SetText("MSAA (disabled on gles2)");
+                    }
+                    else if (i == 11)
+                    {
+                        disabled = true;
+                        button->GetLabel()->SetText("Instancing (disabled on gles2)");
+                    }
                 }
-#endif
+#endif // VR_GLES
                 
                 bool disable_ar = false;
 #if VR_IOS

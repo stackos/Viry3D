@@ -520,6 +520,7 @@ void main()
         {
             m_draw_buffer.index_count = 0;
         }
+        m_draw_buffer.instance_count = 1;
 #endif
     }
 

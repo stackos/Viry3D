@@ -712,9 +712,9 @@ namespace Viry3D
         Ref<BufferObject> index_buffer = renderer->GetIndexBuffer();
         Ref<BufferObject> draw_buffer = renderer->GetDrawBuffer();
         Ref<BufferObject> instance_buffer = renderer->GetInstanceBuffer();
-        bool instancing = renderer->GetInstanceCount() > 1;
+        int instance_count = renderer->GetInstanceCount();
 
-        if (!material || !vertex_buffer || !index_buffer || !draw_buffer)
+        if (!material || !vertex_buffer || !index_buffer || !draw_buffer || instance_count <= 0)
         {
             Display::Instance()->BuildEmptyInstanceCmd(cmd, m_render_pass);
             return;
@@ -760,7 +760,7 @@ namespace Viry3D
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
-            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count, instancing),
+            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count, instance_count > 1),
             descriptor_sets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),

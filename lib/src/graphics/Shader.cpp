@@ -375,6 +375,33 @@ namespace Viry3D
         }
     }
 
+    void Shader::EnableInstanceVertexAttribs() const
+    {
+        for (int i = 0; i < INSTANCE_VERTEX_ATTR_COUNT; ++i)
+        {
+            int loc = glGetAttribLocation(m_program, INSTANCE_VERTEX_ATTR_NAMES[i]);
+            if (loc >= 0)
+            {
+                glEnableVertexAttribArray(loc);
+                glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix4x4), (const void*) (size_t) (sizeof(float) * 4 * i));
+                glVertexAttribDivisor(loc, 1);
+            }
+        }
+    }
+
+    void Shader::DisableInstanceVertexAttribs() const
+    {
+        for (int i = 0; i < INSTANCE_VERTEX_ATTR_COUNT; ++i)
+        {
+            int loc = glGetAttribLocation(m_program, INSTANCE_VERTEX_ATTR_NAMES[i]);
+            if (loc >= 0)
+            {
+                glDisableVertexAttribArray(loc);
+                glVertexAttribDivisor(loc, 0);
+            }
+        }
+    }
+
     void Shader::SetUniform1f(const String& name, float value) const
     {
         for (int i = 0; i < m_uniforms.Size(); ++i)
