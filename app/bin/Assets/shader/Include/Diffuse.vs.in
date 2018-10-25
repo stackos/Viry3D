@@ -45,7 +45,7 @@ UniformBuffer(0, 0) uniform UniformBuffer00
     } buf_1_0;
 #endif
 
-Input(0) vec4 a_pos;
+Input(0) vec3 a_pos;
 
 #if (CAST_SHADOW == 0)
 	Input(2) vec2 a_uv;
@@ -80,14 +80,16 @@ void main()
     model_mat = model_mat * instance_mat;
 #endif
 
-	gl_Position = a_pos * model_mat * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
+    vec4 pos = vec4(a_pos, 1.0);
+
+	gl_Position = pos * model_mat * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
 
 #if (CAST_SHADOW == 0)
 	v_uv = a_uv * buf_0_0.u_uv_scale_offset.xy + buf_0_0.u_uv_scale_offset.zw;
     v_normal = normalize((vec4(a_normal, 0) * model_mat).xyz);
 
     #if (RECIEVE_SHADOW == 1)
-        v_pos_light_proj = a_pos * model_mat * buf_0_0.u_light_view_projection_matrix;
+        v_pos_light_proj = pos * model_mat * buf_0_0.u_light_view_projection_matrix;
     #endif
 #endif
 	

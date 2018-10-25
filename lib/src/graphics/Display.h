@@ -28,6 +28,7 @@
 #include "string/String.h"
 #include "math/Rect.h"
 #include "UniformSet.h"
+#include "VertexAttribute.h"
 #include "Action.h"
 
 namespace Viry3D
@@ -76,6 +77,7 @@ namespace Viry3D
             const String& fs_source,
             VkShaderModule* vs_module,
             VkShaderModule* fs_module,
+            Vector<VertexAttribute>& attributes,
             Vector<UniformSet>& uniform_sets);
         void CreatePipelineCache(VkPipelineCache* pipeline_cache);
         void CreatePipelineLayout(
@@ -84,6 +86,7 @@ namespace Viry3D
             VkPipelineLayout* pipeline_layout);
         void CreatePipeline(
             VkRenderPass render_pass,
+            const Vector<VertexAttribute>& attributes,
             VkShaderModule vs_module,
             VkShaderModule fs_module,
             const RenderState& render_state,

@@ -94,7 +94,7 @@ UniformBuffer(1, 0) uniform UniformBuffer10
 	mat4 u_model_matrix;
 } buf_1_0;
 
-Input(0) vec4 a_pos;
+Input(0) vec3 a_pos;
 Input(1) vec4 a_color;
 Input(2) vec2 a_uv;
 Input(3) vec2 a_uv2;
@@ -104,7 +104,7 @@ Output(1) vec4 v_color;
 
 void main()
 {
-	gl_Position = a_pos * buf_1_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
+	gl_Position = vec4(a_pos, 1.0) * buf_1_0.u_model_matrix * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
 	v_uv = vec3(a_uv, a_uv2.x);
 	v_color = a_color;
 
@@ -138,7 +138,7 @@ uniform mat4 u_view_matrix;
 uniform mat4 u_projection_matrix;
 uniform mat4 u_model_matrix;
 
-attribute vec4 a_pos;
+attribute vec3 a_pos;
 attribute vec4 a_color;
 attribute vec2 a_uv;
 
@@ -147,7 +147,7 @@ varying vec4 v_color;
 
 void main()
 {
-	gl_Position = a_pos * u_model_matrix * u_view_matrix * u_projection_matrix;
+	gl_Position = vec4(a_pos, 1.0) * u_model_matrix * u_view_matrix * u_projection_matrix;
     v_uv = a_uv;
 	v_color = a_color;
 }

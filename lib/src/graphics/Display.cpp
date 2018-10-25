@@ -20,7 +20,6 @@
 #include "Debug.h"
 #include "RenderState.h"
 #include "Color.h"
-#include "VertexAttribute.h"
 #include "BufferObject.h"
 #include "Camera.h"
 #include "Texture.h"
@@ -1631,6 +1630,7 @@ extern void UnbindSharedContext();
             const String& glsl,
             VkShaderStageFlagBits shader_type,
             VkShaderModule* module,
+            Vector<VertexAttribute>& attributes,
             Vector<UniformSet>& uniform_sets)
         {
             Vector<unsigned int> spirv;
@@ -1640,6 +1640,26 @@ extern void UnbindSharedContext();
             // reflect spirv
             spirv_cross::CompilerGLSL compiler(&spirv[0], spirv.Size());
             spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+            if (shader_type == VK_SHADER_STAGE_VERTEX_BIT)
+            {
+                for (const auto& resource : resources.stage_inputs)
+                {
+                    uint32_t location = compiler.get_decoration(resource.id, spv::DecorationLocation);
+                    const std::string& name = compiler.get_name(resource.id);
+                    const auto& type = compiler.get_type(resource.type_id);
+
+                    assert(type.basetype == spirv_cross::SPIRType::Float);
+                    assert(type.array.size() == 0);
+
+                    VertexAttribute attr;
+                    attr.location = location;
+                    attr.name = name.c_str();
+                    attr.vector_size = type.vecsize;
+
+                    attributes.Add(attr);
+                }
+            }
 
             for (const auto& resource : resources.uniform_buffers)
             {
@@ -1752,6 +1772,7 @@ extern void UnbindSharedContext();
             const String& fs_source,
             VkShaderModule* vs_module,
             VkShaderModule* fs_module,
+            Vector<VertexAttribute>& attributes,
             Vector<UniformSet>& uniform_sets)
         {
             Vector<String> includes;
@@ -1763,8 +1784,8 @@ extern void UnbindSharedContext();
             String vs = ProcessShaderSource(vs_source, vs_predefine, includes);
             String fs = ProcessShaderSource(fs_source, fs_predefine, fs_includes);
 
-            this->CreateGlslShaderModule(vs, VK_SHADER_STAGE_VERTEX_BIT, vs_module, uniform_sets);
-            this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, fs_module, uniform_sets);
+            this->CreateGlslShaderModule(vs, VK_SHADER_STAGE_VERTEX_BIT, vs_module, attributes, uniform_sets);
+            this->CreateGlslShaderModule(fs, VK_SHADER_STAGE_FRAGMENT_BIT, fs_module, attributes, uniform_sets);
 
             // sort by set
             List<UniformSet*> sets;
@@ -1854,6 +1875,7 @@ extern void UnbindSharedContext();
 
         void CreatePipeline(
             VkRenderPass render_pass,
+            const Vector<VertexAttribute>& attributes,
             VkShaderModule vs_module,
             VkShaderModule fs_module,
             const RenderState& render_state,
@@ -1903,48 +1925,50 @@ extern void UnbindSharedContext();
             vi_bind.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
             vi_binds.Add(vi_bind);
 
-            Vector<VkVertexInputAttributeDescription> vi_attrs((int) VertexAttributeType::Count);
-            Memory::Zero(&vi_attrs[0], vi_attrs.SizeInBytes());
-            int location = (int) VertexAttributeType::Vertex;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32B32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
-            location = (int) VertexAttributeType::Color;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
-            location = (int) VertexAttributeType::Texcoord;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
-            location = (int) VertexAttributeType::Texcoord2;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
-            location = (int) VertexAttributeType::Normal;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32B32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
-            location = (int) VertexAttributeType::Tangent;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
-            location = (int) VertexAttributeType::BlendWeight;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
-            location = (int) VertexAttributeType::BlendIndices;
-            vi_attrs[location].location = location;
-            vi_attrs[location].binding = 0;
-            vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            vi_attrs[location].offset = VERTEX_ATTR_OFFSETS[location];
+            Vector<VkVertexInputAttributeDescription> vi_attrs;
+            for (int i = 0; i < attributes.Size(); ++i)
+            {
+                int location = attributes[i].location;
+
+                if (location < (int) VertexAttributeType::Count)
+                {
+                    VkVertexInputAttributeDescription attr;
+                    attr.location = location;
+                    attr.binding = 0;
+                    switch (attributes[i].vector_size)
+                    {
+                    case 2:
+                        attr.format = VK_FORMAT_R32G32_SFLOAT;
+                        break;
+                    case 3:
+                        attr.format = VK_FORMAT_R32G32B32_SFLOAT;
+                        break;
+                    case 4:
+                        attr.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+                        break;
+                    default:
+                        assert(!"invalid vertex attribute vector size");
+                        break;
+                    }
+                    attr.offset = VERTEX_ATTR_OFFSETS[location];
+
+                    vi_attrs.Add(attr);
+                }
+                else if (instancing && location >= (int) InstanceVertexAttributeLocation::TransformMatrixRow0 && attributes[i].name.StartsWith("a_instance_"))
+                {
+                    VkVertexInputAttributeDescription attr;
+                    attr.location = location;
+                    attr.binding = 1;
+                    attr.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+                    attr.offset = sizeof(float) * 4 * (location - (int) InstanceVertexAttributeLocation::TransformMatrixRow0);
+
+                    vi_attrs.Add(attr);
+                }
+                else
+                {
+                    assert(!"invalid vertex attribute");
+                }
+            }
 
             if (instancing)
             {
@@ -1953,32 +1977,6 @@ extern void UnbindSharedContext();
                 vi_bind.stride = sizeof(Matrix4x4);
                 vi_bind.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
                 vi_binds.Add(vi_bind);
-
-                vi_attrs.Resize((int) VertexAttributeType::Count + INSTANCE_VERTEX_ATTR_COUNT);
-
-                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow0;
-                vi_attrs[location].location = location;
-                vi_attrs[location].binding = 1;
-                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-                vi_attrs[location].offset = 0;
-
-                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow1;
-                vi_attrs[location].location = location;
-                vi_attrs[location].binding = 1;
-                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-                vi_attrs[location].offset = sizeof(float) * 4;
-
-                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow2;
-                vi_attrs[location].location = location;
-                vi_attrs[location].binding = 1;
-                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-                vi_attrs[location].offset = sizeof(float) * 8;
-
-                location = (int) InstanceVertexAttributeLocation::TransformMatrixRow3;
-                vi_attrs[location].location = location;
-                vi_attrs[location].binding = 1;
-                vi_attrs[location].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-                vi_attrs[location].offset = sizeof(float) * 12;
             }
 
             VkPipelineVertexInputStateCreateInfo vi;
@@ -3088,14 +3086,14 @@ extern void UnbindSharedContext();
         {
 #if VR_VULKAN
             String vs = R"(
-Input(0) vec4 a_pos;
+Input(0) vec3 a_pos;
 Input(2) vec2 a_uv;
 
 Output(0) vec2 v_uv;
 
 void main()
 {
-	gl_Position = a_pos;
+	gl_Position = vec4(a_pos, 1.0);
 	v_uv = a_uv;
 
 	vulkan_convert();
@@ -3119,14 +3117,14 @@ void main()
             String vs = R"(
 uniform int u_flip_y;
 
-attribute vec4 a_pos;
+attribute vec3 a_pos;
 attribute vec2 a_uv;
 
 varying vec2 v_uv;
 
 void main()
 {
-	gl_Position = a_pos;
+	gl_Position = vec4(a_pos, 1.0);
 	v_uv = a_uv;
 
     if (u_flip_y == 1)
@@ -3480,6 +3478,7 @@ void main()
         const String& fs_source,
         VkShaderModule* vs_module,
         VkShaderModule* fs_module,
+        Vector<VertexAttribute>& attributes,
         Vector<UniformSet>& uniform_sets)
     {
         m_private->CreateShaderModule(
@@ -3491,6 +3490,7 @@ void main()
             fs_source,
             vs_module,
             fs_module,
+            attributes,
             uniform_sets);
     }
 
@@ -3509,6 +3509,7 @@ void main()
 
     void Display::CreatePipeline(
         VkRenderPass render_pass,
+        const Vector<VertexAttribute>& attributes,
         VkShaderModule vs_module,
         VkShaderModule fs_module,
         const RenderState& render_state,
@@ -3522,6 +3523,7 @@ void main()
     {
         m_private->CreatePipeline(
             render_pass,
+            attributes,
             vs_module,
             fs_module,
             render_state,

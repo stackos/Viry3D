@@ -31,14 +31,6 @@ namespace Viry3D
         "a_bone_indices"
     };
 
-    const char* INSTANCE_VERTEX_ATTR_NAMES[INSTANCE_VERTEX_ATTR_COUNT] =
-    {
-        "a_instance_matrix_row_0",
-        "a_instance_matrix_row_1",
-        "a_instance_matrix_row_2",
-        "a_instance_matrix_row_3",
-    };
-
     const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count] = {
         12, 16, 8, 8, 12, 16, 16, 16
     };

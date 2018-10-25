@@ -102,6 +102,7 @@ namespace Viry3D
         Vector<Uniform> m_uniforms;
 #endif
         RenderState m_render_state;
+        Vector<VertexAttribute> m_attributes;
         Vector<UniformSet> m_uniform_sets;
     };
 }

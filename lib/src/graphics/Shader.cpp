@@ -101,6 +101,7 @@ namespace Viry3D
             fs_source,
             &m_vs_module,
             &m_fs_module,
+            m_attributes,
             m_uniform_sets);
         Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
         Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
@@ -169,6 +170,7 @@ namespace Viry3D
 
         Display::Instance()->CreatePipeline(
             render_pass,
+            m_attributes,
             m_vs_module,
             m_fs_module,
             m_render_state,

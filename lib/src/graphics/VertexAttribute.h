@@ -40,8 +40,6 @@ namespace Viry3D
 		Count
 	};
 
-#define INSTANCE_VERTEX_ATTR_COUNT 4
-
     enum class InstanceVertexAttributeLocation
     {
         TransformMatrixRow0 = (int) VertexAttributeType::Count,
@@ -63,7 +61,13 @@ namespace Viry3D
 	};
 
 	extern const char* VERTEX_ATTR_NAMES[(int) VertexAttributeType::Count];
-    extern const char* INSTANCE_VERTEX_ATTR_NAMES[INSTANCE_VERTEX_ATTR_COUNT];
 	extern const int VERTEX_ATTR_SIZES[(int) VertexAttributeType::Count];
 	extern const int VERTEX_ATTR_OFFSETS[(int) VertexAttributeType::Count];
+
+    struct VertexAttribute
+    {
+        String name;
+        int location;
+        int vector_size;
+    };
 }

@@ -69,14 +69,14 @@ namespace Viry3D
 
 #if VR_VULKAN
             String vs = R"(
-Input(0) vec4 a_pos;
+Input(0) vec3 a_pos;
 Input(2) vec2 a_uv;
 
 Output(0) vec2 v_uv;
 
 void main()
 {
-	gl_Position = a_pos;
+	gl_Position = vec4(a_pos, 1.0);
 	v_uv = a_uv;
 
 	vulkan_convert();
@@ -132,14 +132,14 @@ void main()
                 render_state);
 #elif VR_GLES
             String vs = R"(
-in vec4 a_pos;
+in vec3 a_pos;
 in vec2 a_uv;
 
 out vec2 v_uv;
 
 void main()
 {
-    gl_Position = a_pos;
+    gl_Position = vec4(a_pos, 1.0);
     v_uv = vec2(a_uv.x, 1.0 - a_uv.y);
 }
 )";
