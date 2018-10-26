@@ -71,6 +71,9 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
 
 #define VSYNC 0
 #define DESCRIPTOR_POOL_SIZE_MAX 65536
+#define VERTEX_INPUT_BINDING_VERTEX 0
+#define VERTEX_INPUT_BINDING_INSTANCE 1
+
 #elif VR_GLES
 #if VR_MAC
 #import <AppKit/NSOpenGL.h>
@@ -1885,7 +1888,8 @@ extern void UnbindSharedContext();
             bool color_attachment,
             bool depth_attachment,
             int sample_count,
-            bool instancing)
+            bool instancing,
+            int instance_stride)
         {
             Vector<VkPipelineShaderStageCreateInfo> shader_stages;
             {
@@ -1920,7 +1924,7 @@ extern void UnbindSharedContext();
             Vector<VkVertexInputBindingDescription> vi_binds;
             VkVertexInputBindingDescription vi_bind;
             Memory::Zero(&vi_bind, sizeof(vi_bind));
-            vi_bind.binding = 0;
+            vi_bind.binding = VERTEX_INPUT_BINDING_VERTEX;
             vi_bind.stride = sizeof(Vertex);
             vi_bind.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
             vi_binds.Add(vi_bind);
@@ -1934,7 +1938,7 @@ extern void UnbindSharedContext();
                 {
                     VkVertexInputAttributeDescription attr;
                     attr.location = location;
-                    attr.binding = 0;
+                    attr.binding = VERTEX_INPUT_BINDING_VERTEX;
                     switch (attributes[i].vector_size)
                     {
                     case 2:
@@ -1958,7 +1962,7 @@ extern void UnbindSharedContext();
                 {
                     VkVertexInputAttributeDescription attr;
                     attr.location = location;
-                    attr.binding = 1;
+                    attr.binding = VERTEX_INPUT_BINDING_INSTANCE;
                     attr.format = VK_FORMAT_R32G32B32A32_SFLOAT;
                     attr.offset = sizeof(float) * 4 * (location - (int) InstanceVertexAttributeLocation::TransformMatrixRow0);
 
@@ -1973,8 +1977,8 @@ extern void UnbindSharedContext();
             if (instancing)
             {
                 Memory::Zero(&vi_bind, sizeof(vi_bind));
-                vi_bind.binding = 1;
-                vi_bind.stride = sizeof(Matrix4x4);
+                vi_bind.binding = VERTEX_INPUT_BINDING_INSTANCE;
+                vi_bind.stride = instance_stride;
                 vi_bind.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
                 vi_binds.Add(vi_bind);
             }
@@ -2302,10 +2306,10 @@ extern void UnbindSharedContext();
             vkCmdSetScissor(cmd, 0, 1, &scissor);
 
             VkDeviceSize offset = 0;
-            vkCmdBindVertexBuffers(cmd, 0, 1, &vertex_buffer->GetBuffer(), &offset);
+            vkCmdBindVertexBuffers(cmd, VERTEX_INPUT_BINDING_VERTEX, 1, &vertex_buffer->GetBuffer(), &offset);
             if (instance_buffer)
             {
-                vkCmdBindVertexBuffers(cmd, 1, 1, &instance_buffer->GetBuffer(), &offset);
+                vkCmdBindVertexBuffers(cmd, VERTEX_INPUT_BINDING_INSTANCE, 1, &instance_buffer->GetBuffer(), &offset);
             }
             vkCmdBindIndexBuffer(cmd, index_buffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
             vkCmdDrawIndexedIndirect(cmd, draw_buffer->GetBuffer(), 0, 1, 0);
@@ -3519,7 +3523,8 @@ void main()
         bool color_attachment,
         bool depth_attachment,
         int sample_count,
-        bool instancing)
+        bool instancing,
+        int instance_stride)
     {
         m_private->CreatePipeline(
             render_pass,
@@ -3533,7 +3538,8 @@ void main()
             color_attachment,
             depth_attachment,
             sample_count,
-            instancing);
+            instancing,
+            instance_stride);
     }
 
     void Display::CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)

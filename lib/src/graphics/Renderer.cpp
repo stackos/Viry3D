@@ -28,7 +28,8 @@ namespace Viry3D
         m_draw_buffer_dirty(true),
 		m_camera(nullptr),
         m_model_matrix_dirty(true),
-        m_instance_buffer_dirty(false)
+        m_instance_buffer_dirty(false),
+        m_instance_extra_vector_count(0)
     {
     
     }
@@ -302,6 +303,33 @@ namespace Viry3D
 #endif
     }
 
+    void Renderer::SetInstanceTransform(int instance_index, const Vector3& pos, const Quaternion& rot, const Vector3& scale)
+    {
+        RendererInstanceTransform &instacne = m_instances[instance_index];
+        instacne.position = pos;
+        instacne.rotation = rot;
+        instacne.scale = scale;
+
+        m_instance_buffer_dirty = true;
+    }
+
+    void Renderer::SetInstanceExtraVector(int instance_index, int vector_index, const Vector4& v)
+    {
+        RendererInstanceTransform &instacne = m_instances[instance_index];
+
+        if (instacne.verctors.Size() < vector_index + 1)
+        {
+            instacne.verctors.Resize(vector_index + 1);
+            if (m_instance_extra_vector_count < instacne.verctors.Size())
+            {
+                m_instance_extra_vector_count = instacne.verctors.Size();
+            }
+        }
+        instacne.verctors[vector_index] = v;
+
+        m_instance_buffer_dirty = true;
+    }
+
     int Renderer::GetInstanceCount() const
     {
         int count = m_instances.Size();
@@ -314,18 +342,29 @@ namespace Viry3D
         return count;
     }
 
+    int Renderer::GetInstanceStride() const
+    {
+        return sizeof(Vector4) * (4 + m_instance_extra_vector_count);
+    }
+
     void Renderer::UpdateInstanceBuffer()
     {
         int instance_count = this->GetInstanceCount();
         if (instance_count > 1)
         {
-            Vector<Matrix4x4> mats(instance_count);
-            for (int i = 0; i < mats.Size(); ++i)
+            Vector<Vector4> vectors(instance_count * (4 + m_instance_extra_vector_count));
+            for (int i = 0; i < instance_count; ++i)
             {
-                mats[i] = Matrix4x4::TRS(m_instances[i].position, m_instances[i].rotation, m_instances[i].scale);
+                Matrix4x4* mat = (Matrix4x4*) &vectors[i * (4 + m_instance_extra_vector_count) + 0];
+                *mat = Matrix4x4::TRS(m_instances[i].position, m_instances[i].rotation, m_instances[i].scale);
+
+                for (int j = 0; j < m_instances[i].verctors.Size(); ++j)
+                {
+                    vectors[i * (4 + m_instance_extra_vector_count) + 4 + j] = m_instances[i].verctors[j];
+                }
             }
 
-            int buffer_size = mats.SizeInBytes();
+            int buffer_size = vectors.SizeInBytes();
 
 #if VR_VULKAN
             if (!m_instance_buffer || m_instance_buffer->GetSize() < buffer_size)
@@ -335,20 +374,22 @@ namespace Viry3D
                     m_instance_buffer->Destroy(Display::Instance()->GetDevice());
                     m_instance_buffer.reset();
                 }
-                m_instance_buffer = Display::Instance()->CreateBuffer(mats.Bytes(), buffer_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+                m_instance_buffer = Display::Instance()->CreateBuffer(vectors.Bytes(), buffer_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+                this->MarkInstanceCmdDirty();
             }
             else
             {
-                Display::Instance()->UpdateBuffer(m_instance_buffer, 0, mats.Bytes(), buffer_size);
+                Display::Instance()->UpdateBuffer(m_instance_buffer, 0, vectors.Bytes(), buffer_size);
             }
 #elif VR_GLES
             if (!m_instance_buffer || m_instance_buffer->GetSize() < buffer_size)
             {
-                m_instance_buffer = Display::Instance()->CreateBuffer(mats.Bytes(), buffer_size, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+                m_instance_buffer = Display::Instance()->CreateBuffer(vectors.Bytes(), buffer_size, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
             }
             else
             {
-                Display::Instance()->UpdateBuffer(m_instance_buffer, 0, mats.Bytes(), buffer_size);
+                Display::Instance()->UpdateBuffer(m_instance_buffer, 0, vectors.Bytes(), buffer_size);
             }
 #endif
         }

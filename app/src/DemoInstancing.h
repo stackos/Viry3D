@@ -146,6 +146,11 @@ namespace Viry3D
                     }
                 }
             }
+
+            for (int i = 0; i < renderer->GetInstanceCount(); ++i)
+            {
+                renderer->SetInstanceExtraVector(i, 0, Vector4(1, 1, 1, 1));
+            }
         }
 
         void InitUI()

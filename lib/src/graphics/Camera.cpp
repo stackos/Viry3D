@@ -713,6 +713,7 @@ namespace Viry3D
         Ref<BufferObject> draw_buffer = renderer->GetDrawBuffer();
         Ref<BufferObject> instance_buffer = renderer->GetInstanceBuffer();
         int instance_count = renderer->GetInstanceCount();
+        int instance_stride = renderer->GetInstanceStride();
 
         if (!material || !vertex_buffer || !index_buffer || !draw_buffer || instance_count <= 0)
         {
@@ -760,7 +761,7 @@ namespace Viry3D
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
-            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count, instance_count > 1),
+            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count, instance_count > 1, instance_stride),
             descriptor_sets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),

@@ -44,6 +44,7 @@ namespace Viry3D
         Vector3 position;
         Quaternion rotation;
         Vector3 scale;
+        Vector<Vector4> verctors;
     };
 
     class Renderer : public Node
@@ -75,7 +76,10 @@ namespace Viry3D
         void OnDraw();
 #endif
         void AddInstance(const Vector3& pos, const Quaternion& rot, const Vector3& scale);
+        void SetInstanceTransform(int instance_index, const Vector3& pos, const Quaternion& rot, const Vector3& scale);
+        void SetInstanceExtraVector(int instance_index, int vector_index, const Vector4& v);
         int GetInstanceCount() const;
+        int GetInstanceStride() const;
 
     protected:
         virtual void OnMatrixDirty();
@@ -102,5 +106,6 @@ namespace Viry3D
         Vector<RendererInstanceTransform> m_instances;
         Ref<BufferObject> m_instance_buffer;
         bool m_instance_buffer_dirty;
+        int m_instance_extra_vector_count;
     };
 }

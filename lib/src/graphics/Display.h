@@ -96,7 +96,8 @@ namespace Viry3D
             bool color_attachment,
             bool depth_attachment,
             int sample_count,
-            bool instancing);
+            bool instancing,
+            int instance_stride);
         void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool);
         void CreateDescriptorSets(
             const Vector<UniformSet>& uniform_sets,
