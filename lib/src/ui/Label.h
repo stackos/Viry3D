@@ -66,6 +66,7 @@ namespace Viry3D
         void SetFont(const Ref<Font>& font);
         void SetFontStyle(FontStyle style);
         void SetFontSize(int size);
+        const String& GetText() const { return m_text; }
         void SetText(const String& text);
         void SetLineSpace(int space);
         void SetRich(bool rich);

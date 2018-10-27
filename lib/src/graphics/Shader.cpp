@@ -305,11 +305,39 @@ namespace Viry3D
             }
             else
             {
-                int uniform_count = 0;
-                glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &uniform_count);
-
                 const int name_size = 1024;
                 char name[name_size];
+
+                int attribute_count = 0;
+                glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &attribute_count);
+                for (int i = 0; i < attribute_count; ++i)
+                {
+                    Attribute a;
+                    glGetActiveAttrib(program, i, name_size, nullptr, &a.size, &a.type, name);
+                    a.name = name;
+                    a.loc = glGetAttribLocation(program, a.name.CString());
+
+                    switch (a.type)
+                    {
+                    case GL_FLOAT_VEC2:
+                        a.vector_size = 2;
+                        break;
+                    case GL_FLOAT_VEC3:
+                        a.vector_size = 3;
+                        break;
+                    case GL_FLOAT_VEC4:
+                        a.vector_size = 4;
+                        break;
+                    default:
+                        assert(!"invalid vertex attribute vector size");
+                        break;
+                    }
+
+                    m_attributes.Add(a);
+                }
+
+                int uniform_count = 0;
+                glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &uniform_count);
 
                 for (int i = 0; i < uniform_count; ++i)
                 {
@@ -374,33 +402,6 @@ namespace Viry3D
             if (loc >= 0)
             {
                 glDisableVertexAttribArray(loc);
-            }
-        }
-    }
-
-    void Shader::EnableInstanceVertexAttribs() const
-    {
-        for (int i = 0; i < INSTANCE_VERTEX_ATTR_COUNT; ++i)
-        {
-            int loc = glGetAttribLocation(m_program, INSTANCE_VERTEX_ATTR_NAMES[i]);
-            if (loc >= 0)
-            {
-                glEnableVertexAttribArray(loc);
-                glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix4x4), (const void*) (size_t) (sizeof(float) * 4 * i));
-                glVertexAttribDivisor(loc, 1);
-            }
-        }
-    }
-
-    void Shader::DisableInstanceVertexAttribs() const
-    {
-        for (int i = 0; i < INSTANCE_VERTEX_ATTR_COUNT; ++i)
-        {
-            int loc = glGetAttribLocation(m_program, INSTANCE_VERTEX_ATTR_NAMES[i]);
-            if (loc >= 0)
-            {
-                glDisableVertexAttribArray(loc);
-                glVertexAttribDivisor(loc, 0);
             }
         }
     }

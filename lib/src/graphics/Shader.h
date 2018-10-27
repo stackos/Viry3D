@@ -58,8 +58,6 @@ namespace Viry3D
         bool Use() const;
         void EnableVertexAttribs() const;
         void DisableVertexAttribs() const;
-        void EnableInstanceVertexAttribs() const;
-        void DisableInstanceVertexAttribs() const;
         void SetUniform1f(const String& name, float value) const;
         void SetUniform4f(const String& name, int count, const float* value) const;
         void SetUniform1i(const String& name, int value) const;
@@ -69,6 +67,15 @@ namespace Viry3D
 
     private:
 #if VR_GLES
+        struct Attribute
+        {
+            String name;
+            GLenum type;
+            int size;
+            int loc;
+            int vector_size;
+        };
+
         struct Uniform
         {
             String name;
@@ -97,12 +104,13 @@ namespace Viry3D
         VkPipelineLayout m_pipeline_layout;
         VkDescriptorPool m_descriptor_pool;
         Map<VkRenderPass, Vector<Pipeline>> m_pipelines;
+        Vector<VertexAttribute> m_attributes;
+        Vector<UniformSet> m_uniform_sets;
 #elif VR_GLES
         GLuint m_program;
+        Vector<Attribute> m_attributes;
         Vector<Uniform> m_uniforms;
 #endif
         RenderState m_render_state;
-        Vector<VertexAttribute> m_attributes;
-        Vector<UniformSet> m_uniform_sets;
     };
 }

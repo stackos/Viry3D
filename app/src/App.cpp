@@ -145,18 +145,21 @@ namespace Viry3D
                     button->GetLabel()->SetText("FXAA (disabled on gles2 / webgl)");
                 }
 
+                // need gles3
                 if (!Display::Instance()->IsGLESv3())
                 {
                     if (i == 5)
                     {
                         disabled = true;
-                        button->GetLabel()->SetText("MSAA (disabled on gles2)");
+                        button->GetLabel()->SetText(button->GetLabel()->GetText() + " (disabled on gles2)");
                     }
-                    else if (i == 11)
-                    {
-                        disabled = true;
-                        button->GetLabel()->SetText("Instancing (disabled on gles2)");
-                    }
+                }
+
+                // vulkan only
+                if (i == 11)
+                {
+                    disabled = true;
+                    button->GetLabel()->SetText(button->GetLabel()->GetText() + " (implement in vulkan only)");
                 }
 #endif // VR_GLES
                 

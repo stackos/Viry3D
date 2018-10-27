@@ -96,7 +96,6 @@ namespace Viry3D
         {
             RenderState render_state;
 
-#if VR_VULKAN
             auto shader = RefMake<Shader>(
                 "#define INSTANCING 1",
                 Vector<String>({ "Diffuse.vs.in" }),
@@ -105,16 +104,6 @@ namespace Viry3D
                 Vector<String>({ "Diffuse.fs.in" }),
                 "",
                 render_state);
-#elif VR_GLES
-            auto shader = RefMake<Shader>(
-                "#define INSTANCING 1",
-                Vector<String>({ "Diffuse.100.vs.in" }),
-                "",
-                "",
-                Vector<String>({ "Diffuse.100.fs.in" }),
-                "",
-                render_state);
-#endif
 
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());

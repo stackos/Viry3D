@@ -61,7 +61,7 @@ Input(0) vec3 a_pos;
 
 #if (INSTANCING == 1)
     Input(8) vec4 a_instance_matrix_row_0;
-	Input(9) vec4 a_instance_matrix_row_1;
+    Input(9) vec4 a_instance_matrix_row_1;
     Input(10) vec4 a_instance_matrix_row_2;
     Input(11) vec4 a_instance_matrix_row_3;
 #endif
