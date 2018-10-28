@@ -91,29 +91,23 @@
     <Image Include="Assets\texture\dawn\5.png">
       <Filter>Assets\texture\dawn</Filter>
     </Image>
-    <Image Include="Assets\texture\ui\0.png">
-      <Filter>Assets\texture\ui</Filter>
-    </Image>
-    <Image Include="Assets\texture\ui\1.png">
-      <Filter>Assets\texture\ui</Filter>
-    </Image>
-    <Image Include="Assets\texture\ui\2.png">
-      <Filter>Assets\texture\ui</Filter>
-    </Image>
-    <Image Include="Assets\texture\ui\3.png">
-      <Filter>Assets\texture\ui</Filter>
-    </Image>
-    <Image Include="Assets\texture\ui\4.png">
-      <Filter>Assets\texture\ui</Filter>
-    </Image>
-    <Image Include="Assets\texture\ui\5.png">
-      <Filter>Assets\texture\ui</Filter>
-    </Image>
     <Image Include="Assets\res\model\ToonSoldier 1\tex.png.tex.png">
       <Filter>Assets\res\model\ToonSoldier 1</Filter>
     </Image>
     <Image Include="Assets\texture\touch.png">
       <Filter>Assets\texture</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\button.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\circle.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\switch_off.png">
+      <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\ui\switch_on.png">
+      <Filter>Assets\texture\ui</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

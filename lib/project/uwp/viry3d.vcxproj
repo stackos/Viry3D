@@ -303,7 +303,10 @@
     <ClInclude Include="..\..\src\ui\Font.h" />
     <ClInclude Include="..\..\src\ui\Label.h" />
     <ClInclude Include="..\..\src\ui\ScrollView.h" />
+    <ClInclude Include="..\..\src\ui\SelectButton.h" />
+    <ClInclude Include="..\..\src\ui\Slider.h" />
     <ClInclude Include="..\..\src\ui\Sprite.h" />
+    <ClInclude Include="..\..\src\ui\SwitchButton.h" />
     <ClInclude Include="..\..\src\ui\View.h" />
     <ClInclude Include="..\..\src\xml\tinyxml2.h" />
   </ItemGroup>
@@ -696,7 +699,10 @@
     <ClCompile Include="..\..\src\ui\Font.cpp" />
     <ClCompile Include="..\..\src\ui\Label.cpp" />
     <ClCompile Include="..\..\src\ui\ScrollView.cpp" />
+    <ClCompile Include="..\..\src\ui\SelectButton.cpp" />
+    <ClCompile Include="..\..\src\ui\Slider.cpp" />
     <ClCompile Include="..\..\src\ui\Sprite.cpp" />
+    <ClCompile Include="..\..\src\ui\SwitchButton.cpp" />
     <ClCompile Include="..\..\src\ui\View.cpp" />
     <ClCompile Include="..\..\src\xml\tinyxml2.cpp" />
     <ClCompile Include="..\..\src\zlib\adler32.c" />
