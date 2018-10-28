@@ -341,9 +341,9 @@ namespace Viry3D
                 }
             }
 
-            int buffer_size = vectors.SizeInBytes();
-
 #if VR_VULKAN
+            int buffer_size = vectors.SizeInBytes();
+            
             if (!m_instance_buffer || m_instance_buffer->GetSize() < buffer_size)
             {
                 if (m_instance_buffer)

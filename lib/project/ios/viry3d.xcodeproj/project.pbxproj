@@ -234,6 +234,10 @@
 		BA1795421FBB594000D0B77E /* btQuickprof.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1794B51FBB589600D0B77E /* btQuickprof.cpp */; };
 		BA1795431FBB594000D0B77E /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1794B91FBB589600D0B77E /* btSerializer.cpp */; };
 		BA1795441FBB594000D0B77E /* btVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1794BF1FBB589600D0B77E /* btVector3.cpp */; };
+		BA1DC67E218575B20005A687 /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1DC676218575B10005A687 /* Sprite.cpp */; };
+		BA1DC67F218575B20005A687 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1DC679218575B10005A687 /* Slider.cpp */; };
+		BA1DC680218575B20005A687 /* SelectButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1DC67A218575B10005A687 /* SelectButton.cpp */; };
+		BA1DC681218575B20005A687 /* SwitchButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1DC67D218575B20005A687 /* SwitchButton.cpp */; };
 		BA2800BF1F69A56500215483 /* latlon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA28006F1F69A53400215483 /* latlon.cpp */; };
 		BA2800C01F69A56500215483 /* noisegen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800BA1F69A53400215483 /* noisegen.cpp */; };
 		BA2800C11F69A56500215483 /* noiseutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800BC1F69A53400215483 /* noiseutils.cpp */; };
@@ -348,7 +352,6 @@
 		D137757220FEE03100E4F19B /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756620FEE03000E4F19B /* Font.cpp */; };
 		D137757320FEE03100E4F19B /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756720FEE03000E4F19B /* View.cpp */; };
 		D137757520FEE03100E4F19B /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756D20FEE03100E4F19B /* Button.cpp */; };
-		D137757620FEE03100E4F19B /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137756F20FEE03100E4F19B /* Sprite.cpp */; };
 		D137758220FEF92200E4F19B /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = BA2800691F69A48500215483 /* md5.c */; };
 		D137759620FEFAA100E4F19B /* spirv_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137758520FEFAA000E4F19B /* spirv_glsl.cpp */; };
 		D137759720FEFAA100E4F19B /* spirv_cfg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D137758820FEFAA000E4F19B /* spirv_cfg.cpp */; };
@@ -784,6 +787,14 @@
 		BA1794C01FBB589600D0B77E /* btVector3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = btVector3.h; sourceTree = "<group>"; };
 		BA1794C11FBB589600D0B77E /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		BA1794C21FBB589600D0B77E /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; };
+		BA1DC676218575B10005A687 /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sprite.cpp; sourceTree = "<group>"; };
+		BA1DC677218575B10005A687 /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sprite.h; sourceTree = "<group>"; };
+		BA1DC678218575B10005A687 /* SwitchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwitchButton.h; sourceTree = "<group>"; };
+		BA1DC679218575B10005A687 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Slider.cpp; sourceTree = "<group>"; };
+		BA1DC67A218575B10005A687 /* SelectButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectButton.cpp; sourceTree = "<group>"; };
+		BA1DC67B218575B10005A687 /* SelectButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectButton.h; sourceTree = "<group>"; };
+		BA1DC67C218575B20005A687 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Slider.h; sourceTree = "<group>"; };
+		BA1DC67D218575B20005A687 /* SwitchButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SwitchButton.cpp; sourceTree = "<group>"; };
 		BA2800691F69A48500215483 /* md5.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = md5.c; sourceTree = "<group>"; };
 		BA28006A1F69A48500215483 /* md5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = md5.h; sourceTree = "<group>"; };
 		BA28006F1F69A53400215483 /* latlon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = latlon.cpp; sourceTree = "<group>"; };
@@ -951,8 +962,6 @@
 		D137756C20FEE03000E4F19B /* View.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = View.h; sourceTree = "<group>"; };
 		D137756D20FEE03100E4F19B /* Button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Button.cpp; sourceTree = "<group>"; };
 		D137756E20FEE03100E4F19B /* Button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Button.h; sourceTree = "<group>"; };
-		D137756F20FEE03100E4F19B /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sprite.cpp; sourceTree = "<group>"; };
-		D137757020FEE03100E4F19B /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sprite.h; sourceTree = "<group>"; };
 		D137757A20FEE0C200E4F19B /* vulkan_include.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vulkan_include.h; path = ../vulkan/vulkan_include.h; sourceTree = "<group>"; };
 		D137758520FEFAA000E4F19B /* spirv_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = spirv_glsl.cpp; sourceTree = "<group>"; };
 		D137758620FEFAA000E4F19B /* spirv_hlsl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = spirv_hlsl.hpp; sourceTree = "<group>"; };
@@ -1289,8 +1298,14 @@
 				D137756920FEE03000E4F19B /* Label.h */,
 				BA66598E2157FE7A009822E7 /* ScrollView.cpp */,
 				BA66598F2157FE7A009822E7 /* ScrollView.h */,
-				D137756F20FEE03100E4F19B /* Sprite.cpp */,
-				D137757020FEE03100E4F19B /* Sprite.h */,
+				BA1DC67A218575B10005A687 /* SelectButton.cpp */,
+				BA1DC67B218575B10005A687 /* SelectButton.h */,
+				BA1DC679218575B10005A687 /* Slider.cpp */,
+				BA1DC67C218575B20005A687 /* Slider.h */,
+				BA1DC676218575B10005A687 /* Sprite.cpp */,
+				BA1DC677218575B10005A687 /* Sprite.h */,
+				BA1DC67D218575B20005A687 /* SwitchButton.cpp */,
+				BA1DC678218575B10005A687 /* SwitchButton.h */,
 				D137756720FEE03000E4F19B /* View.cpp */,
 				D137756C20FEE03000E4F19B /* View.h */,
 			);
@@ -2311,6 +2326,7 @@
 				BA17950F1FBB594000D0B77E /* btPolyhedralConvexShape.cpp in Sources */,
 				BA1795101FBB594000D0B77E /* btScaledBvhTriangleMeshShape.cpp in Sources */,
 				BA1795111FBB594000D0B77E /* btShapeHull.cpp in Sources */,
+				BA1DC680218575B20005A687 /* SelectButton.cpp in Sources */,
 				BA1795121FBB594000D0B77E /* btSphereShape.cpp in Sources */,
 				BA1795131FBB594000D0B77E /* btStaticPlaneShape.cpp in Sources */,
 				BA1795141FBB594000D0B77E /* btStridingMeshInterface.cpp in Sources */,
@@ -2385,6 +2401,7 @@
 				9AF23F396FBB281D37CB6EF7 /* ftfntfmt.c in Sources */,
 				7DE3137340E93CC94A0910D6 /* ftfstype.c in Sources */,
 				BAB243292120ACE300BA07DE /* AnimationCurve.cpp in Sources */,
+				BA1DC67F218575B20005A687 /* Slider.cpp in Sources */,
 				D90DA02E9DD9F51F8233693C /* ftgasp.c in Sources */,
 				6DFE0BD2C3CE34DA54CE4AAF /* ftglyph.c in Sources */,
 				632D68128E2FB2A39FC36F75 /* ftgxval.c in Sources */,
@@ -2402,6 +2419,7 @@
 				BA42E68D1FF5455E009C3C01 /* ltablib.c in Sources */,
 				39FFE80C13B0BE7538993503 /* fttype1.c in Sources */,
 				D12113B52150FED100D20456 /* AudioSource.cpp in Sources */,
+				BA1DC67E218575B20005A687 /* Sprite.cpp in Sources */,
 				BA42E6731FF5455E009C3C01 /* lauxlib.c in Sources */,
 				BA2800C91F69A59F00215483 /* const.cpp in Sources */,
 				F32307B2866177C2AC4B83F4 /* ftwinfnt.c in Sources */,
@@ -2536,7 +2554,6 @@
 				D137758220FEF92200E4F19B /* md5.c in Sources */,
 				6CA8AD102752F0CD7900EE5E /* fixed.c in Sources */,
 				D054A53CAD44041A2F4677FC /* frame.c in Sources */,
-				D137757620FEE03100E4F19B /* Sprite.cpp in Sources */,
 				BA2800DC1F69A59F00215483 /* translatepoint.cpp in Sources */,
 				35DB6347AAB1FE517F7D28E1 /* huffman.c in Sources */,
 				370E80DA324238E2DEEF0456 /* layer3.c in Sources */,
@@ -2587,6 +2604,7 @@
 				BA2800E11F69A5AA00215483 /* plane.cpp in Sources */,
 				9745315FEE70823AA02CB4B1 /* Directory.cpp in Sources */,
 				AF1ADEB9AA1BDE0C54F8E9D4 /* File.cpp in Sources */,
+				BA1DC681218575B20005A687 /* SwitchButton.cpp in Sources */,
 				BA2800D61F69A59F00215483 /* rotatepoint.cpp in Sources */,
 				0D38EBCA88D24954CEEB572C /* MemoryStream.cpp in Sources */,
 				D137755E20FEDFD800E4F19B /* VertexAttribute.cpp in Sources */,

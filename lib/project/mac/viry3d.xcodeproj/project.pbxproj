@@ -121,6 +121,9 @@
 		B23CE046F8FEBD4E69CB3480 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0A0746AF27944110C2A49E /* Debug.cpp */; };
 		B45C9216530B87E4D2EBE2DB /* jcmarker.c in Sources */ = {isa = PBXBuildFile; fileRef = 17355765131A2C89A896DD6D /* jcmarker.c */; };
 		B7F992C9053E2A6FE7964ECC /* jcdctmgr.c in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC43939CFE8BAAA7FC308C /* jcdctmgr.c */; };
+		BA1DC672218571240005A687 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1DC66C218571230005A687 /* Slider.cpp */; };
+		BA1DC673218571240005A687 /* SelectButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1DC66D218571230005A687 /* SelectButton.cpp */; };
+		BA1DC674218571240005A687 /* SwitchButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1DC670218571230005A687 /* SwitchButton.cpp */; };
 		BA2800BF1F69A56500215483 /* latlon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA28006F1F69A53400215483 /* latlon.cpp */; };
 		BA2800C01F69A56500215483 /* noisegen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800BA1F69A53400215483 /* noisegen.cpp */; };
 		BA2800C11F69A56500215483 /* noiseutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA2800BC1F69A53400215483 /* noiseutils.cpp */; };
@@ -508,6 +511,12 @@
 		B53DF4BFB246FF51308F9377 /* jdapimin.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = jdapimin.c; sourceTree = "<group>"; };
 		B97E96A203610FDA26FA077B /* pngwutil.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngwutil.c; sourceTree = "<group>"; };
 		B99E7BA9BF67EE3FC2BCA4E5 /* Frustum.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Frustum.h; sourceTree = "<group>"; };
+		BA1DC66B218571230005A687 /* SwitchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwitchButton.h; sourceTree = "<group>"; };
+		BA1DC66C218571230005A687 /* Slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Slider.cpp; sourceTree = "<group>"; };
+		BA1DC66D218571230005A687 /* SelectButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectButton.cpp; sourceTree = "<group>"; };
+		BA1DC66E218571230005A687 /* SelectButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectButton.h; sourceTree = "<group>"; };
+		BA1DC66F218571230005A687 /* Slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Slider.h; sourceTree = "<group>"; };
+		BA1DC670218571230005A687 /* SwitchButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SwitchButton.cpp; sourceTree = "<group>"; };
 		BA2800691F69A48500215483 /* md5.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = md5.c; sourceTree = "<group>"; };
 		BA28006A1F69A48500215483 /* md5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = md5.h; sourceTree = "<group>"; };
 		BA28006F1F69A53400215483 /* latlon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = latlon.cpp; sourceTree = "<group>"; };
@@ -1284,8 +1293,14 @@
 				D1D42A3D211156350016A265 /* Label.h */,
 				BA66598A2157FE08009822E7 /* ScrollView.cpp */,
 				BA66598B2157FE08009822E7 /* ScrollView.h */,
+				BA1DC66D218571230005A687 /* SelectButton.cpp */,
+				BA1DC66E218571230005A687 /* SelectButton.h */,
+				BA1DC66C218571230005A687 /* Slider.cpp */,
+				BA1DC66F218571230005A687 /* Slider.h */,
 				D1D42A3A211156340016A265 /* Sprite.cpp */,
 				D1D42A38211156340016A265 /* Sprite.h */,
+				BA1DC670218571230005A687 /* SwitchButton.cpp */,
+				BA1DC66B218571230005A687 /* SwitchButton.h */,
 				D1D42A36211156340016A265 /* View.cpp */,
 				D1D42A37211156340016A265 /* View.h */,
 			);
@@ -2347,6 +2362,7 @@
 				BA4FAC141FBB558500C1ADB7 /* btGeometryUtil.cpp in Sources */,
 				D1D42A41211156350016A265 /* Label.cpp in Sources */,
 				BA4FAC151FBB558500C1ADB7 /* btPolarDecomposition.cpp in Sources */,
+				BA1DC674218571240005A687 /* SwitchButton.cpp in Sources */,
 				BA4FAC161FBB558500C1ADB7 /* btQuickprof.cpp in Sources */,
 				BA4FAC171FBB558500C1ADB7 /* btSerializer.cpp in Sources */,
 				BA4FAC181FBB558500C1ADB7 /* btVector3.cpp in Sources */,
@@ -2407,6 +2423,7 @@
 				BA42E6091FF54251009C3C01 /* lstring.c in Sources */,
 				1ABA0762EB0AFDBF7C6A0D1D /* raster.c in Sources */,
 				BA2800D11F69A59F00215483 /* modulebase.cpp in Sources */,
+				BA1DC673218571240005A687 /* SelectButton.cpp in Sources */,
 				944B77BCD52B756A2F07B16F /* sfnt.c in Sources */,
 				7CA58EFEE7C9D4AE1E720B1F /* smooth.c in Sources */,
 				1D2C3F2625B12BD6CA8A16B8 /* truetype.c in Sources */,
@@ -2573,6 +2590,7 @@
 				96B95601AD13395558342731 /* ByteBuffer.cpp in Sources */,
 				BA42E6051FF54251009C3C01 /* lfunc.c in Sources */,
 				BA2800CF1F69A59F00215483 /* max.cpp in Sources */,
+				BA1DC672218571240005A687 /* Slider.cpp in Sources */,
 				BA42E61B1FF54251009C3C01 /* ldebug.c in Sources */,
 				BA2800DA1F69A59F00215483 /* spheres.cpp in Sources */,
 				BA8AA36F2005213500B7FDC2 /* lpprint.c in Sources */,

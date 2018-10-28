@@ -45,6 +45,7 @@
 /* Begin PBXFileReference section */
 		BA12989720FE36B400DC815A /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
 		BA12989B20FE387700DC815A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		BA1DC6822185883A0005A687 /* DemoMSAA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoMSAA.h; path = ../../src/DemoMSAA.h; sourceTree = "<group>"; };
 		BA2800E61F69A71100215483 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../../bin/Assets; sourceTree = "<group>"; };
 		BA4551CF21404D8C003188B1 /* DemoPostEffectBlur.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoPostEffectBlur.h; path = ../../src/DemoPostEffectBlur.h; sourceTree = "<group>"; };
 		BA4551D021404D8D003188B1 /* DemoSkybox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoSkybox.h; path = ../../src/DemoSkybox.h; sourceTree = "<group>"; };
@@ -134,6 +135,7 @@
 				BA4551D821404D8E003188B1 /* Demo.h */,
 				BA4551D421404D8D003188B1 /* DemoAR.h */,
 				BA4551D321404D8D003188B1 /* DemoFXAA.h */,
+				BA1DC6822185883A0005A687 /* DemoMSAA.h */,
 				BA4551D121404D8D003188B1 /* DemoMesh.h */,
 				BA4551CF21404D8C003188B1 /* DemoPostEffectBlur.h */,
 				BA4551D221404D8D003188B1 /* DemoRenderToTexture.h */,

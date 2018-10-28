@@ -320,7 +320,7 @@ namespace Viry3D
 
         AudioClipPrivate* clip = (AudioClipPrivate*) data;
         
-        int bytes = header->bitrate / header->samplerate / pcm->channels;
+        int bytes = (int) (header->bitrate / header->samplerate / pcm->channels);
         assert(bytes == 1 || bytes == 2);
 
         const int max_sample = 1152;

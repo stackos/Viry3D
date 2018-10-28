@@ -1156,7 +1156,14 @@ namespace Viry3D
 #endif
             break;
         case TextureFormat::R8G8B8A8:
-            texture->m_internal_format = GL_RGBA;
+            if (Display::Instance()->IsGLESv3())
+            {
+                texture->m_internal_format = GL_RGBA8;
+            }
+            else
+            {
+                texture->m_internal_format = GL_RGBA;
+            }
             texture->m_format = GL_RGBA;
             texture->m_pixel_type = GL_UNSIGNED_BYTE;
             break;

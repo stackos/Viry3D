@@ -86,7 +86,10 @@ API_AVAILABLE(ios(11.0))
 {
     ARWorldTrackingConfiguration* config = [ARWorldTrackingConfiguration new];
     config.planeDetection = ARPlaneDetectionHorizontal;
-    config.environmentTexturing = AREnvironmentTexturingAutomatic;
+    if (@available(iOS 12, *))
+    {
+        config.environmentTexturing = AREnvironmentTexturingAutomatic;
+    }
     
     [self.session runWithConfiguration:config];
 }
@@ -169,43 +172,46 @@ API_AVAILABLE(ios(11.0))
     for (int i = 0; i < [anchors count]; ++i)
     {
         ARAnchor* anchor = [anchors objectAtIndex:i];
-        if ([anchor isKindOfClass:[AREnvironmentProbeAnchor class]])
+        if (@available(iOS 12, *))
         {
-            AREnvironmentProbeAnchor* env = (AREnvironmentProbeAnchor*) anchor;
-            id<MTLTexture> texture = [env environmentTexture];
-            MTLTextureType type = [texture textureType];
-            MTLPixelFormat format = [texture pixelFormat];
-            int level_count = (int) [texture mipmapLevelCount];
-            int width = (int) [texture width];
-            int height = (int) [texture height];
-            
-            if (type != MTLTextureTypeCube)
+            if ([anchor isKindOfClass:[AREnvironmentProbeAnchor class]])
             {
-                continue;
-            }
-
-            assert(format == MTLPixelFormatBGRA8Unorm_sRGB);
-            assert(width == height);
-            
-            if (!m_texture_env || m_texture_env->GetWidth() != width || m_texture_env->GetHeight() != height)
-            {
-                m_texture_env = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, FilterMode::Trilinear, SamplerAddressMode::ClampToEdge, true);
-            }
-            
-            ByteBuffer buffer(width * height * 4);
-            int w = width;
-            int h = height;
-            
-            for (int j = 0; j < level_count;  ++j)
-            {
-                for (int k = 0; k < 6; ++k)
+                AREnvironmentProbeAnchor* env = (AREnvironmentProbeAnchor*) anchor;
+                id<MTLTexture> texture = [env environmentTexture];
+                MTLTextureType type = [texture textureType];
+                MTLPixelFormat format = [texture pixelFormat];
+                int level_count = (int) [texture mipmapLevelCount];
+                int width = (int) [texture width];
+                int height = (int) [texture height];
+                
+                if (type != MTLTextureTypeCube)
                 {
-                    [texture getBytes:buffer.Bytes() bytesPerRow:w * 4 bytesPerImage:w * h * 4 fromRegion:MTLRegionMake2D(0, 0, w, h) mipmapLevel:j slice:k];
-                    
-                    m_texture_env->UpdateCubemap(buffer, (CubemapFace) k, j);
+                    continue;
                 }
-                w = w >> 1;
-                h = h >> 1;
+                
+                assert(format == MTLPixelFormatBGRA8Unorm_sRGB);
+                assert(width == height);
+                
+                if (!m_texture_env || m_texture_env->GetWidth() != width || m_texture_env->GetHeight() != height)
+                {
+                    m_texture_env = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, FilterMode::Trilinear, SamplerAddressMode::ClampToEdge, true);
+                }
+                
+                ByteBuffer buffer(width * height * 4);
+                int w = width;
+                int h = height;
+                
+                for (int j = 0; j < level_count;  ++j)
+                {
+                    for (int k = 0; k < 6; ++k)
+                    {
+                        [texture getBytes:buffer.Bytes() bytesPerRow:w * 4 bytesPerImage:w * h * 4 fromRegion:MTLRegionMake2D(0, 0, w, h) mipmapLevel:j slice:k];
+                        
+                        m_texture_env->UpdateCubemap(buffer, (CubemapFace) k, j);
+                    }
+                    w = w >> 1;
+                    h = h >> 1;
+                }
             }
         }
     }
@@ -383,7 +389,10 @@ namespace Viry3D
     
     ARScene::ARScene()
     {
-        g_session = [SessionDelegate new];
+        if (@available(iOS 11, *))
+        {
+            g_session = [SessionDelegate new];
+        }
     }
     
     ARScene::~ARScene()
