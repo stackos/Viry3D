@@ -1,6 +1,11 @@
 #ifndef PBR_INCLUDE
 #define PBR_INCLUDE
 
+samplerCUBE u_environment;
+half3 u_ambient;
+half3 u_lightDir;
+half3 u_lightColor;
+
 //#define LIGHTMAP_ON
 //#define SPECULARHIGHLIGHTS_OFF
 //#define GLOSSYREFLECTIONS_OFF
@@ -15,20 +20,6 @@
 #define PI 3.14159265359f
 #define INV_PI 0.31830988618f
 #define SPECCUBE_LOD_STEPS 6
-
-sampler2D _MainTex;
-sampler2D _Normal;
-sampler2D _MetallicSmoothness;
-half _Metallic;
-half _Smoothness;
-sampler2D _Occlusion;
-half _OcclusionStrength;
-sampler2D _Emission;
-half3 _EmissionColor;
-samplerCUBE _Environment;
-half3 _Ambient;
-half3 _LightDir;
-half3 _LightColor;
 
 struct appdata
 {
@@ -163,7 +154,7 @@ half3 GIDiffuse(half occlusion, float2 lightmapUV, half3 normal)
             ambient = LinearToGammaSpace(ambient);
         #endif
     #else
-        half3 ambient = _Ambient;
+        half3 ambient = u_ambient;
     #endif
 
     diffuse = ambient;
@@ -190,7 +181,7 @@ half3 GlossyEnvironment(half perceptualRoughness, half3 reflUVW)
 
     half mip = perceptualRoughnessToMipmapLevel(perceptualRoughness);
     half3 R = reflUVW;
-    half4 rgbm = texCUBElod(_Environment, half4(R, mip));
+    half4 rgbm = texCUBElod(u_environment, half4(R, mip));
 
     return DecodeHDR(rgbm, unity_SpecCube0_HDR);
 }
@@ -289,8 +280,8 @@ half4 frag (v2f i) : SV_Target
     s.Normal = normalize(tangent * normalTangent.x + binormal * normalTangent.y + normal * normalTangent.z);
 
     float3 viewDir = normalize(i.viewDir);
-    half3 lightDir = -normalize(_LightDir);
-    half3 lightColor = _LightColor;
+    half3 lightDir = -normalize(u_lightDir);
+    half3 lightColor = u_lightColor;
 
 	return Lighting(s, viewDir, lightDir, lightColor, i.uv.zw);
 }

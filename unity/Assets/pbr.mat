@@ -4,10 +4,10 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: FloorPanel03_Mat
-  m_Shader: {fileID: 4800000, guid: 7ff8da7e42461214db78adf70ab88ff5, type: 3}
+  m_Name: pbr
+  m_Shader: {fileID: 4800000, guid: c7d8370460e704d4591c2c6c44297d03, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -30,10 +30,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _DetailNormal:
-        m_Texture: {fileID: 2800000, guid: 43bd30cb870826743a41d0e34b93f8ff, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -47,11 +43,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Environment:
-        m_Texture: {fileID: 8900000, guid: 0f08f71956d0c8a48b45f036b1290406, type: 3}
+        m_Texture: {fileID: 8900000, guid: 30b04f646f240d24bbc28722397b8b36, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: fe6e0008cf479b2439528655c1d12c93, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -59,15 +55,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicSmoothness:
-        m_Texture: {fileID: 2800000, guid: 17a017a187a21cf43b22a32528992a2b, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal:
-        m_Texture: {fileID: 2800000, guid: 1b213a32af412be4c91764bd04e8091a, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Occlusion:
-        m_Texture: {fileID: 2800000, guid: 30734bfd7dfa25849bb05e7400f49366, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -78,51 +74,59 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _SpecGlossMap:
+    - u_emission:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _TopAlbedo:
-        m_Texture: {fileID: 2800000, guid: 08d28ba069973a249a02f3d948c1ee95, type: 3}
+    - u_environment:
+        m_Texture: {fileID: 8900000, guid: 30b04f646f240d24bbc28722397b8b36, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _TopDetailNormal:
-        m_Texture: {fileID: 2800000, guid: f999d4ceee96f4e4291c01e50ecb1793, type: 3}
-        m_Scale: {x: 5, y: 5}
-        m_Offset: {x: 0, y: 0}
-    - _TopMetallicSmoothness:
-        m_Texture: {fileID: 2800000, guid: 486f1ecff2d832b45aee70ebcef2fc11, type: 3}
+    - u_metallic_smoothness:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _TopNormal:
-        m_Texture: {fileID: 2800000, guid: 69008d9d6f7f65d4da4c3f164772bcf8, type: 3}
+    - u_normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - u_occlusion:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - u_texture:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DetailScale: 5
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 1
+    - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 1
     - _Mode: 0
-    - _OcclusionStrength: 0.56
+    - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Smoothness: 1
+    - _Smoothness: 0.935
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TopMetallic: 0
-    - _TopSmoothness: 0
     - _UVSec: 0
     - _ZWrite: 1
+    - u_metallic: 1
+    - u_occlusion_strength: 1
+    - u_smoothness: 0.859
     m_Colors:
-    - _Ambient: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+    - _Ambient: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LightColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
-    - _LightDir: {r: 0, g: -1, b: 0, a: 0}
-    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _LightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LightDir: {r: 0, g: 0, b: 1, a: 0}
+    - u_ambient: {r: 0, g: 0, b: 0, a: 1}
+    - u_color: {r: 1, g: 1, b: 1, a: 1}
+    - u_emission_color: {r: 0, g: 0, b: 0, a: 1}
+    - u_lightColor: {r: 1, g: 1, b: 1, a: 1}
+    - u_lightDir: {r: 0, g: 0, b: 1, a: 0}
