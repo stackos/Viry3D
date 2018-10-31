@@ -56,7 +56,7 @@ public class GameObjectExporter
 
             string go_name;
 
-            var prefab = PrefabUtility.GetPrefabParent(obj);
+            var prefab = PrefabUtility.GetCorrespondingObjectFromSource(obj);
             if (prefab)
             {
                 string asset_path = AssetDatabase.GetAssetPath(prefab);
