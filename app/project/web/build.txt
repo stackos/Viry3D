@@ -1,5 +1,5 @@
 emcc ../../../lib/src/crypto/md5/md5.c \
-	../../../lib/src/freetype/src/autofit/autofit.c \
+    ../../../lib/src/freetype/src/autofit/autofit.c \
     ../../../lib/src/freetype/src/base/ftbase.c \
     ../../../lib/src/freetype/src/base/ftbbox.c \
     ../../../lib/src/freetype/src/base/ftbitmap.c \
@@ -38,7 +38,7 @@ emcc ../../../lib/src/crypto/md5/md5.c \
     ../../../lib/src/freetype/src/type1/type1.c \
     ../../../lib/src/freetype/src/type42/type42.c \
     ../../../lib/src/freetype/src/winfonts/winfnt.c \
-	../../../lib/src/jpeg/jaricom.c \
+    ../../../lib/src/jpeg/jaricom.c \
     ../../../lib/src/jpeg/jcapimin.c \
     ../../../lib/src/jpeg/jcapistd.c \
     ../../../lib/src/jpeg/jcarith.c \
@@ -84,7 +84,7 @@ emcc ../../../lib/src/crypto/md5/md5.c \
     ../../../lib/src/jpeg/jquant1.c \
     ../../../lib/src/jpeg/jquant2.c \
     ../../../lib/src/jpeg/jutils.c \
-	../../../lib/src/png/png.c \
+    ../../../lib/src/png/png.c \
     ../../../lib/src/png/pngerror.c \
     ../../../lib/src/png/pngget.c \
     ../../../lib/src/png/pngmem.c \
@@ -99,93 +99,56 @@ emcc ../../../lib/src/crypto/md5/md5.c \
     ../../../lib/src/png/pngwrite.c \
     ../../../lib/src/png/pngwtran.c \
     ../../../lib/src/png/pngwutil.c \
-	../../../lib/src/zlib/adler32.c \
-	../../../lib/src/zlib/compress.c \
-	../../../lib/src/zlib/crc32.c \
-	../../../lib/src/zlib/deflate.c \
-	../../../lib/src/zlib/gzclose.c \
-	../../../lib/src/zlib/gzlib.c \
-	../../../lib/src/zlib/gzread.c \
-	../../../lib/src/zlib/gzwrite.c \
-	../../../lib/src/zlib/infback.c \
-	../../../lib/src/zlib/inffast.c \
-	../../../lib/src/zlib/inflate.c \
-	../../../lib/src/zlib/inftrees.c \
-	../../../lib/src/zlib/ioapi.c \
-	../../../lib/src/zlib/trees.c \
-	../../../lib/src/zlib/uncompr.c \
+    ../../../lib/src/zlib/adler32.c \
+    ../../../lib/src/zlib/compress.c \
+    ../../../lib/src/zlib/crc32.c \
+    ../../../lib/src/zlib/deflate.c \
+    ../../../lib/src/zlib/gzclose.c \
+    ../../../lib/src/zlib/gzlib.c \
+    ../../../lib/src/zlib/gzread.c \
+    ../../../lib/src/zlib/gzwrite.c \
+    ../../../lib/src/zlib/infback.c \
+    ../../../lib/src/zlib/inffast.c \
+    ../../../lib/src/zlib/inflate.c \
+    ../../../lib/src/zlib/inftrees.c \
+    ../../../lib/src/zlib/ioapi.c \
+    ../../../lib/src/zlib/trees.c \
+    ../../../lib/src/zlib/uncompr.c \
     ../../../lib/src/zlib/unzip.c \
-	../../../lib/src/zlib/zutil.c \
-	-I ../../../lib/src \
-	-I ../../../lib/src/freetype/include \
-	-I ../../../lib/src/zlib \
-	-D FT2_BUILD_LIBRARY \
-	-s WASM=1 -O3 -c
+    ../../../lib/src/zlib/zutil.c \
+    -I ../../../lib/src \
+    -I ../../../lib/src/freetype/include \
+    -I ../../../lib/src/zlib \
+    -D FT2_BUILD_LIBRARY \
+    -s WASM=1 -O3 -c
 
 emcc ../../../lib/src/json/json_reader.cpp \
     ../../../lib/src/json/json_value.cpp \
-	-I ../../../lib/src \
-	-s WASM=1 -O3 -c
+    -I ../../../lib/src \
+    -s WASM=1 -O3 -c
 
 emcc Main.cpp \
-	../../src/App.cpp \
-	../../../lib/src/animation/Animation.cpp \
-    ../../../lib/src/animation/AnimationCurve.cpp \
-    ../../../lib/src/audio/AudioClip.cpp \
-    ../../../lib/src/audio/AudioListener.cpp \
-    ../../../lib/src/audio/AudioManager.cpp \
-    ../../../lib/src/audio/AudioSource.cpp \
-    ../../../lib/src/Application.cpp \
-    ../../../lib/src/Debug.cpp \
-    ../../../lib/src/graphics/Camera.cpp \
-    ../../../lib/src/graphics/Color.cpp \
-    ../../../lib/src/graphics/Display.cpp \
-    ../../../lib/src/graphics/Image.cpp \
-    ../../../lib/src/graphics/Light.cpp \
-    ../../../lib/src/graphics/Material.cpp \
-    ../../../lib/src/graphics/Mesh.cpp \
-    ../../../lib/src/graphics/MeshRenderer.cpp \
-    ../../../lib/src/graphics/Renderer.cpp \
-    ../../../lib/src/graphics/Shader.cpp \
-    ../../../lib/src/graphics/SkinnedMeshRenderer.cpp \
-    ../../../lib/src/graphics/Texture.cpp \
-    ../../../lib/src/graphics/VertexAttribute.cpp \
-    ../../../lib/src/io/Directory.cpp \
-    ../../../lib/src/io/File.cpp \
-    ../../../lib/src/io/MemoryStream.cpp \
-    ../../../lib/src/io/Stream.cpp \
-    ../../../lib/src/Input.cpp \
-    ../../../lib/src/math/Bounds.cpp \
-    ../../../lib/src/math/Frustum.cpp \
-    ../../../lib/src/math/Mathf.cpp \
-    ../../../lib/src/math/Matrix4x4.cpp \
-    ../../../lib/src/math/Quaternion.cpp \
-    ../../../lib/src/math/Ray.cpp \
-    ../../../lib/src/math/Rect.cpp \
-    ../../../lib/src/math/Vector2.cpp \
-    ../../../lib/src/math/Vector3.cpp \
-    ../../../lib/src/memory/ByteBuffer.cpp \
-    ../../../lib/src/Node.cpp \
-    ../../../lib/src/Resources.cpp \
-    ../../../lib/src/string/String.cpp \
-    ../../../lib/src/thread/ThreadPool.cpp \
-    ../../../lib/src/time/Time.cpp \
-    ../../../lib/src/ui/Button.cpp \
-    ../../../lib/src/ui/CanvasRenderer.cpp \
-    ../../../lib/src/ui/Font.cpp \
-    ../../../lib/src/ui/Label.cpp \
-    ../../../lib/src/ui/ScrollView.cpp \
-    ../../../lib/src/ui/Sprite.cpp \
-    ../../../lib/src/ui/View.cpp \
-	-I ../../src \
-	-I ../../../lib/src \
-	-I ../../../lib/src/freetype/include \
-	-I ../../../lib/src/zlib \
-	-D VR_WASM -D VR_GLES -D FT2_BUILD_LIBRARY \
-	-std=c++11 -s WASM=1 -O3 -c
+    ../../src/*.cpp \
+    ../../../lib/src/animation/*.cpp \
+    ../../../lib/src/audio/*.cpp \
+    ../../../lib/src/graphics/*.cpp \
+    ../../../lib/src/io/*.cpp \
+    ../../../lib/src/math/*.cpp \
+    ../../../lib/src/memory/*.cpp \
+    ../../../lib/src/string/*.cpp \
+    ../../../lib/src/thread/*.cpp \
+    ../../../lib/src/time/*.cpp \
+    ../../../lib/src/ui/*.cpp \
+    ../../../lib/src/*.cpp \
+    -I ../../src \
+    -I ../../../lib/src \
+    -I ../../../lib/src/freetype/include \
+    -I ../../../lib/src/zlib \
+    -D VR_WASM -D VR_GLES -D FT2_BUILD_LIBRARY \
+    -std=c++11 -s WASM=1 -O3 -c
 
 emcc *.o -s WASM=1 -O3 -o viry3d.js \
-	-s NO_EXIT_RUNTIME=1 -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap"]' \
-	-s ALLOW_MEMORY_GROWTH=1 \
-	-s USE_WEBGL2=1 \
-	--preload-file Assets
+    -s NO_EXIT_RUNTIME=1 -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap"]' \
+    -s ALLOW_MEMORY_GROWTH=1 \
+    -s USE_WEBGL2=1 \
+    --preload-file Assets
