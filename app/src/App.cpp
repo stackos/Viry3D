@@ -38,12 +38,13 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - PBR & Instancing
+// - Instancing & PBR
+// - PBR with lightmap
 // - SSAO
 // - VR Multiview
 // - GPU Particle
 // - Ray Tracing
-// - wasm save path
+// - wasm save path for write file
 
 namespace Viry3D
 {
@@ -98,7 +99,7 @@ namespace Viry3D
                 "ShadowMap",
                 "Audio",
                 "AR",
-                "Instancing"
+                "Instancing & PBR"
                 });
 
             const int top = (int) (90 * UI_SCALE);

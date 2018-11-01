@@ -32,10 +32,10 @@ struct appdata
 
 struct v2f
 {
+    float4 vertex               : SV_POSITION;
     float4 uv                   : TEXCOORD0;
     float3 viewDir              : TEXCOORD1;
     float4 tangentToWorld[3]    : TEXCOORD2;
-    float4 vertex               : SV_POSITION;
 };
 
 struct SurfaceOutputStandard
