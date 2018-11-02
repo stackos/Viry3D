@@ -7,8 +7,6 @@ half3 u_lightDir;
 half3 u_lightColor;
 
 //#define LIGHTMAP_ON
-//#define SPECULARHIGHLIGHTS_OFF
-//#define GLOSSYREFLECTIONS_OFF
 //#define SH_ON
 #define COLORSPACE_GAMMA
 
@@ -190,11 +188,7 @@ half3 GISpecular(half occlusion, half perceptualRoughness, half3 reflUVW)
 {
     half3 specular = 0;
 
-#ifdef GLOSSYREFLECTIONS_OFF
-    specular = unity_IndirectSpecColor.rgb;
-#else
     specular = GlossyEnvironment(perceptualRoughness, reflUVW);
-#endif
     specular = specular * occlusion;
 
     return specular;
@@ -222,9 +216,7 @@ half4 BRDF_PBS(half3 diffColor, half3 specColor, half oneMinusReflectivity, half
     specularTerm = sqrt(max(1e-4h, specularTerm));
 #endif
     specularTerm = max(0, specularTerm * nl);
-#ifdef SPECULARHIGHLIGHTS_OFF
-    specularTerm = 0.0;
-#endif
+    specularTerm *= any(specColor) ? 1.0 : 0.0;
 
     half surfaceReduction;
 #ifdef COLORSPACE_GAMMA
@@ -232,7 +224,6 @@ half4 BRDF_PBS(half3 diffColor, half3 specColor, half oneMinusReflectivity, half
 #else
     surfaceReduction = 1.0 / (roughness*roughness + 1.0);
 #endif
-    specularTerm *= any(specColor) ? 1.0 : 0.0;
 
     half grazingTerm = saturate(smoothness + (1 - oneMinusReflectivity));
     half3 color = diffColor * (giDiffuse + lightColor * diffuseTerm)

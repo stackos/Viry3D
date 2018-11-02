@@ -60,9 +60,9 @@ namespace Viry3D
             float light_intensity;
         };
         LightParam m_light_param = {
-            Color(0.2f, 0.2f, 0.2f, 1),
+            Color(0, 0, 0, 1),
             Color(1, 1, 1, 1),
-            0.8f
+            1.0f
         };
 
         Camera* m_camera = nullptr;
@@ -106,8 +106,18 @@ namespace Viry3D
                 render_state);
 
             auto material = RefMake<Material>(shader);
+            material->SetColor("u_color", Color(1, 1, 1, 1));
             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
             material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
+            material->SetTexture("u_normal", Texture::GetSharedNormalTexture());
+            material->SetTexture("u_metallic_smoothness", Texture::GetSharedWhiteTexture());
+            material->SetFloat("u_metallic", 0.0f);
+            material->SetFloat("u_smoothness", 0.0f);
+            material->SetTexture("u_occlusion", Texture::GetSharedWhiteTexture());
+            material->SetFloat("u_occlusion_strength", 1.0f);
+            material->SetTexture("u_emission", Texture::GetSharedBlackTexture());
+            material->SetColor("u_emission_color", Color(0, 0, 0, 0));
+            material->SetTexture("u_environment", Texture::GetSharedCubemap());
             material->SetLightProperties(m_light);
 
             // sphere
