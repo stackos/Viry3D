@@ -47,8 +47,8 @@ namespace Viry3D
             float far_clip;
         };
         CameraParam m_camera_param = {
-            Vector3(0, 20, -30),
-            Vector3(30, 0, 0),
+            Vector3(9 * 1.2f / 2, 9 * 1.2f / 2, -15),
+            Vector3(0, 0, 0),
             45,
             0.3f,
             1000
@@ -94,6 +94,8 @@ namespace Viry3D
 
         void InitMesh()
         {
+            auto env = Resources::LoadTexture("texture/env/env.jpg.tex");
+
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
@@ -111,13 +113,13 @@ namespace Viry3D
             material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
             material->SetTexture("u_normal", Texture::GetSharedNormalTexture());
             material->SetTexture("u_metallic_smoothness", Texture::GetSharedWhiteTexture());
-            material->SetFloat("u_metallic", 0.0f);
-            material->SetFloat("u_smoothness", 0.0f);
+            material->SetFloat("u_metallic", 1.0f);
+            material->SetFloat("u_smoothness", 1.0f);
             material->SetTexture("u_occlusion", Texture::GetSharedWhiteTexture());
             material->SetFloat("u_occlusion_strength", 1.0f);
             material->SetTexture("u_emission", Texture::GetSharedBlackTexture());
             material->SetColor("u_emission_color", Color(0, 0, 0, 0));
-            material->SetTexture("u_environment", Texture::GetSharedCubemap());
+            material->SetTexture("u_environment", env);
             material->SetLightProperties(m_light);
 
             // sphere
@@ -131,9 +133,9 @@ namespace Viry3D
 
             renderer->SetLocalPosition(Vector3(0, 0, 0));
 
-            for (int i = -10; i <= 10; ++i)
+            for (int i = 0; i < 10; ++i)
             {
-                for (int j = -10; j <= 10; ++j)
+                for (int j = 0; j < 10; ++j)
                 {
                     if (i == 0 && j == 0)
                     {
@@ -141,7 +143,7 @@ namespace Viry3D
                     }
                     else
                     {
-                        renderer->AddInstance(Vector3(i * 1.5f, j * 1.5f, 0), Quaternion::Identity(), Vector3(1, 1, 1));
+                        renderer->AddInstance(Vector3(i * 1.2f, j * 1.2f, 0), Quaternion::Identity(), Vector3(1, 1, 1));
                     }
                 }
             }

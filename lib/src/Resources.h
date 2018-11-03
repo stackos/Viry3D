@@ -22,10 +22,12 @@
 namespace Viry3D
 {
     class Node;
+    class Texture;
 
     class Resources
     {
     public:
-        static Ref<Node> Load(const String& path);
+        static Ref<Node> LoadNode(const String& path);
+        static Ref<Texture> LoadTexture(const String& path);
     };
 }

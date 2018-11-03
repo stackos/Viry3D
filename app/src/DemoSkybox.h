@@ -137,7 +137,7 @@ void main()
                     int width;
                     int height;
                     int bpp;
-                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/dawn/%d.png").CString(), i), width, height, bpp);
+                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/dawn/%d.png").CString(), i), width, height, bpp);
                     cubemap->UpdateCubemap(pixels, (CubemapFace) i, 0);
                 }
                 return cubemap;

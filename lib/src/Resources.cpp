@@ -67,6 +67,26 @@ namespace Viry3D
                 texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1);
                 texture->SetName(texture_name);
             }
+            else if (texture_type == "Cubemap")
+            {
+                int mipmap_count = ms.Read<int>();
+
+                texture = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, filter_mode, wrap_mode, mipmap_count > 1);
+
+                for (int i = 0; i < mipmap_count; ++i)
+                {
+                    for (int j = 0; j < 6; ++j)
+                    {
+                        String face_path = ReadString(ms);
+
+                        int w;
+                        int h;
+                        int bpp;
+                        ByteBuffer pixels = Texture::LoadImageFromFile(Application::Instance()->GetDataPath() + "/" + face_path, w, h, bpp);
+                        texture->UpdateCubemap(pixels, (CubemapFace) j, i);
+                    }
+                }
+            }
         }
 
         g_loading_cache.Add(path, texture);
@@ -349,7 +369,7 @@ namespace Viry3D
         return node;
     }
 
-    Ref<Node> Resources::Load(const String& path)
+    Ref<Node> Resources::LoadNode(const String& path)
     {
         Ref<Node> node;
 
@@ -364,5 +384,16 @@ namespace Viry3D
         }
 
         return node;
+    }
+
+    Ref<Texture> Resources::LoadTexture(const String& path)
+    {
+        Ref<Texture> texture;
+
+        texture = ReadTexture(path);
+
+        g_loading_cache.Clear();
+
+        return texture;
     }
 }

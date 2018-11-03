@@ -68,7 +68,7 @@ namespace Viry3D
             Shader::AddCache("SkinnedMesh/Diffuse", shader);
 
             // load skinned mesh with animation
-            auto node = Resources::Load("res/model/ToonSoldier 1/ToonSoldier 1.go");
+            auto node = Resources::LoadNode("res/model/ToonSoldier 1/ToonSoldier 1.go");
             m_anim = RefCast<Animation>(node);
 
             auto skin = RefCast<SkinnedMeshRenderer>(m_anim->Find("MESH_Infantry"));

@@ -158,7 +158,7 @@ precision highp float;
         perceptual_roughness = perceptual_roughness * (1.7 - 0.7 * perceptual_roughness);
 
         float mip = perceptual_roughness_to_mipmap_level(perceptual_roughness);
-        vec4 env = texture(u_environment, refl_uvw, mip);
+        vec4 env = textureLod(u_environment, refl_uvw, mip);
 
         return env.rgb;
     }
