@@ -6,6 +6,10 @@
     #define RECIEVE_SHADOW 0
 #endif
 
+#ifndef INSTANCING
+    #define INSTANCING 0
+#endif
+
 #ifndef NROMAL_MAP
     #define NROMAL_MAP 0
 #endif
@@ -62,18 +66,21 @@ precision highp float;
     #endif
 
 	Input(0) vec4 v_uv;
-    
-    #if (NROMAL_MAP == 1)
-        Input(1) vec4 v_tangent_to_world[3];
-    #else
-        Input(1) vec3 v_normal;
-    #endif
+    Input(1) vec3 v_view_dir;
 
     #if (RECIEVE_SHADOW == 1)
         Input(2) vec4 v_pos_light_proj;
     #endif
 
-    Input(3) vec3 v_view_dir;
+    #if (INSTANCING == 1)
+        Input(3) vec4 v_metallic_smoothness;
+    #endif
+
+    #if (NROMAL_MAP == 1)
+        Input(4) vec4 v_tangent_to_world[3];
+    #else
+        Input(4) vec3 v_normal;
+    #endif
 
 	Output(0) vec4 o_frag;
 
@@ -96,6 +103,11 @@ precision highp float;
         float smoothness = metallic_smoothness.g * buf_0_2.u_smoothness;
         float occlusion = mix(1.0, texture(u_occlusion, uv).g, buf_0_2.u_occlusion_strength);
         vec4 emission = texture(u_emission, uv) * buf_0_2.u_emission_color;
+
+        #if (INSTANCING == 1)
+            metallic *= v_metallic_smoothness.x;
+            smoothness *= v_metallic_smoothness.y;
+        #endif
 
         #if (NROMAL_MAP == 1)
             s.normal = texture(u_normal, uv).xyz * 2.0 - 1.0;

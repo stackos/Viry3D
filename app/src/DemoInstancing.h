@@ -60,16 +60,16 @@ namespace Viry3D
             float light_intensity;
         };
         LightParam m_light_param = {
-            Color(0, 0, 0, 1),
+            Color(0.2f, 0.2f, 0.2f, 1),
             Color(1, 1, 1, 1),
-            1.0f
+            0.8f
         };
 
         Camera* m_camera = nullptr;
         Camera* m_ui_camera = nullptr;
-        Vector<Ref<MeshRenderer>> m_renderers;
         Label* m_label = nullptr;
         Ref<Light> m_light;
+        Ref<Material> m_material;
 
         void InitCamera()
         {
@@ -86,7 +86,7 @@ namespace Viry3D
         void InitLight()
         {
             m_light = RefMake<Light>(LightType::Directional);
-            m_light->SetLocalRotation(Quaternion::Euler(45, 60, 0));
+            m_light->SetLocalRotation(Quaternion::Euler(45, 45, 0));
             m_light->SetAmbientColor(m_light_param.ambient_color);
             m_light->SetColor(m_light_param.light_color);
             m_light->SetIntensity(m_light_param.light_intensity);
@@ -99,15 +99,19 @@ namespace Viry3D
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
-                "#define INSTANCING 1",
+                "#define INSTANCING 1\n"
+                "#define NROMAL_MAP 1",
                 Vector<String>({ "PBR.vs.in" }),
                 "",
-                "",
+                "#define INSTANCING 1\n"
+                "#define NROMAL_MAP 1",
                 Vector<String>({ "PBR.fs.in" }),
                 "",
                 render_state);
 
             auto material = RefMake<Material>(shader);
+            m_material = material;
+
             material->SetColor("u_color", Color(1, 1, 1, 1));
             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
             material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
@@ -129,7 +133,6 @@ namespace Viry3D
             renderer->SetMaterial(material);
             renderer->SetMesh(sphere);
             m_camera->AddRenderer(renderer);
-            m_renderers.Add(renderer);
 
             renderer->SetLocalPosition(Vector3(0, 0, 0));
 
@@ -148,9 +151,12 @@ namespace Viry3D
                 }
             }
 
-            for (int i = 0; i < renderer->GetInstanceCount(); ++i)
+            for (int i = 0; i < 10; ++i)
             {
-                renderer->SetInstanceExtraVector(i, 0, Vector4(1, 1, 1, 1));
+                for (int j = 0; j < 10; ++j)
+                {
+                    renderer->SetInstanceExtraVector(i * 10 + j, 0, Vector4(i / 9.0f, j / 9.0f, 1, 1));
+                }
             }
         }
 
@@ -175,6 +181,47 @@ namespace Viry3D
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
 
             m_label = label.get();
+
+            // slider
+            label = RefMake<Label>();
+            canvas->AddView(label);
+            int y = 120 + 0 * 65;
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(40, y));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetText("Color");
+
+            auto slider = RefMake<Slider>();
+            canvas->AddView(slider);
+
+            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            slider->SetPivot(Vector2(0, 0.5f));
+            slider->SetSize(Vector2i(200, 30));
+            slider->SetOffset(Vector2i(160, y));
+
+            label = RefMake<Label>();
+            canvas->AddView(label);
+
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0.5f));
+            label->SetSize(Vector2i(100, 30));
+            label->SetOffset(Vector2i(380, y));
+            label->SetFont(Font::GetFont(FontType::Consola));
+            label->SetFontSize(28);
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+
+            slider->SetProgress(1.0f);
+            slider->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(1.0f));
+            slider->SetOnValueChange([=](const Slider::Value& value) {
+                m_material->SetColor("u_color", Color(1, 1, 1, 1) * value.float_value);
+                label->SetText(String::Format("%.2f", value.float_value));
+            });
+            label->SetText("1.00");
         }
 
         virtual void Init()
@@ -187,8 +234,6 @@ namespace Viry3D
 
         virtual void Done()
         {
-            m_renderers.Clear();
-
             if (m_ui_camera)
             {
                 Display::Instance()->DestroyCamera(m_ui_camera);

@@ -105,7 +105,6 @@ namespace Viry3D
             label->SetFont(Font::GetFont(FontType::Consola));
             label->SetFontSize(28);
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetText("0");
 
             int level_max = (int) Mathf::Log2((float) m_max_sample_count);
             int level = (int) Mathf::Log2((float) m_sample_count);

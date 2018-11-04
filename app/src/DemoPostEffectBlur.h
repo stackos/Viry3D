@@ -266,7 +266,6 @@ void main()
                 label->SetFont(Font::GetFont(FontType::Consola));
                 label->SetFontSize(28);
                 label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-                label->SetText("0");
             }
 
             sliders[0]->SetProgress((m_downsample - 1) / (float) (10 - 1));

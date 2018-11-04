@@ -38,7 +38,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - Instancing & PBR
+// - PBR with normalmap
 // - PBR with lightmap
 // - SSAO
 // - VR Multiview
