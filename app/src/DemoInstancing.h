@@ -100,11 +100,11 @@ namespace Viry3D
 
             auto shader = RefMake<Shader>(
                 "#define INSTANCING 1\n"
-                "#define NROMAL_MAP 1",
+                "#define NROMAL_MAP 0",
                 Vector<String>({ "PBR.vs.in" }),
                 "",
                 "#define INSTANCING 1\n"
-                "#define NROMAL_MAP 1",
+                "#define NROMAL_MAP 0",
                 Vector<String>({ "PBR.fs.in" }),
                 "",
                 render_state);
@@ -130,10 +130,10 @@ namespace Viry3D
             auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
 
             auto renderer = RefMake<MeshRenderer>();
-            renderer->SetMaterial(material);
-            renderer->SetMesh(sphere);
             m_camera->AddRenderer(renderer);
 
+            renderer->SetMaterial(material);
+            renderer->SetMesh(sphere);
             renderer->SetLocalPosition(Vector3(0, 0, 0));
 
             for (int i = 0; i < 10; ++i)
