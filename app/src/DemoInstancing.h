@@ -99,12 +99,10 @@ namespace Viry3D
             RenderState render_state;
 
             auto shader = RefMake<Shader>(
-                "#define INSTANCING 1\n"
-                "#define NROMAL_MAP 0",
+                "#define INSTANCING 1",
                 Vector<String>({ "PBR.vs.in" }),
                 "",
-                "#define INSTANCING 1\n"
-                "#define NROMAL_MAP 0",
+                "#define INSTANCING 1",
                 Vector<String>({ "PBR.fs.in" }),
                 "",
                 render_state);
