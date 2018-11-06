@@ -87,6 +87,39 @@ public class GameObjectExporter
         }
     }
 
+    [MenuItem("Viry3D/Export LightMap")]
+    static void WriteLightMap()
+    {
+        var maps = LightmapSettings.lightmaps;
+
+        out_dir = EditorUtility.OpenFolderPanel("Select directory export to", out_dir, "");
+        if (!string.IsNullOrEmpty(out_dir))
+        {
+            var ms = new MemoryStream();
+            bw = new BinaryWriter(ms);
+            cache = new Cache();
+
+            int map_count = maps.Length;
+            bw.Write(map_count);
+
+            for (int i = 0; i < map_count; ++i)
+            {
+                WriteTexture(maps[i].lightmapColor);
+            }
+
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene();
+            string file_path = out_dir + "/" + scene.name + ".lightmap";
+            CreateFileDirIfNeed(file_path);
+
+            File.WriteAllBytes(file_path, ms.ToArray());
+
+            Debug.Log("Lightmap export complete.");
+
+            bw = null;
+            cache = null;
+        }
+    }
+
     static void CreateFileDirIfNeed(string path)
     {
         var dir = new FileInfo(path).Directory;
