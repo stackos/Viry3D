@@ -108,7 +108,15 @@ public class GameObjectExporter
             }
 
             var scene = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene();
-            string file_path = out_dir + "/" + scene.name + ".lightmap";
+            string scene_path = scene.path;
+            if (scene_path.StartsWith("Assets/"))
+            {
+                scene_path = scene_path.Substring("Assets/".Length);
+            }
+            string scene_dir = scene_path.Substring(0, scene_path.LastIndexOf('/'));
+            string scene_name = scene_dir + "/" + scene.name + ".lightmap";
+
+            string file_path = out_dir + "/" + scene_name;
             CreateFileDirIfNeed(file_path);
 
             File.WriteAllBytes(file_path, ms.ToArray());

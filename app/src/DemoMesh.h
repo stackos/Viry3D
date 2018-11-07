@@ -32,6 +32,7 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Label.h"
 #include "ui/Font.h"
+#include "Resources.h"
 
 namespace Viry3D
 {
@@ -117,7 +118,7 @@ namespace Viry3D
 #endif
 
             // plane
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/checkflag.png", FilterMode::Linear, SamplerAddressMode::Repeat, true);
+            auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
 
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", texture);
