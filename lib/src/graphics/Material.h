@@ -35,6 +35,7 @@
 #define LIGHT_POSITION "u_light_pos"
 #define LIGHT_COLOR "u_light_color"
 #define LIGHT_ITENSITY "u_light_intensity"
+#define LIGHTMAP_SCALE_OFFSET "u_lightmap_scale_offset"
 
 #define CAMERA_POSITION "u_camera_pos"
 
@@ -97,6 +98,7 @@ namespace Viry3D
         void SetVectorArray(const String& name, const Vector<Vector4>& array);
         void SetLightProperties(const Ref<Light>& light);
         const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
+        Ref<Texture> GetTexture(const String& name) const;
 #if VR_VULKAN
         void UpdateUniformSets();
         int FindUniformSetIndex(const String& name);

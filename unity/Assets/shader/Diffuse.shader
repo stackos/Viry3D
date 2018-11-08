@@ -15,7 +15,7 @@ SubShader {
     };
 
     void surf (Input IN, inout SurfaceOutput o) {
-        float4 c = tex2D(u_texture, IN.uvu_texture);
+        float4 c = tex2D(u_texture, IN.uvu_texture * u_uv_scale_offset.xy + u_uv_scale_offset.zw);
         o.Albedo = c.rgb;
         o.Alpha = c.a;
     }

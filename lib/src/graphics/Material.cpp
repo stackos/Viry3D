@@ -148,6 +148,20 @@ namespace Viry3D
         }
     }
 
+    Ref<Texture> Material::GetTexture(const String& name) const
+    {
+        Ref<Texture> texture;
+        const MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            if (property_ptr->type == MaterialProperty::Type::Texture)
+            {
+                texture = property_ptr->texture;
+            }
+        }
+        return texture;
+    }
+
     void Material::SetVectorArray(const String& name, const Vector<Vector4>& array)
     {
         MaterialProperty* property_ptr;

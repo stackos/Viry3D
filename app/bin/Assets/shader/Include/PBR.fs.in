@@ -14,10 +14,6 @@
     #define NROMAL_MAP 0
 #endif
 
-#ifndef LIGHTMAP
-    #define LIGHTMAP 0
-#endif
-
 #define ColorSpaceDielectricSpec vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301)
 #define PI 3.14159265359f
 #define INV_PI 0.31830988618f
@@ -60,10 +56,6 @@ precision highp float;
     UniformTexture(0, 6) uniform sampler2D u_occlusion;
     UniformTexture(0, 7) uniform sampler2D u_emission;
     UniformTexture(0, 8) uniform samplerCube u_environment;
-
-    #if (LIGHTMAP == 1)
-        UniformTexture(0, 9) uniform sampler2D u_lightmap;
-    #endif
 
 	Input(0) vec4 v_uv;
     Input(1) vec3 v_view_dir;
@@ -153,13 +145,7 @@ precision highp float;
     {
         vec3 diffuse;
 
-#if (LIGHTMAP == 1)
-        vec4 lm = texture(u_lightmap, lightmap_uv);
-        diffuse = lm.rgb * 2.0;
-#else
         diffuse = buf_0_2.u_ambient_color.rgb;
-#endif
-
         diffuse *= occlusion;
 
         return diffuse;

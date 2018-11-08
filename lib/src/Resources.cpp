@@ -180,12 +180,10 @@ namespace Viry3D
     static void ReadRenderer(MemoryStream& ms, const Ref<Renderer>& renderer)
     {
         int lightmap_index = ms.Read<int>();
-        Vector4 lightmapScaleOffset = ms.Read<Vector4>();
+        Vector4 lightmap_scale_offset = ms.Read<Vector4>();
         bool cast_shadow = ms.Read<byte>() == 1;
         bool receive_shadow = ms.Read<byte>() == 1;
 
-        (void) lightmap_index;
-        (void) lightmapScaleOffset;
         (void) cast_shadow;
         (void) receive_shadow;
         
@@ -201,6 +199,12 @@ namespace Viry3D
                     renderer->SetMaterial(material);
                 }
             }
+        }
+
+        if (lightmap_index >= 0)
+        {
+            renderer->SetLightmapIndex(lightmap_index);
+            renderer->SetLightmapScaleOffset(lightmap_scale_offset);
         }
     }
 

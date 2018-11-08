@@ -29,7 +29,10 @@ namespace Viry3D
 		m_camera(nullptr),
         m_model_matrix_dirty(true),
         m_instance_buffer_dirty(false),
-        m_instance_extra_vector_count(0)
+        m_instance_extra_vector_count(0),
+        m_lightmap_scale_offset(1, 1, 0, 0),
+        m_lightmap_index(-1),
+        m_lightmap_uv_dirty(false)
     {
     
     }
@@ -119,6 +122,18 @@ namespace Viry3D
         m_model_matrix_dirty = true;
     }
 
+    void Renderer::SetLightmapIndex(int index)
+    {
+        m_lightmap_index = index;
+        m_lightmap_uv_dirty = true;
+    }
+
+    void Renderer::SetLightmapScaleOffset(const Vector4& vec)
+    {
+        m_lightmap_scale_offset = vec;
+        m_lightmap_uv_dirty = true;
+    }
+
     void Renderer::OnAddToCamera(Camera* camera)
     {
 		assert(m_camera == nullptr);
@@ -160,6 +175,12 @@ namespace Viry3D
         {
             m_model_matrix_dirty = false;
             this->SetInstanceMatrix(MODEL_MATRIX, this->GetLocalToWorldMatrix());
+        }
+
+        if (m_lightmap_uv_dirty && m_lightmap_index >= 0)
+        {
+            m_lightmap_uv_dirty = false;
+            this->SetInstanceVector(LIGHTMAP_SCALE_OFFSET, m_lightmap_scale_offset);
         }
 
 #if VR_VULKAN
@@ -210,6 +231,19 @@ namespace Viry3D
             }
 
             m_instance_material->SetVectorArray(name, array);
+        }
+    }
+
+    void Renderer::SetInstanceVector(const String& name, const Vector4& vec)
+    {
+        if (m_material)
+        {
+            if (!m_instance_material)
+            {
+                m_instance_material = RefMake<Material>(m_material->GetShader());
+            }
+
+            m_instance_material->SetVector(name, vec);
         }
     }
 

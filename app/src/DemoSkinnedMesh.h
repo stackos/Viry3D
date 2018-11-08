@@ -117,6 +117,8 @@ namespace Viry3D
         {
             m_anim.reset();
 
+            Shader::RemoveCache("SkinnedMesh/Diffuse");
+
             DemoMesh::Done();
         }
 

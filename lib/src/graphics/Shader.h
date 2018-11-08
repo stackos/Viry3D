@@ -38,6 +38,7 @@ namespace Viry3D
     public:
 		static Ref<Shader> Find(const String& name);
 		static void AddCache(const String& name, const Ref<Shader>& shader);
+        static void RemoveCache(const String& name);
 		static void Done();
         Shader(
             const String& vs_predefine,

@@ -65,6 +65,9 @@ namespace Viry3D
         const Ref<Material>& GetMaterial() const { return m_material; }
         const Ref<Material>& GetInstanceMaterial() const { return m_instance_material; }
         void SetMaterial(const Ref<Material>& material);
+        int GetLightmapIndex() const { return m_lightmap_index; }
+        void SetLightmapIndex(int index);
+        void SetLightmapScaleOffset(const Vector4& vec);
         void OnAddToCamera(Camera* camera);
         void OnRemoveFromCamera(Camera* camera);
         Camera* GetCamera() const { return m_camera; }
@@ -85,6 +88,7 @@ namespace Viry3D
         virtual void UpdateDrawBuffer() = 0;
         void SetInstanceMatrix(const String& name, const Matrix4x4& mat);
         void SetInstanceVectorArray(const String& name, const Vector<Vector4>& array);
+        void SetInstanceVector(const String& name, const Vector4& vec);
 
     private:
         void UpdateInstanceBuffer();
@@ -106,5 +110,8 @@ namespace Viry3D
         Ref<BufferObject> m_instance_buffer;
         bool m_instance_buffer_dirty;
         int m_instance_extra_vector_count;
+        Vector4 m_lightmap_scale_offset;
+        int m_lightmap_index;
+        bool m_lightmap_uv_dirty;
     };
 }

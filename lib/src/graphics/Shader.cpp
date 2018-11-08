@@ -45,6 +45,11 @@ namespace Viry3D
 		m_shader_cache.Add(name, shader);
 	}
 
+    void Shader::RemoveCache(const String& name)
+    {
+        m_shader_cache.Remove(name);
+    }
+
 	void Shader::Done()
 	{
 		m_shader_cache.Clear();

@@ -30,6 +30,7 @@
 #include "DemoAR.h"
 #endif
 #include "DemoInstancing.h"
+#include "DemoLightmap.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -38,7 +39,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - PBR with lightmap
+// - lightmap - resources load lightmap
 // - SSAO
 // - VR Multiview
 // - GPU Particle
@@ -98,7 +99,8 @@ namespace Viry3D
                 "ShadowMap",
                 "Audio",
                 "AR",
-                "Instancing & PBR"
+                "Instancing & PBR",
+                "Lightmap"
                 });
 
             const int top = (int) (90 * UI_SCALE);
@@ -156,7 +158,7 @@ namespace Viry3D
                 }
 
                 // vulkan only
-                if (i == 11)
+                if (i == 11 || i == 12)
                 {
                     disabled = true;
                     button->GetLabel()->SetText(button->GetLabel()->GetText() + " (implement in vulkan only)");
@@ -224,6 +226,9 @@ namespace Viry3D
                     break;
                 case 11:
                     m_demo = new DemoInstancing();
+                    break;
+                case 12:
+                    m_demo = new DemoLightmap();
                     break;
                 default:
                     break;
