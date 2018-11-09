@@ -39,7 +39,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - lightmap - resources load lightmap
 // - SSAO
 // - VR Multiview
 // - GPU Particle

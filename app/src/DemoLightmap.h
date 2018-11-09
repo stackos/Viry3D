@@ -94,6 +94,8 @@ namespace Viry3D
                 render_state);
             Shader::AddCache("Diffuse", shader);
 
+            auto lightmap = Resources::LoadLightmap("res/scene/lightmap/scene.lightmap");
+
             auto node = Resources::LoadNode("res/scene/lightmap/scene.go");
             for (int i = 0; i < node->GetChildCount(); ++i)
             {
@@ -110,9 +112,11 @@ namespace Viry3D
                             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
                         }
                         material->SetLightProperties(m_light);
-                        if (mesh_renderer->GetLightmapIndex() >= 0)
+
+                        int lightmap_index = mesh_renderer->GetLightmapIndex();
+                        if (lightmap_index >= 0)
                         {
-                            material->SetTexture("u_lightmap", Texture::GetSharedBlackTexture());
+                            material->SetTexture("u_lightmap", lightmap);
                         }
                     }
                 }

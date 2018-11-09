@@ -181,6 +181,7 @@ namespace Viry3D
         {
             m_lightmap_uv_dirty = false;
             this->SetInstanceVector(LIGHTMAP_SCALE_OFFSET, m_lightmap_scale_offset);
+            this->SetInstanceInt(LIGHTMAP_INDEX, m_lightmap_index);
         }
 
 #if VR_VULKAN
@@ -208,7 +209,7 @@ namespace Viry3D
         }
     }
 
-    void Renderer::SetInstanceMatrix(const String& name, const Matrix4x4& mat)
+    void Renderer::SetInstanceMatrix(const String& name, const Matrix4x4& value)
     {
         if (m_material)
         {
@@ -217,11 +218,11 @@ namespace Viry3D
                 m_instance_material = RefMake<Material>(m_material->GetShader());
             }
             
-            m_instance_material->SetMatrix(name, mat);
+            m_instance_material->SetMatrix(name, value);
         }
     }
 
-    void Renderer::SetInstanceVectorArray(const String& name, const Vector<Vector4>& array)
+    void Renderer::SetInstanceVectorArray(const String& name, const Vector<Vector4>& value)
     {
         if (m_material)
         {
@@ -230,11 +231,11 @@ namespace Viry3D
                 m_instance_material = RefMake<Material>(m_material->GetShader());
             }
 
-            m_instance_material->SetVectorArray(name, array);
+            m_instance_material->SetVectorArray(name, value);
         }
     }
 
-    void Renderer::SetInstanceVector(const String& name, const Vector4& vec)
+    void Renderer::SetInstanceVector(const String& name, const Vector4& value)
     {
         if (m_material)
         {
@@ -243,7 +244,20 @@ namespace Viry3D
                 m_instance_material = RefMake<Material>(m_material->GetShader());
             }
 
-            m_instance_material->SetVector(name, vec);
+            m_instance_material->SetVector(name, value);
+        }
+    }
+
+    void Renderer::SetInstanceInt(const String& name, int value)
+    {
+        if (m_material)
+        {
+            if (!m_instance_material)
+            {
+                m_instance_material = RefMake<Material>(m_material->GetShader());
+            }
+
+            m_instance_material->SetInt(name, value);
         }
     }
 

@@ -400,4 +400,84 @@ namespace Viry3D
 
         return texture;
     }
+
+    Ref<Texture> Resources::LoadLightmap(const String& path)
+    {
+        Ref<Texture> lightmap;
+        
+        String full_path = Application::Instance()->GetDataPath() + "/" + path;
+        if (File::Exist(full_path))
+        {
+            MemoryStream ms(File::ReadAllBytes(full_path));
+
+            Vector<Ref<Texture>> textures;
+            int texture_size = 0;
+
+            int lightmap_count = ms.Read<int>();
+            for (int i = 0; i < lightmap_count; ++i)
+            {
+                String texture_path = ReadString(ms);
+                assert(texture_path.Size() > 0);
+
+                auto texture = ReadTexture(texture_path);
+                assert(texture);
+
+                if (texture->GetWidth() > texture_size)
+                {
+                    texture_size = texture->GetWidth();
+                }
+
+                textures.Add(texture);
+            }
+
+            if (lightmap_count > 0)
+            {
+                Vector<ByteBuffer> pixels(lightmap_count);
+                for (int i = 0; i < lightmap_count; ++i)
+                {
+                    pixels[i] = ByteBuffer(texture_size * texture_size * 4);
+                    
+                    if (textures[i]->GetWidth() < texture_size)
+                    {
+                        // resize texture same to the max one
+                        auto temp = Texture::CreateTexture2DFromMemory(
+                            pixels[i],
+                            texture_size, texture_size,
+                            TextureFormat::R8G8B8A8,
+                            FilterMode::Linear,
+                            SamplerAddressMode::ClampToEdge,
+                            false,
+                            false);
+                        temp->CopyTexture(
+                            textures[i],
+                            0, 0,
+                            0, 0,
+                            textures[i]->GetWidth(), textures[i]->GetHeight(),
+                            0, 0,
+                            0, 0,
+                            texture_size, texture_size);
+                        temp->CopyToMemory(pixels[i], 0, 0);
+                    }
+                    else
+                    {
+                        textures[i]->CopyToMemory(pixels[i], 0, 0);
+                    }
+                }
+
+                lightmap = Texture::CreateTexture2DArrayFromMemory(
+                    pixels,
+                    texture_size, texture_size,
+                    lightmap_count,
+                    TextureFormat::R8G8B8A8,
+                    FilterMode::Linear,
+                    SamplerAddressMode::ClampToEdge,
+                    true,
+                    false);
+            }
+
+            g_loading_cache.Clear();
+        }
+
+        return lightmap;
+    }
 }

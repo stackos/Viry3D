@@ -36,6 +36,7 @@
 #define LIGHT_COLOR "u_light_color"
 #define LIGHT_ITENSITY "u_light_intensity"
 #define LIGHTMAP_SCALE_OFFSET "u_lightmap_scale_offset"
+#define LIGHTMAP_INDEX "u_lightmap_index"
 
 #define CAMERA_POSITION "u_camera_pos"
 

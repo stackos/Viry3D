@@ -104,7 +104,11 @@ void main()
     #endif
 
     #if (SKINNED_MESH == 0 && LIGHTMAP == 1)
-        v_uv.zw = a_uv2 * buf_1_0.u_lightmap_scale_offset.xy + buf_1_0.u_lightmap_scale_offset.zw;
+        vec2 uv2 = a_uv2;
+        uv2.y = 1.0 - uv2.y;
+        uv2 = uv2 * buf_1_0.u_lightmap_scale_offset.xy + buf_1_0.u_lightmap_scale_offset.zw;
+        uv2.y = 1.0 - uv2.y;
+        v_uv.zw = uv2;
     #else
         v_uv.zw = vec2(0.0);
     #endif

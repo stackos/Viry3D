@@ -133,6 +133,7 @@ namespace Viry3D
             const Ref<Texture>& src_texture,
             int src_layer, int src_level,
             int src_x, int src_y,
+            int src_w, int src_h,
             int layer, int level,
             int x, int y,
             int w, int h);

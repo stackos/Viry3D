@@ -113,9 +113,8 @@ void main()
 )";
             String fs = R"(
 precision highp float;
-precision lowp sampler2DArray;
 
-UniformTexture(0, 1) uniform sampler2DArray u_texture;
+UniformTexture(0, 1) uniform lowp sampler2DArray u_texture;
 
 UniformBuffer(0, 2) uniform UniformBuffer00
 {
@@ -251,6 +250,7 @@ void main()
                     m_atlas,
                     i, 0,
                     0, 0,
+                    ATLAS_SIZE, ATLAS_SIZE,
                     i, 0,
                     0, 0,
                     ATLAS_SIZE, ATLAS_SIZE);
@@ -603,6 +603,7 @@ void main()
                 mesh.texture,
                 0, 0,
                 0, 0,
+                node->w, node->h,
                 node->layer, 0,
                 node->x, node->y,
                 node->w, node->h);

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "string/String.h"
+#include "container/Vector.h"
 
 namespace Viry3D
 {
@@ -29,5 +30,6 @@ namespace Viry3D
     public:
         static Ref<Node> LoadNode(const String& path);
         static Ref<Texture> LoadTexture(const String& path);
+        static Ref<Texture> LoadLightmap(const String& path);
     };
 }

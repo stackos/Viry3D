@@ -86,9 +86,10 @@ namespace Viry3D
     protected:
         virtual void OnMatrixDirty();
         virtual void UpdateDrawBuffer() = 0;
-        void SetInstanceMatrix(const String& name, const Matrix4x4& mat);
-        void SetInstanceVectorArray(const String& name, const Vector<Vector4>& array);
-        void SetInstanceVector(const String& name, const Vector4& vec);
+        void SetInstanceMatrix(const String& name, const Matrix4x4& value);
+        void SetInstanceVectorArray(const String& name, const Vector<Vector4>& value);
+        void SetInstanceVector(const String& name, const Vector4& value);
+        void SetInstanceInt(const String& name, int value);
 
     private:
         void UpdateInstanceBuffer();

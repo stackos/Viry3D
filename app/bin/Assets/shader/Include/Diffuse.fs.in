@@ -35,7 +35,12 @@ precision highp float;
     #endif
 
     #if (LIGHTMAP == 1)
-        UniformTexture(0, 4) uniform sampler2D u_lightmap;
+        UniformTexture(0, 4) uniform lowp sampler2DArray u_lightmap;
+
+        UniformBuffer(1, 1) uniform UniformBuffer11
+        {
+            int u_lightmap_index;
+        } buf_1_1;
     #endif
 
 	Input(0) vec4 v_uv;
@@ -57,7 +62,7 @@ void main()
     
     float nl = max(dot(n, l), 0.0);
 #if (LIGHTMAP == 1)
-    vec4 lm = texture(u_lightmap, v_uv.zw);
+    vec4 lm = texture(u_lightmap, vec3(v_uv.zw, float(buf_1_1.u_lightmap_index)));
     vec3 gi_diffuse = c.rgb * lm.rgb * 2.0;
 #else
     vec3 gi_diffuse = c.rgb * buf_0_2.u_ambient_color.rgb;
