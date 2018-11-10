@@ -49,6 +49,9 @@
     <ClInclude Include="..\..\src\DemoLightmap.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\DemoSSAO.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

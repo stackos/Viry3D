@@ -31,6 +31,7 @@
 #endif
 #include "DemoInstancing.h"
 #include "DemoLightmap.h"
+#include "DemoSSAO.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -99,7 +100,8 @@ namespace Viry3D
                 "Audio",
                 "AR",
                 "Instancing & PBR",
-                "Lightmap"
+                "Lightmap",
+                "SSAO"
                 });
 
             const int top = (int) (90 * UI_SCALE);
@@ -157,7 +159,7 @@ namespace Viry3D
                 }
 
                 // vulkan only
-                if (i == 11 || i == 12)
+                if (i >= 11)
                 {
                     disabled = true;
                     button->GetLabel()->SetText(button->GetLabel()->GetText() + " (implement in vulkan only)");
@@ -229,6 +231,8 @@ namespace Viry3D
                 case 12:
                     m_demo = new DemoLightmap();
                     break;
+                case 13:
+                    m_demo = new DemoSSAO();
                 default:
                     break;
             }
