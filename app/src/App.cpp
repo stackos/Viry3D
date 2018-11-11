@@ -40,7 +40,10 @@
 #include "ui/ScrollView.h"
 
 // TODO:
+// - multi render target
+// - float texture format
 // - SSAO
+// - deferred shading
 // - VR Multiview
 // - GPU Particle
 // - Ray Tracing
