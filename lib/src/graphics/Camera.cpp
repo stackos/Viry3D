@@ -229,6 +229,15 @@ namespace Viry3D
 #endif
 	}
 
+    void Camera::SetExtraRenderTargets(const Vector<Ref<Texture>>& color_textures)
+    {
+        m_extra_render_targets = color_textures;
+
+#if VR_VULKAN
+        m_render_pass_dirty = true;
+#endif
+    }
+
 	void Camera::Update()
 	{
         if (m_view_matrix_dirty)
@@ -599,6 +608,7 @@ namespace Viry3D
         Display::Instance()->CreateRenderPass(
             m_render_target_color,
             m_render_target_depth,
+            m_extra_render_targets,
             m_clear_flags,
             &m_render_pass,
             m_framebuffers);
@@ -761,7 +771,7 @@ namespace Viry3D
             cmd,
             m_render_pass,
             shader->GetPipelineLayout(),
-            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, sample_count, instance_count > 1, instance_stride),
+            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, this->GetExtraRenderTargets().Size(), sample_count, instance_count > 1, instance_stride),
             descriptor_sets,
             this->GetTargetWidth(),
             this->GetTargetHeight(),

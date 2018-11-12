@@ -1040,6 +1040,7 @@ extern void UnbindSharedContext();
         void CreateRenderPass(
             VkFormat color_format,
             VkFormat depth_format,
+            const Vector<VkFormat>& extra_color_formats,
             CameraClearFlags clear_flag,
             int sample_count,
             bool present,
@@ -1100,10 +1101,7 @@ extern void UnbindSharedContext();
                 depth_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
 
-            VkAttachmentReference color_reference = {
-                0,
-                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            };
+            Vector<VkAttachmentReference> color_references;
             VkAttachmentReference depth_reference = {
                 0,
                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
@@ -1113,12 +1111,39 @@ extern void UnbindSharedContext();
 
             if (color_format != VK_FORMAT_UNDEFINED)
             {
+                VkAttachmentReference color_reference;
                 color_reference.attachment = attachments.Size();
+                color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+                color_references.Add(color_reference);
 
                 VkAttachmentDescription attachment;
                 Memory::Zero(&attachment, sizeof(attachment));
                 attachment.flags = 0;
                 attachment.format = color_format;
+                attachment.samples = (VkSampleCountFlagBits) sample_count;
+                attachment.loadOp = color_load;
+                attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+                attachment.initialLayout = color_initial_layout;
+                attachment.finalLayout = color_final_layout;
+
+                attachments.Add(attachment);
+            }
+
+            for (int i = 0; i < extra_color_formats.Size(); ++i)
+            {
+                VkAttachmentReference color_reference;
+                color_reference.attachment = attachments.Size();
+                color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+                color_references.Add(color_reference);
+
+                VkAttachmentDescription attachment;
+                Memory::Zero(&attachment, sizeof(attachment));
+                attachment.flags = 0;
+                attachment.format = extra_color_formats[i];
                 attachment.samples = (VkSampleCountFlagBits) sample_count;
                 attachment.loadOp = color_load;
                 attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -1157,8 +1182,8 @@ extern void UnbindSharedContext();
             subpass.pInputAttachments = nullptr;
             if (color_format != VK_FORMAT_UNDEFINED)
             {
-                subpass.colorAttachmentCount = 1;
-                subpass.pColorAttachments = &color_reference;
+                subpass.colorAttachmentCount = color_references.Size();
+                subpass.pColorAttachments = &color_references[0];
             }
             else
             {
@@ -1196,6 +1221,7 @@ extern void UnbindSharedContext();
         void CreateFramebuffer(
             VkImageView color_image_view,
             VkImageView depth_image_view,
+            const Vector<VkImageView>& extra_color_image_views,
             int image_width,
             int image_height,
             VkRenderPass render_pass,
@@ -1205,6 +1231,10 @@ extern void UnbindSharedContext();
             if (color_image_view != VK_NULL_HANDLE)
             {
                 attachments_view.Add(color_image_view);
+            }
+            for (int i = 0; i < extra_color_image_views.Size(); ++i)
+            {
+                attachments_view.Add(extra_color_image_views[i]);
             }
             if (depth_image_view != VK_NULL_HANDLE)
             {
@@ -1887,6 +1917,7 @@ extern void UnbindSharedContext();
             VkPipeline* pipeline,
             bool color_attachment,
             bool depth_attachment,
+            int extra_color_attachment_count,
             int sample_count,
             bool instancing,
             int instance_stride)
@@ -2066,34 +2097,48 @@ extern void UnbindSharedContext();
             ds.minDepthBounds = 0;
             ds.maxDepthBounds = 0;
 
-            Vector<VkPipelineColorBlendAttachmentState> att_state(1);
-            Memory::Zero(&att_state[0], att_state.SizeInBytes());
-            att_state[0].blendEnable = (VkBool32) render_state.blend;
-            att_state[0].srcColorBlendFactor = (VkBlendFactor) render_state.srcBlendMode;
-            att_state[0].dstColorBlendFactor = (VkBlendFactor) render_state.dstBlendMode;
-            att_state[0].colorBlendOp = VK_BLEND_OP_ADD;
-            att_state[0].srcAlphaBlendFactor = (VkBlendFactor) render_state.srcBlendMode;
-            att_state[0].dstAlphaBlendFactor = (VkBlendFactor) render_state.dstBlendMode;
-            att_state[0].alphaBlendOp = VK_BLEND_OP_ADD;
-            att_state[0].colorWriteMask =
-                VK_COLOR_COMPONENT_R_BIT |
-                VK_COLOR_COMPONENT_G_BIT |
-                VK_COLOR_COMPONENT_B_BIT |
-                VK_COLOR_COMPONENT_A_BIT;
-
+            Vector<VkPipelineColorBlendAttachmentState> blend_states;
             VkPipelineColorBlendStateCreateInfo cb;
-            Memory::Zero(&cb, sizeof(cb));
-            cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-            cb.pNext = nullptr;
-            cb.flags = 0;
-            cb.logicOpEnable = VK_FALSE;
-            cb.logicOp = VK_LOGIC_OP_CLEAR;
-            cb.attachmentCount = (uint32_t) att_state.Size();
-            cb.pAttachments = &att_state[0];
-            cb.blendConstants[0] = 0;
-            cb.blendConstants[1] = 0;
-            cb.blendConstants[2] = 0;
-            cb.blendConstants[3] = 0;
+
+            if (color_attachment)
+            {
+                blend_states.Resize(1 + extra_color_attachment_count);
+                for (int i = 0; i < blend_states.Size(); ++i)
+                {
+                    blend_states[i].blendEnable = (VkBool32) render_state.blend;
+                    blend_states[i].srcColorBlendFactor = (VkBlendFactor) render_state.srcBlendMode;
+                    blend_states[i].dstColorBlendFactor = (VkBlendFactor) render_state.dstBlendMode;
+                    blend_states[i].colorBlendOp = VK_BLEND_OP_ADD;
+                    blend_states[i].srcAlphaBlendFactor = (VkBlendFactor) render_state.srcBlendMode;
+                    blend_states[i].dstAlphaBlendFactor = (VkBlendFactor) render_state.dstBlendMode;
+                    blend_states[i].alphaBlendOp = VK_BLEND_OP_ADD;
+                    blend_states[i].colorWriteMask =
+                        VK_COLOR_COMPONENT_R_BIT |
+                        VK_COLOR_COMPONENT_G_BIT |
+                        VK_COLOR_COMPONENT_B_BIT |
+                        VK_COLOR_COMPONENT_A_BIT;
+                }
+
+                Memory::Zero(&cb, sizeof(cb));
+                cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+                cb.pNext = nullptr;
+                cb.flags = 0;
+                cb.logicOpEnable = VK_FALSE;
+                cb.logicOp = VK_LOGIC_OP_CLEAR;
+                cb.attachmentCount = (uint32_t) blend_states.Size();
+                if (blend_states.Size() > 0)
+                {
+                    cb.pAttachments = &blend_states[0];
+                }
+                else
+                {
+                    cb.pAttachments = nullptr;
+                }
+                cb.blendConstants[0] = 0;
+                cb.blendConstants[1] = 0;
+                cb.blendConstants[2] = 0;
+                cb.blendConstants[3] = 0;
+            }
 
             VkGraphicsPipelineCreateInfo pipeline_info;
             Memory::Zero(&pipeline_info, sizeof(pipeline_info));
@@ -2375,7 +2420,8 @@ extern void UnbindSharedContext();
             CameraClearFlags clear_flag,
             const Color& clear_color,
 			const Ref<Texture>& color_texture,
-			const Ref<Texture>& depth_texture)
+			const Ref<Texture>& depth_texture,
+            const Vector<Ref<Texture>>& extra_color_textures)
         {
 			bool color_attachment = true;
 			bool depth_attachment = true;
@@ -2397,13 +2443,16 @@ extern void UnbindSharedContext();
             Vector<VkClearValue> clear_values;
             if (color_attachment)
             {
-                VkClearValue clear;
-                clear.color.float32[0] = clear_color.r;
-                clear.color.float32[1] = clear_color.g;
-                clear.color.float32[2] = clear_color.b;
-                clear.color.float32[3] = clear_color.a;
+                for (int i = 0; i < 1 + extra_color_textures.Size(); ++i)
+                {
+                    VkClearValue clear;
+                    clear.color.float32[0] = clear_color.r;
+                    clear.color.float32[1] = clear_color.g;
+                    clear.color.float32[2] = clear_color.b;
+                    clear.color.float32[3] = clear_color.a;
 
-                clear_values.Add(clear);
+                    clear_values.Add(clear);
+                }
             }
             if (depth_attachment)
             {
@@ -2434,6 +2483,18 @@ extern void UnbindSharedContext();
                     this->SetImageLayout(
                         cmd,
                         sample_count > 1 ? color_texture->GetImageMultiSample() : color_texture->GetImage(),
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        VK_ACCESS_SHADER_READ_BIT);
+                }
+                for (int i = 0; i < extra_color_textures.Size(); ++i)
+                {
+                    this->SetImageLayout(
+                        cmd,
+                        sample_count > 1 ? extra_color_textures[i]->GetImageMultiSample() : extra_color_textures[i]->GetImage(),
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
@@ -2575,7 +2636,8 @@ extern void UnbindSharedContext();
                         j->GetClearFlags(),
                         j->GetClearColor(),
 						j->GetRenderTargetColor(),
-						j->GetRenderTargetDepth());
+						j->GetRenderTargetDepth(),
+                        j->GetExtraRenderTargets());
                 }
 
                 this->BuildPrimaryCmdEnd(cmd);
@@ -3372,6 +3434,7 @@ void main()
     void Display::CreateRenderPass(
         const Ref<Texture>& color_texture,
         const Ref<Texture>& depth_texture,
+        const Vector<Ref<Texture>>& extra_color_textures,
         CameraClearFlags clear_flag,
         VkRenderPass* render_pass,
         Vector<VkFramebuffer>& framebuffers)
@@ -3383,6 +3446,7 @@ void main()
             m_private->CreateRenderPass(
                 m_private->m_swapchain_image_resources[0].format,
                 m_private->m_depth_texture->GetFormat(),
+                Vector<VkFormat>(),
                 clear_flag,
                 1,
                 true,
@@ -3396,6 +3460,7 @@ void main()
                 m_private->CreateFramebuffer(
                     resource.image_view,
                     m_private->m_depth_texture->GetImageView(),
+                    Vector<VkImageView>(),
                     resource.width,
                     resource.height,
                     *render_pass,
@@ -3444,9 +3509,27 @@ void main()
                 }
             }
 
+            Vector<VkFormat> extra_color_formats(extra_color_textures.Size());
+            Vector<VkImageView> extra_color_image_views(extra_color_textures.Size());
+
+            for (int i = 0; i < extra_color_textures.Size(); ++i)
+            {
+                sample_count = extra_color_textures[i]->GetSampleCount();
+                extra_color_formats[i] = extra_color_textures[i]->GetFormat();
+                if (sample_count > 1)
+                {
+                    extra_color_image_views[i] = extra_color_textures[i]->GetImageViewMultiSample();
+                }
+                else
+                {
+                    extra_color_image_views[i] = extra_color_textures[i]->GetImageView();
+                }
+            }
+
             m_private->CreateRenderPass(
                 color_format,
                 depth_format,
+                extra_color_formats,
                 clear_flag,
                 sample_count,
                 false,
@@ -3456,6 +3539,7 @@ void main()
             m_private->CreateFramebuffer(
                 color_image_view,
                 depth_image_view,
+                extra_color_image_views,
                 image_width,
                 image_height,
                 *render_pass,
@@ -3522,6 +3606,7 @@ void main()
         VkPipeline* pipeline,
         bool color_attachment,
         bool depth_attachment,
+        int extra_color_attachment_count,
         int sample_count,
         bool instancing,
         int instance_stride)
@@ -3537,6 +3622,7 @@ void main()
             pipeline,
             color_attachment,
             depth_attachment,
+            extra_color_attachment_count,
             sample_count,
             instancing,
             instance_stride);

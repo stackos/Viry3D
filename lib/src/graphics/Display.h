@@ -63,6 +63,7 @@ namespace Viry3D
         void CreateRenderPass(
             const Ref<Texture>& color_texture,
             const Ref<Texture>& depth_texture,
+            const Vector<Ref<Texture>>& extra_color_textures,
             CameraClearFlags clear_flag,
             VkRenderPass* render_pass,
             Vector<VkFramebuffer>& framebuffers);
@@ -95,6 +96,7 @@ namespace Viry3D
             VkPipeline* pipeline,
             bool color_attachment,
             bool depth_attachment,
+            int extra_color_attachment_count,
             int sample_count,
             bool instancing,
             int instance_stride);

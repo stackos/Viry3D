@@ -92,6 +92,18 @@ namespace Viry3D
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
+            /*
+            auto color_texture_2 = Texture::CreateRenderTexture(
+                Display::Instance()->GetWidth(),
+                Display::Instance()->GetHeight(),
+                TextureFormat::R8G8B8A8,
+                1,
+                true,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge);
+            m_camera->SetExtraRenderTargets({ color_texture_2 });
+            */
+
             // color -> window
             m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, color_texture);
 

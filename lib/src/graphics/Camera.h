@@ -63,6 +63,8 @@ namespace Viry3D
         const Ref<Texture>& GetRenderTargetColor() const { return m_render_target_color; }
         const Ref<Texture>& GetRenderTargetDepth() const { return m_render_target_depth; }
         void SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture);
+        const Vector<Ref<Texture>>& GetExtraRenderTargets() const { return m_extra_render_targets; }
+        void SetExtraRenderTargets(const Vector<Ref<Texture>>& color_textures);
         void Update();
         void OnFrameEnd();
         void OnResize(int width, int height);
@@ -131,6 +133,7 @@ namespace Viry3D
         int m_depth;
         Ref<Texture> m_render_target_color;
         Ref<Texture> m_render_target_depth;
+        Vector<Ref<Texture>> m_extra_render_targets;
         List<RendererInstance> m_renderers;
         Matrix4x4 m_view_matrix;
         bool m_view_matrix_dirty;
