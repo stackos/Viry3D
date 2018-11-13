@@ -92,20 +92,26 @@ namespace Viry3D
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
-            /*
-            auto color_texture_2 = Texture::CreateRenderTexture(
+            auto pos_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
-                TextureFormat::R8G8B8A8,
+                TextureFormat::R16G16B16A16F,
                 1,
                 true,
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge);
-            m_camera->SetExtraRenderTargets({ color_texture_2 });
-            */
+            auto normal_texture = Texture::CreateRenderTexture(
+                Display::Instance()->GetWidth(),
+                Display::Instance()->GetHeight(),
+                TextureFormat::R16G16B16A16F,
+                1,
+                true,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge);
+            m_camera->SetExtraRenderTargets({ pos_texture, normal_texture });
 
             // color -> window
-            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, color_texture);
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, pos_texture);
 
             m_ui_camera->SetDepth(2);
         }
@@ -136,10 +142,10 @@ namespace Viry3D
             RenderState render_state;
             auto shader = RefMake<Shader>(
                 "",
-                Vector<String>({ "Diffuse.vs.in" }),
+                Vector<String>({ "DeferredGeometry.vs.in" }),
                 "",
                 "",
-                Vector<String>({ "Diffuse.fs.in" }),
+                Vector<String>({ "DeferredGeometry.fs.in" }),
                 "",
                 render_state);
             Shader::AddCache("Diffuse", shader);

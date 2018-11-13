@@ -41,6 +41,8 @@ namespace Viry3D
                 return VK_FORMAT_R8G8_UNORM;
             case TextureFormat::R8G8B8A8:
                 return VK_FORMAT_R8G8B8A8_UNORM;
+            case TextureFormat::R16G16B16A16F:
+                return VK_FORMAT_R16G16B16A16_SFLOAT;
             case TextureFormat::D16:
                 return VK_FORMAT_D16_UNORM;
             case TextureFormat::D24X8:
@@ -70,6 +72,8 @@ namespace Viry3D
                 return TextureFormat::R8G8;
             case VK_FORMAT_R8G8B8A8_UNORM:
                 return TextureFormat::R8G8B8A8;
+            case VK_FORMAT_R16G16B16A16_SFLOAT:
+                return TextureFormat::R16G16B16A16F;
             case VK_FORMAT_D16_UNORM:
                 return TextureFormat::D16;
             case VK_FORMAT_X8_D24_UNORM_PACK32:

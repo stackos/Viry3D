@@ -40,7 +40,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - float texture format
 // - SSAO
 // - deferred shading
 // - VR Multiview
