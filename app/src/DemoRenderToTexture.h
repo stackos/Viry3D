@@ -35,7 +35,7 @@ namespace Viry3D
                 TextureFormat::R8G8B8A8,
                 1,
                 true,
-                FilterMode::Linear,
+                FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
             auto depth_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),

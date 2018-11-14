@@ -45,7 +45,7 @@ namespace Viry3D
                 TextureFormat::R8G8B8A8,
                 m_sample_count,
                 true,
-                FilterMode::Linear,
+                FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
             auto depth_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
@@ -53,7 +53,7 @@ namespace Viry3D
                 Texture::ChooseDepthFormatSupported(true),
                 m_sample_count,
                 true,
-                FilterMode::Linear,
+                FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 

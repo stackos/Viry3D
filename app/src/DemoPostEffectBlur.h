@@ -64,7 +64,7 @@ namespace Viry3D
                 Texture::ChooseDepthFormatSupported(true),
                 1,
                 true,
-                FilterMode::Linear,
+                FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
@@ -192,24 +192,24 @@ void main()
 
             for (int i = 0; i < m_iter_count; ++i)
             {
-                // color2 -> color, h blur
+                // color2 -> color3, h blur
                 auto material_h = RefMake<Material>(shader);
                 material_h->SetVector("u_texel_size", Vector4(1.0f / width * m_texel_offset * (1.0f + i * m_iter_step), 0, 0, 0));
 
                 blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2, material_h);
-                blit_color_camera->SetRenderTarget(color_texture, Ref<Texture>());
+                blit_color_camera->SetRenderTarget(color_texture_3, Ref<Texture>());
                 m_blit_cameras.Add(blit_color_camera);
 
-                // color -> color2, v blur
+                // color3 -> color2, v blur
                 auto material_v = RefMake<Material>(shader);
                 material_v->SetVector("u_texel_size", Vector4(0, 1.0f / height * m_texel_offset * (1.0f + i * m_iter_step), 0, 0));
 
-                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture, material_v);
+                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_3, material_v);
                 blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
                 m_blit_cameras.Add(blit_color_camera);
             }
 
-            // color -> window
+            // color2 -> window
             blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2);
             m_blit_cameras.Add(blit_color_camera);
 

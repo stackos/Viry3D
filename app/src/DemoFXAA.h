@@ -58,7 +58,7 @@ namespace Viry3D
                 Texture::ChooseDepthFormatSupported(true),
                 1,
                 true,
-                FilterMode::Linear,
+                FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
