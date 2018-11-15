@@ -34,6 +34,10 @@
 #include "ui/Font.h"
 #include "Resources.h"
 
+#define KERNEL_SIZE 32
+#define NOISE_SIZE 4
+#define RADIUS 0.5f
+
 namespace Viry3D
 {
     class DemoSSAO : public Demo
@@ -70,6 +74,8 @@ namespace Viry3D
         Camera* m_ui_camera = nullptr;
         Label* m_label = nullptr;
         Ref<Light> m_light;
+        Camera* m_ssao_camera = nullptr;
+        Camera* m_blur_camera = nullptr;
         Camera* m_blit_color_camera = nullptr;
 
         void InitRenderTexture()
@@ -103,31 +109,32 @@ namespace Viry3D
             auto normal_texture = Texture::CreateRenderTexture(
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
-                TextureFormat::R16G16B16A16F,
+                TextureFormat::R8G8B8A8,
                 1,
                 true,
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
             m_camera->SetExtraRenderTargets({ pos_texture, normal_texture });
 
-            Vector<Vector4> noise;
-            for (int i = 0; i < 16; ++i)
+            // ssao param
+            Vector<Vector4> noise(NOISE_SIZE * NOISE_SIZE);
+            for (int i = 0; i < noise.Size(); ++i)
             {
                 float x = Mathf::RandomRange(-1.0f, 1.0f);
                 float y = Mathf::RandomRange(-1.0f, 1.0f);
-                noise.Add(Vector4(x, y, 0, 0));
+                noise[i] = Vector4(x, y, 0, 0);
             }
             auto noise_texture = Texture::CreateTexture2DFromMemory(
                 ByteBuffer((byte*) &noise[0], noise.SizeInBytes()),
-                4, 4,
+                NOISE_SIZE, NOISE_SIZE,
                 TextureFormat::R16G16B16A16F,
                 FilterMode::Nearest,
                 SamplerAddressMode::Repeat,
                 false,
                 false);
 
-            Vector<Vector4> kernel;
-            for (int i = 0; i < 64; i++)
+            Vector<Vector4> kernel(KERNEL_SIZE);
+            for (int i = 0; i < kernel.Size(); i++)
             {
                 float x = Mathf::RandomRange(-1.0f, 1.0f);
                 float y = Mathf::RandomRange(-1.0f, 1.0f);
@@ -135,11 +142,11 @@ namespace Viry3D
                 Vector3 sample = Vector3::Normalize(Vector3(x, y, z));
                 sample *= Mathf::RandomRange(0.0f, 1.0f);
 
-                float scale = i / 64.0f;
+                float scale = i / (float) KERNEL_SIZE;
                 scale = Mathf::Lerp(0.1f, 1.0f, scale * scale);
                 sample *= scale;
 
-                kernel.Add(Vector4(sample));
+                kernel[i] = Vector4(sample);
             }
 
             // ssao shader
@@ -165,14 +172,12 @@ void main()
             String fs = R"(
 precision highp float;
 
-#define KERNEL_SIZE 64
-
-UniformBuffer(0, 0) uniform UniformBuffer01
+UniformBuffer(0, 0) uniform UniformBuffer00
 {
     vec4 u_noise_scale;
     vec4 u_kernel[KERNEL_SIZE];
     mat4 u_projection;
-} buf_0_1;
+} buf_0_0;
 
 UniformTexture(0, 1) uniform sampler2D u_pos_texture;
 UniformTexture(0, 2) uniform sampler2D u_normal_texture;
@@ -180,46 +185,138 @@ UniformTexture(0, 3) uniform sampler2D u_noise_texture;
 
 Input(0) vec2 v_uv;
 
-Output(0) vec4 o_frag;
+Output(0) float o_frag;
 
 void main()
 {
     vec3 pos = texture(u_pos_texture, v_uv).xyz;
-    vec3 normal = texture(u_normal_texture, v_uv).xyz;
-    vec3 random = texture(u_noise_texture, v_uv * buf_0_1.u_noise_scale.xy).xyz;
+    vec3 normal = texture(u_normal_texture, v_uv).xyz * 2.0 - 1.0;
+    vec3 random = texture(u_noise_texture, v_uv * buf_0_0.u_noise_scale.xy).xyz;
     vec3 tangent = normalize(random - normal * dot(random, normal));
     vec3 bitangent = cross(normal, tangent);
     mat3 tbn = mat3(tangent, bitangent, normal);
 
-    const float radius = 1.0;
-
     float occlusion = 0.0;
     for(int i = 0; i < KERNEL_SIZE; ++i)
     {
-        // get sample position
-        vec3 sample_pos = tbn * buf_0_1.u_kernel[i].xyz; // from tangent to view-space
-        sample_pos = pos + sample_pos * radius;
+        vec3 sample_pos = tbn * buf_0_0.u_kernel[i].xyz;
+        sample_pos = pos + sample_pos * RADIUS;
         
-        // project sample position (to sample texture) (to get position on screen/texture)
         vec4 offset = vec4(sample_pos, 1.0);
-        offset = offset * buf_0_1.u_projection; // from view to clip-space
-        offset.xyz /= offset.w; // perspective divide
-        offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
+        offset = offset * buf_0_0.u_projection;
+        offset.xyz /= offset.w;
+        offset.xyz = offset.xyz * 0.5 + 0.5;
+
+        float depth = -texture(u_pos_texture, vec2(offset.x, 1.0 - offset.y)).w;
         
-        // get sample depth
-        float depth = texture(u_pos_texture, vec2(offset.x, 1.0 - offset.y)).z; // get depth value of kernel sample
-        
-        // range check & accumulate
-        float check = smoothstep(0.0, 1.0, radius / abs(pos.z - depth));
+        float check = smoothstep(0.0, 1.0, RADIUS / abs(pos.z - depth));
         occlusion += (depth >= sample_pos.z ? 1.0 : 0.0) * check;
     }
     occlusion = 1.0 - (occlusion / float(KERNEL_SIZE));
 
-    o_frag = vec4(occlusion);
+    o_frag = occlusion;
 }
 )";
 
-            auto shader = RefMake<Shader>(
+            auto ssao_shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
+                vs,
+                String::Format("#define KERNEL_SIZE %d\n#define RADIUS %f", KERNEL_SIZE, RADIUS),
+                Vector<String>(),
+                fs,
+                render_state);
+            auto ssao_material = RefMake<Material>(ssao_shader);
+            ssao_material->SetTexture("u_pos_texture", pos_texture);
+            ssao_material->SetTexture("u_normal_texture", normal_texture);
+            ssao_material->SetTexture("u_noise_texture", noise_texture);
+            ssao_material->SetVector("u_noise_scale", Vector4(Display::Instance()->GetWidth() / (float) NOISE_SIZE, Display::Instance()->GetHeight() / (float) NOISE_SIZE, 0, 0));
+            ssao_material->SetVectorArray("u_kernel", kernel);
+            ssao_material->SetMatrix("u_projection", m_camera->GetProjectionMatrix());
+
+            auto ssao_texture = Texture::CreateRenderTexture(
+                Display::Instance()->GetWidth(),
+                Display::Instance()->GetHeight(),
+                TextureFormat::R8,
+                1,
+                true,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge);
+
+            m_ssao_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), ssao_material);
+            m_ssao_camera->SetRenderTarget(ssao_texture, Ref<Texture>());
+
+            // ssao blur
+            fs = R"(
+precision highp float;
+
+UniformTexture(0, 0) uniform sampler2D u_ssao_texture;
+
+Input(0) vec2 v_uv;
+
+Output(0) float o_frag;
+
+void main()
+{
+    float result = 0.0;
+
+    vec2 texel_size = 1.0 / vec2(textureSize(u_ssao_texture, 0));
+    int half_noise_size = NOISE_SIZE / 2;
+    for (int i = -half_noise_size; i < half_noise_size; ++i) 
+    {
+        for (int j = -half_noise_size; j < half_noise_size; ++j) 
+        {
+            vec2 offset = vec2(float(i), float(j)) * texel_size;
+            result += texture(u_ssao_texture, v_uv + offset).r;
+        }
+    }
+    result /= float(NOISE_SIZE * NOISE_SIZE);
+
+    o_frag = result;
+}
+)";
+
+            auto blur_shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
+                vs,
+                String::Format("#define NOISE_SIZE %d", NOISE_SIZE),
+                Vector<String>(),
+                fs,
+                render_state);
+            auto blur_material = RefMake<Material>(blur_shader);
+            blur_material->SetTexture("u_ssao_texture", ssao_texture);
+
+            auto blur_texture = Texture::CreateRenderTexture(
+                Display::Instance()->GetWidth(),
+                Display::Instance()->GetHeight(),
+                TextureFormat::R8,
+                1,
+                true,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge);
+
+            m_blur_camera = Display::Instance()->CreateBlitCamera(2, Ref<Texture>(), blur_material);
+            m_blur_camera->SetRenderTarget(blur_texture, Ref<Texture>());
+
+            // composite
+            fs = R"(
+precision highp float;
+
+UniformTexture(0, 0) uniform sampler2D u_color_texture;
+UniformTexture(0, 1) uniform sampler2D u_ssao_texture;
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    o_frag = texture(u_color_texture, v_uv) * texture(u_ssao_texture, v_uv).r;
+}
+)";
+
+            auto composite_shader = RefMake<Shader>(
                 "",
                 Vector<String>(),
                 vs,
@@ -227,18 +324,13 @@ void main()
                 Vector<String>(),
                 fs,
                 render_state);
-            auto material = RefMake<Material>(shader);
-            material->SetTexture("u_pos_texture", pos_texture);
-            material->SetTexture("u_normal_texture", normal_texture);
-            material->SetTexture("u_noise_texture", noise_texture);
-            material->SetVector("u_noise_scale", Vector4(Display::Instance()->GetWidth() / (float) 4, Display::Instance()->GetHeight() / (float) 4, 0, 0));
-            material->SetVectorArray("u_kernel", kernel);
-            material->SetMatrix("u_projection", m_camera->GetProjectionMatrix());
+            auto composite_material = RefMake<Material>(composite_shader);
+            composite_material->SetTexture("u_color_texture", color_texture);
+            composite_material->SetTexture("u_ssao_texture", blur_texture);
 
-            // color -> window
-            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), material);
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(3, Ref<Texture>(), composite_material);
 
-            m_ui_camera->SetDepth(2);
+            m_ui_camera->SetDepth(4);
         }
 
         void InitCamera()
@@ -291,6 +383,7 @@ void main()
                             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
                         }
                         material->SetLightProperties(m_light);
+                        material->SetVector("u_clip_plane", Vector4(m_camera_param.near_clip, m_camera_param.far_clip, 0, 0));
                     }
                 }
             }
@@ -330,6 +423,16 @@ void main()
 
         virtual void Done()
         {
+            if (m_ssao_camera)
+            {
+                Display::Instance()->DestroyCamera(m_ssao_camera);
+                m_ssao_camera = nullptr;
+            }
+            if (m_blur_camera)
+            {
+                Display::Instance()->DestroyCamera(m_blur_camera);
+                m_blur_camera = nullptr;
+            }
             if (m_blit_color_camera)
             {
                 Display::Instance()->DestroyCamera(m_blit_color_camera);

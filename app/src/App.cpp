@@ -40,8 +40,9 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - SSAO
-// - deferred shading
+// - deferred lighting
+// - deferred shadow
+// - Deferred Shading & SSAO
 // - VR Multiview
 // - GPU Particle
 // - Ray Tracing
@@ -102,7 +103,7 @@ namespace Viry3D
                 "AR",
                 "Instancing & PBR",
                 "Lightmap",
-                "SSAO"
+                "Deferred Shading & SSAO"
                 });
 
             const int top = (int) (90 * UI_SCALE);
