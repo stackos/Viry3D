@@ -27,7 +27,7 @@ void main()
 	gl_Position = pos_view * buf_0_0.u_projection_matrix;
 
     v_pos_view = pos_view.xyz;
-    v_normal_view = normalize((vec4(a_normal, 0) * model_view_mat).xyz);
+    v_normal_view = normalize((vec4(a_normal, 0.0) * model_view_mat).xyz);
 	v_uv = a_uv * buf_0_0.u_uv_scale_offset.xy + buf_0_0.u_uv_scale_offset.zw;
 
     vulkan_convert();

@@ -300,19 +300,67 @@ void main()
             m_blur_camera->SetRenderTarget(blur_texture, Ref<Texture>());
 
             // composite
+            vs = R"(
+UniformBuffer(0, 0) uniform UniformBuffer00
+{
+    mat4 u_view;
+    vec4 u_light_pos;
+} buf_0_0;
+
+Input(0) vec3 a_pos;
+Input(2) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+Output(1) vec3 v_light_dir;
+
+void main()
+{
+	gl_Position = vec4(a_pos, 1.0);
+	v_uv = a_uv;
+    
+    vec3 light_dir = normalize(-buf_0_0.u_light_pos.xyz); // directional light
+    v_light_dir = (vec4(light_dir, 0.0) * buf_0_0.u_view).xyz;
+
+	vulkan_convert();
+}
+)";
+
             fs = R"(
 precision highp float;
 
-UniformTexture(0, 0) uniform sampler2D u_color_texture;
-UniformTexture(0, 1) uniform sampler2D u_ssao_texture;
+UniformBuffer(0, 1) uniform UniformBuffer01
+{
+    vec4 u_ambient_color;
+	vec4 u_light_color;
+	float u_light_intensity;
+} buf_0_1;
+
+UniformTexture(0, 2) uniform sampler2D u_color_texture;
+UniformTexture(0, 3) uniform sampler2D u_ssao_texture;
+UniformTexture(0, 4) uniform sampler2D u_normal_texture;
 
 Input(0) vec2 v_uv;
+Input(1) vec3 v_light_dir;
 
 Output(0) vec4 o_frag;
 
 void main()
 {
-    o_frag = texture(u_color_texture, v_uv) * texture(u_ssao_texture, v_uv).r;
+    vec4 c = texture(u_color_texture, v_uv);
+    vec3 n = texture(u_normal_texture, v_uv).xyz * 2.0 - 1.0;
+    vec3 l = normalize(v_light_dir);
+
+    float nl = max(dot(n, l), 0.0);
+    vec3 gi_diffuse = c.rgb * buf_0_1.u_ambient_color.rgb;
+    vec3 diffuse = c.rgb * nl * buf_0_1.u_light_color.rgb * buf_0_1.u_light_intensity;
+
+    c.rgb = gi_diffuse + diffuse;
+    c.a = 1.0;
+
+    float occlusion = texture(u_ssao_texture, v_uv).r;
+    c.rgb *= occlusion;
+
+    o_frag = c;
 }
 )";
 
@@ -327,6 +375,9 @@ void main()
             auto composite_material = RefMake<Material>(composite_shader);
             composite_material->SetTexture("u_color_texture", color_texture);
             composite_material->SetTexture("u_ssao_texture", blur_texture);
+            composite_material->SetTexture("u_normal_texture", normal_texture);
+            composite_material->SetMatrix("u_view", m_camera->GetViewMatrix());
+            composite_material->SetLightProperties(m_light);
 
             m_blit_color_camera = Display::Instance()->CreateBlitCamera(3, Ref<Texture>(), composite_material);
 
