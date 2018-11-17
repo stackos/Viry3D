@@ -902,33 +902,41 @@ namespace Viry3D
         const Ref<Texture>& src_texture,
         int src_layer, int src_level,
         int src_x, int src_y,
+        int src_w, int src_h,
         int layer, int level,
         int x, int y,
         int w, int h)
     {
         this->Bind();
 
-        if (m_copy_framebuffer == 0)
+        if (src_w == w && src_h == h)
         {
-            glGenFramebuffers(1, &m_copy_framebuffer);
-        }
-        glBindFramebuffer(GL_FRAMEBUFFER, m_copy_framebuffer);
-        if (src_texture->GetTarget() == GL_TEXTURE_CUBE_MAP)
-        {
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + src_layer, src_texture->GetTexture(), src_level);
-        }
-        else
-        {
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, src_texture->GetTarget(), src_texture->GetTexture(), src_level);
-        }
+            if (m_copy_framebuffer == 0)
+            {
+                glGenFramebuffers(1, &m_copy_framebuffer);
+            }
+            glBindFramebuffer(GL_FRAMEBUFFER, m_copy_framebuffer);
+            if (src_texture->GetTarget() == GL_TEXTURE_CUBE_MAP)
+            {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + src_layer, src_texture->GetTexture(), src_level);
+            }
+            else
+            {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, src_texture->GetTarget(), src_texture->GetTexture(), src_level);
+            }
 
-        if (m_target == GL_TEXTURE_CUBE_MAP)
-        {
-            glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, level, x, y, src_x, src_y, w, h);
+            if (m_target == GL_TEXTURE_CUBE_MAP)
+            {
+                glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, level, x, y, src_x, src_y, w, h);
+            }
+            else
+            {
+                glCopyTexSubImage2D(m_target, level, x, y, src_x, src_y, w, h);
+            }
         }
         else
         {
-            glCopyTexSubImage2D(m_target, level, x, y, src_x, src_y, w, h);
+            Log("texture scale copy not implement in gl");
         }
         
 #if VR_IOS

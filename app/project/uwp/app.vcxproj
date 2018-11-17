@@ -140,14 +140,13 @@
     <Image Include="Assets\Square44x44Logo.scale-200.png" />
     <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Image Include="Assets\StoreLogo.png" />
-    <Image Include="Assets\texture\checkflag.png" />
-    <Image Include="Assets\texture\dawn\0.png" />
-    <Image Include="Assets\texture\dawn\1.png" />
-    <Image Include="Assets\texture\dawn\2.png" />
-    <Image Include="Assets\texture\dawn\3.png" />
-    <Image Include="Assets\texture\dawn\4.png" />
-    <Image Include="Assets\texture\dawn\5.png" />
-    <Image Include="Assets\texture\logo.jpg" />
+    <Image Include="Assets\texture\checkflag.png.tex.png" />
+    <Image Include="Assets\texture\env\dawn\0.png" />
+    <Image Include="Assets\texture\env\dawn\1.png" />
+    <Image Include="Assets\texture\env\dawn\2.png" />
+    <Image Include="Assets\texture\env\dawn\3.png" />
+    <Image Include="Assets\texture\env\dawn\4.png" />
+    <Image Include="Assets\texture\env\dawn\5.png" />
     <Image Include="Assets\texture\touch.png" />
     <Image Include="Assets\texture\ui\button.png" />
     <Image Include="Assets\texture\ui\circle.png" />
@@ -306,7 +305,7 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-    <None Include="Assets\texture\black.bmp.tex">
+    <None Include="Assets\texture\checkflag.png.tex">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>

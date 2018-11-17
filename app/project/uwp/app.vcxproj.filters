@@ -44,9 +44,6 @@
     <Filter Include="Assets\texture">
       <UniqueIdentifier>{2f1dd083-ef74-4ab2-8b70-c44ac861666f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Assets\texture\dawn">
-      <UniqueIdentifier>{e43cffb0-358e-47ea-be5d-1b4a61ee7682}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Assets\res">
       <UniqueIdentifier>{13cb41e5-61b5-4e21-9b0f-f8756a59b1bb}</UniqueIdentifier>
     </Filter>
@@ -62,34 +59,16 @@
     <Filter Include="Assets\audio">
       <UniqueIdentifier>{9da22983-d40c-4520-8bb9-19367e6a46cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\texture\env">
+      <UniqueIdentifier>{a4579546-f0c6-4d78-b204-5a27fd9b6e0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\texture\env\dawn">
+      <UniqueIdentifier>{93b771a6-a5cc-4c63-b693-9f86a5b334ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
       <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\texture\checkflag.png">
-      <Filter>Assets\texture</Filter>
-    </Image>
-    <Image Include="Assets\texture\logo.jpg">
-      <Filter>Assets\texture</Filter>
-    </Image>
-    <Image Include="Assets\texture\dawn\0.png">
-      <Filter>Assets\texture\dawn</Filter>
-    </Image>
-    <Image Include="Assets\texture\dawn\1.png">
-      <Filter>Assets\texture\dawn</Filter>
-    </Image>
-    <Image Include="Assets\texture\dawn\2.png">
-      <Filter>Assets\texture\dawn</Filter>
-    </Image>
-    <Image Include="Assets\texture\dawn\3.png">
-      <Filter>Assets\texture\dawn</Filter>
-    </Image>
-    <Image Include="Assets\texture\dawn\4.png">
-      <Filter>Assets\texture\dawn</Filter>
-    </Image>
-    <Image Include="Assets\texture\dawn\5.png">
-      <Filter>Assets\texture\dawn</Filter>
     </Image>
     <Image Include="Assets\res\model\ToonSoldier 1\tex.png.tex.png">
       <Filter>Assets\res\model\ToonSoldier 1</Filter>
@@ -108,6 +87,27 @@
     </Image>
     <Image Include="Assets\texture\ui\switch_on.png">
       <Filter>Assets\texture\ui</Filter>
+    </Image>
+    <Image Include="Assets\texture\env\dawn\0.png">
+      <Filter>Assets\texture\env\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\env\dawn\1.png">
+      <Filter>Assets\texture\env\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\env\dawn\2.png">
+      <Filter>Assets\texture\env\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\env\dawn\3.png">
+      <Filter>Assets\texture\env\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\env\dawn\4.png">
+      <Filter>Assets\texture\env\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\env\dawn\5.png">
+      <Filter>Assets\texture\env\dawn</Filter>
+    </Image>
+    <Image Include="Assets\texture\checkflag.png.tex.png">
+      <Filter>Assets\texture</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -163,9 +163,6 @@
     <None Include="Assets\shader\Include\Skin.in">
       <Filter>Assets\shader\Include</Filter>
     </None>
-    <None Include="Assets\texture\black.bmp.tex">
-      <Filter>Assets\texture</Filter>
-    </None>
     <None Include="Assets\res\model\ToonSoldier 1\mat.mat">
       <Filter>Assets\res\model\ToonSoldier 1</Filter>
     </None>
@@ -177,6 +174,9 @@
     </None>
     <None Include="Assets\res\model\ToonSoldier 1\ToonSoldier.FBX.MESH_Infantry.mesh">
       <Filter>Assets\res\model\ToonSoldier 1</Filter>
+    </None>
+    <None Include="Assets\texture\checkflag.png.tex">
+      <Filter>Assets\texture</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

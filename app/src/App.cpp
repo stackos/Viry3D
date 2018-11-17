@@ -40,8 +40,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - deferred shadow
-// - Deferred Shading & SSAO
 // - VR Multiview
 // - GPU Particle
 // - Ray Tracing
