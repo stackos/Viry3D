@@ -496,7 +496,14 @@ void main()
     {
 #if VR_VULKAN
         VkDrawIndexedIndirectCommand draw;
-        draw.indexCount = m_mesh->GetIndexCount();
+        if (m_mesh)
+        {
+            draw.indexCount = m_mesh->GetIndexCount();
+        }
+        else
+        {
+            draw.indexCount = 0;
+        }
         draw.instanceCount = 1;
         draw.firstIndex = 0;
         draw.vertexOffset = 0;

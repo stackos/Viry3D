@@ -414,8 +414,8 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"VR_IOS=1",
-					"VR_VULKAN=0",
-					"VR_GLES=1",
+					"VR_VULKAN=1",
+					"VR_GLES=0",
 				);
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,
@@ -448,8 +448,8 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"VR_IOS=1",
-					"VR_VULKAN=0",
-					"VR_GLES=1",
+					"VR_VULKAN=1",
+					"VR_GLES=0",
 				);
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,

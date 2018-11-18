@@ -194,9 +194,11 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     delete m_display;
 }
 
+#if VR_GLES
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
     [self doDraw];
 }
+#endif
 
 - (void)drawFrame {
 #if VR_VULKAN
