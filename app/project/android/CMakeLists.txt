@@ -474,5 +474,5 @@ target_link_libraries(Viry3DApp
                       )
 
 # build shaderc
-# ndk-bundle\sources\third_party\shaderc
-# ..\..\..\ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined
+# ndk-bundle/sources/third_party/shaderc
+# ../../../ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined

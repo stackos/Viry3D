@@ -40,6 +40,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BADA960721A27D7B0070CAB5 /* DemoLightmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoLightmap.h; path = ../../src/DemoLightmap.h; sourceTree = "<group>"; };
+		BADA960821A27D7B0070CAB5 /* DemoInstancing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoInstancing.h; path = ../../src/DemoInstancing.h; sourceTree = "<group>"; };
 		BAED934921502879002D2856 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		BAF169A2213AC9460033BC76 /* VkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VkView.m; sourceTree = "<group>"; };
 		BAF169A3213AC9460033BC76 /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
@@ -98,6 +100,8 @@
 				D12113A82150F51B00D20456 /* DemoAR.h */,
 				D12113A12150F51B00D20456 /* DemoAudio.h */,
 				D12113A02150F51B00D20456 /* DemoFXAA.h */,
+				BADA960821A27D7B0070CAB5 /* DemoInstancing.h */,
+				BADA960721A27D7B0070CAB5 /* DemoLightmap.h */,
 				D12113A32150F51B00D20456 /* DemoMesh.h */,
 				D12113A72150F51B00D20456 /* DemoPostEffectBlur.h */,
 				D12113A42150F51B00D20456 /* DemoRenderToTexture.h */,

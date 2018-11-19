@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 
-def ndkDir
+def ndkDir = null
 if (project.rootProject.file('local.properties').exists()) {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -15,7 +15,7 @@ if(!ndkDir || ndkDir.empty) {
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.1"
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.viry3d.app"
