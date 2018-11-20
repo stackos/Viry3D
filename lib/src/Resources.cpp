@@ -27,6 +27,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "animation/Animation.h"
+#include "json/json.h"
 
 namespace Viry3D
 {
@@ -50,40 +51,48 @@ namespace Viry3D
         String full_path = Application::Instance()->GetDataPath() + "/" + path;
         if (File::Exist(full_path))
         {
-            MemoryStream ms(File::ReadAllBytes(full_path));
+            String json = File::ReadAllText(full_path);
 
-            String texture_name = ReadString(ms);
-            int width = ms.Read<int>();
-            int height = ms.Read<int>();
-            SamplerAddressMode wrap_mode = (SamplerAddressMode) ms.Read<int>();
-            FilterMode filter_mode = (FilterMode) ms.Read<int>();
-            String texture_type = ReadString(ms);
-
-            if (texture_type == "Texture2D")
+            Json::Reader reader;
+            Json::Value root;
+            if (reader.parse(json.CString(), root))
             {
-                int mipmap_count = ms.Read<int>();
-                String png_path = ReadString(ms);
+                String texture_name = root["name"].asCString();
+                int width = root["width"].asInt();
+                int height = root["height"].asInt();
+                SamplerAddressMode wrap_mode = (SamplerAddressMode) root["wrap_mode"].asInt();
+                FilterMode filter_mode = (FilterMode) root["filter_mode"].asInt();
+                String texture_type = root["type"].asCString();
 
-                texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1);
-                texture->SetName(texture_name);
-            }
-            else if (texture_type == "Cubemap")
-            {
-                int mipmap_count = ms.Read<int>();
-
-                texture = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, filter_mode, wrap_mode, mipmap_count > 1);
-
-                for (int i = 0; i < mipmap_count; ++i)
+                if (texture_type == "Texture2D")
                 {
-                    for (int j = 0; j < 6; ++j)
-                    {
-                        String face_path = ReadString(ms);
+                    int mipmap_count = root["mipmap"].asInt();
+                    String png_path = root["path"].asCString();
 
-                        int w;
-                        int h;
-                        int bpp;
-                        ByteBuffer pixels = Texture::LoadImageFromFile(Application::Instance()->GetDataPath() + "/" + face_path, w, h, bpp);
-                        texture->UpdateCubemap(pixels, (CubemapFace) j, i);
+                    texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1);
+                    texture->SetName(texture_name);
+                }
+                else if (texture_type == "Cubemap")
+                {
+                    int mipmap_count = root["mipmap"].asInt();
+                    Json::Value levels = root["levels"];
+
+                    texture = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, filter_mode, wrap_mode, mipmap_count > 1);
+
+                    for (int i = 0; i < mipmap_count; ++i)
+                    {
+                        Json::Value faces = levels[i];
+
+                        for (int j = 0; j < 6; ++j)
+                        {
+                            String face_path = faces[j].asCString();
+
+                            int w;
+                            int h;
+                            int bpp;
+                            ByteBuffer pixels = Texture::LoadImageFromFile(Application::Instance()->GetDataPath() + "/" + face_path, w, h, bpp);
+                            texture->UpdateCubemap(pixels, (CubemapFace) j, i);
+                        }
                     }
                 }
             }

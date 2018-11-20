@@ -20,6 +20,7 @@ using UnityEditor;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 public class GameObjectExporter
 {
@@ -644,15 +645,12 @@ public class GameObjectExporter
         }
         cache.textures.Add(asset_path, texture);
 
-        var bw_save = bw;
-        var ms = new MemoryStream();
-        bw = new BinaryWriter(ms);
-
-        WriteString(texture.name);
-        bw.Write(texture.width);
-        bw.Write(texture.height);
-        bw.Write((int) texture.wrapMode);
-        bw.Write((int) texture.filterMode);
+        var jtexture = new JObject();
+        jtexture["name"] = texture.name;
+        jtexture["width"] = texture.width;
+        jtexture["height"] = texture.height;
+        jtexture["wrap_mode"] = (int) texture.wrapMode;
+        jtexture["filter_mode"] = (int) texture.filterMode;
 
         string file_path = out_dir + "/" + asset_path;
         CreateFileDirIfNeed(file_path);
@@ -665,12 +663,12 @@ public class GameObjectExporter
                 tex2d.format == TextureFormat.RGBA32 ||
                 tex2d.format == TextureFormat.ARGB32)
             {
-                WriteString("Texture2D");
-                bw.Write(tex2d.mipmapCount);
+                jtexture["type"] = "Texture2D";
+                jtexture["mipmap"] = tex2d.mipmapCount;
 
                 var png_path = asset_path + ".png";
 
-                WriteString(png_path);
+                jtexture["path"] = png_path;
 
                 png_path = out_dir + "/" + png_path;
 
@@ -704,12 +702,12 @@ public class GameObjectExporter
             }
             else if (tex2d.format == TextureFormat.RGBAHalf)
             {
-                WriteString("Texture2DRGBFloat");
-                bw.Write(tex2d.mipmapCount);
+                jtexture["type"] = "Texture2DRGBFloat";
+                jtexture["mipmap"] = tex2d.mipmapCount;
 
                 var data_path = asset_path + ".f";
 
-                WriteString(data_path);
+                jtexture["path"] = data_path;
 
                 var colors = tex2d.GetPixels();
                 var bytes = new byte[colors.Length * 12];
@@ -740,17 +738,23 @@ public class GameObjectExporter
                 cubemap.format == TextureFormat.RGBA32 ||
                 cubemap.format == TextureFormat.ARGB32)
             {
-                WriteString("Cubemap");
-                bw.Write(cubemap.mipmapCount);
+                jtexture["type"] = "Cubemap";
+                jtexture["mipmap"] = cubemap.mipmapCount;
+
+                JArray jlevels = new JArray();
+                jtexture["levels"] = jlevels;
 
                 int size = cubemap.width;
                 for (int i = 0; i < cubemap.mipmapCount; ++i)
                 {
+                    JArray jfaces = new JArray();
+                    jlevels.Add(jfaces);
+
                     for (int j = 0; j < 6; ++j)
                     {
                         var face_path = string.Format("{0}.cubemap/{1}_{2}.png", asset_path, i, j);
 
-                        WriteString(face_path);
+                        jfaces.Add(face_path);
 
                         var colors = cubemap.GetPixels((CubemapFace) j, i);
                         var face = new Texture2D(size, size, cubemap.format, false);
@@ -773,17 +777,23 @@ public class GameObjectExporter
             }
             else if (cubemap.format == TextureFormat.RGBAHalf)
             {
-                WriteString("CubemapRGBFloat");
-                bw.Write(cubemap.mipmapCount);
+                jtexture["type"] = "CubemapRGBFloat";
+                jtexture["mipmap"] = cubemap.mipmapCount;
+
+                JArray jlevels = new JArray();
+                jtexture["levels"] = jlevels;
 
                 int size = cubemap.width;
                 for (int i = 0; i < cubemap.mipmapCount; ++i)
                 {
+                    JArray jfaces = new JArray();
+                    jlevels.Add(jfaces);
+
                     for (int j = 0; j < 6; ++j)
                     {
                         var face_path = string.Format("{0}.cubemap/{1}_{2}.f", asset_path, i, j);
 
-                        WriteString(face_path);
+                        jfaces.Add(face_path);
 
                         var colors = cubemap.GetPixels((CubemapFace) j, i);
                         var bytes = new byte[colors.Length * 12];
@@ -817,8 +827,6 @@ public class GameObjectExporter
             Debug.LogError("texture type not support:" + asset_path_src);
         }
 
-        File.WriteAllBytes(file_path, ms.ToArray());
-
-        bw = bw_save;
+        File.WriteAllText(file_path, jtexture.ToString());
     }
 }
