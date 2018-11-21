@@ -480,7 +480,7 @@ namespace Viry3D
                     TextureFormat::R8G8B8A8,
                     FilterMode::Linear,
                     SamplerAddressMode::ClampToEdge,
-                    true,
+                    false,
                     false);
             }
 
