@@ -40,7 +40,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - fix ar demo in vulkan
 // - VR Multiview
 // - GPU Particle
 // - Ray Tracing

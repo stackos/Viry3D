@@ -93,17 +93,71 @@ namespace Viry3D
                 render_state.zTest = RenderState::ZTest::Off;
                 render_state.zWrite = RenderState::ZWrite::Off;
                 
+#if VR_VULKAN
+                String vs = R"(
+UniformBuffer(0, 0) uniform UniformBuffer00
+{
+    mat4 u_display_matrix;
+} buf_0_0;
+                
+Input(0) vec3 a_pos;
+Input(2) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+
+void main()
+{
+    gl_Position = vec4(a_pos, 1.0) * buf_0_0.u_display_matrix;
+    v_uv = a_uv;
+    
+    vulkan_convert();
+}
+)";
+                String fs = R"(
+precision highp float;
+
+UniformTexture(0, 1) uniform sampler2D u_texture_y;
+UniformTexture(0, 2) uniform sampler2D u_texture_uv;
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    vec4 y = texture(u_texture_y, v_uv);
+    vec4 uv = texture(u_texture_uv, v_uv);
+    vec4 yuv = vec4(y.r, uv.rg, 1.0);
+    
+    mat4 to_rgb = mat4(
+        vec4(+1.0000f, +1.0000f, +1.0000f, +0.0000f),
+        vec4(+0.0000f, -0.3441f, +1.7720f, +0.0000f),
+        vec4(+1.4020f, -0.7141f, +0.0000f, +0.0000f),
+        vec4(-0.7010f, +0.5291f, -0.8860f, +1.0000f)
+        );
+    o_frag = to_rgb * yuv;
+}
+)";
+                auto shader = RefMake<Shader>(
+                    "",
+                    Vector<String>(),
+                    vs,
+                    "",
+                    Vector<String>(),
+                    fs,
+                    render_state);
+#elif VR_GLES
                 String vs = R"(
 uniform mat4 u_display_matrix;
 
-in vec4 a_pos;
+in vec3 a_pos;
 in vec2 a_uv;
 
 out vec2 v_uv;
 
 void main()
 {
-    gl_Position = a_pos * u_display_matrix;
+    gl_Position = vec4(a_pos, 1.0) * u_display_matrix;
     v_uv = a_uv;
 }
 )";
@@ -132,7 +186,6 @@ void main()
     o_frag = to_rgb * yuv;
 }
 )";
-                
                 auto shader = RefMake<Shader>(
                     "#version 300 es",
                     Vector<String>(),
@@ -141,6 +194,7 @@ void main()
                     Vector<String>(),
                     fs,
                     render_state);
+#endif
                 
                 m_bg_material = RefMake<Material>(shader);
                 m_bg_material->SetTexture("u_texture_y", texture_y);
@@ -166,6 +220,16 @@ void main()
                 // test cube
                 render_state = RenderState();
                 render_state.cull = RenderState::Cull::Front;
+#if VR_VULKAN
+                shader = RefMake<Shader>(
+                    "",
+                    Vector<String>({ "Diffuse.vs.in" }),
+                    "",
+                    "",
+                    Vector<String>({ "Diffuse.fs.in" }),
+                    "",
+                    render_state);
+#elif VR_GLES
                 shader = RefMake<Shader>(
                     "",
                     Vector<String>({ "Diffuse.100.vs.in" }),
@@ -174,6 +238,7 @@ void main()
                     Vector<String>({ "Diffuse.100.fs.in" }),
                     "",
                     render_state);
+#endif
                 auto cube = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
                 
                 auto material = RefMake<Material>(shader);
@@ -192,12 +257,74 @@ void main()
                 renderer->SetLocalScale(Vector3(1, 1, 1) * 0.1f);
                 
                 // test sphere
+#if VR_VULKAN
+                vs = R"(
+UniformBuffer(0, 0) uniform UniformBuffer00
+{
+    mat4 u_view_matrix;
+    mat4 u_projection_matrix;
+} buf_0_0;
+                
+UniformBuffer(1, 0) uniform UniformBuffer10
+{
+    mat4 u_model_matrix;
+} buf_1_0;
+
+Input(0) vec3 a_pos;
+Input(4) vec3 a_normal;
+
+Output(0) vec3 v_pos;
+Output(1) vec3 v_normal;
+                
+void main()
+{
+    vec4 pos_world = vec4(a_pos, 1.0) * buf_1_0.u_model_matrix;
+    gl_Position = pos_world * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
+    v_pos = pos_world.xyz;
+    v_normal = normalize((vec4(a_normal, 0) * buf_1_0.u_model_matrix).xyz);
+    
+    vulkan_convert();
+}
+)";
+                fs = R"(
+precision highp float;
+
+UniformTexture(0, 1) uniform samplerCube u_texture;
+
+UniformBuffer(0, 2) uniform UniformBuffer02
+{
+    vec4 u_camera_pos;
+} buf_0_2;
+                
+Input(0) vec3 v_pos;
+Input(1) vec3 v_normal;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    vec3 v = normalize(v_pos - buf_0_2.u_camera_pos.xyz);
+    vec3 n = normalize(v_normal);
+    vec3 r = reflect(v, n);
+    vec4 c = texture(u_texture, r);
+    o_frag = c.bgra; // bgra -> rgba
+}
+)";
+                shader = RefMake<Shader>(
+                    "",
+                    Vector<String>(),
+                    vs,
+                    "",
+                    Vector<String>(),
+                    fs,
+                    render_state);
+#elif VR_GLES
                 vs = R"(
 uniform mat4 u_view_matrix;
 uniform mat4 u_projection_matrix;
 uniform mat4 u_model_matrix;
                 
-in vec4 a_pos;
+in vec3 a_pos;
 in vec3 a_normal;
 
 out vec3 v_pos;
@@ -205,7 +332,7 @@ out vec3 v_normal;
 
 void main()
 {
-    vec4 pos_world = a_pos * u_model_matrix;
+    vec4 pos_world = vec4(a_pos, 1.0) * u_model_matrix;
     gl_Position = pos_world * u_view_matrix * u_projection_matrix;
     v_pos = pos_world.xyz;
     v_normal = normalize((vec4(a_normal, 0) * u_model_matrix).xyz);
@@ -239,6 +366,7 @@ void main()
                     Vector<String>(),
                     fs,
                     render_state);
+#endif
                 
                 auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
                 
