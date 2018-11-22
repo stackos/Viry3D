@@ -52,6 +52,9 @@
     <ClInclude Include="..\..\src\DemoSSAO.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\DemoVR.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

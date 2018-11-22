@@ -154,6 +154,7 @@ namespace Viry3D
             VkImageLayout new_image_layout,
             VkAccessFlagBits src_access_mask);
         VkCommandBuffer GetImageCmd() const;
+        bool IsSupportMultiview() const;
 #elif VR_GLES
         void EnableGLESv3();
         bool IsGLESv3() const;

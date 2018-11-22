@@ -32,6 +32,7 @@
 #include "DemoInstancing.h"
 #include "DemoLightmap.h"
 #include "DemoSSAO.h"
+#include "DemoVR.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -100,7 +101,8 @@ namespace Viry3D
                 "AR",
                 "Instancing & PBR",
                 "Lightmap",
-                "Deferred Shading & SSAO"
+                "Deferred Shading & SSAO",
+                "VR"
                 });
 
             const int top = (int) (90 * UI_SCALE);
@@ -129,22 +131,23 @@ namespace Viry3D
                 bool disabled = false;
                 
 #if VR_GLES
-                bool disable_fxaa = false;
-                // MARK:
-                // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
-                // but opengl 2.1 not support some feature in fxaa glsl 120 shader,
-                // and gles 2.0 / webgl 1.0 not support too,
-                // so disable fxaa on mac / gles 2.0,
-                // webgl 2.0 has wrong result, disable too.
-#if VR_WASM
-                disable_fxaa = true;
-#else
-                disable_fxaa = !Display::Instance()->IsGLESv3();
-#endif
-                if (disable_fxaa && i == 4)
+                if (i == 4)
                 {
+                    // MARK:
+                    // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
+                    // but opengl 2.1 not support some feature in fxaa glsl 120 shader,
+                    // and gles 2.0 / webgl 1.0 not support too,
+                    // so disable fxaa on mac / gles 2.0,
+                    // webgl 2.0 has wrong result, disable too.
+    #if VR_WASM
                     disabled = true;
-                    button->GetLabel()->SetText("FXAA (disabled on gles2 / webgl)");
+    #else
+                    disabled = !Display::Instance()->IsGLESv3();
+    #endif
+                    if (disabled)
+                    {
+                        button->GetLabel()->SetText("FXAA (disabled on gles2 / webgl)");
+                    }
                 }
 
                 // need gles3
@@ -163,18 +166,28 @@ namespace Viry3D
                     disabled = true;
                     button->GetLabel()->SetText(button->GetLabel()->GetText() + " (implement in vulkan only)");
                 }
-#endif // VR_GLES
-                
-                bool disable_ar = false;
-#if VR_IOS
-                disable_ar = !ARScene::IsSupported();
-#else
-                disable_ar = true;
-#endif
-                if (disable_ar && i == 10)
+#elif VR_VULKAN
+                if (i == 14)
                 {
+                    disabled = !Display::Instance()->IsSupportMultiview();
+                    if (disabled)
+                    {
+                        button->GetLabel()->SetText("VR (require VK_KHR_multiview extension)");
+                    }
+                }
+#endif
+                
+                if (i == 10)
+                {
+#if VR_IOS
+                    disabled = !ARScene::IsSupported();
+#else
                     disabled = true;
-                    button->GetLabel()->SetText("AR (available on ios arkit only)");
+#endif
+                    if (disabled)
+                    {
+                        button->GetLabel()->SetText("AR (require ARKit)");
+                    }
                 }
 
                 if (disabled)
@@ -232,6 +245,10 @@ namespace Viry3D
                     break;
                 case 13:
                     m_demo = new DemoSSAO();
+                    break;
+                case 14:
+                    m_demo = new DemoVR();
+                    break;
                 default:
                     break;
             }

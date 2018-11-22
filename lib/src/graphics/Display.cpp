@@ -583,6 +583,10 @@ extern void UnbindSharedContext();
                     swapchain_ext_found = true;
                     StringVectorAdd(m_device_extension_names, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
                 }
+                else if (strcmp(VK_KHR_MULTIVIEW_EXTENSION_NAME, device_extensions[i].extensionName) == 0)
+                {
+                    StringVectorAdd(m_device_extension_names, VK_KHR_MULTIVIEW_EXTENSION_NAME);
+                }
             }
             assert(swapchain_ext_found);
 
@@ -3780,6 +3784,11 @@ void main()
     VkCommandBuffer Display::GetImageCmd() const
     {
         return m_private->m_image_cmd;
+    }
+
+    bool Display::IsSupportMultiview() const
+    {
+        return m_private->m_gpu_features.multiViewport == VK_TRUE;
     }
 #elif VR_GLES
     void Display::EnableGLESv3()
