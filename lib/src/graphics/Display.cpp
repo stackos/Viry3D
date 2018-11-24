@@ -795,6 +795,7 @@ extern void UnbindSharedContext();
                 m_height,
                 Texture::ChooseDepthFormatSupported(false),
                 1,
+                1,
                 false,
                 FilterMode::None,
                 SamplerAddressMode::None);

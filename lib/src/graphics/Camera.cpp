@@ -233,10 +233,11 @@ namespace Viry3D
 	{
 		m_render_target_color = color_texture;
 		m_render_target_depth = depth_texture;
-
+        
 #if VR_VULKAN
 		m_render_pass_dirty = true;
 #endif
+        m_projection_matrix_dirty = true;
 	}
 
     void Camera::SetExtraRenderTargets(const Vector<Ref<Texture>>& color_textures)

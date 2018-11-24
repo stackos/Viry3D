@@ -101,6 +101,7 @@ namespace Viry3D
             int width,
             int height,
             TextureFormat format,
+            int array_size,
             int sample_count,
             bool create_sampler,
             FilterMode filter_mode,
@@ -125,6 +126,7 @@ namespace Viry3D
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
         int GetMipmapLevelCount() const { return m_mipmap_level_count; }
+        int GetArraySize() const { return m_array_size; }
         int GetSampleCount() const { return m_sample_count; }
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
         void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);

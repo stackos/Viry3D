@@ -24,29 +24,101 @@ namespace Viry3D
     class DemoVR : public DemoLightmap
     {
     public:
-        void InitCamera()
-        {
-            m_camera = Display::Instance()->CreateCamera();
-            m_camera->SetDepth(0);
-            m_camera->SetLocalPosition(m_camera_param.pos);
-            m_camera->SetLocalRotation(Quaternion::Euler(m_camera_param.rot));
+        Camera* m_blit_color_camera = nullptr;
 
-            m_camera->SetFieldOfView(m_camera_param.fov);
-            m_camera->SetNearClip(m_camera_param.near_clip);
-            m_camera->SetFarClip(m_camera_param.far_clip);
-            //m_camera->SetStereoRendering(true);
+        void InitVR()
+        {
+            m_camera->SetStereoRendering(true);
+
+            auto color_texture = Texture::CreateRenderTexture(
+                Display::Instance()->GetWidth() / 2,
+                Display::Instance()->GetHeight(),
+                TextureFormat::R8G8B8A8,
+                2,
+                1,
+                true,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge);
+            auto depth_texture = Texture::CreateRenderTexture(
+                Display::Instance()->GetWidth() / 2,
+                Display::Instance()->GetHeight(),
+                Texture::ChooseDepthFormatSupported(true),
+                2,
+                1,
+                true,
+                FilterMode::Nearest,
+                SamplerAddressMode::ClampToEdge);
+            m_camera->SetRenderTarget(color_texture, depth_texture);
+
+            // color -> window
+            String vs = R"(
+Input(0) vec3 a_pos;
+Input(2) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+
+void main()
+{
+	gl_Position = vec4(a_pos, 1.0);
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+)";
+            String fs = R"(
+precision highp float;
+      
+UniformTexture(0, 0) uniform lowp sampler2DArray u_texture;
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    if (v_uv.x < 0.5)
+    {
+        o_frag = texture(u_texture, vec3(v_uv.x * 2.0, v_uv.y, 0.0));
+    }
+    else
+    {
+        o_frag = texture(u_texture, vec3((v_uv.x - 0.5) * 2.0, v_uv.y, 1.0));
+    }
+}
+)";
+            RenderState render_state;
+            render_state.cull = RenderState::Cull::Off;
+            render_state.zTest = RenderState::ZTest::Off;
+            render_state.zWrite = RenderState::ZWrite::Off;
+
+            auto shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
+                vs,
+                "",
+                Vector<String>(),
+                fs,
+                render_state);
+            auto material = RefMake<Material>(shader);
+            material->SetTexture("u_texture", color_texture);
+
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), material);
+
+            m_ui_camera->SetDepth(2);
         }
 
         virtual void Init()
         {
-            this->InitCamera();
-            this->InitLight();
-            this->InitScene();
-            this->InitUI();
+            DemoLightmap::Init();
+
+            this->InitVR();
         }
 
         virtual void Done()
         {
+            Display::Instance()->DestroyCamera(m_blit_color_camera);
+            m_blit_color_camera = nullptr;
+
             DemoLightmap::Done();
         }
 

@@ -328,6 +328,7 @@ namespace Viry3D
         int width,
         int height,
         TextureFormat format,
+        int array_size,
         int sample_count,
         bool create_sampler,
         FilterMode filter_mode,
@@ -364,7 +365,7 @@ namespace Viry3D
 
         texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
-            VK_IMAGE_VIEW_TYPE_2D,
+            array_size > 1 ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D,
             width,
             height,
             TextureFormatToVkFormat(format),
@@ -378,7 +379,7 @@ namespace Viry3D
             },
             1,
             false,
-            1,
+            array_size,
             sample_count);
         if (create_sampler)
         {
@@ -390,7 +391,7 @@ namespace Viry3D
 			texture->GetImage(),
 			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-			{ aspect, 0, 1, 0, 1 },
+			{ aspect, 0, 1, 0, (uint32_t) array_size },
 			VK_IMAGE_LAYOUT_UNDEFINED,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			(VkAccessFlagBits) 0);
@@ -400,7 +401,7 @@ namespace Viry3D
                 texture->GetImageMultiSample(),
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                { aspect, 0, 1, 0, 1 },
+                { aspect, 0, 1, 0, (uint32_t) array_size },
                 VK_IMAGE_LAYOUT_UNDEFINED,
                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                 (VkAccessFlagBits) 0);

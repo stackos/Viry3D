@@ -34,6 +34,7 @@ namespace Viry3D
                 Display::Instance()->GetHeight(),
                 TextureFormat::R8G8B8A8,
                 1,
+                1,
                 true,
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
@@ -41,6 +42,7 @@ namespace Viry3D
                 Display::Instance()->GetWidth(),
                 Display::Instance()->GetHeight(),
                 Texture::ChooseDepthFormatSupported(true),
+                1,
                 1,
                 true,
                 FilterMode::Nearest,
