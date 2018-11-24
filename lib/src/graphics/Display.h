@@ -65,6 +65,7 @@ namespace Viry3D
             const Ref<Texture>& depth_texture,
             const Vector<Ref<Texture>>& extra_color_textures,
             CameraClearFlags clear_flag,
+            bool stereo_rendering,
             VkRenderPass* render_pass,
             Vector<VkFramebuffer>& framebuffers);
         void CreateCommandPool(VkCommandPool* cmd_pool);

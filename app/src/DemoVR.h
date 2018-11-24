@@ -34,6 +34,7 @@ namespace Viry3D
             m_camera->SetFieldOfView(m_camera_param.fov);
             m_camera->SetNearClip(m_camera_param.near_clip);
             m_camera->SetFarClip(m_camera_param.far_clip);
+            //m_camera->SetStereoRendering(true);
         }
 
         virtual void Init()

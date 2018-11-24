@@ -46,6 +46,7 @@ namespace Viry3D
         m_far_clip(1000),
         m_orthographic(false),
         m_orthographic_size(1),
+        m_stereo_rendering(false),
         m_view_matrix_external(false),
         m_projection_matrix_external(false)
 	{
@@ -134,6 +135,15 @@ namespace Viry3D
     {
         m_orthographic_size = size;
         m_projection_matrix_dirty = true;
+    }
+
+    void Camera::SetStereoRendering(bool enable)
+    {
+        m_stereo_rendering = enable;
+
+#if VR_VULKAN
+        m_render_pass_dirty = true;
+#endif
     }
 
     void Camera::SetProjectionMatrixExternal(const Matrix4x4& mat)
@@ -604,12 +614,13 @@ namespace Viry3D
     void Camera::UpdateRenderPass()
     {
         this->ClearRenderPass();
-
+         
         Display::Instance()->CreateRenderPass(
             m_render_target_color,
             m_render_target_depth,
             m_extra_render_targets,
             m_clear_flags,
+            m_stereo_rendering,
             &m_render_pass,
             m_framebuffers);
     }

@@ -1048,6 +1048,7 @@ extern void UnbindSharedContext();
             CameraClearFlags clear_flag,
             int sample_count,
             bool present,
+            bool stereo_rendering,
             VkRenderPass* render_pass)
         {
             VkAttachmentLoadOp color_load;
@@ -1217,6 +1218,24 @@ extern void UnbindSharedContext();
             rp_info.pSubpasses = &subpass;
             rp_info.dependencyCount = 0;
             rp_info.pDependencies = nullptr;
+
+            const uint32_t view_mask = 0b00000011;
+            const uint32_t correlation_mask = 0b00000011;
+            VkRenderPassMultiviewCreateInfo rpm_info;
+            if (stereo_rendering)
+            {
+                Memory::Zero(&rpm_info, sizeof(rpm_info));
+                rpm_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO;
+                rpm_info.pNext = nullptr;
+                rpm_info.subpassCount = 1;
+                rpm_info.pViewMasks = &view_mask;
+                rpm_info.dependencyCount = 0;
+                rpm_info.pViewOffsets = nullptr;
+                rpm_info.correlationMaskCount = 1;
+                rpm_info.pCorrelationMasks = &correlation_mask;
+
+                rp_info.pNext = &rpm_info;
+            }
 
             VkResult err = vkCreateRenderPass(m_device, &rp_info, nullptr, render_pass);
             assert(!err);
@@ -3440,6 +3459,7 @@ void main()
         const Ref<Texture>& depth_texture,
         const Vector<Ref<Texture>>& extra_color_textures,
         CameraClearFlags clear_flag,
+        bool stereo_rendering,
         VkRenderPass* render_pass,
         Vector<VkFramebuffer>& framebuffers)
     {
@@ -3454,6 +3474,7 @@ void main()
                 clear_flag,
                 1,
                 true,
+                stereo_rendering,
                 render_pass);
 
             framebuffers.Resize(m_private->m_swapchain_image_resources.Size());
@@ -3537,6 +3558,7 @@ void main()
                 clear_flag,
                 sample_count,
                 false,
+                stereo_rendering,
                 render_pass);
 
             framebuffers.Resize(1);
