@@ -26,6 +26,21 @@ namespace Viry3D
     public:
         Camera* m_blit_color_camera = nullptr;
 
+        void InitShader()
+        {
+            RenderState render_state;
+            auto shader = RefMake<Shader>(
+                "#define LIGHTMAP 1\n"
+                "#define MULTIVIEW 1",
+                Vector<String>({ "Diffuse.vs.in" }),
+                "",
+                "#define LIGHTMAP 1",
+                Vector<String>({ "Diffuse.fs.in" }),
+                "",
+                render_state);
+            Shader::AddCache("Diffuse", shader);
+        }
+
         void InitVR()
         {
             m_camera->SetStereoRendering(true);
@@ -109,8 +124,11 @@ void main()
 
         virtual void Init()
         {
-            DemoLightmap::Init();
-
+            this->InitCamera();
+            this->InitLight();
+            this->InitShader();
+            this->InitScene();
+            this->InitUI();
             this->InitVR();
         }
 

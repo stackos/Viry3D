@@ -271,10 +271,10 @@ extern void UnbindSharedContext();
         VkDevice m_device = VK_NULL_HANDLE;
         VkQueue m_graphics_queue = VK_NULL_HANDLE;
         VkQueue m_image_queue = VK_NULL_HANDLE;
-        VkPhysicalDeviceProperties m_gpu_properties;
         Vector<VkQueueFamilyProperties> m_queue_properties;
-        VkPhysicalDeviceFeatures m_gpu_features;
         VkPhysicalDeviceMemoryProperties m_memory_properties;
+        VkPhysicalDeviceFeatures m_gpu_features;
+        VkPhysicalDeviceProperties m_gpu_properties;
         PFN_vkCreateDebugReportCallbackEXT fpCreateDebugReportCallbackEXT = nullptr;
         PFN_vkDestroyDebugReportCallbackEXT fpDestroyDebugReportCallbackEXT = nullptr;
         PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR = nullptr;
@@ -590,16 +590,15 @@ extern void UnbindSharedContext();
             }
             assert(swapchain_ext_found);
 
-            vkGetPhysicalDeviceProperties(m_gpu, &m_gpu_properties);
-
             uint32_t queue_family_count;
             vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &queue_family_count, nullptr);
             assert(queue_family_count > 0);
 
             m_queue_properties.Resize(queue_family_count);
             vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &queue_family_count, &m_queue_properties[0]);
-            vkGetPhysicalDeviceFeatures(m_gpu, &m_gpu_features);
             vkGetPhysicalDeviceMemoryProperties(m_gpu, &m_memory_properties);
+            vkGetPhysicalDeviceFeatures(m_gpu, &m_gpu_features);
+            vkGetPhysicalDeviceProperties(m_gpu, &m_gpu_properties);
         }
 
         void CreateSurface()

@@ -81,7 +81,7 @@ namespace Viry3D
             m_light->SetIntensity(0.1f);
         }
 
-        void InitScene()
+        void InitShader()
         {
             RenderState render_state;
             auto shader = RefMake<Shader>(
@@ -93,7 +93,10 @@ namespace Viry3D
                 "",
                 render_state);
             Shader::AddCache("Diffuse", shader);
+        }
 
+        void InitScene()
+        {
             auto lightmap = Resources::LoadLightmap("res/scene/lightmap/scene.lightmap");
 
             auto node = Resources::LoadNode("res/scene/lightmap/scene.go");
@@ -150,6 +153,7 @@ namespace Viry3D
         {
             this->InitCamera();
             this->InitLight();
+            this->InitShader();
             this->InitScene();
             this->InitUI();
         }

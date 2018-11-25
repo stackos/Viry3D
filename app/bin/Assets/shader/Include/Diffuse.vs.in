@@ -18,9 +18,21 @@
     #define LIGHTMAP 0
 #endif
 
+#ifndef MULTIVIEW
+    #define MULTIVIEW 0
+#endif
+
+#if (MULTIVIEW == 1)
+#extension GL_EXT_multiview : enable
+#endif
+
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
-	mat4 u_view_matrix;
+#if (MULTIVIEW == 1) && defined(GL_EXT_multiview) && (GL_EXT_multiview == 1)
+    mat4 u_view_matrix[2];
+#else
+    mat4 u_view_matrix;
+#endif
 	mat4 u_projection_matrix;
 
 #if (CAST_SHADOW == 0)
@@ -91,9 +103,15 @@ void main()
     model_mat = model_mat * instance_mat;
 #endif
 
+#if (MULTIVIEW == 1) && defined(GL_EXT_multiview) && (GL_EXT_multiview == 1)
+    mat4 view_matrix = buf_0_0.u_view_matrix[gl_ViewIndex];
+#else
+    mat4 view_matrix = buf_0_0.u_view_matrix;
+#endif
+
     vec4 pos = vec4(a_pos, 1.0);
 
-	gl_Position = pos * model_mat * buf_0_0.u_view_matrix * buf_0_0.u_projection_matrix;
+	gl_Position = pos * model_mat * view_matrix * buf_0_0.u_projection_matrix;
 
 #if (CAST_SHADOW == 0)
 	v_uv.xy = a_uv * buf_0_0.u_uv_scale_offset.xy + buf_0_0.u_uv_scale_offset.zw;
