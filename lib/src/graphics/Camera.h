@@ -83,12 +83,15 @@ namespace Viry3D
         void SetOrthographic(bool enable);
         float GetOrthographicSize() const { return m_orthographic_size; }
         void SetOrthographicSize(float size);
+        bool IsStereoRendering() const { return m_stereo_rendering; }
         void SetStereoRendering(bool enable);
         void SetViewMatrixExternal(const Matrix4x4& mat);
         void SetProjectionMatrixExternal(const Matrix4x4& mat);
         const Matrix4x4& GetViewMatrix();
         const Matrix4x4& GetProjectionMatrix();
         void MarkRendererOrderDirty();
+        void SetViewUniforms(const Ref<Material>& material);
+        void SetProjectionUniform(const Ref<Material>& material);
 #if VR_VULKAN
         void MarkInstanceCmdDirty(Renderer* renderer);
         VkRenderPass GetRenderPass() const { return m_render_pass; }

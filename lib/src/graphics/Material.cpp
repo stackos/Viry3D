@@ -134,6 +134,7 @@ namespace Viry3D
         MaterialProperty* property_ptr;
         if (m_properties.TryGet(name, &property_ptr))
         {
+            property_ptr->type = MaterialProperty::Type::Texture;
             property_ptr->texture = texture;
             property_ptr->dirty = true;
         }
@@ -167,6 +168,7 @@ namespace Viry3D
         MaterialProperty* property_ptr;
         if (m_properties.TryGet(name, &property_ptr))
         {
+            property_ptr->type = MaterialProperty::Type::VectorArray;
             property_ptr->vector_array = array;
             property_ptr->dirty = true;
         }
@@ -176,6 +178,26 @@ namespace Viry3D
             property.name = name;
             property.type = MaterialProperty::Type::VectorArray;
             property.vector_array = array;
+            property.dirty = true;
+            m_properties.Add(name, property);
+        }
+    }
+
+    void Material::SetMatrixArray(const String& name, const Vector<Matrix4x4>& array)
+    {
+        MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            property_ptr->type = MaterialProperty::Type::MatrixArray;
+            property_ptr->matrix_array = array;
+            property_ptr->dirty = true;
+        }
+        else
+        {
+            MaterialProperty property;
+            property.name = name;
+            property.type = MaterialProperty::Type::MatrixArray;
+            property.matrix_array = array;
             property.dirty = true;
             m_properties.Add(name, property);
         }
@@ -230,6 +252,10 @@ namespace Viry3D
                 else if (i.second.type == MaterialProperty::Type::VectorArray)
                 {
                     this->UpdateUniformMember(i.second.name, i.second.vector_array.Bytes(), i.second.vector_array.SizeInBytes(), instance_cmd_dirty);
+                }
+                else if (i.second.type == MaterialProperty::Type::MatrixArray)
+                {
+                    this->UpdateUniformMember(i.second.name, i.second.matrix_array.Bytes(), i.second.matrix_array.SizeInBytes(), instance_cmd_dirty);
                 }
                 else
                 {
@@ -355,6 +381,9 @@ namespace Viry3D
                 break;
             case MaterialProperty::Type::VectorArray:
                 m_shader->SetUniform4f(p.name, p.vector_array.Size(), (const float*) &p.vector_array[0]);
+                break;
+            case MaterialProperty::Type::MatrixArray:
+                m_shader->SetUniformMatrix(p.name, p.matrix_array.Size(), (const float*) &p.matrix_array[0]);
                 break;
             case MaterialProperty::Type::Int:
                 m_shader->SetUniform1i(p.name, p.data.int_value);

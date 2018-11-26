@@ -109,14 +109,10 @@ namespace Viry3D
             }
         }
 
-        if (m_material)
+        if (m_camera)
         {
-            if (m_camera)
-            {
-                m_material->SetMatrix(VIEW_MATRIX, m_camera->GetViewMatrix());
-                m_material->SetMatrix(PROJECTION_MATRIX, m_camera->GetProjectionMatrix());
-                m_material->SetVector(CAMERA_POSITION, m_camera->GetPosition());
-            }
+            m_camera->SetViewUniforms(m_material);
+            m_camera->SetProjectionUniform(m_material);
         }
 
         m_model_matrix_dirty = true;

@@ -95,16 +95,36 @@ namespace Viry3D
 
             for (auto& i : m_renderers)
             {
-                const Ref<Material>& material = i.renderer->GetMaterial();
-                if (material)
-                {
-                    material->SetMatrix(VIEW_MATRIX, m_view_matrix);
-                    material->SetVector(CAMERA_POSITION, this->GetPosition());
-                }
+                this->SetViewUniforms(i.renderer->GetMaterial());
             }
         }
 
         return m_view_matrix;
+    }
+
+    void Camera::SetViewUniforms(const Ref<Material>& material)
+    {
+        if (material)
+        {
+            if (this->IsStereoRendering())
+            {
+                material->SetMatrixArray(VIEW_MATRIX, { this->GetViewMatrix(), this->GetViewMatrix() });
+                material->SetVectorArray(CAMERA_POSITION, { this->GetPosition(), this->GetPosition() });
+            }
+            else
+            {
+                material->SetMatrix(VIEW_MATRIX, this->GetViewMatrix());
+                material->SetVector(CAMERA_POSITION, this->GetPosition());
+            }
+        }
+    }
+
+    void Camera::SetProjectionUniform(const Ref<Material>& material)
+    {
+        if (material)
+        {
+            material->SetMatrix(PROJECTION_MATRIX, this->GetProjectionMatrix());
+        }
     }
 
     void Camera::SetFieldOfView(float fov)
@@ -140,7 +160,7 @@ namespace Viry3D
     void Camera::SetStereoRendering(bool enable)
     {
         m_stereo_rendering = enable;
-
+        m_view_matrix_dirty = true;
 #if VR_VULKAN
         m_render_pass_dirty = true;
 #endif
@@ -555,12 +575,8 @@ namespace Viry3D
         if (!m_renderers.Contains(instance))
         {
             const Ref<Material>& material = renderer->GetMaterial();
-            if (material)
-            {
-                material->SetMatrix(VIEW_MATRIX, this->GetViewMatrix());
-                material->SetMatrix(PROJECTION_MATRIX, this->GetProjectionMatrix());
-                material->SetVector(CAMERA_POSITION, this->GetPosition());
-            }
+            this->SetViewUniforms(material);
+            this->SetProjectionUniform(material);
 
             m_renderers.AddLast(instance);
             this->MarkRendererOrderDirty();

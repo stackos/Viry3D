@@ -57,6 +57,7 @@ namespace Viry3D
             Texture,
             Matrix,
             VectorArray,
+            MatrixArray,
             Int,
         };
 
@@ -74,6 +75,7 @@ namespace Viry3D
         Data data;
         Ref<Texture> texture;
         Vector<Vector4> vector_array;
+        Vector<Matrix4x4> matrix_array;
         int size;
         bool dirty;
     };
@@ -97,6 +99,7 @@ namespace Viry3D
         void SetInt(const String& name, int value);
         void SetTexture(const String& name, const Ref<Texture>& texture);
         void SetVectorArray(const String& name, const Vector<Vector4>& array);
+        void SetMatrixArray(const String& name, const Vector<Matrix4x4>& array);
         void SetLightProperties(const Ref<Light>& light);
         const Map<String, MaterialProperty>& GetProperties() const { return m_properties; }
         Ref<Texture> GetTexture(const String& name) const;
@@ -129,6 +132,7 @@ namespace Viry3D
             MaterialProperty* property_ptr;
             if (m_properties.TryGet(name, &property_ptr))
             {
+                property_ptr->type = type;
                 Memory::Copy(&property_ptr->data, &v, sizeof(v));
                 property_ptr->dirty = true;
             }
