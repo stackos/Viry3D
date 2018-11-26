@@ -28,7 +28,7 @@
 
 UniformBuffer(0, 0) uniform UniformBuffer00
 {
-#if (MULTIVIEW == 1) && defined(GL_EXT_multiview) && (GL_EXT_multiview == 1)
+#if (MULTIVIEW == 1)
     mat4 u_view_matrix[2];
 #else
     mat4 u_view_matrix;
@@ -103,7 +103,7 @@ void main()
     model_mat = model_mat * instance_mat;
 #endif
 
-#if (MULTIVIEW == 1) && defined(GL_EXT_multiview) && (GL_EXT_multiview == 1)
+#if (MULTIVIEW == 1)
     mat4 view_matrix = buf_0_0.u_view_matrix[gl_ViewIndex];
 #else
     mat4 view_matrix = buf_0_0.u_view_matrix;

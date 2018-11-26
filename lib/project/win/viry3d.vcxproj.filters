@@ -2120,24 +2120,6 @@
     <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\GlslangToSpv.cpp">
       <Filter>src\vulkan\glslang</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslGrammar.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslOpMap.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslParseables.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslParseHelper.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslScanContext.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\hlsl\hlslTokenStream.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\InfoSink.cpp">
       <Filter>src\vulkan\glslang</Filter>
     </ClCompile>
@@ -2192,13 +2174,7 @@
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpContext.cpp">
       <Filter>src\vulkan\glslang</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpMemory.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpScanner.cpp">
-      <Filter>src\vulkan\glslang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpSymbols.cpp">
       <Filter>src\vulkan\glslang</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\preprocessor\PpTokens.cpp">
@@ -2359,6 +2335,18 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ui\Slider.cpp">
       <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\iomapper.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\ParseContextBase.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\SPIRV\SpvPostProcess.cpp">
+      <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\attribute.cpp">
+      <Filter>src\vulkan\glslang</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

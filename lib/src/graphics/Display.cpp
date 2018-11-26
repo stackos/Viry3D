@@ -487,6 +487,10 @@ extern void UnbindSharedContext();
                     m_has_debug_report_extension = true;
                     StringVectorAdd(m_instance_extension_names, VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
                 }
+                if (strcmp(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, instance_extensions[i].extensionName) == 0)
+                {
+                    StringVectorAdd(m_instance_extension_names, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+                }
             }
 
             assert(surface_ext_found);

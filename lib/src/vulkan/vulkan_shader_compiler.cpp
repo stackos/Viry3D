@@ -50,6 +50,7 @@ shaderc_shader_kind MapShadercType(VkShaderStageFlagBits vkShader)
     return shaderc_glsl_infer_from_source;
 }
 #else
+#undef max
 #include "glslang/SPIRV/GlslangToSpv.h"
 #endif
 

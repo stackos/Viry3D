@@ -1,11 +1,11 @@
 //
-//Copyright (C) 2014 LunarG, Inc.
+// Copyright (C) 2014 LunarG, Inc.
 //
-//All rights reserved.
+// All rights reserved.
 //
-//Redistribution and use in source and binary forms, with or without
-//modification, are permitted provided that the following conditions
-//are met:
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
 //
 //    Redistributions of source code must retain the above copyright
 //    notice, this list of conditions and the following disclaimer.
@@ -19,26 +19,26 @@
 //    contributors may be used to endorse or promote products derived
 //    from this software without specific prior written permission.
 //
-//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-//LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-//FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-//COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-//BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-//CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-//LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-//ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-//POSSIBILITY OF SUCH DAMAGE.
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 // SPIRV-IR
 //
 // Simple in-memory representation (IR) of SPIRV.  Just for holding
 // Each function's CFG of blocks.  Has this hierarchy:
-//  - Module, which is a list of 
-//    - Function, which is a list of 
-//      - Block, which is a list of 
+//  - Module, which is a list of
+//    - Function, which is a list of
+//      - Block, which is a list of
 //        - Instruction
 //
 
@@ -65,14 +65,24 @@ const Id NoResult = 0;
 const Id NoType = 0;
 
 const Decoration NoPrecision = DecorationMax;
-const MemorySemanticsMask MemorySemanticsAllMemory = 
-                (MemorySemanticsMask)(MemorySemanticsSequentiallyConsistentMask |
-                                      MemorySemanticsUniformMemoryMask |
-                                      MemorySemanticsSubgroupMemoryMask |
+
+#ifdef __GNUC__
+#   define POTENTIALLY_UNUSED __attribute__((unused))
+#else
+#   define POTENTIALLY_UNUSED
+#endif
+
+POTENTIALLY_UNUSED
+const MemorySemanticsMask MemorySemanticsAllMemory =
+                (MemorySemanticsMask)(MemorySemanticsUniformMemoryMask |
                                       MemorySemanticsWorkgroupMemoryMask |
-                                      MemorySemanticsCrossWorkgroupMemoryMask |
                                       MemorySemanticsAtomicCounterMemoryMask |
                                       MemorySemanticsImageMemoryMask);
+
+struct IdImmediate {
+    bool isId;      // true if word is an Id, false if word is an immediate
+    unsigned word;
+};
 
 //
 // SPIR-V IR instruction.
@@ -83,11 +93,16 @@ public:
     Instruction(Id resultId, Id typeId, Op opCode) : resultId(resultId), typeId(typeId), opCode(opCode), block(nullptr) { }
     explicit Instruction(Op opCode) : resultId(NoResult), typeId(NoType), opCode(opCode), block(nullptr) { }
     virtual ~Instruction() {}
-    void addIdOperand(Id id) { operands.push_back(id); }
-    void addImmediateOperand(unsigned int immediate) { operands.push_back(immediate); }
+    void addIdOperand(Id id) {
+        operands.push_back(id);
+        idOperand.push_back(true);
+    }
+    void addImmediateOperand(unsigned int immediate) {
+        operands.push_back(immediate);
+        idOperand.push_back(false);
+    }
     void addStringOperand(const char* str)
     {
-        originalString = str;
         unsigned int word;
         char* wordString = (char*)&word;
         char* wordPtr = wordString;
@@ -112,15 +127,25 @@ public:
             addImmediateOperand(word);
         }
     }
+    bool isIdOperand(int op) const { return idOperand[op]; }
     void setBlock(Block* b) { block = b; }
     Block* getBlock() const { return block; }
     Op getOpCode() const { return opCode; }
-    int getNumOperands() const { return (int)operands.size(); }
+    int getNumOperands() const
+    {
+        assert(operands.size() == idOperand.size());
+        return (int)operands.size();
+    }
     Id getResultId() const { return resultId; }
     Id getTypeId() const { return typeId; }
-    Id getIdOperand(int op) const { return operands[op]; }
-    unsigned int getImmediateOperand(int op) const { return operands[op]; }
-    const char* getStringOperand() const { return originalString.c_str(); }
+    Id getIdOperand(int op) const {
+        assert(idOperand[op]);
+        return operands[op];
+    }
+    unsigned int getImmediateOperand(int op) const {
+        assert(!idOperand[op]);
+        return operands[op];
+    }
 
     // Write out the binary form.
     void dump(std::vector<unsigned int>& out) const
@@ -150,8 +175,8 @@ protected:
     Id resultId;
     Id typeId;
     Op opCode;
-    std::vector<Id> operands;
-    std::string originalString;        // could be optimized away; convenience for getting string operand
+    std::vector<Id> operands;     // operands, both <id> and immediates (both are unsigned int)
+    std::vector<bool> idOperand;  // true for operands that are <id>, false for immediates
     Block* block;
 };
 
@@ -229,7 +254,7 @@ protected:
     std::vector<std::unique_ptr<Instruction> > localVariables;
     Function& parent;
 
-    // track whether this block is known to be uncreachable (not necessarily 
+    // track whether this block is known to be uncreachable (not necessarily
     // true for all unreachable blocks, but should be set at least
     // for the extraneous ones introduced by the builder).
     bool unreachable;
@@ -256,7 +281,8 @@ public:
             delete blocks[i];
     }
     Id getId() const { return functionInstruction.getResultId(); }
-    Id getParamId(int p) { return parameterInstructions[p]->getResultId(); }
+    Id getParamId(int p) const { return parameterInstructions[p]->getResultId(); }
+    Id getParamType(int p) const { return parameterInstructions[p]->getTypeId(); }
 
     void addBlock(Block* block) { blocks.push_back(block); }
     void removeBlock(Block* block)
@@ -273,6 +299,10 @@ public:
     const std::vector<Block*>& getBlocks() const { return blocks; }
     void addLocalVariable(std::unique_ptr<Instruction> inst);
     Id getReturnType() const { return functionInstruction.getTypeId(); }
+
+    void setImplicitThis() { implicitThis = true; }
+    bool hasImplicitThis() const { return implicitThis; }
+
     void dump(std::vector<unsigned int>& out) const
     {
         // OpFunction
@@ -296,6 +326,7 @@ protected:
     Instruction functionInstruction;
     std::vector<Instruction*> parameterInstructions;
     std::vector<Block*> blocks;
+    bool implicitThis;  // true if this is a member function expecting to be passed a 'this' as the first argument
 };
 
 //
@@ -323,7 +354,9 @@ public:
 
     Instruction* getInstruction(Id id) const { return idToInstruction[id]; }
     const std::vector<Function*>& getFunctions() const { return functions; }
-    spv::Id getTypeId(Id resultId) const { return idToInstruction[resultId]->getTypeId(); }
+    spv::Id getTypeId(Id resultId) const {
+        return idToInstruction[resultId] == nullptr ? NoType : idToInstruction[resultId]->getTypeId();
+    }
     StorageClass getStorageClass(Id typeId) const
     {
         assert(idToInstruction[typeId]->getOpCode() == spv::OpTypePointer);
@@ -354,7 +387,7 @@ protected:
 // - the OpFunction instruction
 // - all the OpFunctionParameter instructions
 __inline Function::Function(Id id, Id resultType, Id functionType, Id firstParamId, Module& parent)
-    : parent(parent), functionInstruction(id, resultType, OpFunction)
+    : parent(parent), functionInstruction(id, resultType, OpFunction), implicitThis(false)
 {
     // OpFunction
     functionInstruction.addImmediateOperand(FunctionControlMaskNone);
