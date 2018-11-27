@@ -85,6 +85,7 @@ namespace Viry3D
         void SetOrthographicSize(float size);
         bool IsStereoRendering() const { return m_stereo_rendering; }
         void SetStereoRendering(bool enable);
+        void SetStereoOffset(float offset);
         void SetViewMatrixExternal(const Matrix4x4& mat);
         void SetProjectionMatrixExternal(const Matrix4x4& mat);
         const Matrix4x4& GetViewMatrix();
@@ -149,6 +150,7 @@ namespace Viry3D
         bool m_orthographic;
         float m_orthographic_size;
         bool m_stereo_rendering;
+        float m_stereo_offset;
         bool m_view_matrix_external;
         bool m_projection_matrix_external;
     };

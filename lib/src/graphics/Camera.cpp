@@ -47,6 +47,7 @@ namespace Viry3D
         m_orthographic(false),
         m_orthographic_size(1),
         m_stereo_rendering(false),
+        m_stereo_offset(0.06f),
         m_view_matrix_external(false),
         m_projection_matrix_external(false)
 	{
@@ -108,8 +109,13 @@ namespace Viry3D
         {
             if (this->IsStereoRendering())
             {
-                material->SetMatrixArray(VIEW_MATRIX, { this->GetViewMatrix(), this->GetViewMatrix() });
-                material->SetVectorArray(CAMERA_POSITION, { this->GetPosition(), this->GetPosition() });
+                Vector3 left_pos = this->GetPosition() - this->GetRight() * m_stereo_offset * 0.5f;
+                Vector3 right_pos = this->GetPosition() + this->GetRight() * m_stereo_offset * 0.5f;
+                Matrix4x4 left_view_matrix = Matrix4x4::LookTo(left_pos, this->GetForward(), this->GetUp());
+                Matrix4x4 right_view_matrix = Matrix4x4::LookTo(right_pos, this->GetForward(), this->GetUp());
+
+                material->SetMatrixArray(VIEW_MATRIX, { left_view_matrix, right_view_matrix });
+                material->SetVectorArray(CAMERA_POSITION, { left_pos, right_pos });
             }
             else
             {
@@ -166,6 +172,12 @@ namespace Viry3D
 #endif
     }
 
+    void Camera::SetStereoOffset(float offset)
+    {
+        m_stereo_offset = offset;
+        m_view_matrix_dirty = true;
+    }
+
     void Camera::SetProjectionMatrixExternal(const Matrix4x4& mat)
     {
         m_projection_matrix = mat;
@@ -201,11 +213,7 @@ namespace Viry3D
 
             for (auto& i : m_renderers)
             {
-                const Ref<Material>& material = i.renderer->GetMaterial();
-                if (material)
-                {
-                    material->SetMatrix(PROJECTION_MATRIX, m_projection_matrix);
-                }
+                this->SetProjectionUniform(i.renderer->GetMaterial());
             }
         }
 
