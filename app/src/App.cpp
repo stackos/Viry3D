@@ -41,7 +41,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - VR Multiview
+// - Compute Shader
 // - GPU Particle
 // - Ray Tracing
 // - wasm save path for write file

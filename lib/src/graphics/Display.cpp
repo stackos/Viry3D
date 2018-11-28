@@ -271,6 +271,7 @@ extern void UnbindSharedContext();
         VkDevice m_device = VK_NULL_HANDLE;
         VkQueue m_graphics_queue = VK_NULL_HANDLE;
         VkQueue m_image_queue = VK_NULL_HANDLE;
+        VkQueue m_compute_queue = VK_NULL_HANDLE;
         Vector<VkQueueFamilyProperties> m_queue_properties;
         VkPhysicalDeviceMemoryProperties m_memory_properties;
         VkPhysicalDeviceFeatures m_gpu_features;
@@ -287,6 +288,7 @@ extern void UnbindSharedContext();
         PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR = nullptr;
         PFN_vkQueuePresentKHR fpQueuePresentKHR = nullptr;
         int m_graphics_queue_family_index = -1;
+        int m_compute_queue_family_index = -1;
         VkSurfaceFormatKHR m_surface_format;
         VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
         Vector<SwapchainImageResources> m_swapchain_image_resources;
@@ -600,6 +602,31 @@ extern void UnbindSharedContext();
 
             m_queue_properties.Resize(queue_family_count);
             vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &queue_family_count, &m_queue_properties[0]);
+
+            // compute queue
+            bool has_compute_queue = false;
+            for (int i = 0; i < m_queue_properties.Size(); ++i)
+            {
+                if ((m_queue_properties[i].queueFlags & VK_QUEUE_COMPUTE_BIT) && ((m_queue_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0))
+                {
+                    m_compute_queue_family_index = i;
+                    has_compute_queue = true;
+                    break;
+                }
+            }
+            if (!has_compute_queue)
+            {
+                for (int i = 0; i < m_queue_properties.Size(); ++i)
+                {
+                    if ((m_queue_properties[i].queueFlags & VK_QUEUE_COMPUTE_BIT))
+                    {
+                        m_compute_queue_family_index = i;
+                        has_compute_queue = true;
+                        break;
+                    }
+                }
+            }
+
             vkGetPhysicalDeviceMemoryProperties(m_gpu, &m_memory_properties);
             vkGetPhysicalDeviceFeatures(m_gpu, &m_gpu_features);
             vkGetPhysicalDeviceProperties(m_gpu, &m_gpu_properties);
@@ -753,6 +780,7 @@ extern void UnbindSharedContext();
         {
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 1, &m_image_queue);
+            vkGetDeviceQueue(m_device, m_compute_queue_family_index, 0, &m_compute_queue);
         }
 
         void CreateSignals()

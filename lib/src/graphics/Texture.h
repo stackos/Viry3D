@@ -116,6 +116,13 @@ namespace Viry3D
             SamplerAddressMode wrap_mode,
             bool gen_mipmap,
             bool dynamic);
+        static Ref<Texture> CreateStorageTexture(
+            int width,
+            int height,
+            TextureFormat format,
+            bool create_sampler,
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode);
         static TextureFormat ChooseDepthFormatSupported(bool sample);
 		static Ref<Texture> GetSharedWhiteTexture();
 		static Ref<Texture> GetSharedBlackTexture();

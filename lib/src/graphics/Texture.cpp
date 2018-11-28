@@ -491,6 +491,58 @@ namespace Viry3D
         return texture;
     }
 
+    Ref<Texture> Texture::CreateStorageTexture(
+        int width,
+        int height,
+        TextureFormat format,
+        bool create_sampler,
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode)
+    {
+        Ref<Texture> texture;
+
+#if VR_VULKAN
+        VkImageUsageFlags usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+        VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+
+        texture = Display::Instance()->CreateTexture(
+            VK_IMAGE_TYPE_2D,
+            VK_IMAGE_VIEW_TYPE_2D,
+            width,
+            height,
+            TextureFormatToVkFormat(format),
+            usage,
+            aspect,
+            {
+                VK_COMPONENT_SWIZZLE_R,
+                VK_COMPONENT_SWIZZLE_G,
+                VK_COMPONENT_SWIZZLE_B,
+                VK_COMPONENT_SWIZZLE_A
+            },
+            1,
+            false,
+            1,
+            1);
+        if (create_sampler)
+        {
+            Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
+        }
+
+        Display::Instance()->BeginImageCmd();
+        Display::Instance()->SetImageLayout(
+            texture->GetImage(),
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            { aspect, 0, 1, 0, 1 },
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            (VkAccessFlagBits) 0);
+        Display::Instance()->EndImageCmd();
+#endif
+
+        return texture;
+    }
+
 	Ref<Texture> Texture::GetSharedWhiteTexture()
 	{
 		if (!m_shared_white_texture)
