@@ -269,6 +269,7 @@ extern void UnbindSharedContext();
         VkPhysicalDevice m_gpu = VK_NULL_HANDLE;
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         VkDevice m_device = VK_NULL_HANDLE;
+        VkDevice m_compute_device = VK_NULL_HANDLE;
         VkQueue m_graphics_queue = VK_NULL_HANDLE;
         VkQueue m_image_queue = VK_NULL_HANDLE;
         VkQueue m_compute_queue = VK_NULL_HANDLE;
@@ -337,6 +338,11 @@ extern void UnbindSharedContext();
             vkDestroySemaphore(m_device, m_image_acquired_semaphore, nullptr);
             vkDestroySemaphore(m_device, m_draw_complete_semaphore, nullptr);
             vkDestroyDevice(m_device, nullptr);
+            if (m_compute_device != VK_NULL_HANDLE)
+            {
+                vkDestroyDevice(m_compute_device, nullptr);
+                m_compute_device = VK_NULL_HANDLE;
+            }
             if (m_surface != VK_NULL_HANDLE)
             {
                 vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
@@ -774,13 +780,27 @@ extern void UnbindSharedContext();
             GET_DEVICE_PROC_ADDR(m_device, GetSwapchainImagesKHR);
             GET_DEVICE_PROC_ADDR(m_device, AcquireNextImageKHR);
             GET_DEVICE_PROC_ADDR(m_device, QueuePresentKHR);
+
+            // compute device
+            if (m_compute_queue_family_index >= 0)
+            {
+                queue_info.queueFamilyIndex = m_compute_queue_family_index;
+                queue_info.queueCount = 1;
+
+                err = vkCreateDevice(m_gpu, &device_info, nullptr, &m_compute_device);
+                assert(!err);
+            }
         }
 
         void GetQueues()
         {
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 1, &m_image_queue);
-            vkGetDeviceQueue(m_device, m_compute_queue_family_index, 0, &m_compute_queue);
+
+            if (m_compute_queue_family_index >= 0 && m_compute_device != VK_NULL_HANDLE)
+            {
+                vkGetDeviceQueue(m_compute_device, m_compute_queue_family_index, 0, &m_compute_queue);
+            }
         }
 
         void CreateSignals()
