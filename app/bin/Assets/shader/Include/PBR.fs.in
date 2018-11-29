@@ -14,7 +14,15 @@
     #define NROMAL_MAP 0
 #endif
 
-#define ColorSpaceDielectricSpec vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301)
+#ifndef COLORSPACE_GAMMA
+    #define COLORSPACE_GAMMA 0
+#endif
+
+#if (COLORSPACE_GAMMA == 1)
+    #define ColorSpaceDielectricSpec vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301)
+#else
+    #define ColorSpaceDielectricSpec vec4(0.04, 0.04, 0.04, 1.0 - 0.04)
+#endif
 #define PI 3.14159265359f
 #define INV_PI 0.31830988618f
 #define SPECCUBE_LOD_STEPS 6.0
@@ -158,7 +166,11 @@ precision highp float;
         float mip = perceptual_roughness_to_mipmap_level(perceptual_roughness);
         vec4 env = textureLod(u_environment, refl_uvw, mip);
 
-        return env.rgb;
+#if (COLORSPACE_GAMMA == 1)
+    return pow(env.rgb, vec3(2.2));
+#else
+    return env.rgb;
+#endif
     }
 
     vec3 gi_specular(float occlusion, float perceptual_roughness, vec3 refl_uvw)
@@ -231,7 +243,9 @@ precision highp float;
         float d = ggx_term(nh, roughness);
         float spec_term = v * d * PI;
 
+#if (COLORSPACE_GAMMA == 1)
         spec_term = sqrt(max(1e-4, spec_term));
+#endif
         spec_term = max(0.0, spec_term * nl);
         if (spec.r > 0.0 || spec.g > 0.0 || spec.b > 0.0)
         {
@@ -242,7 +256,11 @@ precision highp float;
             spec_term = 0.0;
         }
 
+#if (COLORSPACE_GAMMA == 1)
         float surface_reduction = 1.0 - 0.28 * roughness * perceptual_roughness;
+#else
+        float surface_reduction = 1.0 / (roughness * roughness + 1.0);
+#endif
         float grazing_term = clamp(smoothness + (1.0 - one_minus_reflectivity), 0.0, 1.0);
 
         vec3 color = diff * (gi_diff + light_color * diffuse_term)
@@ -302,6 +320,10 @@ void main()
         c.rgb = c.rgb * (1.0 - shadow);
     #endif
 
-    o_frag = c;
+    #if (COLORSPACE_GAMMA == 1)
+        o_frag = pow(c, vec4(1.0 / 2.2));
+    #else
+        o_frag = c;
+    #endif
 #endif
 }

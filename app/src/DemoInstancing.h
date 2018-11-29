@@ -70,6 +70,7 @@ namespace Viry3D
         Label* m_label = nullptr;
         Ref<Light> m_light;
         Ref<Material> m_material;
+        Color m_color = Color(1, 1, 1, 1);
 
         void InitCamera()
         {
@@ -180,46 +181,63 @@ namespace Viry3D
 
             m_label = label.get();
 
-            // slider
-            label = RefMake<Label>();
-            canvas->AddView(label);
-            int y = 120 + 0 * 65;
+            Vector<String> names = { "R", "G", "B" };
 
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0.5f));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, y));
-            label->SetFont(Font::GetFont(FontType::Consola));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetText("Color");
+            // sliders
+            for (int i = 0; i < names.Size(); ++i)
+            {
+                label = RefMake<Label>();
+                canvas->AddView(label);
+                int y = 120 + i * 65;
 
-            auto slider = RefMake<Slider>();
-            canvas->AddView(slider);
+                label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label->SetPivot(Vector2(0, 0.5f));
+                label->SetSize(Vector2i(100, 30));
+                label->SetOffset(Vector2i(40, y));
+                label->SetFont(Font::GetFont(FontType::Consola));
+                label->SetFontSize(28);
+                label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label->SetText(names[i]);
 
-            slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            slider->SetPivot(Vector2(0, 0.5f));
-            slider->SetSize(Vector2i(200, 30));
-            slider->SetOffset(Vector2i(160, y));
+                auto slider = RefMake<Slider>();
+                canvas->AddView(slider);
 
-            label = RefMake<Label>();
-            canvas->AddView(label);
+                slider->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                slider->SetPivot(Vector2(0, 0.5f));
+                slider->SetSize(Vector2i(200, 30));
+                slider->SetOffset(Vector2i(80, y));
 
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0.5f));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(380, y));
-            label->SetFont(Font::GetFont(FontType::Consola));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label = RefMake<Label>();
+                canvas->AddView(label);
 
-            slider->SetProgress(1.0f);
-            slider->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(1.0f));
-            slider->SetOnValueChange([=](const Slider::Value& value) {
-                m_material->SetColor("u_color", Color(1, 1, 1, 1) * value.float_value);
-                label->SetText(String::Format("%.2f", value.float_value));
-            });
-            label->SetText("1.00");
+                label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+                label->SetPivot(Vector2(0, 0.5f));
+                label->SetSize(Vector2i(100, 30));
+                label->SetOffset(Vector2i(300, y));
+                label->SetFont(Font::GetFont(FontType::Consola));
+                label->SetFontSize(28);
+                label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+
+                slider->SetProgress(1.0f);
+                slider->SetValueType(Slider::ValueType::Float, Slider::Value(0.0f), Slider::Value(1.0f));
+                slider->SetOnValueChange([=](const Slider::Value& value) {
+                    switch (i)
+                    {
+                    case 0:
+                        m_color.r = value.float_value;
+                        break;
+                    case 1:
+                        m_color.g = value.float_value;
+                        break;
+                    case 2:
+                        m_color.b = value.float_value;
+                        break;
+                    }
+                    m_material->SetColor("u_color", m_color);
+                    label->SetText(String::Format("%.2f", value.float_value));
+                });
+                label->SetText("1.00");
+            }
         }
 
         virtual void Init()
