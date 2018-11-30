@@ -1267,7 +1267,7 @@ extern void UnbindSharedContext();
             dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
             dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
             dependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+            dependency.dependencyFlags = 0;
 
             VkRenderPassCreateInfo rp_info;
             Memory::Zero(&rp_info, sizeof(rp_info));
