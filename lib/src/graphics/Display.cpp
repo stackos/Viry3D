@@ -1259,6 +1259,16 @@ extern void UnbindSharedContext();
             subpass.preserveAttachmentCount = 0;
             subpass.pPreserveAttachments = nullptr;
 
+            VkSubpassDependency dependency;
+            Memory::Zero(&dependency, sizeof(dependency));
+            dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+            dependency.dstSubpass = 0;
+            dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
             VkRenderPassCreateInfo rp_info;
             Memory::Zero(&rp_info, sizeof(rp_info));
             rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -1268,8 +1278,8 @@ extern void UnbindSharedContext();
             rp_info.pAttachments = &attachments[0];
             rp_info.subpassCount = 1;
             rp_info.pSubpasses = &subpass;
-            rp_info.dependencyCount = 0;
-            rp_info.pDependencies = nullptr;
+            rp_info.dependencyCount = 1;
+            rp_info.pDependencies = &dependency;
 
             const uint32_t view_mask = 0b00000011;
             const uint32_t correlation_mask = 0b00000011;
@@ -2676,14 +2686,6 @@ extern void UnbindSharedContext();
                         VK_ACCESS_TRANSFER_WRITE_BIT);
                 }
             }
-
-            vkCmdPipelineBarrier(cmd,
-                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                0,
-                0, nullptr,
-                0, nullptr,
-                0, nullptr);
         }
 
         void BuildPrimaryCmds()
