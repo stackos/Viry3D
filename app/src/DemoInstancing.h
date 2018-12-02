@@ -111,7 +111,7 @@ namespace Viry3D
             auto material = RefMake<Material>(shader);
             m_material = material;
 
-            material->SetColor("u_color", Color(1, 1, 1, 1));
+            material->SetColor("u_color", m_color);
             material->SetTexture("u_texture", Texture::GetSharedWhiteTexture());
             material->SetVector("u_uv_scale_offset", Vector4(1, 1, 0, 0));
             material->SetTexture("u_normal", Texture::GetSharedNormalTexture());

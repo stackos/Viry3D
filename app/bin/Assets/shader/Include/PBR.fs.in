@@ -166,7 +166,7 @@ precision highp float;
         float mip = perceptual_roughness_to_mipmap_level(perceptual_roughness);
         vec4 env = textureLod(u_environment, refl_uvw, mip);
 
-#if (COLORSPACE_GAMMA == 1)
+#if (COLORSPACE_GAMMA == 0)
     return pow(env.rgb, vec3(2.2));
 #else
     return env.rgb;
@@ -320,7 +320,7 @@ void main()
         c.rgb = c.rgb * (1.0 - shadow);
     #endif
 
-    #if (COLORSPACE_GAMMA == 1)
+    #if (COLORSPACE_GAMMA == 0)
         o_frag = pow(c, vec4(1.0 / 2.2));
     #else
         o_frag = c;
