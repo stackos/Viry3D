@@ -36,8 +36,13 @@ namespace mvk {
 		spv::ExecutionModel entryPointStage = spv::ExecutionModelMax;
 
         uint32_t mslVersion = makeMSLVersion(2);
+		uint32_t texelBufferTextureWidth = 4096;
+		uint32_t auxBufferIndex = 0;
 		bool shouldFlipVertexY = true;
 		bool isRenderingPoints = false;
+
+		bool isRasterizationDisabled = false;
+		bool needsAuxBuffer = false;
 
         /** 
          * Returns whether the specified options match this one.
@@ -131,30 +136,35 @@ namespace mvk {
          */
         bool matches(const SPIRVToMSLConverterContext& other) const;
 
-        /** Aligns the usage of this context with that of the source context. */
-        void alignUsageWith(const SPIRVToMSLConverterContext& srcContext);
+        /** Aligns certain aspects of this context with the source context. */
+        void alignWith(const SPIRVToMSLConverterContext& srcContext);
 
 	} SPIRVToMSLConverterContext;
 
     /**
+     * Describes one dimension of the workgroup size of a SPIR-V entry point, including whether
+	 * it is specialized, and if so, the value of the corresponding specialization ID, which
+	 * is used to map to a value which will be provided when the MSL is compiled into a pipeline.
+     */
+	typedef struct {
+		uint32_t size = 1;
+		uint32_t specializationID = 0;
+		bool isSpecialized = false;
+	} SPIRVWorkgroupSizeDimension;
+
+	/**
      * Describes a SPIRV entry point, including the Metal function name (which may be
      * different than the Vulkan entry point name if the original name was illegal in Metal),
-     * and the number of threads in each workgroup or their specialization constant id, if the shader is a compute shader.
+     * and the size of each workgroup, if the shader is a compute shader.
      */
-    typedef struct {
-        std::string mtlFunctionName = "main0";
-        struct {
-            uint32_t width = 1;
-            uint32_t height = 1;
-            uint32_t depth = 1;
-        } workgroupSize;
-        struct {
-			uint32_t width = 1;
-			uint32_t height = 1;
-			uint32_t depth = 1;
-            uint32_t constant = 0;
-        } workgroupSizeId;
-    } SPIRVEntryPoint;
+	typedef struct {
+		std::string mtlFunctionName = "main0";
+		struct {
+			SPIRVWorkgroupSizeDimension width;
+			SPIRVWorkgroupSizeDimension height;
+			SPIRVWorkgroupSizeDimension depth;
+		} workgroupSize;
+	} SPIRVEntryPoint;
 
 	/** Special constant used in a MSLResourceBinding descriptorSet element to indicate the bindings for the push constants. */
     static const uint32_t kPushConstDescSet = std::numeric_limits<uint32_t>::max();
