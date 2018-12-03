@@ -264,6 +264,7 @@ extern void UnbindSharedContext();
         Vector<char*> m_instance_extension_names;
         Vector<char*> m_device_extension_names;
         bool m_has_debug_report_extension = false;
+        bool m_has_multiview_extension = false;
         VkInstance m_instance = VK_NULL_HANDLE;
         VkDebugReportCallbackEXT m_debug_callback = VK_NULL_HANDLE;
         VkPhysicalDevice m_gpu = VK_NULL_HANDLE;
@@ -271,7 +272,6 @@ extern void UnbindSharedContext();
         VkDevice m_device = VK_NULL_HANDLE;
         VkDevice m_compute_device = VK_NULL_HANDLE;
         VkQueue m_graphics_queue = VK_NULL_HANDLE;
-        VkQueue m_image_queue = VK_NULL_HANDLE;
         VkQueue m_compute_queue = VK_NULL_HANDLE;
         Vector<VkQueueFamilyProperties> m_queue_properties;
         VkPhysicalDeviceMemoryProperties m_memory_properties;
@@ -407,6 +407,9 @@ extern void UnbindSharedContext();
             const char* instance_validation_layers_alt2[] = {
                 "VK_LAYER_LUNARG_standard_validation"
             };
+            const char* instance_validation_layers_alt3[] = {
+                "MoltenVK"
+            };
 
             bool validation_found = false;
             const char** instance_validation_layers = nullptr;
@@ -427,6 +430,17 @@ extern void UnbindSharedContext();
             {
                 instance_validation_layers = instance_validation_layers_alt2;
                 instance_validation_layer_count = sizeof(instance_validation_layers_alt2) / sizeof(instance_validation_layers_alt2[0]);
+                
+                validation_found = check_layer(
+                    instance_validation_layers,
+                    instance_validation_layer_count,
+                    &instance_layers[0],
+                    instance_layers.Size());
+            }
+            if (!validation_found)
+            {
+                instance_validation_layers = instance_validation_layers_alt3;
+                instance_validation_layer_count = sizeof(instance_validation_layers_alt3) / sizeof(instance_validation_layers_alt3[0]);
                 
                 validation_found = check_layer(
                     instance_validation_layers,
@@ -597,6 +611,7 @@ extern void UnbindSharedContext();
                 }
                 else if (strcmp(VK_KHR_MULTIVIEW_EXTENSION_NAME, device_extensions[i].extensionName) == 0)
                 {
+                    m_has_multiview_extension = true;
                     StringVectorAdd(m_device_extension_names, VK_KHR_MULTIVIEW_EXTENSION_NAME);
                 }
             }
@@ -749,15 +764,15 @@ extern void UnbindSharedContext();
         {
             VkResult err;
 
-            float queue_priorities[2] = { 0.0, 0.0 };
+            float queue_priority = 0.0f;
             VkDeviceQueueCreateInfo queue_info;
             Memory::Zero(&queue_info, sizeof(queue_info));
             queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             queue_info.pNext = nullptr;
             queue_info.flags = 0;
             queue_info.queueFamilyIndex = m_graphics_queue_family_index;
-            queue_info.queueCount = 2;
-            queue_info.pQueuePriorities = queue_priorities;
+            queue_info.queueCount = 1;
+            queue_info.pQueuePriorities = &queue_priority;
 
             VkDeviceCreateInfo device_info;
             Memory::Zero(&device_info, sizeof(device_info));
@@ -795,7 +810,6 @@ extern void UnbindSharedContext();
         void GetQueues()
         {
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
-            vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 1, &m_image_queue);
 
             if (m_compute_queue_family_index >= 0 && m_compute_device != VK_NULL_HANDLE)
             {
@@ -1664,7 +1678,7 @@ extern void UnbindSharedContext();
             err = vkResetFences(m_device, 1, &m_image_fence);
             assert(!err);
 
-            err = vkQueueSubmit(m_image_queue, 1, &submit_info, m_image_fence);
+            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_image_fence);
             assert(!err);
 
             err = vkWaitForFences(m_device, 1, &m_image_fence, VK_TRUE, UINT64_MAX);
@@ -3864,7 +3878,7 @@ void main()
 
     bool Display::IsSupportMultiview() const
     {
-        return m_private->m_gpu_features.multiViewport == VK_TRUE;
+        return m_private->m_has_multiview_extension && m_private->m_gpu_features.multiViewport == VK_TRUE;
     }
 #elif VR_GLES
     void Display::EnableGLESv3()

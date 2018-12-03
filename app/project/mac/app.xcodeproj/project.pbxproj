@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA98F3C321B58C3B00CBC8EB /* libMoltenVK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA98F3C221B58C3B00CBC8EB /* libMoltenVK.a */; };
+		BA98F3C421B599D000CBC8EB /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1D42B2A21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework */; };
 		BAED934A2150287A002D2856 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAED934921502879002D2856 /* OpenAL.framework */; };
 		BAF169A4213AC9460033BC76 /* VkView.m in Sources */ = {isa = PBXBuildFile; fileRef = BAF169A2213AC9460033BC76 /* VkView.m */; };
 		D1B25E1F2109F50E001A3EC9 /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E1E2109F50E001A3EC9 /* Main.m */; };
@@ -15,8 +17,6 @@
 		D1B25E272109FCD6001A3EC9 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D1B25E262109FCD6001A3EC9 /* ViewController.mm */; };
 		D1D42B2621115A3D0016A265 /* App.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1D42B2421115A3D0016A265 /* App.cpp */; };
 		D1D42B2721115AA20016A265 /* libviry3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1D42A08211155B10016A265 /* libviry3d.a */; };
-		D1D42B2921115AF20016A265 /* MoltenVK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1D42B2821115AF20016A265 /* MoltenVK.framework */; };
-		D1D42B2B21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1D42B2A21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework */; };
 		D1EA4E4B1F2DEABD0034D59B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */; };
 		D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F3BBBF1F86903800B738FA /* AppKit.framework */; };
 		D1F3BBC61F87F6C200B738FA /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = D1F3BBC51F87F5FC00B738FA /* Assets */; };
@@ -40,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BA98F3C221B58C3B00CBC8EB /* libMoltenVK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMoltenVK.a; path = ../../../lib/src/vulkan/MoltenVK/macOS/libMoltenVK.a; sourceTree = "<group>"; };
 		BADA960721A27D7B0070CAB5 /* DemoLightmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoLightmap.h; path = ../../src/DemoLightmap.h; sourceTree = "<group>"; };
 		BADA960821A27D7B0070CAB5 /* DemoInstancing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoInstancing.h; path = ../../src/DemoInstancing.h; sourceTree = "<group>"; };
 		BAED934921502879002D2856 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -65,7 +66,6 @@
 		D1D42A03211155B00016A265 /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/mac/viry3d.xcodeproj; sourceTree = "<group>"; };
 		D1D42B2421115A3D0016A265 /* App.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = App.cpp; path = ../../src/App.cpp; sourceTree = "<group>"; };
 		D1D42B2521115A3D0016A265 /* App.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = App.h; path = ../../src/App.h; sourceTree = "<group>"; };
-		D1D42B2821115AF20016A265 /* MoltenVK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVK.framework; path = ../../../lib/src/vulkan/MoltenVK/macOS/MoltenVK.framework; sourceTree = "<group>"; };
 		D1D42B2A21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVKGLSLToSPIRVConverter.framework; path = ../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework; sourceTree = "<group>"; };
 		D1EA4E401F2DEABD0034D59B /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1EA4E4A1F2DEABD0034D59B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -79,10 +79,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA98F3C421B599D000CBC8EB /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
+				BA98F3C321B58C3B00CBC8EB /* libMoltenVK.a in Frameworks */,
 				BAED934A2150287A002D2856 /* OpenAL.framework in Frameworks */,
 				D1F3BBC01F86903800B738FA /* AppKit.framework in Frameworks */,
-				D1D42B2921115AF20016A265 /* MoltenVK.framework in Frameworks */,
-				D1D42B2B21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework in Frameworks */,
 				D1B25E242109FBFE001A3EC9 /* libz.1.2.8.tbd in Frameworks */,
 				D1D42B2721115AA20016A265 /* libviry3d.a in Frameworks */,
 			);
@@ -151,9 +151,9 @@
 		D1EA4E421F2DEABD0034D59B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BA98F3C221B58C3B00CBC8EB /* libMoltenVK.a */,
 				BAED934921502879002D2856 /* OpenAL.framework */,
 				D1D42B2A21115B270016A265 /* MoltenVKGLSLToSPIRVConverter.framework */,
-				D1D42B2821115AF20016A265 /* MoltenVK.framework */,
 				D1F3BBBF1F86903800B738FA /* AppKit.framework */,
 				D1B25E232109FBFE001A3EC9 /* libz.1.2.8.tbd */,
 			);
@@ -383,10 +383,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					../../../lib/src/vulkan/MoltenVK/macOS,
-					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS,
-				);
+				FRAMEWORK_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
 					"VR_VULKAN=1",
@@ -398,7 +395,8 @@
 				);
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/macOS;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -413,10 +411,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					../../../lib/src/vulkan/MoltenVK/macOS,
-					../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS,
-				);
+				FRAMEWORK_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					VR_MAC,
 					"VR_VULKAN=1",
@@ -428,7 +423,8 @@
 				);
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/macOS;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.virytech.app.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
