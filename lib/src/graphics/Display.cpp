@@ -2796,9 +2796,6 @@ extern void UnbindSharedContext();
             submit_info.signalSemaphoreCount = 1;
             submit_info.pSignalSemaphores = &m_draw_complete_semaphore;
 
-            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_draw_complete_fence);
-            assert(!err);
-
             VkPresentInfoKHR present_info;
             Memory::Zero(&present_info, sizeof(present_info));
             present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -2810,8 +2807,15 @@ extern void UnbindSharedContext();
             present_info.pImageIndices = (uint32_t*) &m_image_index;
             present_info.pResults = nullptr;
 
+            m_image_cmd_mutex.lock();
+
+            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_draw_complete_fence);
+            assert(!err);
+
             err = fpQueuePresentKHR(m_graphics_queue, &present_info);
             assert(!err);
+
+            m_image_cmd_mutex.unlock();
         }
 #endif
 

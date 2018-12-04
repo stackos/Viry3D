@@ -49,9 +49,9 @@ precision highp float;
     #if (RECIEVE_SHADOW == 1)
         Input(2) vec4 v_pos_light_proj;
     #endif
-
-	Output(0) vec4 o_frag;
 #endif
+
+Output(0) vec4 o_frag;
 
 void main()
 {
@@ -79,5 +79,7 @@ void main()
     c.a = 1.0;
 
     o_frag = c;
+#else
+    o_frag = vec4(0.0);
 #endif
 }
