@@ -69,6 +69,7 @@ namespace Viry3D
             VkRenderPass* render_pass,
             Vector<VkFramebuffer>& framebuffers);
         void CreateCommandPool(VkCommandPool* cmd_pool);
+        void CreateComputeCommandPool(VkCommandPool* cmd_pool);
         void CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd);
         void CreateShaderModule(
             const String& vs_predefine,

@@ -535,7 +535,7 @@ namespace Viry3D
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             { aspect, 0, 1, 0, 1 },
             VK_IMAGE_LAYOUT_UNDEFINED,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
             (VkAccessFlagBits) 0);
         Display::Instance()->EndImageCmd();
 #endif

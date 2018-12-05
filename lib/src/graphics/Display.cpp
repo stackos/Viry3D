@@ -843,14 +843,14 @@ extern void UnbindSharedContext();
 
         void CreateImageCmd()
         {
-            this->CreateCommandPool(&m_image_cmd_pool);
+            this->CreateCommandPool(m_graphics_queue_family_index, &m_image_cmd_pool);
             this->CreateCommandBuffer(m_image_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_image_cmd);
         }
 
         void CreateSizeDependentResources()
         {
             this->CreateSwapChain();
-            this->CreateCommandPool(&m_graphics_cmd_pool);
+            this->CreateCommandPool(m_graphics_queue_family_index, &m_graphics_cmd_pool);
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_swapchain_image_resources[i].cmd);
@@ -1080,14 +1080,14 @@ extern void UnbindSharedContext();
             }
         }
 
-        void CreateCommandPool(VkCommandPool* cmd_pool)
+        void CreateCommandPool(int queue_family_index, VkCommandPool* cmd_pool)
         {
             VkCommandPoolCreateInfo pool_info;
             Memory::Zero(&pool_info, sizeof(pool_info));
             pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
             pool_info.pNext = nullptr;
             pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-            pool_info.queueFamilyIndex = m_graphics_queue_family_index;
+            pool_info.queueFamilyIndex = queue_family_index;
 
             VkResult err = vkCreateCommandPool(m_device, &pool_info, nullptr, cmd_pool);
             assert(!err);
@@ -3647,7 +3647,12 @@ void main()
 
     void Display::CreateCommandPool(VkCommandPool* cmd_pool)
     {
-        m_private->CreateCommandPool(cmd_pool);
+        m_private->CreateCommandPool(m_private->m_graphics_queue_family_index, cmd_pool);
+    }
+    
+    void Display::CreateComputeCommandPool(VkCommandPool* cmd_pool)
+    {
+        m_private->CreateCommandPool(m_private->m_compute_queue_family_index, cmd_pool);
     }
 
     void Display::CreateCommandBuffer(VkCommandPool cmd_pool, VkCommandBufferLevel level, VkCommandBuffer* cmd)
