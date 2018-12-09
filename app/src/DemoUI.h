@@ -32,7 +32,7 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 
             Color colors[] = {
                 Color(201, 48, 44, 255) / 255.0f,

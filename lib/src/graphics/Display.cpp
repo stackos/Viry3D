@@ -270,7 +270,6 @@ extern void UnbindSharedContext();
         VkPhysicalDevice m_gpu = VK_NULL_HANDLE;
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         VkDevice m_device = VK_NULL_HANDLE;
-        VkDevice m_compute_device = VK_NULL_HANDLE;
         VkQueue m_graphics_queue = VK_NULL_HANDLE;
         VkQueue m_compute_queue = VK_NULL_HANDLE;
         Vector<VkQueueFamilyProperties> m_queue_properties;
@@ -296,11 +295,14 @@ extern void UnbindSharedContext();
         VkFence m_image_fence = VK_NULL_HANDLE;
         VkFence m_draw_complete_fence = VK_NULL_HANDLE;
         VkSemaphore m_image_acquired_semaphore = VK_NULL_HANDLE;
+        VkSemaphore m_compute_semaphore = VK_NULL_HANDLE;
         VkSemaphore m_draw_complete_semaphore = VK_NULL_HANDLE;
         int m_image_index = 0;
         VkCommandPool m_graphics_cmd_pool = VK_NULL_HANDLE;
         VkCommandPool m_image_cmd_pool = VK_NULL_HANDLE;
         VkCommandBuffer m_image_cmd = VK_NULL_HANDLE;
+        VkCommandPool m_compute_cmd_pool = VK_NULL_HANDLE;
+        VkCommandBuffer m_compute_cmd = VK_NULL_HANDLE;
         Mutex m_image_cmd_mutex;
         Ref<Texture> m_depth_texture;
         bool m_primary_cmd_dirty = true;
@@ -331,18 +333,24 @@ extern void UnbindSharedContext();
 
             this->DestroySizeDependentResources();
 
+            if (m_compute_cmd_pool != VK_NULL_HANDLE)
+            {
+                if (m_compute_cmd != VK_NULL_HANDLE)
+                {
+                    vkFreeCommandBuffers(m_device, m_compute_cmd_pool, 1, &m_compute_cmd);
+                    m_compute_cmd = VK_NULL_HANDLE;
+                }
+                vkDestroyCommandPool(m_device, m_compute_cmd_pool, nullptr);
+                m_compute_cmd_pool = VK_NULL_HANDLE;
+            }
             vkFreeCommandBuffers(m_device, m_image_cmd_pool, 1, &m_image_cmd);
             vkDestroyCommandPool(m_device, m_image_cmd_pool, nullptr);
             vkDestroyFence(m_device, m_image_fence, nullptr);
             vkDestroyFence(m_device, m_draw_complete_fence, nullptr);
             vkDestroySemaphore(m_device, m_image_acquired_semaphore, nullptr);
+            vkDestroySemaphore(m_device, m_compute_semaphore, nullptr);
             vkDestroySemaphore(m_device, m_draw_complete_semaphore, nullptr);
             vkDestroyDevice(m_device, nullptr);
-            if (m_compute_device != VK_NULL_HANDLE)
-            {
-                vkDestroyDevice(m_compute_device, nullptr);
-                m_compute_device = VK_NULL_HANDLE;
-            }
             if (m_surface != VK_NULL_HANDLE)
             {
                 vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
@@ -352,6 +360,7 @@ extern void UnbindSharedContext();
             if (m_debug_callback != VK_NULL_HANDLE)
             {
                 fpDestroyDebugReportCallbackEXT(m_instance, m_debug_callback, nullptr);
+                m_debug_callback = VK_NULL_HANDLE;
             }
             vkDestroyInstance(m_instance, nullptr);
             StringVectorClear(m_enabled_layers);
@@ -765,6 +774,7 @@ extern void UnbindSharedContext();
             VkResult err;
 
             float queue_priority = 0.0f;
+            Vector<VkDeviceQueueCreateInfo> queue_infos;
             VkDeviceQueueCreateInfo queue_info;
             Memory::Zero(&queue_info, sizeof(queue_info));
             queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -773,14 +783,21 @@ extern void UnbindSharedContext();
             queue_info.queueFamilyIndex = m_graphics_queue_family_index;
             queue_info.queueCount = 1;
             queue_info.pQueuePriorities = &queue_priority;
+            queue_infos.Add(queue_info);
+
+            if (m_compute_queue_family_index >= 0)
+            {
+                queue_info.queueFamilyIndex = m_compute_queue_family_index;
+                queue_infos.Add(queue_info);
+            }
 
             VkDeviceCreateInfo device_info;
             Memory::Zero(&device_info, sizeof(device_info));
             device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
             device_info.pNext = nullptr;
             device_info.flags = 0;
-            device_info.queueCreateInfoCount = 1;
-            device_info.pQueueCreateInfos = &queue_info;
+            device_info.queueCreateInfoCount = queue_infos.Size();
+            device_info.pQueueCreateInfos = &queue_infos[0];
             device_info.enabledLayerCount = m_enabled_layers.Size();
             device_info.ppEnabledLayerNames = &m_enabled_layers[0];
             device_info.enabledExtensionCount = m_device_extension_names.Size();
@@ -795,25 +812,15 @@ extern void UnbindSharedContext();
             GET_DEVICE_PROC_ADDR(m_device, GetSwapchainImagesKHR);
             GET_DEVICE_PROC_ADDR(m_device, AcquireNextImageKHR);
             GET_DEVICE_PROC_ADDR(m_device, QueuePresentKHR);
-
-            // compute device
-            if (m_compute_queue_family_index >= 0)
-            {
-                queue_info.queueFamilyIndex = m_compute_queue_family_index;
-                queue_info.queueCount = 1;
-
-                err = vkCreateDevice(m_gpu, &device_info, nullptr, &m_compute_device);
-                assert(!err);
-            }
         }
 
         void GetQueues()
         {
             vkGetDeviceQueue(m_device, m_graphics_queue_family_index, 0, &m_graphics_queue);
 
-            if (m_compute_queue_family_index >= 0 && m_compute_device != VK_NULL_HANDLE)
+            if (m_compute_queue_family_index >= 0)
             {
-                vkGetDeviceQueue(m_compute_device, m_compute_queue_family_index, 0, &m_compute_queue);
+                vkGetDeviceQueue(m_device, m_compute_queue_family_index, 0, &m_compute_queue);
             }
         }
 
@@ -837,6 +844,8 @@ extern void UnbindSharedContext();
             assert(!err);
             err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_image_acquired_semaphore);
             assert(!err);
+            err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_compute_semaphore);
+            assert(!err);
             err = vkCreateSemaphore(m_device, &semaphore_info, nullptr, &m_draw_complete_semaphore);
             assert(!err);
         }
@@ -845,6 +854,15 @@ extern void UnbindSharedContext();
         {
             this->CreateCommandPool(m_graphics_queue_family_index, &m_image_cmd_pool);
             this->CreateCommandBuffer(m_image_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_image_cmd);
+        }
+
+        void CreateComputeCmd()
+        {
+            if (m_compute_queue_family_index >= 0)
+            {
+                this->CreateCommandPool(m_compute_queue_family_index, &m_compute_cmd_pool);
+                this->CreateCommandBuffer(m_compute_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_compute_cmd);
+            }
         }
 
         void CreateSizeDependentResources()
@@ -1878,6 +1896,41 @@ extern void UnbindSharedContext();
 
                 set_ptr->textures.Add(texture);
             }
+
+            for (const auto& resource : resources.storage_images)
+            {
+                uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+                uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+                const std::string& name = resource.name;
+
+                UniformSet* set_ptr = nullptr;
+                for (int i = 0; i < uniform_sets.Size(); ++i)
+                {
+                    if (set == uniform_sets[i].set)
+                    {
+                        set_ptr = &uniform_sets[i];
+                        break;
+                    }
+                }
+                if (set_ptr == nullptr)
+                {
+                    uniform_sets.Add(UniformSet());
+                    set_ptr = &uniform_sets[uniform_sets.Size() - 1];
+                    set_ptr->set = set;
+                }
+
+                UniformTexture texture;
+                texture.name = name.c_str();
+                texture.binding = (int) binding;
+                texture.stage = shader_type;
+
+                set_ptr->textures.Add(texture);
+            }
+
+            for (const auto& resource : resources.storage_buffers)
+            {
+
+            }
         }
 
         void CreatePipelineCache(VkPipelineCache* pipeline_cache)
@@ -1937,6 +1990,15 @@ extern void UnbindSharedContext();
             uniform_sets = sets_sorted;
         }
 
+        void CreateComputeShaderModule(
+            const String& cs_source,
+            VkShaderModule* cs_module,
+            Vector<UniformSet>& uniform_sets)
+        {
+            Vector<VertexAttribute> attributes;
+            this->CreateGlslShaderModule(cs_source, VK_SHADER_STAGE_COMPUTE_BIT, cs_module, attributes, uniform_sets);
+        }
+
         void CreatePipelineLayout(
             const Vector<UniformSet>& uniform_sets,
             Vector<VkDescriptorSetLayout>& descriptor_layouts,
@@ -1971,7 +2033,14 @@ extern void UnbindSharedContext();
                     VkDescriptorSetLayoutBinding layout_binding;
                     Memory::Zero(&layout_binding, sizeof(layout_binding));
                     layout_binding.binding = texture.binding;
-                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    if (texture.stage == VK_SHADER_STAGE_COMPUTE_BIT)
+                    {
+                        layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+                    }
+                    else
+                    {
+                        layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    }
                     layout_binding.descriptorCount = 1;
                     layout_binding.stageFlags = texture.stage;
                     layout_binding.pImmutableSamplers = nullptr;
@@ -2279,10 +2348,41 @@ extern void UnbindSharedContext();
             assert(!err);
         }
 
+        void CreateComputePipeline(
+            VkShaderModule cs_module,
+            VkPipelineLayout pipeline_layout,
+            VkPipelineCache pipeline_cache,
+            VkPipeline* pipeline)
+        {
+            VkPipelineShaderStageCreateInfo stage_info;
+            Memory::Zero(&stage_info, sizeof(stage_info));
+            stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            stage_info.pNext = nullptr;
+            stage_info.flags = 0;
+            stage_info.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+            stage_info.module = cs_module;
+            stage_info.pName = "main";
+            stage_info.pSpecializationInfo = nullptr;
+
+            VkComputePipelineCreateInfo pipeline_info;
+            Memory::Zero(&pipeline_info, sizeof(pipeline_info));
+            pipeline_info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+            pipeline_info.pNext = nullptr;
+            pipeline_info.flags = 0;
+            pipeline_info.stage = stage_info;
+            pipeline_info.layout = pipeline_layout;
+            pipeline_info.basePipelineHandle = nullptr;
+            pipeline_info.basePipelineIndex = 0;
+
+            VkResult err = vkCreateComputePipelines(m_device, pipeline_cache, 1, &pipeline_info, nullptr, pipeline);
+            assert(!err);
+        }
+
         void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)
         {
             int buffer_count = 0;
             int texture_count = 0;
+            int storage_image_count = 0;
 
             for (int i = 0; i < uniform_sets.Size(); ++i)
             {
@@ -2293,7 +2393,14 @@ extern void UnbindSharedContext();
 
                 for (int j = 0; j < uniform_sets[i].textures.Size(); ++j)
                 {
-                    ++texture_count;
+                    if (uniform_sets[i].textures[j].stage == VK_SHADER_STAGE_COMPUTE_BIT)
+                    {
+                        ++storage_image_count;
+                    }
+                    else
+                    {
+                        ++texture_count;
+                    }
                 }
             }
 
@@ -2312,6 +2419,13 @@ extern void UnbindSharedContext();
 				pool_size.descriptorCount = (uint32_t) texture_count * DESCRIPTOR_POOL_SIZE_MAX;
 				pool_sizes.Add(pool_size);
 			}
+            if (storage_image_count > 0)
+            {
+                VkDescriptorPoolSize pool_size;
+                pool_size.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+                pool_size.descriptorCount = (uint32_t) storage_image_count * DESCRIPTOR_POOL_SIZE_MAX;
+                pool_sizes.Add(pool_size);
+            }
             
             VkDescriptorPoolCreateInfo pool_info;
             Memory::Zero(&pool_info, sizeof(pool_info));
@@ -2370,7 +2484,7 @@ extern void UnbindSharedContext();
             vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
         }
 
-        void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture)
+        void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, bool is_storage, const Ref<Texture>& texture)
         {
             VkDescriptorImageInfo image_info;
             image_info.sampler = texture->GetSampler();
@@ -2385,7 +2499,7 @@ extern void UnbindSharedContext();
             desc_write.dstBinding = binding;
             desc_write.dstArrayElement = 0;
             desc_write.descriptorCount = 1;
-            desc_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            desc_write.descriptorType = is_storage ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE : VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             desc_write.pImageInfo = &image_info;
             desc_write.pBufferInfo = nullptr;
             desc_write.pTexelBufferView = nullptr;
@@ -2462,6 +2576,32 @@ extern void UnbindSharedContext();
             assert(!err);
         }
 
+        void BuildComputeInstanceCmd(
+            VkCommandBuffer cmd,
+            VkPipelineLayout pipeline_layout,
+            VkPipeline pipeline,
+            const Vector<VkDescriptorSet>& descriptor_sets,
+            const Ref<BufferObject>& dispatch_buffer)
+        {
+            VkCommandBufferBeginInfo cmd_begin;
+            Memory::Zero(&cmd_begin, sizeof(cmd_begin));
+            cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmd_begin.pNext = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+            cmd_begin.pInheritanceInfo = nullptr;
+
+            VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
+            assert(!err);
+
+            vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout, 0, descriptor_sets.Size(), &descriptor_sets[0], 0, nullptr);
+
+            vkCmdDispatchIndirect(cmd, dispatch_buffer->GetBuffer(), 0);
+
+            err = vkEndCommandBuffer(cmd);
+            assert(!err);
+        }
+
 		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass)
 		{
 			VkCommandBufferInheritanceInfo inheritance_info;
@@ -2488,6 +2628,22 @@ extern void UnbindSharedContext();
 			err = vkEndCommandBuffer(cmd);
 			assert(!err);
 		}
+
+        void BuildEmptyComputeInstanceCmd(VkCommandBuffer cmd)
+        {
+            VkCommandBufferBeginInfo cmd_begin;
+            Memory::Zero(&cmd_begin, sizeof(cmd_begin));
+            cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmd_begin.pNext = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+            cmd_begin.pInheritanceInfo = nullptr;
+
+            VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
+            assert(!err);
+
+            err = vkEndCommandBuffer(cmd);
+            assert(!err);
+        }
 
         void BuildPrimaryCmdBegin(VkCommandBuffer cmd)
         {
@@ -2702,11 +2858,35 @@ extern void UnbindSharedContext();
             }
         }
 
+        void BuildComputePrimaryCmd(
+            VkCommandBuffer cmd,
+            const Vector<VkCommandBuffer>& instance_cmds)
+        {
+            if (instance_cmds.Size() > 0)
+            {
+                vkCmdExecuteCommands(cmd, (uint32_t) instance_cmds.Size(), &instance_cmds[0]);
+            }
+        }
+
         void BuildPrimaryCmds()
         {
             m_cameras.Sort([](const Ref<Camera>& a, const Ref<Camera>& b) {
                 return a->GetDepth() < b->GetDepth();
             });
+
+            if (m_compute_cmd != VK_NULL_HANDLE)
+            {
+                VkCommandBuffer cmd = m_compute_cmd;
+
+                this->BuildPrimaryCmdBegin(cmd);
+
+                for (auto j : m_cameras)
+                {
+                    this->BuildComputePrimaryCmd(cmd, j->GetComputeInstanceCmds());
+                }
+
+                this->BuildPrimaryCmdEnd(cmd);
+            }
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
@@ -2783,18 +2963,52 @@ extern void UnbindSharedContext();
             err = fpAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_image_acquired_semaphore, VK_NULL_HANDLE, (uint32_t*) &m_image_index);
             assert(!err);
 
-            VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            VkSubmitInfo submit_info;
-            Memory::Zero(&submit_info, sizeof(submit_info));
-            submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submit_info.pNext = nullptr;
-            submit_info.waitSemaphoreCount = 1;
-            submit_info.pWaitSemaphores = &m_image_acquired_semaphore;
-            submit_info.pWaitDstStageMask = &pipe_stage_flags;
-            submit_info.commandBufferCount = 1;
-            submit_info.pCommandBuffers = &m_swapchain_image_resources[m_image_index].cmd;
-            submit_info.signalSemaphoreCount = 1;
-            submit_info.pSignalSemaphores = &m_draw_complete_semaphore;
+            m_image_cmd_mutex.lock();
+
+            if (m_compute_queue != VK_NULL_HANDLE)
+            {
+                VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                VkSubmitInfo submit_info;
+                Memory::Zero(&submit_info, sizeof(submit_info));
+                submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                submit_info.pNext = nullptr;
+                submit_info.waitSemaphoreCount = 1;
+                submit_info.pWaitSemaphores = &m_image_acquired_semaphore;
+                submit_info.pWaitDstStageMask = &pipe_stage_flags;
+                submit_info.commandBufferCount = 1;
+                submit_info.pCommandBuffers = &m_compute_cmd;
+                submit_info.signalSemaphoreCount = 1;
+                submit_info.pSignalSemaphores = &m_compute_semaphore;
+
+                err = vkQueueSubmit(m_compute_queue, 1, &submit_info, VK_NULL_HANDLE);
+                assert(!err);
+
+                pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                submit_info.pWaitSemaphores = &m_compute_semaphore;
+                submit_info.pCommandBuffers = &m_swapchain_image_resources[m_image_index].cmd;
+                submit_info.pSignalSemaphores = &m_draw_complete_semaphore;
+
+                err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_draw_complete_fence);
+                assert(!err);
+            }
+            else
+            {
+                VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                VkSubmitInfo submit_info;
+                Memory::Zero(&submit_info, sizeof(submit_info));
+                submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                submit_info.pNext = nullptr;
+                submit_info.waitSemaphoreCount = 1;
+                submit_info.pWaitSemaphores = &m_image_acquired_semaphore;
+                submit_info.pWaitDstStageMask = &pipe_stage_flags;
+                submit_info.commandBufferCount = 1;
+                submit_info.pCommandBuffers = &m_swapchain_image_resources[m_image_index].cmd;
+                submit_info.signalSemaphoreCount = 1;
+                submit_info.pSignalSemaphores = &m_draw_complete_semaphore;
+
+                err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_draw_complete_fence);
+                assert(!err);
+            }
 
             VkPresentInfoKHR present_info;
             Memory::Zero(&present_info, sizeof(present_info));
@@ -2806,11 +3020,6 @@ extern void UnbindSharedContext();
             present_info.pSwapchains = &m_swapchain;
             present_info.pImageIndices = (uint32_t*) &m_image_index;
             present_info.pResults = nullptr;
-
-            m_image_cmd_mutex.lock();
-
-            err = vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_draw_complete_fence);
-            assert(!err);
 
             err = fpQueuePresentKHR(m_graphics_queue, &present_info);
             assert(!err);
@@ -3368,6 +3577,7 @@ void main()
         m_private->GetQueues();
         m_private->CreateSignals();
         m_private->CreateImageCmd();
+        m_private->CreateComputeCmd();
         m_private->CreateSizeDependentResources();
 #elif VR_GLES
         String version = (const char*) glGetString(GL_VERSION);
@@ -3685,6 +3895,17 @@ void main()
             uniform_sets);
     }
 
+    void Display::CreateComputeShaderModule(
+        const String& cs_source,
+        VkShaderModule* cs_module,
+        Vector<UniformSet>& uniform_sets)
+    {
+        m_private->CreateComputeShaderModule(
+            cs_source,
+            cs_module,
+            uniform_sets);
+    }
+
     void Display::CreatePipelineCache(VkPipelineCache* pipeline_cache)
     {
         m_private->CreatePipelineCache(pipeline_cache);
@@ -3731,6 +3952,19 @@ void main()
             instance_stride);
     }
 
+    void Display::CreateComputePipeline(
+        VkShaderModule cs_module,
+        VkPipelineLayout pipeline_layout,
+        VkPipelineCache pipeline_cache,
+        VkPipeline* pipeline)
+    {
+        m_private->CreateComputePipeline(
+            cs_module,
+            pipeline_layout,
+            pipeline_cache,
+            pipeline);
+    }
+
     void Display::CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool)
     {
         m_private->CreateDescriptorSetPool(uniform_sets, descriptor_pool);
@@ -3754,9 +3988,9 @@ void main()
         m_private->CreateUniformBuffer(descriptor_set, buffer);
     }
 
-    void Display::UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture)
+    void Display::UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, bool is_storage, const Ref<Texture>& texture)
     {
-        m_private->UpdateUniformTexture(descriptor_set, binding, texture);
+        m_private->UpdateUniformTexture(descriptor_set, binding, is_storage, texture);
     }
 
     Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
@@ -3803,10 +4037,30 @@ void main()
             instance_buffer);
     }
 
+    void Display::BuildComputeInstanceCmd(
+        VkCommandBuffer cmd,
+        VkPipelineLayout pipeline_layout,
+        VkPipeline pipeline,
+        const Vector<VkDescriptorSet>& descriptor_sets,
+        const Ref<BufferObject>& dispatch_buffer)
+    {
+        m_private->BuildComputeInstanceCmd(
+            cmd,
+            pipeline_layout,
+            pipeline,
+            descriptor_sets,
+            dispatch_buffer);
+    }
+
 	void Display::BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass)
 	{
 		m_private->BuildEmptyInstanceCmd(cmd, render_pass);
 	}
+
+    void Display::BuildEmptyComputeInstanceCmd(VkCommandBuffer cmd)
+    {
+        m_private->BuildEmptyComputeInstanceCmd(cmd);
+    }
 
     VkFormat Display::ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features)
     {

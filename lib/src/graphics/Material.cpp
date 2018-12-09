@@ -342,7 +342,8 @@ namespace Viry3D
 
                 if (uniform_texture.name == name)
                 {
-                    Display::Instance()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, texture);
+                    bool is_storage = (uniform_texture.stage == VK_SHADER_STAGE_COMPUTE_BIT);
+                    Display::Instance()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, is_storage, texture);
                     instance_cmd_dirty = true;
                     return;
                 }

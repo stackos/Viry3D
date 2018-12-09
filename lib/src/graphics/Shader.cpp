@@ -84,15 +84,18 @@ namespace Viry3D
         const String& fs_source,
         const RenderState& render_state):
 #if VR_VULKAN
+        m_cs_module(VK_NULL_HANDLE),
         m_vs_module(VK_NULL_HANDLE),
         m_fs_module(VK_NULL_HANDLE),
         m_pipeline_cache(VK_NULL_HANDLE),
         m_pipeline_layout(VK_NULL_HANDLE),
         m_descriptor_pool(VK_NULL_HANDLE),
+        m_compute_pipeline(VK_NULL_HANDLE),
 #elif VR_GLES
         m_program(0),
 #endif
-        m_render_state(render_state)
+        m_render_state(render_state),
+        m_compute_shader(false)
     {
         m_shaders.AddLast(this);
 
@@ -122,6 +125,33 @@ namespace Viry3D
 #endif
     }
 
+    Shader::Shader(const String& cs_source):
+#if VR_VULKAN
+        m_cs_module(VK_NULL_HANDLE),
+        m_vs_module(VK_NULL_HANDLE),
+        m_fs_module(VK_NULL_HANDLE),
+        m_pipeline_cache(VK_NULL_HANDLE),
+        m_pipeline_layout(VK_NULL_HANDLE),
+        m_descriptor_pool(VK_NULL_HANDLE),
+        m_compute_pipeline(VK_NULL_HANDLE),
+#elif VR_GLES
+        m_program(0),
+#endif
+        m_compute_shader(true)
+    {
+        m_shaders.AddLast(this);
+
+#if VR_VULKAN
+        Display::Instance()->CreateComputeShaderModule(
+            cs_source,
+            &m_cs_module,
+            m_uniform_sets);
+        Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
+        Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
+        Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+#endif
+    }
+
     Shader::~Shader()
     {
 #if VR_VULKAN
@@ -135,16 +165,46 @@ namespace Viry3D
             }
         }
         m_pipelines.Clear();
-        vkDestroyDescriptorPool(device, m_descriptor_pool, nullptr);
-        vkDestroyPipelineLayout(device, m_pipeline_layout, nullptr);
+        if (m_compute_pipeline != VK_NULL_HANDLE)
+        {
+            vkDestroyPipeline(device, m_compute_pipeline, nullptr);
+            m_compute_pipeline = VK_NULL_HANDLE;
+        }
+        if (m_descriptor_pool != VK_NULL_HANDLE)
+        {
+            vkDestroyDescriptorPool(device, m_descriptor_pool, nullptr);
+            m_descriptor_pool = VK_NULL_HANDLE;
+        }
+        if (m_pipeline_layout != VK_NULL_HANDLE)
+        {
+            vkDestroyPipelineLayout(device, m_pipeline_layout, nullptr);
+            m_pipeline_layout = VK_NULL_HANDLE;
+        }
         for (int i = 0; i < m_descriptor_layouts.Size(); ++i)
         {
             vkDestroyDescriptorSetLayout(device, m_descriptor_layouts[i], nullptr);
         }
         m_descriptor_layouts.Clear();
-        vkDestroyPipelineCache(device, m_pipeline_cache, nullptr);
-        vkDestroyShaderModule(device, m_vs_module, nullptr);
-        vkDestroyShaderModule(device, m_fs_module, nullptr);
+        if (m_pipeline_cache != VK_NULL_HANDLE)
+        {
+            vkDestroyPipelineCache(device, m_pipeline_cache, nullptr);
+            m_pipeline_cache = VK_NULL_HANDLE;
+        }
+        if (m_fs_module != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, m_fs_module, nullptr);
+            m_fs_module = VK_NULL_HANDLE;
+        }
+        if (m_vs_module != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, m_vs_module, nullptr);
+            m_vs_module = VK_NULL_HANDLE;
+        }
+        if (m_cs_module != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, m_cs_module, nullptr);
+            m_cs_module = VK_NULL_HANDLE;
+        }
 #elif VR_GLES
         if (m_program)
         {
@@ -202,6 +262,20 @@ namespace Viry3D
         }
 
         return p.pipeline;
+    }
+
+    VkPipeline Shader::GetComputePipeline()
+    {
+        if (m_compute_pipeline == VK_NULL_HANDLE)
+        {
+            Display::Instance()->CreateComputePipeline(
+                m_cs_module,
+                m_pipeline_layout,
+                m_pipeline_cache,
+                &m_compute_pipeline);
+        }
+
+        return m_compute_pipeline;
     }
 
     void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets)

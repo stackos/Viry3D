@@ -82,6 +82,10 @@ namespace Viry3D
             VkShaderModule* fs_module,
             Vector<VertexAttribute>& attributes,
             Vector<UniformSet>& uniform_sets);
+        void CreateComputeShaderModule(
+            const String& cs_source,
+            VkShaderModule* cs_module,
+            Vector<UniformSet>& uniform_sets);
         void CreatePipelineCache(VkPipelineCache* pipeline_cache);
         void CreatePipelineLayout(
             const Vector<UniformSet>& uniform_sets,
@@ -102,6 +106,11 @@ namespace Viry3D
             int sample_count,
             bool instancing,
             int instance_stride);
+        void CreateComputePipeline(
+            VkShaderModule cs_module,
+            VkPipelineLayout pipeline_layout,
+            VkPipelineCache pipeline_cache,
+            VkPipeline* pipeline);
         void CreateDescriptorSetPool(const Vector<UniformSet>& uniform_sets, VkDescriptorPool* descriptor_pool);
         void CreateDescriptorSets(
             const Vector<UniformSet>& uniform_sets,
@@ -109,7 +118,7 @@ namespace Viry3D
             const Vector<VkDescriptorSetLayout>& descriptor_layouts,
             Vector<VkDescriptorSet>& descriptor_sets);
         void CreateUniformBuffer(VkDescriptorSet descriptor_set, UniformBuffer& buffer);
-        void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, const Ref<Texture>& texture);
+        void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, bool is_storage, const Ref<Texture>& texture);
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage);
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
         void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data);
@@ -126,7 +135,14 @@ namespace Viry3D
             const Ref<BufferObject>& index_buffer,
             const Ref<BufferObject>& draw_buffer,
             const Ref<BufferObject>& instance_buffer);
+        void BuildComputeInstanceCmd(
+            VkCommandBuffer cmd,
+            VkPipelineLayout pipeline_layout,
+            VkPipeline pipeline,
+            const Vector<VkDescriptorSet>& descriptor_sets,
+            const Ref<BufferObject>& dispatch_buffer);
 		void BuildEmptyInstanceCmd(VkCommandBuffer cmd, VkRenderPass render_pass);
+        void BuildEmptyComputeInstanceCmd(VkCommandBuffer cmd);
         VkFormat ChooseFormatSupported(const Vector<VkFormat>& formats, VkFormatFeatureFlags features);
         Ref<Texture> CreateTexture(
             VkImageType type,

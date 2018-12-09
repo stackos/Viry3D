@@ -969,6 +969,9 @@
     <ClInclude Include="..\..\src\ui\Slider.h">
       <Filter>src\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Computer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2347,6 +2350,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\vulkan\glslang\glslang\MachineIndependent\attribute.cpp">
       <Filter>src\vulkan\glslang</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Computer.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

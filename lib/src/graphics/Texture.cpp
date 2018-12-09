@@ -185,7 +185,8 @@ namespace Viry3D
         const String& path,
         FilterMode filter_mode,
         SamplerAddressMode wrap_mode,
-        bool gen_mipmap)
+        bool gen_mipmap,
+        bool is_storage)
     {
         Ref<Texture> texture;
 
@@ -210,7 +211,7 @@ namespace Viry3D
                 assert(!"texture format not support");
             }
 
-            texture = Texture::CreateTexture2DFromMemory(pixels, width, height, format, filter_mode, wrap_mode, gen_mipmap, false);
+            texture = Texture::CreateTexture2DFromMemory(pixels, width, height, format, filter_mode, wrap_mode, gen_mipmap, false, is_storage);
         }
 
         return texture;
@@ -224,7 +225,8 @@ namespace Viry3D
         FilterMode filter_mode,
         SamplerAddressMode wrap_mode,
         bool gen_mipmap,
-        bool dynamic)
+        bool dynamic,
+        bool is_storage)
     {
         Ref<Texture> texture;
 
@@ -235,13 +237,19 @@ namespace Viry3D
         }
 
 #if VR_VULKAN
+        VkImageUsageFlags usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        if (is_storage)
+        {
+            usage |= VK_IMAGE_USAGE_STORAGE_BIT;
+        }
+
         texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_2D,
             width,
             height,
             TextureFormatToVkFormat(format),
-            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            usage,
             VK_IMAGE_ASPECT_COLOR_BIT,
             {
                 VK_COMPONENT_SWIZZLE_R,
@@ -254,6 +262,8 @@ namespace Viry3D
             1,
             1);
         Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
+
+        texture->m_is_storage = is_storage;
 #elif VR_GLES
         texture = CreateTexture(
             GL_TEXTURE_2D,
@@ -271,6 +281,20 @@ namespace Viry3D
         if (gen_mipmap)
         {
             texture->GenMipmaps();
+        }
+
+        if (is_storage)
+        {
+            Display::Instance()->BeginImageCmd();
+            Display::Instance()->SetImageLayout(
+                texture->GetImage(),
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                VK_IMAGE_LAYOUT_GENERAL,
+                VK_ACCESS_SHADER_READ_BIT);
+            Display::Instance()->EndImageCmd();
         }
 
         return texture;
@@ -491,7 +515,7 @@ namespace Viry3D
         return texture;
     }
 
-    Ref<Texture> Texture::CreateStorageTexture(
+    Ref<Texture> Texture::CreateStorageTexture2D(
         int width,
         int height,
         TextureFormat format,
@@ -502,17 +526,14 @@ namespace Viry3D
         Ref<Texture> texture;
 
 #if VR_VULKAN
-        VkImageUsageFlags usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
-        VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-
         texture = Display::Instance()->CreateTexture(
             VK_IMAGE_TYPE_2D,
             VK_IMAGE_VIEW_TYPE_2D,
             width,
             height,
             TextureFormatToVkFormat(format),
-            usage,
-            aspect,
+            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT,
             {
                 VK_COMPONENT_SWIZZLE_R,
                 VK_COMPONENT_SWIZZLE_G,
@@ -528,12 +549,14 @@ namespace Viry3D
             Display::Instance()->CreateSampler(texture, FilterModeToVkFilter(filter_mode), SamplerAddressModeToVkMode(wrap_mode));
         }
 
+        texture->m_is_storage = true;
+
         Display::Instance()->BeginImageCmd();
         Display::Instance()->SetImageLayout(
             texture->GetImage(),
-            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-            { aspect, 0, 1, 0, 1 },
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
             VK_IMAGE_LAYOUT_UNDEFINED,
             VK_IMAGE_LAYOUT_GENERAL,
             (VkAccessFlagBits) 0);
@@ -564,7 +587,8 @@ namespace Viry3D
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge,
 				false,
-				false);
+				false,
+                false);
 		}
 
 		return m_shared_white_texture;
@@ -591,7 +615,8 @@ namespace Viry3D
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge,
 				false,
-				false);
+				false,
+                false);
 		}
 
 		return m_shared_black_texture;
@@ -618,7 +643,8 @@ namespace Viry3D
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge,
 				false,
-				false);
+				false,
+                false);
 		}
 		
 		return m_shared_normal_texture;
@@ -1135,6 +1161,7 @@ namespace Viry3D
         m_image_view_multi_sample(VK_NULL_HANDLE),
         m_memory_multi_sample(VK_NULL_HANDLE),
         m_sampler(VK_NULL_HANDLE),
+        m_is_storage(false),
 #elif VR_GLES
         m_texture(0),
         m_target(0),

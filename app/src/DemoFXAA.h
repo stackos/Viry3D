@@ -230,8 +230,8 @@ void main()
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetText("FXAA");
 
-            auto on = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_on.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
-            auto off = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_off.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+            auto on = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_on.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
+            auto off = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/switch_off.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 
             auto switch_button = RefMake<SwitchButton>();
             switch_button->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
@@ -260,7 +260,7 @@ void main()
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetText("Quality");
 
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 
             auto quality_select = RefMake<SelectButton>();
             quality_select->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);

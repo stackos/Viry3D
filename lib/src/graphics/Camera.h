@@ -30,6 +30,7 @@ namespace Viry3D
 {
     class Texture;
     class Renderer;
+    class Computer;
 
     struct RendererInstance
     {
@@ -37,6 +38,7 @@ namespace Viry3D
 #if VR_VULKAN
         bool cmd_dirty = true;
         VkCommandBuffer cmd = VK_NULL_HANDLE;
+        VkCommandBuffer compute_cmd = VK_NULL_HANDLE;
 #endif
 
         bool operator ==(const RendererInstance& a) const
@@ -98,6 +100,7 @@ namespace Viry3D
         VkRenderPass GetRenderPass() const { return m_render_pass; }
         VkFramebuffer GetFramebuffer(int index) const;
         Vector<VkCommandBuffer> GetInstanceCmds() const;
+        Vector<VkCommandBuffer> GetComputeInstanceCmds() const;
 #elif VR_GLES
         void OnDraw();
 #endif
@@ -114,6 +117,7 @@ namespace Viry3D
         void UpdateInstanceCmds();
         void ClearInstanceCmds();
         void BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer);
+        void BuildComputeInstanceCmd(VkCommandBuffer cmd, const Ref<Computer>& computer);
 #elif VR_GLES
         void BindTarget();
         void ClearTarget();
@@ -125,6 +129,7 @@ namespace Viry3D
         VkRenderPass m_render_pass;
         Vector<VkFramebuffer> m_framebuffers;
         VkCommandPool m_cmd_pool;
+        VkCommandPool m_compute_cmd_pool;
         bool m_render_pass_dirty;
         bool m_instance_cmds_dirty;
 #elif VR_GLES

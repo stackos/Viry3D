@@ -48,11 +48,14 @@ namespace Viry3D
             const Vector<String>& fs_includes,
             const String& fs_source,
             const RenderState& render_state);
+        Shader(const String& cs_source);
         ~Shader();
         const RenderState& GetRenderState() const { return m_render_state; }
+        bool IsComputeShader() const { return m_compute_shader; }
 #if VR_VULKAN
         static void OnRenderPassDestroy(VkRenderPass render_pass);
         VkPipeline GetPipeline(VkRenderPass render_pass, bool color_attachment, bool depth_attachment, int extra_color_attachment_count, int sample_count, bool instancing, int instance_stride);
+        VkPipeline GetComputePipeline();
         void CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets);
         VkPipelineLayout GetPipelineLayout() const { return m_pipeline_layout; }
 #elif VR_GLES
@@ -98,6 +101,7 @@ namespace Viry3D
         static List<Shader*> m_shaders;
 		static Map<String, Ref<Shader>> m_shader_cache;
 #if VR_VULKAN
+        VkShaderModule m_cs_module;
         VkShaderModule m_vs_module;
         VkShaderModule m_fs_module;
         VkPipelineCache m_pipeline_cache;
@@ -105,6 +109,7 @@ namespace Viry3D
         VkPipelineLayout m_pipeline_layout;
         VkDescriptorPool m_descriptor_pool;
         Map<VkRenderPass, Vector<Pipeline>> m_pipelines;
+        VkPipeline m_compute_pipeline;
         Vector<VertexAttribute> m_attributes;
         Vector<UniformSet> m_uniform_sets;
 #elif VR_GLES
@@ -113,5 +118,6 @@ namespace Viry3D
         Vector<Uniform> m_uniforms;
 #endif
         RenderState m_render_state;
+        bool m_compute_shader;
     };
 }

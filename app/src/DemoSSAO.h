@@ -135,6 +135,7 @@ namespace Viry3D
                 FilterMode::Nearest,
                 SamplerAddressMode::Repeat,
                 false,
+                false,
                 false);
 
             Vector<Vector4> kernel(KERNEL_SIZE);

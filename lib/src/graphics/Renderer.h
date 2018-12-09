@@ -51,8 +51,8 @@ namespace Viry3D
     public:
         Renderer();
         virtual ~Renderer();
-        virtual Ref<BufferObject> GetVertexBuffer() const = 0;
-        virtual Ref<BufferObject> GetIndexBuffer() const = 0;
+        virtual Ref<BufferObject> GetVertexBuffer() const { return Ref<BufferObject>(); }
+        virtual Ref<BufferObject> GetIndexBuffer() const { return Ref<BufferObject>(); }
 #if VR_VULKAN
         Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
 #elif VR_GLES
@@ -85,7 +85,7 @@ namespace Viry3D
 
     protected:
         virtual void OnMatrixDirty();
-        virtual void UpdateDrawBuffer() = 0;
+        virtual void UpdateDrawBuffer() { }
         void SetInstanceMatrix(const String& name, const Matrix4x4& value);
         void SetInstanceVectorArray(const String& name, const Vector<Vector4>& value);
         void SetInstanceVector(const String& name, const Vector4& value);

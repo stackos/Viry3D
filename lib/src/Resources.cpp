@@ -69,7 +69,7 @@ namespace Viry3D
                     int mipmap_count = root["mipmap"].asInt();
                     String png_path = root["path"].asCString();
 
-                    texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1);
+                    texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1, false);
                     texture->SetName(texture_name);
                 }
                 else if (texture_type == "Cubemap")
@@ -455,6 +455,7 @@ namespace Viry3D
                             TextureFormat::R8G8B8A8,
                             FilterMode::Linear,
                             SamplerAddressMode::ClampToEdge,
+                            false,
                             false,
                             false);
                         temp->CopyTexture(

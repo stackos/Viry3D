@@ -33,6 +33,7 @@
 #include "DemoLightmap.h"
 #include "DemoSSAO.h"
 #include "DemoVR.h"
+#include "DemoCompute.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -42,6 +43,8 @@
 
 // TODO:
 // - Compute Shader
+// - GLTF load
+// - IBL PBR
 // - GPU Particle
 // - Ray Tracing
 // - wasm save path for write file
@@ -102,7 +105,8 @@ namespace Viry3D
                 "Instancing & PBR",
                 "Lightmap",
                 "Deferred Shading & SSAO",
-                "VR"
+                "VR",
+                "Compute"
                 });
 
             const int top = (int) (90 * UI_SCALE);
@@ -249,6 +253,9 @@ namespace Viry3D
                 case 14:
                     m_demo = new DemoVR();
                     break;
+                case 15:
+                    m_demo = new DemoCompute();
+                    break;
                 default:
                     break;
             }
@@ -304,7 +311,7 @@ namespace Viry3D
 
         void AddTouchCursor()
         {
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/touch.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/touch.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 
             auto sprite = RefMake<Sprite>();
             m_canvas->AddView(sprite);

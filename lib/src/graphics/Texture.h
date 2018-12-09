@@ -81,7 +81,8 @@ namespace Viry3D
             const String& path,
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode,
-            bool gen_mipmap);
+            bool gen_mipmap,
+            bool is_storage);
         static Ref<Texture> CreateTexture2DFromMemory(
             const ByteBuffer& pixels,
             int width,
@@ -90,7 +91,8 @@ namespace Viry3D
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode,
             bool gen_mipmap,
-            bool dynamic);
+            bool dynamic,
+            bool is_storage);
         static Ref<Texture> CreateCubemap(
             int size,
             TextureFormat format,
@@ -116,7 +118,7 @@ namespace Viry3D
             SamplerAddressMode wrap_mode,
             bool gen_mipmap,
             bool dynamic);
-        static Ref<Texture> CreateStorageTexture(
+        static Ref<Texture> CreateStorageTexture2D(
             int width,
             int height,
             TextureFormat format,
@@ -199,6 +201,7 @@ namespace Viry3D
         VkMemoryAllocateInfo m_memory_info_multi_sample;
         VkSampler m_sampler;
         Ref<BufferObject> m_image_buffer;
+        bool m_is_storage;
 #elif VR_GLES
         GLuint m_texture;
         GLuint m_target;

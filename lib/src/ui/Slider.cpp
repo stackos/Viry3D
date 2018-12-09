@@ -31,7 +31,7 @@ namespace Viry3D
         m_down_pos(0, 0),
         m_slider_pos(0, 0)
     {
-        auto circle = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/circle.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+        auto circle = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/circle.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 
         int bar_height = this->GetSize().y / 3;
         Color bar_color = Color(0.4f, 0.4f, 0.4f, 1.0f);

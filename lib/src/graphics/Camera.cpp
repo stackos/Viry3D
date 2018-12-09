@@ -21,6 +21,7 @@
 #include "Material.h"
 #include "Shader.h"
 #include "Debug.h"
+#include "Computer.h"
 
 namespace Viry3D
 {
@@ -28,6 +29,7 @@ namespace Viry3D
 #if VR_VULKAN
         m_render_pass(VK_NULL_HANDLE),
         m_cmd_pool(VK_NULL_HANDLE),
+        m_compute_cmd_pool(VK_NULL_HANDLE),
         m_render_pass_dirty(true),
         m_instance_cmds_dirty(true),
 #elif VR_GLES
@@ -609,6 +611,11 @@ namespace Viry3D
                 {
                     vkFreeCommandBuffers(device, m_cmd_pool, 1, &i->cmd);
                 }
+
+                if (i->compute_cmd)
+                {
+                    vkFreeCommandBuffers(device, m_compute_cmd_pool, 1, &i->compute_cmd);
+                }
 #endif
                 m_renderers.Remove(i);
                 break;
@@ -676,17 +683,34 @@ namespace Viry3D
             {
                 i.cmd_dirty = false;
 
-                if (i.cmd == VK_NULL_HANDLE)
+                if (RefCast<Computer>(i.renderer))
+                {
+                    if (m_compute_cmd_pool == VK_NULL_HANDLE)
+                    {
+                        Display::Instance()->CreateComputeCommandPool(&m_compute_cmd_pool);
+                    }
+
+                    if (i.compute_cmd == VK_NULL_HANDLE)
+                    {
+                        Display::Instance()->CreateCommandBuffer(m_compute_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.compute_cmd);
+                    }
+
+                    this->BuildComputeInstanceCmd(i.compute_cmd, RefCast<Computer>(i.renderer));
+                }
+                else
                 {
                     if (m_cmd_pool == VK_NULL_HANDLE)
                     {
                         Display::Instance()->CreateCommandPool(&m_cmd_pool);
                     }
 
-                    Display::Instance()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
-                }
+                    if (i.cmd == VK_NULL_HANDLE)
+                    {
+                        Display::Instance()->CreateCommandBuffer(m_cmd_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, &i.cmd);
+                    }
 
-                this->BuildInstanceCmd(i.cmd, i.renderer);
+                    this->BuildInstanceCmd(i.cmd, i.renderer);
+                }
 
                 Display::Instance()->MarkPrimaryCmdDirty();
             }
@@ -706,12 +730,24 @@ namespace Viry3D
                 vkFreeCommandBuffers(device, m_cmd_pool, 1, &i.cmd);
                 i.cmd = VK_NULL_HANDLE;
             }
+
+            if (i.compute_cmd)
+            {
+                vkFreeCommandBuffers(device, m_compute_cmd_pool, 1, &i.compute_cmd);
+                i.cmd = VK_NULL_HANDLE;
+            }
         }
 
         if (m_cmd_pool)
         {
             vkDestroyCommandPool(device, m_cmd_pool, nullptr);
             m_cmd_pool = VK_NULL_HANDLE;
+        }
+
+        if (m_compute_cmd_pool)
+        {
+            vkDestroyCommandPool(device, m_compute_cmd_pool, nullptr);
+            m_compute_cmd_pool = VK_NULL_HANDLE;
         }
     }
 
@@ -721,7 +757,25 @@ namespace Viry3D
 
         for (const auto& i : m_renderers)
         {
-            cmds.Add(i.cmd);
+            if (i.cmd)
+            {
+                cmds.Add(i.cmd);
+            }
+        }
+
+        return cmds;
+    }
+
+    Vector<VkCommandBuffer> Camera::GetComputeInstanceCmds() const
+    {
+        Vector<VkCommandBuffer> cmds;
+
+        for (const auto& i : m_renderers)
+        {
+            if (i.compute_cmd)
+            {
+                cmds.Add(i.compute_cmd);
+            }
         }
 
         return cmds;
@@ -816,6 +870,28 @@ namespace Viry3D
             index_buffer,
             draw_buffer,
             instance_buffer);
+    }
+
+    void Camera::BuildComputeInstanceCmd(VkCommandBuffer cmd, const Ref<Computer>& computer)
+    {
+        const Ref<Material>& material = computer->GetMaterial();
+        Ref<BufferObject> dispatch_buffer = computer->GetDispatchBuffer();
+
+        if (!material || !material->GetShader()->IsComputeShader() || !dispatch_buffer)
+        {
+            Display::Instance()->BuildEmptyComputeInstanceCmd(cmd);
+            return;
+        }
+
+        const Ref<Shader>& shader = material->GetShader();
+        Vector<VkDescriptorSet> descriptor_sets = material->GetDescriptorSets();
+
+        Display::Instance()->BuildComputeInstanceCmd(
+            cmd,
+            shader->GetPipelineLayout(),
+            shader->GetComputePipeline(),
+            descriptor_sets,
+            dispatch_buffer);
     }
 #endif
 }

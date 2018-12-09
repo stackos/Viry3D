@@ -248,6 +248,7 @@ namespace Viry3D
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge,
                 false,
+                false,
                 false);
 
             char32_t buffer[2] = { c, 0 };
