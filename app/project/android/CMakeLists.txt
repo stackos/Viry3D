@@ -221,8 +221,8 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/null.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/opensl.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/thread_msg_queue_cpp11.cpp
-            ${VIRY3D_LIB_SRC_DIR}/openal/Alc/Alc.c
-            ${VIRY3D_LIB_SRC_DIR}/openal/Alc/Alc_cpp11.cpp
+            ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALc.c
+            ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALc_cpp11.cpp
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcConfig.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcDedicated.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcEcho.c
@@ -230,7 +230,7 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcReverb.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcRing.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
-            ${VIRY3D_LIB_SRC_DIR}/openal/Alc/Alu.c
+            ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALu.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/bs2b.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/helpers.c
             ${VIRY3D_LIB_SRC_DIR}/openal/Alc/hrtf.c
@@ -476,3 +476,4 @@ target_link_libraries(Viry3DApp
 # build shaderc
 # ndk-bundle/sources/third_party/shaderc
 # ../../../ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined
+
