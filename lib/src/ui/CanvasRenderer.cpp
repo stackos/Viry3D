@@ -223,7 +223,8 @@ void main()
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge,
                 false,
-                true);
+                true,
+                false);
 #endif
         }
         else

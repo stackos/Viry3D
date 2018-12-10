@@ -924,6 +924,9 @@
     <ClInclude Include="..\..\src\ui\SwitchButton.h">
       <Filter>src\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\Computer.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2158,6 +2161,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ui\SwitchButton.cpp">
       <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\Computer.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

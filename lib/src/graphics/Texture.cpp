@@ -283,6 +283,7 @@ namespace Viry3D
             texture->GenMipmaps();
         }
 
+#if VR_VULKAN
         if (is_storage)
         {
             Display::Instance()->BeginImageCmd();
@@ -296,6 +297,7 @@ namespace Viry3D
                 VK_ACCESS_SHADER_READ_BIT);
             Display::Instance()->EndImageCmd();
         }
+#endif
 
         return texture;
     }
