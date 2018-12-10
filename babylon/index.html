@@ -20,7 +20,7 @@
                 camera.wheelPrecision = 50
                 camera.attachControl(canvas, true);
 
-                BABYLON.SceneLoader.ImportMesh("", "./", "DamagedHelmet.glb", scene, function (newMeshes) {
+                BABYLON.SceneLoader.ImportMesh("", "glTF/DamagedHelmet/", "DamagedHelmet.gltf", scene, function (newMeshes) {
                     scene.createDefaultEnvironment();
                 });
 
