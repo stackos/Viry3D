@@ -2583,12 +2583,23 @@ extern void UnbindSharedContext();
             const Vector<VkDescriptorSet>& descriptor_sets,
             const Ref<BufferObject>& dispatch_buffer)
         {
+            VkCommandBufferInheritanceInfo inheritance_info;
+            Memory::Zero(&inheritance_info, sizeof(inheritance_info));
+            inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+            inheritance_info.pNext = nullptr;
+            inheritance_info.renderPass = VK_NULL_HANDLE;
+            inheritance_info.subpass = 0;
+            inheritance_info.framebuffer = VK_NULL_HANDLE;
+            inheritance_info.occlusionQueryEnable = VK_FALSE;
+            inheritance_info.queryFlags = 0;
+            inheritance_info.pipelineStatistics = 0;
+
             VkCommandBufferBeginInfo cmd_begin;
             Memory::Zero(&cmd_begin, sizeof(cmd_begin));
             cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             cmd_begin.pNext = nullptr;
-            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-            cmd_begin.pInheritanceInfo = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+            cmd_begin.pInheritanceInfo = &inheritance_info;
 
             VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
             assert(!err);
@@ -2631,12 +2642,23 @@ extern void UnbindSharedContext();
 
         void BuildEmptyComputeInstanceCmd(VkCommandBuffer cmd)
         {
+            VkCommandBufferInheritanceInfo inheritance_info;
+            Memory::Zero(&inheritance_info, sizeof(inheritance_info));
+            inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+            inheritance_info.pNext = nullptr;
+            inheritance_info.renderPass = VK_NULL_HANDLE;
+            inheritance_info.subpass = 0;
+            inheritance_info.framebuffer = VK_NULL_HANDLE;
+            inheritance_info.occlusionQueryEnable = VK_FALSE;
+            inheritance_info.queryFlags = 0;
+            inheritance_info.pipelineStatistics = 0;
+
             VkCommandBufferBeginInfo cmd_begin;
             Memory::Zero(&cmd_begin, sizeof(cmd_begin));
             cmd_begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             cmd_begin.pNext = nullptr;
-            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-            cmd_begin.pInheritanceInfo = nullptr;
+            cmd_begin.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+            cmd_begin.pInheritanceInfo = &inheritance_info;
 
             VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
             assert(!err);
