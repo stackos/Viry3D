@@ -309,6 +309,7 @@
 		BA42E6951FF5455E009C3C01 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = BA42E6711FF5455D009C3C01 /* ldo.c */; };
 		BA4551CE21404CEC003188B1 /* ARScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA4551CD21404CEC003188B1 /* ARScene.mm */; };
 		BA6659902157FE7A009822E7 /* ScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA66598E2157FE7A009822E7 /* ScrollView.cpp */; };
+		BA77475F21C01D9100C5E710 /* Computer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA77475E21C01D9000C5E710 /* Computer.cpp */; };
 		BA8AA381200523BD00B7FDC2 /* lpprint.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA376200523BC00B7FDC2 /* lpprint.c */; };
 		BA8AA382200523BD00B7FDC2 /* lpvm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA377200523BC00B7FDC2 /* lpvm.c */; };
 		BA8AA383200523BD00B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA379200523BC00B7FDC2 /* lpcap.c */; };
@@ -873,6 +874,8 @@
 		BA4551CD21404CEC003188B1 /* ARScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ARScene.mm; sourceTree = "<group>"; };
 		BA66598E2157FE7A009822E7 /* ScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollView.cpp; sourceTree = "<group>"; };
 		BA66598F2157FE7A009822E7 /* ScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollView.h; sourceTree = "<group>"; };
+		BA77475D21C01D9000C5E710 /* Computer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Computer.h; sourceTree = "<group>"; };
+		BA77475E21C01D9000C5E710 /* Computer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Computer.cpp; sourceTree = "<group>"; };
 		BA8AA376200523BC00B7FDC2 /* lpprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpprint.c; sourceTree = "<group>"; };
 		BA8AA377200523BC00B7FDC2 /* lpvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpvm.c; sourceTree = "<group>"; };
 		BA8AA378200523BC00B7FDC2 /* lptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptypes.h; sourceTree = "<group>"; };
@@ -1061,6 +1064,8 @@
 				D137753F20FEDFD500E4F19B /* CameraClearFlags.h */,
 				D137754420FEDFD500E4F19B /* Color.cpp */,
 				D137755620FEDFD700E4F19B /* Color.h */,
+				BA77475E21C01D9000C5E710 /* Computer.cpp */,
+				BA77475D21C01D9000C5E710 /* Computer.h */,
 				D137754320FEDFD500E4F19B /* Display.cpp */,
 				D137754B20FEDFD600E4F19B /* Display.h */,
 				D137755420FEDFD700E4F19B /* Image.cpp */,
@@ -2545,6 +2550,7 @@
 				5B66E1A914BC5D30A88B6AFE /* tag.c in Sources */,
 				C8D3D80DDCFDEFE5E72BA2C8 /* ucs4.c in Sources */,
 				738B3AE9BDE8EB6EEE27CF36 /* utf8.c in Sources */,
+				BA77475F21C01D9100C5E710 /* Computer.cpp in Sources */,
 				CBC4159CB68EA3B9DB94CF2F /* utf16.c in Sources */,
 				D1B25E142105CEDD001A3EC9 /* CanvasRenderer.cpp in Sources */,
 				CBAF96F7A796377BDF40042C /* util.c in Sources */,

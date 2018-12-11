@@ -134,7 +134,11 @@ namespace Viry3D
             assert(success);
 #elif VR_IOS || VR_MAC
             MVKShaderStage stage;
-            switch (shader_type) {
+            switch (shader_type)
+            {
+                case VK_SHADER_STAGE_COMPUTE_BIT:
+                    stage = kMVKShaderStageCompute;
+                    break;
                 case VK_SHADER_STAGE_VERTEX_BIT:
                     stage = kMVKShaderStageVertex;
                     break;

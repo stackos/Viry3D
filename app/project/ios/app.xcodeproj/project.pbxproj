@@ -421,7 +421,7 @@
 					../../../lib/src/vulkan/MoltenVK/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
 				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				ONLY_ACTIVE_ARCH = YES;
@@ -453,7 +453,7 @@
 					../../../lib/src/vulkan/MoltenVK/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path";
 				LIBRARY_SEARCH_PATHS = ../../../lib/src/vulkan/MoltenVK/iOS;
 				ONLY_ACTIVE_ARCH = NO;

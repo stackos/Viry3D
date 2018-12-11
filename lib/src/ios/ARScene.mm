@@ -240,7 +240,8 @@ API_AVAILABLE(ios(11.0))
             FilterMode::Linear,
             SamplerAddressMode::ClampToEdge,
             false,
-            true);
+            true,
+            false);
     }
     else
     {
@@ -262,7 +263,8 @@ API_AVAILABLE(ios(11.0))
             FilterMode::Linear,
             SamplerAddressMode::ClampToEdge,
             false,
-            true);
+            true,
+            false);
     }
     else
     {
