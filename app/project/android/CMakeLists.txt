@@ -400,6 +400,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/Debug.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Camera.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Color.cpp
+            ${VIRY3D_LIB_SRC_DIR}/graphics/Computer.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Display.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Image.cpp
             ${VIRY3D_LIB_SRC_DIR}/graphics/Light.cpp

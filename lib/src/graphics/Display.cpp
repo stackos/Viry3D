@@ -2371,7 +2371,7 @@ extern void UnbindSharedContext();
             pipeline_info.flags = 0;
             pipeline_info.stage = stage_info;
             pipeline_info.layout = pipeline_layout;
-            pipeline_info.basePipelineHandle = nullptr;
+            pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
             pipeline_info.basePipelineIndex = 0;
 
             VkResult err = vkCreateComputePipelines(m_device, pipeline_cache, 1, &pipeline_info, nullptr, pipeline);
