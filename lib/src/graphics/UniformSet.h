@@ -49,10 +49,18 @@ namespace Viry3D
         int stage;
     };
 
+    struct StorageBuffer
+    {
+        String name;
+        int binding;
+        int stage;
+    };
+
     struct UniformSet
     {
         int set;
         Vector<UniformBuffer> buffers;
         Vector<UniformTexture> textures;
+        Vector<StorageBuffer> storage_buffers;
     };
 }

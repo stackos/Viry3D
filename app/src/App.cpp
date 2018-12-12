@@ -33,7 +33,8 @@
 #include "DemoLightmap.h"
 #include "DemoSSAO.h"
 #include "DemoVR.h"
-#include "DemoCompute.h"
+#include "DemoComputeImage.h"
+#include "DemoComputeBuffer.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -106,7 +107,8 @@ namespace Viry3D
                 "Lightmap",
                 "Deferred Shading & SSAO",
                 "VR",
-                "Compute"
+                "ComputeImage",
+                "ComputeBuffer"
                 });
 
             const int top = (int) (90 * UI_SCALE);
@@ -254,7 +256,10 @@ namespace Viry3D
                     m_demo = new DemoVR();
                     break;
                 case 15:
-                    m_demo = new DemoCompute();
+                    m_demo = new DemoComputeImage();
+                    break;
+                case 16:
+                    m_demo = new DemoComputeBuffer();
                     break;
                 default:
                     break;

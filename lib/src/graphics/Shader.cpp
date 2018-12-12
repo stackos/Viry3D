@@ -148,7 +148,10 @@ namespace Viry3D
             m_uniform_sets);
         Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
         Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
-        Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+        if (m_uniform_sets.Size() > 0)
+        {
+            Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+        }
 #endif
     }
 
@@ -280,12 +283,15 @@ namespace Viry3D
 
     void Shader::CreateDescriptorSets(Vector<VkDescriptorSet>& descriptor_sets, Vector<UniformSet>& uniform_sets)
     {
-        Display::Instance()->CreateDescriptorSets(
-            m_uniform_sets,
-            m_descriptor_pool,
-            m_descriptor_layouts,
-            descriptor_sets);
-        uniform_sets = m_uniform_sets;
+        if (m_uniform_sets.Size() > 0)
+        {
+            Display::Instance()->CreateDescriptorSets(
+                m_uniform_sets,
+                m_descriptor_pool,
+                m_descriptor_layouts,
+                descriptor_sets);
+            uniform_sets = m_uniform_sets;
+        }
     }
 #elif VR_GLES
     static String ProcessShaderSource(const String& glsl, const String& predefine, const Vector<String>& includes)

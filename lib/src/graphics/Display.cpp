@@ -1933,7 +1933,32 @@ extern void UnbindSharedContext();
 
             for (const auto& resource : resources.storage_buffers)
             {
+                uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+                uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+                const std::string& name = resource.name;
 
+                UniformSet* set_ptr = nullptr;
+                for (int i = 0; i < uniform_sets.Size(); ++i)
+                {
+                    if (set == uniform_sets[i].set)
+                    {
+                        set_ptr = &uniform_sets[i];
+                        break;
+                    }
+                }
+                if (set_ptr == nullptr)
+                {
+                    uniform_sets.Add(UniformSet());
+                    set_ptr = &uniform_sets[uniform_sets.Size() - 1];
+                    set_ptr->set = set;
+                }
+
+                StorageBuffer buffer;
+                buffer.name = name.c_str();
+                buffer.binding = (int) binding;
+                buffer.stage = shader_type;
+
+                set_ptr->storage_buffers.Add(buffer);
             }
         }
 
@@ -2052,6 +2077,21 @@ extern void UnbindSharedContext();
                     layout_bindings.Add(layout_binding);
                 }
 
+                for (int j = 0; j < uniform_sets[i].storage_buffers.Size(); ++j)
+                {
+                    const auto& buffer = uniform_sets[i].storage_buffers[j];
+
+                    VkDescriptorSetLayoutBinding layout_binding;
+                    Memory::Zero(&layout_binding, sizeof(layout_binding));
+                    layout_binding.binding = buffer.binding;
+                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                    layout_binding.descriptorCount = 1;
+                    layout_binding.stageFlags = buffer.stage;
+                    layout_binding.pImmutableSamplers = nullptr;
+
+                    layout_bindings.Add(layout_binding);
+                }
+
                 VkDescriptorSetLayoutCreateInfo descriptor_layout;
                 Memory::Zero(&descriptor_layout, sizeof(descriptor_layout));
                 descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -2070,7 +2110,14 @@ extern void UnbindSharedContext();
             pipeline_layout_info.pNext = nullptr;
             pipeline_layout_info.flags = 0;
             pipeline_layout_info.setLayoutCount = descriptor_layouts.Size();
-            pipeline_layout_info.pSetLayouts = &descriptor_layouts[0];
+            if (descriptor_layouts.Size() > 0)
+            {
+                pipeline_layout_info.pSetLayouts = &descriptor_layouts[0];
+            }
+            else
+            {
+                pipeline_layout_info.pSetLayouts = nullptr;
+            }
             pipeline_layout_info.pushConstantRangeCount = 0;
             pipeline_layout_info.pPushConstantRanges = nullptr;
 
@@ -2387,6 +2434,7 @@ extern void UnbindSharedContext();
             int buffer_count = 0;
             int texture_count = 0;
             int storage_image_count = 0;
+            int storage_buffer_count = 0;
 
             for (int i = 0; i < uniform_sets.Size(); ++i)
             {
@@ -2405,6 +2453,11 @@ extern void UnbindSharedContext();
                     {
                         ++texture_count;
                     }
+                }
+
+                for (int j = 0; j < uniform_sets[i].storage_buffers.Size(); ++j)
+                {
+                    ++storage_buffer_count;
                 }
             }
 
@@ -2428,6 +2481,13 @@ extern void UnbindSharedContext();
                 VkDescriptorPoolSize pool_size;
                 pool_size.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
                 pool_size.descriptorCount = (uint32_t) storage_image_count * DESCRIPTOR_POOL_SIZE_MAX;
+                pool_sizes.Add(pool_size);
+            }
+            if (storage_buffer_count > 0)
+            {
+                VkDescriptorPoolSize pool_size;
+                pool_size.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                pool_size.descriptorCount = (uint32_t) storage_buffer_count * DESCRIPTOR_POOL_SIZE_MAX;
                 pool_sizes.Add(pool_size);
             }
             
@@ -2506,6 +2566,29 @@ extern void UnbindSharedContext();
             desc_write.descriptorType = is_storage ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE : VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             desc_write.pImageInfo = &image_info;
             desc_write.pBufferInfo = nullptr;
+            desc_write.pTexelBufferView = nullptr;
+
+            vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
+        }
+
+        void UpdateStorageBuffer(VkDescriptorSet descriptor_set, StorageBuffer& storage_buffer, const Ref<BufferObject>& buffer)
+        {
+            VkDescriptorBufferInfo buffer_info;
+            buffer_info.buffer = buffer->GetBuffer();
+            buffer_info.offset = 0;
+            buffer_info.range = buffer->GetSize();
+
+            VkWriteDescriptorSet desc_write;
+            Memory::Zero(&desc_write, sizeof(desc_write));
+            desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            desc_write.pNext = nullptr;
+            desc_write.dstSet = descriptor_set;
+            desc_write.dstBinding = storage_buffer.binding;
+            desc_write.dstArrayElement = 0;
+            desc_write.descriptorCount = 1;
+            desc_write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            desc_write.pImageInfo = nullptr;
+            desc_write.pBufferInfo = &buffer_info;
             desc_write.pTexelBufferView = nullptr;
 
             vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
@@ -2609,7 +2692,10 @@ extern void UnbindSharedContext();
             assert(!err);
 
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
-            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout, 0, descriptor_sets.Size(), &descriptor_sets[0], 0, nullptr);
+            if (descriptor_sets.Size() > 0)
+            {
+                vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout, 0, descriptor_sets.Size(), &descriptor_sets[0], 0, nullptr);
+            }
 
             vkCmdDispatchIndirect(cmd, dispatch_buffer->GetBuffer(), 0);
 
