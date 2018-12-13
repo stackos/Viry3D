@@ -33,8 +33,8 @@
 #include "DemoLightmap.h"
 #include "DemoSSAO.h"
 #include "DemoVR.h"
-#include "DemoComputeImage.h"
-#include "DemoComputeBuffer.h"
+#include "DemoComputeStorageImage.h"
+#include "DemoComputeStorageBuffer.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -92,7 +92,7 @@ namespace Viry3D
             m_scroll->SetOffset(Vector2i(0, 0));
 
             Vector<String> titles({ "Mesh", "SkinnedMesh", "Skybox", "RenderToTexture", "FXAA", "MSAA", "PostEffectBlur", "UI", "ShadowMap", "Audio", "AR", "Instancing & PBR", "Lightmap",
-                                    "Deferred Shading & SSAO", "VR", "ComputeImage", "ComputeBuffer" });
+                                    "Deferred Shading & SSAO", "VR", "ComputeStorageImage", "ComputeStorageBuffer" });
 
             const int top = (int) (90 * UI_SCALE);
             const int button_height = (int) (160 * UI_SCALE);
@@ -237,10 +237,10 @@ namespace Viry3D
                     m_demo = new DemoVR();
                     break;
                 case 15:
-                    m_demo = new DemoComputeImage();
+                    m_demo = new DemoComputeStorageImage();
                     break;
                 case 16:
-                    m_demo = new DemoComputeBuffer();
+                    m_demo = new DemoComputeStorageBuffer();
                     break;
                 default:
                     break;

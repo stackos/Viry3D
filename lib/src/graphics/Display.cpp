@@ -307,6 +307,7 @@ extern void UnbindSharedContext();
         VkCommandBuffer m_image_cmd = VK_NULL_HANDLE;
         VkCommandPool m_compute_cmd_pool = VK_NULL_HANDLE;
         VkCommandBuffer m_compute_cmd = VK_NULL_HANDLE;
+        bool m_has_compute_instance_cmds = false;
         Mutex m_image_cmd_mutex;
         Ref<Texture> m_depth_texture;
         bool m_primary_cmd_dirty = true;
@@ -789,7 +790,7 @@ extern void UnbindSharedContext();
             queue_info.pQueuePriorities = &queue_priority;
             queue_infos.Add(queue_info);
 
-            if (m_compute_queue_family_index >= 0)
+            if (m_compute_queue_family_index >= 0 && m_compute_queue_family_index != m_graphics_queue_family_index)
             {
                 queue_info.queueFamilyIndex = m_compute_queue_family_index;
                 queue_infos.Add(queue_info);
@@ -1190,8 +1191,8 @@ extern void UnbindSharedContext();
             }
             else
             {
-                color_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                depth_final_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                color_final_layout = VK_IMAGE_LAYOUT_GENERAL;
+                depth_final_layout = VK_IMAGE_LAYOUT_GENERAL;
             }
 
             Vector<VkAttachmentReference> color_references;
@@ -1457,7 +1458,6 @@ extern void UnbindSharedContext();
             }
             if (array_size > 1)
             {
-                flags |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
                 layer_count = array_size;
             }
 
@@ -2856,7 +2856,7 @@ extern void UnbindSharedContext();
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_GENERAL,
                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                         VK_ACCESS_SHADER_READ_BIT);
                 }
@@ -2868,7 +2868,7 @@ extern void UnbindSharedContext();
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_GENERAL,
                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                         VK_ACCESS_SHADER_READ_BIT);
                 }
@@ -2880,7 +2880,7 @@ extern void UnbindSharedContext();
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                         { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 },
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_GENERAL,
                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                         VK_ACCESS_SHADER_READ_BIT);
                 }
@@ -2919,7 +2919,7 @@ extern void UnbindSharedContext();
                         VK_PIPELINE_STAGE_TRANSFER_BIT,
                         VK_PIPELINE_STAGE_TRANSFER_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_GENERAL,
                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                         (VkAccessFlagBits) 0);
 
@@ -2929,7 +2929,7 @@ extern void UnbindSharedContext();
                         VK_PIPELINE_STAGE_TRANSFER_BIT,
                         VK_PIPELINE_STAGE_TRANSFER_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_GENERAL,
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                         (VkAccessFlagBits) 0);
 
@@ -2957,7 +2957,7 @@ extern void UnbindSharedContext();
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_GENERAL,
                         VK_ACCESS_TRANSFER_READ_BIT);
 
                     this->SetImageLayout(
@@ -2967,7 +2967,7 @@ extern void UnbindSharedContext();
                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_IMAGE_LAYOUT_GENERAL,
                         VK_ACCESS_TRANSFER_WRITE_BIT);
                 }
             }
@@ -2977,10 +2977,7 @@ extern void UnbindSharedContext();
             VkCommandBuffer cmd,
             const Vector<VkCommandBuffer>& instance_cmds)
         {
-            if (instance_cmds.Size() > 0)
-            {
-                vkCmdExecuteCommands(cmd, (uint32_t) instance_cmds.Size(), &instance_cmds[0]);
-            }
+            vkCmdExecuteCommands(cmd, (uint32_t) instance_cmds.Size(), &instance_cmds[0]);
         }
 
         void BuildPrimaryCmds()
@@ -2995,9 +2992,15 @@ extern void UnbindSharedContext();
 
                 this->BuildPrimaryCmdBegin(cmd);
 
+                m_has_compute_instance_cmds = false;
                 for (auto j : m_cameras)
                 {
-                    this->BuildComputePrimaryCmd(cmd, j->GetComputeInstanceCmds());
+                    Vector<VkCommandBuffer> cmds = j->GetComputeInstanceCmds();
+                    if (cmds.Size() > 0)
+                    {
+                        m_has_compute_instance_cmds = true;
+                        this->BuildComputePrimaryCmd(cmd, cmds);
+                    }
                 }
 
                 this->BuildPrimaryCmdEnd(cmd);
@@ -3080,7 +3083,7 @@ extern void UnbindSharedContext();
 
             m_image_cmd_mutex.lock();
 
-            if (m_compute_queue != VK_NULL_HANDLE)
+            if (m_compute_queue != VK_NULL_HANDLE && m_has_compute_instance_cmds)
             {
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
                 VkSubmitInfo submit_info;

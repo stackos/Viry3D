@@ -55,10 +55,10 @@
     <ClInclude Include="..\..\src\DemoVR.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\DemoComputeImage.h">
+    <ClInclude Include="..\..\src\DemoComputeStorageImage.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\DemoComputeBuffer.h">
+    <ClInclude Include="..\..\src\DemoComputeStorageBuffer.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -283,22 +283,6 @@ namespace Viry3D
             texture->GenMipmaps();
         }
 
-#if VR_VULKAN
-        if (is_storage)
-        {
-            Display::Instance()->BeginImageCmd();
-            Display::Instance()->SetImageLayout(
-                texture->GetImage(),
-                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                VK_IMAGE_LAYOUT_GENERAL,
-                VK_ACCESS_SHADER_READ_BIT);
-            Display::Instance()->EndImageCmd();
-        }
-#endif
-
         return texture;
     }
 
@@ -419,7 +403,7 @@ namespace Viry3D
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 			{ aspect, 0, 1, 0, (uint32_t) array_size },
 			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
 			(VkAccessFlagBits) 0);
         if (sample_count > 1)
         {
@@ -429,7 +413,7 @@ namespace Viry3D
                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                 { aspect, 0, 1, 0, (uint32_t) array_size },
                 VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                VK_IMAGE_LAYOUT_GENERAL,
                 (VkAccessFlagBits) 0);
         }
 		Display::Instance()->EndImageCmd();
@@ -867,7 +851,7 @@ namespace Viry3D
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) src_level, 1, (uint32_t) src_layer, 1 },
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
             VK_ACCESS_TRANSFER_READ_BIT);
 
         Display::Instance()->SetImageLayout(
@@ -876,7 +860,7 @@ namespace Viry3D
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, 1, (uint32_t) layer, 1 },
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
             VK_ACCESS_TRANSFER_WRITE_BIT);
 
         Display::Instance()->EndImageCmd();
@@ -920,7 +904,7 @@ namespace Viry3D
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t) level, 1, (uint32_t) layer, 1 },
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
             VK_ACCESS_TRANSFER_READ_BIT);
 
         Display::Instance()->EndImageCmd();
@@ -973,7 +957,7 @@ namespace Viry3D
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, (uint32_t) this->GetLayerCount() },
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
             VK_ACCESS_TRANSFER_WRITE_BIT);
 
         Display::Instance()->EndImageCmd();
@@ -1087,7 +1071,7 @@ namespace Viry3D
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
             { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, layer_count },
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
             VK_ACCESS_SHADER_READ_BIT);
 
@@ -1138,9 +1122,9 @@ namespace Viry3D
             m_image,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-            { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, layer_count },
+            { VK_IMAGE_ASPECT_COLOR_BIT, 0, (uint32_t) m_mipmap_level_count, 0, layer_count },
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_GENERAL,
             VK_ACCESS_TRANSFER_READ_BIT);
 
         Display::Instance()->EndImageCmd();

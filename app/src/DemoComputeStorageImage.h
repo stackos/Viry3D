@@ -22,7 +22,7 @@
 
 namespace Viry3D
 {
-    class DemoComputeImage : public DemoMesh
+    class DemoComputeStorageImage : public DemoMesh
     {
     public:
         Camera* m_blit_origin_camera = nullptr;

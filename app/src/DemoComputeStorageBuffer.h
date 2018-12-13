@@ -23,7 +23,7 @@
 
 namespace Viry3D
 {
-    class DemoComputeBuffer : public DemoMesh
+    class DemoComputeStorageBuffer : public DemoMesh
     {
     public:
         Camera* m_blit_color_camera = nullptr;
