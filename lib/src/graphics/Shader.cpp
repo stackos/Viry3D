@@ -113,7 +113,10 @@ namespace Viry3D
             m_uniform_sets);
         Display::Instance()->CreatePipelineCache(&m_pipeline_cache);
         Display::Instance()->CreatePipelineLayout(m_uniform_sets, m_descriptor_layouts, &m_pipeline_layout);
-        Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+        if (m_uniform_sets.Size() > 0)
+        {
+            Display::Instance()->CreateDescriptorSetPool(m_uniform_sets, &m_descriptor_pool);
+        }
 #elif VR_GLES
         this->CreateProgram(
             vs_predefine,

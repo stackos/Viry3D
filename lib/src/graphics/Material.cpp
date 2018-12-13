@@ -129,6 +129,20 @@ namespace Viry3D
         this->SetProperty(name, value, MaterialProperty::Type::Int);
     }
 
+    Ref<Texture> Material::GetTexture(const String& name) const
+    {
+        Ref<Texture> texture;
+        const MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            if (property_ptr->type == MaterialProperty::Type::Texture)
+            {
+                texture = property_ptr->texture;
+            }
+        }
+        return texture;
+    }
+
     void Material::SetTexture(const String& name, const Ref<Texture>& texture)
     {
         MaterialProperty* property_ptr;
@@ -149,18 +163,24 @@ namespace Viry3D
         }
     }
 
-    Ref<Texture> Material::GetTexture(const String& name) const
+    void Material::SetStorageBuffer(const String& name, const Ref<BufferObject>& buffer)
     {
-        Ref<Texture> texture;
-        const MaterialProperty* property_ptr;
+        MaterialProperty* property_ptr;
         if (m_properties.TryGet(name, &property_ptr))
         {
-            if (property_ptr->type == MaterialProperty::Type::Texture)
-            {
-                texture = property_ptr->texture;
-            }
+            property_ptr->type = MaterialProperty::Type::StorageBuffer;
+            property_ptr->buffer = buffer;
+            property_ptr->dirty = true;
         }
-        return texture;
+        else
+        {
+            MaterialProperty property;
+            property.name = name;
+            property.type = MaterialProperty::Type::StorageBuffer;
+            property.buffer = buffer;
+            property.dirty = true;
+            m_properties.Add(name, property);
+        }
     }
 
     void Material::SetVectorArray(const String& name, const Vector<Vector4>& array)
@@ -245,21 +265,23 @@ namespace Viry3D
             {
                 i.second.dirty = false;
 
-                if (i.second.type == MaterialProperty::Type::Texture)
+                switch (i.second.type)
                 {
+                case MaterialProperty::Type::Texture:
                     this->UpdateUniformTexture(i.second.name, i.second.texture, instance_cmd_dirty);
-                }
-                else if (i.second.type == MaterialProperty::Type::VectorArray)
-                {
+                    break;
+                case MaterialProperty::Type::VectorArray:
                     this->UpdateUniformMember(i.second.name, i.second.vector_array.Bytes(), i.second.vector_array.SizeInBytes(), instance_cmd_dirty);
-                }
-                else if (i.second.type == MaterialProperty::Type::MatrixArray)
-                {
+                    break;
+                case MaterialProperty::Type::MatrixArray:
                     this->UpdateUniformMember(i.second.name, i.second.matrix_array.Bytes(), i.second.matrix_array.SizeInBytes(), instance_cmd_dirty);
-                }
-                else
-                {
+                    break;
+                case MaterialProperty::Type::StorageBuffer:
+                    this->UpdateStorageBuffer(i.second.name, i.second.buffer.lock(), instance_cmd_dirty);
+                    break;
+                default:
                     this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size, instance_cmd_dirty);
+                    break;
                 }
             }
         }
@@ -344,6 +366,24 @@ namespace Viry3D
                 {
                     bool is_storage = (uniform_texture.stage == VK_SHADER_STAGE_COMPUTE_BIT);
                     Display::Instance()->UpdateUniformTexture(m_descriptor_sets[i], uniform_texture.binding, is_storage, texture);
+                    instance_cmd_dirty = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    void Material::UpdateStorageBuffer(const String& name, const Ref<BufferObject>& buffer, bool& instance_cmd_dirty)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            for (int j = 0; j < m_uniform_sets[i].storage_buffers.Size(); ++j)
+            {
+                const auto& storage_buffer = m_uniform_sets[i].storage_buffers[j];
+
+                if (storage_buffer.name == name)
+                {
+                    Display::Instance()->UpdateStorageBuffer(m_descriptor_sets[i], storage_buffer.binding, buffer);
                     instance_cmd_dirty = true;
                     return;
                 }

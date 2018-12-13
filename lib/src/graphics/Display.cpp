@@ -2571,7 +2571,7 @@ extern void UnbindSharedContext();
             vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
         }
 
-        void UpdateStorageBuffer(VkDescriptorSet descriptor_set, StorageBuffer& storage_buffer, const Ref<BufferObject>& buffer)
+        void UpdateStorageBuffer(VkDescriptorSet descriptor_set, int binding, const Ref<BufferObject>& buffer)
         {
             VkDescriptorBufferInfo buffer_info;
             buffer_info.buffer = buffer->GetBuffer();
@@ -2583,7 +2583,7 @@ extern void UnbindSharedContext();
             desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             desc_write.pNext = nullptr;
             desc_write.dstSet = descriptor_set;
-            desc_write.dstBinding = storage_buffer.binding;
+            desc_write.dstBinding = binding;
             desc_write.dstArrayElement = 0;
             desc_write.descriptorCount = 1;
             desc_write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -2630,7 +2630,10 @@ extern void UnbindSharedContext();
             assert(!err);
 
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, descriptor_sets.Size(), &descriptor_sets[0], 0, nullptr);
+            if (descriptor_sets.Size() > 0)
+            {
+                vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, descriptor_sets.Size(), &descriptor_sets[0], 0, nullptr);
+            }
 
             VkViewport viewport;
             Memory::Zero(&viewport, sizeof(viewport));
@@ -4103,6 +4106,11 @@ void main()
     void Display::UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, bool is_storage, const Ref<Texture>& texture)
     {
         m_private->UpdateUniformTexture(descriptor_set, binding, is_storage, texture);
+    }
+
+    void Display::UpdateStorageBuffer(VkDescriptorSet descriptor_set, int binding, const Ref<BufferObject>& buffer)
+    {
+        m_private->UpdateStorageBuffer(descriptor_set, binding, buffer);
     }
 
     Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)

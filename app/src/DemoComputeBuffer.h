@@ -19,55 +19,113 @@
 
 #include "DemoMesh.h"
 #include "graphics/Computer.h"
+#include "graphics/BufferObject.h"
 
 namespace Viry3D
 {
     class DemoComputeBuffer : public DemoMesh
     {
     public:
+        Camera* m_blit_color_camera = nullptr;
+        Ref<BufferObject> m_buffer;
+
         void InitCompute()
         {
+#if VR_VULKAN
             String cs = R"(#version 310 es
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-layout (constant_id = 0) const int BUFFER_ELEMENTS = 32;
-layout (binding = 0) buffer Pos
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (binding = 0) buffer sImage
 {
-   int values[];
+    vec2 values[];
 };
-
-int fibonacci(int n)
+layout (binding = 1) uniform ImageSize
 {
-	if (n <= 1)
-    {
-		return n;
-	}
-	int curr = 1;
-	int prev = 1;
-	for (int i = 2; i < n; ++i)
-    {
-		int temp = curr;
-		curr += prev;
-		prev = temp;
-	}
-	return curr;
-}
+    int uWidth;
+    int uHeight;
+};
 
 void main() 
 {
-	int index = int(gl_GlobalInvocationID.x);
-	if (index >= BUFFER_ELEMENTS) return;	
-	values[index] = fibonacci(values[index]);
+    ivec2 uv = ivec2(int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y));
+    values[uv.y * uWidth + uv.x] = vec2(float(uv.x) / float(uWidth), float(uv.y) / float(uHeight));
 }
 )";
 
+            auto buffer = ByteBuffer(1024 * 1024 * 2 * sizeof(float));
+            m_buffer = Display::Instance()->CreateBuffer(buffer.Bytes(), buffer.Size(), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
             auto shader = RefMake<Shader>(cs);
             auto material = RefMake<Material>(shader);
+            material->SetInt("uWidth", 1024);
+            material->SetInt("uHeight", 1024);
+            material->SetStorageBuffer("sImage", m_buffer);
 
             auto computer = RefMake<Computer>();
             computer->SetMaterial(material);
-            computer->SetWorkgroupCount(32, 1, 1);
+            computer->SetWorkgroupCount(1024 / 16, 1024 / 16, 1);
 
             m_camera->AddRenderer(computer);
+
+            // color -> window
+            String vs = R"(
+Input(0) vec3 a_pos;
+Input(2) vec2 a_uv;
+
+Output(0) vec2 v_uv;
+
+void main()
+{
+	gl_Position = vec4(a_pos, 1.0);
+	v_uv = a_uv;
+
+	vulkan_convert();
+}
+)";
+            String fs = R"(
+precision highp float;
+
+layout (binding = 0) readonly buffer sImage
+{
+    vec2 values[];
+};
+layout (binding = 1) uniform ImageSize
+{
+    int uWidth;
+    int uHeight;
+};
+
+Input(0) vec2 v_uv;
+
+Output(0) vec4 o_frag;
+
+void main()
+{
+    ivec2 uv = ivec2(int(v_uv.x * float(uWidth)), int(v_uv.y * float(uHeight)));
+    o_frag = vec4(values[uv.y * uWidth + uv.x], 1.0, 1.0);
+}
+)";
+            RenderState render_state;
+            render_state.cull = RenderState::Cull::Off;
+            render_state.zTest = RenderState::ZTest::Off;
+            render_state.zWrite = RenderState::ZWrite::Off;
+
+            shader = RefMake<Shader>(
+                "",
+                Vector<String>(),
+                vs,
+                "",
+                Vector<String>(),
+                fs,
+                render_state);
+            material = RefMake<Material>(shader);
+            material->SetInt("uWidth", 1024);
+            material->SetInt("uHeight", 1024);
+            material->SetStorageBuffer("sImage", m_buffer);
+
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), material);
+
+            m_ui_camera->SetDepth(2);
+#endif
         }
 
         virtual void Init()
@@ -79,6 +137,15 @@ void main()
 
         virtual void Done()
         {
+            Display::Instance()->DestroyCamera(m_blit_color_camera);
+            m_blit_color_camera = nullptr;
+
+            if (m_buffer)
+            {
+                m_buffer->Destroy(Display::Instance()->GetDevice());
+                m_buffer.reset();
+            }
+
             DemoMesh::Done();
         }
 

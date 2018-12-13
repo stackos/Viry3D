@@ -45,6 +45,7 @@ namespace Viry3D
     class Shader;
     class Renderer;
     class Light;
+    class BufferObject;
 
     struct MaterialProperty
     {
@@ -59,6 +60,7 @@ namespace Viry3D
             VectorArray,
             MatrixArray,
             Int,
+            StorageBuffer,
         };
 
         union Data
@@ -74,6 +76,7 @@ namespace Viry3D
         Type type;
         Data data;
         Ref<Texture> texture;
+        WeakRef<BufferObject> buffer;
         Vector<Vector4> vector_array;
         Vector<Matrix4x4> matrix_array;
         int size;
@@ -98,6 +101,7 @@ namespace Viry3D
         void SetFloat(const String& name, float value);
         void SetInt(const String& name, int value);
         void SetTexture(const String& name, const Ref<Texture>& texture);
+        void SetStorageBuffer(const String& name, const Ref<BufferObject>& buffer);
         void SetVectorArray(const String& name, const Vector<Vector4>& array);
         void SetMatrixArray(const String& name, const Vector<Matrix4x4>& array);
         void SetLightProperties(const Ref<Light>& light);
@@ -149,6 +153,7 @@ namespace Viry3D
         }
         void UpdateUniformMember(const String& name, const void* data, int size, bool& instance_cmd_dirty);
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty);
+        void UpdateStorageBuffer(const String& name, const Ref<BufferObject>& buffer, bool& instance_cmd_dirty);
         void MarkRendererOrderDirty();
         void Release();
 
