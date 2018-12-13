@@ -142,7 +142,9 @@ void main()
 
             if (m_buffer)
             {
+#if VR_VULKAN
                 m_buffer->Destroy(Display::Instance()->GetDevice());
+#endif
                 m_buffer.reset();
             }
 
