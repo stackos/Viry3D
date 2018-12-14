@@ -183,6 +183,46 @@ namespace Viry3D
         }
     }
 
+    void Material::SetUniformTexelBuffer(const String& name, const Ref<BufferObject>& buffer)
+    {
+        MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            property_ptr->type = MaterialProperty::Type::UniformTexelBuffer;
+            property_ptr->buffer = buffer;
+            property_ptr->dirty = true;
+        }
+        else
+        {
+            MaterialProperty property;
+            property.name = name;
+            property.type = MaterialProperty::Type::UniformTexelBuffer;
+            property.buffer = buffer;
+            property.dirty = true;
+            m_properties.Add(name, property);
+        }
+    }
+
+    void Material::SetStorageTexelBuffer(const String& name, const Ref<BufferObject>& buffer)
+    {
+        MaterialProperty* property_ptr;
+        if (m_properties.TryGet(name, &property_ptr))
+        {
+            property_ptr->type = MaterialProperty::Type::StorageTexelBuffer;
+            property_ptr->buffer = buffer;
+            property_ptr->dirty = true;
+        }
+        else
+        {
+            MaterialProperty property;
+            property.name = name;
+            property.type = MaterialProperty::Type::StorageTexelBuffer;
+            property.buffer = buffer;
+            property.dirty = true;
+            m_properties.Add(name, property);
+        }
+    }
+
     void Material::SetVectorArray(const String& name, const Vector<Vector4>& array)
     {
         MaterialProperty* property_ptr;
@@ -278,6 +318,12 @@ namespace Viry3D
                     break;
                 case MaterialProperty::Type::StorageBuffer:
                     this->UpdateStorageBuffer(i.second.name, i.second.buffer.lock(), instance_cmd_dirty);
+                    break;
+                case MaterialProperty::Type::UniformTexelBuffer:
+                    this->UpdateUniformTexelBuffer(i.second.name, i.second.buffer.lock(), instance_cmd_dirty);
+                    break;
+                case MaterialProperty::Type::StorageTexelBuffer:
+                    this->UpdateStorageTexelBuffer(i.second.name, i.second.buffer.lock(), instance_cmd_dirty);
                     break;
                 default:
                     this->UpdateUniformMember(i.second.name, &i.second.data, i.second.size, instance_cmd_dirty);
@@ -384,6 +430,42 @@ namespace Viry3D
                 if (storage_buffer.name == name)
                 {
                     Display::Instance()->UpdateStorageBuffer(m_descriptor_sets[i], storage_buffer.binding, buffer);
+                    instance_cmd_dirty = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    void Material::UpdateUniformTexelBuffer(const String& name, const Ref<BufferObject>& buffer, bool& instance_cmd_dirty)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            for (int j = 0; j < m_uniform_sets[i].uniform_texel_buffers.Size(); ++j)
+            {
+                const auto& texel_buffer = m_uniform_sets[i].uniform_texel_buffers[j];
+
+                if (texel_buffer.name == name)
+                {
+                    Display::Instance()->UpdateTexelBuffer(m_descriptor_sets[i], texel_buffer.binding, VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, buffer);
+                    instance_cmd_dirty = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    void Material::UpdateStorageTexelBuffer(const String& name, const Ref<BufferObject>& buffer, bool& instance_cmd_dirty)
+    {
+        for (int i = 0; i < m_uniform_sets.Size(); ++i)
+        {
+            for (int j = 0; j < m_uniform_sets[i].storage_texel_buffers.Size(); ++j)
+            {
+                const auto& texel_buffer = m_uniform_sets[i].storage_texel_buffers[j];
+
+                if (texel_buffer.name == name)
+                {
+                    Display::Instance()->UpdateTexelBuffer(m_descriptor_sets[i], texel_buffer.binding, VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, buffer);
                     instance_cmd_dirty = true;
                     return;
                 }

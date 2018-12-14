@@ -46,7 +46,7 @@ namespace Viry3D
 
         if (!m_dispatch_buffer)
         {
-            m_dispatch_buffer = Display::Instance()->CreateBuffer(&dispatch, sizeof(dispatch), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
+            m_dispatch_buffer = Display::Instance()->CreateBuffer(&dispatch, sizeof(dispatch), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, VK_FORMAT_UNDEFINED);
         }
         else
         {

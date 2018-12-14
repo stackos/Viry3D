@@ -56,11 +56,27 @@ namespace Viry3D
         int stage;
     };
 
+    struct UniformTexelBuffer
+    {
+        String name;
+        int binding;
+        int stage;
+    };
+
+    struct StorageTexelBuffer
+    {
+        String name;
+        int binding;
+        int stage;
+    };
+
     struct UniformSet
     {
         int set;
         Vector<UniformBuffer> buffers;
         Vector<UniformTexture> textures;
         Vector<StorageBuffer> storage_buffers;
+        Vector<UniformTexelBuffer> uniform_texel_buffers;
+        Vector<StorageTexelBuffer> storage_texel_buffers;
     };
 }

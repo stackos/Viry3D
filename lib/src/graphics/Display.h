@@ -120,7 +120,8 @@ namespace Viry3D
         void CreateUniformBuffer(VkDescriptorSet descriptor_set, UniformBuffer& buffer);
         void UpdateUniformTexture(VkDescriptorSet descriptor_set, int binding, bool is_storage, const Ref<Texture>& texture);
         void UpdateStorageBuffer(VkDescriptorSet descriptor_set, int binding, const Ref<BufferObject>& buffer);
-        Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage);
+        void UpdateTexelBuffer(VkDescriptorSet descriptor_set, int binding, VkDescriptorType type, const Ref<BufferObject>& buffer);
+        Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, VkFormat view_format);
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
         void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data);
         void BuildInstanceCmd(

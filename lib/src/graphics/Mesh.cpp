@@ -132,8 +132,8 @@ namespace Viry3D
         m_buffer_index_count(0)
     {
 #if VR_VULKAN
-        m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_FORMAT_UNDEFINED);
+        m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_FORMAT_UNDEFINED);
 #elif VR_GLES
         m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), GL_ARRAY_BUFFER, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
         m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), GL_ELEMENT_ARRAY_BUFFER, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);

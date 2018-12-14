@@ -61,6 +61,8 @@ namespace Viry3D
             MatrixArray,
             Int,
             StorageBuffer,
+            UniformTexelBuffer,
+            StorageTexelBuffer,
         };
 
         union Data
@@ -102,6 +104,8 @@ namespace Viry3D
         void SetInt(const String& name, int value);
         void SetTexture(const String& name, const Ref<Texture>& texture);
         void SetStorageBuffer(const String& name, const Ref<BufferObject>& buffer);
+        void SetUniformTexelBuffer(const String& name, const Ref<BufferObject>& buffer);
+        void SetStorageTexelBuffer(const String& name, const Ref<BufferObject>& buffer);
         void SetVectorArray(const String& name, const Vector<Vector4>& array);
         void SetMatrixArray(const String& name, const Vector<Matrix4x4>& array);
         void SetLightProperties(const Ref<Light>& light);
@@ -154,6 +158,8 @@ namespace Viry3D
         void UpdateUniformMember(const String& name, const void* data, int size, bool& instance_cmd_dirty);
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture, bool& instance_cmd_dirty);
         void UpdateStorageBuffer(const String& name, const Ref<BufferObject>& buffer, bool& instance_cmd_dirty);
+        void UpdateUniformTexelBuffer(const String& name, const Ref<BufferObject>& buffer, bool& instance_cmd_dirty);
+        void UpdateStorageTexelBuffer(const String& name, const Ref<BufferObject>& buffer, bool& instance_cmd_dirty);
         void MarkRendererOrderDirty();
         void Release();
 

@@ -35,6 +35,7 @@
 #include "DemoVR.h"
 #include "DemoComputeStorageImage.h"
 #include "DemoComputeStorageBuffer.h"
+#include "DemoComputeTexelBuffer.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -43,7 +44,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - Compute Shader
 // - GLTF load
 // - IBL PBR
 // - GPU Particle
@@ -92,7 +92,7 @@ namespace Viry3D
             m_scroll->SetOffset(Vector2i(0, 0));
 
             Vector<String> titles({ "Mesh", "SkinnedMesh", "Skybox", "RenderToTexture", "FXAA", "MSAA", "PostEffectBlur", "UI", "ShadowMap", "Audio", "AR", "Instancing & PBR", "Lightmap",
-                                    "Deferred Shading & SSAO", "VR", "ComputeStorageImage", "ComputeStorageBuffer" });
+                                    "Deferred Shading & SSAO", "VR", "ComputeStorageImage", "ComputeStorageBuffer", "ComputeTexelBuffer" });
 
             const int top = (int) (90 * UI_SCALE);
             const int button_height = (int) (160 * UI_SCALE);
@@ -241,6 +241,9 @@ namespace Viry3D
                     break;
                 case 16:
                     m_demo = new DemoComputeStorageBuffer();
+                    break;
+                case 17:
+                    m_demo = new DemoComputeTexelBuffer();
                     break;
                 default:
                     break;

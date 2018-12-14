@@ -395,7 +395,7 @@ namespace Viry3D
                     m_instance_buffer->Destroy(Display::Instance()->GetDevice());
                     m_instance_buffer.reset();
                 }
-                m_instance_buffer = Display::Instance()->CreateBuffer(vectors.Bytes(), buffer_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+                m_instance_buffer = Display::Instance()->CreateBuffer(vectors.Bytes(), buffer_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_FORMAT_UNDEFINED);
 
                 this->MarkInstanceCmdDirty();
             }

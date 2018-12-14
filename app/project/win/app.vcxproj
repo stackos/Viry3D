@@ -198,6 +198,7 @@
     <ClInclude Include="..\..\src\DemoAudio.h" />
     <ClInclude Include="..\..\src\DemoComputeStorageBuffer.h" />
     <ClInclude Include="..\..\src\DemoComputeStorageImage.h" />
+    <ClInclude Include="..\..\src\DemoComputeTexelBuffer.h" />
     <ClInclude Include="..\..\src\DemoFXAA.h" />
     <ClInclude Include="..\..\src\DemoInstancing.h" />
     <ClInclude Include="..\..\src\DemoLightmap.h" />

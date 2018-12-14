@@ -677,7 +677,7 @@ namespace Viry3D
 
         if (!m_image_buffer)
         {
-            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_FORMAT_UNDEFINED);
         }
         else
         {
@@ -725,7 +725,7 @@ namespace Viry3D
 
         if (!m_image_buffer || m_image_buffer->GetSize() < pixels.Size())
         {
-            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_FORMAT_UNDEFINED);
         }
         else
         {
@@ -757,7 +757,7 @@ namespace Viry3D
 
         if (!m_image_buffer || m_image_buffer->GetSize() < pixels.Size())
         {
-            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+            m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_FORMAT_UNDEFINED);
         }
         else
         {
@@ -868,7 +868,7 @@ namespace Viry3D
 
     void Texture::CopyToMemory(ByteBuffer& pixels, int layer, int level)
     {
-        Ref<BufferObject> copy_buffer = Display::Instance()->CreateBuffer(nullptr, m_width * m_height * 4, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+        Ref<BufferObject> copy_buffer = Display::Instance()->CreateBuffer(nullptr, m_width * m_height * 4, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_FORMAT_UNDEFINED);
 
         Display::Instance()->BeginImageCmd();
 

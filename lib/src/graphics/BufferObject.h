@@ -32,6 +32,7 @@ namespace Viry3D
 #if VR_VULKAN
             m_buffer(VK_NULL_HANDLE),
             m_memory(VK_NULL_HANDLE),
+            m_buffer_view(VK_NULL_HANDLE),
 #elif VR_GLES
             m_buffer(0),
             m_target(0),
@@ -49,12 +50,17 @@ namespace Viry3D
 #if VR_VULKAN
         void Destroy(VkDevice device)
         {
+            if (m_buffer_view)
+            {
+                vkDestroyBufferView(device, m_buffer_view, nullptr);
+            }
             vkDestroyBuffer(device, m_buffer, nullptr);
             vkFreeMemory(device, m_memory, nullptr);
         }
 
         const VkBuffer& GetBuffer() const { return m_buffer; }
         const VkDeviceMemory& GetMemory() const { return m_memory; }
+        const VkBufferView& GetBufferView() const { return m_buffer_view; }
 #elif VR_GLES
         ~BufferObject()
         {
@@ -76,6 +82,7 @@ namespace Viry3D
         VkBuffer m_buffer;
         VkDeviceMemory m_memory;
         VkMemoryAllocateInfo m_memory_info;
+        VkBufferView m_buffer_view;
 #elif VR_GLES
         GLuint m_buffer;
         GLenum m_target;

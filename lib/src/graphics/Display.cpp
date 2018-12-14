@@ -1589,7 +1589,7 @@ extern void UnbindSharedContext();
             assert(!err);
         }
 
-        Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
+        Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, VkFormat view_format)
         {
             Ref<BufferObject> buffer = RefMake<BufferObject>(size);
 
@@ -1634,6 +1634,22 @@ extern void UnbindSharedContext();
                 Memory::Copy(map_data, data, size);
 
                 vkUnmapMemory(m_device, buffer->m_memory);
+            }
+
+            if (view_format != VK_FORMAT_UNDEFINED)
+            {
+                VkBufferViewCreateInfo view_info;
+                Memory::Zero(&view_info, sizeof(view_info));
+                view_info.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
+                view_info.pNext = nullptr;
+                view_info.flags = 0;
+                view_info.buffer = buffer->m_buffer;
+                view_info.format = view_format;
+                view_info.offset = 0;
+                view_info.range = size;
+
+                err = vkCreateBufferView(m_device, &view_info, nullptr, &buffer->m_buffer_view);
+                assert(!err);
             }
 
             return buffer;
@@ -1893,12 +1909,25 @@ extern void UnbindSharedContext();
                     set_ptr->set = set;
                 }
 
-                UniformTexture texture;
-                texture.name = name.c_str();
-                texture.binding = (int) binding;
-                texture.stage = shader_type;
+                const spirv_cross::SPIRType& type = compiler.get_type(resource.base_type_id);
+                if (type.image.dim == spv::Dim::DimBuffer)
+                {
+                    UniformTexelBuffer buffer;
+                    buffer.name = name.c_str();
+                    buffer.binding = (int) binding;
+                    buffer.stage = shader_type;
 
-                set_ptr->textures.Add(texture);
+                    set_ptr->uniform_texel_buffers.Add(buffer);
+                }
+                else
+                {
+                    UniformTexture texture;
+                    texture.name = name.c_str();
+                    texture.binding = (int) binding;
+                    texture.stage = shader_type;
+
+                    set_ptr->textures.Add(texture);
+                }
             }
 
             for (const auto& resource : resources.storage_images)
@@ -1923,12 +1952,25 @@ extern void UnbindSharedContext();
                     set_ptr->set = set;
                 }
 
-                UniformTexture texture;
-                texture.name = name.c_str();
-                texture.binding = (int) binding;
-                texture.stage = shader_type;
+                const spirv_cross::SPIRType& type = compiler.get_type(resource.base_type_id);
+                if (type.image.dim == spv::Dim::DimBuffer)
+                {
+                    StorageTexelBuffer buffer;
+                    buffer.name = name.c_str();
+                    buffer.binding = (int) binding;
+                    buffer.stage = shader_type;
 
-                set_ptr->textures.Add(texture);
+                    set_ptr->storage_texel_buffers.Add(buffer);
+                }
+                else
+                {
+                    UniformTexture texture;
+                    texture.name = name.c_str();
+                    texture.binding = (int) binding;
+                    texture.stage = shader_type;
+
+                    set_ptr->textures.Add(texture);
+                }
             }
 
             for (const auto& resource : resources.storage_buffers)
@@ -2085,6 +2127,36 @@ extern void UnbindSharedContext();
                     Memory::Zero(&layout_binding, sizeof(layout_binding));
                     layout_binding.binding = buffer.binding;
                     layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                    layout_binding.descriptorCount = 1;
+                    layout_binding.stageFlags = buffer.stage;
+                    layout_binding.pImmutableSamplers = nullptr;
+
+                    layout_bindings.Add(layout_binding);
+                }
+
+                for (int j = 0; j < uniform_sets[i].uniform_texel_buffers.Size(); ++j)
+                {
+                    const auto& buffer = uniform_sets[i].uniform_texel_buffers[j];
+
+                    VkDescriptorSetLayoutBinding layout_binding;
+                    Memory::Zero(&layout_binding, sizeof(layout_binding));
+                    layout_binding.binding = buffer.binding;
+                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+                    layout_binding.descriptorCount = 1;
+                    layout_binding.stageFlags = buffer.stage;
+                    layout_binding.pImmutableSamplers = nullptr;
+
+                    layout_bindings.Add(layout_binding);
+                }
+
+                for (int j = 0; j < uniform_sets[i].storage_texel_buffers.Size(); ++j)
+                {
+                    const auto& buffer = uniform_sets[i].storage_texel_buffers[j];
+
+                    VkDescriptorSetLayoutBinding layout_binding;
+                    Memory::Zero(&layout_binding, sizeof(layout_binding));
+                    layout_binding.binding = buffer.binding;
+                    layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
                     layout_binding.descriptorCount = 1;
                     layout_binding.stageFlags = buffer.stage;
                     layout_binding.pImmutableSamplers = nullptr;
@@ -2435,6 +2507,8 @@ extern void UnbindSharedContext();
             int texture_count = 0;
             int storage_image_count = 0;
             int storage_buffer_count = 0;
+            int uniform_texel_buffer_count = 0;
+            int storage_texel_buffer_count = 0;
 
             for (int i = 0; i < uniform_sets.Size(); ++i)
             {
@@ -2458,6 +2532,16 @@ extern void UnbindSharedContext();
                 for (int j = 0; j < uniform_sets[i].storage_buffers.Size(); ++j)
                 {
                     ++storage_buffer_count;
+                }
+
+                for (int j = 0; j < uniform_sets[i].uniform_texel_buffers.Size(); ++j)
+                {
+                    ++uniform_texel_buffer_count;
+                }
+
+                for (int j = 0; j < uniform_sets[i].storage_texel_buffers.Size(); ++j)
+                {
+                    ++storage_texel_buffer_count;
                 }
             }
 
@@ -2490,7 +2574,21 @@ extern void UnbindSharedContext();
                 pool_size.descriptorCount = (uint32_t) storage_buffer_count * DESCRIPTOR_POOL_SIZE_MAX;
                 pool_sizes.Add(pool_size);
             }
-            
+            if (uniform_texel_buffer_count > 0)
+            {
+                VkDescriptorPoolSize pool_size;
+                pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+                pool_size.descriptorCount = (uint32_t) uniform_texel_buffer_count * DESCRIPTOR_POOL_SIZE_MAX;
+                pool_sizes.Add(pool_size);
+            }
+            if (storage_texel_buffer_count > 0)
+            {
+                VkDescriptorPoolSize pool_size;
+                pool_size.type = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+                pool_size.descriptorCount = (uint32_t) storage_texel_buffer_count * DESCRIPTOR_POOL_SIZE_MAX;
+                pool_sizes.Add(pool_size);
+            }
+
             VkDescriptorPoolCreateInfo pool_info;
             Memory::Zero(&pool_info, sizeof(pool_info));
             pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -2525,7 +2623,7 @@ extern void UnbindSharedContext();
         void CreateUniformBuffer(VkDescriptorSet descriptor_set, UniformBuffer& buffer)
         {
             assert(!buffer.buffer);
-            buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+            buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_FORMAT_UNDEFINED);
 
             VkDescriptorBufferInfo buffer_info;
             buffer_info.buffer = buffer.buffer->GetBuffer();
@@ -2590,6 +2688,24 @@ extern void UnbindSharedContext();
             desc_write.pImageInfo = nullptr;
             desc_write.pBufferInfo = &buffer_info;
             desc_write.pTexelBufferView = nullptr;
+
+            vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
+        }
+
+        void UpdateTexelBuffer(VkDescriptorSet descriptor_set, int binding, VkDescriptorType type, const Ref<BufferObject>& buffer)
+        {
+            VkWriteDescriptorSet desc_write;
+            Memory::Zero(&desc_write, sizeof(desc_write));
+            desc_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            desc_write.pNext = nullptr;
+            desc_write.dstSet = descriptor_set;
+            desc_write.dstBinding = binding;
+            desc_write.dstArrayElement = 0;
+            desc_write.descriptorCount = 1;
+            desc_write.descriptorType = type;
+            desc_write.pImageInfo = nullptr;
+            desc_write.pBufferInfo = nullptr;
+            desc_write.pTexelBufferView = &buffer->GetBufferView();
 
             vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
         }
@@ -4116,9 +4232,14 @@ void main()
         m_private->UpdateStorageBuffer(descriptor_set, binding, buffer);
     }
 
-    Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage)
+    void Display::UpdateTexelBuffer(VkDescriptorSet descriptor_set, int binding, VkDescriptorType type, const Ref<BufferObject>& buffer)
     {
-        return m_private->CreateBuffer(data, size, usage);
+        m_private->UpdateTexelBuffer(descriptor_set, binding, type, buffer);
+    }
+
+    Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, VkFormat view_format)
+    {
+        return m_private->CreateBuffer(data, size, usage, view_format);
     }
 
     void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)

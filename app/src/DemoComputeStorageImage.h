@@ -46,8 +46,8 @@ namespace Viry3D
             
             String cs = R"(#version 310 es
 layout (local_size_x = 16, local_size_y = 16) in;
-layout (binding = 0, rgba8) uniform readonly lowp image2D inputImage;
-layout (binding = 1, rgba8) uniform writeonly lowp image2D resultImage;
+layout (binding = 0, rgba8) uniform readonly lowp image2D uInputImage;
+layout (binding = 1, rgba8) uniform writeonly lowp image2D uResultImage;
 
 float conv(in float[9] kernel, in float[9] data, in float denom, in float offset) 
 {
@@ -72,7 +72,7 @@ void main()
 	    for (int j = -1; j < 2; ++j) 
 	    {    
 		    n++;    
-		    vec3 rgb = imageLoad(inputImage, ivec2(int(gl_GlobalInvocationID.x) + i, int(gl_GlobalInvocationID.y) + j)).rgb;
+		    vec3 rgb = imageLoad(uInputImage, ivec2(int(gl_GlobalInvocationID.x) + i, int(gl_GlobalInvocationID.y) + j)).rgb;
 		    imageData.avg[n] = (rgb.r + rgb.g + rgb.b) / 3.0;
 	    }
     }
@@ -84,14 +84,14 @@ void main()
 
     vec4 res = vec4(vec3(conv(kernel, imageData.avg, 0.1, 0.0)), 1.0);
 
-    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), res);
+    imageStore(uResultImage, ivec2(gl_GlobalInvocationID.xy), res);
 }
 )";
 
             auto shader = RefMake<Shader>(cs);
             auto material = RefMake<Material>(shader);
-            material->SetTexture("inputImage", compute_input);
-            material->SetTexture("resultImage", compute_output);
+            material->SetTexture("uInputImage", compute_input);
+            material->SetTexture("uResultImage", compute_output);
 
             auto computer = RefMake<Computer>();
             computer->SetMaterial(material);

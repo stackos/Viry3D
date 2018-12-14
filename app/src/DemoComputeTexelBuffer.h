@@ -23,7 +23,7 @@
 
 namespace Viry3D
 {
-    class DemoComputeStorageBuffer : public DemoMesh
+    class DemoComputeTexelBuffer : public DemoMesh
     {
     public:
         Camera* m_blit_color_camera = nullptr;
@@ -33,11 +33,9 @@ namespace Viry3D
         {
 #if VR_VULKAN
             String cs = R"(#version 310 es
+#extension GL_EXT_texture_buffer : enable
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-layout (binding = 0) buffer sImage
-{
-    vec2 values[];
-};
+layout (binding = 0, rgba8) uniform writeonly lowp imageBuffer uBuffer;
 layout (binding = 1) uniform ImageSize
 {
     int uWidth;
@@ -47,18 +45,20 @@ layout (binding = 1) uniform ImageSize
 void main() 
 {
     ivec2 uv = ivec2(int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y));
-    values[uv.y * uWidth + uv.x] = vec2(float(uv.x) / float(uWidth), float(uv.y) / float(uHeight));
+    int index = uv.y * uWidth + uv.x;
+    vec4 color = vec4(float(uv.x) / float(uWidth), float(uv.y) / float(uHeight), 0, 0);
+    imageStore(uBuffer, index, color);
 }
 )";
 
-            auto buffer = ByteBuffer(1024 * 1024 * 2 * sizeof(float));
-            m_buffer = Display::Instance()->CreateBuffer(buffer.Bytes(), buffer.Size(), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_FORMAT_UNDEFINED);
+            auto buffer = ByteBuffer(1024 * 1024 * 2);
+            m_buffer = Display::Instance()->CreateBuffer(buffer.Bytes(), buffer.Size(), VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT, VK_FORMAT_R8G8_UNORM);
 
             auto shader = RefMake<Shader>(cs);
             auto material = RefMake<Material>(shader);
             material->SetInt("uWidth", 1024);
             material->SetInt("uHeight", 1024);
-            material->SetStorageBuffer("sImage", m_buffer);
+            material->SetStorageTexelBuffer("uBuffer", m_buffer);
 
             auto computer = RefMake<Computer>();
             computer->SetMaterial(material);
@@ -82,12 +82,10 @@ void main()
 }
 )";
             String fs = R"(
+#extension GL_OES_texture_buffer : enable
 precision highp float;
 
-layout (binding = 0) readonly buffer sImage
-{
-    vec2 values[];
-};
+layout (binding = 0) uniform lowp samplerBuffer uBuffer;
 layout (binding = 1) uniform ImageSize
 {
     int uWidth;
@@ -101,7 +99,9 @@ Output(0) vec4 o_frag;
 void main()
 {
     ivec2 uv = ivec2(int(v_uv.x * float(uWidth)), int(v_uv.y * float(uHeight)));
-    o_frag = vec4(values[uv.y * uWidth + uv.x], 1.0, 1.0);
+    int index = uv.y * uWidth + uv.x;
+    vec4 color = texelFetch(uBuffer, index);
+    o_frag = vec4(color.rg, 1.0, 1.0);
 }
 )";
             RenderState render_state;
@@ -120,7 +120,7 @@ void main()
             material = RefMake<Material>(shader);
             material->SetInt("uWidth", 1024);
             material->SetInt("uHeight", 1024);
-            material->SetStorageBuffer("sImage", m_buffer);
+            material->SetUniformTexelBuffer("uBuffer", m_buffer);
 
             m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), material);
 
