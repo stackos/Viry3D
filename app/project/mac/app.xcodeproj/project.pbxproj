@@ -41,6 +41,10 @@
 
 /* Begin PBXFileReference section */
 		BA98F3C221B58C3B00CBC8EB /* libMoltenVK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMoltenVK.a; path = ../../../lib/src/vulkan/MoltenVK/macOS/libMoltenVK.a; sourceTree = "<group>"; };
+		BACF996021C57EFE00290B0E /* DemoComputeStorageBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoComputeStorageBuffer.h; path = ../../src/DemoComputeStorageBuffer.h; sourceTree = "<group>"; };
+		BACF996221C57EFE00290B0E /* DemoComputeStorageImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoComputeStorageImage.h; path = ../../src/DemoComputeStorageImage.h; sourceTree = "<group>"; };
+		BACF996C21C5925500290B0E /* DemoMSAA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoMSAA.h; path = ../../src/DemoMSAA.h; sourceTree = "<group>"; };
+		BACF996D21C5926900290B0E /* DemoSSAO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoSSAO.h; path = ../../src/DemoSSAO.h; sourceTree = "<group>"; };
 		BADA960721A27D7B0070CAB5 /* DemoLightmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoLightmap.h; path = ../../src/DemoLightmap.h; sourceTree = "<group>"; };
 		BADA960821A27D7B0070CAB5 /* DemoInstancing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoInstancing.h; path = ../../src/DemoInstancing.h; sourceTree = "<group>"; };
 		BAED934921502879002D2856 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -56,7 +60,6 @@
 		D12113A52150F51B00D20456 /* DemoShadowMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoShadowMap.h; path = ../../src/DemoShadowMap.h; sourceTree = "<group>"; };
 		D12113A62150F51B00D20456 /* DemoUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoUI.h; path = ../../src/DemoUI.h; sourceTree = "<group>"; };
 		D12113A72150F51B00D20456 /* DemoPostEffectBlur.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoPostEffectBlur.h; path = ../../src/DemoPostEffectBlur.h; sourceTree = "<group>"; };
-		D12113A82150F51B00D20456 /* DemoAR.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DemoAR.h; path = ../../src/DemoAR.h; sourceTree = "<group>"; };
 		D1B25E1E2109F50E001A3EC9 /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Main.m; sourceTree = "<group>"; };
 		D1B25E202109F5DD001A3EC9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D1B25E212109F669001A3EC9 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -97,17 +100,20 @@
 				D1D42B2421115A3D0016A265 /* App.cpp */,
 				D1D42B2521115A3D0016A265 /* App.h */,
 				D121139E2150F51B00D20456 /* Demo.h */,
-				D12113A82150F51B00D20456 /* DemoAR.h */,
 				D12113A12150F51B00D20456 /* DemoAudio.h */,
+				BACF996021C57EFE00290B0E /* DemoComputeStorageBuffer.h */,
+				BACF996221C57EFE00290B0E /* DemoComputeStorageImage.h */,
 				D12113A02150F51B00D20456 /* DemoFXAA.h */,
 				BADA960821A27D7B0070CAB5 /* DemoInstancing.h */,
 				BADA960721A27D7B0070CAB5 /* DemoLightmap.h */,
 				D12113A32150F51B00D20456 /* DemoMesh.h */,
+				BACF996C21C5925500290B0E /* DemoMSAA.h */,
 				D12113A72150F51B00D20456 /* DemoPostEffectBlur.h */,
 				D12113A42150F51B00D20456 /* DemoRenderToTexture.h */,
 				D12113A52150F51B00D20456 /* DemoShadowMap.h */,
 				D12113A22150F51B00D20456 /* DemoSkinnedMesh.h */,
 				D121139F2150F51B00D20456 /* DemoSkybox.h */,
+				BACF996D21C5926900290B0E /* DemoSSAO.h */,
 				D12113A62150F51B00D20456 /* DemoUI.h */,
 				D1B25E1E2109F50E001A3EC9 /* Main.m */,
 				D1B25E202109F5DD001A3EC9 /* AppDelegate.h */,

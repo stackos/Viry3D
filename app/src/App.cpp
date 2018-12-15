@@ -162,6 +162,13 @@ namespace Viry3D
                         button->GetLabel()->SetText("VR (require VK_KHR_multiview extension)");
                     }
                 }
+                else if (i == 17)
+                {
+#if VR_MAC || VR_IOS
+                    disabled = true;
+                    button->GetLabel()->SetText("ComputeTexelBuffer (MoltenVK texel buffer support problem)");
+#endif
+                }
 #endif
 
                 if (i == 10)
