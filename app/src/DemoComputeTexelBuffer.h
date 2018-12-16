@@ -51,8 +51,7 @@ void main()
 }
 )";
 
-            auto buffer = ByteBuffer(1024 * 1024 * 2);
-            m_buffer = Display::Instance()->CreateBuffer(buffer.Bytes(), buffer.Size(), VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT, VK_FORMAT_R8G8_UNORM);
+            m_buffer = Display::Instance()->CreateBuffer(nullptr, 1024 * 1024 * 2, VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT, true, VK_FORMAT_R8G8_UNORM);
 
             auto shader = RefMake<Shader>(cs);
             auto material = RefMake<Material>(shader);

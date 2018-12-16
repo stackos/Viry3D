@@ -1589,7 +1589,7 @@ extern void UnbindSharedContext();
             assert(!err);
         }
 
-        Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, VkFormat view_format)
+        Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, bool device_local, VkFormat view_format)
         {
             Ref<BufferObject> buffer = RefMake<BufferObject>(size);
 
@@ -1616,7 +1616,16 @@ extern void UnbindSharedContext();
             buffer->m_memory_info.allocationSize = mem_reqs.size;
             buffer->m_memory_info.memoryTypeIndex = 0;
 
-            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer->m_memory_info.memoryTypeIndex);
+            VkMemoryPropertyFlags mem_flags;
+            if (device_local)
+            {
+                mem_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            }
+            else
+            {
+                mem_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            }
+            bool pass = this->CheckMemoryType(mem_reqs.memoryTypeBits, mem_flags, &buffer->m_memory_info.memoryTypeIndex);
             assert(pass);
 
             err = vkAllocateMemory(m_device, &buffer->m_memory_info, nullptr, &buffer->m_memory);
@@ -2623,7 +2632,7 @@ extern void UnbindSharedContext();
         void CreateUniformBuffer(VkDescriptorSet descriptor_set, UniformBuffer& buffer)
         {
             assert(!buffer.buffer);
-            buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_FORMAT_UNDEFINED);
+            buffer.buffer = this->CreateBuffer(nullptr, buffer.size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, false, VK_FORMAT_UNDEFINED);
 
             VkDescriptorBufferInfo buffer_info;
             buffer_info.buffer = buffer.buffer->GetBuffer();
@@ -4237,9 +4246,9 @@ void main()
         m_private->UpdateTexelBuffer(descriptor_set, binding, type, buffer);
     }
 
-    Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, VkFormat view_format)
+    Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, bool device_local, VkFormat view_format)
     {
-        return m_private->CreateBuffer(data, size, usage, view_format);
+        return m_private->CreateBuffer(data, size, usage, device_local, view_format);
     }
 
     void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)

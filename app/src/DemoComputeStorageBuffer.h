@@ -51,8 +51,7 @@ void main()
 }
 )";
 
-            auto buffer = ByteBuffer(1024 * 1024 * 2 * sizeof(float));
-            m_buffer = Display::Instance()->CreateBuffer(buffer.Bytes(), buffer.Size(), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_FORMAT_UNDEFINED);
+            m_buffer = Display::Instance()->CreateBuffer(nullptr, 1024 * 1024 * 2 * sizeof(float), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, VK_FORMAT_UNDEFINED);
 
             auto shader = RefMake<Shader>(cs);
             auto material = RefMake<Material>(shader);
