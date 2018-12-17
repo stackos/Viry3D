@@ -1592,6 +1592,7 @@ extern void UnbindSharedContext();
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, bool device_local, VkFormat view_format)
         {
             Ref<BufferObject> buffer = RefMake<BufferObject>(size);
+            buffer->m_device_local = device_local;
 
             VkBufferCreateInfo buffer_info;
             Memory::Zero(&buffer_info, sizeof(buffer_info));
@@ -1634,7 +1635,7 @@ extern void UnbindSharedContext();
             err = vkBindBufferMemory(m_device, buffer->m_buffer, buffer->m_memory, 0);
             assert(!err);
 
-            if (data)
+            if (!device_local && data)
             {
                 void* map_data = nullptr;
                 err = vkMapMemory(m_device, buffer->m_memory, 0, size, 0, (void**) &map_data);
@@ -1689,6 +1690,16 @@ extern void UnbindSharedContext();
             Memory::Copy(&data[0], map_data, buffer->GetSize());
 
             vkUnmapMemory(m_device, buffer->GetMemory());
+        }
+
+        void CopyBuffer(const Ref<BufferObject>& src, int src_offset, const Ref<BufferObject>& dst, int dst_offset, int size)
+        {
+            this->BeginImageCmd();
+
+            VkBufferCopy region = { (VkDeviceSize) src_offset, (VkDeviceSize) dst_offset, (VkDeviceSize) size };
+            vkCmdCopyBuffer(m_image_cmd, src->GetBuffer(), dst->GetBuffer(), 1, &region);
+
+            this->EndImageCmd();
         }
 
         void BeginImageCmd()
@@ -4248,12 +4259,32 @@ void main()
 
     Ref<BufferObject> Display::CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, bool device_local, VkFormat view_format)
     {
-        return m_private->CreateBuffer(data, size, usage, device_local, view_format);
+        if (device_local && data)
+        {
+            Ref<BufferObject> staging_buffer = m_private->CreateBuffer(data, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, false, VK_FORMAT_UNDEFINED);
+            Ref<BufferObject> buffer = m_private->CreateBuffer(nullptr, size, usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT, true, view_format);
+            m_private->CopyBuffer(staging_buffer, 0, buffer, 0, size);
+            staging_buffer->Destroy(this->GetDevice());
+            return buffer;
+        }
+        else
+        {
+            return m_private->CreateBuffer(data, size, usage, device_local, view_format);
+        }
     }
 
     void Display::UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size)
     {
-        m_private->UpdateBuffer(buffer, buffer_offset, data, size);
+        if (buffer->IsDeviceLocal())
+        {
+            Ref<BufferObject> staging_buffer = m_private->CreateBuffer(data, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, false, VK_FORMAT_UNDEFINED);
+            m_private->CopyBuffer(staging_buffer, 0, buffer, buffer_offset, size);
+            staging_buffer->Destroy(this->GetDevice());
+        }
+        else
+        {
+            m_private->UpdateBuffer(buffer, buffer_offset, data, size);
+        }
     }
 
     void Display::ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data)

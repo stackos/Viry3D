@@ -44,8 +44,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - buffer memory property
-// - improve device local buffer
 // - GLTF load
 // - IBL PBR
 // - GPU Particle

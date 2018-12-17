@@ -84,7 +84,7 @@ namespace Viry3D
 
         if (!m_draw_buffer)
         {
-            m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, false, VK_FORMAT_UNDEFINED);
+            m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, true, VK_FORMAT_UNDEFINED);
         }
         else
         {
