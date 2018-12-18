@@ -204,6 +204,7 @@
     <ClInclude Include="..\..\src\DemoLightmap.h" />
     <ClInclude Include="..\..\src\DemoMesh.h" />
     <ClInclude Include="..\..\src\DemoMSAA.h" />
+    <ClInclude Include="..\..\src\DemoPBR.h" />
     <ClInclude Include="..\..\src\DemoPostEffectBlur.h" />
     <ClInclude Include="..\..\src\DemoRenderToTexture.h" />
     <ClInclude Include="..\..\src\DemoShadowMap.h" />

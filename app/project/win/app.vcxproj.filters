@@ -64,6 +64,9 @@
     <ClInclude Include="..\..\src\DemoComputeTexelBuffer.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\DemoPBR.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

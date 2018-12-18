@@ -17,7 +17,7 @@
                 var scene = new BABYLON.Scene(engine);
                 var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
                 camera.setPosition(new BABYLON.Vector3(0, 1, -4));
-                camera.wheelPrecision = 50
+                camera.wheelPrecision = 50;
                 camera.attachControl(canvas, true);
 
                 BABYLON.SceneLoader.ImportMesh("", "glTF/DamagedHelmet/", "DamagedHelmet.gltf", scene, function (newMeshes) {
@@ -25,7 +25,7 @@
                 });
 
                 return scene;
-            }
+            };
 
             var scene = createScene();
             engine.runRenderLoop(function () {
