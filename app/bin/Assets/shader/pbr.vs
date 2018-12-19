@@ -1,6 +1,7 @@
 UniformBuffer(0, 0) uniform Material {
-    mat4 viewProjection;
-    mat4 reflectionMatrix;
+    mat4 u_view_matrix;
+	mat4 u_projection_matrix;
+    mat4 reflectionMatrixVS;
     vec3 vSphericalX;
     vec3 vSphericalY;
     vec3 vSphericalZ;
@@ -12,11 +13,11 @@ UniformBuffer(0, 0) uniform Material {
     vec3 vSphericalZX;
 };
 UniformBuffer(1, 0) uniform Scene {
-    mat4 world;
+    mat4 u_model_matrix;
 };
-Input(0) vec3 position;
-Input(1) vec3 normal;
-Input(2) vec2 uv;
+Input(0) vec3 a_pos;
+Input(4) vec3 a_normal;
+Input(2) vec2 a_uv;
 Output(0) vec2 vMainUV1;
 Output(1) vec3 vPositionW;
 Output(2) vec3 vNormalW;
@@ -45,16 +46,14 @@ vec3 environmentIrradianceJones(vec3 normal) {
     return t3;
 }
 void main(void) {
-    vec3 positionUpdated = position;
-    vec3 normalUpdated = normal;
-    mat4 finalWorld = world;
-    gl_Position = viewProjection * finalWorld * vec4(positionUpdated, 1.0);
-    vec4 worldPos = finalWorld * vec4(positionUpdated, 1.0);
+    vec4 worldPos = vec4(a_pos, 1.0) * u_model_matrix;
+    gl_Position = worldPos * u_view_matrix * u_projection_matrix;
     vPositionW = vec3(worldPos);
-    mat3 normalWorld = mat3(finalWorld);
-    vNormalW = normalize(normalWorld * normalUpdated);
-    vec3 reflectionVector = vec3(reflectionMatrix * vec4(vNormalW, 0)).xyz;
+    mat3 normalWorld = mat3(u_model_matrix);
+    vNormalW = normalize(a_normal * normalWorld);
+    vec3 reflectionVector = vec3(vec4(vNormalW, 0) * reflectionMatrixVS).xyz;
     vEnvironmentIrradiance = environmentIrradianceJones(reflectionVector);
-    vec2 uv2 = vec2(0., 0.);
-    vMainUV1 = uv;
+    vMainUV1 = a_uv;
+
+    vulkan_convert();
 }

@@ -1,20 +1,20 @@
 precision highp float;
 UniformBuffer(0, 1) uniform Material {
-    mat4 reflectionMatrix;
-    vec2 vAlbedoInfos;
-    vec4 vAmbientInfos;
-    vec2 vEmissiveInfos;
-    vec2 vReflectionInfos;
-    vec3 vBumpInfos;
-    vec2 vTangentSpaceParams;
-    vec3 vReflectionColor;
+    vec4 u_camera_pos;
+    mat4 reflectionMatrixFS;
+    vec4 vAlbedoInfos;
     vec4 vAlbedoColor;
+    vec4 vBumpInfos;
+    vec4 vAmbientInfos;
+    vec4 vAmbientColor;
+    vec4 vEmissiveInfos;
+    vec4 vEmissiveColor;
+    vec4 vReflectionInfos;
+    vec4 vReflectionColor;
+    vec4 vTangentSpaceParams;
     vec4 vLightingIntensity;
-    vec3 vReflectionMicrosurfaceInfos;
+    vec4 vReflectionMicrosurfaceInfos;
     vec4 vReflectivityColor;
-    vec3 vEmissiveColor;
-    vec4 vEyePosition;
-    vec3 vAmbientColor;
     float exposureLinear;
     float contrast;
 };
@@ -31,9 +31,9 @@ Input(2) vec3 vNormalW;
 Input(3) vec3 vEnvironmentIrradiance;
 Output(0) vec4 glFragColor;
 vec3 computeReflectionCoords(vec4 worldPos, vec3 worldNormal) {
-    vec3 viewDir = normalize(worldPos.xyz - vEyePosition.xyz);
+    vec3 viewDir = normalize(worldPos.xyz - u_camera_pos.xyz);
     vec3 coords = reflect(viewDir, worldNormal);
-    coords = vec3(reflectionMatrix * vec4(coords, 0));
+    coords = vec3(reflectionMatrixFS * vec4(coords, 0));
     return coords;
 }
 const float PI = 3.1415926535897932384626433832795;
@@ -127,7 +127,7 @@ vec3 perturbNormal(mat3 cotangentFrame, vec2 uv) {
     return normalize(cotangentFrame * map);
 }
 void main(void) {
-    vec3 viewDirectionW = normalize(vEyePosition.xyz - vPositionW);
+    vec3 viewDirectionW = normalize(u_camera_pos.xyz - vPositionW);
     vec3 normalW = normalize(vNormalW);
     vec2 uvOffset = vec2(0.0, 0.0);
     float normalScale = 1.0;
@@ -198,10 +198,10 @@ void main(void) {
     finalRadiance *= specularEnvironmentReflectance;
     vec3 finalRadianceScaled = finalRadiance * vLightingIntensity.z;
     vec3 finalDiffuse = diffuseBase;
-    finalDiffuse.rgb += vAmbientColor;
+    finalDiffuse.rgb += vAmbientColor.rgb;
     finalDiffuse *= surfaceAlbedo.rgb;
     finalDiffuse = max(finalDiffuse, 0.0);
-    vec3 finalEmissive = vEmissiveColor;
+    vec3 finalEmissive = vEmissiveColor.rgb;
     vec3 emissiveColorTex = texture(emissiveSampler, vMainUV1 + uvOffset).rgb;
     finalEmissive *= toLinearSpace(emissiveColorTex.rgb);
     finalEmissive *= vEmissiveInfos.y;

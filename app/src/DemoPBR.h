@@ -48,8 +48,8 @@ namespace Viry3D
             float far_clip;
         };
         CameraParam m_camera_param = {
-            Vector3(0, 3, -4),
-            Vector3(30, 0, 0),
+            Vector3(0, 0, -1.5f),
+            Vector3(0, 0, 0),
             45,
             0.3f,
             1000
@@ -94,8 +94,56 @@ namespace Viry3D
 
         void InitMesh()
         {
-            RenderState render_state;
+            auto albedo = Texture::LoadTexture2DFromFile(
+                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_albedo.jpg",
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false,
+                false);
+            auto bump = Texture::LoadTexture2DFromFile(
+                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_normal.jpg",
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false,
+                false);
+            auto ao = Texture::LoadTexture2DFromFile(
+                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_AO.jpg",
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false,
+                false);
+            auto metal_roughness = Texture::LoadTexture2DFromFile(
+                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_metalRoughness.jpg",
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false,
+                false);
+            auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
+            for (int i = 0; i < 11; ++i)
+            {
+                for (int j = 0; j < 6; ++j)
+                {
+                    int width;
+                    int height;
+                    int bpp;
+                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
+                    cubemap->UpdateCubemap(pixels, (CubemapFace) j, i);
+                }
+            }
+            auto brdf = Texture::LoadTexture2DFromFile(
+                Application::Instance()->GetDataPath() + "/babylon/environments/_environmentBRDFTexture.png",
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false,
+                false);
+            auto emissive = Texture::LoadTexture2DFromFile(
+                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_emissive.jpg",
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false,
+                false);
 
+            RenderState render_state;
             auto shader = RefMake<Shader>(
                 "",
                 Vector<String>({ "../pbr.vs" }),
@@ -105,6 +153,38 @@ namespace Viry3D
                 "",
                 render_state);
             auto material = RefMake<Material>(shader);
+            material->SetColor("vAlbedoColor", Color(1, 1, 1, 1));
+            material->SetColor("vReflectivityColor", Color(1, 1, 0, 0));
+            material->SetColor("vReflectionColor", Color(1, 1, 1, 1));
+            material->SetColor("vAmbientColor", Color(0, 0, 0, 0));
+            material->SetColor("vEmissiveColor", Color(1, 1, 1, 1));
+            material->SetVector("vAlbedoInfos", Vector4(0, 1, 0, 0));
+            material->SetVector("vBumpInfos", Vector4(0, 1, 0.05f, 0));
+            material->SetVector("vAmbientInfos", Vector4(0, 1, 1, 1));
+            material->SetVector("vTangentSpaceParams", Vector4(-1, 1, 0, 0));
+            material->SetVector("vReflectionMicrosurfaceInfos", Vector4((float) cubemap->GetWidth(), 0.8f, 0, 0));
+            material->SetVector("vReflectionInfos", Vector4(1, 0, 0, 0));
+            material->SetVector("vLightingIntensity", Vector4(1, 1, 1, 1));
+            material->SetVector("vEmissiveInfos", Vector4(0, 1, 0, 0));
+            material->SetTexture("albedoSampler", albedo);
+            material->SetTexture("bumpSampler", bump);
+            material->SetTexture("ambientSampler", ao);
+            material->SetTexture("reflectivitySampler", metal_roughness);
+            material->SetTexture("reflectionSampler", cubemap);
+            material->SetTexture("environmentBrdfSampler", brdf);
+            material->SetTexture("emissiveSampler", emissive);
+            material->SetMatrix("reflectionMatrixVS", Matrix4x4::Identity());
+            material->SetMatrix("reflectionMatrixFS", Matrix4x4::Identity());
+            material->SetFloat("exposureLinear", 0.8f);
+            material->SetFloat("contrast", 1.2f);
+
+            // sphere
+            auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
+
+            auto renderer = RefMake<MeshRenderer>();
+            renderer->SetMaterial(material);
+            renderer->SetMesh(sphere);
+            m_camera->AddRenderer(renderer);
         }
 
         void InitUI()
