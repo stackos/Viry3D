@@ -48,7 +48,7 @@ namespace Viry3D
             float far_clip;
         };
         CameraParam m_camera_param = {
-            Vector3(0, 0, -1.5f),
+            Vector3(0, 0, -3.0f),
             Vector3(0, 0, 0),
             45,
             0.3f,
@@ -70,6 +70,8 @@ namespace Viry3D
         Camera* m_ui_camera = nullptr;
         Label* m_label = nullptr;
         Ref<Light> m_light;
+        float m_rot_y = 0;
+        Ref<MeshRenderer> m_renderer;
 
         void InitCamera()
         {
@@ -97,25 +99,31 @@ namespace Viry3D
             auto albedo = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_albedo.jpg",
                 FilterMode::Linear,
-                SamplerAddressMode::ClampToEdge,
+                SamplerAddressMode::Repeat,
                 false,
                 false);
             auto bump = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_normal.jpg",
                 FilterMode::Linear,
-                SamplerAddressMode::ClampToEdge,
+                SamplerAddressMode::Repeat,
                 false,
                 false);
             auto ao = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_AO.jpg",
                 FilterMode::Linear,
-                SamplerAddressMode::ClampToEdge,
+                SamplerAddressMode::Repeat,
                 false,
                 false);
             auto metal_roughness = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_metalRoughness.jpg",
                 FilterMode::Linear,
-                SamplerAddressMode::ClampToEdge,
+                SamplerAddressMode::Repeat,
+                false,
+                false);
+            auto emissive = Texture::LoadTexture2DFromFile(
+                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_emissive.jpg",
+                FilterMode::Linear,
+                SamplerAddressMode::Repeat,
                 false,
                 false);
             auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
@@ -132,12 +140,6 @@ namespace Viry3D
             }
             auto brdf = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/babylon/environments/_environmentBRDFTexture.png",
-                FilterMode::Linear,
-                SamplerAddressMode::ClampToEdge,
-                false,
-                false);
-            auto emissive = Texture::LoadTexture2DFromFile(
-                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_emissive.jpg",
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge,
                 false,
@@ -177,14 +179,17 @@ namespace Viry3D
             material->SetMatrix("reflectionMatrixFS", Matrix4x4::Identity());
             material->SetFloat("exposureLinear", 0.8f);
             material->SetFloat("contrast", 1.2f);
+            // cubemap -> ConvertCubeMapTextureToSphericalPolynomial -> vSphericalXX
 
-            // sphere
-            auto sphere = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/Library/unity default resources.Sphere.mesh");
+            auto mesh = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet.mesh");
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
-            renderer->SetMesh(sphere);
+            renderer->SetMesh(mesh);
+            renderer->SetLocalRotation(Quaternion::Euler(90, 0, 0));
             m_camera->AddRenderer(renderer);
+
+            m_renderer = renderer;
         }
 
         void InitUI()
@@ -220,6 +225,7 @@ namespace Viry3D
 
         virtual void Done()
         {
+            m_renderer.reset();
             if (m_ui_camera)
             {
                 Display::Instance()->DestroyCamera(m_ui_camera);
@@ -237,6 +243,12 @@ namespace Viry3D
             if (m_label)
             {
                 m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+            }
+
+            if (m_renderer)
+            {
+                m_rot_y += 0.01f;
+                m_renderer->SetLocalRotation(Quaternion::Euler(90, m_rot_y, 0));
             }
         }
     };
