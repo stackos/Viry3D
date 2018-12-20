@@ -247,7 +247,7 @@ namespace Viry3D
 
             if (m_renderer)
             {
-                m_rot_y += 0.01f;
+                m_rot_y += 0.5f;
                 m_renderer->SetLocalRotation(Quaternion::Euler(90, m_rot_y, 0));
             }
         }

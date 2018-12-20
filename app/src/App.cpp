@@ -110,7 +110,7 @@ namespace Viry3D
                 button->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, top + i * (button_height + button_space)));
+                button->SetOffset(Vector2i(0, top + (titles.Size() - 1 - i) * (button_height + button_space)));
                 button->GetLabel()->SetText(titles[i]);
                 button->GetLabel()->SetFontSize(font_size);
                 button->SetOnClick([=]() { this->ClickDemo(i); });

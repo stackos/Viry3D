@@ -69,7 +69,7 @@ static PFN_vkGetDeviceProcAddr g_gdpa = nullptr;
         fp##entrypoint = (PFN_vk##entrypoint) g_gdpa(dev, "vk" #entrypoint);                                     \
     }
 
-#define VSYNC 0
+#define VSYNC 1
 #define DESCRIPTOR_POOL_SIZE_MAX 65536
 #define VERTEX_INPUT_BINDING_VERTEX 0
 #define VERTEX_INPUT_BINDING_INSTANCE 1
