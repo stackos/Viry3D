@@ -46,9 +46,9 @@
 
 // TODO:
 // - IBL PBR
-// - GLTF load
-// - GPU Particle
+//   - Cubemap -> SphericalPolynomial
 // - Ray Tracing
+// - GPU Particle
 
 namespace Viry3D
 {

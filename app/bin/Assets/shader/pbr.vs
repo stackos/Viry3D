@@ -2,15 +2,15 @@ UniformBuffer(0, 0) uniform Material {
     mat4 u_view_matrix;
 	mat4 u_projection_matrix;
     mat4 reflectionMatrixVS;
-    vec3 vSphericalX;
-    vec3 vSphericalY;
-    vec3 vSphericalZ;
-    vec3 vSphericalXX_ZZ;
-    vec3 vSphericalYY_ZZ;
-    vec3 vSphericalZZ;
-    vec3 vSphericalXY;
-    vec3 vSphericalYZ;
-    vec3 vSphericalZX;
+    vec4 vSphericalX;
+    vec4 vSphericalY;
+    vec4 vSphericalZ;
+    vec4 vSphericalXX_ZZ;
+    vec4 vSphericalYY_ZZ;
+    vec4 vSphericalZZ;
+    vec4 vSphericalXY;
+    vec4 vSphericalYZ;
+    vec4 vSphericalZX;
 };
 UniformBuffer(1, 0) uniform Scene {
     mat4 u_model_matrix;

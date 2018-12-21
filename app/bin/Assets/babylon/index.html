@@ -19,6 +19,7 @@
                 camera.setPosition(new BABYLON.Vector3(0, 1, -4));
                 camera.wheelPrecision = 50;
                 camera.attachControl(canvas, true);
+                var light = new BABYLON.DirectionalLight('Light', new BABYLON.Vector3(-1, -1, 1), scene);
 
                 BABYLON.SceneLoader.ImportMesh("", "glTF/DamagedHelmet/", "DamagedHelmet.gltf", scene, function (newMeshes) {
                     scene.createDefaultEnvironment();

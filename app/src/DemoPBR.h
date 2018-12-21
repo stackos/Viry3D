@@ -164,7 +164,7 @@ namespace Viry3D
             material->SetVector("vBumpInfos", Vector4(0, 1, 0.05f, 0));
             material->SetVector("vAmbientInfos", Vector4(0, 1, 1, 1));
             material->SetVector("vTangentSpaceParams", Vector4(-1, 1, 0, 0));
-            material->SetVector("vReflectionMicrosurfaceInfos", Vector4((float) cubemap->GetWidth(), 0.8f, 0, 0));
+            material->SetVector("vReflectionMicrosurfaceInfos", Vector4(128, 1.5f, 0, 0));
             material->SetVector("vReflectionInfos", Vector4(1, 0, 0, 0));
             material->SetVector("vLightingIntensity", Vector4(1, 1, 1, 1));
             material->SetVector("vEmissiveInfos", Vector4(0, 1, 0, 0));
@@ -179,7 +179,35 @@ namespace Viry3D
             material->SetMatrix("reflectionMatrixFS", Matrix4x4::Identity());
             material->SetFloat("exposureLinear", 0.8f);
             material->SetFloat("contrast", 1.2f);
-            // cubemap -> ConvertCubeMapTextureToSphericalPolynomial -> vSphericalXX
+            // Spherical Polynomial
+            // Cubemap -> ConvertCubeMapTextureToSphericalPolynomial -> SphericalPolynomial
+            {
+                Vector3 x(0.057829572928459694f, 0.07247976674036509f, 0.11251884226746403f);
+                Vector3 xx(0.5451950923281669f, 0.47561745973216946f, 0.5915887939770956f);
+                Vector3 xy(0.0038382848502422824f, 0.010082420344840642f, 0.028773892052554595f);
+                Vector3 y(0.20650985330812266f, 0.23137182050526978f, 0.4071420934841432f);
+                Vector3 yy(0.5405465622452149f, 0.49248188682885485f, 0.6657606877012895f);
+                Vector3 yz(0.011060956719164367f, 0.008238202668542628f, 0.010041904377146072f);
+                Vector3 z(0.06524991987207855f, 0.03302735763549429f, 0.019678242745190016f);
+                Vector3 zx(0.010204330390907297f, 0.01237347922146388f, 0.023365389794470153f);
+                Vector3 zz(0.547528732463582f, 0.48271541737153467f, 0.6211293957837286f);
+
+                material->SetVector("vSphericalX", x);
+                material->SetVector("vSphericalY", y);
+                material->SetVector("vSphericalZ", z);
+                material->SetVector("vSphericalXX_ZZ", xx - zz);
+                material->SetVector("vSphericalYY_ZZ", yy - zz);
+                material->SetVector("vSphericalZZ", zz);
+                material->SetVector("vSphericalXY", xy);
+                material->SetVector("vSphericalYZ", yz);
+                material->SetVector("vSphericalZX", zx);
+            }
+            // light0
+            {
+                material->SetVector("vLightData", Vector4(-1, -1, 1, 1));
+                material->SetVector("vLightDiffuse", Vector4(1, 1, 1, 0.00001f));
+                material->SetVector("vLightSpecular", Vector4(1, 1, 1, 1));
+            }
 
             auto mesh = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet.mesh");
 

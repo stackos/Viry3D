@@ -25,6 +25,11 @@ UniformTexture(0, 5) uniform sampler2D reflectivitySampler;
 UniformTexture(0, 6) uniform samplerCube reflectionSampler;
 UniformTexture(0, 7) uniform sampler2D environmentBrdfSampler;
 UniformTexture(0, 8) uniform sampler2D bumpSampler;
+UniformBuffer(0, 9) uniform Light0 {
+    vec4 vLightData;
+    vec4 vLightDiffuse;
+    vec4 vLightSpecular;
+} light0;
 Input(0) vec2 vMainUV1;
 Input(1) vec3 vPositionW;
 Input(2) vec3 vNormalW;
@@ -71,6 +76,35 @@ float convertRoughnessToAverageSlope(float roughness) {
     float alphaG = square(roughness) + kMinimumVariance;
     return alphaG;
 }
+float smithVisibilityG1_TrowbridgeReitzGGX(float dot, float alphaG) {
+    float tanSquared = (1.0 - dot * dot) / (dot * dot);
+    return 2.0 / (1.0 + sqrt(1.0 + alphaG * alphaG * tanSquared));
+}
+float smithVisibilityG_TrowbridgeReitzGGX_Walter(float NdotL, float NdotV, float alphaG) {
+    return smithVisibilityG1_TrowbridgeReitzGGX(NdotL, alphaG) * smithVisibilityG1_TrowbridgeReitzGGX(NdotV, alphaG);
+}
+float normalDistributionFunction_TrowbridgeReitzGGX(float NdotH, float alphaG) {
+    float a2 = square(alphaG);
+    float d = NdotH * NdotH * (a2 - 1.0) + 1.0;
+    return a2 / (PI * d * d);
+}
+vec3 fresnelSchlickGGX(float VdotH, vec3 reflectance0, vec3 reflectance90) {
+    return reflectance0 + (reflectance90 - reflectance0) * pow(clamp(1.0 - VdotH, 0., 1.), 5.0);
+}
+vec3 fresnelSchlickEnvironmentGGX(float VdotN, vec3 reflectance0, vec3 reflectance90, float smoothness) {
+    float weight = mix(0.25, 1.0, smoothness);
+    return reflectance0 + weight * (reflectance90 - reflectance0) * pow(clamp(1.0 - VdotN, 0., 1.), 5.0);
+}
+vec3 computeSpecularTerm(float NdotH, float NdotL, float NdotV, float VdotH, float roughness, vec3 reflectance0, vec3 reflectance90, float geometricRoughnessFactor) {
+    roughness = max(roughness, geometricRoughnessFactor);
+    float alphaG = convertRoughnessToAverageSlope(roughness);
+    float distribution = normalDistributionFunction_TrowbridgeReitzGGX(NdotH, alphaG);
+    float visibility = smithVisibilityG_TrowbridgeReitzGGX_Walter(NdotL, NdotV, alphaG);
+    visibility /= (4.0 * NdotL * NdotV);
+    float specTerm = max(0., visibility * distribution) * NdotL;
+    vec3 fresnel = fresnelSchlickGGX(VdotH, reflectance0, reflectance90);
+    return fresnel * specTerm;
+}
 float computeDiffuseTerm(float NdotL, float NdotV, float VdotH, float roughness) {
     float diffuseFresnelNV = pow(clamp(1.0 - NdotL, 0.000001, 1.), 5.0);
     float diffuseFresnelNL = pow(clamp(1.0 - NdotV, 0.000001, 1.), 5.0);
@@ -104,6 +138,25 @@ float environmentHorizonOcclusion(vec3 view, vec3 normal) {
     vec3 reflection = reflect(view, normal);
     float temp = clamp(1.0 + 1.1 * dot(reflection, normal), 0.0, 1.0);
     return square(temp);
+}
+struct lightingInfo {
+    vec3 diffuse;
+    vec3 specular;
+};
+lightingInfo computeDirectionalLighting(vec3 viewDirectionW, vec3 vNormal, vec4 lightData, vec3 diffuseColor, vec3 specularColor, float lightRadius, float roughness, float NdotV, vec3 reflectance0, vec3 reflectance90, float geometricRoughnessFactor, out float NdotL) {
+    lightingInfo result;
+    float lightDistance = length(-lightData.xyz);
+    vec3 lightDirection = normalize(-lightData.xyz);
+    roughness = adjustRoughnessFromLightProperties(roughness, lightRadius, lightDistance);
+    vec3 H = normalize(viewDirectionW + lightDirection);
+    NdotL = clamp(dot(vNormal, lightDirection), 0.00000000001, 1.0);
+    float VdotH = clamp(dot(viewDirectionW, H), 0.0, 1.0);
+    float diffuseTerm = computeDiffuseTerm(NdotL, NdotV, VdotH, roughness);
+    result.diffuse = diffuseTerm * diffuseColor;
+    float NdotH = clamp(dot(vNormal, H), 0.000000000001, 1.0);
+    vec3 specTerm = computeSpecularTerm(NdotH, NdotL, NdotV, VdotH, roughness, reflectance0, reflectance90, geometricRoughnessFactor);
+    result.specular = specTerm * diffuseColor;
+    return result;
 }
 mat3 cotangent_frame(vec3 normal, vec3 p, vec2 uv) {
     uv = gl_FrontFacing ? uv : -uv;
@@ -181,8 +234,14 @@ void main(void) {
     vec3 specularEnvironmentR0 = surfaceReflectivityColor.rgb;
     vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
     vec3 diffuseBase = vec3(0., 0., 0.);
+    vec3 specularBase = vec3(0., 0., 0.);
+    lightingInfo info;
     float shadow = 1.;
     float NdotL = -1.;
+    info = computeDirectionalLighting(viewDirectionW, normalW, light0.vLightData, light0.vLightDiffuse.rgb, light0.vLightSpecular.rgb, light0.vLightDiffuse.a, roughness, NdotV, specularEnvironmentR0, specularEnvironmentR90, geometricRoughnessFactor, NdotL);
+    shadow = 1.;
+    diffuseBase += info.diffuse * shadow;
+    specularBase += info.specular * shadow;
     vec2 brdfSamplerUV = vec2(NdotV, roughness);
     vec4 environmentBrdf = texture(environmentBrdfSampler, brdfSamplerUV);
     vec3 specularEnvironmentReflectance = specularEnvironmentR0 * environmentBrdf.x + environmentBrdf.y;
@@ -194,6 +253,9 @@ void main(void) {
     surfaceAlbedo.rgb = (1. - reflectance) * surfaceAlbedo.rgb;
     vec3 finalIrradiance = environmentIrradiance;
     finalIrradiance *= surfaceAlbedo.rgb;
+    vec3 finalSpecular = specularBase;
+    finalSpecular = max(finalSpecular, 0.0);
+    vec3 finalSpecularScaled = finalSpecular * vLightingIntensity.x * vLightingIntensity.w;
     vec3 finalRadiance = environmentRadiance.rgb;
     finalRadiance *= specularEnvironmentReflectance;
     vec3 finalRadianceScaled = finalRadiance * vLightingIntensity.z;
@@ -209,6 +271,7 @@ void main(void) {
     vec4 finalColor = vec4(
         finalDiffuse * ambientOcclusionForDirectDiffuse * vLightingIntensity.x +
         finalIrradiance * ambientOcclusionColor * vLightingIntensity.z +
+        finalSpecularScaled +
         finalRadianceScaled +
         finalEmissive * vLightingIntensity.y,
         alpha);
