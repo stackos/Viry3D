@@ -26,6 +26,7 @@ namespace Viry3D
 	const float Mathf::Rad2Deg = 57.2958f;
 	const float Mathf::MaxFloatValue = 3.402823466e+38F;
 	const float Mathf::MinFloatValue = -Mathf::MaxFloatValue;
+    const float Mathf::ToLinearSpace = 2.2f;
 
 	float Mathf::Lerp(float from, float to, float t, bool clamp_01)
 	{

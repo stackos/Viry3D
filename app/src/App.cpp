@@ -46,7 +46,6 @@
 
 // TODO:
 // - IBL PBR
-//   - Cubemap -> SphericalPolynomial
 // - Ray Tracing
 // - GPU Particle
 

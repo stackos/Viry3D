@@ -34,6 +34,7 @@ namespace Viry3D
 		static const float Rad2Deg;
 		static const float MaxFloatValue;
 		static const float MinFloatValue;
+        static const float ToLinearSpace;
 
 		template<class T>
 		static T Max(T a, T b) { return a > b ? a : b; }

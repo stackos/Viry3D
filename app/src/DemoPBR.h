@@ -27,6 +27,7 @@
 #include "graphics/Mesh.h"
 #include "graphics/Texture.h"
 #include "graphics/Light.h"
+#include "graphics/CubeMapToSphericalPolynomialTools.h"
 #include "math/Quaternion.h"
 #include "time/Time.h"
 #include "ui/CanvasRenderer.h"
@@ -126,6 +127,7 @@ namespace Viry3D
                 SamplerAddressMode::Repeat,
                 false,
                 false);
+            Vector<ByteBuffer> faces(6);
             auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
             for (int i = 0; i < 11; ++i)
             {
@@ -136,6 +138,11 @@ namespace Viry3D
                     int bpp;
                     ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
                     cubemap->UpdateCubemap(pixels, (CubemapFace) j, i);
+
+                    if (i == 0)
+                    {
+                        faces[j] = pixels;
+                    }
                 }
             }
             auto brdf = Texture::LoadTexture2DFromFile(
@@ -179,28 +186,22 @@ namespace Viry3D
             material->SetMatrix("reflectionMatrixFS", Matrix4x4::Identity());
             material->SetFloat("exposureLinear", 0.8f);
             material->SetFloat("contrast", 1.2f);
-            // Spherical Polynomial
-            // Cubemap -> ConvertCubeMapTextureToSphericalPolynomial -> SphericalPolynomial
+            // spherical polynomial
             {
-                Vector3 x(0.057829572928459694f, 0.07247976674036509f, 0.11251884226746403f);
-                Vector3 xx(0.5451950923281669f, 0.47561745973216946f, 0.5915887939770956f);
-                Vector3 xy(0.0038382848502422824f, 0.010082420344840642f, 0.028773892052554595f);
-                Vector3 y(0.20650985330812266f, 0.23137182050526978f, 0.4071420934841432f);
-                Vector3 yy(0.5405465622452149f, 0.49248188682885485f, 0.6657606877012895f);
-                Vector3 yz(0.011060956719164367f, 0.008238202668542628f, 0.010041904377146072f);
-                Vector3 z(0.06524991987207855f, 0.03302735763549429f, 0.019678242745190016f);
-                Vector3 zx(0.010204330390907297f, 0.01237347922146388f, 0.023365389794470153f);
-                Vector3 zz(0.547528732463582f, 0.48271541737153467f, 0.6211293957837286f);
-
-                material->SetVector("vSphericalX", x);
-                material->SetVector("vSphericalY", y);
-                material->SetVector("vSphericalZ", z);
-                material->SetVector("vSphericalXX_ZZ", xx - zz);
-                material->SetVector("vSphericalYY_ZZ", yy - zz);
-                material->SetVector("vSphericalZZ", zz);
-                material->SetVector("vSphericalXY", xy);
-                material->SetVector("vSphericalYZ", yz);
-                material->SetVector("vSphericalZX", zx);
+                SphericalPolynomial sp = CubeMapToSphericalPolynomialTools::ConvertCubeMapToSphericalPolynomial(
+                    cubemap->GetWidth(),
+                    TextureFormat::R8G8B8A8,
+                    faces,
+                    false);
+                material->SetVector("vSphericalX", sp.x);
+                material->SetVector("vSphericalY", sp.y);
+                material->SetVector("vSphericalZ", sp.z);
+                material->SetVector("vSphericalXX_ZZ", sp.xx - sp.zz);
+                material->SetVector("vSphericalYY_ZZ", sp.yy - sp.zz);
+                material->SetVector("vSphericalZZ", sp.zz);
+                material->SetVector("vSphericalXY", sp.xy);
+                material->SetVector("vSphericalYZ", sp.yz);
+                material->SetVector("vSphericalZX", sp.zx);
             }
             // light0
             {
