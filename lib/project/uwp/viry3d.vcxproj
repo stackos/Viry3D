@@ -61,6 +61,7 @@
     <ClInclude Include="..\..\src\graphics\CameraClearFlags.h" />
     <ClInclude Include="..\..\src\graphics\Color.h" />
     <ClInclude Include="..\..\src\graphics\Computer.h" />
+    <ClInclude Include="..\..\src\graphics\CubeMapToSphericalPolynomialTools.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\Image.h" />
     <ClInclude Include="..\..\src\graphics\Light.h" />
@@ -363,6 +364,7 @@
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
     <ClCompile Include="..\..\src\graphics\Computer.cpp" />
+    <ClCompile Include="..\..\src\graphics\CubeMapToSphericalPolynomialTools.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
     <ClCompile Include="..\..\src\graphics\Light.cpp" />

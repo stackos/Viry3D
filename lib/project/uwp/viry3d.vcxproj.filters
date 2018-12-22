@@ -927,6 +927,9 @@
     <ClInclude Include="..\..\src\graphics\Computer.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\graphics\CubeMapToSphericalPolynomialTools.h">
+      <Filter>src\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2163,6 +2166,9 @@
       <Filter>src\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\Computer.cpp">
+      <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\CubeMapToSphericalPolynomialTools.cpp">
       <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
