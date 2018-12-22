@@ -178,7 +178,7 @@ namespace Viry3D
                     Vector3 direction = file_x[i] * u + file_y[i] * v + file_normal[i];
                     direction = Vector3::Normalize(direction);
 
-                    float delta_solid_angle = std::pow(1.f + u * u + v * v, -3.f / 2.f);
+                    float delta_solid_angle = pow(1.f + u * u + v * v, -3.f / 2.f);
 
                     float r = 0;
                     float g = 0;
@@ -201,9 +201,9 @@ namespace Viry3D
 
                     if (gamma_space)
                     {
-                        r = std::pow(Mathf::Clamp01(r), Mathf::ToLinearSpace);
-                        g = std::pow(Mathf::Clamp01(g), Mathf::ToLinearSpace);
-                        b = std::pow(Mathf::Clamp01(b), Mathf::ToLinearSpace);
+                        r = pow(Mathf::Clamp01(r), Mathf::ToLinearSpace);
+                        g = pow(Mathf::Clamp01(g), Mathf::ToLinearSpace);
+                        b = pow(Mathf::Clamp01(b), Mathf::ToLinearSpace);
                     }
 
                     Color color(r, g, b, 1.0);
