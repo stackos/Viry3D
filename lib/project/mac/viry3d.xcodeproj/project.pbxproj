@@ -313,6 +313,7 @@
 		BA8AA3712005213500B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3672005213500B7FDC2 /* lpcap.c */; };
 		BA8AA3722005213500B7FDC2 /* lptree.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA36D2005213500B7FDC2 /* lptree.c */; };
 		BA8AA3732005213500B7FDC2 /* lpcode.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA36E2005213500B7FDC2 /* lpcode.c */; };
+		BAA2F98F21CF83490041E64E /* CubeMapToSphericalPolynomialTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAA2F98E21CF83490041E64E /* CubeMapToSphericalPolynomialTools.cpp */; };
 		BAB2431721204F8900BA07DE /* AnimationCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431521204F8800BA07DE /* AnimationCurve.cpp */; };
 		BAB2431821204F8900BA07DE /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431621204F8800BA07DE /* Animation.cpp */; };
 		BAB2431B21204FA800BA07DE /* SkinnedMeshRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2431A21204FA700BA07DE /* SkinnedMeshRenderer.cpp */; };
@@ -881,6 +882,8 @@
 		BA8AA36C2005213500B7FDC2 /* lpprint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpprint.h; sourceTree = "<group>"; };
 		BA8AA36D2005213500B7FDC2 /* lptree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lptree.c; sourceTree = "<group>"; };
 		BA8AA36E2005213500B7FDC2 /* lpcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpcode.c; sourceTree = "<group>"; };
+		BAA2F98D21CF83490041E64E /* CubeMapToSphericalPolynomialTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubeMapToSphericalPolynomialTools.h; sourceTree = "<group>"; };
+		BAA2F98E21CF83490041E64E /* CubeMapToSphericalPolynomialTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubeMapToSphericalPolynomialTools.cpp; sourceTree = "<group>"; };
 		BAB2431321204F8800BA07DE /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
 		BAB2431421204F8800BA07DE /* AnimationCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationCurve.h; sourceTree = "<group>"; };
 		BAB2431521204F8800BA07DE /* AnimationCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationCurve.cpp; sourceTree = "<group>"; };
@@ -1062,6 +1065,8 @@
 				D1D42A12211155FA0016A265 /* Color.h */,
 				BA77475A21C01CA200C5E710 /* Computer.cpp */,
 				BA77475921C01CA100C5E710 /* Computer.h */,
+				BAA2F98E21CF83490041E64E /* CubeMapToSphericalPolynomialTools.cpp */,
+				BAA2F98D21CF83490041E64E /* CubeMapToSphericalPolynomialTools.h */,
 				D1D42A21211155FB0016A265 /* Display.cpp */,
 				D1D42A1E211155FB0016A265 /* Display.h */,
 				D1D42A11211155FA0016A265 /* Image.cpp */,
@@ -2348,6 +2353,7 @@
 				BA4FAC061FBB558500C1ADB7 /* btHingeConstraint.cpp in Sources */,
 				D1D42A44211156350016A265 /* Button.cpp in Sources */,
 				BA4FAC071FBB558500C1ADB7 /* btNNCGConstraintSolver.cpp in Sources */,
+				BAA2F98F21CF83490041E64E /* CubeMapToSphericalPolynomialTools.cpp in Sources */,
 				D1D42A2A211155FB0016A265 /* Camera.cpp in Sources */,
 				BA4FAC081FBB558500C1ADB7 /* btPoint2PointConstraint.cpp in Sources */,
 				BA4FAC091FBB558500C1ADB7 /* btSequentialImpulseConstraintSolver.cpp in Sources */,

@@ -315,6 +315,7 @@
 		BA8AA383200523BD00B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA379200523BC00B7FDC2 /* lpcap.c */; };
 		BA8AA384200523BD00B7FDC2 /* lptree.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA37F200523BC00B7FDC2 /* lptree.c */; };
 		BA8AA385200523BD00B7FDC2 /* lpcode.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA380200523BC00B7FDC2 /* lpcode.c */; };
+		BAA2F99321CF84090041E64E /* CubeMapToSphericalPolynomialTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAA2F99221CF84090041E64E /* CubeMapToSphericalPolynomialTools.cpp */; };
 		BAB243282120ACE300BA07DE /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB243252120ACE300BA07DE /* Animation.cpp */; };
 		BAB243292120ACE300BA07DE /* AnimationCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB243272120ACE300BA07DE /* AnimationCurve.cpp */; };
 		BAB2432E2120AD0E00BA07DE /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB2432B2120AD0E00BA07DE /* Node.cpp */; };
@@ -887,6 +888,8 @@
 		BA8AA37E200523BC00B7FDC2 /* lpprint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpprint.h; sourceTree = "<group>"; };
 		BA8AA37F200523BC00B7FDC2 /* lptree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lptree.c; sourceTree = "<group>"; };
 		BA8AA380200523BC00B7FDC2 /* lpcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpcode.c; sourceTree = "<group>"; };
+		BAA2F99121CF84080041E64E /* CubeMapToSphericalPolynomialTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubeMapToSphericalPolynomialTools.h; sourceTree = "<group>"; };
+		BAA2F99221CF84090041E64E /* CubeMapToSphericalPolynomialTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubeMapToSphericalPolynomialTools.cpp; sourceTree = "<group>"; };
 		BAB243242120ACE300BA07DE /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
 		BAB243252120ACE300BA07DE /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
 		BAB243262120ACE300BA07DE /* AnimationCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationCurve.h; sourceTree = "<group>"; };
@@ -1066,6 +1069,8 @@
 				D137755620FEDFD700E4F19B /* Color.h */,
 				BA77475E21C01D9000C5E710 /* Computer.cpp */,
 				BA77475D21C01D9000C5E710 /* Computer.h */,
+				BAA2F99221CF84090041E64E /* CubeMapToSphericalPolynomialTools.cpp */,
+				BAA2F99121CF84080041E64E /* CubeMapToSphericalPolynomialTools.h */,
 				D137754320FEDFD500E4F19B /* Display.cpp */,
 				D137754B20FEDFD600E4F19B /* Display.h */,
 				D137755420FEDFD700E4F19B /* Image.cpp */,
@@ -2522,6 +2527,7 @@
 				41F85ABF104DCCA081A046EB /* jmemnobs.c in Sources */,
 				BA8AA384200523BD00B7FDC2 /* lptree.c in Sources */,
 				BA2800D51F69A59F00215483 /* ridgedmulti.cpp in Sources */,
+				BAA2F99321CF84090041E64E /* CubeMapToSphericalPolynomialTools.cpp in Sources */,
 				D8933E9E381E1DAC3A9823E3 /* jquant1.c in Sources */,
 				4ABE7655F9581671228D4C5F /* jquant2.c in Sources */,
 				DA37D760D0E23F30D9CA0C90 /* jutils.c in Sources */,
