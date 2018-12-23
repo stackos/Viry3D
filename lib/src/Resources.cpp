@@ -53,9 +53,11 @@ namespace Viry3D
         {
             String json = File::ReadAllText(full_path);
 
-            Json::Reader reader;
+            auto reader = Ref<Json::CharReader>(Json::CharReaderBuilder().newCharReader());
             Json::Value root;
-            if (reader.parse(json.CString(), root))
+            const char* begin = json.CString();
+            const char* end = begin + json.Size();
+            if (reader->parse(begin, end, &root, nullptr))
             {
                 String texture_name = root["name"].asCString();
                 int width = root["width"].asInt();

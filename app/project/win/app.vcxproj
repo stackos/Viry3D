@@ -194,25 +194,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\App.h" />
-    <ClInclude Include="..\..\src\Demo.h" />
-    <ClInclude Include="..\..\src\DemoAudio.h" />
-    <ClInclude Include="..\..\src\DemoComputeStorageBuffer.h" />
-    <ClInclude Include="..\..\src\DemoComputeStorageImage.h" />
-    <ClInclude Include="..\..\src\DemoComputeTexelBuffer.h" />
-    <ClInclude Include="..\..\src\DemoFXAA.h" />
-    <ClInclude Include="..\..\src\DemoInstancing.h" />
-    <ClInclude Include="..\..\src\DemoLightmap.h" />
-    <ClInclude Include="..\..\src\DemoMesh.h" />
-    <ClInclude Include="..\..\src\DemoMSAA.h" />
-    <ClInclude Include="..\..\src\DemoPBR.h" />
-    <ClInclude Include="..\..\src\DemoPostEffectBlur.h" />
-    <ClInclude Include="..\..\src\DemoRenderToTexture.h" />
-    <ClInclude Include="..\..\src\DemoShadowMap.h" />
-    <ClInclude Include="..\..\src\DemoSkinnedMesh.h" />
-    <ClInclude Include="..\..\src\DemoSkybox.h" />
-    <ClInclude Include="..\..\src\DemoSSAO.h" />
-    <ClInclude Include="..\..\src\DemoUI.h" />
-    <ClInclude Include="..\..\src\DemoVR.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\App.cpp" />
