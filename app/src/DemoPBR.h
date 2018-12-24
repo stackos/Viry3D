@@ -98,31 +98,31 @@ namespace Viry3D
         void InitMesh()
         {
             auto albedo = Texture::LoadTexture2DFromFile(
-                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_albedo.jpg",
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false,
                 false);
             auto bump = Texture::LoadTexture2DFromFile(
-                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_normal.jpg",
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/normal.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false,
                 false);
             auto ao = Texture::LoadTexture2DFromFile(
-                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_AO.jpg",
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/ao.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false,
                 false);
             auto metal_roughness = Texture::LoadTexture2DFromFile(
-                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_metalRoughness.jpg",
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/metal_roughness.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false,
                 false);
             auto emissive = Texture::LoadTexture2DFromFile(
-                Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet/Default_emissive.jpg",
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/emissive.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false,
@@ -146,7 +146,7 @@ namespace Viry3D
                 }
             }
             auto brdf = Texture::LoadTexture2DFromFile(
-                Application::Instance()->GetDataPath() + "/babylon/environments/_environmentBRDFTexture.png",
+                Application::Instance()->GetDataPath() + "/texture/env/brdf.png",
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge,
                 false,
@@ -210,7 +210,7 @@ namespace Viry3D
                 material->SetVector("vLightSpecular", Vector4(1, 1, 1, 1));
             }
 
-            auto mesh = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/babylon/glTF/DamagedHelmet.mesh");
+            auto mesh = Mesh::LoadFromFile(Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/DamagedHelmet.mesh");
 
             auto renderer = RefMake<MeshRenderer>();
             renderer->SetMaterial(material);
