@@ -28,6 +28,8 @@
 #include "graphics/Texture.h"
 #include "graphics/Light.h"
 #include "graphics/CubeMapToSphericalPolynomialTools.h"
+#include "io/File.h"
+#include "json/json.h"
 #include "math/Quaternion.h"
 #include "time/Time.h"
 #include "ui/CanvasRenderer.h"
@@ -188,11 +190,26 @@ namespace Viry3D
             material->SetFloat("contrast", 1.2f);
             // spherical polynomial
             {
-                SphericalPolynomial sp = CubeMapToSphericalPolynomialTools::ConvertCubeMapToSphericalPolynomial(
-                    cubemap->GetWidth(),
-                    TextureFormat::R8G8B8A8,
-                    faces,
-                    false);
+                SphericalPolynomial sp;
+
+                String sp_json = File::ReadAllText(Application::Instance()->GetDataPath() + "/texture/env/prefilter/spherical_polynomial.json");
+                auto reader = Ref<Json::CharReader>(Json::CharReaderBuilder().newCharReader());
+                Json::Value root;
+                const char* begin = sp_json.CString();
+                const char* end = begin + sp_json.Size();
+                if (reader->parse(begin, end, &root, nullptr))
+                {
+                    sp.x = Vector3(root["x"][0].asFloat(), root["x"][1].asFloat(), root["x"][2].asFloat());
+                    sp.y = Vector3(root["y"][0].asFloat(), root["y"][1].asFloat(), root["y"][2].asFloat());
+                    sp.z = Vector3(root["z"][0].asFloat(), root["z"][1].asFloat(), root["z"][2].asFloat());
+                    sp.xx = Vector3(root["xx"][0].asFloat(), root["xx"][1].asFloat(), root["xx"][2].asFloat());
+                    sp.yy = Vector3(root["yy"][0].asFloat(), root["yy"][1].asFloat(), root["yy"][2].asFloat());
+                    sp.zz = Vector3(root["zz"][0].asFloat(), root["zz"][1].asFloat(), root["zz"][2].asFloat());
+                    sp.xy = Vector3(root["xy"][0].asFloat(), root["xy"][1].asFloat(), root["xy"][2].asFloat());
+                    sp.yz = Vector3(root["yz"][0].asFloat(), root["yz"][1].asFloat(), root["yz"][2].asFloat());
+                    sp.zx = Vector3(root["zx"][0].asFloat(), root["zx"][1].asFloat(), root["zx"][2].asFloat());
+                }
+                
                 material->SetVector("vSphericalX", sp.x);
                 material->SetVector("vSphericalY", sp.y);
                 material->SetVector("vSphericalZ", sp.z);

@@ -11,6 +11,7 @@
 *.pri
 local.properties
 app.exe
+CubeMapToSphericalPolynomia.exe
 viry3d.lib
 build
 .vs

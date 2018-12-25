@@ -45,7 +45,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - cubemap to spherical polynomial tool
 // - compressed texture format, astc / etc2
 // - IBL PBR
 // - Ray Tracing

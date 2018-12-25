@@ -1,0 +1,13 @@
+{
+    "cubemap_faces": [
+        "Assets/texture/env/prefilter/0_0.png",
+        "Assets/texture/env/prefilter/0_1.png",
+        "Assets/texture/env/prefilter/0_2.png",
+        "Assets/texture/env/prefilter/0_3.png",
+        "Assets/texture/env/prefilter/0_4.png",
+        "Assets/texture/env/prefilter/0_5.png"
+    ],
+    "format": "R8G8B8A8",
+    "gamma_space": false,
+    "output": "Assets/texture/env/prefilter/spherical_polynomial.json"
+}
