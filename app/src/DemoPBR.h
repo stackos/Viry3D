@@ -129,7 +129,6 @@ namespace Viry3D
                 SamplerAddressMode::Repeat,
                 false,
                 false);
-            Vector<ByteBuffer> faces(6);
             auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
             for (int i = 0; i < 11; ++i)
             {
@@ -140,11 +139,6 @@ namespace Viry3D
                     int bpp;
                     ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
                     cubemap->UpdateCubemap(pixels, (CubemapFace) j, i);
-
-                    if (i == 0)
-                    {
-                        faces[j] = pixels;
-                    }
                 }
             }
             auto brdf = Texture::LoadTexture2DFromFile(
