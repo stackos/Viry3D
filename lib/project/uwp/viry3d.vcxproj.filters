@@ -40,9 +40,6 @@
     <Filter Include="src\freetype">
       <UniqueIdentifier>{fe4662c7-b42b-4392-ae29-4c0b6c338642}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\json">
-      <UniqueIdentifier>{ff2fae60-6dc5-4b1f-af65-4546ec447eba}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\openal">
       <UniqueIdentifier>{fc29df29-058d-4b86-ab41-d8580185dffd}</UniqueIdentifier>
     </Filter>
@@ -112,6 +109,21 @@
     <Filter Include="src\audio">
       <UniqueIdentifier>{3311b5e0-9999-432d-9244-5f916b64475b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\jsoncpp">
+      <UniqueIdentifier>{72062bb1-fa2b-40b8-b067-e7dd366ca26c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\jsoncpp\include">
+      <UniqueIdentifier>{4a9fd6ee-bbfa-4fd3-8ca9-6dd41041aa30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\jsoncpp\include\json">
+      <UniqueIdentifier>{5d527b58-83a4-475c-a07c-691a46d811c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\jsoncpp\src">
+      <UniqueIdentifier>{8970920f-3262-42eb-bb75-ceb3094d1edd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\jsoncpp\src\lib_json">
+      <UniqueIdentifier>{15af40fd-e2d6-421f-b5d2-9acd1f5e44a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -173,33 +185,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\io\MemoryStream.h">
       <Filter>src\io</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\autolink.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\config.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\features.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\forwards.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\json.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\json_batchallocator.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\reader.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\value.h">
-      <Filter>src\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\json\writer.h">
-      <Filter>src\json</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\openal\win\config.h">
       <Filter>src\openal\win</Filter>
@@ -930,6 +915,42 @@
     <ClInclude Include="..\..\src\graphics\CubeMapToSphericalPolynomialTools.h">
       <Filter>src\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\allocator.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\assertions.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\autolink.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\config.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\features.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\forwards.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\json.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\reader.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\value.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\version.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\include\json\writer.h">
+      <Filter>src\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jsoncpp\src\lib_json\json_tool.h">
+      <Filter>src\jsoncpp\src\lib_json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -1324,15 +1345,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\zlib\ioapi.c">
       <Filter>src\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\json\json_reader.cpp">
-      <Filter>src\json</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\json\json_value.cpp">
-      <Filter>src\json</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\json\json_writer.cpp">
-      <Filter>src\json</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mp3\mad\bit.c">
       <Filter>src\mp3\mad</Filter>
@@ -2171,16 +2183,19 @@
     <ClCompile Include="..\..\src\graphics\CubeMapToSphericalPolynomialTools.cpp">
       <Filter>src\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\jsoncpp\src\lib_json\json_reader.cpp">
+      <Filter>src\jsoncpp\src\lib_json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jsoncpp\src\lib_json\json_value.cpp">
+      <Filter>src\jsoncpp\src\lib_json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jsoncpp\src\lib_json\json_writer.cpp">
+      <Filter>src\jsoncpp\src\lib_json</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\src\json\json_internalarray.inl">
-      <Filter>src\json</Filter>
-    </None>
-    <None Include="..\..\src\json\json_internalmap.inl">
-      <Filter>src\json</Filter>
-    </None>
-    <None Include="..\..\src\json\json_valueiterator.inl">
-      <Filter>src\json</Filter>
+    <None Include="..\..\src\jsoncpp\src\lib_json\json_valueiterator.inl">
+      <Filter>src\jsoncpp\src\lib_json</Filter>
     </None>
   </ItemGroup>
 </Project>

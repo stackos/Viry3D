@@ -191,39 +191,6 @@
     <ClInclude Include="..\..\src\App.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Demo.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoFXAA.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoMesh.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoPostEffectBlur.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoRenderToTexture.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoShadowMap.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoSkinnedMesh.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoSkybox.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoUI.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoAudio.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\DemoMSAA.h">
-      <Filter>Source</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Assets\font\Consola.ttf">

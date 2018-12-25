@@ -21,7 +21,7 @@
     <DebuggerMachineName>DESKTOP-2STHCFD</DebuggerMachineName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DebuggerFlavor>UWPRemoteDebugger</DebuggerFlavor>
+    <DebuggerFlavor>AppHostLocalDebugger</DebuggerFlavor>
     <DebuggerMachineName>DESKTOP-2STHCFD</DebuggerMachineName>
   </PropertyGroup>
 </Project>
