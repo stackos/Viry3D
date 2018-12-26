@@ -112,9 +112,9 @@ add_library(Viry3DDep STATIC
             ${VIRY3D_LIB_SRC_DIR}/jpeg/jquant1.c
             ${VIRY3D_LIB_SRC_DIR}/jpeg/jquant2.c
             ${VIRY3D_LIB_SRC_DIR}/jpeg/jutils.c
-            ${VIRY3D_LIB_SRC_DIR}/json/json_reader.cpp
-            ${VIRY3D_LIB_SRC_DIR}/json/json_value.cpp
-            ${VIRY3D_LIB_SRC_DIR}/json/json_writer.cpp
+            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/src/lib_json/json_reader.cpp
+            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/src/lib_json/json_value.cpp
+            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/src/lib_json/json_writer.cpp
             ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpcap.c
             ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpcode.c
             ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpprint.c
@@ -387,7 +387,8 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/openal/android
                            ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
                            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src
-                           ${VIRY3D_LIB_SRC_DIR}/lua)
+                           ${VIRY3D_LIB_SRC_DIR}/lua
+                           ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include)
 
 add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/animation/Animation.cpp
@@ -455,6 +456,7 @@ target_include_directories(Viry3D PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/openal/android
                            ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
                            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src
+                           ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
                            ${ANDROID_NDK}/sources/third_party/shaderc/include
                            ${SHADERC_SRC}/third_party/spirv-tools/include
                            ${SHADERC_SRC}/third_party/spirv-tools/include/spirv-tools)
@@ -467,6 +469,7 @@ add_library(Viry3DApp SHARED
 target_include_directories(Viry3DApp PRIVATE
                            ${ANDROID_NDK}/sources/android/native_app_glue
                            ${VIRY3D_LIB_SRC_DIR}
+                           ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
                            ${VIRY3D_APP_SRC_DIR})
 
 target_link_libraries(Viry3DApp
