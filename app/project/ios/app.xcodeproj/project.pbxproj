@@ -397,6 +397,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,
 					../../../lib/src/vulkan/MoltenVK/include,
+					../../../lib/src/jsoncpp/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -429,6 +430,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,
 					../../../lib/src/vulkan/MoltenVK/include,
+					../../../lib/src/jsoncpp/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;

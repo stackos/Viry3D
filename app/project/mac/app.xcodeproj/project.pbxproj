@@ -366,6 +366,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,
 					../../../lib/src/vulkan/MoltenVK/include,
+					../../../lib/src/jsoncpp/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -394,6 +395,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../lib/src,
 					../../../lib/src/vulkan/MoltenVK/include,
+					../../../lib/src/jsoncpp/include,
 				);
 				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
