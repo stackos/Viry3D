@@ -46,7 +46,7 @@
 
 // TODO:
 // - ktx image load
-// - compressed texture format, astc / etc2
+// - compressed texture format, bc / etc2 / astc
 // - IBL PBR
 // - Ray Tracing
 // - GPU Particle

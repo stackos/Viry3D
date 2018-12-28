@@ -58,6 +58,8 @@ namespace Viry3D
                 return VK_FORMAT_D32_SFLOAT_S8_UINT;
             case TextureFormat::S8:
                 return VK_FORMAT_S8_UINT;
+            case TextureFormat::ASTC_4x4:
+                return VK_FORMAT_ASTC_4x4_UNORM_BLOCK;
             default:
                 return VK_FORMAT_UNDEFINED;
         }
@@ -145,34 +147,34 @@ namespace Viry3D
 #define GL_COMPRESSED_RGBA8_ETC2_EAC 0x9278
 #define GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC 0x9279
 
-#define GL_COMPRESSED_RGBA_ASTC_4x4_KHR 0x93B0
-#define GL_COMPRESSED_RGBA_ASTC_5x4_KHR 0x93B1
-#define GL_COMPRESSED_RGBA_ASTC_5x5_KHR 0x93B2
-#define GL_COMPRESSED_RGBA_ASTC_6x5_KHR 0x93B3
-#define GL_COMPRESSED_RGBA_ASTC_6x6_KHR 0x93B4
-#define GL_COMPRESSED_RGBA_ASTC_8x5_KHR 0x93B5
-#define GL_COMPRESSED_RGBA_ASTC_8x6_KHR 0x93B6
-#define GL_COMPRESSED_RGBA_ASTC_8x8_KHR 0x93B7
-#define GL_COMPRESSED_RGBA_ASTC_10x5_KHR 0x93B8
-#define GL_COMPRESSED_RGBA_ASTC_10x6_KHR 0x93B9
-#define GL_COMPRESSED_RGBA_ASTC_10x8_KHR 0x93BA
-#define GL_COMPRESSED_RGBA_ASTC_10x10_KHR 0x93BB
-#define GL_COMPRESSED_RGBA_ASTC_12x10_KHR 0x93BC
-#define GL_COMPRESSED_RGBA_ASTC_12x12_KHR 0x93BD
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR 0x93D0
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR 0x93D1
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR 0x93D2
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR 0x93D3
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR 0x93D4
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR 0x93D5
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR 0x93D6
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR 0x93D7
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR 0x93D8
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR 0x93D9
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR 0x93DA
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR 0x93DB
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR 0x93DC
-#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR 0x93DD
+#define GL_COMPRESSED_RGBA_ASTC_4x4 0x93B0
+#define GL_COMPRESSED_RGBA_ASTC_5x4 0x93B1
+#define GL_COMPRESSED_RGBA_ASTC_5x5 0x93B2
+#define GL_COMPRESSED_RGBA_ASTC_6x5 0x93B3
+#define GL_COMPRESSED_RGBA_ASTC_6x6 0x93B4
+#define GL_COMPRESSED_RGBA_ASTC_8x5 0x93B5
+#define GL_COMPRESSED_RGBA_ASTC_8x6 0x93B6
+#define GL_COMPRESSED_RGBA_ASTC_8x8 0x93B7
+#define GL_COMPRESSED_RGBA_ASTC_10x5 0x93B8
+#define GL_COMPRESSED_RGBA_ASTC_10x6 0x93B9
+#define GL_COMPRESSED_RGBA_ASTC_10x8 0x93BA
+#define GL_COMPRESSED_RGBA_ASTC_10x10 0x93BB
+#define GL_COMPRESSED_RGBA_ASTC_12x10 0x93BC
+#define GL_COMPRESSED_RGBA_ASTC_12x12 0x93BD
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4 0x93D0
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4 0x93D1
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5 0x93D2
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5 0x93D3
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6 0x93D4
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5 0x93D5
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6 0x93D6
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8 0x93D7
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5 0x93D8
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6 0x93D9
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8 0x93DA
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10 0x93DB
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10 0x93DC
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12 0x93DD
 
 #define GL_RED 0x1903
 #define GL_RG 0x8227
@@ -258,12 +260,14 @@ namespace Viry3D
             int block_bit_size = 0;
             switch (internal_format)
             {
-                case GL_COMPRESSED_RGBA_ASTC_4x4_KHR:
+#ifdef GL_COMPRESSED_RGBA_ASTC_4x4
+                case GL_COMPRESSED_RGBA_ASTC_4x4:
                     texture_format = TextureFormat::ASTC_4x4;
                     block_size_x = 4;
                     block_size_y = 4;
                     block_bit_size = 128;
                     break;
+#endif
                 default:
                     Log("compress format not support");
                     return texture;
@@ -377,9 +381,14 @@ namespace Viry3D
                     wrap_mode,
                     level_count > 1 || gen_mipmap,
                     false,
-                    is_storage);*/
+                    is_storage);
 
-                // update levels
+                for (uint32_t i = 0; i < level_count; ++i)
+                {
+                    int level_w = Mathf::Max(1, (int) pixel_width >> i);
+                    int level_h = Mathf::Max(1, (int) pixel_height >> i);
+                    texture->UpdateTexture2D(levels[i][0], 0, 0, level_w, level_h, i);
+                }*/
             }
             
 #undef READ_ENDIAN
@@ -490,7 +499,7 @@ namespace Viry3D
             dynamic,
             is_storage);
 
-        texture->UpdateTexture2D(pixels, 0, 0, width, height);
+        texture->UpdateTexture2D(pixels, 0, 0, width, height, 0);
 
         if (gen_mipmap)
         {
@@ -704,7 +713,7 @@ namespace Viry3D
             texture->CreateSampler(filter_mode, wrap_mode);
         }
 
-        texture->UpdateTexture2D(ByteBuffer(), 0, 0, width, height);
+        texture->UpdateTexture2D(ByteBuffer(), 0, 0, width, height, 0);
 
         texture->m_render_texture = true;
 
@@ -945,7 +954,7 @@ namespace Viry3D
 		m_shared_cubemap.reset();
 	}
 
-    void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h)
+    void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h, int level)
     {
 #if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
@@ -960,7 +969,7 @@ namespace Viry3D
         }
 
         this->CopyBufferToImageBegin();
-        this->CopyBufferToImage(m_image_buffer, x, y, w, h, 0, 0);
+        this->CopyBufferToImage(m_image_buffer, x, y, w, h, 0, level);
         this->CopyBufferToImageEnd();
 
         if (!m_dynamic)
@@ -971,21 +980,28 @@ namespace Viry3D
 #elif VR_GLES
         this->Bind();
 
-        if (m_have_storage)
+        if (level < m_have_storage.Size() && m_have_storage[level])
         {
-            glTexSubImage2D(m_target, 0, x, y, w, h, m_format, m_pixel_type, pixels.Bytes());
+            glTexSubImage2D(m_target, level, x, y, w, h, m_format, m_pixel_type, pixels.Bytes());
         }
         else
         {
-            m_have_storage = true;
-            if (x == 0 && y == 0 && w == m_width && h == m_height)
+            if (level >= m_have_storage.Size())
             {
-                glTexImage2D(m_target, 0, m_internal_format, m_width, m_height, 0, m_format, m_pixel_type, pixels.Bytes());
+                m_have_storage.Resize(level + 1);
+            }
+            m_have_storage[level] = GL_TRUE;
+
+            int level_w = Mathf::Max(1, m_width >> level);
+            int level_h = Mathf::Max(1, m_height >> level);
+            if (x == 0 && y == 0 && w == level_w && h == level_h)
+            {
+                glTexImage2D(m_target, level, m_internal_format, level_w, level_h, 0, m_format, m_pixel_type, pixels.Bytes());
             }
             else
             {
-                glTexImage2D(m_target, 0, m_internal_format, m_width, m_height, 0, m_format, m_pixel_type, nullptr);
-                glTexSubImage2D(m_target, 0, x, y, w, h, m_format, m_pixel_type, pixels.Bytes());
+                glTexImage2D(m_target, level, m_internal_format, level_w, level_h, 0, m_format, m_pixel_type, nullptr);
+                glTexSubImage2D(m_target, level, x, y, w, h, m_format, m_pixel_type, pixels.Bytes());
             }
         }
 
@@ -1429,7 +1445,6 @@ namespace Viry3D
         m_internal_format(0),
         m_format(0),
         m_pixel_type(0),
-        m_have_storage(false),
         m_copy_framebuffer(0),
         m_render_texture(false),
         m_depth_texture(false),

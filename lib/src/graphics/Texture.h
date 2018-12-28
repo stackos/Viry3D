@@ -153,7 +153,7 @@ namespace Viry3D
         int GetMipmapLevelCount() const { return m_mipmap_level_count; }
         int GetArraySize() const { return m_array_size; }
         int GetSampleCount() const { return m_sample_count; }
-        void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h);
+        void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h, int level);
         void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
         void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
         void GenMipmaps();
@@ -224,7 +224,7 @@ namespace Viry3D
         GLint m_internal_format;
         GLenum m_format;
         GLenum m_pixel_type;
-        bool m_have_storage;
+        Vector<GLboolean> m_have_storage;
         GLuint m_copy_framebuffer;
         bool m_render_texture;
         bool m_depth_texture;
