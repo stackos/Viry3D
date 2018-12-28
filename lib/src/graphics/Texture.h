@@ -51,6 +51,10 @@ namespace Viry3D
         D24S8,
         D32S8,
         S8,
+        BC1_RGB,
+        BC1_RGBA,
+        BC2,
+        BC3,
         ASTC_4x4,
     };
 
@@ -81,7 +85,6 @@ namespace Viry3D
             const String& path,
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode,
-            bool gen_mipmap,
             bool is_storage);
         static ByteBuffer LoadImageFromFile(const String& path, int& width, int& height, int& bpp);
         static Ref<Texture> LoadTexture2DFromFile(

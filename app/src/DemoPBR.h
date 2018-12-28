@@ -99,13 +99,34 @@ namespace Viry3D
 
         void InitMesh()
         {
+#if VR_WINDOWS
             auto albedo = Texture::LoadFromKTXFile(
-                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.ktx",
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo_bc1_rgba.ktx",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
-                false,
                 false);
-            albedo = Texture::LoadTexture2DFromFile(
+            auto bump = Texture::LoadFromKTXFile(
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/normal_bc1_rgba.ktx",
+                FilterMode::Linear,
+                SamplerAddressMode::Repeat,
+                false);
+            auto ao = Texture::LoadFromKTXFile(
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/ao_bc1_rgba.ktx",
+                FilterMode::Linear,
+                SamplerAddressMode::Repeat,
+                false);
+            auto metal_roughness = Texture::LoadFromKTXFile(
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/metal_roughness_bc1_rgba.ktx",
+                FilterMode::Linear,
+                SamplerAddressMode::Repeat,
+                false);
+            auto emissive = Texture::LoadFromKTXFile(
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/emissive_bc1_rgba.ktx",
+                FilterMode::Linear,
+                SamplerAddressMode::Repeat,
+                false);
+#else
+            auto albedo = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
@@ -135,6 +156,7 @@ namespace Viry3D
                 SamplerAddressMode::Repeat,
                 false,
                 false);
+#endif
             auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
             for (int i = 0; i < 11; ++i)
             {

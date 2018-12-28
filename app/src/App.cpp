@@ -45,7 +45,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - ktx image load
+// - ktx image load, 2d / cubemap
 // - compressed texture format, bc / etc2 / astc
 // - IBL PBR
 // - Ray Tracing
