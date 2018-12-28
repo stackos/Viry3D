@@ -99,7 +99,13 @@ namespace Viry3D
 
         void InitMesh()
         {
-            auto albedo = Texture::LoadTexture2DFromFile(
+            auto albedo = Texture::LoadFromKTXFile(
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.ktx",
+                FilterMode::Linear,
+                SamplerAddressMode::Repeat,
+                false,
+                false);
+            albedo = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,

@@ -20,6 +20,7 @@
 #include "BufferObject.h"
 #include "memory/Memory.h"
 #include "io/File.h"
+#include "io/MemoryStream.h"
 #include "math/Mathf.h"
 #include "Debug.h"
 
@@ -136,6 +137,257 @@ namespace Viry3D
 #endif
     }
 
+#if VR_VULKAN
+#define GL_COMPRESSED_RGB8_ETC2 0x9274
+#define GL_COMPRESSED_SRGB8_ETC2 0x9275
+#define GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 0x9276
+#define GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 0x9277
+#define GL_COMPRESSED_RGBA8_ETC2_EAC 0x9278
+#define GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC 0x9279
+
+#define GL_COMPRESSED_RGBA_ASTC_4x4_KHR 0x93B0
+#define GL_COMPRESSED_RGBA_ASTC_5x4_KHR 0x93B1
+#define GL_COMPRESSED_RGBA_ASTC_5x5_KHR 0x93B2
+#define GL_COMPRESSED_RGBA_ASTC_6x5_KHR 0x93B3
+#define GL_COMPRESSED_RGBA_ASTC_6x6_KHR 0x93B4
+#define GL_COMPRESSED_RGBA_ASTC_8x5_KHR 0x93B5
+#define GL_COMPRESSED_RGBA_ASTC_8x6_KHR 0x93B6
+#define GL_COMPRESSED_RGBA_ASTC_8x8_KHR 0x93B7
+#define GL_COMPRESSED_RGBA_ASTC_10x5_KHR 0x93B8
+#define GL_COMPRESSED_RGBA_ASTC_10x6_KHR 0x93B9
+#define GL_COMPRESSED_RGBA_ASTC_10x8_KHR 0x93BA
+#define GL_COMPRESSED_RGBA_ASTC_10x10_KHR 0x93BB
+#define GL_COMPRESSED_RGBA_ASTC_12x10_KHR 0x93BC
+#define GL_COMPRESSED_RGBA_ASTC_12x12_KHR 0x93BD
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR 0x93D0
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR 0x93D1
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR 0x93D2
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR 0x93D3
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR 0x93D4
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR 0x93D5
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR 0x93D6
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR 0x93D7
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR 0x93D8
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR 0x93D9
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR 0x93DA
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR 0x93DB
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR 0x93DC
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR 0x93DD
+
+#define GL_RED 0x1903
+#define GL_RG 0x8227
+#define GL_RGB 0x1907
+#define GL_RGBA 0x1908
+#endif
+
+    Ref<Texture> Texture::LoadFromKTXFile(
+        const String& path,
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode,
+        bool gen_mipmap,
+        bool is_storage)
+    {
+        Ref<Texture> texture;
+
+        if (File::Exist(path))
+        {
+            MemoryStream ms(File::ReadAllBytes(path));
+
+            byte identifier[12];
+            uint32_t endianness;
+            uint32_t type;
+            uint32_t type_size;
+            uint32_t format;
+            uint32_t internal_format;
+            uint32_t base_internal_format;
+            uint32_t pixel_width;
+            uint32_t pixel_height;
+            uint32_t pixel_depth;
+            uint32_t array_size;
+            uint32_t face_count;
+            uint32_t level_count;
+            uint32_t key_value_data_size;
+
+            const int identifier_size = 12;
+            byte IDENTIFIER[identifier_size] = {
+                0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
+            };
+            ms.Read(identifier, identifier_size);
+            if (Memory::Compare(identifier, IDENTIFIER, identifier_size) != 0)
+            {
+                return texture;
+            }
+
+            bool endian_convert = false;
+            endianness = ms.Read<uint32_t>();
+            if (endianness != 0x04030201)
+            {
+                endian_convert = true;
+
+                if (endianness != 0x01020304)
+                {
+                    return texture;
+                }
+            }
+
+#define READ_ENDIAN(v, t) \
+            { v = ms.Read<t>(); if (endian_convert) { int left = 0; int right = sizeof(t) - 1; while (left < right) { byte* p = (byte*) &v; std::swap(p[left++], p[right--]); } } }
+
+            READ_ENDIAN(type, uint32_t);
+            READ_ENDIAN(type_size, uint32_t);
+            READ_ENDIAN(format, uint32_t);
+            if (type != 0 || type_size != 1 || format != 0)
+            {
+                Log("support compressed ktx only");
+                return texture;
+            }
+
+            READ_ENDIAN(internal_format, uint32_t);
+            READ_ENDIAN(base_internal_format, uint32_t);
+            READ_ENDIAN(pixel_width, uint32_t);
+            READ_ENDIAN(pixel_height, uint32_t);
+            READ_ENDIAN(pixel_depth, uint32_t);
+            READ_ENDIAN(array_size, uint32_t);
+            READ_ENDIAN(face_count, uint32_t);
+            READ_ENDIAN(level_count, uint32_t);
+            READ_ENDIAN(key_value_data_size, uint32_t);
+
+            TextureFormat texture_format = TextureFormat::None;
+            int block_size_x = 0;
+            int block_size_y = 0;
+            int block_bit_size = 0;
+            switch (internal_format)
+            {
+                case GL_COMPRESSED_RGBA_ASTC_4x4_KHR:
+                    texture_format = TextureFormat::ASTC_4x4;
+                    block_size_x = 4;
+                    block_size_y = 4;
+                    block_bit_size = 128;
+                    break;
+                default:
+                    Log("compress format not support");
+                    return texture;
+            }
+
+            uint32_t kv_size_read = 0;
+            while (kv_size_read < key_value_data_size)
+            {
+                uint32_t byte_size = 0;
+                READ_ENDIAN(byte_size, uint32_t);
+                ByteBuffer buffer(byte_size);
+                ms.Read(buffer.Bytes(), buffer.Size());
+                int padding = 3 - ((byte_size + 3) % 4);
+                if (padding > 0)
+                {
+                    ms.Read(nullptr, padding);
+                }
+
+                kv_size_read += sizeof(byte_size) + byte_size + padding;
+            }
+
+            if (pixel_depth > 1)
+            {
+                Log("3d texture not support");
+                return texture;
+            }
+
+            if (level_count == 0)
+            {
+                level_count = 1;
+            }
+            if (array_size == 0)
+            {
+                array_size = 1;
+            }
+            if (pixel_depth == 0)
+            {
+                pixel_depth = 1;
+            }
+            if (pixel_height == 0)
+            {
+                pixel_height = 1;
+            }
+
+            int block_count_x = pixel_width / block_size_x;
+            int block_count_y = pixel_height / block_size_y;
+
+            bool texture_2d = false;
+            bool cubemap = false;
+
+            if (array_size == 1)
+            {
+                if (face_count == 1)
+                {
+                    texture_2d = true;
+                }
+                else if (face_count == 6)
+                {
+                    cubemap = true;
+                }
+                else
+                {
+                    Log("invalid face count: %d", face_count);
+                    return texture;
+                }
+            }
+            else
+            {
+                Log("texture array not support");
+                return texture;
+            }
+
+            Vector<Vector<ByteBuffer>> levels;
+
+            for (uint32_t i = 0; i < level_count; ++i)
+            {
+                uint32_t image_size = 0;
+                READ_ENDIAN(image_size, uint32_t);
+
+                Vector<ByteBuffer> level;
+
+                for (uint32_t j = 0; j < array_size; ++j)
+                {
+                    for (uint32_t k = 0; k < face_count; ++k)
+                    {
+                        int buffer_size = block_bit_size * block_count_x * block_count_y * pixel_depth / 8;
+                        ByteBuffer face(buffer_size);
+
+                        int cube_padding = 3 - ((buffer_size + 3) % 4);
+                        if (cube_padding > 0)
+                        {
+                            ms.Read(nullptr, cube_padding);
+                        }
+
+                        level.Add(face);
+                    }
+                }
+
+                int mip_padding = 0;
+
+                levels.Add(level);
+            }
+
+            if (texture_2d)
+            {
+                /*texture = Texture::CreateTexture2D(
+                    pixel_width,
+                    pixel_height,
+                    texture_format,
+                    filter_mode,
+                    wrap_mode,
+                    level_count > 1 || gen_mipmap,
+                    false,
+                    is_storage);*/
+
+                // update levels
+            }
+            
+#undef READ_ENDIAN
+        }
+
+        return texture;
+    }
+
     ByteBuffer Texture::LoadImageFromFile(const String& path, int& width, int& height, int& bpp)
     {
         ByteBuffer pixels;
@@ -228,10 +480,40 @@ namespace Viry3D
         bool dynamic,
         bool is_storage)
     {
+        Ref<Texture> texture = Texture::CreateTexture2D(
+            width,
+            height,
+            format,
+            filter_mode,
+            wrap_mode,
+            gen_mipmap,
+            dynamic,
+            is_storage);
+
+        texture->UpdateTexture2D(pixels, 0, 0, width, height);
+
+        if (gen_mipmap)
+        {
+            texture->GenMipmaps();
+        }
+
+        return texture;
+    }
+
+    Ref<Texture> Texture::CreateTexture2D(
+        int width,
+        int height,
+        TextureFormat format,
+        FilterMode filter_mode,
+        SamplerAddressMode wrap_mode,
+        bool mipmap,
+        bool dynamic,
+        bool is_storage)
+    {
         Ref<Texture> texture;
 
         int mipmap_level_count = 1;
-        if (gen_mipmap)
+        if (mipmap)
         {
             mipmap_level_count = (int) floor(Mathf::Log2((float) Mathf::Max(width, height))) + 1;
         }
@@ -275,13 +557,6 @@ namespace Viry3D
 #endif
 
         texture->m_dynamic = dynamic;
-
-        texture->UpdateTexture2D(pixels, 0, 0, width, height);
-
-        if (gen_mipmap)
-        {
-            texture->GenMipmaps();
-        }
 
         return texture;
     }

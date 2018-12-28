@@ -51,6 +51,7 @@ namespace Viry3D
         D24S8,
         D32S8,
         S8,
+        ASTC_4x4,
     };
 
     enum class FilterMode
@@ -76,6 +77,12 @@ namespace Viry3D
         friend class DisplayPrivate;
 
     public:
+        static Ref<Texture> LoadFromKTXFile(
+            const String& path,
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode,
+            bool gen_mipmap,
+            bool is_storage);
         static ByteBuffer LoadImageFromFile(const String& path, int& width, int& height, int& bpp);
         static Ref<Texture> LoadTexture2DFromFile(
             const String& path,
@@ -91,6 +98,15 @@ namespace Viry3D
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode,
             bool gen_mipmap,
+            bool dynamic,
+            bool is_storage);
+        static Ref<Texture> CreateTexture2D(
+            int width,
+            int height,
+            TextureFormat format,
+            FilterMode filter_mode,
+            SamplerAddressMode wrap_mode,
+            bool mipmap,
             bool dynamic,
             bool is_storage);
         static Ref<Texture> CreateCubemap(
