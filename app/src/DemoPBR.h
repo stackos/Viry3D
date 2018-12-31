@@ -125,6 +125,11 @@ namespace Viry3D
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false);
+            /*auto cubemap = Texture::LoadFromKTXFile(
+                Application::Instance()->GetDataPath() + "/texture/env/prefilter/prefilter_bc1_rgba.ktx",
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge,
+                false);*/
 #else
             auto albedo = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.png",

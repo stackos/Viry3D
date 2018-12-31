@@ -89,5 +89,6 @@
             "Assets/texture/env/prefilter/10_5.png"
         ]
     ],
-    "output": "Assets/texture/env/prefilter/prefilter.ktx"
+    "format": "BC1_RGBA",
+    "output": "Assets/texture/env/prefilter/prefilter_bc1_rgba.ktx"
 }

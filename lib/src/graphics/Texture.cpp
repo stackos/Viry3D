@@ -188,6 +188,24 @@ namespace Viry3D
 #define COMPRESSED_SRGB8_ALPHA8_ASTC_12x10 0x93DC
 #define COMPRESSED_SRGB8_ALPHA8_ASTC_12x12 0x93DD
 
+    struct KTXHeader
+    {
+        byte identifier[12];
+        uint32_t endianness;
+        uint32_t type;
+        uint32_t type_size;
+        uint32_t format;
+        uint32_t internal_format;
+        uint32_t base_internal_format;
+        uint32_t pixel_width;
+        uint32_t pixel_height;
+        uint32_t pixel_depth;
+        uint32_t array_size;
+        uint32_t face_count;
+        uint32_t level_count;
+        uint32_t key_value_data_size;
+    };
+
     Ref<Texture> Texture::LoadFromKTXFile(
         const String& path,
         FilterMode filter_mode,
@@ -200,38 +218,26 @@ namespace Viry3D
         {
             MemoryStream ms(File::ReadAllBytes(path));
 
-            byte identifier[12];
-            uint32_t endianness;
-            uint32_t type;
-            uint32_t type_size;
-            uint32_t format;
-            uint32_t internal_format;
-            uint32_t base_internal_format;
-            uint32_t pixel_width;
-            uint32_t pixel_height;
-            uint32_t pixel_depth;
-            uint32_t array_size;
-            uint32_t face_count;
-            uint32_t level_count;
-            uint32_t key_value_data_size;
+            KTXHeader header;
 
             const int identifier_size = 12;
             byte IDENTIFIER[identifier_size] = {
                 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
             };
-            ms.Read(identifier, identifier_size);
-            if (Memory::Compare(identifier, IDENTIFIER, identifier_size) != 0)
+            ms.Read(header.identifier, identifier_size);
+            if (Memory::Compare(header.identifier, IDENTIFIER, identifier_size) != 0)
             {
                 return texture;
             }
 
             bool endian_convert = false;
-            endianness = ms.Read<uint32_t>();
-            if (endianness != 0x04030201)
+            header.endianness = ms.Read<uint32_t>();
+            const uint32_t ENDIAN = 0x04030201;
+            if (header.endianness != ENDIAN)
             {
                 endian_convert = true;
 
-                if (endianness != 0x01020304)
+                if (header.endianness != 0x01020304)
                 {
                     return texture;
                 }
@@ -240,30 +246,30 @@ namespace Viry3D
 #define READ_ENDIAN(v, t) \
             { v = ms.Read<t>(); if (endian_convert) { int left = 0; int right = sizeof(t) - 1; while (left < right) { byte* p = (byte*) &v; std::swap(p[left++], p[right--]); } } }
 
-            READ_ENDIAN(type, uint32_t);
-            READ_ENDIAN(type_size, uint32_t);
-            READ_ENDIAN(format, uint32_t);
-            if (type != 0 || type_size != 1 || format != 0)
+            READ_ENDIAN(header.type, uint32_t);
+            READ_ENDIAN(header.type_size, uint32_t);
+            READ_ENDIAN(header.format, uint32_t);
+            if (header.type != 0 || header.type_size != 1 || header.format != 0)
             {
                 Log("support compressed ktx only");
                 return texture;
             }
 
-            READ_ENDIAN(internal_format, uint32_t);
-            READ_ENDIAN(base_internal_format, uint32_t);
-            READ_ENDIAN(pixel_width, uint32_t);
-            READ_ENDIAN(pixel_height, uint32_t);
-            READ_ENDIAN(pixel_depth, uint32_t);
-            READ_ENDIAN(array_size, uint32_t);
-            READ_ENDIAN(face_count, uint32_t);
-            READ_ENDIAN(level_count, uint32_t);
-            READ_ENDIAN(key_value_data_size, uint32_t);
+            READ_ENDIAN(header.internal_format, uint32_t);
+            READ_ENDIAN(header.base_internal_format, uint32_t);
+            READ_ENDIAN(header.pixel_width, uint32_t);
+            READ_ENDIAN(header.pixel_height, uint32_t);
+            READ_ENDIAN(header.pixel_depth, uint32_t);
+            READ_ENDIAN(header.array_size, uint32_t);
+            READ_ENDIAN(header.face_count, uint32_t);
+            READ_ENDIAN(header.level_count, uint32_t);
+            READ_ENDIAN(header.key_value_data_size, uint32_t);
 
             TextureFormat texture_format = TextureFormat::None;
             int block_size_x = 0;
             int block_size_y = 0;
             int block_bit_size = 0;
-            switch (internal_format)
+            switch (header.internal_format)
             {
                 case COMPRESSED_RGB_S3TC_DXT1:
                     texture_format = TextureFormat::BC1_RGB;
@@ -301,7 +307,7 @@ namespace Viry3D
             }
 
             uint32_t kv_size_read = 0;
-            while (kv_size_read < key_value_data_size)
+            while (kv_size_read < header.key_value_data_size)
             {
                 uint32_t byte_size = 0;
                 READ_ENDIAN(byte_size, uint32_t);
@@ -316,48 +322,45 @@ namespace Viry3D
                 kv_size_read += sizeof(byte_size) + byte_size + padding;
             }
 
-            if (pixel_depth > 1)
+            if (header.pixel_depth > 1)
             {
                 Log("3d texture not support");
                 return texture;
             }
 
-            if (level_count == 0)
+            if (header.level_count == 0)
             {
-                level_count = 1;
+                header.level_count = 1;
             }
-            if (array_size == 0)
+            if (header.array_size == 0)
             {
-                array_size = 1;
+                header.array_size = 1;
             }
-            if (pixel_depth == 0)
+            if (header.pixel_depth == 0)
             {
-                pixel_depth = 1;
+                header.pixel_depth = 1;
             }
-            if (pixel_height == 0)
+            if (header.pixel_height == 0)
             {
-                pixel_height = 1;
+                header.pixel_height = 1;
             }
-
-            int block_count_x = pixel_width / block_size_x;
-            int block_count_y = pixel_height / block_size_y;
 
             bool texture_2d = false;
             bool cubemap = false;
 
-            if (array_size == 1)
+            if (header.array_size == 1)
             {
-                if (face_count == 1)
+                if (header.face_count == 1)
                 {
                     texture_2d = true;
                 }
-                else if (face_count == 6)
+                else if (header.face_count == 6)
                 {
                     cubemap = true;
                 }
                 else
                 {
-                    Log("invalid face count: %d", face_count);
+                    Log("invalid face count: %d", header.face_count);
                     return texture;
                 }
             }
@@ -369,22 +372,27 @@ namespace Viry3D
 
             Vector<Vector<ByteBuffer>> levels;
 
-            for (uint32_t i = 0; i < level_count; ++i)
+            for (uint32_t i = 0; i < header.level_count; ++i)
             {
                 uint32_t image_size = 0;
                 READ_ENDIAN(image_size, uint32_t);
 
+                uint32_t level_width = Mathf::Max(header.pixel_width >> i, 1u);
+                uint32_t level_height = Mathf::Max(header.pixel_height >> i, 1u);
+                int block_count_x = Mathf::Max(level_width / block_size_x, 1u);
+                int block_count_y = Mathf::Max(level_height / block_size_y, 1u);
+
                 Vector<ByteBuffer> level;
 
-                for (uint32_t j = 0; j < array_size; ++j)
+                for (uint32_t j = 0; j < header.array_size; ++j)
                 {
-                    for (uint32_t k = 0; k < face_count; ++k)
+                    for (uint32_t k = 0; k < header.face_count; ++k)
                     {
-                        int buffer_size = block_bit_size * block_count_x * block_count_y * pixel_depth / 8;
-                        ByteBuffer face(buffer_size);
+                        int face_buffer_size = block_bit_size * block_count_x * block_count_y * header.pixel_depth / 8;
+                        ByteBuffer face(face_buffer_size);
                         ms.Read(face.Bytes(), face.Size());
 
-                        int cube_padding = 3 - ((buffer_size + 3) % 4);
+                        int cube_padding = 3 - ((face_buffer_size + 3) % 4);
                         if (cube_padding > 0)
                         {
                             ms.Read(nullptr, cube_padding);
@@ -402,20 +410,38 @@ namespace Viry3D
             if (texture_2d)
             {
                 texture = Texture::CreateTexture2D(
-                    pixel_width,
-                    pixel_height,
+                    header.pixel_width,
+                    header.pixel_height,
                     texture_format,
                     filter_mode,
                     wrap_mode,
-                    level_count > 1,
+                    header.level_count > 1,
                     false,
                     is_storage);
 
-                for (uint32_t i = 0; i < level_count; ++i)
+                for (uint32_t i = 0; i < header.level_count; ++i)
                 {
-                    int level_w = Mathf::Max(1, (int) pixel_width >> i);
-                    int level_h = Mathf::Max(1, (int) pixel_height >> i);
-                    texture->UpdateTexture2D(levels[i][0], 0, 0, level_w, level_h, i);
+                    uint32_t level_width = Mathf::Max(header.pixel_width >> i, 1u);
+                    uint32_t level_height = Mathf::Max(header.pixel_height >> i, 1u);
+
+                    texture->UpdateTexture2D(levels[i][0], 0, 0, level_width, level_height, i);
+                }
+            }
+            else if (cubemap)
+            {
+                texture = Texture::CreateCubemap(
+                    header.pixel_width,
+                    texture_format,
+                    filter_mode,
+                    wrap_mode,
+                    header.level_count > 1);
+
+                for (uint32_t i = 0; i < header.level_count; ++i)
+                {
+                    for (int j = 0; j < 6; ++j)
+                    {
+                        texture->UpdateCubemap(levels[i][j], (CubemapFace) j, i);
+                    }
                 }
             }
             
