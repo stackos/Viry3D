@@ -125,11 +125,11 @@ namespace Viry3D
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false);
-            /*auto cubemap = Texture::LoadFromKTXFile(
+            auto cubemap = Texture::LoadFromKTXFile(
                 Application::Instance()->GetDataPath() + "/texture/env/prefilter/prefilter_bc1_rgba.ktx",
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge,
-                false);*/
+                false);
 #else
             auto albedo = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.png",
@@ -161,7 +161,6 @@ namespace Viry3D
                 SamplerAddressMode::Repeat,
                 false,
                 false);
-#endif
             auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, true);
             for (int i = 0; i < 11; ++i)
             {
@@ -174,6 +173,7 @@ namespace Viry3D
                     cubemap->UpdateCubemap(pixels, (CubemapFace) j, i);
                 }
             }
+#endif
             auto brdf = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/texture/env/brdf.png",
                 FilterMode::Linear,
