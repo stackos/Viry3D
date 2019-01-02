@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\2d\Navigation2D.h" />
+    <ClInclude Include="..\..\src\2d\NavigationPolygon.h" />
     <ClInclude Include="..\..\src\Action.h" />
     <ClInclude Include="..\..\src\android\jni.h" />
     <ClInclude Include="..\..\src\animation\Animation.h" />
@@ -308,6 +310,8 @@
     <ClInclude Include="..\..\src\xml\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\2d\Navigation2D.cpp" />
+    <ClCompile Include="..\..\src\2d\NavigationPolygon.cpp" />
     <ClCompile Include="..\..\src\animation\Animation.cpp" />
     <ClCompile Include="..\..\src\animation\AnimationCurve.cpp" />
     <ClCompile Include="..\..\src\Application.cpp" />

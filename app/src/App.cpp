@@ -37,6 +37,7 @@
 #include "DemoComputeStorageBuffer.h"
 #include "DemoComputeTexelBuffer.h"
 #include "DemoPBR.h"
+#include "DemoNavigation2D.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -91,8 +92,28 @@ namespace Viry3D
             m_scroll->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
             m_scroll->SetOffset(Vector2i(0, 0));
 
-            Vector<String> titles({ "Mesh", "SkinnedMesh", "Skybox", "RenderToTexture", "FXAA", "MSAA", "PostEffectBlur", "UI", "ShadowMap", "Audio", "AR", "Instancing", "Lightmap",
-                                    "Deferred Shading & SSAO", "VR", "ComputeStorageImage", "ComputeStorageBuffer", "ComputeTexelBuffer", "PBR" });
+            Vector<String> titles({
+                "Mesh",
+                "SkinnedMesh",
+                "Skybox",
+                "RenderToTexture",
+                "FXAA",
+                "MSAA",
+                "PostEffectBlur",
+                "UI",
+                "ShadowMap",
+                "Audio",
+                "AR",
+                "Instancing",
+                "Lightmap",
+                "Deferred Shading & SSAO",
+                "VR",
+                "ComputeStorageImage",
+                "ComputeStorageBuffer",
+                "ComputeTexelBuffer",
+                "PBR",
+                "Navigation2D"
+                });
 
             const int top = (int) (90 * UI_SCALE);
             const int button_height = (int) (160 * UI_SCALE);
@@ -255,6 +276,9 @@ namespace Viry3D
                 case 18:
                     m_demo = new DemoPBR();
                     break;
+                case 19:
+                    m_demo = new DemoNavigation2D();
+                    break;
                 default:
                     break;
             }
@@ -376,4 +400,4 @@ namespace Viry3D
     {
         m_app->Update();
     }
-} // namespace Viry3D
+}
