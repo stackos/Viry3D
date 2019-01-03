@@ -66,6 +66,12 @@ namespace Viry3D
                 return VK_FORMAT_BC2_UNORM_BLOCK;
             case TextureFormat::BC3:
                 return VK_FORMAT_BC3_UNORM_BLOCK;
+            case TextureFormat::ETC2_R8G8B8:
+                return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+            case TextureFormat::ETC2_R8G8B8A1:
+                return VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK;
+            case TextureFormat::ETC2_R8G8B8A8:
+                return VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
             case TextureFormat::ASTC_4x4:
                 return VK_FORMAT_ASTC_4x4_UNORM_BLOCK;
             default:
@@ -266,39 +272,41 @@ namespace Viry3D
             READ_ENDIAN(header.key_value_data_size, uint32_t);
 
             TextureFormat texture_format = TextureFormat::None;
-            int block_size_x = 0;
-            int block_size_y = 0;
+            int block_size_x = 4;
+            int block_size_y = 4;
             int block_bit_size = 0;
             switch (header.internal_format)
             {
                 case COMPRESSED_RGB_S3TC_DXT1:
                     texture_format = TextureFormat::BC1_RGB;
-                    block_size_x = 4;
-                    block_size_y = 4;
                     block_bit_size = 64;
                     break;
                 case COMPRESSED_RGBA_S3TC_DXT1:
                     texture_format = TextureFormat::BC1_RGBA;
-                    block_size_x = 4;
-                    block_size_y = 4;
                     block_bit_size = 64;
                     break;
                 case COMPRESSED_RGBA_S3TC_DXT3:
                     texture_format = TextureFormat::BC2;
-                    block_size_x = 4;
-                    block_size_y = 4;
                     block_bit_size = 128;
                     break;
                 case COMPRESSED_RGBA_S3TC_DXT5:
                     texture_format = TextureFormat::BC3;
-                    block_size_x = 4;
-                    block_size_y = 4;
+                    block_bit_size = 128;
+                    break;
+                case COMPRESSED_RGB8_ETC2:
+                    texture_format = TextureFormat::ETC2_R8G8B8;
+                    block_bit_size = 64;
+                    break;
+                case COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+                    texture_format = TextureFormat::ETC2_R8G8B8A1;
+                    block_bit_size = 64;
+                    break;
+                case COMPRESSED_RGBA8_ETC2_EAC:
+                    texture_format = TextureFormat::ETC2_R8G8B8A8;
                     block_bit_size = 128;
                     break;
                 case COMPRESSED_RGBA_ASTC_4x4:
                     texture_format = TextureFormat::ASTC_4x4;
-                    block_size_x = 4;
-                    block_size_y = 4;
                     block_bit_size = 128;
                     break;
                 default:

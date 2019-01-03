@@ -55,6 +55,9 @@ namespace Viry3D
         BC1_RGBA,
         BC2,
         BC3,
+        ETC2_R8G8B8,
+        ETC2_R8G8B8A1,
+        ETC2_R8G8B8A8,
         ASTC_4x4,
     };
 

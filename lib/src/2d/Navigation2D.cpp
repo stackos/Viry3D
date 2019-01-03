@@ -16,6 +16,10 @@
 */
 
 #include "Navigation2D.h"
+#include <algorithm>
+
+#define USE_ENTRY_POINT
+#define CMP_EPSILON 0.00001f
 
 namespace Viry3D
 {
@@ -102,7 +106,7 @@ namespace Viry3D
                 continue;
             }
 
-            p.center = center / (float) plen;
+            p.center = center * (1.0f / (float) plen);
 
             // connect
 
@@ -233,9 +237,83 @@ namespace Viry3D
         m_navpoly_map.erase(p_id);
     }
 
+    static bool is_point_in_triangle(const Vector2& s, const Vector2& a, const Vector2& b, const Vector2& c)
+    {
+        Vector2 an = a - s;
+        Vector2 bn = b - s;
+        Vector2 cn = c - s;
+
+        bool orientation = an * bn > 0;
+        if ((bn * cn > 0) != orientation) return false;
+        return (cn * an > 0) == orientation;
+    }
+
+    static Vector2 get_closest_point_to_segment_2d(const Vector2& p_point, const Vector2* p_segment)
+    {
+        Vector2 p = p_point - p_segment[0];
+        Vector2 n = p_segment[1] - p_segment[0];
+        float l = n.Magnitude();
+        if (l < 1e-10f)
+            return p_segment[0]; // both points are the same, just give any
+        n *= 1.0f / l;
+
+        float d = n.Dot(p);
+
+        if (d <= 0.0f)
+            return p_segment[0]; // before first point
+        else if (d >= l)
+            return p_segment[1]; // after first point
+        else
+            return p_segment[0] + n * d; // inside
+    }
+
     Vector2 Navigation2D::GetClosestPoint(const Vector2& p_point)
     {
         Vector2 closest_point = Vector2();
+        float closest_point_d = 1e20f;
+
+        for (auto& E : m_navpoly_map)
+        {
+            if (!E.second.linked)
+                continue;
+            for (auto& F : E.second.polygons)
+            {
+                Polygon& p = F;
+                for (int i = 2; i < (int) p.edges.size(); i++)
+                {
+                    if (is_point_in_triangle(p_point, this->GetVertex(p.edges[0].point), this->GetVertex(p.edges[i - 1].point), this->GetVertex(p.edges[i].point)))
+                    {
+                        return p_point; //inside triangle, nothing else to discuss
+                    }
+                }
+            }
+        }
+
+        for (auto& E : m_navpoly_map)
+        {
+            if (!E.second.linked)
+                continue;
+            for (auto& F : E.second.polygons)
+            {
+                Polygon& p = F;
+                int es = (int) p.edges.size();
+                for (int i = 0; i < es; i++)
+                {
+                    Vector2 edge[2] = {
+                        this->GetVertex(p.edges[i].point),
+                        this->GetVertex(p.edges[(i + 1) % es].point)
+                    };
+
+                    Vector2 spoint = get_closest_point_to_segment_2d(p_point, edge);
+                    float d = (spoint - p_point).SqrMagnitude();
+                    if (d < closest_point_d)
+                    {
+                        closest_point = spoint;
+                        closest_point_d = d;
+                    }
+                }
+            }
+        }
 
         return closest_point;
     }
@@ -243,12 +321,445 @@ namespace Viry3D
     Node* Navigation2D::GetClosestPointOwner(const Vector2& p_point)
     {
         Node* owner = nullptr;
+        Vector2 closest_point = Vector2();
+        float closest_point_d = 1e20f;
+
+        for (auto& E : m_navpoly_map)
+        {
+            if (!E.second.linked)
+                continue;
+            for (auto& F : E.second.polygons)
+            {
+                Polygon& p = F;
+                for (int i = 2; i < (int) p.edges.size(); i++)
+                {
+                    if (is_point_in_triangle(p_point, this->GetVertex(p.edges[0].point), this->GetVertex(p.edges[i - 1].point), this->GetVertex(p.edges[i].point)))
+                    {
+                        return E.second.owner;
+                    }
+                }
+            }
+        }
+
+        for (auto& E : m_navpoly_map)
+        {
+            if (!E.second.linked)
+                continue;
+            for (auto& F : E.second.polygons)
+            {
+                Polygon& p = F;
+                int es = (int) p.edges.size();
+                for (int i = 0; i < es; i++)
+                {
+                    Vector2 edge[2] = {
+                        this->GetVertex(p.edges[i].point),
+                        this->GetVertex(p.edges[(i + 1) % es].point)
+                    };
+
+                    Vector2 spoint = get_closest_point_to_segment_2d(p_point, edge);
+                    float d = (spoint - p_point).SqrMagnitude();
+                    if (d < closest_point_d)
+                    {
+                        closest_point = spoint;
+                        closest_point_d = d;
+                        owner = E.second.owner;
+                    }
+                }
+            }
+        }
 
         return owner;
     }
 
     std::vector<Vector2> Navigation2D::GetSimplePath(const Vector2& p_start, const Vector2& p_end, bool p_optimize)
     {
+        Polygon* begin_poly = nullptr;
+        Polygon* end_poly = nullptr;
+        Vector2 begin_point;
+        Vector2 end_point;
+        float begin_d = 1e20f;
+        float end_d = 1e20f;
+
+        //look for point inside triangle
+
+        for (auto& E : m_navpoly_map)
+        {
+            if (!E.second.linked)
+                continue;
+            for (auto& F : E.second.polygons)
+            {
+                Polygon& p = F;
+                if (begin_d || end_d)
+                {
+                    for (int i = 2; i < (int) p.edges.size(); i++)
+                    {
+                        if (begin_d > 0)
+                        {
+                            if (is_point_in_triangle(p_start, this->GetVertex(p.edges[0].point), this->GetVertex(p.edges[i - 1].point), this->GetVertex(p.edges[i].point)))
+                            {
+                                begin_poly = &p;
+                                begin_point = p_start;
+                                begin_d = 0;
+                                if (end_d == 0)
+                                    break;
+                            }
+                        }
+
+                        if (end_d > 0)
+                        {
+                            if (is_point_in_triangle(p_end, this->GetVertex(p.edges[0].point), this->GetVertex(p.edges[i - 1].point), this->GetVertex(p.edges[i].point)))
+                            {
+                                end_poly = &p;
+                                end_point = p_end;
+                                end_d = 0;
+                                if (begin_d == 0)
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                p.prev_edge = -1;
+            }
+        }
+
+        //start or end not inside triangle.. look for closest segment :|
+        if (begin_d || end_d)
+        {
+            for (auto& E : m_navpoly_map)
+            {
+                if (!E.second.linked)
+                    continue;
+                for (auto& F : E.second.polygons)
+                {
+                    Polygon& p = F;
+                    int es = (int) p.edges.size();
+                    for (int i = 0; i < es; i++)
+                    {
+                        Vector2 edge[2] = {
+                            this->GetVertex(p.edges[i].point),
+                            this->GetVertex(p.edges[(i + 1) % es].point)
+                        };
+
+                        if (begin_d > 0)
+                        {
+                            Vector2 spoint = get_closest_point_to_segment_2d(p_start, edge);
+                            float d = (spoint - p_start).SqrMagnitude();
+                            if (d < begin_d)
+                            {
+                                begin_poly = &p;
+                                begin_point = spoint;
+                                begin_d = d;
+                            }
+                        }
+
+                        if (end_d > 0)
+                        {
+                            Vector2 spoint = get_closest_point_to_segment_2d(p_end, edge);
+                            float d = (spoint - p_end).SqrMagnitude();
+                            if (d < end_d)
+                            {
+                                end_poly = &p;
+                                end_point = spoint;
+                                end_d = d;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!begin_poly || !end_poly)
+        {
+            return std::vector<Vector2>(); //no path
+        }
+
+        if (begin_poly == end_poly)
+        {
+            std::vector<Vector2> path;
+            path.resize(2);
+            path[0] = begin_point;
+            path[1] = end_point;
+            return path;
+        }
+
+        bool found_route = false;
+
+        std::list<Polygon*> open_list;
+
+        begin_poly->entry = p_start;
+
+        for (int i = 0; i < (int) begin_poly->edges.size(); i++)
+        {
+            if (begin_poly->edges[i].C)
+            {
+                begin_poly->edges[i].C->prev_edge = begin_poly->edges[i].C_edge;
+#ifdef USE_ENTRY_POINT
+                Vector2 edge[2] = {
+                    this->GetVertex(begin_poly->edges[i].point),
+                    this->GetVertex(begin_poly->edges[(i + 1) % begin_poly->edges.size()].point)
+                };
+
+                Vector2 entry = get_closest_point_to_segment_2d(begin_poly->entry, edge);
+                begin_poly->edges[i].C->distance = (begin_poly->entry - entry).Magnitude();
+                begin_poly->edges[i].C->entry = entry;
+#else
+                begin_poly->edges[i].C->distance = (begin_poly->center - begin_poly->edges[i].C->center).Magnitude();
+#endif
+                open_list.push_back(begin_poly->edges[i].C);
+
+                if (begin_poly->edges[i].C == end_poly)
+                {
+                    found_route = true;
+                }
+            }
+        }
+
+        while (!found_route)
+        {
+            if (open_list.size() == 0)
+            {
+                break;
+            }
+            //check open list
+
+            Polygon* least_cost_poly = nullptr;
+            float least_cost = 1e30f;
+
+            //this could be faster (cache previous results)
+            for (auto& E : open_list)
+            {
+                Polygon* p = E;
+
+                float cost = p->distance;
+
+#ifdef USE_ENTRY_POINT
+                int es = (int) p->edges.size();
+
+                float shortest_distance = 1e30f;
+
+                for (int i = 0; i < es; i++)
+                {
+                    Polygon::Edge& e = p->edges[i];
+
+                    if (!e.C)
+                        continue;
+
+                    Vector2 edge[2] = {
+                        this->GetVertex(p->edges[i].point),
+                        this->GetVertex(p->edges[(i + 1) % es].point)
+                    };
+
+                    Vector2 edge_point = get_closest_point_to_segment_2d(p->entry, edge);
+                    float dist = (p->entry - edge_point).Magnitude();
+                    if (dist < shortest_distance)
+                        shortest_distance = dist;
+                }
+
+                cost += shortest_distance;
+#else
+                cost += (p->center - end_point).Magnitude();
+#endif
+                if (cost < least_cost)
+                {
+                    least_cost_poly = E;
+                    least_cost = cost;
+                }
+            }
+
+            Polygon* p = least_cost_poly;
+            //open the neighbours for search
+            int es = (int) p->edges.size();
+
+            for (int i = 0; i < es; i++)
+            {
+                Polygon::Edge& e = p->edges[i];
+
+                if (!e.C)
+                    continue;
+
+#ifdef USE_ENTRY_POINT
+                Vector2 edge[2] = {
+                    this->GetVertex(p->edges[i].point),
+                    this->GetVertex(p->edges[(i + 1) % es].point)
+                };
+
+                Vector2 edge_entry = get_closest_point_to_segment_2d(p->entry, edge);
+                float distance = (p->entry - edge_entry).Magnitude() + p->distance;
+#else
+                float distance = (p->center - e.C->center).Magnitude() + p->distance;
+#endif
+
+                if (e.C->prev_edge != -1)
+                {
+                    //oh this was visited already, can we win the cost?
+
+                    if (e.C->distance > distance)
+                    {
+                        e.C->prev_edge = e.C_edge;
+                        e.C->distance = distance;
+#ifdef USE_ENTRY_POINT
+                        e.C->entry = edge_entry;
+#endif
+                    }
+                }
+                else
+                {
+                    //add to open neighbours
+
+                    e.C->prev_edge = e.C_edge;
+                    e.C->distance = distance;
+#ifdef USE_ENTRY_POINT
+                    e.C->entry = edge_entry;
+#endif
+
+                    open_list.push_back(e.C);
+
+                    if (e.C == end_poly)
+                    {
+                        //oh my reached end! stop algorithm
+                        found_route = true;
+                        break;
+                    }
+                }
+            }
+
+            if (found_route)
+                break;
+
+            open_list.remove(least_cost_poly);
+        }
+
+        if (found_route)
+        {
+            std::vector<Vector2> path;
+
+            if (p_optimize)
+            {
+                //string pulling
+
+                Vector2 apex_point = end_point;
+                Vector2 portal_left = apex_point;
+                Vector2 portal_right = apex_point;
+                Polygon* left_poly = end_poly;
+                Polygon* right_poly = end_poly;
+                Polygon* p = end_poly;
+
+                while (p)
+                {
+                    Vector2 left;
+                    Vector2 right;
+
+#define CLOCK_TANGENT(m_a, m_b, m_c) ((((m_a).x - (m_c).x) * ((m_b).y - (m_c).y) - ((m_b).x - (m_c).x) * ((m_a).y - (m_c).y)))
+
+                    if (p == begin_poly)
+                    {
+                        left = begin_point;
+                        right = begin_point;
+                    }
+                    else
+                    {
+                        int prev = p->prev_edge;
+                        int prev_n = (p->prev_edge + 1) % p->edges.size();
+                        left = this->GetVertex(p->edges[prev].point);
+                        right = this->GetVertex(p->edges[prev_n].point);
+
+                        if (p->clockwise)
+                        {
+                            std::swap(left, right);
+                        }
+                    }
+
+                    bool skip = false;
+
+                    if (CLOCK_TANGENT(apex_point, portal_left, left) >= 0)
+                    {
+                        //process
+                        if ((portal_left - apex_point).Magnitude() < CMP_EPSILON || CLOCK_TANGENT(apex_point, left, portal_right) > 0)
+                        {
+                            left_poly = p;
+                            portal_left = left;
+                        }
+                        else
+                        {
+                            apex_point = portal_right;
+                            p = right_poly;
+                            left_poly = p;
+                            portal_left = apex_point;
+                            portal_right = apex_point;
+                            if (!path.size() || (path[path.size() - 1] - apex_point).Magnitude() > CMP_EPSILON)
+                                path.push_back(apex_point);
+                            skip = true;
+                        }
+                    }
+
+                    if (!skip && CLOCK_TANGENT(apex_point, portal_right, right) <= 0)
+                    {
+                        //process
+                        if ((portal_right - apex_point).Magnitude() < CMP_EPSILON || CLOCK_TANGENT(apex_point, right, portal_left) < 0)
+                        {
+                            right_poly = p;
+                            portal_right = right;
+                        }
+                        else
+                        {
+                            apex_point = portal_left;
+                            p = left_poly;
+                            right_poly = p;
+                            portal_right = apex_point;
+                            portal_left = apex_point;
+                            if (!path.size() || (path[path.size() - 1] - apex_point).Magnitude() > CMP_EPSILON)
+                                path.push_back(apex_point);
+                        }
+                    }
+
+                    if (p != begin_poly)
+                        p = p->edges[p->prev_edge].C;
+                    else
+                        p = nullptr;
+                }
+
+            }
+            else
+            {
+                //midpoints
+                Polygon* p = end_poly;
+
+                while (true)
+                {
+                    int prev = p->prev_edge;
+                    int prev_n = (p->prev_edge + 1) % p->edges.size();
+                    Vector2 point = (this->GetVertex(p->edges[prev].point) + this->GetVertex(p->edges[prev_n].point)) * 0.5;
+                    path.push_back(point);
+                    p = p->edges[prev].C;
+                    if (p == begin_poly)
+                        break;
+                }
+            }
+
+            if (!path.size() || (path[path.size() - 1] - begin_point).Magnitude() > CMP_EPSILON)
+            {
+                path.push_back(begin_point); // Add the begin point
+            }
+            else
+            {
+                path[path.size() - 1] = begin_point; // Replace first midpoint by the exact begin point
+            }
+
+            std::reverse(path.begin(), path.end());
+
+            if (path.size() <= 1 || (path[path.size() - 1] - end_point).Magnitude() > CMP_EPSILON)
+            {
+                path.push_back(end_point); // Add the end point
+            }
+            else
+            {
+                path[path.size() - 1] = end_point; // Replace last midpoint by the exact end point
+            }
+
+            return path;
+        }
+
         return std::vector<Vector2>();
     }
 }
