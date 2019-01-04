@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include "NavigationPolygon.h"
 #include "math/Vector2.h"
 #include <map>
 #include <list>
@@ -27,7 +26,7 @@
 
 namespace Viry3D
 {
-    class Node;
+    class NavigationPolygon;
 
     struct Transform2D
     {
@@ -160,7 +159,7 @@ namespace Viry3D
 
         struct NavMesh
         {
-            Node* owner;
+            void* owner;
             Transform2D xform;
             bool linked;
             std::shared_ptr<NavigationPolygon> navpoly;
@@ -169,12 +168,12 @@ namespace Viry3D
 
     public:
         Navigation2D();
-        int NavpolyAdd(const std::shared_ptr<NavigationPolygon>& p_mesh, const Transform2D& p_xform, Node* p_owner = nullptr);
+        int NavpolyAdd(const std::shared_ptr<NavigationPolygon>& p_mesh, const Transform2D& p_xform, void* p_owner = nullptr);
         void NavpolySetTransform(int p_id, const Transform2D& p_xform);
         void NavpolyRemove(int p_id);
         std::vector<Vector2> GetSimplePath(const Vector2& p_start, const Vector2& p_end, bool p_optimize = true);
         Vector2 GetClosestPoint(const Vector2& p_point);
-        Node* GetClosestPointOwner(const Vector2& p_point);
+        void* GetClosestPointOwner(const Vector2& p_point);
 
     private:
         inline Point GetPoint(const Vector2& p_pos) const

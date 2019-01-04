@@ -131,12 +131,20 @@ namespace Viry3D
                 SamplerAddressMode::ClampToEdge,
                 false);
 #else
+#if VR_ANDROID
+            auto albedo = Texture::LoadFromKTXFile(
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo_etc2_rgb.ktx",
+                FilterMode::Linear,
+                SamplerAddressMode::Repeat,
+                false);
+#else
             auto albedo = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo.png",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false,
                 false);
+#endif
             auto bump = Texture::LoadTexture2DFromFile(
                 Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/normal.png",
                 FilterMode::Linear,

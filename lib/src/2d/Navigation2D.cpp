@@ -16,10 +16,10 @@
 */
 
 #include "Navigation2D.h"
+#include "NavigationPolygon.h"
 #include <algorithm>
 
 #define USE_ENTRY_POINT
-#define CMP_EPSILON 0.00001f
 
 namespace Viry3D
 {
@@ -30,7 +30,7 @@ namespace Viry3D
 
     }
 
-    int Navigation2D::NavpolyAdd(const std::shared_ptr<NavigationPolygon>& p_mesh, const Transform2D& p_xform, Node* owner)
+    int Navigation2D::NavpolyAdd(const std::shared_ptr<NavigationPolygon>& p_mesh, const Transform2D& p_xform, void* owner)
     {
         int id = m_last_id++;
         NavMesh nm;
@@ -237,17 +237,6 @@ namespace Viry3D
         m_navpoly_map.erase(p_id);
     }
 
-    static bool is_point_in_triangle(const Vector2& s, const Vector2& a, const Vector2& b, const Vector2& c)
-    {
-        Vector2 an = a - s;
-        Vector2 bn = b - s;
-        Vector2 cn = c - s;
-
-        bool orientation = an * bn > 0;
-        if ((bn * cn > 0) != orientation) return false;
-        return (cn * an > 0) == orientation;
-    }
-
     static Vector2 get_closest_point_to_segment_2d(const Vector2& p_point, const Vector2* p_segment)
     {
         Vector2 p = p_point - p_segment[0];
@@ -318,9 +307,9 @@ namespace Viry3D
         return closest_point;
     }
 
-    Node* Navigation2D::GetClosestPointOwner(const Vector2& p_point)
+    void* Navigation2D::GetClosestPointOwner(const Vector2& p_point)
     {
-        Node* owner = nullptr;
+        void* owner = nullptr;
         Vector2 closest_point = Vector2();
         float closest_point_d = 1e20f;
 
