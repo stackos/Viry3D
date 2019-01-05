@@ -100,6 +100,19 @@ namespace Viry3D
         this->MarkCanvasDirty();
     }
 
+    void View::ClearSubviews()
+    {
+        Vector<Ref<View>> subviews;
+        for (int i = 0; i < this->GetSubviewCount(); ++i)
+        {
+            subviews.Add(this->GetSubview(i));
+        }
+        for (int i = 0; i < subviews.Size(); ++i)
+        {
+            this->RemoveSubview(subviews[i]);
+        }
+    }
+
 	void View::SetColor(const Color& color)
 	{
 		m_color = color;

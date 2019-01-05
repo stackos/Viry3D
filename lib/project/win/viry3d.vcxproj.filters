@@ -1005,6 +1005,9 @@
     <ClInclude Include="..\..\src\2d\NavigationPolygon.h">
       <Filter>src\2d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ui\LineView.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\io\File.cpp">
@@ -2395,6 +2398,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\2d\NavigationPolygon.cpp">
       <Filter>src\2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\LineView.cpp">
+      <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

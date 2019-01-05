@@ -289,6 +289,7 @@
     <ClInclude Include="..\..\src\ui\CanvasRenderer.h" />
     <ClInclude Include="..\..\src\ui\Font.h" />
     <ClInclude Include="..\..\src\ui\Label.h" />
+    <ClInclude Include="..\..\src\ui\LineView.h" />
     <ClInclude Include="..\..\src\ui\ScrollView.h" />
     <ClInclude Include="..\..\src\ui\SelectButton.h" />
     <ClInclude Include="..\..\src\ui\Slider.h" />
@@ -702,6 +703,7 @@
     <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp" />
     <ClCompile Include="..\..\src\ui\Font.cpp" />
     <ClCompile Include="..\..\src\ui\Label.cpp" />
+    <ClCompile Include="..\..\src\ui\LineView.cpp" />
     <ClCompile Include="..\..\src\ui\ScrollView.cpp" />
     <ClCompile Include="..\..\src\ui\SelectButton.cpp" />
     <ClCompile Include="..\..\src\ui\Slider.cpp" />

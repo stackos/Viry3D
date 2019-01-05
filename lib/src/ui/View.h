@@ -71,6 +71,7 @@ namespace Viry3D
         CanvasRenderer* GetCanvas() const;
         void AddSubview(const Ref<View>& view);
         void RemoveSubview(const Ref<View>& view);
+        void ClearSubviews();
         int GetSubviewCount() const { return m_subviews.Size(); }
         const Ref<View>& GetSubview(int index) const { return m_subviews[index]; }
         View* GetParentView() const { return m_parent_view; }
