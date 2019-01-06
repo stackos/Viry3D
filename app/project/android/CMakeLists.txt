@@ -391,6 +391,8 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include)
 
 add_library(Viry3D STATIC
+            ${VIRY3D_LIB_SRC_DIR}/2d/Navigation2D.cpp
+            ${VIRY3D_LIB_SRC_DIR}/2d/NavigationPolygon.cpp
             ${VIRY3D_LIB_SRC_DIR}/animation/Animation.cpp
             ${VIRY3D_LIB_SRC_DIR}/animation/AnimationCurve.cpp
             ${VIRY3D_LIB_SRC_DIR}/audio/AudioClip.cpp
@@ -438,6 +440,7 @@ add_library(Viry3D STATIC
             ${VIRY3D_LIB_SRC_DIR}/ui/CanvasRenderer.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Font.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Label.cpp
+            ${VIRY3D_LIB_SRC_DIR}/ui/LineView.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/ScrollView.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/SelectButton.cpp
             ${VIRY3D_LIB_SRC_DIR}/ui/Slider.cpp

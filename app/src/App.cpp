@@ -53,9 +53,16 @@
 
 namespace Viry3D
 {
+    struct DemoEntry
+    {
+        String name;
+        Action entry;
+    };
+
     class AppImplement
     {
     private:
+        Vector<DemoEntry> m_demo_entries;
         Camera* m_camera = nullptr;
         Demo* m_demo = nullptr;
         Sprite* m_touch_cursor = nullptr;
@@ -92,54 +99,60 @@ namespace Viry3D
             m_scroll->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
             m_scroll->SetOffset(Vector2i(0, 0));
 
-            Vector<String> titles({
-                "Mesh",
-                "SkinnedMesh",
-                "Skybox",
-                "RenderToTexture",
-                "FXAA",
-                "MSAA",
-                "PostEffectBlur",
-                "UI",
-                "ShadowMap",
-                "Audio",
-                "AR",
-                "Instancing",
-                "Lightmap",
-                "Deferred Shading & SSAO",
-                "VR",
-                "ComputeStorageImage",
-                "ComputeStorageBuffer",
-                "ComputeTexelBuffer",
-                "PBR",
-                "Navigation2D"
-                });
+            m_demo_entries = {
+                { "Mesh", [this]() { m_demo = new DemoMesh(); } },
+                { "SkinnedMesh", [this]() { m_demo = new DemoSkinnedMesh(); } },
+                { "ShadowMap", [this]() { m_demo = new DemoShadowMap(); } },
+                { "Skybox", [this]() { m_demo = new DemoSkybox(); } },
+                { "RenderToTexture", [this]() { m_demo = new DemoRenderToTexture(); } },
+                { "PostEffectBlur", [this]() { m_demo = new DemoPostEffectBlur(); } },
+                { "FXAA", [this]() { m_demo = new DemoFXAA(); } },
+                { "MSAA", [this]() { m_demo = new DemoMSAA(); } },
+                { "UI", [this]() { m_demo = new DemoUI(); } },
+                { "Navigation2D", [this]() { m_demo = new DemoNavigation2D(); } },
+                { "Audio", [this]() { m_demo = new DemoAudio(); } },
+#if VR_IOS
+                { "AR", [this]() { m_demo = new DemoAR(); } },
+#endif
+#if VR_VULKAN
+                { "Instancing", [this]() { m_demo = new DemoInstancing(); } },
+                { "Lightmap", [this]() { m_demo = new DemoLightmap(); } },
+                { "SSAO", [this]() { m_demo = new DemoSSAO(); } },
+                { "VR", [this]() { m_demo = new DemoVR(); } },
+                { "ComputeStorageImage", [this]() { m_demo = new DemoComputeStorageImage(); } },
+                { "ComputeStorageBuffer", [this]() { m_demo = new DemoComputeStorageBuffer(); } },
+                { "ComputeTexelBuffer", [this]() { m_demo = new DemoComputeTexelBuffer(); } },
+                { "PBR", [this]() { m_demo = new DemoPBR(); } },
+#endif
+            };
 
             const int top = (int) (90 * UI_SCALE);
             const int button_height = (int) (160 * UI_SCALE);
             const int button_space = 2;
             const int font_size = (int) (40 * UI_SCALE);
-            const int content_height = top + (button_height + button_space) * titles.Size();
+            const int content_height = top + (button_height + button_space) * m_demo_entries.Size();
 
             m_scroll->SetContentViewSize(Vector2i(VIEW_SIZE_FILL_PARENT, content_height));
 
-            for (int i = 0; i < titles.Size(); ++i)
+            for (int i = 0; i < m_demo_entries.Size(); ++i)
             {
+                const String& name = m_demo_entries[i].name;
+
                 auto button = RefMake<Button>();
                 m_scroll->GetContentView()->AddSubview(button);
 
                 button->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, button_height));
                 button->SetAlignment(ViewAlignment::HCenter | ViewAlignment::Top);
                 button->SetPivot(Vector2(0.5f, 0));
-                button->SetOffset(Vector2i(0, top + (titles.Size() - 1 - i) * (button_height + button_space)));
-                button->GetLabel()->SetText(titles[i]);
+                button->SetOffset(Vector2i(0, top + (m_demo_entries.Size() - 1 - i) * (button_height + button_space)));
+                button->GetLabel()->SetText(name);
                 button->GetLabel()->SetFontSize(font_size);
                 button->SetOnClick([=]() { this->ClickDemo(i); });
 
                 bool disabled = false;
 
 #if VR_GLES
-                if (i == 4)
+                if (name == "FXAA")
                 {
                     // MARK:
                     // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
@@ -161,21 +174,14 @@ namespace Viry3D
                 // need gles3
                 if (!Display::Instance()->IsGLESv3())
                 {
-                    if (i == 5)
+                    if (name == "MSAA")
                     {
                         disabled = true;
-                        button->GetLabel()->SetText(button->GetLabel()->GetText() + " (disabled on gles2)");
+                        button->GetLabel()->SetText("MSAA (disabled on gles2)");
                     }
                 }
-
-                // vulkan only
-                if (i >= 11)
-                {
-                    disabled = true;
-                    button->GetLabel()->SetText(button->GetLabel()->GetText() + " (implement in vulkan only)");
-                }
 #elif VR_VULKAN
-                if (i == 14)
+                if (name == "VR")
                 {
                     disabled = !Display::Instance()->IsSupportMultiview();
                     if (disabled)
@@ -183,7 +189,7 @@ namespace Viry3D
                         button->GetLabel()->SetText("VR (require VK_KHR_multiview extension)");
                     }
                 }
-                else if (i == 17)
+                else if (name == "ComputeTexelBuffer")
                 {
 #if VR_MAC || VR_IOS
                     disabled = true;
@@ -192,18 +198,16 @@ namespace Viry3D
                 }
 #endif
 
-                if (i == 10)
-                {
 #if VR_IOS
+                if (name == "AR")
+                {
                     disabled = !ARScene::IsSupported();
-#else
-                    disabled = true;
-#endif
                     if (disabled)
                     {
                         button->GetLabel()->SetText("AR (require ARKit)");
                     }
                 }
+#endif
 
                 if (disabled)
                 {
@@ -215,73 +219,7 @@ namespace Viry3D
 
         void ClickDemo(int index)
         {
-            switch (index)
-            {
-                case 0:
-                    m_demo = new DemoMesh();
-                    break;
-                case 1:
-                    m_demo = new DemoSkinnedMesh();
-                    break;
-                case 2:
-                    m_demo = new DemoSkybox();
-                    break;
-                case 3:
-                    m_demo = new DemoRenderToTexture();
-                    break;
-                case 4:
-                    m_demo = new DemoFXAA();
-                    break;
-                case 5:
-                    m_demo = new DemoMSAA();
-                    break;
-                case 6:
-                    m_demo = new DemoPostEffectBlur();
-                    break;
-                case 7:
-                    m_demo = new DemoUI();
-                    break;
-                case 8:
-                    m_demo = new DemoShadowMap();
-                    break;
-                case 9:
-                    m_demo = new DemoAudio();
-                    break;
-                case 10:
-#if VR_IOS
-                    m_demo = new DemoAR();
-#endif
-                    break;
-                case 11:
-                    m_demo = new DemoInstancing();
-                    break;
-                case 12:
-                    m_demo = new DemoLightmap();
-                    break;
-                case 13:
-                    m_demo = new DemoSSAO();
-                    break;
-                case 14:
-                    m_demo = new DemoVR();
-                    break;
-                case 15:
-                    m_demo = new DemoComputeStorageImage();
-                    break;
-                case 16:
-                    m_demo = new DemoComputeStorageBuffer();
-                    break;
-                case 17:
-                    m_demo = new DemoComputeTexelBuffer();
-                    break;
-                case 18:
-                    m_demo = new DemoPBR();
-                    break;
-                case 19:
-                    m_demo = new DemoNavigation2D();
-                    break;
-                default:
-                    break;
-            }
+            m_demo_entries[index].entry();
 
             if (m_demo)
             {

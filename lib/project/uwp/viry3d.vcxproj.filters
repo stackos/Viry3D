@@ -124,6 +124,9 @@
     <Filter Include="src\jsoncpp\src\lib_json">
       <UniqueIdentifier>{15af40fd-e2d6-421f-b5d2-9acd1f5e44a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\2d">
+      <UniqueIdentifier>{5332511d-fc2a-4923-85e9-6f83b1aa6cf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\container\List.h">
@@ -950,6 +953,15 @@
     </ClInclude>
     <ClInclude Include="..\..\src\jsoncpp\src\lib_json\json_tool.h">
       <Filter>src\jsoncpp\src\lib_json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\2d\Navigation2D.h">
+      <Filter>src\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\2d\NavigationPolygon.h">
+      <Filter>src\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\LineView.h">
+      <Filter>src\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2191,6 +2203,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\jsoncpp\src\lib_json\json_writer.cpp">
       <Filter>src\jsoncpp\src\lib_json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\2d\Navigation2D.cpp">
+      <Filter>src\2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\2d\NavigationPolygon.cpp">
+      <Filter>src\2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\LineView.cpp">
+      <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

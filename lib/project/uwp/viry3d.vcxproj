@@ -39,6 +39,8 @@
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
   </PropertyGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\2d\Navigation2D.h" />
+    <ClInclude Include="..\..\src\2d\NavigationPolygon.h" />
     <ClInclude Include="..\..\src\Action.h" />
     <ClInclude Include="..\..\src\android\jni.h" />
     <ClInclude Include="..\..\src\animation\Animation.h" />
@@ -307,6 +309,7 @@
     <ClInclude Include="..\..\src\ui\CanvasRenderer.h" />
     <ClInclude Include="..\..\src\ui\Font.h" />
     <ClInclude Include="..\..\src\ui\Label.h" />
+    <ClInclude Include="..\..\src\ui\LineView.h" />
     <ClInclude Include="..\..\src\ui\ScrollView.h" />
     <ClInclude Include="..\..\src\ui\SelectButton.h" />
     <ClInclude Include="..\..\src\ui\Slider.h" />
@@ -316,6 +319,8 @@
     <ClInclude Include="..\..\src\xml\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\2d\Navigation2D.cpp" />
+    <ClCompile Include="..\..\src\2d\NavigationPolygon.cpp" />
     <ClCompile Include="..\..\src\animation\Animation.cpp" />
     <ClCompile Include="..\..\src\animation\AnimationCurve.cpp" />
     <ClCompile Include="..\..\src\Application.cpp" />
@@ -705,6 +710,7 @@
     <ClCompile Include="..\..\src\ui\CanvasRenderer.cpp" />
     <ClCompile Include="..\..\src\ui\Font.cpp" />
     <ClCompile Include="..\..\src\ui\Label.cpp" />
+    <ClCompile Include="..\..\src\ui\LineView.cpp" />
     <ClCompile Include="..\..\src\ui\ScrollView.cpp" />
     <ClCompile Include="..\..\src\ui\SelectButton.cpp" />
     <ClCompile Include="..\..\src\ui\Slider.cpp" />
