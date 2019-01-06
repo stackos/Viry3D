@@ -245,7 +245,7 @@ API_AVAILABLE(ios(11.0))
     }
     else
     {
-        m_texture_y->UpdateTexture2D(buffer, 0, 0, width, height);
+        m_texture_y->UpdateTexture2D(buffer, 0, 0, width, height, 0);
     }
     
     width = (int) CVPixelBufferGetWidthOfPlane(pixel_buffer, 1);
@@ -268,7 +268,7 @@ API_AVAILABLE(ios(11.0))
     }
     else
     {
-        m_texture_uv->UpdateTexture2D(buffer, 0, 0, width, height);
+        m_texture_uv->UpdateTexture2D(buffer, 0, 0, width, height, 0);
     }
     
     CVPixelBufferUnlockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);

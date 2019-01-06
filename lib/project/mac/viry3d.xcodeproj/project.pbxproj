@@ -310,6 +310,9 @@
 		BA4FAC181FBB558500C1ADB7 /* btVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4FAB971FBB54E400C1ADB7 /* btVector3.cpp */; };
 		BA66598C2157FE08009822E7 /* ScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA66598A2157FE08009822E7 /* ScrollView.cpp */; };
 		BA77475B21C01CA200C5E710 /* Computer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA77475A21C01CA200C5E710 /* Computer.cpp */; };
+		BA785DFC21E1BFE80066C54F /* LineView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA785DFB21E1BFE80066C54F /* LineView.cpp */; };
+		BA785E0221E1C0000066C54F /* Navigation2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA785DFE21E1C0000066C54F /* Navigation2D.cpp */; };
+		BA785E0321E1C0000066C54F /* NavigationPolygon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA785E0121E1C0000066C54F /* NavigationPolygon.cpp */; };
 		BA8AA36F2005213500B7FDC2 /* lpprint.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3642005213500B7FDC2 /* lpprint.c */; };
 		BA8AA3702005213500B7FDC2 /* lpvm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3652005213500B7FDC2 /* lpvm.c */; };
 		BA8AA3712005213500B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA3672005213500B7FDC2 /* lpcap.c */; };
@@ -884,6 +887,12 @@
 		BA66598B2157FE08009822E7 /* ScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollView.h; sourceTree = "<group>"; };
 		BA77475921C01CA100C5E710 /* Computer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Computer.h; sourceTree = "<group>"; };
 		BA77475A21C01CA200C5E710 /* Computer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Computer.cpp; sourceTree = "<group>"; };
+		BA785DFA21E1BFE80066C54F /* LineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineView.h; sourceTree = "<group>"; };
+		BA785DFB21E1BFE80066C54F /* LineView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineView.cpp; sourceTree = "<group>"; };
+		BA785DFE21E1C0000066C54F /* Navigation2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Navigation2D.cpp; sourceTree = "<group>"; };
+		BA785DFF21E1C0000066C54F /* NavigationPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationPolygon.h; sourceTree = "<group>"; };
+		BA785E0021E1C0000066C54F /* Navigation2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Navigation2D.h; sourceTree = "<group>"; };
+		BA785E0121E1C0000066C54F /* NavigationPolygon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavigationPolygon.cpp; sourceTree = "<group>"; };
 		BA8AA3642005213500B7FDC2 /* lpprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpprint.c; sourceTree = "<group>"; };
 		BA8AA3652005213500B7FDC2 /* lpvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpvm.c; sourceTree = "<group>"; };
 		BA8AA3662005213500B7FDC2 /* lptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptypes.h; sourceTree = "<group>"; };
@@ -1135,6 +1144,7 @@
 		1B0EEB9E6B981ACB2432F745 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				BA785DFD21E1C0000066C54F /* 2d */,
 				BAB2430C21204F5A00BA07DE /* animation */,
 				BAED9339215026F4002D2856 /* audio */,
 				BA2800671F69A45900215483 /* crypto */,
@@ -1314,6 +1324,8 @@
 				D1D42A39211156340016A265 /* Font.h */,
 				D1D42A35211156340016A265 /* Label.cpp */,
 				D1D42A3D211156350016A265 /* Label.h */,
+				BA785DFB21E1BFE80066C54F /* LineView.cpp */,
+				BA785DFA21E1BFE80066C54F /* LineView.h */,
 				BA66598A2157FE08009822E7 /* ScrollView.cpp */,
 				BA66598B2157FE08009822E7 /* ScrollView.h */,
 				BA1DC66D218571230005A687 /* SelectButton.cpp */,
@@ -2011,6 +2023,17 @@
 			path = LinearMath;
 			sourceTree = "<group>";
 		};
+		BA785DFD21E1C0000066C54F /* 2d */ = {
+			isa = PBXGroup;
+			children = (
+				BA785DFE21E1C0000066C54F /* Navigation2D.cpp */,
+				BA785DFF21E1C0000066C54F /* NavigationPolygon.h */,
+				BA785E0021E1C0000066C54F /* Navigation2D.h */,
+				BA785E0121E1C0000066C54F /* NavigationPolygon.cpp */,
+			);
+			path = 2d;
+			sourceTree = "<group>";
+		};
 		BA8AA3632005213500B7FDC2 /* lpeg */ = {
 			isa = PBXGroup;
 			children = (
@@ -2477,11 +2500,13 @@
 				BA2800CD1F69A59F00215483 /* exponent.cpp in Sources */,
 				56BCD29FE6F9EC7713B4028F /* cff.c in Sources */,
 				BE23953337BFCC13007C42B8 /* type1cid.c in Sources */,
+				BA785E0321E1C0000066C54F /* NavigationPolygon.cpp in Sources */,
 				DC7C3BD7628F21ED9C20713F /* ftgzip.c in Sources */,
 				0AECC1954DFFE63D9665F807 /* ftlzw.c in Sources */,
 				BA77475B21C01CA200C5E710 /* Computer.cpp in Sources */,
 				EFA6582520CB34E96101DF3C /* pcf.c in Sources */,
 				D1D42A42211156350016A265 /* View.cpp in Sources */,
+				BA785E0221E1C0000066C54F /* Navigation2D.cpp in Sources */,
 				BA42E61E1FF54251009C3C01 /* ltm.c in Sources */,
 				BA42E6131FF54251009C3C01 /* lutf8lib.c in Sources */,
 				4B28A7BFE0BACC1931D1D675 /* pfr.c in Sources */,
@@ -2587,6 +2612,7 @@
 				0F8F7B2908791413BDA780EB /* latin1.c in Sources */,
 				4B081B1280FD0D7E9CED6204 /* parse.c in Sources */,
 				5AC98A403C55683058EDD8E5 /* render.c in Sources */,
+				BA785DFC21E1BFE80066C54F /* LineView.cpp in Sources */,
 				5B66E1A914BC5D30A88B6AFE /* tag.c in Sources */,
 				C8D3D80DDCFDEFE5E72BA2C8 /* ucs4.c in Sources */,
 				738B3AE9BDE8EB6EEE27CF36 /* utf8.c in Sources */,

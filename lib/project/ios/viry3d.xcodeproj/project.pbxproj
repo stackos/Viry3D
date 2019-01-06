@@ -312,6 +312,9 @@
 		BA4551CE21404CEC003188B1 /* ARScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA4551CD21404CEC003188B1 /* ARScene.mm */; };
 		BA6659902157FE7A009822E7 /* ScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA66598E2157FE7A009822E7 /* ScrollView.cpp */; };
 		BA77475F21C01D9100C5E710 /* Computer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA77475E21C01D9000C5E710 /* Computer.cpp */; };
+		BA785E0721E1C5290066C54F /* LineView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA785E0621E1C5280066C54F /* LineView.cpp */; };
+		BA785E0D21E1C5390066C54F /* Navigation2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA785E0921E1C5380066C54F /* Navigation2D.cpp */; };
+		BA785E0E21E1C5390066C54F /* NavigationPolygon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA785E0C21E1C5380066C54F /* NavigationPolygon.cpp */; };
 		BA8AA381200523BD00B7FDC2 /* lpprint.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA376200523BC00B7FDC2 /* lpprint.c */; };
 		BA8AA382200523BD00B7FDC2 /* lpvm.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA377200523BC00B7FDC2 /* lpvm.c */; };
 		BA8AA383200523BD00B7FDC2 /* lpcap.c in Sources */ = {isa = PBXBuildFile; fileRef = BA8AA379200523BC00B7FDC2 /* lpcap.c */; };
@@ -890,6 +893,12 @@
 		BA66598F2157FE7A009822E7 /* ScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollView.h; sourceTree = "<group>"; };
 		BA77475D21C01D9000C5E710 /* Computer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Computer.h; sourceTree = "<group>"; };
 		BA77475E21C01D9000C5E710 /* Computer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Computer.cpp; sourceTree = "<group>"; };
+		BA785E0521E1C5280066C54F /* LineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineView.h; sourceTree = "<group>"; };
+		BA785E0621E1C5280066C54F /* LineView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineView.cpp; sourceTree = "<group>"; };
+		BA785E0921E1C5380066C54F /* Navigation2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Navigation2D.cpp; sourceTree = "<group>"; };
+		BA785E0A21E1C5380066C54F /* NavigationPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationPolygon.h; sourceTree = "<group>"; };
+		BA785E0B21E1C5380066C54F /* Navigation2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Navigation2D.h; sourceTree = "<group>"; };
+		BA785E0C21E1C5380066C54F /* NavigationPolygon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavigationPolygon.cpp; sourceTree = "<group>"; };
 		BA8AA376200523BC00B7FDC2 /* lpprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpprint.c; sourceTree = "<group>"; };
 		BA8AA377200523BC00B7FDC2 /* lpvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpvm.c; sourceTree = "<group>"; };
 		BA8AA378200523BC00B7FDC2 /* lptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lptypes.h; sourceTree = "<group>"; };
@@ -1139,6 +1148,7 @@
 		1B0EEB9E6B981ACB2432F745 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				BA785E0821E1C5380066C54F /* 2d */,
 				BAB243232120ACE300BA07DE /* animation */,
 				D12113AA2150FED100D20456 /* audio */,
 				2C82477E194A5A54681047AB /* container */,
@@ -1319,6 +1329,8 @@
 				D137756A20FEE03000E4F19B /* Font.h */,
 				D137756520FEE03000E4F19B /* Label.cpp */,
 				D137756920FEE03000E4F19B /* Label.h */,
+				BA785E0621E1C5280066C54F /* LineView.cpp */,
+				BA785E0521E1C5280066C54F /* LineView.h */,
 				BA66598E2157FE7A009822E7 /* ScrollView.cpp */,
 				BA66598F2157FE7A009822E7 /* ScrollView.h */,
 				BA1DC67A218575B10005A687 /* SelectButton.cpp */,
@@ -2034,6 +2046,17 @@
 			path = ios;
 			sourceTree = "<group>";
 		};
+		BA785E0821E1C5380066C54F /* 2d */ = {
+			isa = PBXGroup;
+			children = (
+				BA785E0921E1C5380066C54F /* Navigation2D.cpp */,
+				BA785E0A21E1C5380066C54F /* NavigationPolygon.h */,
+				BA785E0B21E1C5380066C54F /* Navigation2D.h */,
+				BA785E0C21E1C5380066C54F /* NavigationPolygon.cpp */,
+			);
+			path = 2d;
+			sourceTree = "<group>";
+		};
 		BA8AA375200523BC00B7FDC2 /* lpeg */ = {
 			isa = PBXGroup;
 			children = (
@@ -2336,6 +2359,7 @@
 				BA1794DC1FBB594000D0B77E /* btOverlappingPairCache.cpp in Sources */,
 				BA1794DD1FBB594000D0B77E /* btQuantizedBvh.cpp in Sources */,
 				BA1794DE1FBB594000D0B77E /* btSimpleBroadphase.cpp in Sources */,
+				BA785E0D21E1C5390066C54F /* Navigation2D.cpp in Sources */,
 				BA1794DF1FBB594000D0B77E /* btActivatingCollisionAlgorithm.cpp in Sources */,
 				BA1794E01FBB594000D0B77E /* btBox2dBox2dCollisionAlgorithm.cpp in Sources */,
 				BA1794E11FBB594000D0B77E /* btBoxBoxCollisionAlgorithm.cpp in Sources */,
@@ -2360,6 +2384,7 @@
 				BA1794F21FBB594000D0B77E /* btManifoldResult.cpp in Sources */,
 				BA1794F31FBB594000D0B77E /* btSimulationIslandManager.cpp in Sources */,
 				BA1794F41FBB594000D0B77E /* btSphereBoxCollisionAlgorithm.cpp in Sources */,
+				BA785E0E21E1C5390066C54F /* NavigationPolygon.cpp in Sources */,
 				BA1794F51FBB594000D0B77E /* btSphereSphereCollisionAlgorithm.cpp in Sources */,
 				BA1794F61FBB594000D0B77E /* btSphereTriangleCollisionAlgorithm.cpp in Sources */,
 				D137757120FEE03100E4F19B /* Label.cpp in Sources */,
@@ -2436,6 +2461,7 @@
 				BA1795321FBB594000D0B77E /* btHingeConstraint.cpp in Sources */,
 				BA1795331FBB594000D0B77E /* btNNCGConstraintSolver.cpp in Sources */,
 				BA1795341FBB594000D0B77E /* btPoint2PointConstraint.cpp in Sources */,
+				BA785E0721E1C5290066C54F /* LineView.cpp in Sources */,
 				BA1795351FBB594000D0B77E /* btSequentialImpulseConstraintSolver.cpp in Sources */,
 				D137755D20FEDFD800E4F19B /* Camera.cpp in Sources */,
 				BA1795361FBB594000D0B77E /* btSliderConstraint.cpp in Sources */,
