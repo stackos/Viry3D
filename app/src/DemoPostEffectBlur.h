@@ -199,16 +199,18 @@ void main()
                 // color2 -> color3, h blur
                 auto material_h = RefMake<Material>(shader);
                 material_h->SetVector("u_texel_size", Vector4(1.0f / width * m_texel_offset * (1.0f + i * m_iter_step), 0, 0, 0));
+                material_h->SetTexture("u_texture", color_texture_2);
 
-                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_2, material_h);
+                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, material_h);
                 blit_color_camera->SetRenderTarget(color_texture_3, Ref<Texture>());
                 m_blit_cameras.Add(blit_color_camera);
 
                 // color3 -> color2, v blur
                 auto material_v = RefMake<Material>(shader);
                 material_v->SetVector("u_texel_size", Vector4(0, 1.0f / height * m_texel_offset * (1.0f + i * m_iter_step), 0, 0));
+                material_v->SetTexture("u_texture", color_texture_3);
 
-                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, color_texture_3, material_v);
+                blit_color_camera = Display::Instance()->CreateBlitCamera(camera_depth++, material_v);
                 blit_color_camera->SetRenderTarget(color_texture_2, Ref<Texture>());
                 m_blit_cameras.Add(blit_color_camera);
             }

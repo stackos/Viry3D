@@ -249,7 +249,7 @@ void main()
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
 
-            m_ssao_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), ssao_material);
+            m_ssao_camera = Display::Instance()->CreateBlitCamera(1, ssao_material);
             m_ssao_camera->SetRenderTarget(ssao_texture, Ref<Texture>());
 
             // ssao blur
@@ -303,7 +303,7 @@ void main()
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge);
 
-            m_blur_camera = Display::Instance()->CreateBlitCamera(2, Ref<Texture>(), blur_material);
+            m_blur_camera = Display::Instance()->CreateBlitCamera(2, blur_material);
             m_blur_camera->SetRenderTarget(blur_texture, Ref<Texture>());
 
             // composite
@@ -386,7 +386,7 @@ void main()
             composite_material->SetMatrix("u_view", m_camera->GetViewMatrix());
             composite_material->SetLightProperties(m_light);
 
-            m_blit_color_camera = Display::Instance()->CreateBlitCamera(3, Ref<Texture>(), composite_material);
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(3, composite_material);
 
             m_ui_camera->SetDepth(4);
         }

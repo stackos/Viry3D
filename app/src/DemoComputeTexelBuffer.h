@@ -121,7 +121,7 @@ void main()
             material->SetInt("uHeight", 1024);
             material->SetUniformTexelBuffer("uBuffer", m_buffer);
 
-            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), material);
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, material);
 
             m_ui_camera->SetDepth(2);
 #endif

@@ -153,7 +153,7 @@ namespace Viry3D
                 m_shadow_camera->AddRenderer(shadow_mesh);
             }
 
-            m_blit_depth_camera = Display::Instance()->CreateBlitCamera(3, m_shadow_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
+            m_blit_depth_camera = Display::Instance()->CreateBlitCamera(3, m_shadow_texture, CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
         }
 
         void InitShadowReciever()

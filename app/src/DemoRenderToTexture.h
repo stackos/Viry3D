@@ -50,7 +50,7 @@ namespace Viry3D
             m_camera->SetRenderTarget(color_texture, depth_texture);
 
             // depth -> color
-            m_blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, Ref<Material>(), "", CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
+            m_blit_depth_camera = Display::Instance()->CreateBlitCamera(1, depth_texture, CameraClearFlags::Nothing, Rect(0.75f, 0, 0.25f, 0.25f));
             m_blit_depth_camera->SetRenderTarget(color_texture, Ref<Texture>());
 
             // color -> window

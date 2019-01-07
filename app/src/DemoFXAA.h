@@ -205,9 +205,10 @@ void main()
 
             auto material = RefMake<Material>(shader);
             material->SetVector("u_rcp_frame", Vector4(1.0f / Display::Instance()->GetWidth(), 1.0f / Display::Instance()->GetHeight()));
+            material->SetTexture("u_texture", color_texture);
 
             // color -> window
-            m_blit_camera = Display::Instance()->CreateBlitCamera(1, color_texture, material);
+            m_blit_camera = Display::Instance()->CreateBlitCamera(1, material);
 
             m_ui_camera->SetDepth(2);
         }

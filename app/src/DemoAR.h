@@ -206,9 +206,7 @@ void main()
                 
                 m_bg_camera = Display::Instance()->CreateBlitCamera(
                     0,
-                    Ref<Texture>(),
                     m_bg_material,
-                    "",
                     CameraClearFlags::ColorAndDepth);
 
                 m_scene_camera = Display::Instance()->CreateCamera();

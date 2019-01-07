@@ -3904,26 +3904,31 @@ void main()
         return camera.get();
     }
 
-    Camera* Display::CreateBlitCamera(int depth, const Ref<Texture>& texture, const Ref<Material>& material, const String& texture_name, CameraClearFlags clear_flags, const Rect& rect)
+    Camera* Display::CreateBlitCamera(int depth, const Ref<Texture>& texture, CameraClearFlags clear_flags, const Rect& rect)
     {
-        Ref<Material> blit_material = material;
-
-        if (!blit_material)
+        if (!m_private->m_blit_shader)
         {
-            if (!m_private->m_blit_shader)
-            {
-                m_private->CreateBlitShader();
-            }
-            blit_material = RefMake<Material>(m_private->m_blit_shader);
+            m_private->CreateBlitShader();
         }
+        Ref<Material> material = RefMake<Material>(m_private->m_blit_shader);
+        material->SetTexture("u_texture", texture);
 
+#if VR_GLES
+        material->SetInt("u_flip_y", texture->IsRenderTexture() ? 1 : 0);
+#endif
+
+        return this->CreateBlitCamera(depth, material, clear_flags, rect);
+    }
+
+    Camera* Display::CreateBlitCamera(int depth, const Ref<Material>& material, CameraClearFlags clear_flags, const Rect& rect)
+    {
         if (!m_private->m_blit_mesh)
         {
             m_private->CreateBlitMesh();
         }
 
         Ref<MeshRenderer> renderer = RefMake<MeshRenderer>();
-        renderer->SetMaterial(blit_material);
+        renderer->SetMaterial(material);
         renderer->SetMesh(m_private->m_blit_mesh);
 
         Camera* camera = this->CreateCamera();
@@ -3931,20 +3936,6 @@ void main()
         camera->SetClearFlags(clear_flags);
         camera->SetDepth(depth);
         camera->AddRenderer(renderer);
-
-        if (texture)
-        {
-            String blit_texture_name = texture_name;
-            if (blit_texture_name.Empty())
-            {
-                blit_texture_name = "u_texture";
-            }
-            blit_material->SetTexture(blit_texture_name, texture);
-            
-#if VR_GLES
-            blit_material->SetInt("u_flip_y", texture->IsRenderTexture() ? 1 : 0);
-#endif
-        }
 
         return camera;
     }

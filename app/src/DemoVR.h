@@ -117,7 +117,7 @@ void main()
             auto material = RefMake<Material>(shader);
             material->SetTexture("u_texture", color_texture);
 
-            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, Ref<Texture>(), material);
+            m_blit_color_camera = Display::Instance()->CreateBlitCamera(1, material);
 
             m_ui_camera->SetDepth(2);
         }

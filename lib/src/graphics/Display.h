@@ -53,7 +53,8 @@ namespace Viry3D
         int GetWidth() const;
         int GetHeight() const;
         Camera* CreateCamera();
-        Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, const Ref<Material>& material = Ref<Material>(), const String& texture_name = "", CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
+        Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
+        Camera* CreateBlitCamera(int depth, const Ref<Material>& material, CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
         void DestroyCamera(Camera* camera);
         int GetMaxSamples();
 #if VR_VULKAN
