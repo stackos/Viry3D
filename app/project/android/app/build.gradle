@@ -30,14 +30,14 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_PLATFORM=android-18', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_shared'
+                arguments '-DANDROID_PLATFORM=android-18', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_shared', '-DTarget=Android'
             }
         }
     }
 
     externalNativeBuild {
         cmake {
-            path '../CMakeLists.txt'
+            path '../../../../CMakeLists.txt'
         }
     }
 
@@ -51,7 +51,7 @@ android {
     exec {
         workingDir '../../../..'
         def cmd = [
-            'python', 'copy_assets.py'
+            'python', 'app/project/android/copy_assets.py'
         ]
         commandLine cmd
     }

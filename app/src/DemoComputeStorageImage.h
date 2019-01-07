@@ -99,8 +99,8 @@ void main()
 
             m_camera->AddRenderer(computer);
 
-            m_blit_origin_camera = Display::Instance()->CreateBlitCamera(1, compute_input, CameraClearFlags::Invalidate, Rect(0, 0, 0.5f, 1));
-            m_blit_result_camera = Display::Instance()->CreateBlitCamera(2, compute_output, CameraClearFlags::Invalidate, Rect(0.5, 0, 0.5f, 1));
+            m_blit_origin_camera = Display::Instance()->CreateBlitCamera(1, compute_input, CameraClearFlags::Nothing, Rect(0, 0, 0.5f, 1));
+            m_blit_result_camera = Display::Instance()->CreateBlitCamera(2, compute_output, CameraClearFlags::Nothing, Rect(0.5, 0, 0.5f, 1));
 
             m_ui_camera->SetDepth(3);
         }

@@ -436,17 +436,6 @@ file(GLOB VIRY3D_APP_SRCS
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
 
-add_executable(Viry3DApp ${VIRY3D_APP_SRCS})
-
-target_include_directories(Viry3DApp PRIVATE
-                           ${VIRY3D_LIB_SRC_DIR}
-                           ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                           )
-
-target_link_libraries(Viry3DApp
-                      Viry3D Viry3DDep
-                      )
-
 if (${Target} MATCHES "Windows")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_WIN32_KHR")
@@ -531,18 +520,22 @@ if (${Target} MATCHES "Windows")
                                ${VIRY3D_LIB_SRC_DIR}/zlib
                                )
 
-    target_sources(Viry3DApp PRIVATE
+    source_group(src FILES ${VIRY3D_APP_SRC_DIR}/../project/win/Main.cpp)
+
+    add_executable(Viry3DApp
+                   ${VIRY3D_APP_SRCS}
                    ${VIRY3D_APP_SRC_DIR}/../project/win/Main.cpp
                    )
 
-    source_group(src FILES ${VIRY3D_APP_SRC_DIR}/../project/win/Main.cpp)
-
     target_include_directories(Viry3DApp PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
                                ${VIRY3D_APP_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                )
 
     target_link_libraries(Viry3DApp
+                          Viry3D Viry3DDep
                           ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
                           opengl32.lib
                           winmm.lib
@@ -557,6 +550,17 @@ if (${Target} MATCHES "Windows")
                        )
 
 elseif (${Target} MATCHES "Android")
+    get_filename_component(SHADERC_SRC
+                           ${ANDROID_NDK}/sources/third_party/shaderc
+                           ABSOLUTE)
+    set(GLSLANG_SPIRV_INCLUDE_DIR ${SHADERC_SRC}/third_party/glslang)
+    add_library(shaderc_lib STATIC IMPORTED)
+    set_target_properties(shaderc_lib PROPERTIES IMPORTED_LOCATION
+                          ${SHADERC_SRC}/libs/${ANDROID_STL}/${ANDROID_ABI}/libshaderc.a)
+
+    set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_ANDROID -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -frtti")
     add_definitions(-Wall -DIOAPI_NO_64 -DHAVE_GCC_DESTRUCTOR)
@@ -568,4 +572,37 @@ elseif (${Target} MATCHES "Android")
     target_include_directories(Viry3DDep PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/openal/android
                                )
+
+    target_sources(Viry3D PRIVATE
+                   ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_wrapper/vulkan_wrapper.cpp
+                   )
+
+    target_include_directories(Viry3D PRIVATE
+                               ${ANDROID_NDK}/sources/third_party/shaderc/include
+                               ${SHADERC_SRC}/third_party/spirv-tools/include
+                               ${SHADERC_SRC}/third_party/spirv-tools/include/spirv-tools
+                               )
+
+    add_library(Viry3DApp SHARED
+                ${VIRY3D_APP_SRCS}
+                ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
+                ${CMAKE_SOURCE_DIR}/app/project/android/app/src/main/jni/jni.cpp
+                )
+
+    target_include_directories(Viry3DApp PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_APP_SRC_DIR}
+                               ${ANDROID_NDK}/sources/android/native_app_glue
+                               )
+
+    target_link_libraries(Viry3DApp
+                          Viry3D Viry3DDep
+                          android log z OpenSLES EGL GLESv3
+                          shaderc_lib       # for vulkan shader compile
+                          )
+
+    # build shaderc
+    # ndk-bundle/sources/third_party/shaderc
+    # ../../../ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined
 endif ()
