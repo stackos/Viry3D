@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.7.2)
 
 get_filename_component(VIRY3D_LIB_SRC_DIR
                        ${CMAKE_SOURCE_DIR}/lib/src
@@ -379,65 +379,36 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
                            )
 
-add_library(Viry3D STATIC
-            ${VIRY3D_LIB_SRC_DIR}/2d/Navigation2D.cpp
-            ${VIRY3D_LIB_SRC_DIR}/2d/NavigationPolygon.cpp
-            ${VIRY3D_LIB_SRC_DIR}/animation/Animation.cpp
-            ${VIRY3D_LIB_SRC_DIR}/animation/AnimationCurve.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioClip.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioListener.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioManager.cpp
-            ${VIRY3D_LIB_SRC_DIR}/audio/AudioSource.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Application.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Debug.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Camera.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Color.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Computer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/CubeMapToSphericalPolynomialTools.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Display.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Image.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Light.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Material.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Mesh.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/MeshRenderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Renderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Shader.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/SkinnedMeshRenderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/Texture.cpp
-            ${VIRY3D_LIB_SRC_DIR}/graphics/VertexAttribute.cpp
-            ${VIRY3D_LIB_SRC_DIR}/io/Directory.cpp
-            ${VIRY3D_LIB_SRC_DIR}/io/File.cpp
-            ${VIRY3D_LIB_SRC_DIR}/io/MemoryStream.cpp
-            ${VIRY3D_LIB_SRC_DIR}/io/Stream.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Input.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Bounds.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Frustum.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Mathf.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Matrix4x4.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Quaternion.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Ray.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Rect.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Vector2.cpp
-            ${VIRY3D_LIB_SRC_DIR}/math/Vector3.cpp
-            ${VIRY3D_LIB_SRC_DIR}/memory/ByteBuffer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Node.cpp
-            ${VIRY3D_LIB_SRC_DIR}/Resources.cpp
-            ${VIRY3D_LIB_SRC_DIR}/string/String.cpp
-            ${VIRY3D_LIB_SRC_DIR}/thread/ThreadPool.cpp
-            ${VIRY3D_LIB_SRC_DIR}/time/Time.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/Button.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/CanvasRenderer.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/Font.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/Label.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/LineView.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/ScrollView.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/SelectButton.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/Slider.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/Sprite.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/SwitchButton.cpp
-            ${VIRY3D_LIB_SRC_DIR}/ui/View.cpp
-            ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_shader_compiler.cpp
-            )
+file(GLOB VIRY3D_APP_SRCS
+     ${VIRY3D_LIB_SRC_DIR}/*.h
+     ${VIRY3D_LIB_SRC_DIR}/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/2d/*.h
+     ${VIRY3D_LIB_SRC_DIR}/2d/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/animation/*.h
+     ${VIRY3D_LIB_SRC_DIR}/animation/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/audio/*.h
+     ${VIRY3D_LIB_SRC_DIR}/audio/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/graphics/*.h
+     ${VIRY3D_LIB_SRC_DIR}/graphics/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/io/*.h
+     ${VIRY3D_LIB_SRC_DIR}/io/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/math/*.h
+     ${VIRY3D_LIB_SRC_DIR}/math/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/memory/*.h
+     ${VIRY3D_LIB_SRC_DIR}/memory/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/string/*.h
+     ${VIRY3D_LIB_SRC_DIR}/string/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/thread/*.h
+     ${VIRY3D_LIB_SRC_DIR}/thread/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/time/*.h
+     ${VIRY3D_LIB_SRC_DIR}/time/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/ui/*.h
+     ${VIRY3D_LIB_SRC_DIR}/ui/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
+     ${VIRY3D_LIB_SRC_DIR}/vulkan/*.cpp
+     )
+
+add_library(Viry3D STATIC ${VIRY3D_APP_SRCS})
 
 target_include_directories(Viry3D PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}
@@ -450,9 +421,12 @@ target_include_directories(Viry3D PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
                            )
 
-add_executable(Viry3DApp
-               ${VIRY3D_APP_SRC_DIR}/App.cpp
-               )
+file(GLOB VIRY3D_APP_SRCS
+     ${VIRY3D_APP_SRC_DIR}/*.h
+     ${VIRY3D_APP_SRC_DIR}/*.cpp
+     )
+
+add_executable(Viry3DApp ${VIRY3D_APP_SRCS})
 
 target_include_directories(Viry3DApp PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}
@@ -467,7 +441,7 @@ if (${Target} MATCHES "Windows")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_WIN32_KHR")
     set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} /subsystem:windows")
+        "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
     set(EXECUTABLE_OUTPUT_PATH
         ${PROJECT_BINARY_DIR}/bin)
     add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
@@ -556,9 +530,11 @@ if (${Target} MATCHES "Windows")
                           Xaudio2.lib
                           )
 
+    string(REPLACE "/" "\\" ASSETS_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/Assets)
+    string(REPLACE "/" "\\" ASSETS_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
     add_custom_command(TARGET Viry3DApp
                        POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/app/bin/Assets ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets
+                       COMMAND if not exist ${ASSETS_LINK_LINK} (mklink /d ${ASSETS_LINK_LINK} ${ASSETS_LINK_TARGET})
                        )
 
 elseif (${Target} MATCHES "Android")
