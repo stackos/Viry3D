@@ -133,8 +133,8 @@ namespace Viry3D
 #else
 #if VR_ANDROID
             auto albedo = Texture::LoadFromKTXFile(
-                //Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo_etc2_rgb.ktx",
-                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo_astc_4x4.ktx",
+                Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo_etc2_rgb.ktx",
+                //Application::Instance()->GetDataPath() + "/res/model/DamagedHelmet/albedo_astc_4x4.ktx",
                 FilterMode::Linear,
                 SamplerAddressMode::Repeat,
                 false);
