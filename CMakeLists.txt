@@ -451,6 +451,8 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
          ${VIRY3D_LIB_SRC_DIR}/vulkan/*.cpp
          )
 
+    target_sources(Viry3D PRIVATE ${VIRY3D_LIB_SRCS_VULKAN})
+
     source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS_VULKAN})
 
 endif ()
@@ -564,9 +566,12 @@ if (${Target} MATCHES "Windows")
 
     string(REPLACE "/" "\\" ASSETS_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/Assets)
     string(REPLACE "/" "\\" ASSETS_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
+    string(REPLACE "/" "\\" ICON_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/icon.ico)
+    string(REPLACE "/" "\\" ICON_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/icon.ico)
     add_custom_command(TARGET Viry3DApp
                        POST_BUILD
                        COMMAND if not exist ${ASSETS_LINK_LINK} (mklink /d ${ASSETS_LINK_LINK} ${ASSETS_LINK_TARGET})
+                       COMMAND if not exist ${ICON_LINK_LINK} (mklink ${ICON_LINK_LINK} ${ICON_LINK_TARGET})
                        )
 
 elseif (${Target} MATCHES "Android")
