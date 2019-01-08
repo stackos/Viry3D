@@ -46,7 +46,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - compressed texture format, bc / etc2 / astc
+// - cmake win/android/mac/ios/uwp/wasm/wintool
 // - IBL PBR
 // - Ray Tracing
 // - GPU Particle

@@ -208,29 +208,6 @@ file(GLOB VIRY3D_DEP_SRCS
      ${VIRY3D_LIB_SRC_DIR}/noise/latlon.cpp
      ${VIRY3D_LIB_SRC_DIR}/noise/noisegen.cpp
      ${VIRY3D_LIB_SRC_DIR}/noise/noiseutils.cpp
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/loopback.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/null.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/thread_msg_queue_cpp11.cpp
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALc.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALc_cpp11.cpp
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcConfig.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcDedicated.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcEcho.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcModulator.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcReverb.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcRing.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALu.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/bs2b.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/helpers.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/hrtf.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/mixer.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/Alc/panning.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alError.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alExtension.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alListener.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alSource.c
-     ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alThunk.c
      ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btAxisSweep3.cpp
      ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btBroadphaseProxy.cpp
      ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btCollisionAlgorithm.cpp
@@ -378,8 +355,6 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}
                            ${VIRY3D_LIB_SRC_DIR}/freetype/include
                            ${VIRY3D_LIB_SRC_DIR}/mp3/mad
-                           ${VIRY3D_LIB_SRC_DIR}/openal/include
-                           ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
                            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src
                            ${VIRY3D_LIB_SRC_DIR}/lua
                            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
@@ -410,8 +385,6 @@ file(GLOB VIRY3D_LIB_SRCS
      ${VIRY3D_LIB_SRC_DIR}/time/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/ui/*.h
      ${VIRY3D_LIB_SRC_DIR}/ui/*.cpp
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/*.cpp
      )
 
 source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS})
@@ -436,7 +409,54 @@ file(GLOB VIRY3D_APP_SRCS
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
 
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
+
+    file(GLOB VIRY3D_DEP_SRCS_OPENAL
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/loopback.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/null.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/thread_msg_queue_cpp11.cpp
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALc.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALc_cpp11.cpp
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcConfig.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcDedicated.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcEcho.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcModulator.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcReverb.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcRing.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALu.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/bs2b.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/helpers.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/hrtf.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/mixer.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/panning.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alError.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alExtension.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alListener.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alSource.c
+         ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/alThunk.c
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_OPENAL})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_OPENAL})
+
+    target_include_directories(Viry3DDep PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/openal/include
+                               ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
+                               )
+
+    file(GLOB VIRY3D_LIB_SRCS_VULKAN
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/*.cpp
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS_VULKAN})
+
+endif ()
+
 if (${Target} MATCHES "Windows")
+
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_WIN32_KHR")
     set(CMAKE_EXE_LINKER_FLAGS
@@ -550,6 +570,7 @@ if (${Target} MATCHES "Windows")
                        )
 
 elseif (${Target} MATCHES "Android")
+
     get_filename_component(SHADERC_SRC
                            ${ANDROID_NDK}/sources/third_party/shaderc
                            ABSOLUTE)
@@ -605,4 +626,60 @@ elseif (${Target} MATCHES "Android")
     # build shaderc
     # ndk-bundle/sources/third_party/shaderc
     # ../../../ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined
+
+elseif (${Target} MATCHES "Mac")
+
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -DVR_MAC -DVR_VULKAN=1 -DVR_GLES=0")
+    add_definitions(-Wall -DHAVE_ASSERT_H -fobjc-arc)
+
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
+
+    target_include_directories(Viry3D PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework/Headers
+                               )
+
+    set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../bin/Assets
+                                ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
+                                PROPERTIES
+                                MACOSX_PACKAGE_LOCATION Resources
+                                )
+
+    add_executable(Viry3DApp
+                   ${VIRY3D_APP_SRCS}
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/Main.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/AppDelegate.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/ViewController.mm
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/VkView.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
+                   ${VIRY3D_APP_SRC_DIR}/../bin/Assets
+                   )
+
+    target_include_directories(Viry3DApp PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_APP_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               )
+
+    target_link_libraries(Viry3DApp
+                          Viry3D Viry3DDep
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/macOS/libMoltenVK.a
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework
+                          "-framework OpenAL"
+                          "-framework AppKit"
+                          "-framework Metal"
+                          "-framework QuartzCore"
+                          "-framework IOKit"
+                          z.1.2.8
+                          )
+
+    set_target_properties(Viry3DApp PROPERTIES
+                          MACOSX_BUNDLE true
+                          MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Info.plist
+                          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
+                          )
+
 endif ()
