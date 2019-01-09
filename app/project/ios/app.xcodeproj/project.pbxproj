@@ -62,7 +62,6 @@
 		D137753520FED5E900E4F19B /* VkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VkView.h; sourceTree = "<group>"; };
 		D137753720FEDF4A00E4F19B /* viry3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = viry3d.xcodeproj; path = ../../../lib/project/ios/viry3d.xcodeproj; sourceTree = "<group>"; };
 		D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = usr/lib/libz.1.2.8.tbd; sourceTree = SDKROOT; };
-		D137757E20FEF7D000E4F19B /* MoltenVK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVK.framework; path = ../../../lib/src/vulkan/MoltenVK/iOS/MoltenVK.framework; sourceTree = "<group>"; };
 		D13775A420FF320C00E4F19B /* App.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = App.h; path = ../../src/App.h; sourceTree = "<group>"; };
 		D13775A520FF327C00E4F19B /* App.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = App.cpp; path = ../../src/App.cpp; sourceTree = "<group>"; };
 		D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MoltenVKGLSLToSPIRVConverter.framework; path = ../../../lib/src/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework; sourceTree = "<group>"; };
@@ -141,7 +140,6 @@
 				BA4551D921405029003188B1 /* ARKit.framework */,
 				BAF169A9213AED660033BC76 /* GLKit.framework */,
 				BA5924A31D92F2A200173EDC /* UIKit.framework */,
-				D137757E20FEF7D000E4F19B /* MoltenVK.framework */,
 				D13775AA20FF3C7700E4F19B /* MoltenVKGLSLToSPIRVConverter.framework */,
 				D137757C20FEF68100E4F19B /* libz.1.2.8.tbd */,
 			);

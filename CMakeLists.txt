@@ -155,7 +155,6 @@ file(GLOB VIRY3D_DEP_SRCS
      ${VIRY3D_LIB_SRC_DIR}/mp3/mad/id3tag/frametype.c
      ${VIRY3D_LIB_SRC_DIR}/mp3/mad/id3tag/genre.c
      ${VIRY3D_LIB_SRC_DIR}/mp3/mad/id3tag/id3_debug.c
-     ${VIRY3D_LIB_SRC_DIR}/mp3/mad/id3tag/id3_file.c
      ${VIRY3D_LIB_SRC_DIR}/mp3/mad/id3tag/id3_frame.c
      ${VIRY3D_LIB_SRC_DIR}/mp3/mad/id3tag/id3_version.c
      ${VIRY3D_LIB_SRC_DIR}/mp3/mad/id3tag/latin1.c
@@ -633,7 +632,6 @@ elseif (${Target} MATCHES "Android")
     # ../../../ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_STL:=c++_shared APP_ABI=armeabi-v7a APP_PLATFORM=android-18 libshaderc_combined
 
 elseif (${Target} MATCHES "Mac")
-
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_MAC -DVR_VULKAN=1 -DVR_GLES=0")
     add_definitions(-Wall -DHAVE_ASSERT_H -fobjc-arc)
@@ -684,6 +682,81 @@ elseif (${Target} MATCHES "Mac")
     set_target_properties(Viry3DApp PROPERTIES
                           MACOSX_BUNDLE true
                           MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Info.plist
+                          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
+                          )
+
+elseif (${Target} MATCHES "iOS")
+
+    set(XCODE_IOS_PLATFORM iphoneos)
+    execute_process(COMMAND xcodebuild -version -sdk ${XCODE_IOS_PLATFORM} Path
+        OUTPUT_VARIABLE CMAKE_OSX_SYSROOT
+        ERROR_QUIET
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "found ios sdk: ${CMAKE_OSX_SYSROOT}")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "")
+    set(CMAKE_OSX_ARCHITECTURES arm64)
+
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -DVR_IOS")
+    add_definitions(-Wall -DVR_VULKAN=1 -DVR_GLES=0 -DHAVE_ASSERT_H -fobjc-arc)
+
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm PROPERTIES COMPILE_FLAGS "-x objective-c++")
+
+    source_group(src\\ios FILES ${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm)
+
+    target_sources(Viry3D PRIVATE
+                   ${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm
+                   )
+
+    target_include_directories(Viry3D PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework/Headers
+                               )
+
+    set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../project/ios/app/Assets.xcassets
+                                ${VIRY3D_APP_SRC_DIR}/../project/ios/app/Base.lproj/LaunchScreen.storyboard
+                                ${VIRY3D_APP_SRC_DIR}/../bin/Assets
+                                PROPERTIES
+                                MACOSX_PACKAGE_LOCATION Resources
+                                )
+
+    add_executable(Viry3DApp
+                   ${VIRY3D_APP_SRCS}
+                   ${VIRY3D_APP_SRC_DIR}/../project/ios/Main.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/ios/AppDelegate.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/ios/ViewController.mm
+                   ${VIRY3D_APP_SRC_DIR}/../project/ios/VkView.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/ios/app/Assets.xcassets
+                   ${VIRY3D_APP_SRC_DIR}/../project/ios/app/Base.lproj/LaunchScreen.storyboard
+                   ${VIRY3D_APP_SRC_DIR}/../bin/Assets
+                   )
+
+    target_include_directories(Viry3DApp PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_APP_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               )
+
+    target_link_libraries(Viry3DApp
+                          Viry3D Viry3DDep
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/iOS/libMoltenVK.a
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/iOS/MoltenVKGLSLToSPIRVConverter.framework
+                          "-framework OpenAL"
+                          "-framework UIKit"
+                          "-framework Metal"
+                          "-framework QuartzCore"
+                          "-framework IOKit"
+                          "-framework ARKit"
+                          "-framework CoreVideo"
+                          z.1.2.8
+                          )
+
+    set_target_properties(Viry3DApp PROPERTIES
+                          MACOSX_BUNDLE true
+                          MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/ios/app/Info.plist
                           XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
                           )
 
