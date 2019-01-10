@@ -500,8 +500,6 @@ if (${Target} MATCHES "Windows")
 
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_WIN32_KHR")
-    set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
     set(EXECUTABLE_OUTPUT_PATH
         ${PROJECT_BINARY_DIR}/bin)
     add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
@@ -603,6 +601,8 @@ if (${Target} MATCHES "Windows")
                           Xaudio2.lib
                           )
 
+    target_link_options(Viry3DApp PRIVATE "/SUBSYSTEM:WINDOWS")
+
     string(REPLACE "/" "\\" ASSETS_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/Assets)
     string(REPLACE "/" "\\" ASSETS_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
     string(REPLACE "/" "\\" ICON_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/icon.ico)
@@ -613,12 +613,27 @@ if (${Target} MATCHES "Windows")
                        COMMAND if not exist ${ICON_LINK_LINK} (mklink ${ICON_LINK_LINK} ${ICON_LINK_TARGET})
                        )
 
+    add_executable(CubeMapToSphericalPolynomial
+                   ${VIRY3D_APP_SRC_DIR}/../project/CubeMapToSphericalPolynomial/CubeMapToSphericalPolynomial.cpp
+                   )
+
+    target_include_directories(CubeMapToSphericalPolynomial PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               )
+
+    target_link_libraries(CubeMapToSphericalPolynomial
+                          Viry3D Viry3DDep
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
+                          winmm.lib
+                          Xaudio2.lib
+                          )
+
 elseif (${Target} MATCHES "UWP")
 
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_UWP -DVR_VULKAN=0 -DVR_GLES=1")
-    set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
     add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
 
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -711,6 +726,8 @@ elseif (${Target} MATCHES "UWP")
                           ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libGLESv2.lib
                           mincore.lib
                           )
+
+    target_link_options(Viry3DApp PRIVATE "/SUBSYSTEM:WINDOWS")
 
     set_property(TARGET Viry3DApp PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.10240.0")
     set_property(TARGET Viry3DApp PROPERTY VS_WINRT_COMPONENT TRUE)
