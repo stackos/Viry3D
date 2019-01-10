@@ -644,8 +644,8 @@ elseif (${Target} MATCHES "Mac")
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework/Headers
                                )
 
-    set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../bin/Assets
-                                ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
+    set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
+                                ${VIRY3D_APP_SRC_DIR}/../bin/Assets
                                 PROPERTIES
                                 MACOSX_PACKAGE_LOCATION Resources
                                 )
@@ -704,11 +704,14 @@ elseif (${Target} MATCHES "iOS")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
-    source_group(src\\ios FILES ${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm)
+    file(GLOB VIRY3D_LIB_SRCS_IOS
+         ${VIRY3D_LIB_SRC_DIR}/ios/*.h
+         ${VIRY3D_LIB_SRC_DIR}/ios/*.mm
+         )
 
-    target_sources(Viry3D PRIVATE
-                   ${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm
-                   )
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS_IOS})
+
+    target_sources(Viry3D PRIVATE ${VIRY3D_LIB_SRCS_IOS})
 
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
