@@ -101,10 +101,10 @@ namespace Viry3D
 
             auto shader = RefMake<Shader>(
                 "#define INSTANCING 1",
-                Vector<String>({ "PBR.vs.in" }),
+                Vector<String>({ "PBR.vs" }),
                 "",
                 "#define INSTANCING 1",
-                Vector<String>({ "PBR.fs.in" }),
+                Vector<String>({ "PBR.fs" }),
                 "",
                 render_state);
 

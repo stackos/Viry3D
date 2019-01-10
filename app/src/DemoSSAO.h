@@ -417,10 +417,10 @@ void main()
             RenderState render_state;
             auto shader = RefMake<Shader>(
                 "",
-                Vector<String>({ "DeferredGeometry.vs.in" }),
+                Vector<String>({ "DeferredGeometry.vs" }),
                 "",
                 "",
-                Vector<String>({ "DeferredGeometry.fs.in" }),
+                Vector<String>({ "DeferredGeometry.fs" }),
                 "",
                 render_state);
             Shader::AddCache("Diffuse", shader);

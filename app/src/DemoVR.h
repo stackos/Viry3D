@@ -32,10 +32,10 @@ namespace Viry3D
             auto shader = RefMake<Shader>(
                 "#define LIGHTMAP 1\n"
                 "#define MULTIVIEW 1",
-                Vector<String>({ "Diffuse.vs.in" }),
+                Vector<String>({ "Diffuse.vs" }),
                 "",
                 "#define LIGHTMAP 1",
-                Vector<String>({ "Diffuse.fs.in" }),
+                Vector<String>({ "Diffuse.fs" }),
                 "",
                 render_state);
             Shader::AddCache("Diffuse", shader);

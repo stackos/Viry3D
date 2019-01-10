@@ -100,19 +100,19 @@ namespace Viry3D
 #if VR_VULKAN
             auto shader = RefMake<Shader>(
                 "",
-                Vector<String>({ "Diffuse.vs.in" }),
+                Vector<String>({ "Diffuse.vs" }),
                 "",
                 "",
-                Vector<String>({ "Diffuse.fs.in" }),
+                Vector<String>({ "Diffuse.fs" }),
                 "",
                 render_state);
 #elif VR_GLES
             auto shader = RefMake<Shader>(
                 "",
-                Vector<String>({ "Diffuse.100.vs.in" }),
+                Vector<String>({ "Diffuse.100.vs" }),
                 "",
                 "",
-                Vector<String>({ "Diffuse.100.fs.in" }),
+                Vector<String>({ "Diffuse.100.fs" }),
                 "",
                 render_state);
 #endif

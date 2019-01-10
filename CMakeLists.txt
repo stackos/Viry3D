@@ -10,6 +10,28 @@ get_filename_component(VIRY3D_APP_SRC_DIR
                        ${CMAKE_SOURCE_DIR}/app/src
                        ABSOLUTE)
 
+function(string_ends_with str suffix var)
+    string(LENGTH "${str}" str_length)
+    string(LENGTH "${suffix}" suffix_length)
+    set(value FALSE)
+    if (NOT ${str_length} LESS ${suffix_length})
+        math(EXPR str_offset "${str_length} - ${suffix_length}")
+        string(SUBSTRING "${str}" ${str_offset} ${suffix_length} str_suffix)
+        if (str_suffix STREQUAL suffix)
+            set(value TRUE)
+        endif ()
+    endif ()
+    set(${var} ${value} PARENT_SCOPE)
+endfunction()
+
+file(GLOB_RECURSE VIRY3D_ASSETS ${VIRY3D_APP_SRC_DIR}/../bin/Assets/*.*)
+foreach (item ${VIRY3D_ASSETS})
+    string_ends_with(${item} ".cache" is_cache)
+    if (${is_cache})
+        list(REMOVE_ITEM VIRY3D_ASSETS ${item})
+    endif ()
+endforeach ()
+
 set(CMAKE_C_FLAGS
     "${CMAKE_C_FLAGS} -DFT2_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFPM_DEFAULT -DSIZEOF_INT=4")
 
@@ -334,13 +356,6 @@ file(GLOB VIRY3D_DEP_SRCS
      ${VIRY3D_LIB_SRC_DIR}/png/pngwrite.c
      ${VIRY3D_LIB_SRC_DIR}/png/pngwtran.c
      ${VIRY3D_LIB_SRC_DIR}/png/pngwutil.c
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
-     ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
      ${VIRY3D_LIB_SRC_DIR}/xml/tinyxml2.cpp
      ${VIRY3D_LIB_SRC_DIR}/zlib/ioapi.c
      ${VIRY3D_LIB_SRC_DIR}/zlib/unzip.c
@@ -408,7 +423,8 @@ file(GLOB VIRY3D_APP_SRCS
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
 
-if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
+# openal
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP" OR ${Target} MATCHES "Android")
 
     file(GLOB VIRY3D_DEP_SRCS_OPENAL
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/loopback.c
@@ -444,6 +460,30 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
                                ${VIRY3D_LIB_SRC_DIR}/openal/include
                                ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
                                )
+
+endif ()
+
+# spirv_cross
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android" OR ${Target} MATCHES "Mac" OR ${Target} MATCHES "iOS")
+
+    file(GLOB VIRY3D_DEP_SRCS_SPIRV_CROSS
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+
+endif ()
+
+# vulkan shader compiler
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
 
     file(GLOB VIRY3D_LIB_SRCS_VULKAN
          ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
@@ -573,6 +613,108 @@ if (${Target} MATCHES "Windows")
                        COMMAND if not exist ${ICON_LINK_LINK} (mklink ${ICON_LINK_LINK} ${ICON_LINK_TARGET})
                        )
 
+elseif (${Target} MATCHES "UWP")
+
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -DVR_UWP -DVR_VULKAN=0 -DVR_GLES=1")
+    set(CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+    add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
+
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+
+    file(GLOB VIRY3D_DEP_SRCS_UWP
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/xaudio2.cpp
+         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThreadCpp11.cpp
+         ${VIRY3D_LIB_SRC_DIR}/zlib/adler32.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/compress.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/crc32.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/deflate.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/gzclose.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/gzlib.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/gzread.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/gzwrite.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/infback.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/inffast.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/inflate.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/inftrees.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/trees.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/uncompr.c
+         ${VIRY3D_LIB_SRC_DIR}/zlib/zutil.c
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_UWP})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_UWP})
+
+    target_include_directories(Viry3DDep PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/openal/win
+                               ${VIRY3D_LIB_SRC_DIR}/zlib
+                               )
+
+    target_include_directories(Viry3D PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/zlib
+                               ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
+                               )
+
+    set(UWP_ASSETS
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Assets/LockScreenLogo.scale-200.png
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Assets/SplashScreen.scale-200.png
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Assets/Square44x44Logo.scale-200.png
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Assets/Square44x44Logo.targetsize-24_altform-unplated.png
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Assets/Square150x150Logo.scale-200.png
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Assets/StoreLogo.png
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Assets/Wide310x150Logo.scale-200.png
+        )
+    set(UWP_CONTENT
+        ${VIRY3D_ASSETS}
+        ${UWP_ASSETS}
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/Package.appxmanifest
+        ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libEGL.dll
+        ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libGLESv2.dll
+        )
+    set(UWP_RESOURCE_FILES
+        ${UWP_CONTENT}
+        ${VIRY3D_APP_SRC_DIR}/../project/uwp/app_TemporaryKey.pfx)
+
+    foreach (item ${VIRY3D_ASSETS})
+        get_filename_component(dir ${item} DIRECTORY)
+        string(LENGTH ${VIRY3D_APP_SRC_DIR}/../bin/ root_length)
+        string(SUBSTRING ${dir} ${root_length} -1 local_dir)
+        set_property(SOURCE ${item} PROPERTY VS_DEPLOYMENT_LOCATION ${local_dir})
+    endforeach ()
+    set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
+    set_property(SOURCE ${UWP_CONTENT} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+    source_group("Resource Files" FILES ${UWP_RESOURCE_FILES})
+    source_group(TREE ${VIRY3D_APP_SRC_DIR}/../bin FILES ${VIRY3D_ASSETS})
+    source_group(TREE ${VIRY3D_APP_SRC_DIR}/../project/uwp FILES ${UWP_ASSETS})
+
+    source_group(src FILES ${VIRY3D_APP_SRC_DIR}/../project/uwp/Main.cpp)
+
+    add_executable(Viry3DApp
+                   ${VIRY3D_APP_SRCS}
+                   ${VIRY3D_APP_SRC_DIR}/../project/uwp/Main.cpp
+                   ${UWP_RESOURCE_FILES}
+                   )
+
+    target_include_directories(Viry3DApp PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
+                               ${VIRY3D_APP_SRC_DIR}
+                               )
+
+    target_link_libraries(Viry3DApp
+                          Viry3D Viry3DDep
+                          ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libEGL.lib
+                          ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libGLESv2.lib
+                          mincore.lib
+                          )
+
+    set_property(TARGET Viry3DApp PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.10240.0")
+    set_property(TARGET Viry3DApp PROPERTY VS_WINRT_COMPONENT TRUE)
+
 elseif (${Target} MATCHES "Android")
 
     get_filename_component(SHADERC_SRC
@@ -680,7 +822,7 @@ elseif (${Target} MATCHES "Mac")
                           )
 
     set_target_properties(Viry3DApp PROPERTIES
-                          MACOSX_BUNDLE true
+                          MACOSX_BUNDLE TRUE
                           MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Info.plist
                           XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
                           )
@@ -758,7 +900,7 @@ elseif (${Target} MATCHES "iOS")
                           )
 
     set_target_properties(Viry3DApp PROPERTIES
-                          MACOSX_BUNDLE true
+                          MACOSX_BUNDLE TRUE
                           MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/ios/app/Info.plist
                           XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
                           )

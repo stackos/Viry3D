@@ -483,8 +483,8 @@ namespace Viry3D
         int Triangulate_EC(TriangulatorPoly* poly, std::list<TriangulatorPoly>* triangles)
         {
             long numvertices;
-            PartitionVertex* vertices;
-            PartitionVertex* ear;
+            PartitionVertex* vertices = nullptr;
+            PartitionVertex* ear = nullptr;
             TriangulatorPoly triangle;
             long i, j;
             bool earfound;
@@ -579,7 +579,7 @@ namespace Viry3D
         {
             std::list<TriangulatorPoly> triangles;
             std::list<TriangulatorPoly>::iterator iter2;
-            TriangulatorPoly *poly1, *poly2;
+            TriangulatorPoly *poly1 = nullptr, *poly2 = nullptr;
             TriangulatorPoly newpoly;
             Vector2 d1, d2, p1, p2, p3;
             long i11, i12, i21, i22, i13, i23, j, k;
@@ -777,7 +777,7 @@ namespace Viry3D
         int RemoveHoles(std::list<TriangulatorPoly>* inpolys, std::list<TriangulatorPoly>* outpolys)
         {
             std::list<TriangulatorPoly> polys;
-            TriangulatorPoly *holeiter, *polyiter;
+            TriangulatorPoly *holeiter = nullptr, *polyiter = nullptr;
             long i, i2, holepointindex, polypointindex;
             Vector2 holepoint, polypoint, bestpolypoint;
             Vector2 linep1, linep2;

@@ -2052,7 +2052,7 @@ extern void UnbindSharedContext();
             Vector<UniformSet>& uniform_sets)
         {
             Vector<String> includes;
-            includes.Add("Base.in");
+            includes.Add("Base.vs");
             if (vs_includes.Size() > 0)
             {
                 includes.AddRange(&vs_includes[0], vs_includes.Size());

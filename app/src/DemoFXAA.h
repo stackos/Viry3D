@@ -129,7 +129,7 @@ void main()
                     "#define FXAA_QUALITY__PRESET %d\n"
                     "#define FXAA_GLSL_130 1",
                     quality),
-                Vector<String>({ "FXAA.in" }),
+                Vector<String>({ "FXAA.fs" }),
                 fs,
                 render_state);
 #elif VR_GLES
@@ -198,7 +198,7 @@ void main()
                     "#define FXAA_QUALITY__PRESET %d\n"
                     "#define FXAA_GLSL_130 1",
                     quality),
-                Vector<String>({ "FXAA.in" }),
+                Vector<String>({ "FXAA.fs" }),
                 fs,
                 render_state);
 #endif
