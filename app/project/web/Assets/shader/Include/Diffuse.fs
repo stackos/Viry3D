@@ -6,6 +6,10 @@
     #define RECIEVE_SHADOW 0
 #endif
 
+#ifndef LIGHTMAP
+    #define LIGHTMAP 0
+#endif
+
 precision highp float;
 
 #if (CAST_SHADOW == 0)
@@ -30,25 +34,39 @@ precision highp float;
         UniformTexture(0, 3) uniform highp sampler2D u_shadow_texture;
     #endif
 
-	Input(0) vec2 v_uv;
+    #if (LIGHTMAP == 1)
+        UniformTexture(0, 4) uniform lowp sampler2DArray u_lightmap;
+
+        UniformBuffer(1, 1) uniform UniformBuffer11
+        {
+            int u_lightmap_index;
+        } buf_1_1;
+    #endif
+
+	Input(0) vec4 v_uv;
 	Input(1) vec3 v_normal;
 
     #if (RECIEVE_SHADOW == 1)
         Input(2) vec4 v_pos_light_proj;
     #endif
-
-	Output(0) vec4 o_frag;
 #endif
+
+Output(0) vec4 o_frag;
 
 void main()
 {
 #if (CAST_SHADOW == 0)
-    vec4 c = texture(u_texture, v_uv);
+    vec4 c = texture(u_texture, v_uv.xy);
     vec3 n = normalize(v_normal);
     vec3 l = normalize(-buf_0_2.u_light_pos.xyz); // directional light
     
     float nl = max(dot(n, l), 0.0);
-    vec3 ambient = c.rgb * buf_0_2.u_ambient_color.rgb;
+#if (LIGHTMAP == 1)
+    vec4 lm = texture(u_lightmap, vec3(v_uv.zw, float(buf_1_1.u_lightmap_index)));
+    vec3 gi_diffuse = c.rgb * lm.rgb * 2.0;
+#else
+    vec3 gi_diffuse = c.rgb * buf_0_2.u_ambient_color.rgb;
+#endif
     vec3 diffuse = c.rgb * nl * buf_0_2.u_light_color.rgb * buf_0_2.u_light_intensity;
 
     #if (RECIEVE_SHADOW == 1)
@@ -57,9 +75,11 @@ void main()
         diffuse = diffuse * (1.0 - shadow);
     #endif
 
-    c.rgb = ambient + diffuse;
+    c.rgb = gi_diffuse + diffuse;
     c.a = 1.0;
 
     o_frag = c;
+#else
+    o_frag = vec4(0.0);
 #endif
 }

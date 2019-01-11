@@ -7,7 +7,6 @@
 *.tmp
 *.iml
 *.mp4
-*.o
 *.pri
 local.properties
 *.exe
