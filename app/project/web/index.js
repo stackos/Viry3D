@@ -108,12 +108,12 @@ function Render() {
 function PlayAudio(msg) {
     const params = JSON.parse(msg);
 
-    if (Engine.audio == null) {
+    if (Engine.audio === null) {
         Engine.audio = document.createElement("audio");
         Engine.audio.autoplay = true;
     }
 
-    if (Engine.audio_src == params.url && Engine.audio.loop == params.loop && Engine.audio_paused) {
+    if (Engine.audio_src === params.url && Engine.audio.loop === params.loop && Engine.audio_paused) {
         Engine.audio.play();
         Engine.audio_paused = false;
     } else {
@@ -124,14 +124,14 @@ function PlayAudio(msg) {
 }
 
 function PauseAudio(msg) {
-    if (Engine.audio != null) {
+    if (Engine.audio !== null) {
         Engine.audio.pause();
         Engine.audio_paused = true;
     }
 }
 
 function StopAudio(msg) {
-    if (Engine.audio != null) {
+    if (Engine.audio !== null) {
         Engine.audio.pause();
         Engine.audio.currentTime = 0;
     }
@@ -170,7 +170,7 @@ function RemoveLoading() {
 }
 
 function SetCanvasSize(canvas, platform) {
-    if (platform == Platform.Android || platform == Platform.iOS || document.body.clientWidth < 1280) {
+    if (platform === Platform.Android || platform === Platform.iOS || document.body.clientWidth < 1280) {
         canvas.width = document.body.clientWidth;
         canvas.height = canvas.width * 720 / 1280;
     } else {
@@ -189,12 +189,16 @@ function Main() {
     let context = GL.createContext(canvas, {
         majorVersion: 2,
         minorVersion: 0,
-    })
-    if (context == 0) {
+        antialias: false,
+        alpha: false
+    });
+    if (context === 0) {
         context = GL.createContext(canvas, {
             majorVersion: 1,
             minorVersion: 0,
-        })
+            antialias: false,
+            alpha: false
+        });
     } else {
         glesv3 = true;
     }

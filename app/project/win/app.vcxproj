@@ -115,7 +115,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>VR_WINDOWS;VR_VULKAN=1;VR_GLES=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VR_WINDOWS;VR_VULKAN=0;VR_GLES=1</PreprocessorDefinitions>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -167,7 +167,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>VR_WINDOWS;VR_VULKAN=1;VR_GLES=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VR_WINDOWS;VR_VULKAN=0;VR_GLES=1</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>

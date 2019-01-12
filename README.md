@@ -12,8 +12,6 @@ UWP（Windows 通用平台）、
 
 Web（基于 WebAssembly）。
 
-Stack
-
 邮箱：stackos@qq.com
 
 QQ 交流群：428374717
@@ -21,15 +19,23 @@ QQ 交流群：428374717
 ## Build
 ### Windows
 * Visual Studio 2017
-* app/project/win/app.sln
+* `gen_build_win.bat` generate project in `build`
 
 ### UWP
 * Visual Studio 2017
-* app/project/uwp/app.sln
+* `gen_build_uwp.bat` generate project in `build`
+
+### iOS
+* Xcode
+* `gen_build_ios.sh` generate project in `build`
+
+### macOS
+* Xcode
+* `gen_build_mac.sh` generate project in `build`
 
 ### Android
 * Android Studio
-* app/project/android
+* `app/project/android`
 * 如使用 Vulkan ，参照 [https://developer.android.google.cn/ndk/guides/graphics/getting-started.html](https://developer.android.google.cn/ndk/guides/graphics/getting-started.html) 编译 shaderc
 ```
 cd (your android sdk dir)\ndk-bundle\sources\third_party\shaderc
@@ -38,20 +44,16 @@ cd (your android sdk dir)\ndk-bundle\sources\third_party\shaderc
 ```
 * Python(for copy assets cmd)
 
-### iOS
-* Xcode
-* app/project/ios/app.xcodeproj
-
-### macOS
-* Xcode
-* app/project/mac/app.xcodeproj
+### WebAssembly
+* Linux or Ubuntu
+* `build_wasm.sh` build output in `build/wasm`
 
 ## 引擎功能
 编程语言
 
     C++11
 
-平台 & 3D API 支持
+平台 & 3D API支持
 
     Vulkan、OpenGL ES 2.0/3.0
     Android、iOS、macOS、Windows、UWP（Windows 通用平台）、Web（基于 WebAssembly）
@@ -69,6 +71,7 @@ Mesh
         4 骨骼权重蒙皮
         蒙皮硬件加速
     基于贝塞尔曲线的的 AnimationCurve
+    支持 BlendShape 动画
 
 渲染
 
@@ -76,11 +79,18 @@ Mesh
     Mesh Renderer
     SkinnedMesh Renderer
     Light
+    Lightmap
     Skybox
     Render To Texture
     FXAA
+    MSAA
     PostEffect Blur
     Shadow Map
+    Instancing
+    SSAO
+    VR
+    PBR
+    Compute Shader
 
 UI
 
@@ -89,6 +99,12 @@ UI
     Label
     Freetype Font
     Button
+    Select Button
+    Switch Button
+    Line View
+    Scroll View
+    Slider
+    Navigation Mesh 2D
 
 输入
 

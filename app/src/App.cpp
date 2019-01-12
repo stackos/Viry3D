@@ -152,25 +152,6 @@ namespace Viry3D
                 bool disabled = false;
 
 #if VR_GLES
-                if (name == "FXAA")
-                {
-                    // MARK:
-                    // mac opengl 4.1 / 3.2 not support glsl 120, then use opengl 2.1,
-                    // but opengl 2.1 not support some feature in fxaa glsl 120 shader,
-                    // and gles 2.0 / webgl 1.0 not support too,
-                    // so disable fxaa on mac / gles 2.0,
-                    // webgl 2.0 has wrong result, disable too.
-#if VR_WASM
-                    disabled = true;
-#else
-                    disabled = !Display::Instance()->IsGLESv3();
-#endif
-                    if (disabled)
-                    {
-                        button->GetLabel()->SetText("FXAA (disabled on gles2 / webgl)");
-                    }
-                }
-
                 // need gles3
                 if (!Display::Instance()->IsGLESv3())
                 {

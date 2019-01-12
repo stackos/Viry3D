@@ -134,10 +134,10 @@ void main()
                 render_state);
 #elif VR_GLES
             String vs = R"(
-in vec3 a_pos;
-in vec2 a_uv;
+attribute vec3 a_pos;
+attribute vec2 a_uv;
 
-out vec2 v_uv;
+varying vec2 v_uv;
 
 void main()
 {
@@ -152,13 +152,11 @@ uniform sampler2D u_texture;
 
 uniform vec4 u_rcp_frame;
 
-in vec2 v_uv;
-
-out vec4 o_frag;
+varying vec2 v_uv;
 
 void main()
 {
-    o_frag = FxaaPixelShader(v_uv,
+    gl_FragColor = FxaaPixelShader(v_uv,
         FxaaFloat4(0.0, 0.0, 0.0, 0.0),             // FxaaFloat4 fxaaConsolePosPos,
         u_texture,                                  // FxaaTex tex,
         u_texture,                                  // FxaaTex fxaaConsole360TexExpBiasNegOne,
@@ -179,24 +177,13 @@ void main()
 )";
             
             auto shader = RefMake<Shader>(
-#if VR_IOS || VR_ANDROID || VR_UWP
-                "#version 300 es",
-#else
-                "#version 330",
-#endif
+                "",
                 Vector<String>(),
                 vs,
                 String::Format(
-#if VR_IOS || VR_ANDROID || VR_UWP
-                    "#version 300 es\n"
-#else
-                    "#version 330\n"
-#endif
-#if VR_WINDOWS
-                    "#extension GL_ARB_gpu_shader5: enable\n"
-#endif
                     "#define FXAA_QUALITY__PRESET %d\n"
-                    "#define FXAA_GLSL_130 1",
+                    "#define FXAA_GLSL_100 1\n"
+                    "#define FXAA_GATHER4_ALPHA 0",
                     quality),
                 Vector<String>({ "FXAA.fs" }),
                 fs,
@@ -204,7 +191,7 @@ void main()
 #endif
 
             auto material = RefMake<Material>(shader);
-            material->SetVector("u_rcp_frame", Vector4(1.0f / Display::Instance()->GetWidth(), 1.0f / Display::Instance()->GetHeight()));
+            material->SetVector("u_rcp_frame", Vector4(1.0f / color_texture->GetWidth(), 1.0f / color_texture->GetHeight()));
             material->SetTexture("u_texture", color_texture);
 
             // color -> window
