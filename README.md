@@ -19,22 +19,27 @@ QQ 交流群：428374717
 ## Build
 ### Windows
 * Visual Studio 2017
+* CMake 3.10.2 or higher
 * `gen_build_win.bat` generate project in `build`
 
 ### UWP
 * Visual Studio 2017
+* CMake 3.10.2 or higher
 * `gen_build_uwp.bat` generate project in `build`
 
 ### iOS
 * Xcode
+* CMake 3.10.2 or higher
 * `gen_build_ios.sh` generate project in `build`
 
 ### macOS
 * Xcode
+* CMake 3.10.2 or higher
 * `gen_build_mac.sh` generate project in `build`
 
 ### Android
 * Android Studio
+* CMake 3.10.2 or higher
 * `app/project/android`
 * 如使用 Vulkan ，参照 [https://developer.android.google.cn/ndk/guides/graphics/getting-started.html](https://developer.android.google.cn/ndk/guides/graphics/getting-started.html) 编译 shaderc
 ```
@@ -45,7 +50,8 @@ cd (your android sdk dir)\ndk-bundle\sources\third_party\shaderc
 * Python(for copy assets cmd)
 
 ### WebAssembly
-* Linux or Ubuntu
+* Emscripten SDK, see `https://webassembly.org/getting-started/developers-guide/`
+* CMake 3.10.2 or higher
 * `build_wasm.sh` build output in `build/wasm`
 
 ## 引擎功能

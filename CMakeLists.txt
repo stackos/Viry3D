@@ -685,12 +685,12 @@ if (${Target} MATCHES "Windows")
 
     string(REPLACE "/" "\\" ASSETS_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/Assets)
     string(REPLACE "/" "\\" ASSETS_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
-    string(REPLACE "/" "\\" ICON_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/icon.ico)
-    string(REPLACE "/" "\\" ICON_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/icon.ico)
+    string(REPLACE "/" "\\" ICON_SRC ${CMAKE_SOURCE_DIR}/app/bin/icon.ico)
+    string(REPLACE "/" "\\" ICON_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/icon.ico)
     add_custom_command(TARGET Viry3DApp
                        POST_BUILD
                        COMMAND if not exist ${ASSETS_LINK_LINK} (mklink /d ${ASSETS_LINK_LINK} ${ASSETS_LINK_TARGET})
-                       COMMAND if not exist ${ICON_LINK_LINK} (mklink ${ICON_LINK_LINK} ${ICON_LINK_TARGET})
+                       COMMAND copy /Y ${ICON_SRC} ${ICON_DST}
                        )
 
     add_executable(CubeMapToSphericalPolynomial
@@ -709,6 +709,32 @@ if (${Target} MATCHES "Windows")
                           winmm.lib
                           Xaudio2.lib
                           )
+
+    add_executable(CubeMapCompress
+                   ${VIRY3D_APP_SRC_DIR}/../project/CubeMapCompress/CubeMapCompress.cpp
+                   )
+
+    target_include_directories(CubeMapCompress PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               ${VIRY3D_APP_SRC_DIR}/../project/CubeMapCompress/Compressonator/include
+                               )
+
+    target_link_libraries(CubeMapCompress
+                          Viry3D Viry3DDep
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
+                          winmm.lib
+                          Xaudio2.lib
+                          ${VIRY3D_APP_SRC_DIR}/../project/CubeMapCompress/Compressonator/lib/VS2015/${Arch}/Compressonator_MD_DLL.lib
+                          )
+
+    string(REPLACE "/" "\\" COMP_DLL_SRC ${VIRY3D_APP_SRC_DIR}/../project/CubeMapCompress/Compressonator/lib/VS2015/${Arch}/Compressonator_MD_DLL.dll)
+    string(REPLACE "/" "\\" COMP_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Compressonator_MD_DLL.dll)
+    add_custom_command(TARGET CubeMapCompress
+                       POST_BUILD
+                       COMMAND copy /Y ${COMP_DLL_SRC} ${COMP_DLL_DST}
+                       )
 
 elseif (${Target} MATCHES "UWP")
 

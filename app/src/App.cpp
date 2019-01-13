@@ -46,8 +46,8 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - cmake win/android/mac/ios/uwp/wasm/wintool
-// - IBL PBR
+// - UI Pixel Perfect
+// - PBR optimize
 // - Ray Tracing
 // - GPU Particle
 
