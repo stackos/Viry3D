@@ -50,7 +50,7 @@ cd (your android sdk dir)\ndk-bundle\sources\third_party\shaderc
 * Python(for copy assets cmd)
 
 ### WebAssembly
-* Emscripten SDK, see `https://webassembly.org/getting-started/developers-guide/`
+* Emscripten SDK, see [https://webassembly.org/getting-started/developers-guide/](https://webassembly.org/getting-started/developers-guide/)
 * CMake 3.10.2 or higher
 * `build_wasm.sh` build output in `build/wasm`
 
