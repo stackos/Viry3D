@@ -275,10 +275,8 @@ namespace Viry3D
 
     void View::ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix)
     {
-        int canvas_width = this->GetCanvas()->GetCamera()->GetTargetWidth();
-        int canvas_height = this->GetCanvas()->GetCamera()->GetTargetHeight();
-        int x = -canvas_width / 2 + (int) m_rect.x;
-        int y = canvas_height / 2 - (int) m_rect.y;
+        int x = (int) m_rect.x;
+        int y = (int) -m_rect.y;
 
         rect = Rect((float) x, (float) y, m_rect.width, m_rect.height);
 

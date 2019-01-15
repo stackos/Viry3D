@@ -309,6 +309,20 @@ void main()
             this->GetCamera()->SetFarClip(1000);
             this->GetCamera()->SetOrthographic(true);
             this->GetCamera()->SetOrthographicSize(this->GetCamera()->GetTargetHeight() / 2.0f);
+
+            // set custom projection matrix,
+            // make camera position in left top of view rect instead center,
+            // to avoid half pixel problem.
+            {
+                float top = 0;
+                float bottom = (float) -this->GetCamera()->GetTargetHeight();
+                float left = 0;
+                float right = (float) this->GetCamera()->GetTargetWidth();
+                auto projection_matrix = Matrix4x4::Ortho(left, right, bottom, top, this->GetCamera()->GetNearClip(), this->GetCamera()->GetFarClip());
+                
+                this->GetCamera()->SetProjectionMatrixExternal(projection_matrix);
+            }
+
             this->GetCamera()->SetProjectionUniform(this->GetMaterial());
 
             this->UpdateCanvas();
@@ -705,8 +719,7 @@ void main()
     void CanvasRenderer::HitViews(const Touch& t)
     {
         Vector2i pos = Vector2i((int) t.position.x, (int) t.position.y);
-        pos.x -= this->GetCamera()->GetTargetWidth() / 2;
-        pos.y -= this->GetCamera()->GetTargetHeight() / 2;
+        pos.y -= this->GetCamera()->GetTargetHeight();
 
         if (t.phase == TouchPhase::Began)
         {

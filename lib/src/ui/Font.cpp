@@ -157,7 +157,7 @@ namespace Viry3D
 		p_glyph->mono = mono;
 
 		FT_Face face = (FT_Face) m_font;
-        FT_Set_Char_Size(face, size << 6, size << 6, 96, 96);
+        FT_Set_Char_Size(face, size << 6, size << 6, 0, 0);
 
 		FT_GlyphSlot slot = face->glyph;
 		auto glyph_index = FT_Get_Char_Index(face, c);
