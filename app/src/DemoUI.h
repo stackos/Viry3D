@@ -51,11 +51,11 @@ and consoles to mobile phones and embedded platforms. )";
             label->SetSize(Vector2i(100, 30));
             label->SetOffset(Vector2i(40, 100));
             label->SetFont(Font::GetFont(FontType::PingFangSC));
-            label->SetFontSize(28);
+            label->SetFontSize(26);
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetText(text);
 
-            /*auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 
             Color colors[] = {
                 Color(201, 48, 44, 255) / 255.0f,
@@ -82,12 +82,12 @@ and consoles to mobile phones and embedded platforms. )";
                 {
                     button->GetLabel()->SetColor(Color::White());
                 }
-                button->SetOnClick([]() {
-                    Log("click button");
+                button->SetOnClick([=]() {
+                    Log("click button: %d", i);
                 });
 
                 canvas->AddView(button);
-            }*/
+            }
         }
 
         virtual void Init()

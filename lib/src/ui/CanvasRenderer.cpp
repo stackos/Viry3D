@@ -314,10 +314,13 @@ void main()
             // make camera position in left top of view rect instead center,
             // to avoid half pixel problem.
             {
+                float view_width = this->GetCamera()->GetTargetWidth() * this->GetCamera()->GetViewportRect().width;
+                float view_height = this->GetCamera()->GetTargetHeight() * this->GetCamera()->GetViewportRect().height;
+
                 float top = 0;
                 float bottom = (float) -this->GetCamera()->GetTargetHeight();
                 float left = 0;
-                float right = (float) this->GetCamera()->GetTargetWidth();
+                float right = (float) this->GetCamera()->GetTargetHeight() * view_width / view_height;
                 auto projection_matrix = Matrix4x4::Ortho(left, right, bottom, top, this->GetCamera()->GetNearClip(), this->GetCamera()->GetFarClip());
                 
                 this->GetCamera()->SetProjectionMatrixExternal(projection_matrix);
@@ -677,6 +680,13 @@ void main()
 
     void CanvasRenderer::HandleTouchEvent()
     {
+        if (this->GetCamera()->HasRenderTarget() ||
+            this->GetCamera()->GetViewportRect().width < 1.0f ||
+            this->GetCamera()->GetViewportRect().height < 1.0f)
+        {
+            return;
+        }
+
         int touch_count = Input::GetTouchCount();
         for (int i = 0; i < touch_count; ++i)
         {

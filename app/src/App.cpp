@@ -46,7 +46,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - UI Pixel Perfect
+// - 2D Game Demo
 // - PBR optimize
 // - Ray Tracing
 // - GPU Particle
@@ -251,14 +251,14 @@ namespace Viry3D
 
         void AddTouchCursor()
         {
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/touch.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
+            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/cursor.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 
             auto sprite = RefMake<Sprite>();
             m_canvas->AddView(sprite);
 
-            sprite->SetSize(Vector2i(24, 24));
+            sprite->SetSize(Vector2i(texture->GetWidth(), texture->GetHeight()));
             sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::Bottom);
-            sprite->SetPivot(Vector2(0.5f, 0.5f));
+            sprite->SetPivot(Vector2(0.02f, 0.02f));
             sprite->SetOffset(m_touch_cursor_pos);
             sprite->SetTexture(texture);
 
