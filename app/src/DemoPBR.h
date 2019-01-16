@@ -175,11 +175,8 @@ namespace Viry3D
             {
                 for (int j = 0; j < 6; ++j)
                 {
-                    int width;
-                    int height;
-                    int bpp;
-                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/prefilter/%d_%d.png").CString(), i, j), width, height, bpp);
-                    cubemap->UpdateCubemap(pixels, (CubemapFace) j, i);
+                    Ref<Image> image = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/prefilter/%d_%d.png").CString(), i, j));
+                    cubemap->UpdateCubemap(image->data, (CubemapFace) j, i);
                 }
             }
 #endif

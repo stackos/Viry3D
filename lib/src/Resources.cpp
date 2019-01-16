@@ -89,11 +89,8 @@ namespace Viry3D
                         {
                             String face_path = faces[j].asCString();
 
-                            int w;
-                            int h;
-                            int bpp;
-                            ByteBuffer pixels = Texture::LoadImageFromFile(Application::Instance()->GetDataPath() + "/" + face_path, w, h, bpp);
-                            texture->UpdateCubemap(pixels, (CubemapFace) j, i);
+                            Ref<Image> image = Texture::LoadImageFromFile(Application::Instance()->GetDataPath() + "/" + face_path);
+                            texture->UpdateCubemap(image->data, (CubemapFace) j, i);
                         }
                     }
                 }

@@ -35,8 +35,10 @@ namespace Viry3D
         int size;
     };
 
-    ByteBuffer Image::LoadJPEG(const ByteBuffer& jpeg, int& width, int& height, int& bpp)
+    Ref<Image> Image::LoadJPEG(const ByteBuffer& jpeg)
     {
+        Ref<Image> image = RefMake<Image>();
+
         //use lib jpeg
         jpeg_decompress_struct cinfo;
         jpeg_error_mgr jerr;
@@ -54,13 +56,25 @@ namespace Viry3D
         buffer = (*cinfo.mem->alloc_sarray)
             ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 
-        width = cinfo.output_width;
-        height = cinfo.output_height;
-        bpp = cinfo.output_components * 8;
+        image->width = cinfo.output_width;
+        image->height = cinfo.output_height;
+        int bpp = cinfo.output_components * 8;
+        switch (bpp)
+        {
+            case 8:
+                image->format = ImageFormat::R8;
+                break;
+            case 24:
+                image->format = ImageFormat::R8G8B8;
+                break;
+            case 32:
+                image->format = ImageFormat::R8G8B8A8;
+                break;
+        }
 
-        ByteBuffer colors(width * height * cinfo.output_components);
+        image->data = ByteBuffer(image->width * image->height * cinfo.output_components);
 
-        unsigned char* pPixel = colors.Bytes();
+        unsigned char* pPixel = image->data.Bytes();
 
         while (cinfo.output_scanline < cinfo.output_height)
         {
@@ -68,7 +82,7 @@ namespace Viry3D
 
             unsigned char *pixel_data = buffer[0];
 
-            for (int j = 0; j < width; ++j)
+            for (int j = 0; j < image->width; ++j)
             {
                 memcpy(pPixel, pixel_data, cinfo.output_components);
 
@@ -80,7 +94,7 @@ namespace Viry3D
         jpeg_finish_decompress(&cinfo);
         jpeg_destroy_decompress(&cinfo);
 
-        return colors;
+        return image;
     }
 
     static void PngRead(png_structp png_ptr, png_bytep data, png_size_t length)
@@ -111,9 +125,9 @@ namespace Viry3D
 
     }
 
-    ByteBuffer Image::LoadPNG(const ByteBuffer& png, int& width, int& height, int& bpp)
+    Ref<Image> Image::LoadPNG(const ByteBuffer& png)
     {
-        ByteBuffer colors;
+        Ref<Image> image = RefMake<Image>();
 
         png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
         png_infop info_ptr = png_create_info_struct(png_ptr);
@@ -122,71 +136,67 @@ namespace Viry3D
         png_set_read_fn(png_ptr, png.Bytes(), PngRead);
         png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, 0);
 
-        width = png_get_image_width(png_ptr, info_ptr);
-        height = png_get_image_height(png_ptr, info_ptr);
+        image->width = png_get_image_width(png_ptr, info_ptr);
+        image->height = png_get_image_height(png_ptr, info_ptr);
 
         int color_type = png_get_color_type(png_ptr, info_ptr);
         if (color_type == PNG_COLOR_TYPE_RGBA)
         {
-            bpp = png_get_bit_depth(png_ptr, info_ptr) * 4;
-
             png_bytep* row_pointers = png_get_rows(png_ptr, info_ptr);
 
-            colors = ByteBuffer(width * height * 4);
+            image->data = ByteBuffer(image->width * image->height * 4);
+            image->format = ImageFormat::R8G8B8A8;
 
-            unsigned char* pPixel = colors.Bytes();
+            unsigned char* pPixel = image->data.Bytes();
 
-            for (int i = 0; i < height; ++i)
+            for (int i = 0; i < image->height; ++i)
             {
-                memcpy(pPixel, row_pointers[i], width * 4);
-                pPixel += width * 4;
+                memcpy(pPixel, row_pointers[i], image->width * 4);
+                pPixel += image->width * 4;
             }
         }
         else if (color_type == PNG_COLOR_TYPE_RGB)
         {
-            bpp = png_get_bit_depth(png_ptr, info_ptr) * 3;
-
             png_bytep* row_pointers = png_get_rows(png_ptr, info_ptr);
 
-            colors = ByteBuffer(width * height * 3);
+            image->data = ByteBuffer(image->width * image->height * 3);
+            image->format = ImageFormat::R8G8B8;
 
-            unsigned char* pPixel = colors.Bytes();
+            unsigned char* pPixel = image->data.Bytes();
 
-            for (int i = 0; i < height; ++i)
+            for (int i = 0; i < image->height; ++i)
             {
-                memcpy(pPixel, row_pointers[i], width * 3);
-                pPixel += width * 3;
+                memcpy(pPixel, row_pointers[i], image->width * 3);
+                pPixel += image->width * 3;
             }
         }
         else if (color_type == PNG_COLOR_TYPE_GRAY)
         {
-            bpp = png_get_bit_depth(png_ptr, info_ptr) * 1;
-
             png_bytep* row_pointers = png_get_rows(png_ptr, info_ptr);
 
-            colors = ByteBuffer(width * height);
+            image->data = ByteBuffer(image->width * image->height);
+            image->format = ImageFormat::R8;
 
-            unsigned char* pPixel = colors.Bytes();
+            unsigned char* pPixel = image->data.Bytes();
 
-            for (int i = 0; i < height; ++i)
+            for (int i = 0; i < image->height; ++i)
             {
-                memcpy(pPixel, row_pointers[i], width * 1);
-                pPixel += width * 1;
+                memcpy(pPixel, row_pointers[i], image->width * 1);
+                pPixel += image->width * 1;
             }
         }
         else if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
         {
-            bpp = png_get_bit_depth(png_ptr, info_ptr) * 4;
-
             png_bytep* row_pointers = png_get_rows(png_ptr, info_ptr);
 
-            colors = ByteBuffer(width * height * 4);
+            image->data = ByteBuffer(image->width * image->height * 4);
+            image->format = ImageFormat::R8G8B8A8;
 
-            byte* pPixel = colors.Bytes();
+            byte* pPixel = image->data.Bytes();
 
-            for (int i = 0; i < height; ++i)
+            for (int i = 0; i < image->height; ++i)
             {
-                for (int j = 0; j < width; ++j)
+                for (int j = 0; j < image->width; ++j)
                 {
                     png_byte g = row_pointers[i][j * 2];
                     png_byte a = row_pointers[i][j * 2 + 1];
@@ -206,22 +216,26 @@ namespace Viry3D
 
         png_destroy_read_struct(&png_ptr, &info_ptr, 0);
 
-        return colors;
+        return image;
     }
 
-    void Image::EncodeToPNG(const String& file, const ByteBuffer& colors, int width, int height, int bpp)
+    void Image::EncodeToPNG(const String& file)
     {
         int color_type = -1;
-        switch (bpp)
+        int bpp;
+        switch (this->format)
         {
-            case 32:
+            case ImageFormat::R8G8B8A8:
                 color_type = PNG_COLOR_TYPE_RGBA;
+                bpp = 32;
                 break;
-            case 24:
+            case ImageFormat::R8G8B8:
                 color_type = PNG_COLOR_TYPE_RGB;
+                bpp = 24;
                 break;
-            case 8:
+            case ImageFormat::R8:
                 color_type = PNG_COLOR_TYPE_GRAY;
+                bpp = 8;
                 break;
             default:
                 return;
@@ -245,7 +259,7 @@ namespace Viry3D
         png_bytepp row_pointers = new png_bytep[height];
         for (int i = 0; i < height; ++i)
         {
-            row_pointers[i] = (png_bytep) &colors[i * width * bpp / 8];
+            row_pointers[i] = (png_bytep) &this->data[i * width * bpp / 8];
         }
         png_write_image(png_ptr, row_pointers);
         delete[] row_pointers;

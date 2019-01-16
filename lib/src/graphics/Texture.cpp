@@ -459,21 +459,21 @@ namespace Viry3D
         return texture;
     }
 
-    ByteBuffer Texture::LoadImageFromFile(const String& path, int& width, int& height, int& bpp)
+    Ref<Image> Texture::LoadImageFromFile(const String& path)
     {
-        ByteBuffer pixels;
+        Ref<Image> image;
 
         if (File::Exist(path))
         {
             if (path.EndsWith(".png"))
             {
                 ByteBuffer png = File::ReadAllBytes(path);
-                pixels = Image::LoadPNG(png, width, height, bpp);
+                image = Image::LoadPNG(png);
             }
             else if (path.EndsWith(".jpg"))
             {
                 ByteBuffer jpg = File::ReadAllBytes(path);
-                pixels = Image::LoadJPEG(jpg, width, height, bpp);
+                image = Image::LoadJPEG(jpg);
             }
             else
             {
@@ -481,19 +481,19 @@ namespace Viry3D
             }
 
             // vulkan not support R8G8B8, convert to R8G8B8A8 always
-            if (bpp == 24)
+            if (image->format == ImageFormat::R8G8B8)
             {
-                int pixel_count = pixels.Size() / 3;
+                int pixel_count = image->data.Size() / 3;
                 ByteBuffer rgba(pixel_count * 4);
                 for (int i = 0; i < pixel_count; ++i)
                 {
-                    rgba[i * 4 + 0] = pixels[i * 3 + 0];
-                    rgba[i * 4 + 1] = pixels[i * 3 + 1];
-                    rgba[i * 4 + 2] = pixels[i * 3 + 2];
+                    rgba[i * 4 + 0] = image->data[i * 3 + 0];
+                    rgba[i * 4 + 1] = image->data[i * 3 + 1];
+                    rgba[i * 4 + 2] = image->data[i * 3 + 2];
                     rgba[i * 4 + 3] = 255;
                 }
-                pixels = rgba;
-                bpp = 32;
+                image->data = rgba;
+                image->format = ImageFormat::R8G8B8A8;
             }
         }
         else
@@ -501,7 +501,7 @@ namespace Viry3D
             Log("image file not exist: %s", path.CString());
         }
 
-        return pixels;
+        return image;
     }
 
     Ref<Texture> Texture::LoadTexture2DFromFile(
@@ -513,19 +513,16 @@ namespace Viry3D
     {
         Ref<Texture> texture;
 
-        int width;
-        int height;
-        int bpp;
-        ByteBuffer pixels = Texture::LoadImageFromFile(path, width, height, bpp);
-        if (pixels.Size() > 0)
+        Ref<Image> image = Texture::LoadImageFromFile(path);
+        if (image)
         {
             TextureFormat format;
             
-            if (bpp == 32)
+            if (image->format == ImageFormat::R8G8B8A8)
             {
                 format = TextureFormat::R8G8B8A8;
             }
-            else if (bpp == 8)
+            else if (image->format == ImageFormat::R8)
             {
                 format = TextureFormat::R8;
             }
@@ -534,7 +531,7 @@ namespace Viry3D
                 assert(!"texture format not support");
             }
 
-            texture = Texture::CreateTexture2DFromMemory(pixels, width, height, format, filter_mode, wrap_mode, gen_mipmap, false, is_storage);
+            texture = Texture::CreateTexture2DFromMemory(image->data, image->width, image->height, format, filter_mode, wrap_mode, gen_mipmap, false, is_storage);
         }
 
         return texture;

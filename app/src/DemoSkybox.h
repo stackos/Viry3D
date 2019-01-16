@@ -134,11 +134,8 @@ void main()
                 auto cubemap = Texture::CreateCubemap(1024, TextureFormat::R8G8B8A8, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
                 for (int i = 0; i < 6; ++i)
                 {
-                    int width;
-                    int height;
-                    int bpp;
-                    ByteBuffer pixels = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/dawn/%d.png").CString(), i), width, height, bpp);
-                    cubemap->UpdateCubemap(pixels, (CubemapFace) i, 0);
+                    Ref<Image> image = Texture::LoadImageFromFile(String::Format((Application::Instance()->GetDataPath() + "/texture/env/dawn/%d.png").CString(), i));
+                    cubemap->UpdateCubemap(image->data, (CubemapFace) i, 0);
                 }
                 return cubemap;
             };

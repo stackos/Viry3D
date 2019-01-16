@@ -18,14 +18,28 @@
 #pragma once
 
 #include "string/String.h"
+#include "memory/Ref.h"
 
 namespace Viry3D
 {
+    enum class ImageFormat
+    {
+        None = 0,
+        R8,
+        R8G8B8,
+        R8G8B8A8,
+    };
+
 	class Image
 	{
 	public:
-		static ByteBuffer LoadJPEG(const ByteBuffer& jpeg, int& width, int& height, int& bpp);
-		static ByteBuffer LoadPNG(const ByteBuffer& png, int& width, int& height, int& bpp);
-		static void EncodeToPNG(const String& file, const ByteBuffer& colors, int width, int height, int bpp);
+		static Ref<Image> LoadJPEG(const ByteBuffer& jpeg);
+		static Ref<Image> LoadPNG(const ByteBuffer& png);
+		void EncodeToPNG(const String& file);
+
+        int width = 0;
+        int height = 0;
+        ImageFormat format = ImageFormat::None;
+        ByteBuffer data;
 	};
 }

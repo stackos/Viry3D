@@ -19,6 +19,7 @@
 
 #include "Object.h"
 #include "Display.h"
+#include "Image.h"
 #include "thread/ThreadPool.h"
 
 namespace Viry3D
@@ -89,7 +90,7 @@ namespace Viry3D
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode,
             bool is_storage);
-        static ByteBuffer LoadImageFromFile(const String& path, int& width, int& height, int& bpp);
+        static Ref<Image> LoadImageFromFile(const String& path);
         static Ref<Texture> LoadTexture2DFromFile(
             const String& path,
             FilterMode filter_mode,

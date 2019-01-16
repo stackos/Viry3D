@@ -56,17 +56,16 @@ int main(int argc, char* argv[])
             if (texture_format != TextureFormat::None)
             {
                 int width = 0;
-                int height = 0;
-                int bpp = 0;
                 Vector<ByteBuffer> faces(6);
                 for (int i = 0; i < faces.Size(); ++i)
                 {
-                    ByteBuffer pixels = Texture::LoadImageFromFile(cubemap_faces[i].asCString(), width, height, bpp);
-                    if (pixels.Size() == 0)
+                    Ref<Image> image = Texture::LoadImageFromFile(cubemap_faces[i].asCString());
+                    if (!image)
                     {
                         return 0;
                     }
-                    faces[i] = pixels;
+                    faces[i] = image->data;
+                    width = image->width;
                 }
 
                 SphericalPolynomial sp = CubeMapToSphericalPolynomialTools::ConvertCubeMapToSphericalPolynomial(
