@@ -395,27 +395,27 @@ void main()
         }
 
         mesh_list.Sort([](const ViewMesh* a, const ViewMesh* b) {
-            if (!a->texture && b->texture)
+            if (!a->HasTextureOrImage() && b->HasTextureOrImage())
             {
                 return true;
             }
-            else if (a->texture && !b->texture)
+            else if (a->HasTextureOrImage() && !b->HasTextureOrImage())
             {
                 return false;
             }
-            else if (!a->texture && !b->texture)
+            else if (!a->HasTextureOrImage() && !b->HasTextureOrImage())
             {
                 return false;
             }
             else
             {
-                if (a->texture->GetWidth() == b->texture->GetWidth())
+                if (a->GetTextureOrImageWidth() == b->GetTextureOrImageWidth())
                 {
-                    return a->texture->GetHeight() > b->texture->GetHeight();
+                    return a->GetTextureOrImageHeight() > b->GetTextureOrImageHeight();
                 }
                 else
                 {
-                    return a->texture->GetWidth() > b->texture->GetWidth();
+                    return a->GetTextureOrImageWidth() > b->GetTextureOrImageWidth();
                 }
             }
         });
@@ -423,7 +423,7 @@ void main()
         bool atlas_updated = false;
         for (auto i : mesh_list)
         {
-            if (i->texture)
+            if (i->texture || i->image)
             {
                 bool updated;
                 this->UpdateAtlas(*i, updated);
@@ -440,7 +440,7 @@ void main()
 
         for (const auto& i : m_view_meshes)
         {
-            if (i.vertices.Size() > 0 && i.indices.Size() > 0 && i.texture)
+            if (i.vertices.Size() > 0 && i.indices.Size() > 0 && (i.texture || i.image))
             {
                 int index_offset = vertices.Size();
 
@@ -556,12 +556,16 @@ void main()
 
     void CanvasRenderer::UpdateAtlas(ViewMesh& mesh, bool& updated)
     {
-        assert(mesh.texture->GetWidth() <= ATLAS_SIZE - PADDING_SIZE && mesh.texture->GetHeight() <= ATLAS_SIZE - PADDING_SIZE);
+        int texture_width = mesh.GetTextureOrImageWidth();
+        int texture_height = mesh.GetTextureOrImageHeight();
+
+        assert(texture_width <= ATLAS_SIZE - PADDING_SIZE && texture_height <= ATLAS_SIZE - PADDING_SIZE);
 
         AtlasTreeNode* node = nullptr;
 
         AtlasTreeNode** node_ptr;
-        if (m_atlas_cache.TryGet(mesh.texture.get(), &node_ptr))
+        if ((mesh.texture && m_atlas_cache.TryGet(mesh.texture.get(), &node_ptr)) ||
+            (mesh.image && m_atlas_cache.TryGet(mesh.image.get(), &node_ptr)))
         {
             node = *node_ptr;
 
@@ -571,7 +575,7 @@ void main()
         {
             for (int i = 0; i < m_atlas_tree.Size(); ++i)
             {
-                node = this->FindAtlasTreeNodeToInsert(mesh.texture->GetWidth(), mesh.texture->GetHeight(), m_atlas_tree[i]);
+                node = this->FindAtlasTreeNodeToInsert(texture_width, texture_height, m_atlas_tree[i]);
                 if (node)
                 {
                     break;
@@ -582,7 +586,7 @@ void main()
             {
                 this->NewAtlasTextureLayer();
 
-                node = this->FindAtlasTreeNodeToInsert(mesh.texture->GetWidth(), mesh.texture->GetHeight(), m_atlas_tree[m_atlas_tree.Size() - 1]);
+                node = this->FindAtlasTreeNodeToInsert(texture_width, texture_height, m_atlas_tree[m_atlas_tree.Size() - 1]);
             }
 
             assert(node);
@@ -591,19 +595,19 @@ void main()
             AtlasTreeNode* left = new AtlasTreeNode();
             AtlasTreeNode* right = new AtlasTreeNode();
 
-            int remain_w = node->w - mesh.texture->GetWidth() - PADDING_SIZE;
-            int remain_h = node->h - mesh.texture->GetHeight() - PADDING_SIZE;
+            int remain_w = node->w - texture_width - PADDING_SIZE;
+            int remain_h = node->h - texture_height - PADDING_SIZE;
 
             if (remain_w <= remain_h)
             {
-                left->x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
+                left->x = node->x + texture_width + PADDING_SIZE;
                 left->y = node->y;
                 left->w = remain_w;
-                left->h = mesh.texture->GetHeight();
+                left->h = texture_height;
                 left->layer = node->layer;
 
                 right->x = node->x;
-                right->y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
+                right->y = node->y + texture_height + PADDING_SIZE;
                 right->w = node->w;
                 right->h = remain_h;
                 right->layer = node->layer;
@@ -611,36 +615,57 @@ void main()
             else
             {
                 left->x = node->x;
-                left->y = node->y + mesh.texture->GetHeight() + PADDING_SIZE;
-                left->w = mesh.texture->GetWidth();
+                left->y = node->y + texture_height + PADDING_SIZE;
+                left->w = texture_width;
                 left->h = remain_h;
                 left->layer = node->layer;
 
-                right->x = node->x + mesh.texture->GetWidth() + PADDING_SIZE;
+                right->x = node->x + texture_width + PADDING_SIZE;
                 right->y = node->y;
                 right->w = remain_w;
                 right->h = node->h;
                 right->layer = node->layer;
             }
 
-            node->w = mesh.texture->GetWidth();
-            node->h = mesh.texture->GetHeight();
+            node->w = texture_width;
+            node->h = texture_height;
             node->children.Resize(2);
             node->children[0] = left;
             node->children[1] = right;
 
             // copy texture to atlas
-            m_atlas->CopyTexture(
-                mesh.texture,
-                0, 0,
-                0, 0,
-                node->w, node->h,
-                node->layer, 0,
-                node->x, node->y,
-                node->w, node->h);
-
             // add cache
-            m_atlas_cache.Add(mesh.texture.get(), node);
+            if (mesh.texture)
+            {
+                m_atlas->CopyTexture(
+                    mesh.texture,
+                    0, 0,
+                    0, 0,
+                    node->w, node->h,
+                    node->layer, 0,
+                    node->x, node->y,
+                    node->w, node->h);
+
+                m_atlas_cache.Add(mesh.texture.get(), node);
+            }
+            else if (mesh.image)
+            {
+#if VR_VULKAN
+                m_atlas->UpdateTexture2DArray(
+                    mesh.image->data,
+                    node->layer, 0,
+                    node->x, node->y,
+                    node->w, node->h);
+#elif VR_GLES
+                m_atlas->UpdateTexture2D(
+                    mesh.image->data,
+                    node->x, node->y,
+                    node->w, node->h,
+                    0);
+#endif
+
+                m_atlas_cache.Add(mesh.image.get(), node);
+            }
 
             updated = true;
         }

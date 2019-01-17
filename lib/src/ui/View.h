@@ -33,6 +33,7 @@ namespace Viry3D
 {
 	class CanvasRenderer;
 	class Texture;
+    class Image;
     class View;
 
     struct ViewMesh
@@ -40,8 +41,17 @@ namespace Viry3D
         Vector<Vertex> vertices;
         Vector<unsigned short> indices;
         Ref<Texture> texture;
+        Ref<Image> image;
         View* view = nullptr;
         bool base_view = false;
+
+        bool HasTextureOrImage() const
+        {
+            return texture || image;
+        }
+
+        int GetTextureOrImageWidth() const;
+        int GetTextureOrImageHeight() const;
     };
 
     struct ViewAlignment

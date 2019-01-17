@@ -20,9 +20,20 @@
 #include "Debug.h"
 #include "memory/Memory.h"
 #include "graphics/Camera.h"
+#include "graphics/Texture.h"
 
 namespace Viry3D
 {
+    int ViewMesh::GetTextureOrImageWidth() const
+    {
+        return texture ? texture->GetWidth() : image->width;
+    }
+
+    int ViewMesh::GetTextureOrImageHeight() const
+    {
+        return texture ? texture->GetHeight() : image->height;
+    }
+
 	View::View():
 		m_canvas(nullptr),
         m_parent_view(nullptr),

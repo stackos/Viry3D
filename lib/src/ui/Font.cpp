@@ -197,30 +197,30 @@ namespace Viry3D
 		}
 
 		p_glyph->glyph_index = glyph_index;
-        p_glyph->witdh = slot->bitmap.width;
+        p_glyph->width = slot->bitmap.width;
         p_glyph->height = slot->bitmap.rows;
 		p_glyph->bearing_x = slot->bitmap_left;
 		p_glyph->bearing_y = slot->bitmap_top;
 		p_glyph->advance_x = (int) (slot->advance.x >> 6);
 		p_glyph->advance_y = (int) (slot->advance.y >> 6);
 
-        if (p_glyph->witdh > 0 && p_glyph->height > 0)
+        if (p_glyph->width > 0 && p_glyph->height > 0)
         {
-            ByteBuffer pixels = ByteBuffer(p_glyph->witdh * p_glyph->height * 4);
+            ByteBuffer pixels = ByteBuffer(p_glyph->width * p_glyph->height * 4);
 
             if (mono)
             {
                 for (int i = 0; i < p_glyph->height; ++i)
                 {
-                    for (int j = 0; j < p_glyph->witdh; ++j)
+                    for (int j = 0; j < p_glyph->width; ++j)
                     {
                         unsigned char bit = slot->bitmap.buffer[i * slot->bitmap.pitch + j / 8] & (0x1 << (7 - j % 8));
                         bit = bit == 0 ? 0 : 255;
 
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = bit;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 0] = 255;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 1] = 255;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 2] = 255;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 3] = bit;
                     }
                 }
             }
@@ -228,31 +228,25 @@ namespace Viry3D
             {
                 for (int i = 0; i < p_glyph->height; ++i)
                 {
-                    for (int j = 0; j < p_glyph->witdh; ++j)
+                    for (int j = 0; j < p_glyph->width; ++j)
                     {
                         unsigned char alpha = slot->bitmap.buffer[i * slot->bitmap.pitch + j];
 
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 0] = 255;
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 1] = 255;
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 2] = 255;
-                        pixels[i * p_glyph->witdh * 4 + j * 4 + 3] = alpha;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 0] = 255;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 1] = 255;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 2] = 255;
+                        pixels[i * p_glyph->width * 4 + j * 4 + 3] = alpha;
                     }
                 }
             }
 
-            p_glyph->texture = Texture::CreateTexture2DFromMemory(
-                pixels,
-                p_glyph->witdh,
+            p_glyph->image = RefMake<Image>();
+            *p_glyph->image = {
+                p_glyph->width,
                 p_glyph->height,
-                TextureFormat::R8G8B8A8,
-                FilterMode::Linear,
-                SamplerAddressMode::ClampToEdge,
-                false,
-                false,
-                false);
-
-            char32_t buffer[2] = { c, 0 };
-            p_glyph->texture->SetName(String(buffer));
+                ImageFormat::R8G8B8A8,
+                pixels
+            };
         }
 
 		return *p_glyph;

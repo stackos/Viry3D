@@ -73,7 +73,7 @@ namespace Viry3D
         Ref<Texture> m_atlas;
         int m_atlas_array_size;
         Vector<AtlasTreeNode*> m_atlas_tree;
-        Map<Texture*, AtlasTreeNode*> m_atlas_cache;
+        Map<void*, AtlasTreeNode*> m_atlas_cache;
         Vector<ViewMesh> m_view_meshes;
         Map<int, List<View*>> m_touch_down_views;
 	};

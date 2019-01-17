@@ -26,6 +26,7 @@
 
 namespace Viry3D
 {
+    Ref<Image> Texture::m_shared_white_image;
 	Ref<Texture> Texture::m_shared_white_texture;
 	Ref<Texture> Texture::m_shared_black_texture;
 	Ref<Texture> Texture::m_shared_normal_texture;
@@ -833,7 +834,7 @@ namespace Viry3D
 
         for (int i = 0; i < layer_count; ++i)
         {
-            texture->UpdateTexture2DArray(pixels[i], i, 0);
+            texture->UpdateTexture2DArray(pixels[i], i, 0, 0, 0, width, height);
         }
 
         if (gen_mipmap)
@@ -895,6 +896,16 @@ namespace Viry3D
         return texture;
     }
 
+    Ref<Image> Texture::GetSharedWhiteImage()
+    {
+        if (!m_shared_white_image)
+        {
+            Texture::GetSharedWhiteTexture();
+        }
+
+        return m_shared_white_image;
+    }
+
 	Ref<Texture> Texture::GetSharedWhiteTexture()
 	{
 		if (!m_shared_white_texture)
@@ -907,6 +918,14 @@ namespace Viry3D
                 pixels[i * 4 + 2] = 255;
                 pixels[i * 4 + 3] = 255;
             }
+
+            m_shared_white_image = RefMake<Image>();
+            *m_shared_white_image = {
+                3,
+                3,
+                ImageFormat::R8G8B8A8,
+                pixels
+            };
 
 			m_shared_white_texture = Texture::CreateTexture2DFromMemory(
 				pixels,
@@ -1018,7 +1037,7 @@ namespace Viry3D
 #if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
 
-        if (!m_image_buffer)
+        if (!m_image_buffer || m_image_buffer->GetSize() < pixels.Size())
         {
             m_image_buffer = Display::Instance()->CreateBuffer(pixels.Bytes(), pixels.Size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, false, VK_FORMAT_UNDEFINED);
         }
@@ -1100,7 +1119,11 @@ namespace Viry3D
 #endif
     }
 
-    void Texture::UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level)
+    void Texture::UpdateTexture2DArray(
+        const ByteBuffer& pixels,
+        int layer, int level,
+        int x, int y,
+        int w, int h)
     {
 #if VR_VULKAN
         VkDevice device = Display::Instance()->GetDevice();
@@ -1115,7 +1138,7 @@ namespace Viry3D
         }
 
         this->CopyBufferToImageBegin();
-        this->CopyBufferToImage(m_image_buffer, 0, 0, m_width >> level, m_height >> level, layer, level);
+        this->CopyBufferToImage(m_image_buffer, x, y, w, h, layer, level);
         this->CopyBufferToImageEnd();
 
         if (!m_dynamic)

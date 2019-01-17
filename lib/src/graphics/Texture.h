@@ -149,6 +149,7 @@ namespace Viry3D
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode);
         static TextureFormat ChooseDepthFormatSupported(bool sample);
+        static Ref<Image> GetSharedWhiteImage();
 		static Ref<Texture> GetSharedWhiteTexture();
 		static Ref<Texture> GetSharedBlackTexture();
 		static Ref<Texture> GetSharedNormalTexture();
@@ -162,7 +163,11 @@ namespace Viry3D
         int GetSampleCount() const { return m_sample_count; }
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h, int level);
         void UpdateCubemap(const ByteBuffer& pixels, CubemapFace face, int level);
-        void UpdateTexture2DArray(const ByteBuffer& pixels, int layer, int level);
+        void UpdateTexture2DArray(
+            const ByteBuffer& pixels,
+            int layer, int level,
+            int x, int y,
+            int w, int h);
         void GenMipmaps();
         void CopyTexture(
             const Ref<Texture>& src_texture,
@@ -208,6 +213,7 @@ namespace Viry3D
         int GetLayerCount();
 
     private:
+        static Ref<Image> m_shared_white_image;
 		static Ref<Texture> m_shared_white_texture;
 		static Ref<Texture> m_shared_black_texture;
 		static Ref<Texture> m_shared_normal_texture;

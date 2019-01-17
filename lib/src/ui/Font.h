@@ -32,14 +32,14 @@ namespace Viry3D
         SimSun,
     };
 
-    class Texture;
+    class Image;
 
 	struct GlyphInfo
 	{
 		char32_t c;
 		int size;
 		unsigned int glyph_index;
-        int witdh;
+        int width;
         int height;
 		int bearing_x;
 		int bearing_y;
@@ -48,7 +48,7 @@ namespace Viry3D
 		bool bold;
 		bool italic;
 		bool mono;
-        Ref<Texture> texture;
+        Ref<Image> image;
 	};
 
 	class Font

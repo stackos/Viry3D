@@ -397,7 +397,7 @@ namespace Viry3D
 
             int x0 = pen_x + info.bearing_x;
             int y0 = pen_y + info.bearing_y - baseline;
-            int x1 = x0 + info.witdh;
+            int x1 = x0 + info.width;
             if (c == ' ')
             {
                 x1 = pen_x + info.advance_x + char_space;
@@ -430,7 +430,7 @@ namespace Viry3D
 
             CharMesh mesh;
             mesh.c = c;
-            mesh.texture = info.texture;
+            mesh.image = info.image;
             mesh.bound = Bounds(Vector3((float) x0, (float) y1, 0), Vector3((float) x1, (float) y0, 0));
 
             float uv_x0 = 0;
@@ -529,7 +529,7 @@ namespace Viry3D
             {
                 CharMesh underline_mesh;
                 underline_mesh.c = 0;
-                underline_mesh.texture = Texture::GetSharedWhiteTexture();
+                underline_mesh.image = Texture::GetSharedWhiteImage();
 
                 int ux0 = pen_x - (info.advance_x + char_space);
                 int uy0 = pen_y - baseline - 2;
@@ -642,7 +642,7 @@ namespace Viry3D
                 }
 
                 mesh.indices.AddRange(char_mesh.indices);
-                mesh.texture = char_mesh.texture;
+                mesh.image = char_mesh.image;
                 mesh.view = this;
                 mesh.base_view = false;
 

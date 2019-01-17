@@ -37,7 +37,7 @@ namespace Viry3D
         Vector<Vector2> uv;
         Vector<Color> colors;
         Vector<unsigned short> indices;
-        Ref<Texture> texture;
+        Ref<Image> image;
         Bounds bound;
     };
 
