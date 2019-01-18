@@ -26,6 +26,7 @@
 #include "DemoUI.h"
 #include "DemoShadowMap.h"
 #include "DemoAudio.h"
+#include "DemoCanvasEditor.h"
 #if VR_IOS
 #include "DemoAR.h"
 #endif
@@ -46,6 +47,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
+// - ImGui
 // - Canvas Editor
 // - 2D Game Demo
 // - PBR optimize
@@ -124,6 +126,7 @@ namespace Viry3D
                 { "ComputeStorageBuffer", [this]() { m_demo = new DemoComputeStorageBuffer(); } },
                 { "ComputeTexelBuffer", [this]() { m_demo = new DemoComputeTexelBuffer(); } },
                 { "PBR", [this]() { m_demo = new DemoPBR(); } },
+                { "CanvasEditor", [this]() { m_demo = new DemoCanvasEditor(); } },
 #endif
             };
 
