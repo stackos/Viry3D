@@ -22,6 +22,8 @@
 
 namespace Viry3D
 {
+    class Mesh;
+
     class ImGuiRenderer : public Renderer
     {
     public:
@@ -34,8 +36,13 @@ namespace Viry3D
 
     protected:
         virtual void UpdateDrawBuffer();
+
+    private:
+        void CreateMaterial();
         
     private:
         Action m_draw;
+        Ref<Texture> m_font_texture;
+        Ref<Mesh> m_mesh;
     };
 }
