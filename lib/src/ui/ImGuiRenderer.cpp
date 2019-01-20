@@ -23,6 +23,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Material.h"
 #include "graphics/Camera.h"
+#include "Input.h"
 #include "imgui/imgui.h"
 
 namespace Viry3D
@@ -230,6 +231,24 @@ void main()
         io.DisplaySize = ImVec2((float) Display::Instance()->GetWidth(), (float) Display::Instance()->GetHeight());
         io.DeltaTime = Time::GetDeltaTime();
 
+        // input
+        for (int i = 0; i < 3; ++i)
+        {
+            if (Input::GetMouseButtonDown(i))
+            {
+                io.MouseDown[i] = true;
+            }
+            if (Input::GetMouseButtonUp(i))
+            {
+                io.MouseDown[i] = false;
+            }
+        }
+        const auto& pos = Input::GetMousePosition();
+        io.MousePos = ImVec2(pos.x, Display::Instance()->GetHeight() - pos.y - 1);
+        io.MouseWheel += Input::GetMouseScrollWheel();
+        // key
+        // TODO
+
         if (!m_font_texture)
         {
             unsigned char* font_tex_pixels;
@@ -278,18 +297,24 @@ void main()
 
             // update mesh
             Vector<Vertex> vertices(draw_data->TotalVtxCount);
-            Vector<unsigned short> indices(draw_data->TotalIdxCount);
+            Vector<unsigned short> indices;
             int vertex_index = 0;
-            int index_index = 0;
 
             for (int i = 0; i < draw_data->CmdListsCount; ++i)
             {
                 auto cmd = draw_data->CmdLists[i];
-                
-                for (int j = 0; j < cmd->IdxBuffer.size(); ++j)
+                int index_index = 0;
+
+                for (int j = 0; j < cmd->CmdBuffer.size(); ++j)
                 {
-                    indices[index_index] = cmd->IdxBuffer[j] + vertex_index;
-                    ++index_index;
+                    for (unsigned int k = 0; k < cmd->CmdBuffer[j].ElemCount; ++k)
+                    {
+                        indices.Add(cmd->IdxBuffer[k + index_index] + vertex_index);
+                    }
+                    index_index += cmd->CmdBuffer[j].ElemCount;
+
+                    // clip rect
+                    // TODO
                 }
 
                 for (int j = 0; j < cmd->VtxBuffer.size(); ++j)
@@ -307,7 +332,6 @@ void main()
             }
 
             assert(vertex_index == vertices.Size());
-            assert(index_index == indices.Size());
 
             bool draw_buffer_dirty = false;
 
