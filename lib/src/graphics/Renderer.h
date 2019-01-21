@@ -56,15 +56,17 @@ namespace Viry3D
 #if VR_VULKAN
         Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
 #elif VR_GLES
-        const DrawBuffer& GetDrawBuffer() const { return m_draw_buffer; }
+        const Vector<DrawBuffer>& GetDrawBuffers() const { return m_draw_buffers; }
 #endif
         Ref<BufferObject> GetInstanceBuffer() const { return m_instance_buffer; }
         virtual void Update();
         virtual void OnFrameEnd() { }
         virtual void OnResize(int width, int height) { }
-        const Ref<Material>& GetMaterial() const { return m_material; }
-        const Ref<Material>& GetInstanceMaterial() const { return m_instance_material; }
+        Ref<Material> GetMaterial() const;
+        const Vector<Ref<Material>>& GetMaterials() const { return m_materials; }
+        const Vector<Ref<Material>>& GetInstanceMaterials() const { return m_instance_materials; }
         void SetMaterial(const Ref<Material>& material);
+        void SetMaterials(const Vector<Ref<Material>>& materials);
         int GetLightmapIndex() const { return m_lightmap_index; }
         void SetLightmapIndex(int index);
         void SetLightmapScaleOffset(const Vector4& vec);
@@ -98,13 +100,13 @@ namespace Viry3D
 #if VR_VULKAN
         Ref<BufferObject> m_draw_buffer;
 #elif VR_GLES
-        DrawBuffer m_draw_buffer;
+        Vector<DrawBuffer> m_draw_buffers;
 #endif
         bool m_draw_buffer_dirty;
 
     private:
-        Ref<Material> m_material;
-        Ref<Material> m_instance_material;
+        Vector<Ref<Material>> m_materials;
+        Vector<Ref<Material>> m_instance_materials;
         Camera* m_camera;
         bool m_model_matrix_dirty;
         Vector<RendererInstanceTransform> m_instances;

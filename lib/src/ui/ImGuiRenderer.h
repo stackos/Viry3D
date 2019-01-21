@@ -17,32 +17,24 @@
 
 #pragma once
 
-#include "graphics/Renderer.h"
+#include "graphics/MeshRenderer.h"
 #include "Action.h"
 
 namespace Viry3D
 {
-    class Mesh;
-
-    class ImGuiRenderer : public Renderer
+    class ImGuiRenderer : public MeshRenderer
     {
     public:
         ImGuiRenderer();
         virtual ~ImGuiRenderer();
-        virtual Ref<BufferObject> GetVertexBuffer() const;
-        virtual Ref<BufferObject> GetIndexBuffer() const;
         virtual void Update();
         void SetDrawAction(Action draw) { m_draw = draw; }
 
-    protected:
-        virtual void UpdateDrawBuffer();
-
     private:
-        void CreateMaterial();
+        void UpdateMaterials(int count);
         
     private:
         Action m_draw;
         Ref<Texture> m_font_texture;
-        Ref<Mesh> m_mesh;
     };
 }

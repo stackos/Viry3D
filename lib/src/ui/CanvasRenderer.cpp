@@ -40,10 +40,6 @@ namespace Viry3D
 		m_canvas_dirty(true),
         m_atlas_array_size(0)
 	{
-#if VR_GLES
-        m_draw_buffer.first_index = 0;
-        m_draw_buffer.index_count = 0;
-#endif
 		this->CreateMaterial();
         this->NewAtlasTextureLayer();
 	}
@@ -542,14 +538,15 @@ void main()
             Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
         }
 #elif VR_GLES
-        m_draw_buffer.first_index = 0;
+        m_draw_buffers.Resize(1);
+        m_draw_buffers[0].first_index = 0;
         if (m_mesh)
         {
-            m_draw_buffer.index_count = m_mesh->GetIndexCount();
+            m_draw_buffers[0].index_count = m_mesh->GetIndexCount();
         }
         else
         {
-            m_draw_buffer.index_count = 0;
+            m_draw_buffers[0].index_count = 0;
         }
 #endif
     }

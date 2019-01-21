@@ -31,86 +31,14 @@ namespace Viry3D
     ImGuiRenderer::ImGuiRenderer()
     {
         ImGui::CreateContext();
-
-        this->CreateMaterial();
     }
 
     ImGuiRenderer::~ImGuiRenderer()
     {
         ImGui::DestroyContext();
-
-#if VR_VULKAN
-        if (m_draw_buffer)
-        {
-            m_draw_buffer->Destroy(Display::Instance()->GetDevice());
-            m_draw_buffer.reset();
-        }
-#endif
     }
 
-    Ref<BufferObject> ImGuiRenderer::GetVertexBuffer() const
-    {
-        Ref<BufferObject> buffer;
-
-        if (m_mesh)
-        {
-            buffer = m_mesh->GetVertexBuffer();
-        }
-
-        return buffer;
-    }
-
-    Ref<BufferObject> ImGuiRenderer::GetIndexBuffer() const
-    {
-        Ref<BufferObject> buffer;
-
-        if (m_mesh)
-        {
-            buffer = m_mesh->GetIndexBuffer();
-        }
-
-        return buffer;
-    }
-
-    void ImGuiRenderer::UpdateDrawBuffer()
-    {
-#if VR_VULKAN
-        VkDrawIndexedIndirectCommand draw;
-        if (m_mesh)
-        {
-            draw.indexCount = m_mesh->GetIndexCount();
-        }
-        else
-        {
-            draw.indexCount = 0;
-        }
-        draw.instanceCount = 1;
-        draw.firstIndex = 0;
-        draw.vertexOffset = 0;
-        draw.firstInstance = 0;
-
-        if (!m_draw_buffer)
-        {
-            m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, false, VK_FORMAT_UNDEFINED);
-        }
-        else
-        {
-            Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
-        }
-#elif VR_GLES
-        m_draw_buffer.first_index = 0;
-        if (m_mesh)
-        {
-            m_draw_buffer.index_count = m_mesh->GetIndexCount();
-        }
-        else
-        {
-            m_draw_buffer.index_count = 0;
-        }
-#endif
-    }
-
-    void ImGuiRenderer::CreateMaterial()
+    void ImGuiRenderer::UpdateMaterials(int count)
     {
         auto shader = Shader::Find("IMGUI");
         if (!shader)
@@ -219,10 +147,16 @@ void main()
             Shader::AddCache("IMGUI", shader);
         }
 
-        auto material = RefMake<Material>(shader);
-        material->SetColor("u_color", Color(1, 1, 1, 1));
-
-        this->SetMaterial(material);
+        if (this->GetMaterials().Size() != count)
+        {
+            Vector<Ref<Material>> materials(count);
+            for (int i = 0; i < materials.Size(); ++i)
+            {
+                materials[i] = RefMake<Material>(shader);
+                materials[i]->SetColor("u_color", Color(1, 1, 1, 1));
+            }
+            this->SetMaterials(materials);
+        }
     }
 
     void ImGuiRenderer::Update()
@@ -267,8 +201,6 @@ void main()
                 false,
                 false,
                 false);
-
-            this->GetMaterial()->SetTexture("u_texture", m_font_texture);
         }
 
         ImGui::NewFrame();
@@ -296,6 +228,7 @@ void main()
             this->GetCamera()->SetProjectionUniform(this->GetMaterial());
 
             // update mesh
+            Vector<Mesh::Submesh> submeshes;
             Vector<Vertex> vertices(draw_data->TotalVtxCount);
             Vector<unsigned short> indices;
             int vertex_index = 0;
@@ -307,11 +240,15 @@ void main()
 
                 for (int j = 0; j < cmd->CmdBuffer.size(); ++j)
                 {
-                    for (unsigned int k = 0; k < cmd->CmdBuffer[j].ElemCount; ++k)
+                    const auto& dc = cmd->CmdBuffer[j];
+
+                    submeshes.Add({ indices.Size(), (int) dc.ElemCount });
+
+                    for (unsigned int k = 0; k < dc.ElemCount; ++k)
                     {
                         indices.Add(cmd->IdxBuffer[k + index_index] + vertex_index);
                     }
-                    index_index += cmd->CmdBuffer[j].ElemCount;
+                    index_index += dc.ElemCount;
 
                     // clip rect
                     // TODO
@@ -333,28 +270,12 @@ void main()
 
             assert(vertex_index == vertices.Size());
 
-            bool draw_buffer_dirty = false;
-
-            if (!m_mesh)
-            {
-                if (indices.Size() > 0)
-                {
-                    draw_buffer_dirty = true;
-                }
-            }
-            else
-            {
-                if (indices.Size() != m_mesh->GetIndexCount())
-                {
-                    draw_buffer_dirty = true;
-                }
-            }
-
+            auto mesh = this->GetMesh();
             if (vertices.Size() > 0 && indices.Size() > 0)
             {
-                if (!m_mesh || vertices.Size() > m_mesh->GetVertexCount() || indices.Size() > m_mesh->GetIndexCount())
+                if (!mesh || vertices.Size() > mesh->GetVertexCount() || indices.Size() > mesh->GetIndexCount())
                 {
-                    m_mesh = RefMake<Mesh>(vertices, indices, Vector<Mesh::Submesh>(), true);
+                    mesh = RefMake<Mesh>(vertices, indices, submeshes, true);
 
 #if VR_VULKAN
                     this->MarkInstanceCmdDirty();
@@ -362,20 +283,26 @@ void main()
                 }
                 else
                 {
-                    m_mesh->Update(vertices, indices);
+                    mesh->Update(vertices, indices, submeshes);
                 }
             }
             else
             {
-                m_mesh.reset();
+                mesh.reset();
+            }
+            this->SetMesh(mesh);
+
+            this->UpdateMaterials(submeshes.Size());
+
+            auto& materials = this->GetMaterials();
+            for (auto& i : materials)
+            {
+                i->SetTexture("u_texture", m_font_texture);
             }
 
-            if (draw_buffer_dirty)
-            {
-                m_draw_buffer_dirty = true;
-            }
+            m_draw_buffer_dirty = true;
         }
 
-        Renderer::Update();
+        MeshRenderer::Update();
     }
 }

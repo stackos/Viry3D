@@ -68,8 +68,6 @@ namespace Viry3D
         Vector<DemoEntry> m_demo_entries;
         Camera* m_camera = nullptr;
         Demo* m_demo = nullptr;
-        Sprite* m_touch_cursor = nullptr;
-        Vector2i m_touch_cursor_pos = Vector2i(0, 0);
         CanvasRenderer* m_canvas = nullptr;
         ScrollView* m_scroll = nullptr;
 
@@ -88,7 +86,6 @@ namespace Viry3D
             m_canvas = canvas.get();
 
             this->AddDemoButtons();
-            this->AddTouchCursor();
         }
 
         void AddDemoButtons()
@@ -214,7 +211,6 @@ namespace Viry3D
                 m_scroll = nullptr;
 
                 this->AddBackButton();
-                this->AddTouchCursor();
 
                 m_demo->Init();
             }
@@ -249,24 +245,7 @@ namespace Viry3D
                 m_camera->SetClearFlags(CameraClearFlags::ColorAndDepth);
                 m_camera->SetDepth(0);
                 this->AddDemoButtons();
-                this->AddTouchCursor();
             }
-        }
-
-        void AddTouchCursor()
-        {
-            auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/cursor.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
-
-            auto sprite = RefMake<Sprite>();
-            m_canvas->AddView(sprite);
-
-            sprite->SetSize(Vector2i(texture->GetWidth(), texture->GetHeight()));
-            sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::Bottom);
-            sprite->SetPivot(Vector2(0.02f, 0.02f));
-            sprite->SetOffset(m_touch_cursor_pos);
-            sprite->SetTexture(texture);
-
-            m_touch_cursor = sprite.get();
         }
 
         ~AppImplement()
@@ -290,16 +269,6 @@ namespace Viry3D
             if (m_demo)
             {
                 m_demo->Update();
-            }
-
-            if (m_touch_cursor)
-            {
-                if (Input::GetTouchCount() > 0)
-                {
-                    Vector2 pos = Input::GetTouch(0).position;
-                    m_touch_cursor_pos = Vector2i((int) pos.x, (int) -pos.y);
-                    m_touch_cursor->SetOffset(m_touch_cursor_pos);
-                }
             }
         }
     };

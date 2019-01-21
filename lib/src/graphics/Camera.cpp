@@ -807,7 +807,8 @@ namespace Viry3D
 
     void Camera::BuildInstanceCmd(VkCommandBuffer cmd, const Ref<Renderer>& renderer)
     {
-        const Ref<Material>& material = renderer->GetMaterial();
+        const auto& materials = renderer->GetMaterials();
+        const auto& instance_materials = renderer->GetInstanceMaterials();
         Ref<BufferObject> vertex_buffer = renderer->GetVertexBuffer();
         Ref<BufferObject> index_buffer = renderer->GetIndexBuffer();
         Ref<BufferObject> draw_buffer = renderer->GetDrawBuffer();
@@ -815,29 +816,10 @@ namespace Viry3D
         int instance_count = renderer->GetInstanceCount();
         int instance_stride = renderer->GetInstanceStride();
 
-        if (!material || !vertex_buffer || !index_buffer || !draw_buffer || instance_count <= 0)
+        if (materials.Size() == 0 || !vertex_buffer || !index_buffer || !draw_buffer || instance_count <= 0)
         {
             Display::Instance()->BuildEmptyInstanceCmd(cmd, m_render_pass);
             return;
-        }
-
-        const Ref<Material>& instance_material = renderer->GetInstanceMaterial();
-        const Ref<Shader>& shader = material->GetShader();
-
-        Vector<VkDescriptorSet> descriptor_sets = material->GetDescriptorSets();
-
-        if (instance_material)
-        {
-            const Vector<VkDescriptorSet>& instance_descriptor_sets = instance_material->GetDescriptorSets();
-            const Map<String, MaterialProperty>& instance_properties = instance_material->GetProperties();
-            for (const auto& i : instance_properties)
-            {
-                int instance_set_index = instance_material->FindUniformSetIndex(i.second.name);
-                if (instance_set_index >= 0)
-                {
-                    descriptor_sets[instance_set_index] = instance_descriptor_sets[instance_set_index];
-                }
-            }
         }
 
         bool color_attachment = true;
@@ -857,19 +839,50 @@ namespace Viry3D
             }
         }
 
-        Display::Instance()->BuildInstanceCmd(
-            cmd,
-            m_render_pass,
-            shader->GetPipelineLayout(),
-            shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, this->GetExtraRenderTargets().Size(), sample_count, instance_count > 1, instance_stride),
-            descriptor_sets,
-            this->GetTargetWidth(),
-            this->GetTargetHeight(),
-            m_viewport_rect,
-            vertex_buffer,
-            index_buffer,
-            draw_buffer,
-            instance_buffer);
+        Display::Instance()->BeginInstanceCmd(cmd, m_render_pass);
+
+        for (int i = 0; i < materials.Size(); ++i)
+        {
+            const auto& material = materials[i];
+            if (material)
+            {
+                const Ref<Shader>& shader = material->GetShader();
+                Vector<VkDescriptorSet> descriptor_sets = material->GetDescriptorSets();
+
+                if (i < instance_materials.Size() && instance_materials[i])
+                {
+                    const auto& instance_material = instance_materials[i];
+                    const Vector<VkDescriptorSet>& instance_descriptor_sets = instance_material->GetDescriptorSets();
+                    const Map<String, MaterialProperty>& instance_properties = instance_material->GetProperties();
+
+                    for (const auto& i : instance_properties)
+                    {
+                        int instance_set_index = instance_material->FindUniformSetIndex(i.second.name);
+                        if (instance_set_index >= 0)
+                        {
+                            descriptor_sets[instance_set_index] = instance_descriptor_sets[instance_set_index];
+                        }
+                    }
+                }
+
+                Display::Instance()->BuildInstanceCmd(
+                    cmd,
+                    shader->GetPipelineLayout(),
+                    shader->GetPipeline(m_render_pass, color_attachment, depth_attachment, this->GetExtraRenderTargets().Size(), sample_count, instance_count > 1, instance_stride),
+                    descriptor_sets,
+                    this->GetTargetWidth(),
+                    this->GetTargetHeight(),
+                    m_viewport_rect,
+                    Rect(0, 0, 1, 1),
+                    vertex_buffer,
+                    index_buffer,
+                    draw_buffer,
+                    i,
+                    instance_buffer);
+            }
+        }
+
+        Display::Instance()->EndInstanceCmd(cmd);
     }
 
     void Camera::BuildComputeInstanceCmd(VkCommandBuffer cmd, const Ref<Computer>& computer)

@@ -144,7 +144,7 @@ namespace Viry3D
                     shadow_mesh->SetMaterial(material);
                 }
                 
-                shadow_mesh->SetMesh(m_renderers[i]->GetMesh(), m_renderers[i]->GetSubmesh());
+                shadow_mesh->SetMesh(m_renderers[i]->GetMesh());
                 shadow_mesh->SetLocalPosition(m_renderers[i]->GetPosition());
                 shadow_mesh->SetLocalRotation(m_renderers[i]->GetRotation());
                 shadow_mesh->SetLocalScale(m_renderers[i]->GetScale());

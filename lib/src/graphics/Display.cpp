@@ -2730,19 +2730,9 @@ extern void UnbindSharedContext();
             vkUpdateDescriptorSets(m_device, 1, &desc_write, 0, nullptr);
         }
 
-        void BuildInstanceCmd(
+        void BeginInstanceCmd(
             VkCommandBuffer cmd,
-            VkRenderPass render_pass,
-            VkPipelineLayout pipeline_layout,
-            VkPipeline pipeline,
-            const Vector<VkDescriptorSet>& descriptor_sets,
-            int image_width,
-            int image_height,
-            const Rect& view_rect,
-            const Ref<BufferObject>& vertex_buffer,
-            const Ref<BufferObject>& index_buffer,
-            const Ref<BufferObject>& draw_buffer,
-            const Ref<BufferObject>& instance_buffer)
+            VkRenderPass render_pass)
         {
             VkCommandBufferInheritanceInfo inheritance_info;
             Memory::Zero(&inheritance_info, sizeof(inheritance_info));
@@ -2764,7 +2754,23 @@ extern void UnbindSharedContext();
 
             VkResult err = vkBeginCommandBuffer(cmd, &cmd_begin);
             assert(!err);
+        }
 
+        void BuildInstanceCmd(
+            VkCommandBuffer cmd,
+            VkPipelineLayout pipeline_layout,
+            VkPipeline pipeline,
+            const Vector<VkDescriptorSet>& descriptor_sets,
+            int image_width,
+            int image_height,
+            const Rect& view_rect,
+            const Rect& scissor_rect,
+            const Ref<BufferObject>& vertex_buffer,
+            const Ref<BufferObject>& index_buffer,
+            const Ref<BufferObject>& draw_buffer,
+            int draw_index,
+            const Ref<BufferObject>& instance_buffer)
+        {
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
             if (descriptor_sets.Size() > 0)
             {
@@ -2775,18 +2781,18 @@ extern void UnbindSharedContext();
             Memory::Zero(&viewport, sizeof(viewport));
             viewport.x = image_width * view_rect.x;
             viewport.y = image_height * view_rect.y;
-            viewport.width = (float) image_width * view_rect.width;
-            viewport.height = (float) image_height * view_rect.height;
+            viewport.width = image_width * view_rect.width;
+            viewport.height = image_height * view_rect.height;
             viewport.minDepth = 0.0f;
             viewport.maxDepth = 1.0f;
             vkCmdSetViewport(cmd, 0, 1, &viewport);
 
             VkRect2D scissor;
             Memory::Zero(&scissor, sizeof(scissor));
-            scissor.offset.x = 0;
-            scissor.offset.y = 0;
-            scissor.extent.width = image_width;
-            scissor.extent.height = image_height;
+            scissor.offset.x = (int32_t) (image_width * scissor_rect.x);
+            scissor.offset.y = (int32_t) (image_height * scissor_rect.y);
+            scissor.extent.width = (uint32_t) (image_width * scissor_rect.width);
+            scissor.extent.height = (uint32_t) (image_height * scissor_rect.height);
             vkCmdSetScissor(cmd, 0, 1, &scissor);
 
             VkDeviceSize offset = 0;
@@ -2796,9 +2802,12 @@ extern void UnbindSharedContext();
                 vkCmdBindVertexBuffers(cmd, VERTEX_INPUT_BINDING_INSTANCE, 1, &instance_buffer->GetBuffer(), &offset);
             }
             vkCmdBindIndexBuffer(cmd, index_buffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
-            vkCmdDrawIndexedIndirect(cmd, draw_buffer->GetBuffer(), 0, 1, 0);
+            vkCmdDrawIndexedIndirect(cmd, draw_buffer->GetBuffer(), draw_index * sizeof(VkDrawIndexedIndirectCommand), 1, 0);
+        }
 
-            err = vkEndCommandBuffer(cmd);
+        void EndInstanceCmd(VkCommandBuffer cmd)
+        {
+            VkResult err = vkEndCommandBuffer(cmd);
             assert(!err);
         }
 
@@ -4283,33 +4292,47 @@ void main()
         m_private->ReadBuffer(buffer, data);
     }
 
+    void Display::BeginInstanceCmd(
+        VkCommandBuffer cmd,
+        VkRenderPass render_pass)
+    {
+        m_private->BeginInstanceCmd(cmd, render_pass);
+    }
+
     void Display::BuildInstanceCmd(
         VkCommandBuffer cmd,
-        VkRenderPass render_pass,
         VkPipelineLayout pipeline_layout,
         VkPipeline pipeline,
         const Vector<VkDescriptorSet>& descriptor_sets,
         int image_width,
         int image_height,
         const Rect& view_rect,
+        const Rect& scissor_rect,
         const Ref<BufferObject>& vertex_buffer,
         const Ref<BufferObject>& index_buffer,
         const Ref<BufferObject>& draw_buffer,
+        int draw_index,
         const Ref<BufferObject>& instance_buffer)
     {
         m_private->BuildInstanceCmd(
             cmd,
-            render_pass,
             pipeline_layout,
             pipeline,
             descriptor_sets,
             image_width,
             image_height,
             view_rect,
+            scissor_rect,
             vertex_buffer,
             index_buffer,
             draw_buffer,
+            draw_index,
             instance_buffer);
+    }
+
+    void Display::EndInstanceCmd(VkCommandBuffer cmd)
+    {
+        m_private->EndInstanceCmd(cmd);
     }
 
     void Display::BuildComputeInstanceCmd(

@@ -31,14 +31,12 @@ namespace Viry3D
         virtual Ref<BufferObject> GetVertexBuffer() const;
         virtual Ref<BufferObject> GetIndexBuffer() const;
         const Ref<Mesh>& GetMesh() const { return m_mesh; }
-        int GetSubmesh() const { return m_submesh; }
-        void SetMesh(const Ref<Mesh>& mesh, int submesh = 0);
+        void SetMesh(const Ref<Mesh>& mesh);
 
     protected:
         virtual void UpdateDrawBuffer();
 
     private:
         Ref<Mesh> m_mesh;
-        int m_submesh;
     };
 }

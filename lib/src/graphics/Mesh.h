@@ -44,6 +44,7 @@ namespace Viry3D
         const Ref<BufferObject>& GetIndexBuffer() const { return m_index_buffer; }
         int GetVertexCount() const { return m_vertex_count; }
         int GetIndexCount() const { return m_index_count; }
+        int GetSubmeshCount() const { return m_submeshes.Size(); }
         const Submesh& GetSubmesh(int submesh) const { return m_submeshes[submesh]; }
         void SetBindposes(const Vector<Matrix4x4>& bindposes) { m_bindposes = bindposes; }
         const Vector<Matrix4x4>& GetBindposes() const { return m_bindposes; }

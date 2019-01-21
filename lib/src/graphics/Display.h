@@ -125,19 +125,24 @@ namespace Viry3D
         Ref<BufferObject> CreateBuffer(const void* data, int size, VkBufferUsageFlags usage, bool device_local, VkFormat view_format);
         void UpdateBuffer(const Ref<BufferObject>& buffer, int buffer_offset, const void* data, int size);
         void ReadBuffer(const Ref<BufferObject>& buffer, ByteBuffer& data);
+        void BeginInstanceCmd(
+            VkCommandBuffer cmd,
+            VkRenderPass render_pass);
         void BuildInstanceCmd(
             VkCommandBuffer cmd,
-            VkRenderPass render_pass,
             VkPipelineLayout pipeline_layout,
             VkPipeline pipeline,
             const Vector<VkDescriptorSet>& descriptor_sets,
             int image_width,
             int image_height,
             const Rect& view_rect,
+            const Rect& scissor_rect,
             const Ref<BufferObject>& vertex_buffer,
             const Ref<BufferObject>& index_buffer,
             const Ref<BufferObject>& draw_buffer,
+            int draw_index,
             const Ref<BufferObject>& instance_buffer);
+        void EndInstanceCmd(VkCommandBuffer cmd);
         void BuildComputeInstanceCmd(
             VkCommandBuffer cmd,
             VkPipelineLayout pipeline_layout,

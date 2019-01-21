@@ -49,73 +49,68 @@ namespace Viry3D
         m_instance_buffer.reset();
     }
 
-    void Renderer::SetMaterial(const Ref<Material>& material)
+    Ref<Material> Renderer::GetMaterial() const
     {
-        if (m_material)
+        Ref<Material> material;
+
+        if (m_materials.Size() > 0)
         {
-            m_material->OnUnSetRenderer(this);
+            material = m_materials[0];
         }
 
-        m_material = material;
+        return material;
+    }
+
+    void Renderer::SetMaterial(const Ref<Material>& material)
+    {
+        this->SetMaterials({ material });
+    }
+
+    void Renderer::SetMaterials(const Vector<Ref<Material>>& materials)
+    {
+        for (auto& i : m_materials)
+        {
+            if (i)
+            {
+                i->OnUnSetRenderer(this);
+            }
+        }
+
+        m_materials = materials;
         this->MarkRendererOrderDirty();
 
-        if (m_material)
+        for (auto& i : m_materials)
         {
-            m_material->OnSetRenderer(this);
+            if (i)
+            {
+                i->OnSetRenderer(this);
+            }
         }
 
 #if VR_VULKAN
         this->MarkInstanceCmdDirty();
 #endif
 
-        if (m_instance_material)
-        {
-            if (m_material)
-            {
-                Map<String, MaterialProperty> properties = m_instance_material->GetProperties();
-
-                m_instance_material = RefMake<Material>(m_material->GetShader());
-                for (const auto& i : properties)
-                {
-                    switch (i.second.type)
-                    {
-                        case MaterialProperty::Type::Color:
-                            m_instance_material->SetColor(i.second.name, *(Color*) &i.second.data);
-                            break;
-                        case MaterialProperty::Type::Vector:
-                            m_instance_material->SetVector(i.second.name, *(Vector4*) &i.second.data);
-                            break;
-                        case MaterialProperty::Type::Float:
-                            m_instance_material->SetFloat(i.second.name, *(float*) &i.second.data);
-                            break;
-                        case MaterialProperty::Type::Texture:
-                            m_instance_material->SetTexture(i.second.name, i.second.texture);
-                            break;
-                        case MaterialProperty::Type::Matrix:
-                            m_instance_material->SetMatrix(i.second.name, *(Matrix4x4*) &i.second.data);
-                            break;
-                        case MaterialProperty::Type::VectorArray:
-                            m_instance_material->SetVectorArray(i.second.name, i.second.vector_array);
-                            break;
-                        case MaterialProperty::Type::Int:
-                            m_instance_material->SetInt(i.second.name, *(int*) &i.second.data);
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                m_instance_material.reset();
-            }
-        }
-
         if (m_camera)
         {
-            m_camera->SetViewUniforms(m_material);
-            m_camera->SetProjectionUniform(m_material);
+            for (auto& i : m_materials)
+            {
+                if (i)
+                {
+                    m_camera->SetViewUniforms(i);
+                    m_camera->SetProjectionUniform(i);
+                }
+            }
         }
 
+        m_instance_materials.Clear();
+
         m_model_matrix_dirty = true;
+        if (m_lightmap_index >= 0)
+        {
+            m_lightmap_uv_dirty = true;
+        }
+        m_draw_buffer_dirty = true;
     }
 
     void Renderer::SetLightmapIndex(int index)
@@ -181,14 +176,20 @@ namespace Viry3D
         }
 
 #if VR_VULKAN
-        if (m_material)
+        for (auto& i : m_materials)
         {
-            m_material->UpdateUniformSets();
+            if (i)
+            {
+                i->UpdateUniformSets();
+            }
         }
 
-        if (m_instance_material)
+        for (auto& i : m_instance_materials)
         {
-            m_instance_material->UpdateUniformSets();
+            if (i)
+            {
+                i->UpdateUniformSets();
+            }
         }
 #endif
 
@@ -207,90 +208,133 @@ namespace Viry3D
 
     void Renderer::SetInstanceMatrix(const String& name, const Matrix4x4& value)
     {
-        if (m_material)
+        if (m_instance_materials.Size() != m_materials.Size())
         {
-            if (!m_instance_material)
+            m_instance_materials.Resize(m_materials.Size());
+        }
+
+        for (int i = 0; i < m_materials.Size(); ++i)
+        {
+            if (m_materials[i])
             {
-                m_instance_material = RefMake<Material>(m_material->GetShader());
+                if (!m_instance_materials[i])
+                {
+                    m_instance_materials[i] = RefMake<Material>(m_materials[i]->GetShader());
+                }
+
+                m_instance_materials[i]->SetMatrix(name, value);
             }
-            
-            m_instance_material->SetMatrix(name, value);
         }
     }
 
     void Renderer::SetInstanceVectorArray(const String& name, const Vector<Vector4>& value)
     {
-        if (m_material)
+        if (m_instance_materials.Size() != m_materials.Size())
         {
-            if (!m_instance_material)
-            {
-                m_instance_material = RefMake<Material>(m_material->GetShader());
-            }
+            m_instance_materials.Resize(m_materials.Size());
+        }
 
-            m_instance_material->SetVectorArray(name, value);
+        for (int i = 0; i < m_materials.Size(); ++i)
+        {
+            if (m_materials[i])
+            {
+                if (!m_instance_materials[i])
+                {
+                    m_instance_materials[i] = RefMake<Material>(m_materials[i]->GetShader());
+                }
+
+                m_instance_materials[i]->SetVectorArray(name, value);
+            }
         }
     }
 
     void Renderer::SetInstanceVector(const String& name, const Vector4& value)
     {
-        if (m_material)
+        if (m_instance_materials.Size() != m_materials.Size())
         {
-            if (!m_instance_material)
-            {
-                m_instance_material = RefMake<Material>(m_material->GetShader());
-            }
+            m_instance_materials.Resize(m_materials.Size());
+        }
 
-            m_instance_material->SetVector(name, value);
+        for (int i = 0; i < m_materials.Size(); ++i)
+        {
+            if (m_materials[i])
+            {
+                if (!m_instance_materials[i])
+                {
+                    m_instance_materials[i] = RefMake<Material>(m_materials[i]->GetShader());
+                }
+
+                m_instance_materials[i]->SetVector(name, value);
+            }
         }
     }
 
     void Renderer::SetInstanceInt(const String& name, int value)
     {
-        if (m_material)
+        if (m_instance_materials.Size() != m_materials.Size())
         {
-            if (!m_instance_material)
-            {
-                m_instance_material = RefMake<Material>(m_material->GetShader());
-            }
+            m_instance_materials.Resize(m_materials.Size());
+        }
 
-            m_instance_material->SetInt(name, value);
+        for (int i = 0; i < m_materials.Size(); ++i)
+        {
+            if (m_materials[i])
+            {
+                if (!m_instance_materials[i])
+                {
+                    m_instance_materials[i] = RefMake<Material>(m_materials[i]->GetShader());
+                }
+
+                m_instance_materials[i]->SetInt(name, value);
+            }
         }
     }
 
 #if VR_GLES
     void Renderer::OnDraw()
     {
-        const Ref<Material>& material = this->GetMaterial();
+        const auto& materials = this->GetMaterials();
+        const auto& instance_materials = this->GetInstanceMaterials();
         Ref<BufferObject> vertex_buffer = this->GetVertexBuffer();
         Ref<BufferObject> index_buffer = this->GetIndexBuffer();
-        const DrawBuffer& draw_buffer = this->GetDrawBuffer();
+        const auto& draw_buffers = this->GetDrawBuffers();
 
-        if (!material || !vertex_buffer || !index_buffer || draw_buffer.index_count == 0)
-        {
-            return;
-        }
-
-        const Ref<Shader>& shader = material->GetShader();
-        if (!shader->Use())
+        if (materials.Size() == 0 || !vertex_buffer || !index_buffer || draw_buffers.Size() == 0)
         {
             return;
         }
 
         vertex_buffer->Bind();
         index_buffer->Bind();
-        shader->EnableVertexAttribs();
-        shader->ApplyRenderState();
-        material->ApplyUniforms();
 
-        const Ref<Material>& instance_material = this->GetInstanceMaterial();
-        if (instance_material)
+        for (int i = 0; i < materials.Size(); ++i)
         {
-            instance_material->ApplyUniforms();
+            const auto& material = materials[i];
+            const Ref<Shader>& shader = material->GetShader();
+            if (!shader->Use())
+            {
+                continue;
+            }
+
+            if (draw_buffers[i].index_count == 0)
+            {
+                continue;
+            }
+
+            shader->EnableVertexAttribs();
+            shader->ApplyRenderState();
+            material->ApplyUniforms();
+
+            if (i < instance_materials.Size() && instance_materials[i])
+            {
+                instance_materials[i]->ApplyUniforms();
+            }
+
+            glDrawElements(GL_TRIANGLES, draw_buffers[i].index_count, GL_UNSIGNED_SHORT, (const void*) (draw_buffers[i].first_index * sizeof(unsigned short)));
+
+            shader->DisableVertexAttribs();
         }
-
-        glDrawElements(GL_TRIANGLES, draw_buffer.index_count, GL_UNSIGNED_SHORT, (const void*) (draw_buffer.first_index * sizeof(unsigned short)));
-
-        shader->DisableVertexAttribs();
+        
         vertex_buffer->Unind();
         index_buffer->Unind();
 
