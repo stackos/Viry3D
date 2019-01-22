@@ -25,10 +25,8 @@ namespace Viry3D
 
 	struct Vector3
 	{
-
-		static const Vector3 ZR;//2D ZÖáÐý×ª
-		static Vector3 Zero();
-		static Vector3 One();
+		static const Vector3& Zero();
+		static const Vector3& One();
 		static Vector3 Normalize(const Vector3& value);
 		static float Magnitude(const Vector3& v);
 		static float SqrMagnitude(const Vector3& v);

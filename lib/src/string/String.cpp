@@ -14,10 +14,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include <stdarg.h>
+
 #include "String.h"
 #include "memory/Memory.h"
-#include "graphics/Color.h"
+#include <stdarg.h>
+
 #if VR_WINDOWS
 #include <Windows.h>
 #endif
@@ -171,23 +172,6 @@ namespace Viry3D
 		}
 
 		return String(dest.c_str(), j);
-	}
-
-	Color String::ToColor(const String& str)
-	{
-		auto str_lower = str.ToLower();
-		std::stringstream ss;
-		ss << std::hex << str_lower.CString();
-		unsigned int color_i = 0;
-		ss >> color_i;
-
-		int r = (color_i & 0xff000000) >> 24;
-		int g = (color_i & 0xff0000) >> 16;
-		int b = (color_i & 0xff00) >> 8;
-		int a = (color_i & 0xff);
-
-		float div = 1 / 255.f;
-		return Color((float)r, (float)g, (float)b, (float)a) * div;
 	}
 
 	String::String()

@@ -76,11 +76,11 @@ and consoles to mobile phones and embedded platforms. )";
                 button->GetLabel()->SetText("button");
                 if (i == 5)
                 {
-                    button->GetLabel()->SetColor(Color::Black);
+                    button->GetLabel()->SetColor(Color::Black());
                 }
                 else
                 {
-                    button->GetLabel()->SetColor(Color::White);
+                    button->GetLabel()->SetColor(Color::White());
                 }
                 button->SetOnClick([=]() {
                     Log("click button: %d", i);

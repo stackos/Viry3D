@@ -20,11 +20,35 @@
 
 namespace Viry3D
 {
-	const Color Color::White(1, 1, 1, 1);
-	const Color Color::Black(0, 0, 0, 1);
-	const Color Color::Red(1, 0, 0, 1);
-	const Color Color::Green(0, 1, 0, 1);
-	const Color Color::Blue(0, 0, 1, 1);
+    const Color& Color::White()
+    {
+        static const Color s_color(1, 1, 1, 1);
+        return s_color;
+    }
+
+    const Color& Color::Black()
+    {
+        static const Color s_color(0, 0, 0, 1);
+        return s_color;
+    }
+
+    const Color& Color::Red()
+    {
+        static const Color s_color(1, 0, 0, 1);
+        return s_color;
+    }
+
+    const Color& Color::Green()
+    {
+        static const Color s_color(0, 1, 0, 1);
+        return s_color;
+    }
+
+    const Color& Color::Blue()
+    {
+        static const Color s_color(0, 0, 1, 1);
+        return s_color;
+    }
 
 	Color::Color(float r, float g, float b, float a):
 		r(r), g(g), b(b), a(a)
@@ -58,6 +82,23 @@ namespace Viry3D
 			Mathf::Lerp(from.b, to.b, t),
 			Mathf::Lerp(from.a, to.a, t));
 	}
+
+    Color Color::Parse(const String& str)
+    {
+        auto str_lower = str.ToLower();
+        std::stringstream ss;
+        ss << std::hex << str_lower.CString();
+        unsigned int color_i = 0;
+        ss >> color_i;
+
+        int r = (color_i & 0xff000000) >> 24;
+        int g = (color_i & 0xff0000) >> 16;
+        int b = (color_i & 0xff00) >> 8;
+        int a = (color_i & 0xff);
+
+        float div = 1 / 255.f;
+        return Color((float) r, (float) g, (float) b, (float) a) * div;
+    }
 
 	Color Color::operator *(const Color& c) const
 	{

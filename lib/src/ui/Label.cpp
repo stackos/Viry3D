@@ -342,7 +342,7 @@ namespace Viry3D
                         switch (j.type)
                         {
                         case TagType::Color:
-                            color = String::ToColor(j.value);
+                            color = Color::Parse(j.value);
                             break;
                         case TagType::Bold:
                             bold = true;
@@ -351,10 +351,10 @@ namespace Viry3D
                             italic = true;
                             break;
                         case TagType::Shadow:
-                            color_shadow = RefMake<Color>(String::ToColor(j.value));
+                            color_shadow = RefMake<Color>(Color::Parse(j.value));
                             break;
                         case TagType::Outline:
-                            color_outline = RefMake<Color>(String::ToColor(j.value));
+                            color_outline = RefMake<Color>(Color::Parse(j.value));
                             break;
                         case TagType::Underline:
                             underline = true;

@@ -22,7 +22,18 @@
 
 namespace Viry3D
 {
-	
+    const Vector3& Vector3::Zero()
+    {
+        static const Vector3 s_zero(0, 0, 0);
+        return s_zero;
+    }
+
+    const Vector3& Vector3::One()
+    {
+        static const Vector3 s_one(1, 1, 1);
+        return s_one;
+    }
+
 	Vector3::Vector3(float x, float y, float z):
 		x(x), y(y), z(z)
 	{
@@ -33,19 +44,6 @@ namespace Viry3D
 		y(v2.y),
 		z(0)
 	{
-	}
-	const Vector3 Vector3::ZR(0.0f, 0.0f, 1.0f);
-
-	Vector3 Vector3::Zero()
-	{
-		static auto s_zero = Vector3(0, 0, 0);
-		return s_zero;
-	}
-
-	Vector3 Vector3::One()
-	{
-		static auto s_one = Vector3(1, 1, 1);
-		return s_one;
 	}
 
 	void Vector3::Normalize()

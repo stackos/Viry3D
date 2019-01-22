@@ -17,16 +17,20 @@
 
 #pragma once
 
+#include "string/String.h"
+
 namespace Viry3D
 {
 	struct Color
 	{
-		static const Color White;
-		static const Color Black;
-		static const Color Red;
-		static const Color Green;
-		static const Color Blue;
+		static const Color& White();
+		static const Color& Black();
+		static const Color& Red();
+		static const Color& Green();
+		static const Color& Blue();
+
 		static Color Lerp(const Color &from, const Color &to, float t, bool clamp_01 = true);
+        static Color Parse(const String& str);
 
 		Color(float r = 1, float g = 1, float b = 1, float a = 1);
 		bool operator ==(const Color &c) const;

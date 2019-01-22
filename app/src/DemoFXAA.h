@@ -257,7 +257,7 @@ void main()
             quality_select->SetOffset(Vector2i(190, 185));
             quality_select->SetTexture(texture);
             quality_select->SetColor(Color(230, 230, 230, 255) / 255.0f);
-            quality_select->GetLabel()->SetColor(Color::Black);
+            quality_select->GetLabel()->SetColor(Color::Black());
             quality_select->SetSelectNames({
                 "FAST",
                 "DEFAULT",
