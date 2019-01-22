@@ -45,6 +45,15 @@ namespace Viry3D
             return *this;
         }
 
+		bool operator ==(const Vector2i& right) const
+		{
+			return x == right.x &&  y == right.y;
+		}
+
+		bool operator !=(const Vector2i& right) const
+		{
+			return x != right.x &&  y != right.y;
+		}
         int x;
         int y;
     };
