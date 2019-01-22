@@ -22,6 +22,7 @@
 
 namespace Viry3D
 {
+	
 	Vector3::Vector3(float x, float y, float z):
 		x(x), y(y), z(z)
 	{
@@ -33,6 +34,7 @@ namespace Viry3D
 		z(0)
 	{
 	}
+	const Vector3 Vector3::ZR(0.0f, 0.0f, 1.0f);
 
 	Vector3 Vector3::Zero()
 	{

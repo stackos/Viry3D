@@ -25,6 +25,7 @@ namespace Viry3D
 	struct Vector2
 	{
 		static const Vector2 ONE;
+		static const Vector2 ZERO;
 		explicit Vector2(float x = 0, float y = 0): x(x), y(y) { }
 		Vector2(const Vector3& v3);
 		Vector2 operator +(const Vector2& value) const;
