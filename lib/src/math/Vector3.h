@@ -25,6 +25,8 @@ namespace Viry3D
 
 	struct Vector3
 	{
+
+		static const Vector3 ZR;//2D ZÖáÐý×ª
 		static Vector3 Zero();
 		static Vector3 One();
 		static Vector3 Normalize(const Vector3& value);

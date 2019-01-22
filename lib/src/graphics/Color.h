@@ -21,11 +21,11 @@ namespace Viry3D
 {
 	struct Color
 	{
-		static Color White() { return Color(1, 1, 1, 1); }
-		static Color Black() { return Color(0, 0, 0, 1); }
-		static Color Red() { return Color(1, 0, 0, 1); }
-		static Color Green() { return Color(0, 1, 0, 1); }
-		static Color Blue() { return Color(0, 0, 1, 1); }
+		static const Color White;
+		static const Color Black;
+		static const Color Red;
+		static const Color Green;
+		static const Color Blue;
 		static Color Lerp(const Color &from, const Color &to, float t, bool clamp_01 = true);
 
 		Color(float r = 1, float g = 1, float b = 1, float a = 1);

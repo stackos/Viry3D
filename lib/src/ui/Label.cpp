@@ -209,23 +209,6 @@ namespace Viry3D
         return tags;
     }
 
-    static Color StringToColor(const String& str)
-    {
-        auto str_lower = str.ToLower();
-
-        std::stringstream ss;
-        ss << std::hex << str_lower.CString();
-        unsigned int color_i = 0;
-        ss >> color_i;
-
-        int r = (color_i & 0xff000000) >> 24;
-        int g = (color_i & 0xff0000) >> 16;
-        int b = (color_i & 0xff00) >> 8;
-        int a = (color_i & 0xff);
-
-        float div = 1 / 255.f;
-        return Color((float) r, (float) g, (float) b, (float) a) * div;
-    }
 
     Label::Label():
         m_font_style(FontStyle::Normal),
@@ -359,7 +342,7 @@ namespace Viry3D
                         switch (j.type)
                         {
                         case TagType::Color:
-                            color = StringToColor(j.value);
+                            color = String::ToColor(j.value);
                             break;
                         case TagType::Bold:
                             bold = true;
@@ -368,10 +351,10 @@ namespace Viry3D
                             italic = true;
                             break;
                         case TagType::Shadow:
-                            color_shadow = RefMake<Color>(StringToColor(j.value));
+                            color_shadow = RefMake<Color>(String::ToColor(j.value));
                             break;
                         case TagType::Outline:
-                            color_outline = RefMake<Color>(StringToColor(j.value));
+                            color_outline = RefMake<Color>(String::ToColor(j.value));
                             break;
                         case TagType::Underline:
                             underline = true;

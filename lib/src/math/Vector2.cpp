@@ -22,6 +22,8 @@
 
 namespace Viry3D
 {
+	const Vector2 Vector2::ONE(1.0f, 1.0f);
+	const Vector2 Vector2::ZERO;
 	Vector2::Vector2(const Vector3& v3):
 		x(v3.x),
 		y(v3.y)

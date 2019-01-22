@@ -24,6 +24,7 @@
 
 namespace Viry3D
 {
+	struct Color;
 	class String
 	{
 	public:
@@ -32,7 +33,7 @@ namespace Viry3D
 		static String Utf8ToGb2312(const String& str);
 		static String Gb2312ToUtf8(const String& str);
 		static String UrlDecode(const String& str);
-
+		static Color ToColor(const String& str);
 		String();
 		String(const char* str);
 		String(const char* str, int size);
