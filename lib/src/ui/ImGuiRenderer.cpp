@@ -213,22 +213,9 @@ void main()
         ImDrawData* draw_data = ImGui::GetDrawData();
         if (draw_data->Valid)
         {
-            // update matrix
-            this->GetCamera()->SetNearClip(-1000);
-            this->GetCamera()->SetFarClip(1000);
-            this->GetCamera()->SetOrthographic(true);
-            this->GetCamera()->SetOrthographicSize(this->GetCamera()->GetTargetHeight() / 2.0f);
-
-            float L = draw_data->DisplayPos.x;
-            float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
-            float T = draw_data->DisplayPos.y;
-            float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
-            auto projection_matrix = Matrix4x4::Ortho(L, R, B, T, this->GetCamera()->GetNearClip(), this->GetCamera()->GetFarClip());
-            this->GetCamera()->SetProjectionMatrixExternal(projection_matrix);
-            this->GetCamera()->SetProjectionUniform(this->GetMaterial());
-
             // update mesh
             Vector<Mesh::Submesh> submeshes;
+            Vector<Vector4> clip_rects;
             Vector<Vertex> vertices(draw_data->TotalVtxCount);
             Vector<unsigned short> indices;
             int vertex_index = 0;
@@ -243,15 +230,17 @@ void main()
                     const auto& dc = cmd->CmdBuffer[j];
 
                     submeshes.Add({ indices.Size(), (int) dc.ElemCount });
+                    clip_rects.Add(Vector4(
+                        dc.ClipRect.x / io.DisplaySize.x,
+                        dc.ClipRect.y / io.DisplaySize.y,
+                        (dc.ClipRect.z - dc.ClipRect.x) / io.DisplaySize.x,
+                        (dc.ClipRect.w - dc.ClipRect.y) / io.DisplaySize.y));
 
                     for (unsigned int k = 0; k < dc.ElemCount; ++k)
                     {
                         indices.Add(cmd->IdxBuffer[k + index_index] + vertex_index);
                     }
                     index_index += dc.ElemCount;
-
-                    // clip rect
-                    // TODO
                 }
 
                 for (int j = 0; j < cmd->VtxBuffer.size(); ++j)
@@ -259,10 +248,10 @@ void main()
                     const auto& v = cmd->VtxBuffer[j];
                     vertices[vertex_index].vertex = Vector3(v.pos.x, v.pos.y, 0);
                     vertices[vertex_index].uv = Vector2(v.uv.x, v.uv.y);
-                    uint32_t r = (v.col >> 24) & 0xff;
-                    uint32_t g = (v.col >> 16) & 0xff;
-                    uint32_t b = (v.col >> 8) & 0xff;
-                    uint32_t a = (v.col >> 0) & 0xff;
+                    uint32_t a = (v.col >> 24) & 0xff;
+                    uint32_t b = (v.col >> 16) & 0xff;
+                    uint32_t g = (v.col >> 8) & 0xff;
+                    uint32_t r = (v.col >> 0) & 0xff;
                     vertices[vertex_index].color = Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
                     ++vertex_index;
                 }
@@ -292,12 +281,28 @@ void main()
             }
             this->SetMesh(mesh);
 
+            // update matrix
+            this->GetCamera()->SetNearClip(-1000);
+            this->GetCamera()->SetFarClip(1000);
+            this->GetCamera()->SetOrthographic(true);
+            this->GetCamera()->SetOrthographicSize(this->GetCamera()->GetTargetHeight() / 2.0f);
+
+            float L = draw_data->DisplayPos.x;
+            float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
+            float T = draw_data->DisplayPos.y;
+            float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
+            auto projection_matrix = Matrix4x4::Ortho(L, R, B, T, this->GetCamera()->GetNearClip(), this->GetCamera()->GetFarClip());
+            this->GetCamera()->SetProjectionMatrixExternal(projection_matrix);
+
+            // update materials
             this->UpdateMaterials(submeshes.Size());
 
             auto& materials = this->GetMaterials();
-            for (auto& i : materials)
+            for (int i = 0; i < materials.Size(); ++i)
             {
-                i->SetTexture("u_texture", m_font_texture);
+                materials[i]->SetTexture("u_texture", m_font_texture);
+                materials[i]->SetVector(CLIP_RECT, clip_rects[i]);
+                this->GetCamera()->SetProjectionUniform(materials[i]);
             }
 
             m_draw_buffer_dirty = true;

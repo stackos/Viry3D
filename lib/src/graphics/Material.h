@@ -40,6 +40,8 @@
 
 #define CAMERA_POSITION "u_camera_pos"
 
+#define CLIP_RECT "u_clip_rect"
+
 namespace Viry3D
 {
     class Shader;
@@ -98,6 +100,7 @@ namespace Viry3D
         void OnUnSetRenderer(Renderer* renderer);
         const Matrix4x4* GetMatrix(const String& name) const;
         void SetMatrix(const String& name, const Matrix4x4& value);
+        const Vector4* GetVector(const String& name) const;
         void SetVector(const String& name, const Vector4& value);
         void SetColor(const String& name, const Color& value);
         void SetFloat(const String& name, float value);

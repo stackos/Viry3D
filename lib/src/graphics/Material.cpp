@@ -109,6 +109,11 @@ namespace Viry3D
         this->SetProperty(name, value, MaterialProperty::Type::Matrix);
     }
 
+    const Vector4* Material::GetVector(const String& name) const
+    {
+        return this->GetProperty<Vector4>(name, MaterialProperty::Type::Vector);
+    }
+
     void Material::SetVector(const String& name, const Vector4& value)
     {
         this->SetProperty(name, value, MaterialProperty::Type::Vector);

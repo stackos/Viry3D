@@ -865,6 +865,8 @@ namespace Viry3D
                     }
                 }
 
+                const Vector4* clip_rect = material->GetVector(CLIP_RECT);
+
                 Display::Instance()->BuildInstanceCmd(
                     cmd,
                     shader->GetPipelineLayout(),
@@ -873,7 +875,7 @@ namespace Viry3D
                     this->GetTargetWidth(),
                     this->GetTargetHeight(),
                     m_viewport_rect,
-                    Rect(0, 0, 1, 1),
+                    clip_rect != nullptr ? Rect(clip_rect->x, clip_rect->y, clip_rect->z, clip_rect->w) : Rect(0, 0, 1, 1),
                     vertex_buffer,
                     index_buffer,
                     draw_buffer,
