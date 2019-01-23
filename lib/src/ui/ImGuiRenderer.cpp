@@ -31,6 +31,29 @@ namespace Viry3D
     ImGuiRenderer::ImGuiRenderer()
     {
         ImGui::CreateContext();
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.KeyMap[ImGuiKey_Tab] = (int) KeyCode::Tab;
+        io.KeyMap[ImGuiKey_LeftArrow] = (int) KeyCode::LeftArrow;
+        io.KeyMap[ImGuiKey_RightArrow] = (int) KeyCode::RightArrow;
+        io.KeyMap[ImGuiKey_UpArrow] = (int) KeyCode::UpArrow;
+        io.KeyMap[ImGuiKey_DownArrow] = (int) KeyCode::DownArrow;
+        io.KeyMap[ImGuiKey_PageUp] = (int) KeyCode::PageUp;
+        io.KeyMap[ImGuiKey_PageDown] = (int) KeyCode::PageDown;
+        io.KeyMap[ImGuiKey_Home] = (int) KeyCode::Home;
+        io.KeyMap[ImGuiKey_End] = (int) KeyCode::End;
+        io.KeyMap[ImGuiKey_Insert] = (int) KeyCode::Insert;
+        io.KeyMap[ImGuiKey_Delete] = (int) KeyCode::Delete;
+        io.KeyMap[ImGuiKey_Backspace] = (int) KeyCode::Backspace;
+        io.KeyMap[ImGuiKey_Space] = (int) KeyCode::Space;
+        io.KeyMap[ImGuiKey_Enter] = (int) KeyCode::Return;
+        io.KeyMap[ImGuiKey_Escape] = (int) KeyCode::Escape;
+        io.KeyMap[ImGuiKey_A] = (int) KeyCode::A;
+        io.KeyMap[ImGuiKey_C] = (int) KeyCode::C;
+        io.KeyMap[ImGuiKey_V] = (int) KeyCode::V;
+        io.KeyMap[ImGuiKey_X] = (int) KeyCode::X;
+        io.KeyMap[ImGuiKey_Y] = (int) KeyCode::Y;
+        io.KeyMap[ImGuiKey_Z] = (int) KeyCode::Z;
     }
 
     ImGuiRenderer::~ImGuiRenderer()
@@ -164,7 +187,7 @@ void main()
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize = ImVec2((float) Display::Instance()->GetWidth(), (float) Display::Instance()->GetHeight());
         io.DeltaTime = Time::GetDeltaTime();
-
+        
         // input
         for (int i = 0; i < 3; ++i)
         {
@@ -180,8 +203,16 @@ void main()
         const auto& pos = Input::GetMousePosition();
         io.MousePos = ImVec2(pos.x, Display::Instance()->GetHeight() - pos.y - 1);
         io.MouseWheel += Input::GetMouseScrollWheel();
+        
         // key
-        // TODO
+        io.KeyCtrl = Input::GetKey(KeyCode::LeftControl) || Input::GetKey(KeyCode::RightControl);
+        io.KeyShift = Input::GetKey(KeyCode::LeftShift) || Input::GetKey(KeyCode::RightShift);
+        io.KeyAlt = Input::GetKey(KeyCode::LeftAlt) || Input::GetKey(KeyCode::RightAlt);
+        io.KeySuper = false;
+        for (int i = 0; i < (int) KeyCode::COUNT; ++i)
+        {
+            io.KeysDown[i] = Input::GetKey((KeyCode) i);
+        }
 
         if (!m_font_texture)
         {
