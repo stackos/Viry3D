@@ -19,6 +19,7 @@
 #include "App.h"
 #include "Input.h"
 #include "time/Time.h"
+#include "imgui/imgui.h"
 #include <Windows.h>
 #include <windowsx.h>
 
@@ -324,6 +325,17 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             break;
         }
 
+        case WM_CHAR:
+            if (wParam > 0 && wParam < 0x10000)
+            {
+                if (ImGui::GetCurrentContext())
+                {
+                    ImGuiIO& io = ImGui::GetIO();
+                    io.AddInputCharacter((unsigned short) wParam);
+                }
+            }
+            break;
+
         case WM_SYSCHAR:
             if (wParam == VK_RETURN)
             {
@@ -518,7 +530,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    String name = "viry3d-vk-demo";
+    String name = "Viry3D";
     int window_width = 1280;
     int window_height = 720;
 

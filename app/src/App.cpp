@@ -16,29 +16,28 @@
 */
 
 #include "App.h"
-#include "DemoMesh.h"
-#include "DemoSkinnedMesh.h"
-#include "DemoSkybox.h"
-#include "DemoRenderToTexture.h"
-#include "DemoFXAA.h"
-#include "DemoMSAA.h"
-#include "DemoPostEffectBlur.h"
-#include "DemoUI.h"
-#include "DemoShadowMap.h"
-#include "DemoAudio.h"
-#include "DemoCanvasEditor.h"
+#include "Demo/DemoMesh.h"
+#include "Demo/DemoSkinnedMesh.h"
+#include "Demo/DemoSkybox.h"
+#include "Demo/DemoRenderToTexture.h"
+#include "Demo/DemoFXAA.h"
+#include "Demo/DemoMSAA.h"
+#include "Demo/DemoPostEffectBlur.h"
+#include "Demo/DemoUI.h"
+#include "Demo/DemoShadowMap.h"
+#include "Demo/DemoAudio.h"
 #if VR_IOS
-#include "DemoAR.h"
+#include "Demo/DemoAR.h"
 #endif
-#include "DemoInstancing.h"
-#include "DemoLightmap.h"
-#include "DemoSSAO.h"
-#include "DemoVR.h"
-#include "DemoComputeStorageImage.h"
-#include "DemoComputeStorageBuffer.h"
-#include "DemoComputeTexelBuffer.h"
-#include "DemoPBR.h"
-#include "DemoNavigation2D.h"
+#include "Demo/DemoInstancing.h"
+#include "Demo/DemoLightmap.h"
+#include "Demo/DemoSSAO.h"
+#include "Demo/DemoVR.h"
+#include "Demo/DemoComputeStorageImage.h"
+#include "Demo/DemoComputeStorageBuffer.h"
+#include "Demo/DemoComputeTexelBuffer.h"
+#include "Demo/DemoPBR.h"
+#include "Demo/DemoNavigation2D.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -47,7 +46,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - ImGui
 // - Canvas Editor
 // - 2D Game Demo
 // - PBR optimize
@@ -123,7 +121,6 @@ namespace Viry3D
                 { "ComputeStorageBuffer", [this]() { m_demo = new DemoComputeStorageBuffer(); } },
                 { "ComputeTexelBuffer", [this]() { m_demo = new DemoComputeTexelBuffer(); } },
                 { "PBR", [this]() { m_demo = new DemoPBR(); } },
-                { "CanvasEditor", [this]() { m_demo = new DemoCanvasEditor(); } },
 #endif
             };
 

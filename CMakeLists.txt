@@ -201,8 +201,9 @@ target_include_directories(Viry3D PRIVATE
                            )
 
 file(GLOB VIRY3D_APP_SRCS
-     ${VIRY3D_APP_SRC_DIR}/*.h
-     ${VIRY3D_APP_SRC_DIR}/*.cpp
+     ${VIRY3D_APP_SRC_DIR}/Demo/*.h
+     ${VIRY3D_APP_SRC_DIR}/App.h
+     ${VIRY3D_APP_SRC_DIR}/App.cpp
      )
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
@@ -751,6 +752,42 @@ if (${Target} MATCHES "Windows")
     add_custom_command(TARGET CubeMapCompress
                        POST_BUILD
                        COMMAND copy /Y ${COMP_DLL_SRC} ${COMP_DLL_DST}
+                       )
+
+    file(GLOB VIRY3D_APP_CANVAS_EDITOR_SRCS
+         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.h
+         ${VIRY3D_APP_SRC_DIR}/App.h
+         ${VIRY3D_APP_SRC_DIR}/AppCanvasEditor.cpp
+         )
+
+    source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_CANVAS_EDITOR_SRCS})
+
+    add_executable(Viry3DAppCanvasEditor
+                   ${VIRY3D_APP_CANVAS_EDITOR_SRCS}
+                   ${VIRY3D_APP_SRC_DIR}/../project/win/Main.cpp
+                   )
+
+    target_include_directories(Viry3DAppCanvasEditor PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_APP_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               )
+
+    target_link_libraries(Viry3DAppCanvasEditor
+                          Viry3D Viry3DDep
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
+                          opengl32.lib
+                          winmm.lib
+                          Xaudio2.lib
+                          )
+
+    set_property(TARGET Viry3DAppCanvasEditor PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+
+    add_custom_command(TARGET Viry3DAppCanvasEditor
+                       POST_BUILD
+                       COMMAND if not exist ${ASSETS_LINK_LINK} (mklink /d ${ASSETS_LINK_LINK} ${ASSETS_LINK_TARGET})
+                       COMMAND copy /Y ${ICON_SRC} ${ICON_DST}
                        )
 
 elseif (${Target} MATCHES "UWP")
