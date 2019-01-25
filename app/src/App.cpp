@@ -26,6 +26,7 @@
 #include "Demo/DemoUI.h"
 #include "Demo/DemoShadowMap.h"
 #include "Demo/DemoAudio.h"
+#include "Demo/DemoLua.h"
 #if VR_IOS
 #include "Demo/DemoAR.h"
 #endif
@@ -109,6 +110,7 @@ namespace Viry3D
                 { "UI", [this]() { m_demo = new DemoUI(); } },
                 { "Navigation2D", [this]() { m_demo = new DemoNavigation2D(); } },
                 { "Audio", [this]() { m_demo = new DemoAudio(); } },
+                { "Lua", [this]() { m_demo = new DemoLua(); } },
 #if VR_IOS
                 { "AR", [this]() { m_demo = new DemoAR(); } },
 #endif
