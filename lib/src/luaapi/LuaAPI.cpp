@@ -17,9 +17,11 @@
 
 #include "LuaAPI.h"
 #include "LuaDisplay.h"
+#include "LuaObject.h"
+#include "LuaNode.h"
 #include "LuaCamera.h"
+#include "LuaRenderer.h"
 #include "LuaCanvasRenderer.h"
-#include "Debug.h"
 
 namespace Viry3D
 {
@@ -54,10 +56,10 @@ namespace Viry3D
         SetFunction(L, "_G", "print", PrintLog);
         
         LuaDisplay::Set(L);
-        // LuaObject::Set(L);
-        // LuaNode::Set(L);
+        LuaObject::Set(L);
+        LuaNode::Set(L);
         LuaCamera::Set(L);
-        // LuaRenderer::Set(L);
+        LuaRenderer::Set(L);
         LuaCanvasRenderer::Set(L);
         // LuaView::Set(L);
         // LuaLabel::Set(L);
@@ -80,8 +82,10 @@ namespace Viry3D
         Pop();
     }
 
-    void LuaAPI::SetMetaTable(lua_State* L, const char* name, lua_CFunction index, lua_CFunction alloc, lua_CFunction gc)
+    void LuaAPI::SetMetaTable(lua_State* L, LuaClassType type, lua_CFunction index, lua_CFunction alloc, lua_CFunction gc)
     {
+        const char* name = GetLuaClassName(type);
+
         luaL_newmetatable(L, name);
         if (index)
         {
@@ -108,8 +112,12 @@ namespace Viry3D
     const char* LuaAPI::GetLuaClassName(LuaClassType type)
     {
         static const char* s_class_names[(int) LuaClassType::Count] = {
+            "Display",
+            "Object",
+            "Node",
             "Camera",
-            "CanvasRenderer"
+            "Renderer",
+            "CanvasRenderer",
         };
         return s_class_names[(int) type];
     }

@@ -37,10 +37,13 @@ function AppInit()
 
     print(Display)
     ui_camera = Display.CreateCamera()
-    print(ui_camera)
+    ui_camera:SetName("camera")
+    print(ui_camera, ui_camera:GetName())
     local canvas = CanvasRenderer.New()
-    print(canvas)
+    canvas:SetName("canvas")
+    print(canvas, canvas:GetName())
     ui_camera:AddRenderer(canvas)
+    canvas:AddView(nil) -- doing
 end
 
 function AppDone()

@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "LuaAPI.h"
+#include "LuaRenderer.h"
 #include "ui/CanvasRenderer.h"
 
 namespace Viry3D
@@ -27,13 +27,13 @@ namespace Viry3D
     public:
         static void Set(lua_State* L)
         {
-            LuaAPI::SetMetaTable(L, "CanvasRenderer", Index, New, GC);
+            LuaAPI::SetMetaTable(L, LuaClassType::CanvasRenderer, Index, New, GC);
 
             GetMethods().Add("AddView", AddView);
         }
 
     private:
-        IMPL_INDEX_FUNC();
+        IMPL_INDEX_EXTENDS_FUNC(Renderer);
         IMPL_NEW_FUNC(CanvasRenderer);
         IMPL_GC_FUNC(CanvasRenderer);
         IMPL_GET_METHODS_FUNC();

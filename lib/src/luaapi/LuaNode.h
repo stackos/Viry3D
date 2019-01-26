@@ -17,32 +17,24 @@
 
 #pragma once
 
-#include "LuaNode.h"
-#include "graphics/Camera.h"
-#include "ui/CanvasRenderer.h"
+#include "LuaObject.h"
+#include "Node.h"
 
 namespace Viry3D
 {
-    class LuaCamera
+    class LuaNode
     {
     public:
+        IMPL_INDEX_EXTENDS_FUNC(Object);
+
         static void Set(lua_State* L)
         {
-            LuaAPI::SetMetaTable(L, LuaClassType::Camera, Index, nullptr, nullptr);
-
-            GetMethods().Add("AddRenderer", AddRenderer);
+            LuaAPI::SetMetaTable(L, LuaClassType::Node, Index, New, GC);
         }
 
     private:
-        IMPL_INDEX_EXTENDS_FUNC(Node);
+        IMPL_NEW_FUNC(Node);
+        IMPL_GC_FUNC(Node);
         IMPL_GET_METHODS_FUNC();
-
-        static int AddRenderer(lua_State* L)
-        {
-            Camera* camera = (Camera*) LuaAPI::GetPtr(L, 1, LuaClassType::Camera);
-            Ref<CanvasRenderer>* canvas = (Ref<CanvasRenderer>*) LuaAPI::GetPtr(L, 2, LuaClassType::CanvasRenderer);
-            camera->AddRenderer(*canvas);
-            return 0;
-        }
     };
 }

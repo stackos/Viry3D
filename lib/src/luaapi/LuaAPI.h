@@ -20,6 +20,7 @@
 #include "lua/lua.hpp"
 #include "container/Map.h"
 #include "string/String.h"
+#include "Debug.h"
 
 #define Top() lua_gettop(L)
 #define Pop() lua_pop(L, 1)
@@ -32,6 +33,22 @@
         { \
             lua_pushcfunction(L, *func); \
             return 1; \
+        } \
+        return 0; \
+    }
+
+#define IMPL_INDEX_EXTENDS_FUNC(TBase) static int Index(lua_State* L) \
+    { \
+        const char* name = lua_tostring(L, 2); \
+        const lua_CFunction* func = nullptr; \
+        if (GetMethods().TryGet(name, &func)) \
+        { \
+            lua_pushcfunction(L, *func); \
+            return 1; \
+        } \
+        else \
+        { \
+            return Lua##TBase::Index(L);\
         } \
         return 0; \
     }
@@ -60,7 +77,13 @@ namespace Viry3D
 {
     enum class LuaClassType
     {
+        None = -1,
+
+        Display,
+        Object,
+        Node,
         Camera,
+        Renderer,
         CanvasRenderer,
 
         Count
@@ -84,7 +107,7 @@ namespace Viry3D
     public:
         static void SetAll(lua_State* L);
         static void SetFunction(lua_State* L, const char* table, const char* name, lua_CFunction func);
-        static void SetMetaTable(lua_State* L, const char* name, lua_CFunction index, lua_CFunction alloc, lua_CFunction gc);
+        static void SetMetaTable(lua_State* L, LuaClassType type, lua_CFunction index, lua_CFunction alloc, lua_CFunction gc);
 
         static const char* GetLuaClassName(LuaClassType type);
         static void PushPtr(lua_State* L, const LuaClassPtr& value);
