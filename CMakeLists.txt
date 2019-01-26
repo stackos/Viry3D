@@ -171,6 +171,8 @@ file(GLOB VIRY3D_LIB_SRCS
      ${VIRY3D_LIB_SRC_DIR}/graphics/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/io/*.h
      ${VIRY3D_LIB_SRC_DIR}/io/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/luaapi/*.h
+     ${VIRY3D_LIB_SRC_DIR}/luaapi/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/math/*.h
      ${VIRY3D_LIB_SRC_DIR}/math/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/memory/*.h

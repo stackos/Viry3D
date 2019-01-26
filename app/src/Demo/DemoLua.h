@@ -25,10 +25,35 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Label.h"
 #include "ui/Font.h"
-#include "lua/lua.hpp"
+#include "luaapi/LuaAPI.h"
 
 namespace Viry3D
 {
+    String lua = R"(
+local ui_camera = nil
+
+function AppInit()
+    print("AppInit")
+
+    print(Display)
+    ui_camera = Display.CreateCamera()
+    print(ui_camera)
+    local canvas = CanvasRenderer.New()
+    print(canvas)
+    ui_camera:AddRenderer(canvas)
+end
+
+function AppDone()
+    print("AppDone")
+
+    Display.DestroyCamera(ui_camera)
+    ui_camera = nil
+end
+
+function AppUpdate()
+end
+)";
+
     class DemoLua : public Demo
     {
     public:
@@ -40,21 +65,11 @@ namespace Viry3D
         {
             L = luaL_newstate();
             luaL_openlibs(L);
-
-            String lua = R"(
-function AppInit()
-end
-
-function AppDone()
-end
-
-function AppUpdate()
-end
-)";
+            LuaAPI::SetAll(L);
 
             if (luaL_dostring(L, lua.CString()))
             {
-                Log("%s\n", lua_tostring(L, -1));
+                Debug::LogString(lua_tostring(L, -1), true);
                 lua_pop(L, 1);
                 return;
             }
@@ -67,7 +82,7 @@ end
             lua_getglobal(L, name);
             if (lua_pcall(L, 0, 0, 0))
             {
-                Log("%s\n", lua_tostring(L, -1));
+                Debug::LogString(lua_tostring(L, -1), true);
                 lua_pop(L, 1);
             }
         }
@@ -95,8 +110,8 @@ end
 
         virtual void Init()
         {
-            this->InitUI();
             this->InitLua();
+            this->InitUI();
         }
 
         virtual void Done()

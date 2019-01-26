@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "Object.h"
 #include "container/Vector.h"
 #include "graphics/Color.h"
 #include "graphics/VertexAttribute.h"
@@ -67,7 +68,7 @@ namespace Viry3D
         };
 	};
 
-	class View
+	class View : public Object
 	{
 	public:
         typedef std::function<bool(const Vector2i& pos)> InputAction;
