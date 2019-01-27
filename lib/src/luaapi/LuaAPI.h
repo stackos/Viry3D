@@ -79,12 +79,23 @@ namespace Viry3D
     {
         None = -1,
 
+        Application,
         Display,
         Object,
         Node,
         Camera,
         Renderer,
         CanvasRenderer,
+        View,
+        Label,
+        Sprite,
+        Font,
+        Texture,
+        Color,
+        Vector2,
+        Vector2i,
+        Quaternion,
+        Time,
 
         Count
     };

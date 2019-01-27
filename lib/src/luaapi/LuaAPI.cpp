@@ -22,6 +22,8 @@
 #include "LuaCamera.h"
 #include "LuaRenderer.h"
 #include "LuaCanvasRenderer.h"
+#include "LuaView.h"
+#include "LuaLabel.h"
 
 namespace Viry3D
 {
@@ -51,20 +53,51 @@ namespace Viry3D
         return 0;
     }
 
+    const char* LuaAPI::GetLuaClassName(LuaClassType type)
+    {
+        static const char* s_class_names[(int) LuaClassType::Count] = {
+            "Application",
+            "Display",
+            "Object",
+            "Node",
+            "Camera",
+            "Renderer",
+            "CanvasRenderer",
+            "View",
+            "Label",
+            "Sprite",
+            "Font",
+            "Texture",
+            "Color",
+            "Vector2",
+            "Vector2i",
+            "Quaternion",
+            "Time",
+        };
+        return s_class_names[(int) type];
+    }
+
     void LuaAPI::SetAll(lua_State* L)
     {
         SetFunction(L, "_G", "print", PrintLog);
         
+        // LuaApplication::Set(L);
         LuaDisplay::Set(L);
         LuaObject::Set(L);
         LuaNode::Set(L);
         LuaCamera::Set(L);
         LuaRenderer::Set(L);
         LuaCanvasRenderer::Set(L);
-        // LuaView::Set(L);
-        // LuaLabel::Set(L);
+        LuaView::Set(L);
+        LuaLabel::Set(L);
         // LuaSprite::Set(L);
+        // LuaFont::Set(L);
         // LuaTexture::Set(L);
+        // LuaColor::Set(L);
+        // LuaVector2::Set(L);
+        // LuaVector2i::Set(L);
+        // LuaQuaternion::Set(L);
+        // LuaTime::Set(L);
     }
 
     void LuaAPI::SetFunction(lua_State* L, const char* table, const char* name, lua_CFunction func)
@@ -107,19 +140,6 @@ namespace Viry3D
             }
         }
         Pop();
-    }
-
-    const char* LuaAPI::GetLuaClassName(LuaClassType type)
-    {
-        static const char* s_class_names[(int) LuaClassType::Count] = {
-            "Display",
-            "Object",
-            "Node",
-            "Camera",
-            "Renderer",
-            "CanvasRenderer",
-        };
-        return s_class_names[(int) type];
     }
 
     void LuaAPI::PushPtr(lua_State* L, const LuaClassPtr& value)

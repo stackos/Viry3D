@@ -41,10 +41,6 @@ namespace Viry3D
         static int GetName(lua_State* L)
         {
             LuaClassPtr* p = (LuaClassPtr*) lua_touserdata(L, 1);
-            if (!p)
-            {
-                return 0;
-            }
 
             if (p->ptr_type == LuaPtrType::Raw)
             {
@@ -65,10 +61,6 @@ namespace Viry3D
         static int SetName(lua_State* L)
         {
             LuaClassPtr* p = (LuaClassPtr*) lua_touserdata(L, 1);
-            if (!p)
-            {
-                return 0;
-            }
 
             const char* name = luaL_checkstring(L, 2);
 

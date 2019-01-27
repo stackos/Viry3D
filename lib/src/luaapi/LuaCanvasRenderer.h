@@ -40,6 +40,22 @@ namespace Viry3D
 
         static int AddView(lua_State* L)
         {
+            LuaClassPtr* p1 = (LuaClassPtr*) lua_touserdata(L, 1);
+            LuaClassPtr* p2 = (LuaClassPtr*) lua_touserdata(L, 2);
+
+            Ref<View>* view = (Ref<View>*) p2->ptr;
+
+            if (p1->ptr_type == LuaPtrType::Raw)
+            {
+                CanvasRenderer* obj = (CanvasRenderer*) p1->ptr;
+                obj->AddView(*view);
+            }
+            else if (p1->ptr_type == LuaPtrType::Shared)
+            {
+                Ref<CanvasRenderer>* obj = (Ref<CanvasRenderer>*) p1->ptr;
+                (*obj)->AddView(*view);
+            }
+
             return 0;
         }
     };

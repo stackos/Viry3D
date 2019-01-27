@@ -19,56 +19,23 @@
 
 #include "Demo.h"
 #include "Application.h"
-#include "graphics/Display.h"
-#include "graphics/Camera.h"
-#include "time/Time.h"
-#include "ui/CanvasRenderer.h"
-#include "ui/Label.h"
-#include "ui/Font.h"
+#include "io/File.h"
 #include "luaapi/LuaAPI.h"
 
 namespace Viry3D
 {
-    String lua = R"(
-local ui_camera = nil
-
-function AppInit()
-    print("AppInit")
-
-    print(Display)
-    ui_camera = Display.CreateCamera()
-    ui_camera:SetName("camera")
-    print(ui_camera, ui_camera:GetName())
-    local canvas = CanvasRenderer.New()
-    canvas:SetName("canvas")
-    print(canvas, canvas:GetName())
-    ui_camera:AddRenderer(canvas)
-    canvas:AddView(nil) -- doing
-end
-
-function AppDone()
-    print("AppDone")
-
-    Display.DestroyCamera(ui_camera)
-    ui_camera = nil
-end
-
-function AppUpdate()
-end
-)";
-
     class DemoLua : public Demo
     {
     public:
         lua_State* L = nullptr;
-        Camera* m_ui_camera = nullptr;
-        Label* m_label = nullptr;
 
         void InitLua()
         {
             L = luaL_newstate();
             luaL_openlibs(L);
             LuaAPI::SetAll(L);
+
+            String lua = File::ReadAllText(Application::Instance()->GetDataPath() + "/lua/DemoLua.lua");
 
             if (luaL_dostring(L, lua.CString()))
             {
@@ -90,37 +57,13 @@ end
             }
         }
 
-        void InitUI()
-        {
-            m_ui_camera = Display::Instance()->CreateCamera();
-
-            auto canvas = RefMake<CanvasRenderer>();
-            m_ui_camera->AddRenderer(canvas);
-
-            auto label = RefMake<Label>();
-            canvas->AddView(label);
-
-            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-            label->SetPivot(Vector2(0, 0));
-            label->SetSize(Vector2i(100, 30));
-            label->SetOffset(Vector2i(40, 40));
-            label->SetFont(Font::GetFont(FontType::Consola));
-            label->SetFontSize(28);
-            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-
-            m_label = label.get();
-        }
-
         virtual void Init()
         {
             this->InitLua();
-            this->InitUI();
         }
 
         virtual void Done()
         {
-            Display::Instance()->DestroyCamera(m_ui_camera);
-
             this->CallGlobalFunction("AppDone");
 
             lua_close(L);
@@ -129,11 +72,6 @@ end
         virtual void Update()
         {
             this->CallGlobalFunction("AppUpdate");
-
-            if (m_label)
-            {
-                m_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
-            }
         }
     };
 }

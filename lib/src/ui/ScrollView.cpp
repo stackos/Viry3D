@@ -49,8 +49,8 @@ namespace Viry3D
         });
         m_scroll_view->SetOnTouchDrag([this](const Vector2i& pos) {
             Vector2i offset = pos - m_down_pos;
-            Vector2i scroll_size = this->GetCalculateddSize();
-            Vector2i content_size = m_content_view->GetCalculateddSize();
+            Vector2i scroll_size = this->GetCalculatedSize();
+            Vector2i content_size = m_content_view->GetCalculatedSize();
 
             if (content_size.x > scroll_size.x)
             {

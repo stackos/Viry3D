@@ -148,7 +148,7 @@ namespace Viry3D
         this->MarkCanvasDirty();
 	}
 
-    Vector2i View::GetCalculateddSize()
+    Vector2i View::GetCalculatedSize()
     {
         Vector2i size = m_size;
         
@@ -159,7 +159,7 @@ namespace Viry3D
 
             if (m_parent_view)
             {
-                parent_size = m_parent_view->GetCalculateddSize();
+                parent_size = m_parent_view->GetCalculatedSize();
             }
             else
             {
