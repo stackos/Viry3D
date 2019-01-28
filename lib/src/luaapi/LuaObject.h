@@ -40,40 +40,19 @@ namespace Viry3D
 
         static int GetName(lua_State* L)
         {
-            LuaClassPtr* p = (LuaClassPtr*) lua_touserdata(L, 1);
+            Object* p1 = LuaAPI::GetRawPtr<Object>(L, 1);
 
-            if (p->ptr_type == LuaPtrType::Raw)
-            {
-                Object* obj = (Object*) p->ptr;
-                lua_pushstring(L, obj->GetName().CString());
-                return 1;
-            }
-            else if (p->ptr_type == LuaPtrType::Shared)
-            {
-                Ref<Object>* obj = (Ref<Object>*) p->ptr;
-                lua_pushstring(L, (*obj)->GetName().CString());
-                return 1;
-            }
+            lua_pushstring(L, p1->GetName().CString());
 
-            return 0;
+            return 1;
         }
 
         static int SetName(lua_State* L)
         {
-            LuaClassPtr* p = (LuaClassPtr*) lua_touserdata(L, 1);
+            Object* p1 = LuaAPI::GetRawPtr<Object>(L, 1);
+            const char* p2 = luaL_checkstring(L, 2);
 
-            const char* name = luaL_checkstring(L, 2);
-
-            if (p->ptr_type == LuaPtrType::Raw)
-            {
-                Object* obj = (Object*) p->ptr;
-                obj->SetName(name);
-            }
-            else if (p->ptr_type == LuaPtrType::Shared)
-            {
-                Ref<Object>* obj = (Ref<Object>*) p->ptr;
-                (*obj)->SetName(name);
-            }
+            p1->SetName(p2);
 
             return 0;
         }

@@ -24,6 +24,8 @@
 #include "LuaCanvasRenderer.h"
 #include "LuaView.h"
 #include "LuaLabel.h"
+#include "LuaFont.h"
+#include "LuaTime.h"
 
 namespace Viry3D
 {
@@ -68,10 +70,6 @@ namespace Viry3D
             "Sprite",
             "Font",
             "Texture",
-            "Color",
-            "Vector2",
-            "Vector2i",
-            "Quaternion",
             "Time",
         };
         return s_class_names[(int) type];
@@ -91,13 +89,9 @@ namespace Viry3D
         LuaView::Set(L);
         LuaLabel::Set(L);
         // LuaSprite::Set(L);
-        // LuaFont::Set(L);
+        LuaFont::Set(L);
         // LuaTexture::Set(L);
-        // LuaColor::Set(L);
-        // LuaVector2::Set(L);
-        // LuaVector2i::Set(L);
-        // LuaQuaternion::Set(L);
-        // LuaTime::Set(L);
+        LuaTime::Set(L);
     }
 
     void LuaAPI::SetFunction(lua_State* L, const char* table, const char* name, lua_CFunction func)
@@ -111,6 +105,21 @@ namespace Viry3D
             lua_getglobal(L, table);
         }
         lua_pushcfunction(L, func);
+        lua_setfield(L, -2, name);
+        Pop();
+    }
+
+    void LuaAPI::SetEnum(lua_State* L, const char* table, const char* name, int value)
+    {
+        lua_getglobal(L, table);
+        if (!lua_istable(L, -1))
+        {
+            Pop();
+            lua_newtable(L);
+            lua_setglobal(L, table);
+            lua_getglobal(L, table);
+        }
+        lua_pushinteger(L, value);
         lua_setfield(L, -2, name);
         Pop();
     }
@@ -129,15 +138,15 @@ namespace Viry3D
         {
             LuaAPI::SetFunction(L, name, "New", alloc);
 
-            if (gc)
-            {
-                lua_pushcfunction(L, gc);
-                lua_setfield(L, -2, "__gc");
-            }
-            else
+            if (!gc)
             {
                 assert(!"has alloc function but no gc");
             }
+        }
+        if (gc)
+        {
+            lua_pushcfunction(L, gc);
+            lua_setfield(L, -2, "__gc");
         }
         Pop();
     }

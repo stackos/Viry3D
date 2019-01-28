@@ -91,10 +91,6 @@ namespace Viry3D
         Sprite,
         Font,
         Texture,
-        Color,
-        Vector2,
-        Vector2i,
-        Quaternion,
         Time,
 
         Count
@@ -118,10 +114,28 @@ namespace Viry3D
     public:
         static void SetAll(lua_State* L);
         static void SetFunction(lua_State* L, const char* table, const char* name, lua_CFunction func);
+        static void SetEnum(lua_State* L, const char* table, const char* name, int value);
         static void SetMetaTable(lua_State* L, LuaClassType type, lua_CFunction index, lua_CFunction alloc, lua_CFunction gc);
 
         static const char* GetLuaClassName(LuaClassType type);
         static void PushPtr(lua_State* L, const LuaClassPtr& value);
         static void* GetPtr(lua_State* L, int index, LuaClassType class_type);
+        template <class T>
+        static T* GetRawPtr(lua_State* L, int index)
+        {
+            LuaClassPtr* p = (LuaClassPtr*) lua_touserdata(L, index);
+            if (p)
+            {
+                if (p->ptr_type == LuaPtrType::Raw)
+                {
+                    return (T*) p->ptr;
+                }
+                else if (p->ptr_type == LuaPtrType::Shared)
+                {
+                    return ((Ref<T>*) p->ptr)->get();
+                }
+            }
+            return nullptr;
+        }
     };
 }

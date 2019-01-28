@@ -51,6 +51,14 @@ namespace Viry3D
             GetMethods().Add("SetLocalRotation", SetLocalRotation);
             GetMethods().Add("GetLocalScale", GetLocalScale);
             GetMethods().Add("SetLocalScale", SetLocalScale);
+
+            // ViewAlignment
+            LuaAPI::SetEnum(L, "ViewAlignment", "Left", ViewAlignment::Left);
+            LuaAPI::SetEnum(L, "ViewAlignment", "HCenter", ViewAlignment::HCenter);
+            LuaAPI::SetEnum(L, "ViewAlignment", "Right", ViewAlignment::Right);
+            LuaAPI::SetEnum(L, "ViewAlignment", "Top", ViewAlignment::Top);
+            LuaAPI::SetEnum(L, "ViewAlignment", "VCenter", ViewAlignment::VCenter);
+            LuaAPI::SetEnum(L, "ViewAlignment", "Bottom", ViewAlignment::Bottom);
         }
 
     private:
@@ -110,6 +118,11 @@ namespace Viry3D
 
         static int SetAlignment(lua_State* L)
         {
+            View* p1 = LuaAPI::GetRawPtr<View>(L, 1);
+            int p2 = (int) luaL_checkinteger(L, 2);
+
+            p1->SetAlignment(p2);
+
             return 0;
         }
 
@@ -120,6 +133,12 @@ namespace Viry3D
 
         static int SetPivot(lua_State* L)
         {
+            View* p1 = LuaAPI::GetRawPtr<View>(L, 1);
+            float p2 = (float) luaL_checknumber(L, 2);
+            float p3 = (float) luaL_checknumber(L, 3);
+
+            p1->SetPivot(Vector2(p2, p3));
+
             return 0;
         }
 
@@ -130,6 +149,12 @@ namespace Viry3D
 
         static int SetSize(lua_State* L)
         {
+            View* p1 = LuaAPI::GetRawPtr<View>(L, 1);
+            int p2 = (int) luaL_checkinteger(L, 2);
+            int p3 = (int) luaL_checkinteger(L, 3);
+
+            p1->SetSize(Vector2i(p2, p3));
+
             return 0;
         }
 
@@ -140,6 +165,12 @@ namespace Viry3D
 
         static int SetOffset(lua_State* L)
         {
+            View* p1 = LuaAPI::GetRawPtr<View>(L, 1);
+            int p2 = (int) luaL_checkinteger(L, 2);
+            int p3 = (int) luaL_checkinteger(L, 3);
+
+            p1->SetOffset(Vector2i(p2, p3));
+
             return 0;
         }
 

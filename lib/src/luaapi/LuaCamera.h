@@ -39,12 +39,11 @@ namespace Viry3D
 
         static int AddRenderer(lua_State* L)
         {
-            Camera* camera = (Camera*) LuaAPI::GetPtr(L, 1, LuaClassType::Camera);
+            Camera* p1 = LuaAPI::GetRawPtr<Camera>(L, 1);
             LuaClassPtr* p2 = (LuaClassPtr*) lua_touserdata(L, 2);
 
             Ref<Renderer>* renderer = (Ref<Renderer>*) p2->ptr;
-
-            camera->AddRenderer(*renderer);
+            p1->AddRenderer(*renderer);
 
             return 0;
         }

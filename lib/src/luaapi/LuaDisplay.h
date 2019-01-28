@@ -41,8 +41,8 @@ namespace Viry3D
 
         static int DestroyCamera(lua_State* L)
         {
-            Camera* camera = (Camera*) LuaAPI::GetPtr(L, 1, LuaClassType::Camera);
-            Display::Instance()->DestroyCamera(camera);
+            Camera* p1 = LuaAPI::GetRawPtr<Camera>(L, 1);
+            Display::Instance()->DestroyCamera(p1);
             return 0;
         }
     };
