@@ -37,7 +37,7 @@ namespace Viry3D
     private:
         static int GetFrameCount(lua_State* L)
         {
-            lua_pushnumber(L, Time::GetFrameCount());
+            lua_pushinteger(L, Time::GetFrameCount());
             return 1;
         }
 

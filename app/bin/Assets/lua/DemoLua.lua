@@ -4,8 +4,6 @@ local _label = nil
 function AppInit()
     print("AppInit")
 
-    print(Display)
-
     _ui_camera = Display.CreateCamera()
     _ui_camera:SetName("camera")
 
@@ -32,6 +30,8 @@ function AppInit()
     _label:SetFont(Font.GetFont(FontType.Consola))
     _label:SetFontSize(28)
     _label:SetTextAlignment(ViewAlignment.Left + ViewAlignment.Top)
+
+    print(Application.GetDataPath())
 end
 
 function AppDone()

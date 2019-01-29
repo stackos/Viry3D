@@ -16,6 +16,7 @@
 */
 
 #include "LuaAPI.h"
+#include "LuaApplication.h"
 #include "LuaDisplay.h"
 #include "LuaObject.h"
 #include "LuaNode.h"
@@ -79,7 +80,7 @@ namespace Viry3D
     {
         SetFunction(L, "_G", "print", PrintLog);
         
-        // LuaApplication::Set(L);
+        LuaApplication::Set(L);
         LuaDisplay::Set(L);
         LuaObject::Set(L);
         LuaNode::Set(L);

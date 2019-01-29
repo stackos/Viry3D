@@ -120,6 +120,7 @@ namespace Viry3D
         static const char* GetLuaClassName(LuaClassType type);
         static void PushPtr(lua_State* L, const LuaClassPtr& value);
         static void* GetPtr(lua_State* L, int index, LuaClassType class_type);
+
         template <class T>
         static T* GetRawPtr(lua_State* L, int index)
         {
