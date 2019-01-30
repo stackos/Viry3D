@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "LuaAPI.h"
+#include "LuaObject.h"
 #include "ui/Font.h"
 
 namespace Viry3D

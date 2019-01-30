@@ -16,6 +16,26 @@ function AppInit()
 
     _ui_camera:AddRenderer(canvas)
 
+    local sprite = Sprite.New()
+    sprite:SetName("sprite")
+
+    print(sprite, sprite:GetName())
+
+    canvas:AddView(sprite)
+
+    print(Application.GetDataPath())
+
+    local texture = Texture.LoadTexture2DFromFile(
+        Application.GetDataPath() .. "/lua/back.png",
+        FilterMode.Nearest,
+        SamplerAddressMode.ClampToEdge)
+    texture:SetName("texture")
+
+    print(texture, texture:GetName())
+
+    sprite:SetSize(384 * 2, 240 * 2)
+    sprite:SetTexture(texture)
+
     _label = Label.New()
     _label:SetName("label")
 
@@ -30,8 +50,6 @@ function AppInit()
     _label:SetFont(Font.GetFont(FontType.Consola))
     _label:SetFontSize(28)
     _label:SetTextAlignment(ViewAlignment.Left + ViewAlignment.Top)
-
-    print(Application.GetDataPath())
 end
 
 function AppDone()

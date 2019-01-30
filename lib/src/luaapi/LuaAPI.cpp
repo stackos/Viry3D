@@ -25,7 +25,9 @@
 #include "LuaCanvasRenderer.h"
 #include "LuaView.h"
 #include "LuaLabel.h"
+#include "LuaSprite.h"
 #include "LuaFont.h"
+#include "LuaTexture.h"
 #include "LuaTime.h"
 
 namespace Viry3D
@@ -89,9 +91,9 @@ namespace Viry3D
         LuaCanvasRenderer::Set(L);
         LuaView::Set(L);
         LuaLabel::Set(L);
-        // LuaSprite::Set(L);
+        LuaSprite::Set(L);
         LuaFont::Set(L);
-        // LuaTexture::Set(L);
+        LuaTexture::Set(L);
         LuaTime::Set(L);
     }
 

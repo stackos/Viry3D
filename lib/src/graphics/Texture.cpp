@@ -896,7 +896,7 @@ namespace Viry3D
         return texture;
     }
 
-    Ref<Image> Texture::GetSharedWhiteImage()
+    const Ref<Image>& Texture::GetSharedWhiteImage()
     {
         if (!m_shared_white_image)
         {
@@ -906,7 +906,7 @@ namespace Viry3D
         return m_shared_white_image;
     }
 
-	Ref<Texture> Texture::GetSharedWhiteTexture()
+    const Ref<Texture>& Texture::GetSharedWhiteTexture()
 	{
 		if (!m_shared_white_texture)
 		{
@@ -942,7 +942,7 @@ namespace Viry3D
 		return m_shared_white_texture;
 	}
 
-	Ref<Texture> Texture::GetSharedBlackTexture()
+    const Ref<Texture>& Texture::GetSharedBlackTexture()
 	{
 		if (!m_shared_black_texture)
 		{
@@ -970,7 +970,7 @@ namespace Viry3D
 		return m_shared_black_texture;
 	}
 
-	Ref<Texture> Texture::GetSharedNormalTexture()
+    const Ref<Texture>& Texture::GetSharedNormalTexture()
 	{
 		if (!m_shared_normal_texture)
 		{
@@ -998,7 +998,7 @@ namespace Viry3D
 		return m_shared_normal_texture;
 	}
 
-	Ref<Texture> Texture::GetSharedCubemap()
+    const Ref<Texture>& Texture::GetSharedCubemap()
 	{
 		if (!m_shared_cubemap)
 		{

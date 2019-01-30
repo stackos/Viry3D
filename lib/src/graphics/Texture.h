@@ -149,11 +149,11 @@ namespace Viry3D
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode);
         static TextureFormat ChooseDepthFormatSupported(bool sample);
-        static Ref<Image> GetSharedWhiteImage();
-		static Ref<Texture> GetSharedWhiteTexture();
-		static Ref<Texture> GetSharedBlackTexture();
-		static Ref<Texture> GetSharedNormalTexture();
-		static Ref<Texture> GetSharedCubemap();
+        static const Ref<Image>& GetSharedWhiteImage();
+		static const Ref<Texture>& GetSharedWhiteTexture();
+		static const Ref<Texture>& GetSharedBlackTexture();
+		static const Ref<Texture>& GetSharedNormalTexture();
+		static const Ref<Texture>& GetSharedCubemap();
 		static void Done();
         virtual ~Texture();
         int GetWidth() const { return m_width; }
