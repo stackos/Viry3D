@@ -32,6 +32,10 @@ namespace Viry3D
             auto canvas = RefMake<CanvasRenderer>();
             m_ui_camera->AddRenderer(canvas);
 
+            auto group = RefMake<View>();
+            group->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
+            canvas->AddView(group);
+
             String text = UR"(国风·卫风·淇奥
 瞻彼淇奥，绿竹猗猗。有匪君子，如切如磋，如琢如磨。
 瑟兮僩兮，赫兮咺兮。有匪君子，终不可谖兮。
@@ -44,11 +48,11 @@ Vulkan is a new generation graphics and compute API that provides high-efficienc
 cross-platform access to modern GPUs used in a wide variety of devices from PCs
 and consoles to mobile phones and embedded platforms. )";
             auto label = RefMake<Label>();
-            canvas->AddView(label);
+            group->AddSubview(label);
 
             label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetPivot(Vector2(0, 0));
-            label->SetSize(Vector2i(100, 30));
+            label->SetSize(Vector2i(500, 500));
             label->SetOffset(Vector2i(40, 100));
             label->SetFont(Font::GetFont(FontType::PingFangSC));
             label->SetFontSize(26);
@@ -86,7 +90,7 @@ and consoles to mobile phones and embedded platforms. )";
                     Log("click button: %d", i);
                 });
 
-                canvas->AddView(button);
+                group->AddSubview(button);
             }
         }
 

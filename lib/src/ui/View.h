@@ -105,8 +105,7 @@ namespace Viry3D
         const Vector2& GetLocalScale() const { return m_local_scale; }
         void SetLocalScale(const Vector2& scale);
         const Rect& GetRect() const { return m_rect; }
-        const Quaternion& GetRotation() const { return m_rotation; }
-        const Vector2& GetScale() const { return m_scale; }
+        const Matrix4x4& GetVertexMatrix() { return m_vertex_matrix; }
         void FillMeshes(Vector<ViewMesh>& mesh);
         void SetOnTouchDownInside(InputAction func) { m_on_touch_down_inside = func; }
         void SetOnTouchMoveInside(InputAction func) { m_on_touch_move_inside = func; }
@@ -122,7 +121,7 @@ namespace Viry3D
     protected:
         void MarkCanvasDirty() const;
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
-        void ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix);
+        void ComputeVerticesMatrix();
 
 	private:
 		CanvasRenderer* m_canvas;
@@ -136,8 +135,7 @@ namespace Viry3D
         Quaternion m_local_rotation;
         Vector2 m_local_scale;
         Rect m_rect;
-        Quaternion m_rotation;
-        Vector2 m_scale;
+        Matrix4x4 m_vertex_matrix;
         InputAction m_on_touch_down_inside;
         InputAction m_on_touch_move_inside;
         InputAction m_on_touch_up_inside;

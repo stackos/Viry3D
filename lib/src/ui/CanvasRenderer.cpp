@@ -742,16 +742,23 @@ void main()
         lines[2] = Vector3(y3 - y2, x2 - x3, x3 * y2 - x2 * y3);
         lines[3] = Vector3(y0 - y3, x3 - x0, x0 * y3 - x3 * y0);
 
+        bool all_positive = true;
+        bool all_negative = true;
+
         for (int i = 0; i < 4; ++i)
         {
             float sign = lines[i].x * pos.x + lines[i].y * pos.y + lines[i].z;
             if (sign >= 0)
             {
-                return false;
+                all_negative = false;
+            }
+            if (sign <= 0)
+            {
+                all_positive = false;
             }
         }
 
-        return true;
+        return all_positive || all_negative;
     }
 
     void CanvasRenderer::HitViews(const Touch& t)

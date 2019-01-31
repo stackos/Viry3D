@@ -597,9 +597,9 @@ namespace Viry3D
     {
         View::FillSelfMeshes(meshes);
 
-        Rect rect;
-        Matrix4x4 matrix;
-        this->ComputeVerticesRectAndMatrix(rect, matrix);
+        Rect rect = this->GetRect();
+        rect.y = -rect.y;
+        const Matrix4x4& vertex_matrix = this->GetVertexMatrix();
 
         Vector2i offset_pos = this->ApplyTextAlignment(Vector2i((int) rect.width, (int) rect.height));
 
@@ -619,7 +619,7 @@ namespace Viry3D
                     float x = rect.x + offset_pos.x + char_mesh.vertices[k].x;
                     float y = rect.y + offset_pos.y + char_mesh.vertices[k].y;
 
-                    mesh.vertices[k].vertex = matrix.MultiplyPoint3x4(Vector3(x, y, 0));
+                    mesh.vertices[k].vertex = vertex_matrix.MultiplyPoint3x4(Vector3(x, y, 0));
                     mesh.vertices[k].uv = char_mesh.uv[k];
                     mesh.vertices[k].color = char_mesh.colors[k] * this->GetColor();
                 }

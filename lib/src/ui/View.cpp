@@ -45,8 +45,7 @@ namespace Viry3D
         m_local_rotation(Quaternion::Identity()),
         m_local_scale(1, 1),
         m_rect(0, 0, 0, 0),
-        m_rotation(Quaternion::Identity()),
-        m_scale(1, 1)
+        m_vertex_matrix(Matrix4x4::Identity())
 	{
 	
 	}
@@ -257,18 +256,7 @@ namespace Viry3D
         m_rect.width = (float) size.x;
         m_rect.height = (float) size.y;
 
-        if (m_parent_view)
-        {
-            m_rotation = m_parent_view->GetRotation() * m_local_rotation;
-
-            Vector2 parent_scale = m_parent_view->GetScale();
-            m_scale = Vector2(parent_scale.x * m_local_scale.x, parent_scale.y * m_local_scale.y);
-        }
-        else
-        {
-            m_rotation = m_local_rotation;
-            m_scale = m_local_scale;
-        }
+        this->ComputeVerticesMatrix();
 
         for (auto& i : m_subviews)
         {
@@ -284,26 +272,27 @@ namespace Viry3D
         }
     }
 
-    void View::ComputeVerticesRectAndMatrix(Rect& rect, Matrix4x4& matrix)
+    void View::ComputeVerticesMatrix()
     {
         int x = (int) m_rect.x;
         int y = (int) -m_rect.y;
-
-        rect = Rect((float) x, (float) y, m_rect.width, m_rect.height);
 
         Vector3 pivot_pos;
         pivot_pos.x = x + Mathf::Round(m_pivot.x * m_rect.width);
         pivot_pos.y = y - Mathf::Round(m_pivot.y * m_rect.height);
         pivot_pos.z = 0;
 
-        matrix = Matrix4x4::Translation(pivot_pos) * Matrix4x4::Rotation(m_rotation) * Matrix4x4::Scaling(m_scale) * Matrix4x4::Translation(-pivot_pos);
+        m_vertex_matrix = Matrix4x4::Translation(pivot_pos) * Matrix4x4::Rotation(m_local_rotation) * Matrix4x4::Scaling(Vector3(m_local_scale.x, m_local_scale.y, 1)) * Matrix4x4::Translation(-pivot_pos);
+
+        if (m_parent_view)
+        {
+            m_vertex_matrix = m_parent_view->GetVertexMatrix() * m_vertex_matrix;
+        }
     }
 
     void View::FillSelfMeshes(Vector<ViewMesh>& meshes)
     {
-        Rect rect;
-        Matrix4x4 matrix;
-        this->ComputeVerticesRectAndMatrix(rect, matrix);
+        Rect rect = Rect(m_rect.x, -m_rect.y, m_rect.width, m_rect.height);
 
         Vertex vs[4];
         Memory::Zero(&vs[0], sizeof(vs));
@@ -322,7 +311,7 @@ namespace Viry3D
 
         for (int i = 0; i < 4; ++i)
         {
-            vs[i].vertex = matrix.MultiplyPoint3x4(vs[i].vertex);
+            vs[i].vertex = m_vertex_matrix.MultiplyPoint3x4(vs[i].vertex);
         }
 
         ViewMesh mesh;
