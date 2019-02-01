@@ -52,8 +52,9 @@ and consoles to mobile phones and embedded platforms. )";
 
             label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetPivot(Vector2(0, 0));
-            label->SetSize(Vector2i(500, 500));
+            label->SetSize(Vector2i(400, 400));
             label->SetOffset(Vector2i(40, 100));
+            label->EnableClipRect(true);
             label->SetFont(Font::GetFont(FontType::PingFangSC));
             label->SetFontSize(26);
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);

@@ -32,7 +32,7 @@ namespace Viry3D
         void SetTexture(const Ref<Texture>& texture);
     
     protected:
-        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
+        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect);
 
     private:
         Ref<Texture> m_texture;

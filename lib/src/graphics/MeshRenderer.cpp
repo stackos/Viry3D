@@ -77,6 +77,8 @@ namespace Viry3D
             {
                 m_draw_buffer->Destroy(Display::Instance()->GetDevice());
                 m_draw_buffer.reset();
+
+                this->MarkInstanceCmdDirty();
             }
             return;
         }
@@ -102,16 +104,22 @@ namespace Viry3D
             draw.firstInstance = 0;
         }
 
-        if (!m_draw_buffer)
+        if (!m_draw_buffer || m_draw_buffer->GetSize() < draws.SizeInBytes())
         {
+            if (m_draw_buffer)
+            {
+                m_draw_buffer->Destroy(Display::Instance()->GetDevice());
+                m_draw_buffer.reset();
+            }
+
             m_draw_buffer = Display::Instance()->CreateBuffer(draws.Bytes(), draws.SizeInBytes(), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, true, VK_FORMAT_UNDEFINED);
+            
+            this->MarkInstanceCmdDirty();
         }
         else
         {
             Display::Instance()->UpdateBuffer(m_draw_buffer, 0, draws.Bytes(), draws.SizeInBytes());
         }
-
-        this->MarkInstanceCmdDirty();
 #elif VR_GLES
         const auto& materials = this->GetMaterials();
         if (materials.Size() == 0 || !m_mesh)

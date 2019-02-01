@@ -75,7 +75,7 @@ namespace Viry3D
         void SetTextAlignment(int alignment);
 
     protected:
-        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
+        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect);
 
     private:
         void ProcessText();

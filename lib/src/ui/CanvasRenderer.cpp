@@ -52,14 +52,6 @@ namespace Viry3D
             delete m_atlas_tree[i];
         }
         m_atlas_tree.Clear();
-
-#if VR_VULKAN
-        if (m_draw_buffer)
-        {
-            m_draw_buffer->Destroy(Display::Instance()->GetDevice());
-            m_draw_buffer.reset();
-        }
-#endif
 	}
 
     void CanvasRenderer::ReleaseAtlasTreeNode(AtlasTreeNode* node)
@@ -184,6 +176,7 @@ void main()
 
         auto material = RefMake<Material>(shader);
         material->SetColor("u_color", Color(1, 1, 1, 1));
+        material->SetVector(CLIP_RECT, Vector4(0, 0, 1, 1));
 
         this->SetMaterial(material);
     }
@@ -268,32 +261,12 @@ void main()
         layer->layer = m_atlas_tree.Size();
         m_atlas_tree.Add(layer);
 
-        this->GetMaterial()->SetTexture("u_texture", m_atlas);
+        const auto& materials = this->GetMaterials();
+        for (auto& i : materials)
+        {
+            i->SetTexture("u_texture", m_atlas);
+        }
     }
-
-	Ref<BufferObject> CanvasRenderer::GetVertexBuffer() const
-	{
-		Ref<BufferObject> buffer;
-
-		if (m_mesh)
-		{
-			buffer = m_mesh->GetVertexBuffer();
-		}
-
-		return buffer;
-	}
-
-	Ref<BufferObject> CanvasRenderer::GetIndexBuffer() const
-	{
-		Ref<BufferObject> buffer;
-
-		if (m_mesh)
-		{
-			buffer = m_mesh->GetIndexBuffer();
-		}
-
-		return buffer;
-	}
 
 	void CanvasRenderer::Update()
 	{
@@ -321,8 +294,6 @@ void main()
                 
                 this->GetCamera()->SetProjectionMatrixExternal(projection_matrix);
             }
-
-            this->GetCamera()->SetProjectionUniform(this->GetMaterial());
 
             this->UpdateCanvas();
 		}
@@ -380,7 +351,7 @@ void main()
         for (int i = 0; i < m_views.Size(); ++i)
         {
             m_views[i]->UpdateLayout();
-            m_views[i]->FillMeshes(m_view_meshes);
+            m_views[i]->FillMeshes(m_view_meshes, Rect(0, 0, 1, 1));
         }
 
         List<ViewMesh*> mesh_list;
@@ -431,14 +402,30 @@ void main()
             }
         }
 
+        Vector<Mesh::Submesh> submeshes;
+        Vector<Rect> clip_rects;
         Vector<Vertex> vertices;
         Vector<unsigned short> indices;
-
+        
         for (const auto& i : m_view_meshes)
         {
             if (i.vertices.Size() > 0 && i.indices.Size() > 0 && (i.texture || i.image))
             {
                 int index_offset = vertices.Size();
+
+                if (clip_rects.Size() == 0 || i.clip_rect != clip_rects[clip_rects.Size() - 1])
+                {
+                    clip_rects.Add(i.clip_rect);
+
+                    Mesh::Submesh submesh;
+                    submesh.index_first = indices.Size();
+                    submesh.index_count = i.indices.Size();
+                    submeshes.Add(submesh);
+                }
+                else
+                {
+                    submeshes[submeshes.Size() - 1].index_count += i.indices.Size();
+                }
 
                 vertices.AddRange(i.vertices);
 
@@ -449,28 +436,13 @@ void main()
             }
         }
 
-        bool draw_buffer_dirty = false;
-
-        if (!m_mesh)
-        {
-            if (indices.Size() > 0)
-            {
-                draw_buffer_dirty = true;
-            }
-        }
-        else
-        {
-            if (indices.Size() != m_mesh->GetIndexCount())
-            {
-                draw_buffer_dirty = true;
-            }
-        }
-
+        auto mesh = this->GetMesh();
         if (vertices.Size() > 0 && indices.Size() > 0)
         {
-            if (!m_mesh || vertices.Size() > m_mesh->GetVertexCount() || indices.Size() > m_mesh->GetIndexCount())
+            if (!mesh || vertices.Size() > mesh->GetVertexCount() || indices.Size() > mesh->GetIndexCount())
             {
-                m_mesh = RefMake<Mesh>(vertices, indices, Vector<Mesh::Submesh>(), true);
+                mesh = RefMake<Mesh>(vertices, indices, submeshes, true);
+                this->SetMesh(mesh);
 
 #if VR_VULKAN
                 this->MarkInstanceCmdDirty();
@@ -478,20 +450,57 @@ void main()
             }
             else
             {
-                m_mesh->Update(vertices, indices);
+                mesh->Update(vertices, indices, submeshes);
+
+                m_draw_buffer_dirty = true;
             }
         }
         else
         {
-            m_mesh.reset();
+            if (mesh)
+            {
+                mesh.reset();
+                this->SetMesh(mesh);
+
+#if VR_VULKAN
+                this->MarkInstanceCmdDirty();
+#endif
+            }
         }
 
-        if (draw_buffer_dirty)
+        // update materials
+        if (this->GetMaterials().Size() != submeshes.Size())
         {
-            m_draw_buffer_dirty = true;
+            Vector<Ref<Material>> materials(submeshes.Size());
+            for (int i = 0; i < materials.Size(); ++i)
+            {
+                materials[i] = RefMake<Material>(this->GetMaterial()->GetShader());
+                materials[i]->SetColor("u_color", Color(1, 1, 1, 1));
+                materials[i]->SetTexture("u_texture", m_atlas);
+                materials[i]->SetVector(CLIP_RECT, Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].width, clip_rects[i].height));
+            }
+            this->SetMaterials(materials);
+        }
+        else
+        {
+            const auto& materials = this->GetMaterials();
+            for (int i = 0; i < materials.Size(); ++i)
+            {
+                this->GetCamera()->SetProjectionUniform(materials[i]);
+                auto clip = materials[i]->GetVector(CLIP_RECT);
+                auto new_clip = Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].width, clip_rects[i].height);
+                if (clip == nullptr || *clip != new_clip)
+                {
+                    materials[i]->SetVector(CLIP_RECT, new_clip);
+
+#if VR_VULKAN
+                    this->MarkInstanceCmdDirty();
+#endif
+                }
+            }
         }
 
-        /*
+#if 0
         // test output atlas texture
         if (atlas_updated)
         {
@@ -508,45 +517,6 @@ void main()
                 };
                 image.EncodeToPNG(String::Format("%s/atlas%d.png", Application::Instance()->GetSavePath().CString(), i));
             }
-        }
-        //*/
-    }
-
-    void CanvasRenderer::UpdateDrawBuffer()
-    {
-#if VR_VULKAN
-        VkDrawIndexedIndirectCommand draw;
-        if (m_mesh)
-        {
-            draw.indexCount = m_mesh->GetIndexCount();
-        }
-        else
-        {
-            draw.indexCount = 0;
-        }
-        draw.instanceCount = 1;
-        draw.firstIndex = 0;
-        draw.vertexOffset = 0;
-        draw.firstInstance = 0;
-
-        if (!m_draw_buffer)
-        {
-            m_draw_buffer = Display::Instance()->CreateBuffer(&draw, sizeof(draw), VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, false, VK_FORMAT_UNDEFINED);
-        }
-        else
-        {
-            Display::Instance()->UpdateBuffer(m_draw_buffer, 0, &draw, sizeof(draw));
-        }
-#elif VR_GLES
-        m_draw_buffers.Resize(1);
-        m_draw_buffers[0].first_index = 0;
-        if (m_mesh)
-        {
-            m_draw_buffers[0].index_count = m_mesh->GetIndexCount();
-        }
-        else
-        {
-            m_draw_buffers[0].index_count = 0;
         }
 #endif
     }

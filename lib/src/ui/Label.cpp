@@ -593,9 +593,11 @@ namespace Viry3D
         return offset_pos;
     }
 
-    void Label::FillSelfMeshes(Vector<ViewMesh>& meshes)
+    void Label::FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
-        View::FillSelfMeshes(meshes);
+        View::FillSelfMeshes(meshes, clip_rect);
+
+        Rect clip = Rect::Min(this->GetClipRect(), clip_rect);
 
         Rect rect = this->GetRect();
         rect.y = -rect.y;
@@ -628,6 +630,7 @@ namespace Viry3D
                 mesh.image = char_mesh.image;
                 mesh.view = this;
                 mesh.base_view = false;
+                mesh.clip_rect = clip;
 
                 meshes.Add(mesh);
             }

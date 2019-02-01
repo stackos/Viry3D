@@ -296,6 +296,7 @@ void main()
                 if (!mesh || vertices.Size() > mesh->GetVertexCount() || indices.Size() > mesh->GetIndexCount())
                 {
                     mesh = RefMake<Mesh>(vertices, indices, submeshes, true);
+                    this->SetMesh(mesh);
 
 #if VR_VULKAN
                     this->MarkInstanceCmdDirty();
@@ -304,13 +305,22 @@ void main()
                 else
                 {
                     mesh->Update(vertices, indices, submeshes);
+
+                    m_draw_buffer_dirty = true;
                 }
             }
             else
             {
-                mesh.reset();
+                if (mesh)
+                {
+                    mesh.reset();
+                    this->SetMesh(mesh);
+
+#if VR_VULKAN
+                    this->MarkInstanceCmdDirty();
+#endif
+                }
             }
-            this->SetMesh(mesh);
 
             // update matrix
             this->GetCamera()->SetNearClip(-1000);
@@ -335,8 +345,6 @@ void main()
                 materials[i]->SetVector(CLIP_RECT, clip_rects[i]);
                 this->GetCamera()->SetProjectionUniform(materials[i]);
             }
-
-            m_draw_buffer_dirty = true;
         }
 
         MeshRenderer::Update();

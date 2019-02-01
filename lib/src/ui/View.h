@@ -45,6 +45,7 @@ namespace Viry3D
         Ref<Image> image;
         View* view = nullptr;
         bool base_view = false;
+        Rect clip_rect = Rect(0, 0, 1, 1);
 
         bool HasTextureOrImage() const
         {
@@ -106,7 +107,10 @@ namespace Viry3D
         void SetLocalScale(const Vector2& scale);
         const Rect& GetRect() const { return m_rect; }
         const Matrix4x4& GetVertexMatrix() { return m_vertex_matrix; }
-        void FillMeshes(Vector<ViewMesh>& mesh);
+        bool IsClipRect() const { return m_clip_rect; }
+        void EnableClipRect(bool enable);
+        Rect GetClipRect() const;
+        void FillMeshes(Vector<ViewMesh>& mesh, const Rect& clip_rect);
         void SetOnTouchDownInside(InputAction func) { m_on_touch_down_inside = func; }
         void SetOnTouchMoveInside(InputAction func) { m_on_touch_move_inside = func; }
         void SetOnTouchUpInside(InputAction func) { m_on_touch_up_inside = func; }
@@ -120,7 +124,7 @@ namespace Viry3D
 
     protected:
         void MarkCanvasDirty() const;
-        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes);
+        virtual void FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect);
         void ComputeVerticesMatrix();
 
 	private:
@@ -134,6 +138,7 @@ namespace Viry3D
         Vector2i m_offset;
         Quaternion m_local_rotation;
         Vector2 m_local_scale;
+        bool m_clip_rect;
         Rect m_rect;
         Matrix4x4 m_vertex_matrix;
         InputAction m_on_touch_down_inside;

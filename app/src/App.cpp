@@ -47,7 +47,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - view clip rect
 // - sprite type (fill, 9 slice, ...)
 // - SpriteAtlas
 // - Canvas Editor

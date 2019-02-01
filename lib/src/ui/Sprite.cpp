@@ -37,9 +37,9 @@ namespace Viry3D
         this->MarkCanvasDirty();
     }
 
-    void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes)
+    void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
-        View::FillSelfMeshes(meshes);
+        View::FillSelfMeshes(meshes, clip_rect);
 
         ViewMesh& mesh = meshes[meshes.Size() - 1];
 

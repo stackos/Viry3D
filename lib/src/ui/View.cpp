@@ -44,6 +44,7 @@ namespace Viry3D
 		m_offset(0, 0),
         m_local_rotation(Quaternion::Identity()),
         m_local_scale(1, 1),
+        m_clip_rect(false),
         m_rect(0, 0, 0, 0),
         m_vertex_matrix(Matrix4x4::Identity())
 	{
@@ -198,6 +199,44 @@ namespace Viry3D
         this->MarkCanvasDirty();
     }
 
+    void View::EnableClipRect(bool enable)
+    {
+        m_clip_rect = enable;
+        this->MarkCanvasDirty();
+    }
+
+    Rect View::GetClipRect() const
+    {
+        if (this->IsClipRect())
+        {
+            Rect rect = Rect(m_rect.x, -m_rect.y, m_rect.width, m_rect.height);
+
+            Vector3 vs[4];
+            vs[0] = Vector3(rect.x, rect.y, 0);
+            vs[1] = Vector3(rect.x, rect.y - rect.height, 0);
+            vs[2] = Vector3(rect.x + rect.width, rect.y - rect.height, 0);
+            vs[3] = Vector3(rect.x + rect.width, rect.y, 0);
+
+            for (int i = 0; i < 4; ++i)
+            {
+                vs[i] = m_vertex_matrix.MultiplyPoint3x4(vs[i]);
+            }
+
+            float x = vs[0].x;
+            float y = -vs[0].y;
+            float w = vs[3].x - vs[0].x;
+            float h = vs[0].y - vs[1].y;
+            float canvas_w = (float) this->GetCanvas()->GetCamera()->GetTargetWidth();
+            float canvas_h = (float) this->GetCanvas()->GetCamera()->GetTargetHeight();
+
+            return Rect(x / canvas_w, y / canvas_h, w / canvas_w, h / canvas_h);
+        }
+        else
+        {
+            return Rect(0, 0, 1, 1);
+        }
+    }
+
     void View::UpdateLayout()
     {
         Rect parent_rect;
@@ -290,7 +329,7 @@ namespace Viry3D
         }
     }
 
-    void View::FillSelfMeshes(Vector<ViewMesh>& meshes)
+    void View::FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
         Rect rect = Rect(m_rect.x, -m_rect.y, m_rect.width, m_rect.height);
 
@@ -319,16 +358,20 @@ namespace Viry3D
         mesh.indices.AddRange({ 0, 1, 2, 0, 2, 3 });
         mesh.view = this;
         mesh.base_view = true;
+        mesh.clip_rect = Rect::Min(this->GetClipRect(), clip_rect);
+
         meshes.Add(mesh);
     }
 
-    void View::FillMeshes(Vector<ViewMesh>& meshes)
+    void View::FillMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
-        this->FillSelfMeshes(meshes);
+        this->FillSelfMeshes(meshes, clip_rect);
+
+        Rect clip = Rect::Min(this->GetClipRect(), clip_rect);
 
         for (auto& i : m_subviews)
         {
-            i->FillMeshes(meshes);
+            i->FillMeshes(meshes, clip);
         }
     }
 

@@ -21,6 +21,9 @@ namespace Viry3D
 {
 	struct Rect
 	{
+        static Rect Max(const Rect& a, const Rect& b);
+        static Rect Min(const Rect& a, const Rect& b);
+
 		explicit Rect(float x = 0, float y = 0, float width = 0, float height = 0):
             x(x),
             y(y),

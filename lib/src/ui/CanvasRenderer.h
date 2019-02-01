@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "graphics/Renderer.h"
+#include "graphics/MeshRenderer.h"
 #include "container/Vector.h"
 #include "container/Map.h"
 #include "View.h"
@@ -38,13 +38,11 @@ namespace Viry3D
         Vector<AtlasTreeNode*> children;
     };
 
-    class CanvasRenderer : public Renderer
+    class CanvasRenderer : public MeshRenderer
 	{
 	public:
 		CanvasRenderer();
 		virtual ~CanvasRenderer();
-		virtual Ref<BufferObject> GetVertexBuffer() const;
-		virtual Ref<BufferObject> GetIndexBuffer() const;
 		virtual void Update();
         virtual void OnFrameEnd();
         virtual void OnResize(int width, int height);
@@ -52,9 +50,6 @@ namespace Viry3D
 		void RemoveView(const Ref<View>& view);
         void RemoveAllViews();
 		void MarkCanvasDirty();
-
-    protected:
-        virtual void UpdateDrawBuffer();
 
 	private:
         void CreateMaterial();
@@ -69,7 +64,6 @@ namespace Viry3D
 	private:
 		Vector<Ref<View>> m_views;
 		bool m_canvas_dirty;
-		Ref<Mesh> m_mesh;
         Ref<Texture> m_atlas;
         int m_atlas_array_size;
         Vector<AtlasTreeNode*> m_atlas_tree;
