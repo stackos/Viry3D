@@ -330,7 +330,28 @@ namespace Viry3D
                 instance_materials[i]->ApplyUniforms();
             }
 
+            const Vector4* clip_rect = material->GetVector(CLIP_RECT);
+            if (clip_rect)
+            {
+                glEnable(GL_SCISSOR_TEST);
+                int target_width = m_camera->GetTargetWidth();
+                int target_height = m_camera->GetTargetHeight();
+                glScissor((int) (clip_rect->x * target_width),
+                    (int) ((1.0f - clip_rect->y - clip_rect->w) * target_height),
+                    (int) (clip_rect->z * target_width),
+                    (int) (clip_rect->w * target_height));
+            }
+            else
+            {
+                glDisable(GL_SCISSOR_TEST);
+            }
+
             glDrawElements(GL_TRIANGLES, draw_buffers[i].index_count, GL_UNSIGNED_SHORT, (const void*) (draw_buffers[i].first_index * sizeof(unsigned short)));
+
+            if (clip_rect)
+            {
+                glDisable(GL_SCISSOR_TEST);
+            }
 
             shader->DisableVertexAttribs();
         }
