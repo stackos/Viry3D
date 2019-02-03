@@ -20,6 +20,7 @@
 #include "graphics/MeshRenderer.h"
 #include "container/Vector.h"
 #include "container/Map.h"
+#include "math/Recti.h"
 #include "View.h"
 
 namespace Viry3D
@@ -30,10 +31,7 @@ namespace Viry3D
 
     struct AtlasTreeNode
     {
-        int x;
-        int y;
-        int w;
-        int h;
+        Recti rect;
         int layer;
         Vector<AtlasTreeNode*> children;
     };

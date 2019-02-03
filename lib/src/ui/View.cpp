@@ -209,13 +209,13 @@ namespace Viry3D
     {
         if (this->IsClipRect())
         {
-            Rect rect = Rect(m_rect.x, -m_rect.y, m_rect.width, m_rect.height);
+            Rect rect = Rect((float) m_rect.x, (float) -m_rect.y, (float) m_rect.w, (float) m_rect.h);
 
             Vector3 vs[4];
             vs[0] = Vector3(rect.x, rect.y, 0);
-            vs[1] = Vector3(rect.x, rect.y - rect.height, 0);
-            vs[2] = Vector3(rect.x + rect.width, rect.y - rect.height, 0);
-            vs[3] = Vector3(rect.x + rect.width, rect.y, 0);
+            vs[1] = Vector3(rect.x, rect.y - rect.h, 0);
+            vs[2] = Vector3(rect.x + rect.w, rect.y - rect.h, 0);
+            vs[3] = Vector3(rect.x + rect.w, rect.y, 0);
 
             for (int i = 0; i < 4; ++i)
             {
@@ -239,7 +239,7 @@ namespace Viry3D
 
     void View::UpdateLayout()
     {
-        Rect parent_rect;
+        Recti parent_rect;
 
         if (m_parent_view)
         {
@@ -247,7 +247,7 @@ namespace Viry3D
         }
         else
         {
-            parent_rect = Rect(0, 0, (float) m_canvas->GetCamera()->GetTargetWidth(), (float) m_canvas->GetCamera()->GetTargetHeight());
+            parent_rect = Recti(0, 0, m_canvas->GetCamera()->GetTargetWidth(), m_canvas->GetCamera()->GetTargetHeight());
         }
 
         Vector2i local_pos;
@@ -258,11 +258,11 @@ namespace Viry3D
         }
         else if (m_alignment & ViewAlignment::HCenter)
         {
-            local_pos.x = (int) (parent_rect.width / 2);
+            local_pos.x = parent_rect.w / 2;
         }
         else if (m_alignment & ViewAlignment::Right)
         {
-            local_pos.x = (int) parent_rect.width;
+            local_pos.x = parent_rect.w;
         }
 
         if (m_alignment & ViewAlignment::Top)
@@ -271,11 +271,11 @@ namespace Viry3D
         }
         else if (m_alignment & ViewAlignment::VCenter)
         {
-            local_pos.y = (int) (parent_rect.height / 2);
+            local_pos.y = parent_rect.h / 2;
         }
         else if (m_alignment & ViewAlignment::Bottom)
         {
-            local_pos.y = (int) parent_rect.height;
+            local_pos.y = parent_rect.h;
         }
 
         local_pos += m_offset;
@@ -283,17 +283,17 @@ namespace Viry3D
         Vector2i size = this->GetSize();
         if (size.x == VIEW_SIZE_FILL_PARENT)
         {
-            size.x = (int) parent_rect.width;
+            size.x = parent_rect.w;
         }
         if (size.y == VIEW_SIZE_FILL_PARENT)
         {
-            size.y = (int) parent_rect.height;
+            size.y = parent_rect.h;
         }
 
-        m_rect.x = parent_rect.x + local_pos.x - Mathf::Round(m_pivot.x * size.x);
-        m_rect.y = parent_rect.y + local_pos.y - Mathf::Round(m_pivot.y * size.y);
-        m_rect.width = (float) size.x;
-        m_rect.height = (float) size.y;
+        m_rect.x = parent_rect.x + local_pos.x - Mathf::RoundToInt(m_pivot.x * size.x);
+        m_rect.y = parent_rect.y + local_pos.y - Mathf::RoundToInt(m_pivot.y * size.y);
+        m_rect.w = size.x;
+        m_rect.h = size.y;
 
         this->ComputeVerticesMatrix();
 
@@ -313,12 +313,12 @@ namespace Viry3D
 
     void View::ComputeVerticesMatrix()
     {
-        int x = (int) m_rect.x;
-        int y = (int) -m_rect.y;
+        int x = m_rect.x;
+        int y = -m_rect.y;
 
         Vector3 pivot_pos;
-        pivot_pos.x = x + Mathf::Round(m_pivot.x * m_rect.width);
-        pivot_pos.y = y - Mathf::Round(m_pivot.y * m_rect.height);
+        pivot_pos.x = x + Mathf::Round(m_pivot.x * m_rect.w);
+        pivot_pos.y = y - Mathf::Round(m_pivot.y * m_rect.h);
         pivot_pos.z = 0;
 
         m_vertex_matrix = Matrix4x4::Translation(pivot_pos) * Matrix4x4::Rotation(m_local_rotation) * Matrix4x4::Scaling(Vector3(m_local_scale.x, m_local_scale.y, 1)) * Matrix4x4::Translation(-pivot_pos);
@@ -331,14 +331,14 @@ namespace Viry3D
 
     void View::FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
-        Rect rect = Rect(m_rect.x, -m_rect.y, m_rect.width, m_rect.height);
+        Rect rect = Rect((float) m_rect.x, (float) -m_rect.y, (float) m_rect.w, (float) m_rect.h);
 
         Vertex vs[4];
         Memory::Zero(&vs[0], sizeof(vs));
         vs[0].vertex = Vector3(rect.x, rect.y, 0);
-        vs[1].vertex = Vector3(rect.x, rect.y - rect.height, 0);
-        vs[2].vertex = Vector3(rect.x + rect.width, rect.y - rect.height, 0);
-        vs[3].vertex = Vector3(rect.x + rect.width, rect.y, 0);
+        vs[1].vertex = Vector3(rect.x, rect.y - rect.h, 0);
+        vs[2].vertex = Vector3(rect.x + rect.w, rect.y - rect.h, 0);
+        vs[3].vertex = Vector3(rect.x + rect.w, rect.y, 0);
         vs[0].color = m_color;
         vs[1].color = m_color;
         vs[2].color = m_color;

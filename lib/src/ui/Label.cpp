@@ -599,11 +599,11 @@ namespace Viry3D
 
         Rect clip = Rect::Min(this->GetClipRect(), clip_rect);
 
-        Rect rect = this->GetRect();
+        Recti rect = this->GetRect();
         rect.y = -rect.y;
         const Matrix4x4& vertex_matrix = this->GetVertexMatrix();
 
-        Vector2i offset_pos = this->ApplyTextAlignment(Vector2i((int) rect.width, (int) rect.height));
+        Vector2i offset_pos = this->ApplyTextAlignment(Vector2i(rect.w, rect.h));
 
         for (int i = 0; i < m_lines.Size(); ++i)
         {
@@ -618,10 +618,10 @@ namespace Viry3D
 
                 for (int k = 0; k < mesh.vertices.Size(); ++k)
                 {
-                    float x = rect.x + offset_pos.x + char_mesh.vertices[k].x;
-                    float y = rect.y + offset_pos.y + char_mesh.vertices[k].y;
+                    int x = rect.x + offset_pos.x + char_mesh.vertices[k].x;
+                    int y = rect.y + offset_pos.y + char_mesh.vertices[k].y;
 
-                    mesh.vertices[k].vertex = vertex_matrix.MultiplyPoint3x4(Vector3(x, y, 0));
+                    mesh.vertices[k].vertex = vertex_matrix.MultiplyPoint3x4(Vector3((float) x, (float) y, 0));
                     mesh.vertices[k].uv = char_mesh.uv[k];
                     mesh.vertices[k].color = char_mesh.colors[k] * this->GetColor();
                 }

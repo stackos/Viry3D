@@ -142,16 +142,16 @@ namespace Viry3D
         {
             if (this->BeginMainWindow("Scene",
                 m_menu_rect.x,
-                m_menu_rect.height,
-                m_scene_window_rect.width,
-                m_scene_window_rect.height))
+                m_menu_rect.h,
+                m_scene_window_rect.w,
+                m_scene_window_rect.h))
             {
                 SceneWindow::OnGUI();
                 
                 auto pos = ImGui::GetWindowPos();
                 auto size = ImGui::GetWindowSize();
                 m_scene_window_rect = Rect(pos.x, pos.y, size.x, size.y);
-                m_property_window_rect.height = m_scene_window_rect.height;
+                m_property_window_rect.h = m_scene_window_rect.h;
             }
             this->EndMainWindow();
         }
@@ -159,16 +159,16 @@ namespace Viry3D
         void ShowPropertyWindow()
         {
             if (this->BeginMainWindow("Property",
-                m_scene_window_rect.x + m_scene_window_rect.width,
+                m_scene_window_rect.x + m_scene_window_rect.w,
                 m_scene_window_rect.y,
-                m_property_window_rect.width,
-                m_property_window_rect.height))
+                m_property_window_rect.w,
+                m_property_window_rect.h))
             {
                 auto pos = ImGui::GetWindowPos();
                 auto size = ImGui::GetWindowSize();
                 m_property_window_rect = Rect(pos.x, pos.y, size.x, size.y);
-                m_view_window_rect.height = m_property_window_rect.height;
-                m_view_window_rect.width = Display::Instance()->GetWidth() - m_scene_window_rect.width - m_property_window_rect.width;
+                m_view_window_rect.h = m_property_window_rect.h;
+                m_view_window_rect.w = Display::Instance()->GetWidth() - m_scene_window_rect.w - m_property_window_rect.w;
             }
             this->EndMainWindow();
         }
@@ -176,18 +176,18 @@ namespace Viry3D
         void ShowViewWindow()
         {
             if (this->BeginMainWindow("View",
-                m_property_window_rect.x + m_property_window_rect.width,
+                m_property_window_rect.x + m_property_window_rect.w,
                 m_property_window_rect.y,
-                m_view_window_rect.width,
-                m_view_window_rect.height,
+                m_view_window_rect.w,
+                m_view_window_rect.h,
                 false))
             {
                 auto pos = ImGui::GetWindowPos();
                 auto size = ImGui::GetWindowSize();
                 m_view_window_rect = Rect(pos.x, pos.y, size.x, size.y);
-                m_scene_window_rect.height = m_view_window_rect.height;
-                m_assets_window_rect.y = m_view_window_rect.y + m_view_window_rect.height;
-                m_assets_window_rect.height = Display::Instance()->GetHeight() - m_view_window_rect.y - m_view_window_rect.height;
+                m_scene_window_rect.h = m_view_window_rect.h;
+                m_assets_window_rect.y = m_view_window_rect.y + m_view_window_rect.h;
+                m_assets_window_rect.h = Display::Instance()->GetHeight() - m_view_window_rect.y - m_view_window_rect.h;
             }
             this->EndMainWindow();
         }
@@ -198,16 +198,16 @@ namespace Viry3D
             if (this->BeginMainWindow("Assets",
                 m_assets_window_rect.x,
                 m_assets_window_rect.y,
-                m_assets_window_rect.width,
-                m_assets_window_rect.height))
+                m_assets_window_rect.w,
+                m_assets_window_rect.h))
             {
                 auto pos = ImGui::GetWindowPos();
                 auto size = ImGui::GetWindowSize();
                 m_assets_window_rect = Rect(pos.x, pos.y, size.x, size.y);
-                m_console_window_rect.x = m_assets_window_rect.width;
+                m_console_window_rect.x = m_assets_window_rect.w;
                 m_console_window_rect.y = m_assets_window_rect.y;
-                m_console_window_rect.width = Display::Instance()->GetWidth() - m_assets_window_rect.width;
-                m_console_window_rect.height = m_assets_window_rect.height;
+                m_console_window_rect.w = Display::Instance()->GetWidth() - m_assets_window_rect.w;
+                m_console_window_rect.h = m_assets_window_rect.h;
             }
             this->EndMainWindow();
         }
@@ -217,8 +217,8 @@ namespace Viry3D
             if (this->BeginMainWindow("Console",
                 m_console_window_rect.x,
                 m_console_window_rect.y,
-                m_console_window_rect.width,
-                m_console_window_rect.height,
+                m_console_window_rect.w,
+                m_console_window_rect.h,
                 false))
             {
                 auto pos = ImGui::GetWindowPos();

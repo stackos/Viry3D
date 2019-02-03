@@ -195,8 +195,8 @@ namespace Viry3D
 
             if (!m_projection_matrix_external)
             {
-                float view_width = this->GetTargetWidth() * m_viewport_rect.width;
-                float view_height = this->GetTargetHeight() * m_viewport_rect.height;
+                float view_width = this->GetTargetWidth() * m_viewport_rect.w;
+                float view_height = this->GetTargetHeight() * m_viewport_rect.h;
                 
                 if (m_orthographic)
                 {
@@ -384,8 +384,8 @@ namespace Viry3D
 
         int x = (int) (this->GetTargetWidth() * m_viewport_rect.x);
         int y = (int) (this->GetTargetHeight() * m_viewport_rect.y);
-        int w = (int) (this->GetTargetWidth() * m_viewport_rect.width);
-        int h = (int) (this->GetTargetHeight() * m_viewport_rect.height);
+        int w = (int) (this->GetTargetWidth() * m_viewport_rect.w);
+        int h = (int) (this->GetTargetHeight() * m_viewport_rect.h);
         y = this->GetTargetHeight() - (y + h);
         glViewport(x, y, w, h);
     }

@@ -254,10 +254,10 @@ void main()
         }
 
         AtlasTreeNode* layer = new AtlasTreeNode();
-        layer->x = 0;
-        layer->y = 0;
-        layer->w = ATLAS_SIZE;
-        layer->h = ATLAS_SIZE;
+        layer->rect.x = 0;
+        layer->rect.y = 0;
+        layer->rect.w = ATLAS_SIZE;
+        layer->rect.h = ATLAS_SIZE;
         layer->layer = m_atlas_tree.Size();
         m_atlas_tree.Add(layer);
 
@@ -283,8 +283,8 @@ void main()
             // make camera position in left top of view rect instead center,
             // to avoid half pixel problem.
             {
-                float view_width = this->GetCamera()->GetTargetWidth() * this->GetCamera()->GetViewportRect().width;
-                float view_height = this->GetCamera()->GetTargetHeight() * this->GetCamera()->GetViewportRect().height;
+                float view_width = this->GetCamera()->GetTargetWidth() * this->GetCamera()->GetViewportRect().w;
+                float view_height = this->GetCamera()->GetTargetHeight() * this->GetCamera()->GetViewportRect().h;
 
                 float top = 0;
                 float bottom = (float) -this->GetCamera()->GetTargetHeight();
@@ -477,7 +477,7 @@ void main()
                 materials[i] = RefMake<Material>(this->GetMaterial()->GetShader());
                 materials[i]->SetColor("u_color", Color(1, 1, 1, 1));
                 materials[i]->SetTexture("u_texture", m_atlas);
-                materials[i]->SetVector(CLIP_RECT, Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].width, clip_rects[i].height));
+                materials[i]->SetVector(CLIP_RECT, Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].w, clip_rects[i].h));
             }
             this->SetMaterials(materials);
         }
@@ -488,7 +488,7 @@ void main()
             {
                 this->GetCamera()->SetProjectionUniform(materials[i]);
                 auto clip = materials[i]->GetVector(CLIP_RECT);
-                auto new_clip = Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].width, clip_rects[i].height);
+                auto new_clip = Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].w, clip_rects[i].h);
                 if (clip == nullptr || *clip != new_clip)
                 {
                     materials[i]->SetVector(CLIP_RECT, new_clip);
@@ -562,40 +562,40 @@ void main()
             AtlasTreeNode* left = new AtlasTreeNode();
             AtlasTreeNode* right = new AtlasTreeNode();
 
-            int remain_w = node->w - texture_width - PADDING_SIZE;
-            int remain_h = node->h - texture_height - PADDING_SIZE;
+            int remain_w = node->rect.w - texture_width - PADDING_SIZE;
+            int remain_h = node->rect.h - texture_height - PADDING_SIZE;
 
             if (remain_w <= remain_h)
             {
-                left->x = node->x + texture_width + PADDING_SIZE;
-                left->y = node->y;
-                left->w = remain_w;
-                left->h = texture_height;
+                left->rect.x = node->rect.x + texture_width + PADDING_SIZE;
+                left->rect.y = node->rect.y;
+                left->rect.w = remain_w;
+                left->rect.h = texture_height;
                 left->layer = node->layer;
 
-                right->x = node->x;
-                right->y = node->y + texture_height + PADDING_SIZE;
-                right->w = node->w;
-                right->h = remain_h;
+                right->rect.x = node->rect.x;
+                right->rect.y = node->rect.y + texture_height + PADDING_SIZE;
+                right->rect.w = node->rect.w;
+                right->rect.h = remain_h;
                 right->layer = node->layer;
             }
             else
             {
-                left->x = node->x;
-                left->y = node->y + texture_height + PADDING_SIZE;
-                left->w = texture_width;
-                left->h = remain_h;
+                left->rect.x = node->rect.x;
+                left->rect.y = node->rect.y + texture_height + PADDING_SIZE;
+                left->rect.w = texture_width;
+                left->rect.h = remain_h;
                 left->layer = node->layer;
 
-                right->x = node->x + texture_width + PADDING_SIZE;
-                right->y = node->y;
-                right->w = remain_w;
-                right->h = node->h;
+                right->rect.x = node->rect.x + texture_width + PADDING_SIZE;
+                right->rect.y = node->rect.y;
+                right->rect.w = remain_w;
+                right->rect.h = node->rect.h;
                 right->layer = node->layer;
             }
 
-            node->w = texture_width;
-            node->h = texture_height;
+            node->rect.w = texture_width;
+            node->rect.h = texture_height;
             node->children.Resize(2);
             node->children[0] = left;
             node->children[1] = right;
@@ -608,10 +608,10 @@ void main()
                     mesh.texture,
                     0, 0,
                     0, 0,
-                    node->w, node->h,
+                    node->rect.w, node->rect.h,
                     node->layer, 0,
-                    node->x, node->y,
-                    node->w, node->h);
+                    node->rect.x, node->rect.y,
+                    node->rect.w, node->rect.h);
 
                 m_atlas_cache.Add(mesh.texture.get(), node);
             }
@@ -621,13 +621,13 @@ void main()
                 m_atlas->UpdateTexture2DArray(
                     mesh.image->data,
                     node->layer, 0,
-                    node->x, node->y,
-                    node->w, node->h);
+                    node->rect.x, node->rect.y,
+                    node->rect.w, node->rect.h);
 #elif VR_GLES
                 m_atlas->UpdateTexture2D(
                     mesh.image->data,
-                    node->x, node->y,
-                    node->w, node->h,
+                    node->rect.x, node->rect.y,
+                    node->rect.w, node->rect.h,
                     0);
 #endif
 
@@ -638,8 +638,8 @@ void main()
         }
 
         // update uv
-        Vector2 uv_offset(node->x / (float) ATLAS_SIZE, node->y / (float) ATLAS_SIZE);
-        Vector2 uv_scale(node->w / (float) ATLAS_SIZE, node->h / (float) ATLAS_SIZE);
+        Vector2 uv_offset(node->rect.x / (float) ATLAS_SIZE, node->rect.y / (float) ATLAS_SIZE);
+        Vector2 uv_scale(node->rect.w / (float) ATLAS_SIZE, node->rect.h / (float) ATLAS_SIZE);
 
         for (int i = 0; i < mesh.vertices.Size(); ++i)
         {
@@ -653,7 +653,7 @@ void main()
     {
         if (node->children.Size() == 0)
         {
-            if (node->w - PADDING_SIZE >= w && node->h - PADDING_SIZE >= h)
+            if (node->rect.w - PADDING_SIZE >= w && node->rect.h - PADDING_SIZE >= h)
             {
                 return node;
             }
@@ -679,8 +679,8 @@ void main()
     void CanvasRenderer::HandleTouchEvent()
     {
         if (this->GetCamera()->HasRenderTarget() ||
-            this->GetCamera()->GetViewportRect().width < 1.0f ||
-            this->GetCamera()->GetViewportRect().height < 1.0f)
+            this->GetCamera()->GetViewportRect().w < 1.0f ||
+            this->GetCamera()->GetViewportRect().h < 1.0f)
         {
             return;
         }

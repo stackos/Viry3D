@@ -25,6 +25,7 @@
 #include "math/Vector2i.h"
 #include "math/Quaternion.h"
 #include "math/Rect.h"
+#include "math/Recti.h"
 #include "math/Matrix4x4.h"
 #include <functional>
 
@@ -105,7 +106,7 @@ namespace Viry3D
         void SetLocalRotation(const Quaternion& rotation);
         const Vector2& GetLocalScale() const { return m_local_scale; }
         void SetLocalScale(const Vector2& scale);
-        const Rect& GetRect() const { return m_rect; }
+        const Recti& GetRect() const { return m_rect; }
         const Matrix4x4& GetVertexMatrix() { return m_vertex_matrix; }
         bool IsClipRect() const { return m_clip_rect; }
         void EnableClipRect(bool enable);
@@ -139,7 +140,7 @@ namespace Viry3D
         Quaternion m_local_rotation;
         Vector2 m_local_scale;
         bool m_clip_rect;
-        Rect m_rect;
+        Recti m_rect;
         Matrix4x4 m_vertex_matrix;
         InputAction m_on_touch_down_inside;
         InputAction m_on_touch_move_inside;

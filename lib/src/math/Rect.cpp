@@ -24,8 +24,8 @@ namespace Viry3D
     {
         float x_min = Mathf::Min(a.x, b.x);
         float y_min = Mathf::Min(a.y, b.y);
-        float x_max = Mathf::Max(a.x + a.width, b.x + b.width);
-        float y_max = Mathf::Max(a.y + a.height, b.y + b.height);
+        float x_max = Mathf::Max(a.x + a.w, b.x + b.w);
+        float y_max = Mathf::Max(a.y + a.h, b.y + b.h);
         return Rect(x_min, y_min, x_max - x_min, y_max - y_min);
     }
 
@@ -33,8 +33,8 @@ namespace Viry3D
     {
         float x_min = Mathf::Max(a.x, b.x);
         float y_min = Mathf::Max(a.y, b.y);
-        float x_max = Mathf::Min(a.x + a.width, b.x + b.width);
-        float y_max = Mathf::Min(a.y + a.height, b.y + b.height);
+        float x_max = Mathf::Min(a.x + a.w, b.x + b.w);
+        float y_max = Mathf::Min(a.y + a.h, b.y + b.h);
         return Rect(x_min, y_min, Mathf::Max(x_max - x_min, 0.0f), Mathf::Max(y_max - y_min, 0.0f));
     }
 
@@ -42,8 +42,8 @@ namespace Viry3D
 	{
 		return Mathf::FloatEqual(x, r.x) &&
 			Mathf::FloatEqual(y, r.y) &&
-			Mathf::FloatEqual(width, r.width) &&
-			Mathf::FloatEqual(height, r.height);
+			Mathf::FloatEqual(w, r.w) &&
+			Mathf::FloatEqual(h, r.h);
 	}
 
 	bool Rect::operator !=(const Rect& r) const

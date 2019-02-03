@@ -21,7 +21,10 @@
 
 namespace Viry3D
 {
-    Sprite::Sprite()
+    Sprite::Sprite():
+        m_rect(0, 0, 0, 0),
+        m_border(0, 0, 0, 0),
+        m_type(SpriteType::Simple)
     {
     
     }
@@ -33,32 +36,61 @@ namespace Viry3D
 
     void Sprite::SetTexture(const Ref<Texture>& texture)
     {
+        Recti rect(0, 0, texture->GetWidth(), texture->GetHeight());
+        Recti border(0, 0, texture->GetWidth(), texture->GetHeight());
+        this->SetTexture(texture, rect, border);
+    }
+
+    void Sprite::SetTexture(const Ref<Texture>& texture, const Recti& rect, const Recti& border)
+    {
         m_texture = texture;
+        m_rect = rect;
+        m_border = border;
+        this->MarkCanvasDirty();
+    }
+
+    void Sprite::SetType(SpriteType type)
+    {
+        m_type = type;
         this->MarkCanvasDirty();
     }
 
     void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
-        View::FillSelfMeshes(meshes, clip_rect);
-
-        ViewMesh& mesh = meshes[meshes.Size() - 1];
-
-        if (m_texture)
+        if (m_type == SpriteType::Simple)
         {
-            mesh.texture = m_texture;
+            View::FillSelfMeshes(meshes, clip_rect);
+
+            ViewMesh& mesh = meshes[meshes.Size() - 1];
+
+            if (m_texture)
+            {
+                mesh.texture = m_texture;
+            }
+            else
+            {
+                mesh.texture = Texture::GetSharedWhiteTexture();
+            }
+
+            if (mesh.texture == Texture::GetSharedWhiteTexture() ||
+                mesh.texture == Texture::GetSharedBlackTexture())
+            {
+                mesh.vertices[0].uv = Vector2(1.0f / 3, 1.0f / 3);
+                mesh.vertices[1].uv = Vector2(1.0f / 3, 2.0f / 3);
+                mesh.vertices[2].uv = Vector2(2.0f / 3, 2.0f / 3);
+                mesh.vertices[3].uv = Vector2(2.0f / 3, 1.0f / 3);
+            }
+            else
+            {
+                mesh.vertices[0].uv = Vector2(m_rect.x / (float) mesh.texture->GetWidth(), m_rect.y / (float) mesh.texture->GetHeight());
+                mesh.vertices[1].uv = Vector2(m_rect.x / (float) mesh.texture->GetWidth(), (m_rect.y + m_rect.h) / (float) mesh.texture->GetHeight());
+                mesh.vertices[2].uv = Vector2((m_rect.x + m_rect.w) / (float) mesh.texture->GetWidth(), (m_rect.y + m_rect.h) / (float) mesh.texture->GetHeight());
+                mesh.vertices[3].uv = Vector2((m_rect.x + m_rect.w) / (float) mesh.texture->GetWidth(), m_rect.y / (float) mesh.texture->GetHeight());
+            }
         }
-        else
+        else if (m_type == SpriteType::Sliced)
         {
-            mesh.texture = Texture::GetSharedWhiteTexture();
-        }
-
-        if (mesh.texture == Texture::GetSharedWhiteTexture() ||
-            mesh.texture == Texture::GetSharedBlackTexture())
-        {
-            mesh.vertices[0].uv = Vector2(1.0f / 3, 1.0f / 3);
-            mesh.vertices[1].uv = Vector2(1.0f / 3, 2.0f / 3);
-            mesh.vertices[2].uv = Vector2(2.0f / 3, 2.0f / 3);
-            mesh.vertices[3].uv = Vector2(2.0f / 3, 1.0f / 3);
+            
         }
     }
 }

@@ -19,12 +19,12 @@
 
 namespace Viry3D
 {
-	struct Rect
+	struct Recti
 	{
-        static Rect Max(const Rect& a, const Rect& b);
-        static Rect Min(const Rect& a, const Rect& b);
+        static Recti Max(const Recti& a, const Recti& b);
+        static Recti Min(const Recti& a, const Recti& b);
 
-		explicit Rect(float x = 0, float y = 0, float w = 0, float h = 0):
+		explicit Recti(int x = 0, int y = 0, int w = 0, int h = 0):
             x(x),
             y(y),
 			w(w),
@@ -32,7 +32,7 @@ namespace Viry3D
 		{
 		}
 
-		void Set(float x, float y, float w, float h)
+		void Set(int x, int y, int w, int h)
 		{
 			this->x = x;
 			this->y = y;
@@ -40,12 +40,12 @@ namespace Viry3D
 			this->h = h;
 		}
 
-		bool operator ==(const Rect &r) const;
-		bool operator !=(const Rect &r) const;
+		bool operator ==(const Recti &r) const;
+		bool operator !=(const Recti &r) const;
 
-		float x;
-		float y;
-		float w;
-		float h;
+		int x;
+        int y;
+        int w;
+        int h;
 	};
 }

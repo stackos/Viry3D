@@ -23,6 +23,14 @@ namespace Viry3D
 {
     class Texture;
 
+    enum class SpriteType
+    {
+        Simple,
+        Sliced,
+        Tiled,
+        Filled,
+    };
+
     class Sprite : public View
     {
     public:
@@ -30,11 +38,17 @@ namespace Viry3D
         virtual ~Sprite();
         const Ref<Texture>& GetTexture() const { return m_texture; }
         void SetTexture(const Ref<Texture>& texture);
+        void SetTexture(const Ref<Texture>& texture, const Recti& rect, const Recti& border);
+        SpriteType GetType() const { return m_type; }
+        void SetType(SpriteType type);
     
     protected:
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect);
 
     private:
         Ref<Texture> m_texture;
+        Recti m_rect;
+        Recti m_border;
+        SpriteType m_type;
     };
 }
