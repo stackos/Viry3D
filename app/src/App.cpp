@@ -47,7 +47,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - sprite type (fill, 9 slice, ...)
 // - SpriteAtlas
 // - Canvas Editor
 // - 2D Game Demo
