@@ -78,7 +78,7 @@ and consoles to mobile phones and embedded platforms. )";
                 button->SetOffset(Vector2i(-500 + i * 200, 100));
                 button->SetTexture(texture,
                     Recti(0, 0, texture->GetWidth(), texture->GetHeight()),
-                    Recti(82, 33, 1, 2));
+                    Vector4(82, 33, 82, 33));
                 button->SetSpriteType(SpriteType::Sliced);
                 button->SetColor(colors[i]);
                 button->GetLabel()->SetText("button");

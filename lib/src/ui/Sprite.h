@@ -18,6 +18,7 @@
 #pragma once
 
 #include "View.h"
+#include "math/Vector4.h"
 
 namespace Viry3D
 {
@@ -38,7 +39,7 @@ namespace Viry3D
         virtual ~Sprite();
         const Ref<Texture>& GetTexture() const { return m_texture; }
         void SetTexture(const Ref<Texture>& texture);
-        void SetTexture(const Ref<Texture>& texture, const Recti& texture_rect, const Recti& texture_border);
+        void SetTexture(const Ref<Texture>& texture, const Recti& texture_rect, const Vector4& texture_border);
         SpriteType GetSpriteType() const { return m_sprite_type; }
         void SetSpriteType(SpriteType type);
     
@@ -48,7 +49,7 @@ namespace Viry3D
     private:
         Ref<Texture> m_texture;
         Recti m_texture_rect;
-        Recti m_texture_border;
+        Vector4 m_texture_border;
         SpriteType m_sprite_type;
     };
 }

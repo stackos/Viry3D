@@ -39,11 +39,11 @@ namespace Viry3D
     void Sprite::SetTexture(const Ref<Texture>& texture)
     {
         Recti rect(0, 0, texture->GetWidth(), texture->GetHeight());
-        Recti border(0, 0, texture->GetWidth(), texture->GetHeight());
+        Vector4 border(0, 0, 0, 0);
         this->SetTexture(texture, rect, border);
     }
 
-    void Sprite::SetTexture(const Ref<Texture>& texture, const Recti& texture_rect, const Recti& texture_border)
+    void Sprite::SetTexture(const Ref<Texture>& texture, const Recti& texture_rect, const Vector4& texture_border)
     {
         m_texture = texture;
         m_texture_rect = texture_rect;
@@ -94,10 +94,10 @@ namespace Viry3D
         {
             assert(m_texture);
 
-            int border_l = m_texture_border.x;
-            int border_r = m_texture_rect.w - m_texture_border.x - m_texture_border.w;
-            int border_t = m_texture_border.y;
-            int border_b = m_texture_rect.h - m_texture_border.y - m_texture_border.h;
+            int border_l = (int) m_texture_border.x;
+            int border_r = (int) m_texture_border.z;
+            int border_t = (int) m_texture_border.y;
+            int border_b = (int) m_texture_border.w;
             
             Rect rect = Rect((float) this->GetRect().x, (float) -this->GetRect().y, (float) this->GetRect().w, (float) this->GetRect().h);
             const Matrix4x4& vertex_matrix = this->GetVertexMatrix();
@@ -111,7 +111,7 @@ namespace Viry3D
             vs[0].uv = Vector2(m_texture_rect.x / (float) m_texture->GetWidth(), m_texture_rect.y / (float) m_texture->GetHeight());
             
             x = rect.x + border_l;
-            if (this->GetSize().x < m_texture_rect.w - m_texture_border.w)
+            if (this->GetSize().x < m_texture_rect.w - border_l - border_r)
             {
                 x = rect.x + rect.w / 2;
             }
@@ -119,7 +119,7 @@ namespace Viry3D
             vs[1].uv = Vector2((m_texture_rect.x + border_l) / (float) m_texture->GetWidth(), vs[0].uv.y);
 
             x = rect.x + rect.w - border_r;
-            if (this->GetSize().x < m_texture_rect.w - m_texture_border.w)
+            if (this->GetSize().x < m_texture_rect.w - border_l - border_r)
             {
                 x = rect.x + rect.w / 2;
             }
@@ -130,7 +130,7 @@ namespace Viry3D
             vs[3].uv = Vector2((m_texture_rect.x + m_texture_rect.w) / (float) m_texture->GetWidth(), vs[0].uv.y);
 
             y = rect.y - border_t;
-            if (this->GetSize().y < m_texture_rect.h - m_texture_border.h)
+            if (this->GetSize().y < m_texture_rect.h - border_t - border_b)
             {
                 y = rect.y - rect.h / 2;
             }
@@ -145,7 +145,7 @@ namespace Viry3D
             vs[7].uv = Vector2(vs[3].uv.x, vs[4].uv.y);
 
             y = rect.y - rect.h + border_b;
-            if (this->GetSize().y < m_texture_rect.h - m_texture_border.h)
+            if (this->GetSize().y < m_texture_rect.h - border_t - border_b)
             {
                 y = rect.y - rect.h / 2;
             }
