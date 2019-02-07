@@ -39,7 +39,7 @@ public class GameObjectExporter
     static Transform root;
 
     [MenuItem("Viry3D/Export GameObject")]
-    public static void Export()
+    public static void ExportGameObject()
     {
         var obj = Selection.activeGameObject;
         if (obj == null)
@@ -89,7 +89,7 @@ public class GameObjectExporter
     }
 
     [MenuItem("Viry3D/Export LightMap")]
-    static void WriteLightMap()
+    static void ExportLightMap()
     {
         var maps = LightmapSettings.lightmaps;
 
@@ -122,10 +122,71 @@ public class GameObjectExporter
 
             File.WriteAllBytes(file_path, ms.ToArray());
 
-            Debug.Log("Lightmap export complete.");
+            Debug.Log("LightMap export complete.");
 
             bw = null;
             cache = null;
+        }
+    }
+
+    [MenuItem("Viry3D/Export SpriteAtlas")]
+    static void ExportSpriteAtlas()
+    {
+        var obj = Selection.activeObject;
+        if (obj == null)
+        {
+            return;
+        }
+
+        out_dir = EditorUtility.OpenFolderPanel("Select directory export to", out_dir, "");
+        if (!string.IsNullOrEmpty(out_dir))
+        {
+            var path = AssetDatabase.GetAssetPath(obj);
+            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+            List<Sprite> sprites = new List<Sprite>();
+            for (int i = 0; i < assets.Length; ++i)
+            {
+                if (assets[i] is Sprite)
+                {
+                    sprites.Add(assets[i] as Sprite);
+                }
+            }
+
+            var jatlas = new JObject();
+            var jsprites = new JArray();
+            jatlas["sprites"] = jsprites;
+
+            for (int i = 0; i < sprites.Count; ++i)
+            {
+                var s = sprites[i];
+
+                var jsprite = new JObject();
+                jsprite["name"] = s.name;
+                var jarray = new JArray();
+                jarray.Add(s.rect.x); jarray.Add(s.rect.y); jarray.Add(s.rect.width); jarray.Add(s.rect.height);
+                jsprite["rect"] = jarray;
+                jarray = new JArray();
+                jarray.Add(s.border.x); jarray.Add(s.border.y); jarray.Add(s.border.z); jarray.Add(s.border.w);
+                jsprite["border"] = jarray;
+
+                jsprites.Add(jsprite);
+            }
+
+            Texture2D texture = obj as Texture2D;
+            string texture_name = new FileInfo(path).Name;
+            string file_path = out_dir + "/" + texture_name;
+            File.Copy(path, file_path, true);
+
+            jatlas["texture"] = texture_name;
+            jatlas["width"] = texture.width;
+            jatlas["height"] = texture.height;
+
+            file_path = out_dir + "/" + obj.name + ".json";
+            CreateFileDirIfNeed(file_path);
+
+            File.WriteAllText(file_path, jatlas.ToString());
+
+            Debug.Log("SpriteAtlas export complete.");
         }
     }
 
