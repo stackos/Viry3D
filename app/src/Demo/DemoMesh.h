@@ -180,7 +180,7 @@ namespace Viry3D
             m_ui_camera->SetDepth(1);
             m_ui_camera->SetClearFlags(CameraClearFlags::Nothing);
 
-            auto canvas = RefMake<CanvasRenderer>();
+            auto canvas = RefMake<CanvasRenderer>(FilterMode::Linear);
             m_ui_camera->AddRenderer(canvas);
 
             auto label = RefMake<Label>();

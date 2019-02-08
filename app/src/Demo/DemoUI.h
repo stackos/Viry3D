@@ -21,6 +21,7 @@
 #include "Debug.h"
 #include "ui/Sprite.h"
 #include "ui/Button.h"
+#include "ui/SpriteAtlas.h"
 
 namespace Viry3D
 {
@@ -29,7 +30,7 @@ namespace Viry3D
     public:
         void InitCanvas()
         {
-            auto canvas = RefMake<CanvasRenderer>();
+            auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
             m_ui_camera->AddRenderer(canvas);
 
             auto group = RefMake<View>();
@@ -96,6 +97,16 @@ and consoles to mobile phones and embedded platforms. )";
 
                 group->AddSubview(button);
             }
+
+            auto atlas = SpriteAtlas::LoadFromFile(Application::Instance()->GetDataPath() + "/res/SunnyLand/tileset-sliced.json");
+
+            auto sprite = RefMake<Sprite>();
+            sprite->SetSize(Vector2i(200, 200));
+            sprite->SetOffset(Vector2i(0, 0));
+            sprite->SetAtlas(atlas);
+            sprite->SetSpriteName("tileset-sliced_0");
+
+            group->AddSubview(sprite);
         }
 
         virtual void Init()

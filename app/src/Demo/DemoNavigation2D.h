@@ -216,7 +216,7 @@ namespace Viry3D
         {
             m_ui_camera = Display::Instance()->CreateCamera();
 
-            auto canvas = RefMake<CanvasRenderer>();
+            auto canvas = RefMake<CanvasRenderer>(FilterMode::Linear);
             m_ui_camera->AddRenderer(canvas);
 
             auto label = RefMake<Label>();

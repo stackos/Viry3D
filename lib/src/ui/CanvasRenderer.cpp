@@ -36,9 +36,10 @@
 
 namespace Viry3D
 {
-	CanvasRenderer::CanvasRenderer():
+	CanvasRenderer::CanvasRenderer(FilterMode filter_mode):
 		m_canvas_dirty(true),
-        m_atlas_array_size(0)
+        m_atlas_array_size(0),
+        m_filter_mode(filter_mode)
 	{
 		this->CreateMaterial();
         this->NewAtlasTextureLayer();
@@ -199,7 +200,7 @@ void main()
                 ATLAS_SIZE,
                 m_atlas_array_size,
                 TextureFormat::R8G8B8A8,
-                FilterMode::Linear,
+                m_filter_mode,
                 SamplerAddressMode::ClampToEdge,
                 false,
                 true);
@@ -209,7 +210,7 @@ void main()
                 ATLAS_SIZE,
                 ATLAS_SIZE,
                 TextureFormat::R8G8B8A8,
-                FilterMode::Linear,
+                m_filter_mode,
                 SamplerAddressMode::ClampToEdge,
                 false,
                 true,
@@ -229,7 +230,7 @@ void main()
                 ATLAS_SIZE,
                 new_array_size,
                 TextureFormat::R8G8B8A8,
-                FilterMode::Linear,
+                m_filter_mode,
                 SamplerAddressMode::ClampToEdge,
                 false,
                 true);

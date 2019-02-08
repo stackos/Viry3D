@@ -202,7 +202,7 @@ void main()
 
         void InitUI()
         {
-            auto canvas = RefMake<CanvasRenderer>();
+            auto canvas = RefMake<CanvasRenderer>(FilterMode::Linear);
             m_ui_camera->AddRenderer(canvas);
 
             // fxaa on/off

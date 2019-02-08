@@ -141,6 +141,7 @@ public class GameObjectExporter
         out_dir = EditorUtility.OpenFolderPanel("Select directory export to", out_dir, "");
         if (!string.IsNullOrEmpty(out_dir))
         {
+            Texture2D texture = obj as Texture2D;
             var path = AssetDatabase.GetAssetPath(obj);
             Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
             List<Sprite> sprites = new List<Sprite>();
@@ -163,7 +164,7 @@ public class GameObjectExporter
                 var jsprite = new JObject();
                 jsprite["name"] = s.name;
                 var jarray = new JArray();
-                jarray.Add(s.rect.x); jarray.Add(s.rect.y); jarray.Add(s.rect.width); jarray.Add(s.rect.height);
+                jarray.Add(s.rect.x); jarray.Add(texture.height - s.rect.y - s.rect.height); jarray.Add(s.rect.width); jarray.Add(s.rect.height);
                 jsprite["rect"] = jarray;
                 jarray = new JArray();
                 jarray.Add(s.border.x); jarray.Add(s.border.y); jarray.Add(s.border.z); jarray.Add(s.border.w);
@@ -172,7 +173,6 @@ public class GameObjectExporter
                 jsprites.Add(jsprite);
             }
 
-            Texture2D texture = obj as Texture2D;
             string texture_name = new FileInfo(path).Name;
             string file_path = out_dir + "/" + texture_name;
             File.Copy(path, file_path, true);

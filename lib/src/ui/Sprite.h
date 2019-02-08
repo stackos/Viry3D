@@ -18,6 +18,7 @@
 #pragma once
 
 #include "View.h"
+#include "SpriteAtlas.h"
 #include "math/Vector4.h"
 
 namespace Viry3D
@@ -42,6 +43,8 @@ namespace Viry3D
         void SetTexture(const Ref<Texture>& texture, const Recti& texture_rect, const Vector4& texture_border);
         SpriteType GetSpriteType() const { return m_sprite_type; }
         void SetSpriteType(SpriteType type);
+        void SetAtlas(const Ref<SpriteAtlas>& atlas);
+        void SetSpriteName(const String& name);
     
     protected:
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect);
@@ -51,5 +54,7 @@ namespace Viry3D
         Recti m_texture_rect;
         Vector4 m_texture_border;
         SpriteType m_sprite_type;
+        Ref<SpriteAtlas> m_atlas;
+        String m_sprite_name;
     };
 }

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "graphics/MeshRenderer.h"
+#include "graphics/Texture.h"
 #include "container/Vector.h"
 #include "container/Map.h"
 #include "math/Recti.h"
@@ -39,7 +40,7 @@ namespace Viry3D
     class CanvasRenderer : public MeshRenderer
 	{
 	public:
-		CanvasRenderer();
+		CanvasRenderer(FilterMode filter_mode);
 		virtual ~CanvasRenderer();
 		virtual void Update();
         virtual void OnFrameEnd();
@@ -68,5 +69,6 @@ namespace Viry3D
         Map<void*, AtlasTreeNode*> m_atlas_cache;
         Vector<ViewMesh> m_view_meshes;
         Map<int, List<View*>> m_touch_down_views;
+        FilterMode m_filter_mode;
 	};
 }

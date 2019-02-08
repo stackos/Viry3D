@@ -48,6 +48,7 @@ namespace Viry3D
         m_texture = texture;
         m_texture_rect = texture_rect;
         m_texture_border = texture_border;
+        m_sprite_name = "";
         this->MarkCanvasDirty();
     }
 
@@ -57,9 +58,30 @@ namespace Viry3D
         this->MarkCanvasDirty();
     }
 
+    void Sprite::SetAtlas(const Ref<SpriteAtlas>& atlas)
+    {
+        m_atlas = atlas;
+        this->MarkCanvasDirty();
+    }
+
+    void Sprite::SetSpriteName(const String& name)
+    {
+        m_sprite_name = name;
+        this->MarkCanvasDirty();
+    }
+
     void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
         View::FillSelfMeshes(meshes, clip_rect);
+
+        if (m_atlas && m_sprite_name.Size() > 0)
+        {
+            const auto& s = m_atlas->GetSprite(m_sprite_name);
+
+            m_texture = m_atlas->GetTexture();
+            m_texture_rect = s.rect;
+            m_texture_border = s.border;
+        }
 
         if (m_sprite_type == SpriteType::Simple)
         {

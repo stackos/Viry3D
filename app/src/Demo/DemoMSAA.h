@@ -72,7 +72,7 @@ namespace Viry3D
                 return;
             }
 
-            auto canvas = RefMake<CanvasRenderer>();
+            auto canvas = RefMake<CanvasRenderer>(FilterMode::Linear);
             m_ui_camera->AddRenderer(canvas);
 
             auto label = RefMake<Label>();

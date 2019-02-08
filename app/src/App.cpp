@@ -47,7 +47,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - SpriteAtlas
+// - Tiled/Filled Sprite
 // - Canvas Editor
 // - 2D Game Demo
 // - PBR optimize
@@ -81,7 +81,7 @@ namespace Viry3D
 
         void InitUI()
         {
-            auto canvas = RefMake<CanvasRenderer>();
+            auto canvas = RefMake<CanvasRenderer>(FilterMode::Linear);
             m_camera->AddRenderer(canvas);
             m_canvas = canvas.get();
 
