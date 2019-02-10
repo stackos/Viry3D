@@ -26,7 +26,11 @@ namespace Viry3D
     Sprite::Sprite():
         m_texture_rect(0, 0, 0, 0),
         m_texture_border(0, 0, 0, 0),
-        m_sprite_type(SpriteType::Simple)
+        m_sprite_type(SpriteType::Simple),
+        m_fill_method(SpriteFillMethod::Horizontal),
+        m_fill_amount(1.0f),
+        m_fill_origin(0),
+        m_fill_clockwise(true)
     {
     
     }
@@ -52,12 +56,6 @@ namespace Viry3D
         this->MarkCanvasDirty();
     }
 
-    void Sprite::SetSpriteType(SpriteType type)
-    {
-        m_sprite_type = type;
-        this->MarkCanvasDirty();
-    }
-
     void Sprite::SetAtlas(const Ref<SpriteAtlas>& atlas)
     {
         m_atlas = atlas;
@@ -67,6 +65,36 @@ namespace Viry3D
     void Sprite::SetSpriteName(const String& name)
     {
         m_sprite_name = name;
+        this->MarkCanvasDirty();
+    }
+
+    void Sprite::SetSpriteType(SpriteType type)
+    {
+        m_sprite_type = type;
+        this->MarkCanvasDirty();
+    }
+
+    void Sprite::SetFillMethod(SpriteFillMethod method)
+    {
+        m_fill_method = method;
+        this->MarkCanvasDirty();
+    }
+
+    void Sprite::SetFillAmount(float amount)
+    {
+        m_fill_amount = amount;
+        this->MarkCanvasDirty();
+    }
+
+    void Sprite::SetFillOrigin(int origin)
+    {
+        m_fill_origin = origin;
+        this->MarkCanvasDirty();
+    }
+
+    void Sprite::SetFillClockWise(bool clockwise)
+    {
+        m_fill_clockwise = clockwise;
         this->MarkCanvasDirty();
     }
 
