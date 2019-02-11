@@ -105,6 +105,10 @@ and consoles to mobile phones and embedded platforms. )";
             sprite->SetOffset(Vector2i(0, 0));
             sprite->SetAtlas(atlas);
             sprite->SetSpriteName("tileset-sliced_0");
+            sprite->SetSpriteType(SpriteType::Filled);
+            sprite->SetFillMethod(SpriteFillMethod::Horizontal);
+            sprite->SetFillOrigin((int) SpriteOriginHorizontal::Left);
+            sprite->SetFillAmount(0.75f);
 
             group->AddSubview(sprite);
         }
