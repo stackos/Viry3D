@@ -27,6 +27,7 @@ namespace Viry3D
 	{
 		static const Vector2& One();
 		static const Vector2& Zero();
+        static Vector2 Lerp(const Vector2& from, const Vector2& to, float t, bool clamp_01 = true);
 
 		explicit Vector2(float x = 0, float y = 0): x(x), y(y) { }
 		Vector2(const Vector3& v3);

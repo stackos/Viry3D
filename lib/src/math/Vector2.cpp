@@ -34,6 +34,13 @@ namespace Viry3D
         return s_zero;
     }
 
+    Vector2 Vector2::Lerp(const Vector2& from, const Vector2& to, float t, bool clamp_01)
+    {
+        return Vector2(
+            Mathf::Lerp(from.x, to.x, t, clamp_01),
+            Mathf::Lerp(from.y, to.y, t, clamp_01));
+    }
+
 	Vector2::Vector2(const Vector3& v3):
 		x(v3.x),
 		y(v3.y)

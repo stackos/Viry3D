@@ -267,7 +267,7 @@ namespace Viry3D
                     vs[1].vertex = Vector3(vs[0].vertex.x, rect.y - rect.h, 0);
                     vs[1].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + m_texture_rect.h) / (float) m_texture->GetHeight());
 
-                    vs[2].vertex = Vector3(rect.x + (int) (rect.w * m_fill_amount), vs[1].vertex.y, 0);
+                    vs[2].vertex = Vector3(rect.x + rect.w * m_fill_amount, vs[1].vertex.y, 0);
                     vs[2].uv = Vector2((m_texture_rect.x + m_texture_rect.w * m_fill_amount) / (float) m_texture->GetWidth(), vs[1].uv.y);
                 
                     vs[3].vertex = Vector3(vs[2].vertex.x, vs[0].vertex.y, 0);
@@ -275,7 +275,7 @@ namespace Viry3D
                 }
                 else if (m_fill_origin == (int) SpriteOriginHorizontal::Right)
                 {
-                    vs[0].vertex = Vector3(rect.x + (int) (rect.w * (1.0f - m_fill_amount)), rect.y, 0);
+                    vs[0].vertex = Vector3(rect.x + rect.w * (1.0f - m_fill_amount), rect.y, 0);
                     vs[0].uv = Vector2((m_texture_rect.x + m_texture_rect.w * (1.0f - m_fill_amount)) / (float) m_texture->GetWidth(), m_texture_rect.y / (float) m_texture->GetHeight());
                 
                     vs[1].vertex = Vector3(vs[0].vertex.x, rect.y - rect.h, 0);
@@ -311,8 +311,8 @@ namespace Viry3D
 
                 if (m_fill_origin == (int) SpriteOriginVertical::Bottom)
                 {
-                    vs[0].vertex = Vector3(rect.x, rect.y - (int) (rect.h * (1.0f - m_fill_amount)), 0);
-                    vs[0].uv = Vector2(m_texture_rect.x / (float) m_texture->GetWidth(), (m_texture_rect.y + m_texture_rect.h * (1.0f - m_fill_amount)) / (float) m_texture->GetWidth());
+                    vs[0].vertex = Vector3(rect.x, rect.y - rect.h * (1.0f - m_fill_amount), 0);
+                    vs[0].uv = Vector2(m_texture_rect.x / (float) m_texture->GetWidth(), (m_texture_rect.y + m_texture_rect.h * (1.0f - m_fill_amount)) / (float) m_texture->GetHeight());
                 
                     vs[1].vertex = Vector3(vs[0].vertex.x, rect.y - rect.h, 0);
                     vs[1].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + m_texture_rect.h) / (float) m_texture->GetHeight());
@@ -328,8 +328,8 @@ namespace Viry3D
                     vs[0].vertex = Vector3(rect.x, rect.y, 0);
                     vs[0].uv = Vector2(m_texture_rect.x / (float) m_texture->GetWidth(), m_texture_rect.y / (float) m_texture->GetHeight());
 
-                    vs[1].vertex = Vector3(vs[0].vertex.x, rect.y - (int) (rect.h * m_fill_amount), 0);
-                    vs[1].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + m_texture_rect.h * m_fill_amount) / (float) m_texture->GetWidth());
+                    vs[1].vertex = Vector3(vs[0].vertex.x, rect.y - rect.h * m_fill_amount, 0);
+                    vs[1].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + m_texture_rect.h * m_fill_amount) / (float) m_texture->GetHeight());
 
                     vs[2].vertex = Vector3(rect.x + rect.w, vs[1].vertex.y, 0);
                     vs[2].uv = Vector2((m_texture_rect.x + m_texture_rect.w) / (float) m_texture->GetWidth(), vs[1].uv.y);
@@ -356,7 +356,93 @@ namespace Viry3D
             }
             else if (m_fill_method == SpriteFillMethod::Radial90)
             {
-                
+                Vertex vs[5];
+                Memory::Zero(&vs[0], sizeof(vs));
+
+                vs[0].vertex = Vector3(rect.x, rect.y, 0);
+                vs[0].uv = Vector2(m_texture_rect.x / (float) m_texture->GetWidth(), m_texture_rect.y / (float) m_texture->GetHeight());
+
+                vs[1].vertex = Vector3(vs[0].vertex.x, rect.y - rect.h, 0);
+                vs[1].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + m_texture_rect.h) / (float) m_texture->GetHeight());
+
+                vs[2].vertex = Vector3(rect.x + rect.w, vs[1].vertex.y, 0);
+                vs[2].uv = Vector2((m_texture_rect.x + m_texture_rect.w) / (float) m_texture->GetWidth(), vs[1].uv.y);
+
+                vs[3].vertex = Vector3(vs[2].vertex.x, vs[0].vertex.y, 0);
+                vs[3].uv = Vector2(vs[2].uv.x, vs[0].uv.y);
+
+                ViewMesh mesh;
+
+                if (m_fill_origin == (int) SpriteOrigin90::BottomLeft)
+                {
+                    if (m_fill_clockwise)
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[0].vertex, vs[3].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[0].uv, vs[3].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 0, 1, 4 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[3].vertex, vs[2].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[3].uv, vs[2].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 0, 1, 3, 1, 4, 3 });
+                        }
+                    }
+                    else
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[2].vertex, vs[3].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[2].uv, vs[3].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 1, 2, 4 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[3].vertex, vs[0].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[3].uv, vs[0].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 1, 2, 3, 1, 3, 4 });
+                        }
+                    }
+                }
+                else if (m_fill_origin == (int) SpriteOrigin90::TopLeft)
+                {
+
+                }
+                else if (m_fill_origin == (int) SpriteOrigin90::TopRight)
+                {
+
+                }
+                else if (m_fill_origin == (int) SpriteOrigin90::BottomRight)
+                {
+
+                }
+
+                for (int i = 0; i < mesh.vertices.Size(); ++i)
+                {
+                    mesh.vertices[i].vertex = vertex_matrix.MultiplyPoint3x4(mesh.vertices[i].vertex);
+                    mesh.vertices[i].color = this->GetColor();
+                }
+
+                mesh.view = this;
+                mesh.base_view = false;
+                mesh.clip_rect = Rect::Min(this->GetClipRect(), clip_rect);
+                mesh.texture = m_texture;
+
+                meshes.Add(mesh);
             }
             else if (m_fill_method == SpriteFillMethod::Radial180)
             {
