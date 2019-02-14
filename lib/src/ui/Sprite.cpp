@@ -420,15 +420,138 @@ namespace Viry3D
                 }
                 else if (m_fill_origin == (int) SpriteOrigin90::TopLeft)
                 {
+                    if (m_fill_clockwise)
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[3].vertex, vs[2].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[3].uv, vs[2].uv, t);
 
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 0, 4, 3 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[2].vertex, vs[1].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[2].uv, vs[1].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 0, 2, 3, 0, 4, 2 });
+                        }
+                    }
+                    else
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[1].vertex, vs[2].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[1].uv, vs[2].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 0, 1, 4 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[2].vertex, vs[3].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[2].uv, vs[3].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 0, 1, 2, 0, 2, 4 });
+                        }
+                    }
                 }
                 else if (m_fill_origin == (int) SpriteOrigin90::TopRight)
                 {
+                    if (m_fill_clockwise)
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[2].vertex, vs[1].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[2].uv, vs[1].uv, t);
 
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 3, 4, 2 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[1].vertex, vs[0].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[1].uv, vs[0].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 3, 1, 2, 3, 4, 1 });
+                        }
+                    }
+                    else
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[0].vertex, vs[1].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[0].uv, vs[1].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 3, 0, 4 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[1].vertex, vs[2].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[1].uv, vs[2].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 3, 0, 1, 3, 1, 4 });
+                        }
+                    }
                 }
                 else if (m_fill_origin == (int) SpriteOrigin90::BottomRight)
                 {
+                    if (m_fill_clockwise)
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[1].vertex, vs[0].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[1].uv, vs[0].uv, t);
 
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 2, 4, 1 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[0].vertex, vs[3].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[0].uv, vs[3].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 2, 0, 1, 2, 4, 0 });
+                        }
+                    }
+                    else
+                    {
+                        if (m_fill_amount <= 0.5f)
+                        {
+                            float t = m_fill_amount / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[3].vertex, vs[0].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[3].uv, vs[0].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 2, 3, 4 });
+                        }
+                        else
+                        {
+                            float t = (m_fill_amount - 0.5f) / 0.5f;
+                            vs[4].vertex = Vector3::Lerp(vs[0].vertex, vs[1].vertex, t);
+                            vs[4].uv = Vector2::Lerp(vs[0].uv, vs[1].uv, t);
+
+                            mesh.vertices.AddRange(vs, 5);
+                            mesh.indices.AddRange({ 2, 3, 0, 2, 0, 4 });
+                        }
+                    }
                 }
 
                 for (int i = 0; i < mesh.vertices.Size(); ++i)
