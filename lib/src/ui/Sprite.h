@@ -99,6 +99,13 @@ namespace Viry3D
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect);
 
     private:
+        void FillSelfMeshSimple(Vector<ViewMesh>& meshes, const Rect& clip_rect);
+        void FillSelfMeshSliced(Vector<ViewMesh>& meshes, const Rect& clip_rect);
+        void FillSelfMeshFilledHorizontal(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix);
+        void FillSelfMeshFilledVertical(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix);
+        void FillSelfMeshFilledRadial90(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix);
+        
+    private:
         Ref<Texture> m_texture;
         Recti m_texture_rect;
         Vector4 m_texture_border;
