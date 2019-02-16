@@ -109,8 +109,8 @@ and consoles to mobile phones and embedded platforms. )";
             sprite->SetAtlas(atlas);
             sprite->SetSpriteName("tileset-sliced_0");
             sprite->SetSpriteType(SpriteType::Filled);
-            sprite->SetFillMethod(SpriteFillMethod::Radial90);
-            sprite->SetFillOrigin((int) SpriteOrigin90::BottomRight);
+            sprite->SetFillMethod(SpriteFillMethod::Radial180);
+            sprite->SetFillOrigin((int) SpriteOrigin180::Left);
             sprite->SetFillClockWise(false);
             sprite->SetFillAmount(m_sprite_fill);
 

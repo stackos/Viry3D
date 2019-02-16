@@ -552,6 +552,180 @@ namespace Viry3D
         meshes.Add(mesh);
     }
 
+    void Sprite::FillSelfMeshFilledRadial180(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix)
+    {
+        Vertex vs[6];
+        Memory::Zero(&vs[0], sizeof(vs));
+
+        vs[0].vertex = Vector3(rect.x, rect.y, 0);
+        vs[0].uv = Vector2(m_texture_rect.x / (float) m_texture->GetWidth(), m_texture_rect.y / (float) m_texture->GetHeight());
+
+        vs[1].vertex = Vector3(vs[0].vertex.x, rect.y - rect.h, 0);
+        vs[1].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + m_texture_rect.h) / (float) m_texture->GetHeight());
+
+        vs[2].vertex = Vector3(rect.x + rect.w, vs[1].vertex.y, 0);
+        vs[2].uv = Vector2((m_texture_rect.x + m_texture_rect.w) / (float) m_texture->GetWidth(), vs[1].uv.y);
+
+        vs[3].vertex = Vector3(vs[2].vertex.x, vs[0].vertex.y, 0);
+        vs[3].uv = Vector2(vs[2].uv.x, vs[0].uv.y);
+
+        ViewMesh mesh;
+
+        if (m_fill_origin == (int) SpriteOrigin180::Bottom)
+        {
+            vs[4].vertex = Vector3::Lerp(vs[1].vertex, vs[2].vertex, 0.5f);
+            vs[4].uv = Vector2::Lerp(vs[1].uv, vs[2].uv, 0.5f);
+
+            if (m_fill_clockwise)
+            {
+                if (m_fill_amount <= 0.25f)
+                {
+                    float t = m_fill_amount / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[1].vertex, vs[0].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[1].uv, vs[0].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 5, 1 });
+                }
+                else if (m_fill_amount <= 0.75f)
+                {
+                    float t = (m_fill_amount - 0.25f) / 0.5f;
+                    vs[5].vertex = Vector3::Lerp(vs[0].vertex, vs[3].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[0].uv, vs[3].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 0, 1, 4, 5, 0 });
+                }
+                else
+                {
+                    float t = (m_fill_amount - 0.75f) / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[3].vertex, vs[2].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[3].uv, vs[2].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 0, 1, 4, 3, 0, 4, 5, 3 });
+                }
+            }
+            else
+            {
+                if (m_fill_amount <= 0.25f)
+                {
+                    float t = m_fill_amount / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[2].vertex, vs[3].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[2].uv, vs[3].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 2, 5 });
+                }
+                else if (m_fill_amount <= 0.75f)
+                {
+                    float t = (m_fill_amount - 0.25f) / 0.5f;
+                    vs[5].vertex = Vector3::Lerp(vs[3].vertex, vs[0].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[3].uv, vs[0].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 2, 3, 4, 3, 5 });
+                }
+                else
+                {
+                    float t = (m_fill_amount - 0.75f) / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[0].vertex, vs[1].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[0].uv, vs[1].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 2, 3, 4, 3, 0, 4, 0, 5 });
+                }
+            }
+        }
+        else if (m_fill_origin == (int) SpriteOrigin180::Left)
+        {
+            vs[4].vertex = Vector3::Lerp(vs[0].vertex, vs[1].vertex, 0.5f);
+            vs[4].uv = Vector2::Lerp(vs[0].uv, vs[1].uv, 0.5f);
+
+            if (m_fill_clockwise)
+            {
+                if (m_fill_amount <= 0.25f)
+                {
+                    float t = m_fill_amount / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[0].vertex, vs[3].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[0].uv, vs[3].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 5, 0 });
+                }
+                else if (m_fill_amount <= 0.75f)
+                {
+                    float t = (m_fill_amount - 0.25f) / 0.5f;
+                    vs[5].vertex = Vector3::Lerp(vs[3].vertex, vs[2].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[3].uv, vs[2].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 3, 0, 4, 5, 3 });
+                }
+                else
+                {
+                    float t = (m_fill_amount - 0.75f) / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[2].vertex, vs[1].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[2].uv, vs[1].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 3, 0, 4, 2, 3, 4, 5, 2 });
+                }
+            }
+            else
+            {
+                if (m_fill_amount <= 0.25f)
+                {
+                    float t = m_fill_amount / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[1].vertex, vs[2].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[1].uv, vs[2].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 1, 5 });
+                }
+                else if (m_fill_amount <= 0.75f)
+                {
+                    float t = (m_fill_amount - 0.25f) / 0.5f;
+                    vs[5].vertex = Vector3::Lerp(vs[2].vertex, vs[3].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[2].uv, vs[3].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 1, 2, 4, 2, 5 });
+                }
+                else
+                {
+                    float t = (m_fill_amount - 0.75f) / 0.25f;
+                    vs[5].vertex = Vector3::Lerp(vs[3].vertex, vs[0].vertex, t);
+                    vs[5].uv = Vector2::Lerp(vs[3].uv, vs[0].uv, t);
+
+                    mesh.vertices.AddRange(vs, 6);
+                    mesh.indices.AddRange({ 4, 1, 2, 4, 2, 3, 4, 3, 5 });
+                }
+            }
+        }
+        else if (m_fill_origin == (int) SpriteOrigin180::Top)
+        {
+
+        }
+        else if (m_fill_origin == (int) SpriteOrigin180::Right)
+        {
+
+        }
+
+        for (int i = 0; i < mesh.vertices.Size(); ++i)
+        {
+            mesh.vertices[i].vertex = vertex_matrix.MultiplyPoint3x4(mesh.vertices[i].vertex);
+            mesh.vertices[i].color = this->GetColor();
+        }
+
+        mesh.view = this;
+        mesh.base_view = false;
+        mesh.clip_rect = Rect::Min(this->GetClipRect(), clip_rect);
+        mesh.texture = m_texture;
+
+        meshes.Add(mesh);
+    }
+
     void Sprite::FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect)
     {
         View::FillSelfMeshes(meshes, clip_rect);
@@ -594,7 +768,7 @@ namespace Viry3D
             }
             else if (m_fill_method == SpriteFillMethod::Radial180)
             {
-                
+                this->FillSelfMeshFilledRadial180(meshes, clip_rect, rect, vertex_matrix);
             }
             else if (m_fill_method == SpriteFillMethod::Radial360)
             {

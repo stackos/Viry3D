@@ -104,7 +104,8 @@ namespace Viry3D
         void FillSelfMeshFilledHorizontal(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix);
         void FillSelfMeshFilledVertical(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix);
         void FillSelfMeshFilledRadial90(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix);
-        
+        void FillSelfMeshFilledRadial180(Vector<ViewMesh>& meshes, const Rect& clip_rect, const Rect& rect, const Matrix4x4& vertex_matrix);
+
     private:
         Ref<Texture> m_texture;
         Recti m_texture_rect;
