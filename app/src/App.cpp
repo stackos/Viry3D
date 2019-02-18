@@ -48,6 +48,7 @@
 
 // TODO:
 // - Tiled/Filled Sprite
+// - uint32 vertex index support
 // - Canvas Editor
 // - 2D Game Demo
 // - PBR optimize
