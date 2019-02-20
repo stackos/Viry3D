@@ -1078,7 +1078,105 @@ namespace Viry3D
         }
         else if (m_fill_origin == (int) SpriteOrigin360::Top)
         {
-            
+            vs[5].vertex = Vector3::Lerp(vs[0].vertex, vs[3].vertex, 0.5f);
+            vs[5].uv = Vector2::Lerp(vs[0].uv, vs[3].uv, 0.5f);
+
+            if (m_fill_clockwise)
+            {
+                if (m_fill_amount <= 0.125f)
+                {
+                    float t = m_fill_amount / 0.125f;
+                    vs[6].vertex = Vector3::Lerp(vs[5].vertex, vs[3].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[5].uv, vs[3].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 6, 5 });
+                }
+                else if (m_fill_amount <= 0.375f)
+                {
+                    float t = (m_fill_amount - 0.125f) / 0.25f;
+                    vs[6].vertex = Vector3::Lerp(vs[3].vertex, vs[2].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[3].uv, vs[2].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 3, 5, 4, 6, 3 });
+                }
+                else if (m_fill_amount <= 0.625f)
+                {
+                    float t = (m_fill_amount - 0.375f) / 0.25f;
+                    vs[6].vertex = Vector3::Lerp(vs[2].vertex, vs[1].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[2].uv, vs[1].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 3, 5, 4, 2, 3, 4, 6, 2 });
+                }
+                else if (m_fill_amount <= 0.875f)
+                {
+                    float t = (m_fill_amount - 0.625f) / 0.25f;
+                    vs[6].vertex = Vector3::Lerp(vs[1].vertex, vs[0].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[1].uv, vs[0].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 3, 5, 4, 2, 3, 4, 1, 2, 4, 6, 1 });
+                }
+                else
+                {
+                    float t = (m_fill_amount - 0.875f) / 0.125f;
+                    vs[6].vertex = Vector3::Lerp(vs[0].vertex, vs[5].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[0].uv, vs[5].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 3, 5, 4, 2, 3, 4, 1, 2, 4, 0, 1, 4, 6, 0 });
+                }
+            }
+            else
+            {
+                if (m_fill_amount <= 0.125f)
+                {
+                    float t = m_fill_amount / 0.125f;
+                    vs[6].vertex = Vector3::Lerp(vs[5].vertex, vs[0].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[5].uv, vs[0].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 5, 6 });
+                }
+                else if (m_fill_amount <= 0.375f)
+                {
+                    float t = (m_fill_amount - 0.125f) / 0.25f;
+                    vs[6].vertex = Vector3::Lerp(vs[0].vertex, vs[1].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[0].uv, vs[1].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 5, 0, 4, 0, 6 });
+                }
+                else if (m_fill_amount <= 0.625f)
+                {
+                    float t = (m_fill_amount - 0.375f) / 0.25f;
+                    vs[6].vertex = Vector3::Lerp(vs[1].vertex, vs[2].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[1].uv, vs[2].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 5, 0, 4, 0, 1, 4, 1, 6 });
+                }
+                else if (m_fill_amount <= 0.875f)
+                {
+                    float t = (m_fill_amount - 0.625f) / 0.25f;
+                    vs[6].vertex = Vector3::Lerp(vs[2].vertex, vs[3].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[2].uv, vs[3].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 5, 0, 4, 0, 1, 4, 1, 2, 4, 2, 6 });
+                }
+                else
+                {
+                    float t = (m_fill_amount - 0.875f) / 0.125f;
+                    vs[6].vertex = Vector3::Lerp(vs[3].vertex, vs[5].vertex, t);
+                    vs[6].uv = Vector2::Lerp(vs[3].uv, vs[5].uv, t);
+
+                    mesh.vertices.AddRange(vs, 7);
+                    mesh.indices.AddRange({ 4, 5, 0, 4, 0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 6 });
+                }
+            }
         }
         else if (m_fill_origin == (int) SpriteOrigin360::Right)
         {
