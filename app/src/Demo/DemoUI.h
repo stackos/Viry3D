@@ -110,7 +110,7 @@ and consoles to mobile phones and embedded platforms. )";
             sprite->SetSpriteName("tileset-sliced_0");
             sprite->SetSpriteType(SpriteType::Filled);
             sprite->SetFillMethod(SpriteFillMethod::Radial360);
-            sprite->SetFillOrigin((int) SpriteOrigin360::Top);
+            sprite->SetFillOrigin((int) SpriteOrigin360::Right);
             sprite->SetFillClockWise(false);
             sprite->SetFillAmount(m_sprite_fill);
 
