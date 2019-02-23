@@ -29,7 +29,6 @@ namespace Viry3D
     {
         Simple,
         Sliced,
-        Tiled,
         Filled,
     };
 

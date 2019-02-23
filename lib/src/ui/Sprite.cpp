@@ -1344,9 +1344,5 @@ namespace Viry3D
                 this->FillSelfMeshFilledRadial360(meshes, clip_rect, rect, vertex_matrix);
             }
         }
-        else if (m_sprite_type == SpriteType::Tiled)
-        {
-            
-        }
     }
 }
