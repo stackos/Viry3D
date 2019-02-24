@@ -30,6 +30,7 @@ namespace Viry3D
         virtual ~MeshRenderer();
         virtual Ref<BufferObject> GetVertexBuffer() const;
         virtual Ref<BufferObject> GetIndexBuffer() const;
+        virtual IndexType GetIndexType() const;
         const Ref<Mesh>& GetMesh() const { return m_mesh; }
         void SetMesh(const Ref<Mesh>& mesh);
 

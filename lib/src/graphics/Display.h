@@ -33,6 +33,12 @@
 
 namespace Viry3D
 {
+    enum class IndexType
+    {
+        Uint16,
+        Uint32,
+    };
+
     class Camera;
     class Texture;
     class Material;
@@ -139,6 +145,7 @@ namespace Viry3D
             const Rect& scissor_rect,
             const Ref<BufferObject>& vertex_buffer,
             const Ref<BufferObject>& index_buffer,
+            IndexType index_type,
             const Ref<BufferObject>& draw_buffer,
             int draw_index,
             const Ref<BufferObject>& instance_buffer);

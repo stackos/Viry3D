@@ -61,6 +61,16 @@ namespace Viry3D
         return buffer;
     }
 
+    IndexType MeshRenderer::GetIndexType() const
+    {
+        if (m_mesh)
+        {
+            return m_mesh->GetIndexType();
+        }
+
+        return IndexType::Uint16;
+    }
+
     void MeshRenderer::SetMesh(const Ref<Mesh>& mesh)
     {
         m_mesh = mesh;

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Object.h"
+#include "Display.h"
 #include "VertexAttribute.h"
 #include "container/Vector.h"
 #include "math/Matrix4x4.h"
@@ -38,8 +39,10 @@ namespace Viry3D
     public:
         static Ref<Mesh> LoadFromFile(const String& path);
         Mesh(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool dynamic = false);
+        Mesh(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool dynamic = false);
         virtual ~Mesh();
         void Update(const Vector<Vertex>& vertices, const Vector<unsigned short>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
+        void Update(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
         const Ref<BufferObject>& GetVertexBuffer() const { return m_vertex_buffer; }
         const Ref<BufferObject>& GetIndexBuffer() const { return m_index_buffer; }
         int GetVertexCount() const { return m_vertex_count; }
@@ -48,10 +51,12 @@ namespace Viry3D
         const Submesh& GetSubmesh(int submesh) const { return m_submeshes[submesh]; }
         void SetBindposes(const Vector<Matrix4x4>& bindposes) { m_bindposes = bindposes; }
         const Vector<Matrix4x4>& GetBindposes() const { return m_bindposes; }
+        IndexType GetIndexType() const { return m_index_type; }
 
     private:
         Ref<BufferObject> m_vertex_buffer;
         Ref<BufferObject> m_index_buffer;
+        IndexType m_index_type;
         int m_vertex_count;
         int m_index_count;
         int m_buffer_vertex_count;

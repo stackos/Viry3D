@@ -811,6 +811,7 @@ namespace Viry3D
         const auto& instance_materials = renderer->GetInstanceMaterials();
         Ref<BufferObject> vertex_buffer = renderer->GetVertexBuffer();
         Ref<BufferObject> index_buffer = renderer->GetIndexBuffer();
+        IndexType index_type = renderer->GetIndexType();
         Ref<BufferObject> draw_buffer = renderer->GetDrawBuffer();
         Ref<BufferObject> instance_buffer = renderer->GetInstanceBuffer();
         int instance_count = renderer->GetInstanceCount();
@@ -878,6 +879,7 @@ namespace Viry3D
                     clip_rect != nullptr ? Rect(clip_rect->x, clip_rect->y, clip_rect->z, clip_rect->w) : Rect(0, 0, 1, 1),
                     vertex_buffer,
                     index_buffer,
+                    index_type,
                     draw_buffer,
                     i,
                     instance_buffer);

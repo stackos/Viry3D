@@ -53,6 +53,7 @@ namespace Viry3D
         virtual ~Renderer();
         virtual Ref<BufferObject> GetVertexBuffer() const { return Ref<BufferObject>(); }
         virtual Ref<BufferObject> GetIndexBuffer() const { return Ref<BufferObject>(); }
+        virtual IndexType GetIndexType() const { return IndexType::Uint16; }
 #if VR_VULKAN
         Ref<BufferObject> GetDrawBuffer() const { return m_draw_buffer; }
 #elif VR_GLES

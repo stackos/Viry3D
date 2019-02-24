@@ -139,6 +139,33 @@ namespace Viry3D
         m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), GL_ELEMENT_ARRAY_BUFFER, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 #endif
 
+        m_index_type = IndexType::Uint16;
+        m_vertex_count = vertices.Size();
+        m_index_count = indices.Size();
+        m_buffer_vertex_count = m_vertex_count;
+        m_buffer_index_count = m_index_count;
+        m_submeshes = submeshes;
+        if (m_submeshes.Empty())
+        {
+            m_submeshes.Add(Submesh({ 0, indices.Size() }));
+        }
+    }
+
+    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes, bool dynamic):
+        m_vertex_count(0),
+        m_index_count(0),
+        m_buffer_vertex_count(0),
+        m_buffer_index_count(0)
+    {
+#if VR_VULKAN
+        m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, !dynamic, VK_FORMAT_UNDEFINED);
+        m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, !dynamic, VK_FORMAT_UNDEFINED);
+#elif VR_GLES
+        m_vertex_buffer = Display::Instance()->CreateBuffer(&vertices[0], vertices.SizeInBytes(), GL_ARRAY_BUFFER, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+        m_index_buffer = Display::Instance()->CreateBuffer(&indices[0], indices.SizeInBytes(), GL_ELEMENT_ARRAY_BUFFER, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+#endif
+
+        m_index_type = IndexType::Uint32;
         m_vertex_count = vertices.Size();
         m_index_count = indices.Size();
         m_buffer_vertex_count = m_vertex_count;
@@ -166,6 +193,25 @@ namespace Viry3D
     {
         assert(vertices.Size() <= m_buffer_vertex_count);
         assert(indices.Size() <= m_buffer_index_count);
+        assert(m_index_type == IndexType::Uint16);
+
+        Display::Instance()->UpdateBuffer(m_vertex_buffer, 0, &vertices[0], vertices.SizeInBytes());
+        Display::Instance()->UpdateBuffer(m_index_buffer, 0, &indices[0], indices.SizeInBytes());
+
+        m_vertex_count = vertices.Size();
+        m_index_count = indices.Size();
+        m_submeshes = submeshes;
+        if (m_submeshes.Empty())
+        {
+            m_submeshes.Add(Submesh({ 0, indices.Size() }));
+        }
+    }
+
+    void Mesh::Update(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes)
+    {
+        assert(vertices.Size() <= m_buffer_vertex_count);
+        assert(indices.Size() <= m_buffer_index_count);
+        assert(m_index_type == IndexType::Uint32);
 
         Display::Instance()->UpdateBuffer(m_vertex_buffer, 0, &vertices[0], vertices.SizeInBytes());
         Display::Instance()->UpdateBuffer(m_index_buffer, 0, &indices[0], indices.SizeInBytes());

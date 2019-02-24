@@ -2767,6 +2767,7 @@ extern void UnbindSharedContext();
             const Rect& scissor_rect,
             const Ref<BufferObject>& vertex_buffer,
             const Ref<BufferObject>& index_buffer,
+            IndexType index_type,
             const Ref<BufferObject>& draw_buffer,
             int draw_index,
             const Ref<BufferObject>& instance_buffer)
@@ -2801,7 +2802,14 @@ extern void UnbindSharedContext();
             {
                 vkCmdBindVertexBuffers(cmd, VERTEX_INPUT_BINDING_INSTANCE, 1, &instance_buffer->GetBuffer(), &offset);
             }
-            vkCmdBindIndexBuffer(cmd, index_buffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+            if (index_type == IndexType::Uint16)
+            {
+                vkCmdBindIndexBuffer(cmd, index_buffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+            }
+            else if (index_type == IndexType::Uint32)
+            {
+                vkCmdBindIndexBuffer(cmd, index_buffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+            }
             vkCmdDrawIndexedIndirect(cmd, draw_buffer->GetBuffer(), draw_index * sizeof(VkDrawIndexedIndirectCommand), 1, 0);
         }
 
@@ -4310,6 +4318,7 @@ void main()
         const Rect& scissor_rect,
         const Ref<BufferObject>& vertex_buffer,
         const Ref<BufferObject>& index_buffer,
+        IndexType index_type,
         const Ref<BufferObject>& draw_buffer,
         int draw_index,
         const Ref<BufferObject>& instance_buffer)
@@ -4325,6 +4334,7 @@ void main()
             scissor_rect,
             vertex_buffer,
             index_buffer,
+            index_type,
             draw_buffer,
             draw_index,
             instance_buffer);
