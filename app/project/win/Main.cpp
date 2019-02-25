@@ -328,11 +328,13 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         case WM_CHAR:
             if (wParam > 0 && wParam < 0x10000)
             {
+                unsigned short c = (unsigned short) wParam;
                 if (ImGui::GetCurrentContext())
                 {
                     ImGuiIO& io = ImGui::GetIO();
-                    io.AddInputCharacter((unsigned short) wParam);
+                    io.AddInputCharacter(c);
                 }
+                Input::AddInputCharacter(c);
             }
             break;
 
