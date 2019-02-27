@@ -22,6 +22,7 @@
 #include "ui/Sprite.h"
 #include "ui/Button.h"
 #include "ui/SpriteAtlas.h"
+#include "ui/InputField.h"
 
 namespace Viry3D
 {
@@ -117,6 +118,12 @@ and consoles to mobile phones and embedded platforms. )";
             group->AddSubview(sprite);
 
             m_sprite = sprite.get();
+
+            auto input = RefMake<InputField>();
+            input->SetSize(Vector2i(500, 80));
+            input->SetOffset(Vector2i(0, 270));
+
+            group->AddSubview(input);
         }
 
         virtual void Init()
