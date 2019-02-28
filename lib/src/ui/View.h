@@ -23,6 +23,7 @@
 #include "graphics/VertexAttribute.h"
 #include "math/Vector2.h"
 #include "math/Vector2i.h"
+#include "math/Vector4.h"
 #include "math/Quaternion.h"
 #include "math/Rect.h"
 #include "math/Recti.h"
@@ -102,6 +103,8 @@ namespace Viry3D
 		const Vector2i& GetOffset() const { return m_offset; }
         // offset y direction is down
 		void SetOffset(const Vector2i& offset);
+        // left, top, right, bottom
+        void SetMargin(const Vector4& margin);
         const Quaternion& GetLocalRotation() const { return m_local_rotation; }
         void SetLocalRotation(const Quaternion& rotation);
         const Vector2& GetLocalScale() const { return m_local_scale; }
@@ -137,6 +140,7 @@ namespace Viry3D
 		Vector2 m_pivot;
         Vector2i m_size;
         Vector2i m_offset;
+        Vector4 m_margin;
         Quaternion m_local_rotation;
         Vector2 m_local_scale;
         bool m_clip_rect;

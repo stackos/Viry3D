@@ -47,7 +47,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - text input
+// - input field
 // - Canvas Editor
 // - 2D Game Demo
 // - PBR optimize

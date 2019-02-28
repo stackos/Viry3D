@@ -28,12 +28,24 @@ namespace Viry3D
     public:
         InputField();
         virtual ~InputField();
-        const Ref<Label>& GetLabel() const { return m_label; }
+        void SetPlaceholderText(const String& placeholder);
+        void SetPlaceholderTextColor(const Color& color);
+        void SetCaretBlinkRate(float rate);
+        const String& GetText() const;
+        void SetText(const String& text);
 
     private:
+        void OnGotFocus();
+        void OnLostFocus();
+        void SetCaretPos(int line, int index);
+
+    private:
+        Ref<Label> m_placeholder;
         Ref<Label> m_label;
+        Ref<Sprite> m_caret;
+        float m_caret_blink_rate;
         bool m_touch_down;
         bool m_focused;
-        bool m_multi_line;
+        Vector4 m_label_margin;
     };
 }

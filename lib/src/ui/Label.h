@@ -38,7 +38,6 @@ namespace Viry3D
         Vector<Color> colors;
         Vector<unsigned short> indices;
         Ref<Image> image;
-        Bounds bound;
     };
 
     struct LabelLine
@@ -73,6 +72,7 @@ namespace Viry3D
         void SetMono(bool mono);
         // use ViewAlignment
         void SetTextAlignment(int alignment);
+        const Vector<LabelLine>& GetLines();
 
     protected:
         virtual void FillSelfMeshes(Vector<ViewMesh>& meshes, const Rect& clip_rect);
@@ -92,5 +92,6 @@ namespace Viry3D
         int m_text_alignment;
         Vector<LabelLine> m_lines;
         Vector2i m_content_size;
+        bool m_lines_dirty;
     };
 }

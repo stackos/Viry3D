@@ -216,7 +216,8 @@ namespace Viry3D
         m_line_space(0),
         m_rich(false),
         m_mono(false),
-        m_text_alignment(ViewAlignment::HCenter | ViewAlignment::VCenter)
+        m_text_alignment(ViewAlignment::HCenter | ViewAlignment::VCenter),
+        m_lines_dirty(false)
     {
     
     }
@@ -229,18 +230,21 @@ namespace Viry3D
     void Label::SetFont(const Ref<Font>& font)
     {
         m_font = font;
+        m_lines_dirty = true;
         this->MarkCanvasDirty();
     }
 
     void Label::SetFontStyle(FontStyle style)
     {
         m_font_style = style;
+        m_lines_dirty = true;
         this->MarkCanvasDirty();
     }
 
     void Label::SetFontSize(int size)
     {
         m_font_size = size;
+        m_lines_dirty = true;
         this->MarkCanvasDirty();
     }
 
@@ -249,6 +253,7 @@ namespace Viry3D
         if (m_text != text)
         {
             m_text = text;
+            m_lines_dirty = true;
             this->MarkCanvasDirty();
         }
     }
@@ -256,18 +261,21 @@ namespace Viry3D
     void Label::SetLineSpace(int space)
     {
         m_line_space = space;
+        m_lines_dirty = true;
         this->MarkCanvasDirty();
     }
 
     void Label::SetRich(bool rich)
     {
         m_rich = rich;
+        m_lines_dirty = true;
         this->MarkCanvasDirty();
     }
 
     void Label::SetMono(bool mono)
     {
         m_mono = mono;
+        m_lines_dirty = true;
         this->MarkCanvasDirty();
     }
 
@@ -275,6 +283,16 @@ namespace Viry3D
     {
         m_text_alignment = alignment;
         this->MarkCanvasDirty();
+    }
+
+    const Vector<LabelLine>& Label::GetLines()
+    {
+        if (m_lines_dirty)
+        {
+            m_lines_dirty = false;
+            this->ProcessText();
+        }
+        return m_lines;
     }
 
     void Label::ProcessText()
@@ -414,7 +432,6 @@ namespace Viry3D
             CharMesh mesh;
             mesh.c = c;
             mesh.image = info.image;
-            mesh.bound = Bounds(Vector3((float) x0, (float) y1, 0), Vector3((float) x1, (float) y0, 0));
 
             float uv_x0 = 0;
             float uv_y0 = 0;
@@ -557,7 +574,11 @@ namespace Viry3D
     {
         View::UpdateLayout();
 
-        this->ProcessText();
+        if (m_lines_dirty)
+        {
+            m_lines_dirty = false;
+            this->ProcessText();
+        }
     }
 
     Vector2i Label::ApplyTextAlignment(const Vector2i& target_size)

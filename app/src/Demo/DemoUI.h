@@ -120,7 +120,7 @@ and consoles to mobile phones and embedded platforms. )";
             m_sprite = sprite.get();
 
             auto input = RefMake<InputField>();
-            input->SetSize(Vector2i(500, 80));
+            input->SetSize(Vector2i(300, 40));
             input->SetOffset(Vector2i(0, 270));
 
             group->AddSubview(input);

@@ -42,6 +42,7 @@ namespace Viry3D
 		m_pivot(0.5f, 0.5f),
 		m_size(100, 100),
 		m_offset(0, 0),
+        m_margin(0, 0, 0, 0),
         m_local_rotation(Quaternion::Identity()),
         m_local_scale(1, 1),
         m_clip_rect(false),
@@ -169,12 +170,12 @@ namespace Viry3D
 
             if (size.x == VIEW_SIZE_FILL_PARENT)
             {
-                size.x = parent_size.x;
+                size.x = parent_size.x - (int) (m_margin.x + m_margin.z);
             }
 
             if (size.y == VIEW_SIZE_FILL_PARENT)
             {
-                size.y = parent_size.y;
+                size.y = parent_size.y - (int) (m_margin.y + m_margin.w);
             }
         }
 
@@ -186,6 +187,12 @@ namespace Viry3D
 		m_offset = offset;
         this->MarkCanvasDirty();
 	}
+
+    void View::SetMargin(const Vector4& margin)
+    {
+        m_margin = margin;
+        this->MarkCanvasDirty();
+    }
 
     void View::SetLocalRotation(const Quaternion& rotation)
     {
@@ -283,11 +290,11 @@ namespace Viry3D
         Vector2i size = this->GetSize();
         if (size.x == VIEW_SIZE_FILL_PARENT)
         {
-            size.x = parent_rect.w;
+            size.x = parent_rect.w - (int) (m_margin.x + m_margin.z);
         }
         if (size.y == VIEW_SIZE_FILL_PARENT)
         {
-            size.y = parent_rect.h;
+            size.y = parent_rect.h - (int) (m_margin.y + m_margin.w);
         }
 
         m_rect.x = parent_rect.x + local_pos.x - Mathf::RoundToInt(m_pivot.x * size.x);
