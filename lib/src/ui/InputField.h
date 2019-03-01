@@ -28,6 +28,7 @@ namespace Viry3D
     public:
         InputField();
         virtual ~InputField();
+        virtual void Update();
         void SetPlaceholderText(const String& placeholder);
         void SetPlaceholderTextColor(const Color& color);
         void SetCaretBlinkRate(float rate);
@@ -44,6 +45,8 @@ namespace Viry3D
         Ref<Label> m_label;
         Ref<Sprite> m_caret;
         float m_caret_blink_rate;
+        bool m_caret_blink_show;
+        float m_caret_blink_time;
         bool m_touch_down;
         bool m_focused;
         Vector4 m_label_margin;

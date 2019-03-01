@@ -244,6 +244,14 @@ namespace Viry3D
         }
     }
 
+    void View::Update()
+    {
+        for (auto& i : m_subviews)
+        {
+            i->Update();
+        }
+    }
+
     void View::UpdateLayout()
     {
         Recti parent_rect;

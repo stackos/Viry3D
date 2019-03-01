@@ -18,11 +18,14 @@
 #include "InputField.h"
 #include "Label.h"
 #include "Font.h"
+#include "time/Time.h"
 
 namespace Viry3D
 {
     InputField::InputField():
-        m_caret_blink_rate(1),
+        m_caret_blink_rate(0.5f),
+        m_caret_blink_show(true),
+        m_caret_blink_time(0),
         m_touch_down(false),
         m_focused(false),
         m_label_margin(10, 0, 10, 0)
@@ -82,6 +85,28 @@ namespace Viry3D
         
     }
 
+    void InputField::Update()
+    {
+        // blink caret
+        if (m_focused)
+        {
+            float now = Time::GetTime();
+            if (now - m_caret_blink_time > m_caret_blink_rate)
+            {
+                if (m_caret_blink_show)
+                {
+                    m_caret->SetColor(Color(0, 0, 0, 0));
+                }
+                else
+                {
+                    m_caret->SetColor(Color(0, 0, 0, 1));
+                }
+                m_caret_blink_show = !m_caret_blink_show;
+                m_caret_blink_time = now;
+            }
+        }
+    }
+
     void InputField::SetPlaceholderText(const String& placeholder)
     {
         m_placeholder->SetText(placeholder);
@@ -126,6 +151,7 @@ namespace Viry3D
     {
         this->AddSubview(m_caret);
         this->SetCaretPos(0, 0);
+        m_caret_blink_time = Time::GetTime();
     }
 
     void InputField::OnLostFocus()

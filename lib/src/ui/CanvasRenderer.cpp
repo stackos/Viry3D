@@ -271,6 +271,11 @@ void main()
 
 	void CanvasRenderer::Update()
 	{
+        for (int i = 0; i < m_views.Size(); ++i)
+        {
+            m_views[i]->Update();
+        }
+
 		if (m_canvas_dirty)
 		{
 			m_canvas_dirty = false;

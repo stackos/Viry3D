@@ -78,6 +78,7 @@ namespace Viry3D
 
 		View();
 		virtual ~View();
+        virtual void Update();
         virtual void UpdateLayout();
         virtual void OnResize(int width, int height);
 		void OnAddToCanvas(CanvasRenderer* canvas);
