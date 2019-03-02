@@ -19,6 +19,7 @@
 #include "Label.h"
 #include "Font.h"
 #include "time/Time.h"
+#include "Input.h"
 
 namespace Viry3D
 {
@@ -103,6 +104,37 @@ namespace Viry3D
                 }
                 m_caret_blink_show = !m_caret_blink_show;
                 m_caret_blink_time = now;
+            }
+
+            const Vector<unsigned short>& chars = Input::GetInputQueueCharacters();
+            if (chars.Size() > 0)
+            {
+                Vector<char> cs;
+                for (int i = 0; i < chars.Size(); ++i)
+                {
+                    unsigned short c = chars[i];
+                    if (c <= 0xff)
+                    {
+                        cs.Add(c & 0xff);
+                    }
+                    else
+                    {
+                        cs.Add((c & 0xff00) >> 8);
+                        cs.Add(c & 0xff);
+                    }
+                }
+
+#if VR_WINDOWS
+                String str = String::Gb2312ToUtf8(String(&cs[0], cs.Size()));
+#else
+                String str = String(&cs[0], cs.Size());
+#endif
+                
+                // TODO:
+                // caret pos update
+                // process \b - backspace
+                // process \r - enter
+                m_label->SetText(m_label->GetText() + str);
             }
         }
     }

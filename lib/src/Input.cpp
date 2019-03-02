@@ -89,6 +89,11 @@ namespace Viry3D
         g_input_queue_characters.Add(c);
     }
 
+    const Vector<unsigned short>& Input::GetInputQueueCharacters()
+    {
+        return g_input_queue_characters;
+    }
+
 	void Input::Update()
 	{
 		g_input_touches.Clear();

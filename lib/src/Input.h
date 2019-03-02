@@ -61,5 +61,6 @@ namespace Viry3D
 		static const Vector3& GetMousePosition();
         static float GetMouseScrollWheel();
         static void AddInputCharacter(unsigned short c);
+        static const Vector<unsigned short>& GetInputQueueCharacters();
 	};
 }
