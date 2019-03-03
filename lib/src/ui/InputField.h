@@ -44,6 +44,7 @@ namespace Viry3D
         Ref<Label> m_placeholder;
         Ref<Label> m_label;
         Ref<Sprite> m_caret;
+        Vector2i m_caret_pos;
         float m_caret_blink_rate;
         bool m_caret_blink_show;
         float m_caret_blink_time;

@@ -24,6 +24,7 @@
 namespace Viry3D
 {
     InputField::InputField():
+        m_caret_pos(-1, -1),
         m_caret_blink_rate(0.5f),
         m_caret_blink_show(true),
         m_caret_blink_time(0),
@@ -131,10 +132,25 @@ namespace Viry3D
 #endif
                 
                 // TODO:
-                // caret pos update
                 // process \b - backspace
                 // process \r - enter
-                m_label->SetText(m_label->GetText() + str);
+
+                if (str.Size() > 0)
+                {
+                    if ((m_caret_pos.x < 0 && m_caret_pos.y < 0) ||
+                        (m_caret_pos.x == 0 && m_caret_pos.y == m_label->GetLines()[0].meshes.Size() - 1))
+                    {
+                        // append
+                        m_label->SetText(m_label->GetText() + str);
+                        const auto& lines = m_label->GetLines();
+                        this->SetCaretPos(0, lines[0].meshes.Size() - 1);
+                    }
+                    else
+                    {
+                        // TODO:
+                        // insert
+                    }
+                }
             }
         }
     }
@@ -182,7 +198,15 @@ namespace Viry3D
     void InputField::OnGotFocus()
     {
         this->AddSubview(m_caret);
-        this->SetCaretPos(0, 0);
+        const auto& lines = m_label->GetLines();
+        if (lines.Size() > 0)
+        {
+            this->SetCaretPos(0, lines[0].meshes.Size() - 1);
+        }
+        else
+        {
+            this->SetCaretPos(-1, -1);
+        }
         m_caret_blink_time = Time::GetTime();
     }
 
@@ -194,13 +218,15 @@ namespace Viry3D
     void InputField::SetCaretPos(int line, int index)
     {
         const auto& lines = m_label->GetLines();
-        if (lines.Size() > 0)
-        {
-            m_caret->SetOffset(Vector2i((int) m_label_margin.x + lines[line].meshes[index].vertices[0].x - 1, 0));
-        }
-        else
+        if (line < 0 || index < 0)
         {
             m_caret->SetOffset(Vector2i((int) m_label_margin.x, 0));
         }
+        else
+        {
+            m_caret->SetOffset(Vector2i((int) m_label_margin.x + lines[line].meshes[index].vertices[3].x, 0));
+        }
+        m_caret_pos.x = line;
+        m_caret_pos.y = index;
     }
 }
