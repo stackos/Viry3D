@@ -568,6 +568,11 @@ namespace Viry3D
         }
 
         m_content_size = Vector2i(x_max, -y_min);
+        m_content_size.y = m_lines.Size() * font_size;
+        if (m_lines.Size() > 0)
+        {
+            m_content_size.y += (m_lines.Size() - 1) * m_line_space;
+        }
     }
 
     void Label::UpdateLayout()
