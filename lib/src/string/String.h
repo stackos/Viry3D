@@ -38,6 +38,7 @@ namespace Viry3D
 		String(const char* str, int size);
 		String(const ByteBuffer& buffer);
 		String(const char32_t* unicode32);
+        String(const char32_t* unicode32, int size);
 
 		int Size() const;
 		bool Empty() const;

@@ -399,7 +399,7 @@ namespace Viry3D
             int x0 = pen_x + info.bearing_x;
             int y0 = pen_y + info.bearing_y - baseline;
             int x1 = x0 + info.width;
-            if (c == ' ')
+            if (c == ' ' || c == '\t')
             {
                 x1 = pen_x + info.advance_x + char_space;
             }

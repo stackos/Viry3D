@@ -34,6 +34,8 @@ namespace Viry3D
 
         void InitCanvas()
         {
+            m_camera->SetClearColor(Color(0.2f, 0.2f, 0.2f, 1));
+
             auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
             m_ui_camera->AddRenderer(canvas);
 

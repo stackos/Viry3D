@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Sprite.h"
+#include "Action.h"
 
 namespace Viry3D
 {
@@ -34,6 +35,7 @@ namespace Viry3D
         void SetCaretBlinkRate(float rate);
         const String& GetText() const;
         void SetText(const String& text);
+        void SetOnEnter(Action on_enter) { m_on_enter = on_enter; }
 
     private:
         void OnGotFocus();
@@ -51,5 +53,7 @@ namespace Viry3D
         bool m_touch_down;
         bool m_focused;
         Vector4 m_label_margin;
+        Vector<char32_t> m_unicodes;
+        Action m_on_enter;
     };
 }

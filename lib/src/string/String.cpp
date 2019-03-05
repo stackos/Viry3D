@@ -540,6 +540,23 @@ namespace Viry3D
 		m_string = &str[0];
 	}
 
+    String::String(const char32_t* unicode32, int size)
+    {
+        Vector<char> str;
+
+        for (int i = 0; i < size; ++i)
+        {
+            char32_t c32 = unicode32[i];
+
+            auto bytes = Unicode32ToUtf8(c32);
+            str.AddRange(&bytes[0], bytes.Size());
+        }
+
+        str.Add(0);
+
+        m_string = &str[0];
+    }
+
 	String String::ToLower() const
 	{
 		Vector<char> str;

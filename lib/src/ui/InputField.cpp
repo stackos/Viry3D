@@ -130,27 +130,48 @@ namespace Viry3D
 #else
                 String str = String(&cs[0], cs.Size());
 #endif
-                
-                // TODO:
-                // process \b - backspace
-                // process \r - enter
 
-                if (str.Size() > 0)
+                // process \b - backspace
+                Vector<String> splits = str.Split("\b");
+                for (int i = 0; i < splits.Size(); ++i)
                 {
-                    if ((m_caret_pos.x < 0 && m_caret_pos.y < 0) ||
-                        (m_caret_pos.x == 0 && m_caret_pos.y == m_label->GetLines()[0].meshes.Size() - 1))
+                    const String& split = splits[i];
+
+                    // append chars
+                    if (split.Size() > 0)
                     {
-                        // append
-                        m_label->SetText(m_label->GetText() + str);
+                        this->SetText(m_label->GetText() + split);
+
                         const auto& lines = m_label->GetLines();
                         this->SetCaretPos(0, lines[0].meshes.Size() - 1);
                     }
-                    else
+
+                    // delete char
+                    if (i < splits.Size() - 1)
                     {
-                        // TODO:
-                        // insert
+                        if (m_unicodes.Size() > 0)
+                        {
+                            m_unicodes.Remove(m_unicodes.Size() - 1);
+                            if (m_unicodes.Size() > 0)
+                            {
+                                this->SetText(String(&m_unicodes[0], m_unicodes.Size()));
+
+                                const auto& lines = m_label->GetLines();
+                                this->SetCaretPos(0, lines[0].meshes.Size() - 1);
+                            }
+                            else
+                            {
+                                this->SetText("");
+                                this->SetCaretPos(-1, -1);
+                            }
+                        }
                     }
                 }
+
+                // TODO:
+                // process \r - enter
+                // label wrap mode
+                // clip label
             }
         }
     }
@@ -193,6 +214,8 @@ namespace Viry3D
                 this->AddSubview(m_placeholder);
             }
         }
+
+        m_unicodes = text.ToUnicode32();
     }
 
     void InputField::OnGotFocus()
