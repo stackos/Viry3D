@@ -135,15 +135,38 @@ namespace Viry3D
                 Vector<String> splits = str.Split("\b");
                 for (int i = 0; i < splits.Size(); ++i)
                 {
-                    const String& split = splits[i];
+                    String split = splits[i];
 
-                    // append chars
                     if (split.Size() > 0)
                     {
-                        this->SetText(m_label->GetText() + split);
+                        // process \r - enter
+                        int r_index = split.IndexOf("\r");
+                        if (r_index >= 0)
+                        {
+                            if (r_index > 0)
+                            {
+                                split = split.Substring(0, r_index);
+                            }
+                            else
+                            {
+                                split = "";
+                            }
+                        }
 
-                        const auto& lines = m_label->GetLines();
-                        this->SetCaretPos(0, lines[0].meshes.Size() - 1);
+                        // append chars
+                        if (split.Size() > 0)
+                        {
+                            this->SetText(m_label->GetText() + split);
+
+                            const auto& lines = m_label->GetLines();
+                            this->SetCaretPos(0, lines[0].meshes.Size() - 1);
+                        }
+
+                        if (r_index >= 0)
+                        {
+                            this->OnEnter();
+                            break;
+                        }
                     }
 
                     // delete char
@@ -169,7 +192,6 @@ namespace Viry3D
                 }
 
                 // TODO:
-                // process \r - enter
                 // label wrap mode
                 // clip label
             }
@@ -236,6 +258,17 @@ namespace Viry3D
     void InputField::OnLostFocus()
     {
         this->RemoveSubview(m_caret);
+    }
+
+    void InputField::OnEnter()
+    {
+        m_focused = false;
+        this->OnLostFocus();
+
+        if (m_on_enter)
+        {
+            m_on_enter();
+        }
     }
 
     void InputField::SetCaretPos(int line, int index)

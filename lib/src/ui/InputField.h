@@ -40,6 +40,7 @@ namespace Viry3D
     private:
         void OnGotFocus();
         void OnLostFocus();
+        void OnEnter();
         void SetCaretPos(int line, int index);
 
     private:
