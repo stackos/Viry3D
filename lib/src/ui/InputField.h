@@ -45,6 +45,7 @@ namespace Viry3D
 
     private:
         Ref<Label> m_placeholder;
+        Ref<View> m_content;
         Ref<Label> m_label;
         Ref<Sprite> m_caret;
         Vector2i m_caret_pos;
@@ -53,7 +54,7 @@ namespace Viry3D
         float m_caret_blink_time;
         bool m_touch_down;
         bool m_focused;
-        Vector4 m_label_margin;
+        Vector4 m_content_margin;
         Vector<char32_t> m_unicodes;
         Action m_on_enter;
     };

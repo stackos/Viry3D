@@ -30,25 +30,31 @@ namespace Viry3D
         m_caret_blink_time(0),
         m_touch_down(false),
         m_focused(false),
-        m_label_margin(10, 0, 10, 0)
+        m_content_margin(10, 0, 10, 0)
     {
         m_placeholder = RefMake<Label>();
         m_placeholder->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
-        m_placeholder->SetMargin(m_label_margin);
+        m_placeholder->SetMargin(m_content_margin);
         m_placeholder->SetTextAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
         m_placeholder->SetFont(Font::GetFont(FontType::PingFangSC));
         m_placeholder->SetFontSize(20);
         m_placeholder->SetColor(Color(0.8f, 0.8f, 0.8f, 1));
+        m_placeholder->EnableClipRect(true);
         this->AddSubview(m_placeholder);
+
+        m_content = RefMake<View>();
+        m_content->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
+        m_content->SetMargin(m_content_margin);
+        m_content->EnableClipRect(true);
+        this->AddSubview(m_content);
 
         m_label = RefMake<Label>();
         m_label->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
-        m_label->SetMargin(m_label_margin);
         m_label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
         m_label->SetFont(Font::GetFont(FontType::PingFangSC));
         m_label->SetFontSize(20);
         m_label->SetColor(Color(0, 0, 0, 1));
-        this->AddSubview(m_label);
+        m_content->AddSubview(m_label);
 
         m_caret = RefMake<Sprite>();
         m_caret->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
@@ -190,10 +196,6 @@ namespace Viry3D
                         }
                     }
                 }
-
-                // TODO:
-                // label wrap mode
-                // clip label
             }
         }
     }
@@ -276,11 +278,22 @@ namespace Viry3D
         const auto& lines = m_label->GetLines();
         if (line < 0 || index < 0)
         {
-            m_caret->SetOffset(Vector2i((int) m_label_margin.x, 0));
+            m_caret->SetOffset(Vector2i((int) m_content_margin.x, 0));
         }
         else
         {
-            m_caret->SetOffset(Vector2i((int) m_label_margin.x + lines[line].meshes[index].vertices[3].x, 0));
+            int x = (int) m_content_margin.x + lines[line].meshes[index].vertices[3].x;
+            int max = this->GetSize().x - (int) m_content_margin.z;
+            if (x > max)
+            {
+                m_caret->SetOffset(Vector2i(max, 0));
+                m_label->SetOffset(Vector2i(max - x, 0));
+            }
+            else
+            {
+                m_caret->SetOffset(Vector2i(x, 0));
+                m_label->SetOffset(Vector2i(0, 0));
+            }
         }
         m_caret_pos.x = line;
         m_caret_pos.y = index;
