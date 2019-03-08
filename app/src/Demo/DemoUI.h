@@ -59,13 +59,13 @@ and consoles to mobile phones and embedded platforms. )";
 
             label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetPivot(Vector2(0, 0));
-            label->SetSize(Vector2i(400, 400));
+            label->SetSize(Vector2i(250, 250));
             label->SetOffset(Vector2i(40, 100));
-            label->EnableClipRect(true);
             label->SetFont(Font::GetFont(FontType::PingFangSC));
             label->SetFontSize(26);
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetText(text);
+            label->EnableWrapContent(true);
 
             auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 

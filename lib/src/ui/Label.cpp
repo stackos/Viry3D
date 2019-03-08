@@ -217,6 +217,7 @@ namespace Viry3D
         m_rich(false),
         m_mono(false),
         m_text_alignment(ViewAlignment::HCenter | ViewAlignment::VCenter),
+        m_wrap_content(false),
         m_lines_dirty(false)
     {
     
@@ -225,6 +226,16 @@ namespace Viry3D
     Label::~Label()
     {
     
+    }
+
+    void Label::SetSize(const Vector2i& size)
+    {
+        View::SetSize(size);
+
+        if (m_wrap_content)
+        {
+            m_lines_dirty = true;
+        }
     }
 
     void Label::SetFont(const Ref<Font>& font)
@@ -282,6 +293,13 @@ namespace Viry3D
     void Label::SetTextAlignment(int alignment)
     {
         m_text_alignment = alignment;
+        this->MarkCanvasDirty();
+    }
+
+    void Label::EnableWrapContent(bool enable)
+    {
+        m_wrap_content = enable;
+        m_lines_dirty = true;
         this->MarkCanvasDirty();
     }
 
@@ -427,8 +445,6 @@ namespace Viry3D
                 line_y_min = y1;
             }
 
-            pen_x += info.advance_x + char_space;
-
             CharMesh mesh;
             mesh.c = c;
             mesh.image = info.image;
@@ -531,7 +547,7 @@ namespace Viry3D
                 underline_mesh.c = 0;
                 underline_mesh.image = Texture::GetSharedWhiteImage();
 
-                int ux0 = pen_x - (info.advance_x + char_space);
+                int ux0 = pen_x;
                 int uy0 = pen_y - baseline - 2;
                 int ux1 = ux0 + info.advance_x + char_space;
                 int uy1 = uy0 - 1;
@@ -557,6 +573,8 @@ namespace Viry3D
 
                 line.meshes.Add(underline_mesh);
             }
+
+            pen_x += info.advance_x + char_space;
         }
 
         if (line.meshes.Size() > 0)

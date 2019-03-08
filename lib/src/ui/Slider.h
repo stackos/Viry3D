@@ -51,7 +51,7 @@ namespace Viry3D
 
         Slider();
         virtual ~Slider();
-        void SetSize(const Vector2i& size);
+        virtual void SetSize(const Vector2i& size);
         void SetProgress(float progress);
         void SetValueType(ValueType type, const Value& min_value, const Value& max_value);
         void SetOnValueChange(OnValueChange func);

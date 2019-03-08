@@ -99,7 +99,7 @@ namespace Viry3D
         // left top is (0.0, 0.0), right bottom is (1.0, 1.0)
 		void SetPivot(const Vector2& pivot);
 		const Vector2i& GetSize() const { return m_size; }
-		void SetSize(const Vector2i& size);
+        virtual void SetSize(const Vector2i& size);
         Vector2i GetCalculatedSize();
 		const Vector2i& GetOffset() const { return m_offset; }
         // offset y direction is down

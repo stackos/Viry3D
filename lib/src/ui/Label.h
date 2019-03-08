@@ -62,6 +62,7 @@ namespace Viry3D
         Label();
         virtual ~Label();
         virtual void UpdateLayout();
+        virtual void SetSize(const Vector2i& size);
         void SetFont(const Ref<Font>& font);
         void SetFontStyle(FontStyle style);
         void SetFontSize(int size);
@@ -72,6 +73,7 @@ namespace Viry3D
         void SetMono(bool mono);
         // use ViewAlignment
         void SetTextAlignment(int alignment);
+        void EnableWrapContent(bool enable);
         const Vector<LabelLine>& GetLines();
 
     protected:
@@ -92,6 +94,7 @@ namespace Viry3D
         int m_text_alignment;
         Vector<LabelLine> m_lines;
         Vector2i m_content_size;
+        bool m_wrap_content;
         bool m_lines_dirty;
     };
 }

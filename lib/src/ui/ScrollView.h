@@ -27,7 +27,7 @@ namespace Viry3D
         ScrollView();
         virtual ~ScrollView();
         virtual void OnResize(int width, int height);
-        void SetSize(const Vector2i& size);
+        virtual void SetSize(const Vector2i& size);
         const Ref<View>& GetContentView() const { return m_content_view; }
         void SetContentViewSize(const Vector2i& size);
         void SetScrollThrehold(float threhold);
