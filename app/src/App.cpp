@@ -47,8 +47,6 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - label wrap mode
-// - input field
 // - Canvas Editor
 // - 2D Game Demo
 // - PBR optimize

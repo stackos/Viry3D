@@ -19,6 +19,7 @@
 #include "CanvasRenderer.h"
 #include "Font.h"
 #include "graphics/Texture.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
@@ -341,6 +342,7 @@ namespace Viry3D
         bool mono = m_mono;
         bool has_kerning = m_font->HasKerning();
         unsigned int previous = 0;
+        bool wrapped = false;
         LabelLine line;
 
         for (int i = 0; i < chars.Size(); ++i)
@@ -422,6 +424,30 @@ namespace Viry3D
                 x1 = pen_x + info.advance_x + char_space;
             }
             int y1 = y0 - info.height;
+
+            if (m_wrap_content && x1 > this->GetSize().x)
+            {
+                if (wrapped)
+                {
+                    Log("label size too small");
+                    break;
+                }
+
+                line.width = line_x_max;
+                line.height = pen_y - line_y_min;
+                line_x_max = 0;
+                line_y_min = 0;
+                pen_x = 0;
+                pen_y += -(font_size + m_line_space);
+
+                m_lines.Add(line);
+                line.Clear();
+
+                --i;
+                wrapped = true;
+                continue;
+            }
+            wrapped = false;
 
             if (x_max < x1)
             {
