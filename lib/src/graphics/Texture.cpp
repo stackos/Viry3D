@@ -920,12 +920,10 @@ namespace Viry3D
             }
 
             m_shared_white_image = RefMake<Image>();
-            *m_shared_white_image = {
-                3,
-                3,
-                ImageFormat::R8G8B8A8,
-                pixels
-            };
+            m_shared_white_image->width = 3;
+            m_shared_white_image->height = 3;
+            m_shared_white_image->format = ImageFormat::R8G8B8A8;
+            m_shared_white_image->data = pixels;
 
 			m_shared_white_texture = Texture::CreateTexture2DFromMemory(
 				pixels,

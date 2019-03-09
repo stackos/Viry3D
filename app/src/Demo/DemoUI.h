@@ -43,17 +43,7 @@ namespace Viry3D
             group->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
             canvas->AddView(group);
 
-            String text = UR"(国风·卫风·淇奥
-瞻彼淇奥，绿竹猗猗。有匪君子，如切如磋，如琢如磨。
-瑟兮僩兮，赫兮咺兮。有匪君子，终不可谖兮。
-瞻彼淇奥，绿竹青青。有匪君子，充耳璓莹，会弁如星。
-瑟兮僩兮，赫兮咺兮。有匪君子，终不可谖兮。
-瞻彼淇奥，绿竹如箦。有匪君子，如金如锡，如圭如璧。
-宽兮绰兮，猗重较兮。善戏谑兮，不为虐兮。
-
-Vulkan is a new generation graphics and compute API that provides high-efficiency, 
-cross-platform access to modern GPUs used in a wide variety of devices from PCs
-and consoles to mobile phones and embedded platforms. )";
+            String text = UR"(Vulkan is a new generation graphics and compute API that provides high-efficiency, cross-platform access to modern GPUs used in a wide variety of devices from PCs and consoles to mobile phones and embedded platforms. )";
             auto label = RefMake<Label>();
             group->AddSubview(label);
 

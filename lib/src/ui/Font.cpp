@@ -241,12 +241,10 @@ namespace Viry3D
             }
 
             p_glyph->image = RefMake<Image>();
-            *p_glyph->image = {
-                p_glyph->width,
-                p_glyph->height,
-                ImageFormat::R8G8B8A8,
-                pixels
-            };
+            p_glyph->image->width = p_glyph->width;
+            p_glyph->image->height = p_glyph->height;
+            p_glyph->image->format = ImageFormat::R8G8B8A8;
+            p_glyph->image->data = pixels;
         }
 
 		return *p_glyph;
