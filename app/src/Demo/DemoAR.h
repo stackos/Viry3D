@@ -428,9 +428,9 @@ void main()
                     h = texture_h *  w / Display::Instance()->GetWidth();
                     
                     m_viewport.x = 0;
-                    m_viewport.width = 1.0f;
+                    m_viewport.w = 1.0f;
                     m_viewport.y = (Display::Instance()->GetHeight() - h) / 2 / (float) Display::Instance()->GetHeight();
-                    m_viewport.height = h / (float) Display::Instance()->GetHeight();
+                    m_viewport.h = h / (float) Display::Instance()->GetHeight();
                 }
                 else
                 {
@@ -438,9 +438,9 @@ void main()
                     w = texture_w *  h / Display::Instance()->GetHeight();
                     
                     m_viewport.x = (Display::Instance()->GetWidth() - w) / 2 / (float) Display::Instance()->GetWidth();
-                    m_viewport.width = w / (float) Display::Instance()->GetWidth();
+                    m_viewport.w = w / (float) Display::Instance()->GetWidth();
                     m_viewport.y = 0;
-                    m_viewport.height = 1.0f;
+                    m_viewport.h = 1.0f;
                 }
 
                 m_bg_camera->SetViewportRect(m_viewport);
