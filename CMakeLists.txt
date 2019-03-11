@@ -891,7 +891,7 @@ elseif (${Target} MATCHES "Android")
         "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -DVR_ANDROID -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -frtti")
+        "${CMAKE_CXX_FLAGS} -DVR_ANDROID -DVR_VULKAN=0 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -frtti")
     add_definitions(-Wall -DIOAPI_NO_64 -DHAVE_GCC_DESTRUCTOR)
 
     target_sources(Viry3DDep PRIVATE

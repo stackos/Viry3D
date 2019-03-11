@@ -17,31 +17,31 @@
 
 package com.viry3d.lib;
 
-import android.app.NativeActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.WindowManager;
 
 import java.io.File;
 
-public class ActivityBase extends NativeActivity {
+public class ActivityBase extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
-    int backToHome() {
+    public int backToHome() {
         Intent home = new Intent(Intent.ACTION_MAIN);
         home.addCategory(Intent.CATEGORY_HOME);
         startActivity(home);
         return 0;
     }
 
-    String getPackagePath() {
+    public String getPackagePath() {
         return this.getPackageResourcePath();
     }
 
-    String getFilesDirPath() {
+    public String getFilesDirPath() {
         File files_dir = this.getExternalFilesDir(null);
         if(files_dir == null) {
             files_dir = this.getFilesDir();
@@ -49,7 +49,7 @@ public class ActivityBase extends NativeActivity {
         return files_dir.getAbsolutePath();
     }
 
-    int keepScreenOn(final boolean enable) {
+    public int keepScreenOn(final boolean enable) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

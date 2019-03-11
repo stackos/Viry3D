@@ -18,12 +18,26 @@
 package com.viry3d.app;
 
 import android.os.Bundle;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.viry3d.lib.ActivityBase;
+import com.viry3d.lib.VRSurfaceView;
 
 public class ActivityMain extends ActivityBase {
+    RelativeLayout mLayout;
+    VRSurfaceView mSurfaceView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mLayout = new RelativeLayout(this);
+
+        mSurfaceView = new VRSurfaceView(this);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mLayout.addView(mSurfaceView, params);
+
+        this.setContentView(mLayout);
     }
 }

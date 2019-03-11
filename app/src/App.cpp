@@ -47,6 +47,7 @@
 #include "ui/ScrollView.h"
 
 // TODO:
+// - use android surface view instead native activity
 // - Canvas Editor
 // - 2D Game Demo
 // - PBR optimize
