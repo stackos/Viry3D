@@ -15,23 +15,20 @@
 * limitations under the License.
 */
 
-#include <android_native_app_glue.h>
-#include "Application.h"
+#include <jni.h>
+#include <android/native_window_jni.h>
+#include <android/asset_manager_jni.h>
 #include "Debug.h"
+#include "Application.h"
+#include "App.h"
 #include "Input.h"
 #include "io/File.h"
 #include "io/Directory.h"
+#include "graphics/Display.h"
 #include "container/List.h"
 #include "container/FastList.h"
-#include "thread/ThreadPool.h"
-#include "graphics/Display.h"
-#include "App.h"
 
 using namespace Viry3D;
-
-static void extract_assets_if_needed(const String& package_path, const String& data_path, bool always_extract);
-static int call_activity_method_int(ANativeActivity* activity, const char* name, const char* sig, ...);
-static String call_activity_method_string(ANativeActivity* activity, const char* name, const char* sig, ...);
 
 struct TouchEvent
 {
@@ -43,6 +40,188 @@ struct TouchEvent
     float xys[20];
 };
 
+static JNIEnv* g_env;
+static jobject g_jni_obj;
+static Display* g_display = nullptr;
+static App* g_app = nullptr;
+
+static int call_activity_method_int(const char* name, const char* sig, ...);
+static String call_activity_method_string(const char* name, const char* sig, ...);
+static void extract_assets_if_needed(jobject asset_manager, const String& package_path, const String& data_path, bool always_extract);
+static void on_key_down(int key_code);
+static void on_key_up(int key_code);
+static void on_touch(const TouchEvent& touch);
+static void swap_bytes(void* bytes, int size);
+
+extern "C"
+{
+    void Java_com_viry3d_lib_JNI_engineCreate(JNIEnv* env, jobject obj, jobject surface, jint width, jint height, jobject asset_manager)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("engineCreate begin");
+        Log("surface w: %d h: %d", width, height);
+
+        auto package_path = call_activity_method_string("getPackagePath", "()Ljava/lang/String;");
+        auto data_files_path = call_activity_method_string("getFilesDirPath", "()Ljava/lang/String;");
+
+        Log("package_path: %s", package_path.CString());
+        Log("data_files_path: %s", data_files_path.CString());
+
+	    auto data_path = data_files_path + "/Assets";
+        extract_assets_if_needed(asset_manager, package_path, data_path, true);
+
+        String name = "Viry3D";
+        ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
+        g_display = new Display(name, window, width, height);
+
+        g_app = new App();
+        g_app->SetName(name);
+        g_app->SetDataPath(data_path);
+        g_app->SetSavePath(data_path);
+        g_app->Init();
+
+        Log("engineCreate end");
+    }
+
+    void Java_com_viry3d_lib_JNI_engineDestroy(JNIEnv* env, jobject obj)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("engineDestroy");
+
+        delete g_app;
+        g_app = nullptr;
+
+        delete g_display;
+        g_display = nullptr;
+    }
+
+    void Java_com_viry3d_lib_JNI_engineSurfaceResize(JNIEnv* env, jobject obj, jobject surface, jint width, jint height)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("engineSurfaceResize begin");
+        Log("surface w: %d h: %d", width, height);
+
+        ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
+        g_display->SetWindow(window);
+        g_display->OnResume();
+        g_display->OnResize(width, height);
+
+        Log("engineSurfaceResize end");
+    }
+
+    void Java_com_viry3d_lib_JNI_engineSurfaceDestroy(JNIEnv* env, jobject obj)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        g_display->OnPause();
+
+        Log("engineSurfaceDestroy");
+    }
+
+    void Java_com_viry3d_lib_JNI_enginePause(JNIEnv* env, jobject obj)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("enginePause");
+    }
+
+    void Java_com_viry3d_lib_JNI_engineResume(JNIEnv* env, jobject obj)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("engineResume");
+    }
+
+    void Java_com_viry3d_lib_JNI_engineDraw(JNIEnv* env, jobject obj)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        g_app->OnFrameBegin();
+        g_app->Update();
+        g_display->OnDraw();
+        g_app->OnFrameEnd();
+    }
+
+    void Java_com_viry3d_lib_JNI_engineKeyDown(JNIEnv* env, jobject obj, jint key_code)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("engineKeyDown: %d", key_code);
+
+        on_key_down(key_code);
+    }
+
+    void Java_com_viry3d_lib_JNI_engineKeyUp(JNIEnv* env, jobject obj, jint key_code)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("engineKeyUp: %d", key_code);
+
+        on_key_up(key_code);
+    }
+
+    void Java_com_viry3d_lib_JNI_engineTouch(JNIEnv* env, jobject obj, jbyteArray touch_data)
+    {
+        g_env = env;
+        g_jni_obj = obj;
+
+        Log("engineTouch");
+
+        jsize data_size = env->GetArrayLength(touch_data);
+        jbyte* data = env->GetByteArrayElements(touch_data, nullptr);
+        if (data != nullptr)
+        {
+            TouchEvent e;
+            memcpy(&e, data, sizeof(e) - sizeof(e.xys));
+            swap_bytes(&e.act, sizeof(e.act));
+            swap_bytes(&e.index, sizeof(e.index));
+            swap_bytes(&e.id, sizeof(e.id));
+            swap_bytes(&e.count, sizeof(e.count));
+            swap_bytes(&e.time, sizeof(e.time));
+
+            if (e.count <= 10)
+            {
+                int offset = sizeof(e) - sizeof(e.xys);
+                memcpy(e.xys, &data[offset], sizeof(float) * 2 * e.count);
+
+                for (int i = 0; i < e.count; ++i)
+                {
+                    float x = e.xys[i * 2];
+                    float y = e.xys[i * 2 + 1];
+                    swap_bytes(&x, sizeof(x));
+                    swap_bytes(&y, sizeof(y));
+                    y = (float) g_display->GetHeight() - y - 1;
+                    e.xys[i * 2] = x;
+                    e.xys[i * 2 + 1] = y;
+                }
+
+                on_touch(e);
+            }
+
+            env->ReleaseByteArrayElements(touch_data, data, JNI_ABORT);
+        }
+    }
+}
+
+#define AMOTION_EVENT_ACTION_DOWN 0
+#define AMOTION_EVENT_ACTION_UP 1
+#define AMOTION_EVENT_ACTION_MOVE 2
+#define AMOTION_EVENT_ACTION_CANCEL 3
+#define AMOTION_EVENT_ACTION_POINTER_DOWN 5
+#define AMOTION_EVENT_ACTION_POINTER_UP 6
+
 extern Vector<Touch> g_input_touches;
 extern List<Touch> g_input_touch_buffer;
 extern bool g_key_down[(int) KeyCode::COUNT];
@@ -53,106 +232,8 @@ extern bool g_mouse_button_up[3];
 extern Vector3 g_mouse_position;
 extern bool g_mouse_button_held[3];
 
-static android_app* g_android_app = nullptr;
-static bool g_can_draw = false;
-static Display* g_display = nullptr;
-static App* g_app = nullptr;
 static FastList<Action> g_actions;
 static Mutex g_mutex;
-static int g_display_width = 0;
-static int g_display_height = 0;
-static bool g_paused = false;
-
-static void get_window_size(int* width, int* height)
-{
-    int w = ANativeWindow_getWidth(g_android_app->window);
-    int h = ANativeWindow_getHeight(g_android_app->window);
-    int o = AConfiguration_getOrientation(g_android_app->config);
-
-    if (o == ACONFIGURATION_ORIENTATION_PORT)
-    {
-        if (w > h)
-        {
-            std::swap(w, h);
-        }
-    }
-    else if (o == ACONFIGURATION_ORIENTATION_LAND)
-    {
-        if (w < h)
-        {
-            std::swap(w, h);
-        }
-    }
-
-    *width = w;
-    *height = h;
-}
-
-static void engine_create()
-{
-	Log("engine_create begin");
-
-	auto package_path = call_activity_method_string(g_android_app->activity, "getPackagePath", "()Ljava/lang/String;");
-	auto data_files_path = call_activity_method_string(g_android_app->activity, "getFilesDirPath", "()Ljava/lang/String;");
-
-	Log("package_path: %s", package_path.CString());
-	Log("data_files_path: %s", data_files_path.CString());
-
-	auto data_path = data_files_path + "/Assets";
-	extract_assets_if_needed(package_path, data_path, true);
-
-    String name = "viry3d-vk-demo";
-    int window_width;
-    int window_height;
-    get_window_size(&window_width, &window_height);
-    g_display_width = window_width;
-    g_display_height = window_height;
-
-    g_display = new Display(name, g_android_app->window, window_width, window_height);
-
-    g_app = new App();
-    g_app->SetName(name);
-    g_app->SetDataPath(data_path);
-    g_app->SetSavePath(data_path);
-    g_app->Init();
-
-	Log("engine_create end");
-
-    g_can_draw = true;
-}
-
-static void engine_pause()
-{
-    Log("engine_pause");
-    g_display->OnPause();
-    g_can_draw = false;
-}
-
-static void engine_resume()
-{
-	Log("engine_resume");
-    g_display->OnResume();
-    g_can_draw = true;
-}
-
-static void engine_destroy()
-{
-	Log("engine_destroy");
-
-    delete g_app;
-    g_app = nullptr;
-
-    delete g_display;
-    g_display = nullptr;
-}
-
-static void draw()
-{
-    g_app->OnFrameBegin();
-    g_app->Update();
-    g_display->OnDraw();
-    g_app->OnFrameEnd();
-}
 
 static int get_key(int key_code)
 {
@@ -306,271 +387,53 @@ static void on_touch(const TouchEvent& touch)
     }
 }
 
-static void process_events()
+static void swap_bytes(void* bytes, int size)
 {
-    g_mutex.lock();
-
-    for (auto i : g_actions)
+    char* p = (char*) bytes;
+    int count = size / 2;
+    for (int i = 0; i < count; ++i)
     {
-        if (i)
-        {
-            i();
-        }
+        char t = p[i];
+        p[i] = p[size - 1 - i];
+        p[size - 1 - i] = t;
     }
-    g_actions.Clear();
-
-    g_mutex.unlock();
 }
 
-static void queue_event(Action action)
+static int call_activity_method_int(const char* name, const char* sig, ...)
 {
-    g_mutex.lock();
-
-    g_actions.AddLast(action);
-
-    g_mutex.unlock();
-}
-
-static int32_t handle_input(struct android_app*, AInputEvent* event)
-{
-    auto type = AInputEvent_getType(event);
-    if (type == AINPUT_EVENT_TYPE_KEY)
-    {
-        auto action = AKeyEvent_getAction(event);
-        auto code = AKeyEvent_getKeyCode(event);
-
-        if (action == AKEY_EVENT_ACTION_DOWN)
-        {
-            queue_event([=]() {
-                on_key_down(code);
-            });
-        }
-        else if(action == AKEY_EVENT_ACTION_UP)
-        {
-            queue_event([=]() {
-                on_key_up(code);
-            });
-
-            return 1;
-        }
-    }
-    else if (type == AINPUT_EVENT_TYPE_MOTION)
-    {
-        int action = AMotionEvent_getAction(event);
-        int count = (int) AMotionEvent_getPointerCount(event);
-        int index = (action & 0xff00) >> 8;
-        int id = AMotionEvent_getPointerId(event, (size_t) index);
-        long long time = AMotionEvent_getEventTime(event);
-        int act = action & 0xff;
-
-        if (count <= 10)
-        {
-            TouchEvent touch;
-            touch.act = act;
-            touch.index = index;
-            touch.id = id;
-            touch.count = count;
-            touch.time = time;
-            for (size_t i = 0; i < count; i++)
-            {
-                touch.xys[i * 2] = AMotionEvent_getX(event, i);
-                touch.xys[i * 2 + 1] = (float) g_display->GetHeight() - AMotionEvent_getY(event, i) - 1;
-            }
-
-            queue_event([=](){
-                on_touch(touch);
-            });
-        }
-    }
-
-    return 0;
-}
-
-enum class APP_CMD {
-    APP_CMD_INPUT_CHANGED,
-    APP_CMD_INIT_WINDOW,
-    APP_CMD_TERM_WINDOW,
-    APP_CMD_WINDOW_RESIZED,
-    APP_CMD_WINDOW_REDRAW_NEEDED,
-    APP_CMD_CONTENT_RECT_CHANGED,
-    APP_CMD_GAINED_FOCUS,
-    APP_CMD_LOST_FOCUS,
-    APP_CMD_CONFIG_CHANGED,
-    APP_CMD_LOW_MEMORY,
-    APP_CMD_START,
-    APP_CMD_RESUME,
-    APP_CMD_SAVE_STATE,
-    APP_CMD_PAUSE,
-    APP_CMD_STOP,
-    APP_CMD_DESTROY,
-};
-
-static void handle_cmd(android_app* app, int32_t cmdi)
-{
-    APP_CMD cmd = (APP_CMD) cmdi;
-
-	switch (cmd)
-	{
-        case APP_CMD::APP_CMD_START:
-            Log("APP_CMD_START");
-            break;
-
-        case APP_CMD::APP_CMD_STOP:
-            Log("APP_CMD_STOP");
-            break;
-
-        case APP_CMD::APP_CMD_DESTROY:
-            Log("APP_CMD_DESTROY");
-            break;
-
-        case APP_CMD::APP_CMD_INIT_WINDOW:
-            Log("APP_CMD_INIT_WINDOW");
-            if (g_display)
-            {
-                engine_resume();
-
-                int window_width;
-                int window_height;
-                get_window_size(&window_width, &window_height);
-
-                if (window_width != g_display_width || window_height != g_display_height)
-                {
-                    g_display_width = window_width;
-                    g_display_height = window_height;
-
-                    g_display->OnResize(window_width, window_height);
-                }
-            }
-            else
-            {
-                engine_create();
-            }
-            break;
-
-        case APP_CMD::APP_CMD_TERM_WINDOW:
-            Log("APP_CMD_TERM_WINDOW");
-            engine_pause();
-            break;
-
-        case APP_CMD::APP_CMD_CONFIG_CHANGED:
-            Log("APP_CMD_CONFIG_CHANGED");
-            if (g_android_app->window)
-            {
-                int window_width;
-                int window_height;
-                get_window_size(&window_width, &window_height);
-                g_display_width = window_width;
-                g_display_height = window_height;
-
-                g_display->OnResize(window_width, window_height);
-            }
-            break;
-
-        case APP_CMD::APP_CMD_PAUSE:
-            Log("APP_CMD_PAUSE");
-            g_paused = true;
-            break;
-
-        case APP_CMD::APP_CMD_RESUME:
-            Log("APP_CMD_RESUME");
-            g_paused = false;
-            break;
-
-		default:
-			break;
-	}
-}
-
-void android_main(android_app* app)
-{
-	Log("android_main begin");
-
-	app->onAppCmd = handle_cmd;
-	app->onInputEvent = handle_input;
-
-    g_android_app = app;
-    g_can_draw = false;
-
-	int events;
-	android_poll_source* source;
-
-	while (true)
-	{
-		while (!app->destroyRequested && ALooper_pollAll(g_can_draw ? 0 : -1, nullptr, &events, (void**) &source) >= 0)
-		{
-			if (source != nullptr)
-			{
-				source->process(app, source);
-			}
-		}
-
-		if (app->destroyRequested)
-		{
-			break;
-		}
-
-        process_events();
-
-		if (g_can_draw && !g_paused)
-		{
-			draw();
-		}
-	}
-
-	engine_destroy();
-
-	Log("android_main end");
-}
-
-static int call_activity_method_int(ANativeActivity* activity, const char* name, const char* sig, ...)
-{
-	jobject object = activity->clazz;
-	JavaVM* jvm = activity->vm;
-	JNIEnv *env = nullptr;
-
-	va_list args;
+    va_list args;
 	va_start(args, sig);
 
-	jvm->GetEnv((void **) &env, JNI_VERSION_1_6);
-	jvm->AttachCurrentThread(&env, nullptr);
-	jclass clazz = env->GetObjectClass(object);
-	jmethodID methodID = env->GetMethodID(clazz, name, sig);
-	int result = env->CallIntMethodV(object, methodID, args);
-	env->DeleteLocalRef(clazz);
-	jvm->DetachCurrentThread();
+	jclass clazz = g_env->GetObjectClass(g_jni_obj);
+    jmethodID methodID = g_env->GetMethodID(clazz, name, sig);
+    int result = g_env->CallIntMethodV(g_jni_obj, methodID, args);
+    g_env->DeleteLocalRef(clazz);
 
 	va_end(args);
 
 	return result;
 }
 
-static String call_activity_method_string(ANativeActivity* activity, const char* name, const char* sig, ...)
+static String call_activity_method_string(const char* name, const char* sig, ...)
 {
-	jobject object = activity->clazz;
-	JavaVM* jvm = activity->vm;
-	JNIEnv *env = nullptr;
-
-	va_list args;
+    va_list args;
 	va_start(args, sig);
 
-	jvm->GetEnv((void **) &env, JNI_VERSION_1_6);
-	jvm->AttachCurrentThread(&env, nullptr);
-	jclass clazz = env->GetObjectClass(object);
-	jmethodID methodID = env->GetMethodID(clazz, name, sig);
-	jstring str = (jstring) env->CallObjectMethodV(object, methodID, args);
-	String result = env->GetStringUTFChars(str, nullptr);
-	env->DeleteLocalRef(str);
-	env->DeleteLocalRef(clazz);
-	jvm->DetachCurrentThread();
+	jclass clazz = g_env->GetObjectClass(g_jni_obj);
+    jmethodID methodID = g_env->GetMethodID(clazz, name, sig);
+    jstring str = (jstring) g_env->CallObjectMethodV(g_jni_obj, methodID, args);
+    String result = g_env->GetStringUTFChars(str, nullptr);
+    g_env->DeleteLocalRef(str);
+    g_env->DeleteLocalRef(clazz);
 
 	va_end(args);
 
 	return result;
 }
 
-static void extract_assets(const String& source, const String& dest)
+static void extract_assets(jobject asset_manager, const String& source, const String& dest)
 {
-    auto mgr = g_android_app->activity->assetManager;
+    auto mgr = AAssetManager_fromJava(g_env, asset_manager);
     Vector<String> files;
 
     // file_list.txt is generated by copy_assets.py script.
@@ -616,7 +479,7 @@ static void extract_assets(const String& source, const String& dest)
     }
 }
 
-static void extract_assets_if_needed(const String& package_path, const String& data_path, bool always_extract)
+static void extract_assets_if_needed(jobject asset_manager, const String& package_path, const String& data_path, bool always_extract)
 {
 	bool extract = false;
 
@@ -641,10 +504,9 @@ static void extract_assets_if_needed(const String& package_path, const String& d
 		Log("extract Assets");
 
         // unzip open apk file failed now,
-        // i don't know why,
         // so use asset manager instead.
         //File::Unzip(package_path, "assets/Assets", data_path, true);
-        extract_assets("Assets", data_path);
+        extract_assets(asset_manager, "Assets", data_path);
 	}
 	else
 	{
@@ -652,17 +514,7 @@ static void extract_assets_if_needed(const String& package_path, const String& d
 	}
 }
 
-void java_keep_screen_on(bool enable)
-{
-	call_activity_method_int(g_android_app->activity, "keepScreenOn", "(Z)I", enable);
-}
-
 void java_quit_application()
 {
-    ANativeActivity_finish(g_android_app->activity);
-}
-
-void* get_native_window()
-{
-	return g_android_app->window;
+    call_activity_method_int("quitApplication", "()I");
 }

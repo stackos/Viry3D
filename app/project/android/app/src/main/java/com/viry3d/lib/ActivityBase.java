@@ -18,48 +18,55 @@
 package com.viry3d.lib;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.WindowManager;
-
-import java.io.File;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 public class ActivityBase extends Activity {
+    static final String TAG = "ActivityBase";
+
+    RelativeLayout mLayout;
+    VRSurfaceView mSurfaceView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mLayout = new RelativeLayout(this);
+
+        mSurfaceView = new VRSurfaceView(this);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mLayout.addView(mSurfaceView, params);
+
+        this.setContentView(mLayout);
     }
 
-    public int backToHome() {
-        Intent home = new Intent(Intent.ACTION_MAIN);
-        home.addCategory(Intent.CATEGORY_HOME);
-        startActivity(home);
-        return 0;
+    protected void onPause() {
+        mSurfaceView.onPause();
+        super.onPause();
     }
 
-    public String getPackagePath() {
-        return this.getPackageResourcePath();
+    protected void onResume() {
+        super.onResume();
+        mSurfaceView.onResume();
     }
 
-    public String getFilesDirPath() {
-        File files_dir = this.getExternalFilesDir(null);
-        if(files_dir == null) {
-            files_dir = this.getFilesDir();
-        }
-        return files_dir.getAbsolutePath();
+    protected void onDestroy() {
+        mSurfaceView.onDestroy();
+        super.onDestroy();
     }
 
-    public int keepScreenOn(final boolean enable) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(enable) {
-                    ActivityBase.this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                } else {
-                    ActivityBase.this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                }
-            }
-        });
-        return 0;
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return mSurfaceView.onKeyDown(keyCode, event);
+    }
+
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return mSurfaceView.onKeyUp(keyCode, event);
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return mSurfaceView.onTouchEvent(event);
     }
 }

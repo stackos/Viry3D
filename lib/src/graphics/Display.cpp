@@ -3878,6 +3878,11 @@ void main()
 #endif
     }
 
+    void Display::SetWindow(void* window)
+    {
+        m_private->m_window = window;
+    }
+
     void Display::OnResize(int width, int height)
     {
         m_private->OnResize(width, height);

@@ -52,6 +52,7 @@ namespace Viry3D
         static Display* Instance();
         Display(const String& name, void* window, int width, int height);
         virtual ~Display();
+        void SetWindow(void* window);
         void OnResize(int width, int height);
         void OnPause();
 		void OnResume();

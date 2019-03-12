@@ -887,8 +887,7 @@ elseif (${Target} MATCHES "Android")
     set_target_properties(shaderc_lib PROPERTIES IMPORTED_LOCATION
                           ${SHADERC_SRC}/libs/${ANDROID_STL}/${ANDROID_ABI}/libshaderc.a)
 
-    set(CMAKE_SHARED_LINKER_FLAGS
-        "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+    # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_ANDROID -DVR_VULKAN=0 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -frtti")
@@ -914,8 +913,9 @@ elseif (${Target} MATCHES "Android")
 
     add_library(Viry3DApp SHARED
                 ${VIRY3D_APP_SRCS}
-                ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
                 ${CMAKE_SOURCE_DIR}/app/project/android/app/src/main/jni/jni.cpp
+                # ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
+                # ${CMAKE_SOURCE_DIR}/app/project/android/app/src/main/jni/jni_native_activity.cpp
                 )
 
     target_include_directories(Viry3DApp PRIVATE
