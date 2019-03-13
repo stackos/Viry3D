@@ -109,6 +109,7 @@ extern "C"
 
         ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
         g_display->SetWindow(window);
+        g_display->OnPause();
         g_display->OnResume();
         g_display->OnResize(width, height);
 
@@ -119,8 +120,6 @@ extern "C"
     {
         g_env = env;
         g_jni_obj = obj;
-
-        g_display->OnPause();
 
         Log("engineSurfaceDestroy");
     }
