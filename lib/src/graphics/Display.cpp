@@ -687,7 +687,7 @@ extern void UnbindSharedContext();
             create_info.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
             create_info.pNext = nullptr;
             create_info.flags = 0;
-            create_info.window = (ANativeWindow*) get_native_window();
+            create_info.window = (ANativeWindow*) m_window;
 
             err = vkCreateAndroidSurfaceKHR(m_instance, &create_info, nullptr, &m_surface);
 #elif VR_IOS
@@ -861,15 +861,6 @@ extern void UnbindSharedContext();
             this->CreateCommandBuffer(m_image_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_image_cmd);
         }
 
-        void CreateComputeCmd()
-        {
-            if (m_compute_queue_family_index >= 0)
-            {
-                this->CreateCommandPool(m_compute_queue_family_index, &m_compute_cmd_pool);
-                this->CreateCommandBuffer(m_compute_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_compute_cmd);
-            }
-        }
-
         void CreateSizeDependentResources()
         {
             this->CreateSwapChain();
@@ -877,6 +868,11 @@ extern void UnbindSharedContext();
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
                 this->CreateCommandBuffer(m_graphics_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_swapchain_image_resources[i].cmd);
+            }
+            if (m_compute_queue_family_index >= 0)
+            {
+                this->CreateCommandPool(m_compute_queue_family_index, &m_compute_cmd_pool);
+                this->CreateCommandBuffer(m_compute_cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, &m_compute_cmd);
             }
             m_depth_texture = Texture::CreateRenderTexture(
                 m_width,
@@ -892,6 +888,17 @@ extern void UnbindSharedContext();
         void DestroySizeDependentResources()
         {
             m_depth_texture.reset();
+
+            if (m_compute_cmd_pool != VK_NULL_HANDLE)
+            {
+                if (m_compute_cmd != VK_NULL_HANDLE)
+                {
+                    vkFreeCommandBuffers(m_device, m_compute_cmd_pool, 1, &m_compute_cmd);
+                    m_compute_cmd = VK_NULL_HANDLE;
+                }
+                vkDestroyCommandPool(m_device, m_compute_cmd_pool, nullptr);
+                m_compute_cmd_pool = VK_NULL_HANDLE;
+            }
 
             for (int i = 0; i < m_swapchain_image_resources.Size(); ++i)
             {
@@ -928,8 +935,12 @@ extern void UnbindSharedContext();
             }
 
             this->DestroySizeDependentResources();
-            vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-            m_surface = VK_NULL_HANDLE;
+            if (m_surface != VK_NULL_HANDLE)
+            {
+                vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+                m_surface = VK_NULL_HANDLE;
+            }
+
             this->CreateSurface();
             this->GetQueues();
             this->CreateSizeDependentResources();
@@ -949,8 +960,11 @@ extern void UnbindSharedContext();
             }
 
             this->DestroySizeDependentResources();
-            vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-            m_surface = VK_NULL_HANDLE;
+            if (m_surface != VK_NULL_HANDLE)
+            {
+                vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+                m_surface = VK_NULL_HANDLE;
+            }
         }
 
         void OnResume()
@@ -3848,7 +3862,6 @@ void main()
         m_private->GetQueues();
         m_private->CreateSignals();
         m_private->CreateImageCmd();
-        m_private->CreateComputeCmd();
         m_private->CreateSizeDependentResources();
 #elif VR_GLES
         String version = (const char*) glGetString(GL_VERSION);

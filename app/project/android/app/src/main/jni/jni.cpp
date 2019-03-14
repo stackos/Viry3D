@@ -44,6 +44,7 @@ static JNIEnv* g_env;
 static jobject g_jni_obj;
 static Display* g_display = nullptr;
 static App* g_app = nullptr;
+static bool g_paused = false;
 
 static int call_activity_method_int(const char* name, const char* sig, ...);
 static String call_activity_method_string(const char* name, const char* sig, ...);
@@ -109,8 +110,11 @@ extern "C"
 
         ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
         g_display->SetWindow(window);
-        g_display->OnPause();
-        g_display->OnResume();
+        if (g_paused)
+        {
+            g_display->OnResume();
+            g_paused = false;
+        }
         g_display->OnResize(width, height);
 
         Log("engineSurfaceResize end");
@@ -120,6 +124,9 @@ extern "C"
     {
         g_env = env;
         g_jni_obj = obj;
+
+        g_display->OnPause();
+        g_paused = true;
 
         Log("engineSurfaceDestroy");
     }

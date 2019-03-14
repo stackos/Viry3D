@@ -734,7 +734,7 @@ namespace Viry3D
             if (i.compute_cmd)
             {
                 vkFreeCommandBuffers(device, m_compute_cmd_pool, 1, &i.compute_cmd);
-                i.cmd = VK_NULL_HANDLE;
+                i.compute_cmd = VK_NULL_HANDLE;
             }
         }
 
