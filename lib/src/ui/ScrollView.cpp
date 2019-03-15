@@ -132,7 +132,8 @@ namespace Viry3D
             return this->OnTouchUp(pos);
         });
         m_scroll_view->SetOnTouchUpOutside([this](const Vector2i& pos) {
-            return this->OnTouchUp(pos);
+            this->OnTouchUp(pos);
+            return false;
         });
     }
 

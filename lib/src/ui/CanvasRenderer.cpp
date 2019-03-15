@@ -810,38 +810,28 @@ void main()
         }
         else if (t.phase == TouchPhase::Ended)
         {
+            bool blocked = false;
             for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
             {
                 if (m_view_meshes[i].base_view)
                 {
                     View* view = m_view_meshes[i].view;
 
-                    if (IsPointInView(pos, m_view_meshes[i].vertices))
+                    if (!blocked)
                     {
-                        bool block_event = view->OnTouchUpInside(pos);
-
-                        if (block_event)
+                        if (IsPointInView(pos, m_view_meshes[i].vertices))
                         {
-                            break;
+                            bool block_event = view->OnTouchUpInside(pos);
+
+                            if (block_event)
+                            {
+                                blocked = true;
+                            }
                         }
                     }
-                }
-            }
-
-            for (int i = m_view_meshes.Size() - 1; i >= 0; --i)
-            {
-                if (m_view_meshes[i].base_view)
-                {
-                    View* view = m_view_meshes[i].view;
-
-                    if (!IsPointInView(pos, m_view_meshes[i].vertices))
+                    else
                     {
-                        bool block_event = view->OnTouchUpOutside(pos);
-
-                        if (block_event)
-                        {
-                            break;
-                        }
+                        view->OnTouchUpOutside(pos);
                     }
                 }
             }
