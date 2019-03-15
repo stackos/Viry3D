@@ -19,6 +19,7 @@
 #include "container/List.h"
 #include "container/Vector.h"
 #include "memory/Memory.h"
+#include "Debug.h"
 
 Viry3D::Vector<Viry3D::Touch> g_input_touches;
 Viry3D::List<Viry3D::Touch> g_input_touch_buffer;

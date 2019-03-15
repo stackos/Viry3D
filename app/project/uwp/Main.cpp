@@ -531,7 +531,14 @@ static void OnPointerMoved(CoreWindow^ window, PointerEventArgs^ e)
         {
             if (g_input_touch_buffer.Empty())
             {
-                g_input_touch_buffer.AddLast(t);
+                if (g_input_touches[0].phase == TouchPhase::Moved)
+                {
+                    g_input_touches[0] = t;
+                }
+                else
+                {
+                    g_input_touch_buffer.AddLast(t);
+                }
             }
             else
             {

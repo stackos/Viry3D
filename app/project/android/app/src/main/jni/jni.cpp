@@ -348,7 +348,28 @@ static void touch_update(const void* event)
 
     if (!g_input_touches.Empty())
     {
-        g_input_touch_buffer.AddLast(touch);
+        if (g_input_touch_buffer.Empty())
+        {
+            if (g_input_touches[0].phase == TouchPhase::Moved && g_input_touches[0].fingerId == touch.fingerId)
+            {
+                g_input_touches[0] = touch;
+            }
+            else
+            {
+                g_input_touch_buffer.AddLast(touch);
+            }
+        }
+        else
+        {
+            if (g_input_touch_buffer.Last().phase == TouchPhase::Moved && g_input_touch_buffer.Last().fingerId == touch.fingerId)
+            {
+                g_input_touch_buffer.Last() = touch;
+            }
+            else
+            {
+                g_input_touch_buffer.AddLast(touch);
+            }
+        }
     }
     else
     {
