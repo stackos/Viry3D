@@ -18,13 +18,14 @@
 #pragma once
 
 #include "imgui/imgui.h"
+#include "graphics/Camera.h"
 
 namespace Viry3D
 {
     class SceneWindow
     {
     public:
-        static void OnGUI()
+        static void OnGUI(Camera* camera)
         {
             if (ImGui::BeginPopupContextWindow())
             {
@@ -32,6 +33,11 @@ namespace Viry3D
                 {
                     if (ImGui::BeginMenu("UI"))
                     {
+                        if (ImGui::MenuItem("Canvas"))
+                        {
+
+                        }
+
                         if (ImGui::MenuItem("View"))
                         {
                             

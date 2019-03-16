@@ -27,7 +27,7 @@ namespace Viry3D
     public:
         ImGuiRenderer();
         virtual ~ImGuiRenderer();
-        virtual void Update();
+        void UpdateImGui();
         void SetDrawAction(Action draw) { m_draw = draw; }
 
     private:

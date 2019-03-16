@@ -182,7 +182,7 @@ void main()
         }
     }
 
-    void ImGuiRenderer::Update()
+    void ImGuiRenderer::UpdateImGui()
     {
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize = ImVec2((float) Display::Instance()->GetWidth(), (float) Display::Instance()->GetHeight());
@@ -346,7 +346,5 @@ void main()
                 this->GetCamera()->SetProjectionUniform(materials[i]);
             }
         }
-
-        MeshRenderer::Update();
     }
 }

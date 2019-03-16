@@ -20,6 +20,7 @@
 #include "Application.h"
 #include "graphics/Display.h"
 #include "graphics/Camera.h"
+#include "graphics/Texture.h"
 #include "ui/ImGuiRenderer.h"
 #include "imgui/imgui.h"
 #include "SceneWindow.h"
@@ -29,7 +30,9 @@ namespace Viry3D
     class CanvasEditor
     {
     public:
+        Camera* m_imgui_camera = nullptr;
         Camera* m_ui_camera = nullptr;
+        Ref<ImGuiRenderer> m_imgui;
         bool m_show_demo_window = false;
         Rect m_menu_rect;
         Rect m_scene_window_rect = Rect(0, 0, (float) (Display::Instance()->GetWidth() * 200 / 1280), (float) (Display::Instance()->GetHeight() * 450 / 720));
@@ -37,16 +40,21 @@ namespace Viry3D
         Rect m_view_window_rect = Rect(0, 0, 0, 0);
         Rect m_assets_window_rect = Rect(0, 0, (float) (Display::Instance()->GetWidth() * 640 / 1280), 0);
         Rect m_console_window_rect = Rect(0, 0, 0, 0);
+        Ref<Texture> m_ui_rt;
 
         void InitUI()
         {
             m_ui_camera = Display::Instance()->CreateCamera();
+            m_ui_camera->SetDepth(0);
 
-            auto imgui = RefMake<ImGuiRenderer>();
-            imgui->SetDrawAction([this]() {
+            m_imgui_camera = Display::Instance()->CreateCamera();
+            m_imgui_camera->SetDepth(1);
+
+            m_imgui = RefMake<ImGuiRenderer>();
+            m_imgui->SetDrawAction([this]() {
                 this->OnGUI();
             });
-            m_ui_camera->AddRenderer(imgui);
+            m_imgui_camera->AddRenderer(m_imgui);
         }
 
         void Init()
@@ -61,11 +69,17 @@ namespace Viry3D
                 Display::Instance()->DestroyCamera(m_ui_camera);
                 m_ui_camera = nullptr;
             }
+
+            if (m_imgui_camera)
+            {
+                Display::Instance()->DestroyCamera(m_imgui_camera);
+                m_imgui_camera = nullptr;
+            }
         }
 
         void Update()
         {
-
+            m_imgui->UpdateImGui();
         }
 
         void OnGUI()
@@ -146,7 +160,7 @@ namespace Viry3D
                 m_scene_window_rect.w,
                 m_scene_window_rect.h))
             {
-                SceneWindow::OnGUI();
+                SceneWindow::OnGUI(m_ui_camera);
                 
                 auto pos = ImGui::GetWindowPos();
                 auto size = ImGui::GetWindowSize();
@@ -188,6 +202,22 @@ namespace Viry3D
                 m_scene_window_rect.h = m_view_window_rect.h;
                 m_assets_window_rect.y = m_view_window_rect.y + m_view_window_rect.h;
                 m_assets_window_rect.h = Display::Instance()->GetHeight() - m_view_window_rect.y - m_view_window_rect.h;
+
+                int view_w = (int) size.x;
+                int view_h = (int) size.y;
+                if (!m_ui_rt || m_ui_rt->GetWidth() != view_w || m_ui_rt->GetHeight() != view_h)
+                {
+                    m_ui_rt = Texture::CreateRenderTexture(
+                        view_w,
+                        view_h,
+                        TextureFormat::R8G8B8A8,
+                        1,
+                        1,
+                        true,
+                        FilterMode::Nearest,
+                        SamplerAddressMode::ClampToEdge);
+                    m_ui_camera->SetRenderTarget(m_ui_rt, Ref<Texture>());
+                }
             }
             this->EndMainWindow();
         }
