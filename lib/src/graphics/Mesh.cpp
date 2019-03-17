@@ -180,6 +180,7 @@ namespace Viry3D
     Mesh::~Mesh()
     {
 #if VR_VULKAN
+        Display::Instance()->WaitDevice();
         VkDevice device = Display::Instance()->GetDevice();
         m_vertex_buffer->Destroy(device);
         m_index_buffer->Destroy(device);

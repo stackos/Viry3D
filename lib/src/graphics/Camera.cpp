@@ -629,6 +629,18 @@ namespace Viry3D
         renderer->OnRemoveFromCamera(this);
     }
 
+    Vector<Ref<Renderer>> Camera::GetRenderers() const
+    {
+        Vector<Ref<Renderer>> renderers;
+
+        for (auto i = m_renderers.begin(); i != m_renderers.end(); ++i)
+        {
+            renderers.Add(i->renderer);
+        }
+
+        return renderers;
+    }
+
     void Camera::MarkRendererOrderDirty()
     {
         m_renderer_order_dirty = true;

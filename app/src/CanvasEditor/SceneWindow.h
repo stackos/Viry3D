@@ -19,6 +19,7 @@
 
 #include "imgui/imgui.h"
 #include "graphics/Camera.h"
+#include "ui/CanvasRenderer.h"
 
 namespace Viry3D
 {
@@ -35,27 +36,8 @@ namespace Viry3D
                     {
                         if (ImGui::MenuItem("Canvas"))
                         {
-
-                        }
-
-                        if (ImGui::MenuItem("View"))
-                        {
-                            
-                        }
-
-                        if (ImGui::MenuItem("Sprite"))
-                        {
-
-                        }
-
-                        if (ImGui::MenuItem("Label"))
-                        {
-
-                        }
-
-                        if (ImGui::MenuItem("Button"))
-                        {
-
+                            auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
+                            camera->AddRenderer(canvas);
                         }
 
                         ImGui::EndMenu();
@@ -66,6 +48,77 @@ namespace Viry3D
 
                 ImGui::EndPopup();
             }
+
+            static int selection_mask = 0;
+            int node_clicked = -1;
+            ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 3);
+            for (int i = 0; i < 5; ++i)
+            {
+                ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ((selection_mask & (1 << i)) ? ImGuiTreeNodeFlags_Selected : 0);
+                bool leaf = false;
+
+                if (leaf)
+                {
+                    node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+                }
+
+                bool node_open = ImGui::TreeNodeEx((void*) (intptr_t) i, node_flags, "Node");
+                if (ImGui::IsItemClicked())
+                {
+                    node_clicked = i;
+                }
+                String id = String::Format("id %d", i);
+                if (ImGui::BeginPopupContextItem(id.CString()))
+                {
+                    if (ImGui::BeginMenu("Create"))
+                    {
+                        if (ImGui::BeginMenu("UI"))
+                        {
+                            if (ImGui::MenuItem("View"))
+                            {
+
+                            }
+
+                            if (ImGui::MenuItem("Sprite"))
+                            {
+
+                            }
+
+                            if (ImGui::MenuItem("Label"))
+                            {
+
+                            }
+
+                            ImGui::EndMenu();
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+                    ImGui::EndPopup();
+                }
+
+                if (!leaf)
+                {
+                    if (node_open)
+                    {
+                        ImGui::Text("Blah blah");
+                        ImGui::TreePop();
+                    }
+                }
+            }
+            if (node_clicked != -1)
+            {
+                if (ImGui::GetIO().KeyCtrl)
+                {
+                    selection_mask ^= (1 << node_clicked);
+                }
+                else
+                {
+                    selection_mask = (1 << node_clicked);
+                }
+            }
+            ImGui::PopStyleVar();
         }
     };
 }

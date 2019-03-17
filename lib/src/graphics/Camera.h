@@ -75,6 +75,7 @@ namespace Viry3D
         int GetTargetHeight() const;
         void AddRenderer(const Ref<Renderer>& renderer);
         void RemoveRenderer(const Ref<Renderer>& renderer);
+        Vector<Ref<Renderer>> GetRenderers() const;
         float GetFieldOfView() const { return m_field_of_view; }
         void SetFieldOfView(float fov);
         float GetNearClip() const { return m_near_clip; }

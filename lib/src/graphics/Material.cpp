@@ -40,6 +40,7 @@ namespace Viry3D
     void Material::Release()
     {
 #if VR_VULKAN
+        Display::Instance()->WaitDevice();
         VkDevice device = Display::Instance()->GetDevice();
 
         m_descriptor_sets.Clear();
