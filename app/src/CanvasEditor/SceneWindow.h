@@ -20,6 +20,8 @@
 #include "imgui/imgui.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
+#include "ui/Sprite.h"
+#include "ui/Label.h"
 
 namespace Viry3D
 {
@@ -37,6 +39,7 @@ namespace Viry3D
                         if (ImGui::MenuItem("Canvas"))
                         {
                             auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
+                            canvas->SetName("Canvas");
                             camera->AddRenderer(canvas);
                         }
 
@@ -49,25 +52,30 @@ namespace Viry3D
                 ImGui::EndPopup();
             }
 
+            Vector<Ref<Renderer>> renderers = camera->GetRenderers();
+
             static int selection_mask = 0;
             int node_clicked = -1;
             ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 3);
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < renderers.Size(); ++i)
             {
+                Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(renderers[i]);
+                const Vector<Ref<View>>& views = canvas->GetViews();
+
                 ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ((selection_mask & (1 << i)) ? ImGuiTreeNodeFlags_Selected : 0);
-                bool leaf = false;
+                bool leaf = (views.Size() == 0);
 
                 if (leaf)
                 {
                     node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
                 }
 
-                bool node_open = ImGui::TreeNodeEx((void*) (intptr_t) i, node_flags, "Node");
+                bool node_open = ImGui::TreeNodeEx((void*) (intptr_t) i, node_flags, canvas->GetName().CString());
                 if (ImGui::IsItemClicked())
                 {
                     node_clicked = i;
                 }
-                String id = String::Format("id %d", i);
+                String id = String::Format("canvas context menu id %d", i);
                 if (ImGui::BeginPopupContextItem(id.CString()))
                 {
                     if (ImGui::BeginMenu("Create"))
@@ -76,17 +84,23 @@ namespace Viry3D
                         {
                             if (ImGui::MenuItem("View"))
                             {
-
+                                auto view = RefMake<View>();
+                                view->SetName("View");
+                                canvas->AddView(view);
                             }
 
                             if (ImGui::MenuItem("Sprite"))
                             {
-
+                                auto view = RefMake<Sprite>();
+                                view->SetName("Sprite");
+                                canvas->AddView(view);
                             }
 
                             if (ImGui::MenuItem("Label"))
                             {
-
+                                auto view = RefMake<Label>();
+                                view->SetName("Label");
+                                canvas->AddView(view);
                             }
 
                             ImGui::EndMenu();
@@ -102,7 +116,10 @@ namespace Viry3D
                 {
                     if (node_open)
                     {
-                        ImGui::Text("Blah blah");
+                        for (int j = 0; j < views.Size(); ++j)
+                        {
+                            DrawViewNode(views[j]);
+                        }
                         ImGui::TreePop();
                     }
                 }
@@ -119,6 +136,11 @@ namespace Viry3D
                 }
             }
             ImGui::PopStyleVar();
+        }
+
+        static void DrawViewNode(const Ref<View>& view)
+        {
+            ImGui::Text(view->GetName().CString());
         }
     };
 }

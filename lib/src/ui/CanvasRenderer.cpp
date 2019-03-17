@@ -485,7 +485,10 @@ void main()
                 materials[i]->SetTexture("u_texture", m_atlas);
                 materials[i]->SetVector(CLIP_RECT, Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].w, clip_rects[i].h));
             }
-            this->SetMaterials(materials);
+            if (materials.Size() > 0)
+            {
+                this->SetMaterials(materials);
+            }
         }
         else
         {

@@ -48,6 +48,7 @@ namespace Viry3D
 		void AddView(const Ref<View>& view);
 		void RemoveView(const Ref<View>& view);
         void RemoveAllViews();
+        const Vector<Ref<View>>& GetViews() const { return m_views; }
 		void MarkCanvasDirty();
 
 	private:
