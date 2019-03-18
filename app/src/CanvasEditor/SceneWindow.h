@@ -54,15 +54,14 @@ namespace Viry3D
 
             Vector<Ref<Renderer>> renderers = camera->GetRenderers();
 
-            static int selection_mask = 0;
+            static Vector<uint32_t> selections;
             int node_clicked = -1;
-            ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 3);
             for (int i = 0; i < renderers.Size(); ++i)
             {
                 Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(renderers[i]);
                 const Vector<Ref<View>>& views = canvas->GetViews();
 
-                ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ((selection_mask & (1 << i)) ? ImGuiTreeNodeFlags_Selected : 0);
+                ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selections.Contains(canvas->GetId()) ? ImGuiTreeNodeFlags_Selected : 0);
                 bool leaf = (views.Size() == 0);
 
                 if (leaf)
@@ -75,7 +74,8 @@ namespace Viry3D
                 {
                     node_clicked = i;
                 }
-                String id = String::Format("canvas context menu id %d", i);
+                
+                String id = String::Format("canvas context menu id %d", canvas->GetId());
                 if (ImGui::BeginPopupContextItem(id.CString()))
                 {
                     if (ImGui::BeginMenu("Create"))
@@ -116,31 +116,121 @@ namespace Viry3D
                 {
                     if (node_open)
                     {
-                        for (int j = 0; j < views.Size(); ++j)
-                        {
-                            DrawViewNode(views[j]);
-                        }
+                        DrawViewNodes(views, selections);
                         ImGui::TreePop();
                     }
                 }
             }
             if (node_clicked != -1)
             {
+                uint32_t node_id = renderers[node_clicked]->GetId();
                 if (ImGui::GetIO().KeyCtrl)
                 {
-                    selection_mask ^= (1 << node_clicked);
+                    if (selections.Contains(node_id))
+                    {
+                        selections.Remove(node_id);
+                    }
+                    else
+                    {
+                        selections.Add(node_id);
+                    }
                 }
                 else
                 {
-                    selection_mask = (1 << node_clicked);
+                    selections.Clear();
+                    selections.Add(node_id);
                 }
             }
-            ImGui::PopStyleVar();
         }
 
-        static void DrawViewNode(const Ref<View>& view)
+        static void DrawViewNodes(const Vector<Ref<View>>& views, Vector<uint32_t>& selections)
         {
-            ImGui::Text(view->GetName().CString());
+            int node_clicked = -1;
+            for (int i = 0; i < views.Size(); ++i)
+            {
+                Ref<View> view = views[i];
+                const Vector<Ref<View>>& subviews = view->GetSubviews();
+
+                ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selections.Contains(view->GetId()) ? ImGuiTreeNodeFlags_Selected : 0);
+                bool leaf = (subviews.Size() == 0);
+
+                if (leaf)
+                {
+                    node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+                }
+
+                bool node_open = ImGui::TreeNodeEx((void*) (intptr_t) i, node_flags, view->GetName().CString());
+                if (ImGui::IsItemClicked())
+                {
+                    node_clicked = i;
+                }
+
+                String id = String::Format("view context menu id %d", view->GetId());
+                if (ImGui::BeginPopupContextItem(id.CString()))
+                {
+                    if (ImGui::BeginMenu("Create"))
+                    {
+                        if (ImGui::BeginMenu("UI"))
+                        {
+                            if (ImGui::MenuItem("View"))
+                            {
+                                auto subview = RefMake<View>();
+                                subview->SetName("View");
+                                view->AddSubview(subview);
+                            }
+
+                            if (ImGui::MenuItem("Sprite"))
+                            {
+                                auto subview = RefMake<Sprite>();
+                                subview->SetName("Sprite");
+                                view->AddSubview(subview);
+                            }
+
+                            if (ImGui::MenuItem("Label"))
+                            {
+                                auto subview = RefMake<Label>();
+                                subview->SetName("Label");
+                                view->AddSubview(subview);
+                            }
+
+                            ImGui::EndMenu();
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+                    ImGui::EndPopup();
+                }
+
+                if (!leaf)
+                {
+                    if (node_open)
+                    {
+                        DrawViewNodes(subviews, selections);
+                        ImGui::TreePop();
+                    }
+                }
+            }
+            if (node_clicked != -1)
+            {
+                uint32_t node_id = views[node_clicked]->GetId();
+                if (ImGui::GetIO().KeyCtrl)
+                {
+                    if (selections.Contains(node_id))
+                    {
+                        selections.Remove(node_id);
+                    }
+                    else
+                    {
+                        selections.Add(node_id);
+                    }
+                }
+                else
+                {
+                    selections.Clear();
+                    selections.Add(node_id);
+                }
+            }
         }
     };
 }

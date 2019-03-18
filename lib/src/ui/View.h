@@ -89,6 +89,7 @@ namespace Viry3D
         void ClearSubviews();
         int GetSubviewCount() const { return m_subviews.Size(); }
         const Ref<View>& GetSubview(int index) const { return m_subviews[index]; }
+        const Vector<Ref<View>>& GetSubviews() const { return m_subviews; }
         View* GetParentView() const { return m_parent_view; }
 		const Color& GetColor() const { return m_color; }
 		void SetColor(const Color& color);
