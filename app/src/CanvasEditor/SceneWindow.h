@@ -100,6 +100,7 @@ namespace Viry3D
                             {
                                 auto view = RefMake<Label>();
                                 view->SetName("Label");
+                                view->SetText("Label");
                                 canvas->AddView(view);
                             }
 
@@ -190,6 +191,7 @@ namespace Viry3D
                             {
                                 auto subview = RefMake<Label>();
                                 subview->SetName("Label");
+                                subview->SetText("Label");
                                 view->AddSubview(subview);
                             }
 

@@ -212,6 +212,7 @@ namespace Viry3D
 
 
     Label::Label():
+        m_font(Font::GetFont(FontType::Arial)),
         m_font_style(FontStyle::Normal),
         m_font_size(20),
         m_line_space(0),

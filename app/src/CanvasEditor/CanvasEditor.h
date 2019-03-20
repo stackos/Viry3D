@@ -203,8 +203,9 @@ namespace Viry3D
                 m_assets_window_rect.y = m_view_window_rect.y + m_view_window_rect.h;
                 m_assets_window_rect.h = Display::Instance()->GetHeight() - m_view_window_rect.y - m_view_window_rect.h;
 
-                int view_w = (int) size.x;
-                int view_h = (int) size.y;
+                ImVec2 view_size = { size.x - ImGui::GetStyle().WindowPadding.x * 2, size.y - ImGui::GetCursorPos().y - ImGui::GetStyle().WindowPadding.y };
+                int view_w = (int) view_size.x;
+                int view_h = (int) view_size.y;
                 if (!m_ui_rt || m_ui_rt->GetWidth() != view_w || m_ui_rt->GetHeight() != view_h)
                 {
                     m_ui_rt = Texture::CreateRenderTexture(
@@ -217,7 +218,10 @@ namespace Viry3D
                         FilterMode::Nearest,
                         SamplerAddressMode::ClampToEdge);
                     m_ui_camera->SetRenderTarget(m_ui_rt, Ref<Texture>());
+                    m_ui_camera->OnResize(view_w, view_h);
                 }
+
+                ImGui::Image(&m_ui_rt, view_size);
             }
             this->EndMainWindow();
         }

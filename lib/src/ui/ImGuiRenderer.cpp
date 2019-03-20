@@ -102,7 +102,7 @@ UniformTexture(0, 1) uniform sampler2D u_texture;
 
 UniformBuffer(0, 2) uniform UniformBuffer02
 {
-	vec4 u_color; 
+	vec4 u_color;
 };
 
 Input(0) vec2 v_uv;
@@ -345,7 +345,7 @@ void main()
             {
                 if (textures[i])
                 {
-                    materials[i]->SetTexture("u_texture", textures[i]);
+                    materials[i]->SetTexture("u_texture", *(Ref<Texture>*)textures[i]);
                 }
                 else
                 {
