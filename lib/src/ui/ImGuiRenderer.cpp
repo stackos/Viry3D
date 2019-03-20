@@ -247,6 +247,7 @@ void main()
             // update mesh
             Vector<Mesh::Submesh> submeshes;
             Vector<Vector4> clip_rects;
+            Vector<ImTextureID> textures;
             Vector<Vertex> vertices(draw_data->TotalVtxCount);
             Vector<unsigned short> indices;
             int vertex_index = 0;
@@ -266,6 +267,7 @@ void main()
                         dc.ClipRect.y / io.DisplaySize.y,
                         (dc.ClipRect.z - dc.ClipRect.x) / io.DisplaySize.x,
                         (dc.ClipRect.w - dc.ClipRect.y) / io.DisplaySize.y));
+                    textures.Add(dc.TextureId);
 
                     for (unsigned int k = 0; k < dc.ElemCount; ++k)
                     {
@@ -341,7 +343,14 @@ void main()
             auto& materials = this->GetMaterials();
             for (int i = 0; i < materials.Size(); ++i)
             {
-                materials[i]->SetTexture("u_texture", m_font_texture);
+                if (textures[i])
+                {
+                    materials[i]->SetTexture("u_texture", textures[i]);
+                }
+                else
+                {
+                    materials[i]->SetTexture("u_texture", m_font_texture);
+                }
                 materials[i]->SetVector(CLIP_RECT, clip_rects[i]);
                 this->GetCamera()->SetProjectionUniform(materials[i]);
             }

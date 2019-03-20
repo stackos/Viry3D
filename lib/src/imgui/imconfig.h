@@ -71,3 +71,12 @@ namespace ImGui
     void MyFunction(const char* name, const MyMatrix44& v);
 }
 */
+
+#include <memory>
+
+namespace Viry3D
+{
+    class Texture;
+}
+
+#define ImTextureID std::shared_ptr<Viry3D::Texture>
