@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "CanvasEditor.h"
 #include "imgui/imgui.h"
 #include "graphics/Camera.h"
 #include "ui/CanvasRenderer.h"
@@ -28,8 +29,11 @@ namespace Viry3D
     class SceneWindow
     {
     public:
-        static void OnGUI(Camera* camera)
+        static void OnGUI(CanvasEditor* editor)
         {
+            Camera* camera = editor->GetCamera();
+            Vector<uint32_t>& selections = editor->GetSelections();
+
             if (ImGui::BeginPopupContextWindow())
             {
                 if (ImGui::BeginMenu("Create"))
@@ -54,7 +58,6 @@ namespace Viry3D
 
             Vector<Ref<Renderer>> renderers = camera->GetRenderers();
 
-            static Vector<uint32_t> selections;
             int node_clicked = -1;
             for (int i = 0; i < renderers.Size(); ++i)
             {

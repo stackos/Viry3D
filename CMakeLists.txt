@@ -758,6 +758,7 @@ if (${Target} MATCHES "Windows")
 
     file(GLOB VIRY3D_APP_CANVAS_EDITOR_SRCS
          ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.h
+         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.cpp
          ${VIRY3D_APP_SRC_DIR}/App.h
          ${VIRY3D_APP_SRC_DIR}/AppCanvasEditor.cpp
          )
