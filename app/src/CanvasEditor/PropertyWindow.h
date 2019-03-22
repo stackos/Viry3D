@@ -45,6 +45,86 @@ namespace Viry3D
             return false;
         }
 
+        static bool DrawAlignmentCombo(const char* label, int* alignment)
+        {
+            bool value_changed = false;
+
+            String alignment_str;
+            switch (*alignment & 0x0000000f)
+            {
+                case ViewAlignment::Left:
+                    alignment_str += "Left";
+                    break;
+                case ViewAlignment::HCenter:
+                    alignment_str += "HCenter";
+                    break;
+                case ViewAlignment::Right:
+                    alignment_str += "Right";
+                    break;
+            }
+            alignment_str += "-";
+            switch (*alignment & 0x000000f0)
+            {
+                case ViewAlignment::Top:
+                    alignment_str += "Top";
+                    break;
+                case ViewAlignment::VCenter:
+                    alignment_str += "VCenter";
+                    break;
+                case ViewAlignment::Bottom:
+                    alignment_str += "Bottom";
+                    break;
+            }
+            if (ImGui::BeginCombo(label, alignment_str.CString()))
+            {
+                bool select = *alignment & ViewAlignment::Left;
+                if (ImGui::Selectable("Left", &select))
+                {
+                    *alignment = (*alignment & 0xfffffff0) | ViewAlignment::Left;
+                    value_changed = true;
+                }
+
+                select = *alignment & ViewAlignment::HCenter;
+                if (ImGui::Selectable("HCenter", &select))
+                {
+                    *alignment = (*alignment & 0xfffffff0) | ViewAlignment::HCenter;
+                    value_changed = true;
+                }
+
+                select = *alignment & ViewAlignment::Right;
+                if (ImGui::Selectable("Right", &select))
+                {
+                    *alignment = (*alignment & 0xfffffff0) | ViewAlignment::Right;
+                    value_changed = true;
+                }
+
+                select = *alignment & ViewAlignment::Top;
+                if (ImGui::Selectable("Top", &select))
+                {
+                    *alignment = (*alignment & 0xffffff0f) | ViewAlignment::Top;
+                    value_changed = true;
+                }
+
+                select = *alignment & ViewAlignment::VCenter;
+                if (ImGui::Selectable("VCenter", &select))
+                {
+                    *alignment = (*alignment & 0xffffff0f) | ViewAlignment::VCenter;
+                    value_changed = true;
+                }
+
+                select = *alignment & ViewAlignment::Bottom;
+                if (ImGui::Selectable("Bottom", &select))
+                {
+                    *alignment = (*alignment & 0xffffff0f) | ViewAlignment::Bottom;
+                    value_changed = true;
+                }
+
+                ImGui::EndCombo();
+            }
+
+            return value_changed;
+        }
+
         static void OnGUI(CanvasEditor* editor)
         {
             Camera* camera = editor->GetCamera();
@@ -58,6 +138,22 @@ namespace Viry3D
                 if (InputText(editor, "Name", "name", name))
                 {
                     obj->SetName(name);
+                }
+
+                Ref<View> view = RefCast<View>(obj);
+                if (view)
+                {
+                    Color color = view->GetColor();
+                    if (ImGui::ColorEdit4("Color", (float*) &color))
+                    {
+                        view->SetColor(color);
+                    }
+
+                    int alignment = view->GetAlignment();
+                    if (DrawAlignmentCombo("Alignment", &alignment))
+                    {
+                        view->SetAlignment(alignment);
+                    }
                 }
             }
             else if (selections.Size() > 1)
