@@ -296,19 +296,28 @@ namespace Viry3D
         local_pos += m_offset;
 
         Vector2i size = this->GetSize();
+
         if (size.x == VIEW_SIZE_FILL_PARENT)
         {
-            size.x = parent_rect.w - (int) (m_margin.x + m_margin.z);
+            m_rect.x = parent_rect.x + (int) m_margin.x;
+            m_rect.w = parent_rect.w - (int) (m_margin.x + m_margin.z);
         }
-        if (size.y == VIEW_SIZE_FILL_PARENT)
+        else
         {
-            size.y = parent_rect.h - (int) (m_margin.y + m_margin.w);
+            m_rect.x = parent_rect.x + local_pos.x - Mathf::RoundToInt(m_pivot.x * size.x);
+            m_rect.w = size.x;
         }
 
-        m_rect.x = parent_rect.x + local_pos.x - Mathf::RoundToInt(m_pivot.x * size.x);
-        m_rect.y = parent_rect.y + local_pos.y - Mathf::RoundToInt(m_pivot.y * size.y);
-        m_rect.w = size.x;
-        m_rect.h = size.y;
+        if (size.y == VIEW_SIZE_FILL_PARENT)
+        {
+            m_rect.y = parent_rect.y + (int) m_margin.y;
+            m_rect.h = parent_rect.h - (int) (m_margin.y + m_margin.w);
+        }
+        else
+        {
+            m_rect.y = parent_rect.y + local_pos.y - Mathf::RoundToInt(m_pivot.y * size.y);
+            m_rect.h = size.y;
+        }
 
         this->ComputeVerticesMatrix();
 
