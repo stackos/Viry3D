@@ -40,6 +40,7 @@ namespace Viry3D
         m_placeholder->SetFontSize(20);
         m_placeholder->SetColor(Color(0.8f, 0.8f, 0.8f, 1));
         m_placeholder->EnableClipRect(true);
+        m_placeholder->SetText("Input");
         this->AddSubview(m_placeholder);
 
         m_content = RefMake<View>();
@@ -49,7 +50,8 @@ namespace Viry3D
         this->AddSubview(m_content);
 
         m_label = RefMake<Label>();
-        m_label->SetSize(Vector2i(VIEW_SIZE_FILL_PARENT, VIEW_SIZE_FILL_PARENT));
+        m_label->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
+        m_label->SetPivot(Vector2(0, 0.5f));
         m_label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
         m_label->SetFont(Font::GetFont(FontType::PingFangSC));
         m_label->SetFontSize(20);

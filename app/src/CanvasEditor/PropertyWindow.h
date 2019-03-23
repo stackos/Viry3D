@@ -154,6 +154,68 @@ namespace Viry3D
                     {
                         view->SetAlignment(alignment);
                     }
+
+                    Vector2 pivot = view->GetPivot();
+                    if (ImGui::InputFloat2("Pivot", (float*) &pivot, 3))
+                    {
+                        view->SetPivot(pivot);
+                    }
+
+                    Vector2i size = view->GetSize();
+                    bool size_w_fill_parent = (size.x == VIEW_SIZE_FILL_PARENT);
+                    bool size_h_fill_parent = (size.y == VIEW_SIZE_FILL_PARENT);
+                    if (ImGui::Checkbox("WidthFillParent", &size_w_fill_parent))
+                    {
+                        if (size_w_fill_parent)
+                        {
+                            size.x = VIEW_SIZE_FILL_PARENT;
+                        }
+                        else
+                        {
+                            size.x = 100;
+                        }
+                        view->SetSize(size);
+                    }
+                    if (!size_w_fill_parent)
+                    {
+                        if (ImGui::InputInt("Width", &size.x))
+                        {
+                            view->SetSize(size);
+                        }
+                    }
+                    if (ImGui::Checkbox("HeightFillParent", &size_h_fill_parent))
+                    {
+                        if (size_h_fill_parent)
+                        {
+                            size.y = VIEW_SIZE_FILL_PARENT;
+                        }
+                        else
+                        {
+                            size.y = 100;
+                        }
+                        view->SetSize(size);
+                    }
+                    if (!size_h_fill_parent)
+                    {
+                        if (ImGui::InputInt("Height", &size.y))
+                        {
+                            view->SetSize(size);
+                        }
+                    }
+
+                    Vector2i offset = view->GetOffset();
+                    if (ImGui::InputInt2("Offset", (int*) &offset))
+                    {
+                        view->SetOffset(offset);
+                    }
+
+                    Vector4 margin = view->GetMargin();
+                    int margin_i[4] = { (int) margin.x, (int) margin.y, (int) margin.z, (int) margin.w };
+                    if (ImGui::InputInt4("Margin", margin_i))
+                    {
+                        margin = Vector4((float) margin_i[0], (float) margin_i[1], (float) margin_i[2], (float) margin_i[3]);
+                        view->SetMargin(margin);
+                    }
                 }
             }
             else if (selections.Size() > 1)

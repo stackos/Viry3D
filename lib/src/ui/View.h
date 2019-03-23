@@ -106,6 +106,7 @@ namespace Viry3D
         // offset y direction is down
 		void SetOffset(const Vector2i& offset);
         // left, top, right, bottom
+        const Vector4& GetMargin() const { return m_margin; }
         void SetMargin(const Vector4& margin);
         const Quaternion& GetLocalRotation() const { return m_local_rotation; }
         void SetLocalRotation(const Quaternion& rotation);
