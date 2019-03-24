@@ -216,6 +216,18 @@ namespace Viry3D
                         margin = Vector4((float) margin_i[0], (float) margin_i[1], (float) margin_i[2], (float) margin_i[3]);
                         view->SetMargin(margin);
                     }
+
+                    Vector3 rotation = view->GetLocalRotation();
+                    if (ImGui::InputFloat3("Rotation", (float*) &rotation, 3))
+                    {
+                        view->SetLocalRotation(rotation);
+                    }
+
+                    Vector2 scale = view->GetLocalScale();
+                    if (ImGui::InputFloat2("Scale", (float*) &scale, 3))
+                    {
+                        view->SetLocalScale(scale);
+                    }
                 }
             }
             else if (selections.Size() > 1)
