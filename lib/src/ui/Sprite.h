@@ -85,13 +85,19 @@ namespace Viry3D
         const Ref<Texture>& GetTexture() const { return m_texture; }
         void SetTexture(const Ref<Texture>& texture);
         void SetTexture(const Ref<Texture>& texture, const Recti& texture_rect, const Vector4& texture_border);
+        const Ref<SpriteAtlas>& GetAtlas() const { return m_atlas; }
         void SetAtlas(const Ref<SpriteAtlas>& atlas);
+        const String& GetSpriteName() const { return m_sprite_name; }
         void SetSpriteName(const String& name);
         SpriteType GetSpriteType() const { return m_sprite_type; }
         void SetSpriteType(SpriteType type);
+        SpriteFillMethod GetFillMethod() const { return m_fill_method; }
         void SetFillMethod(SpriteFillMethod method);
+        float GetFillAmount() const { return m_fill_amount; }
         void SetFillAmount(float amount);
+        int GetFillOrigin() const { return m_fill_origin; }
         void SetFillOrigin(int origin);
+        bool IsFillClockWise() const { return m_fill_clockwise; }
         void SetFillClockWise(bool clockwise);
 
     protected:

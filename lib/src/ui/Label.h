@@ -63,16 +63,24 @@ namespace Viry3D
         virtual ~Label();
         virtual void UpdateLayout();
         virtual void SetSize(const Vector2i& size);
+        const Ref<Font>& GetFont() const { return m_font; }
         void SetFont(const Ref<Font>& font);
+        FontStyle GetFontStyle() const { return m_font_style; }
         void SetFontStyle(FontStyle style);
+        int GetFontSize() const { return m_font_size; }
         void SetFontSize(int size);
         const String& GetText() const { return m_text; }
         void SetText(const String& text);
+        int GetLineSpace() const { return m_line_space; }
         void SetLineSpace(int space);
+        bool IsRich() const { return m_rich; }
         void SetRich(bool rich);
+        bool IsMono() const { return m_mono; }
         void SetMono(bool mono);
+        int GetTextAlignment() const { return m_text_alignment; }
         // use ViewAlignment
         void SetTextAlignment(int alignment);
+        bool IsWrapContent() const { return m_wrap_content; }
         void EnableWrapContent(bool enable);
         const Vector<LabelLine>& GetLines();
 

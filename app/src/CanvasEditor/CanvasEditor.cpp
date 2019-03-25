@@ -76,7 +76,6 @@ namespace Viry3D
         this->ShowSceneWindow();
         this->ShowPropertyWindow();
         this->ShowViewWindow();
-        this->ShowAssetsWindow();
         this->ShowConsoleWindow();
 
         if (m_show_demo_window)
@@ -190,8 +189,9 @@ namespace Viry3D
             auto size = ImGui::GetWindowSize();
             m_view_window_rect = Rect(pos.x, pos.y, size.x, size.y);
             m_scene_window_rect.h = m_view_window_rect.h;
-            m_assets_window_rect.y = m_view_window_rect.y + m_view_window_rect.h;
-            m_assets_window_rect.h = Display::Instance()->GetHeight() - m_view_window_rect.y - m_view_window_rect.h;
+            m_console_window_rect.y = m_view_window_rect.y + m_view_window_rect.h;
+            m_console_window_rect.w = Display::Instance()->GetWidth();
+            m_console_window_rect.h = Display::Instance()->GetHeight() - m_view_window_rect.y - m_view_window_rect.h;
 
             ImVec2 view_size = { size.x - ImGui::GetStyle().WindowPadding.x * 2, size.y - ImGui::GetCursorPos().y - ImGui::GetStyle().WindowPadding.y };
             int view_w = (int) view_size.x;
@@ -212,26 +212,6 @@ namespace Viry3D
             }
 
             ImGui::Image(&m_ui_rt, view_size);
-        }
-        this->EndMainWindow();
-    }
-
-    void CanvasEditor::ShowAssetsWindow()
-    {
-        ImGui::SetNextWindowSizeConstraints(ImVec2(0, -1), ImVec2(FLT_MAX, -1));
-        if (this->BeginMainWindow("Assets",
-            m_assets_window_rect.x,
-            m_assets_window_rect.y,
-            m_assets_window_rect.w,
-            m_assets_window_rect.h))
-        {
-            auto pos = ImGui::GetWindowPos();
-            auto size = ImGui::GetWindowSize();
-            m_assets_window_rect = Rect(pos.x, pos.y, size.x, size.y);
-            m_console_window_rect.x = m_assets_window_rect.w;
-            m_console_window_rect.y = m_assets_window_rect.y;
-            m_console_window_rect.w = Display::Instance()->GetWidth() - m_assets_window_rect.w;
-            m_console_window_rect.h = m_assets_window_rect.h;
         }
         this->EndMainWindow();
     }

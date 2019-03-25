@@ -228,6 +228,24 @@ namespace Viry3D
                     {
                         view->SetLocalScale(scale);
                     }
+
+                    bool clip_rect = view->IsClipRect();
+                    if (ImGui::Checkbox("ClipRect", &clip_rect))
+                    {
+                        view->EnableClipRect(clip_rect);
+                    }
+                }
+
+                Ref<Sprite> sprite = RefCast<Sprite>(obj);
+                if (sprite)
+                {
+                    
+                }
+
+                Ref<Label> label = RefCast<Label>(obj);
+                if (label)
+                {
+
                 }
             }
             else if (selections.Size() > 1)

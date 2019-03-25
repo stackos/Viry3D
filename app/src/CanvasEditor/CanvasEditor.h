@@ -47,7 +47,6 @@ namespace Viry3D
         void ShowSceneWindow();
         void ShowPropertyWindow();
         void ShowViewWindow();
-        void ShowAssetsWindow();
         void ShowConsoleWindow();
 
         Camera* GetCamera() const { return m_ui_camera; }
@@ -67,7 +66,6 @@ namespace Viry3D
         Rect m_scene_window_rect = Rect(0, 0, (float) (Display::Instance()->GetWidth() * 200 / 1280), (float) (Display::Instance()->GetHeight() * 450 / 720));
         Rect m_property_window_rect = Rect(0, 0, (float) (Display::Instance()->GetWidth() * 200 / 1280), 0);
         Rect m_view_window_rect = Rect(0, 0, 0, 0);
-        Rect m_assets_window_rect = Rect(0, 0, (float) (Display::Instance()->GetWidth() * 640 / 1280), 0);
         Rect m_console_window_rect = Rect(0, 0, 0, 0);
         Ref<Texture> m_ui_rt;
         Vector<uint32_t> m_selections;
