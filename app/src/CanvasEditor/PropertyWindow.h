@@ -29,7 +29,7 @@ namespace Viry3D
     class PropertyWindow
     {
     public:
-        static bool InputText(CanvasEditor* editor, const char* label, const String& buffer_name, String& target)
+        static bool InputText(CanvasEditor* editor, const char* label, const String& buffer_name, String& target, ImGuiInputTextFlags flags = 0)
         {
             ByteBuffer& name_buffer = editor->GetTextBuffer(buffer_name);
             if (target.Size() < name_buffer.Size())
@@ -37,7 +37,7 @@ namespace Viry3D
                 Memory::Copy(name_buffer.Bytes(), target.CString(), target.Size());
                 name_buffer[target.Size()] = 0;
             }
-            if (ImGui::InputText(label, (char*) name_buffer.Bytes(), name_buffer.Size()))
+            if (ImGui::InputText(label, (char*) name_buffer.Bytes(), name_buffer.Size(), flags))
             {
                 target = String((char*) name_buffer.Bytes(), (int) strlen((char*) name_buffer.Bytes()));
                 return true;
@@ -135,7 +135,7 @@ namespace Viry3D
                 Ref<Object> obj = editor->GetSelectionObject(selections[0]);
 
                 String name = obj->GetName();
-                if (InputText(editor, "Name", "name", name))
+                if (InputText(editor, "Name", "object_name", name))
                 {
                     obj->SetName(name);
                 }
@@ -239,7 +239,38 @@ namespace Viry3D
                 Ref<Sprite> sprite = RefCast<Sprite>(obj);
                 if (sprite)
                 {
-                    
+                    // texture
+                    String texture_path;
+
+                    const Ref<SpriteAtlas>& atlas = sprite->GetAtlas();
+                    if (atlas)
+                    {
+                        
+                    }
+                    else
+                    {
+                        const Ref<Texture>& texture = sprite->GetTexture();
+                        if (texture)
+                        {
+                            texture_path = texture->GetFilePath();
+                        }
+                    }
+
+                    const ImVec2& button_text_align = ImGui::GetStyle().ButtonTextAlign;
+                    const ImVec2& item_spacing = ImGui::GetStyle().ItemSpacing;
+                    const ImVec2 label_size = ImGui::CalcTextSize("Texture", nullptr, true);
+                    const ImVec2 button_size(ImGui::CalcItemWidth(), label_size.y + ImGui::GetStyle().FramePadding.y * 2);
+
+                    ImGui::GetStyle().ButtonTextAlign = ImVec2(0, 0.5f);
+                    if (ImGui::Button(texture_path.CString(), button_size))
+                    {
+
+                    }
+                    ImGui::GetStyle().ButtonTextAlign = button_text_align;
+                    ImGui::SameLine();
+                    ImGui::GetStyle().ItemSpacing.x = ImGui::GetStyle().ItemInnerSpacing.x;
+                    ImGui::Text("Texture");
+                    ImGui::GetStyle().ItemSpacing.x = item_spacing.x;
                 }
 
                 Ref<Label> label = RefCast<Label>(obj);

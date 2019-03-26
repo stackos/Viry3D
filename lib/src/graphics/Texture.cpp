@@ -435,6 +435,8 @@ namespace Viry3D
 
                     texture->UpdateTexture2D(levels[i][0], 0, 0, level_width, level_height, i);
                 }
+
+                texture->m_file_path = path;
             }
             else if (cubemap)
             {
@@ -452,6 +454,8 @@ namespace Viry3D
                         texture->UpdateCubemap(levels[i][j], (CubemapFace) j, i);
                     }
                 }
+
+                texture->m_file_path = path;
             }
             
 #undef READ_ENDIAN
@@ -533,6 +537,7 @@ namespace Viry3D
             }
 
             texture = Texture::CreateTexture2DFromMemory(image->data, image->width, image->height, format, filter_mode, wrap_mode, gen_mipmap, false, is_storage);
+            texture->m_file_path = path;
         }
 
         return texture;

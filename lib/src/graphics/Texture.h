@@ -178,6 +178,7 @@ namespace Viry3D
             int x, int y,
             int w, int h);
         void CopyToMemory(ByteBuffer& pixels, int layer, int level);
+        const String& GetFilePath() const { return m_file_path; }
 #if VR_VULKAN
         VkFormat GetFormat() const { return m_format; }
         VkImage GetImageMultiSample() const { return m_image_multi_sample; }
@@ -250,5 +251,6 @@ namespace Viry3D
         bool m_cubemap;
         int m_array_size;
         int m_sample_count;
+        String m_file_path;
     };
 }

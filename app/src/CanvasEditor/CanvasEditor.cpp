@@ -190,7 +190,7 @@ namespace Viry3D
             m_view_window_rect = Rect(pos.x, pos.y, size.x, size.y);
             m_scene_window_rect.h = m_view_window_rect.h;
             m_console_window_rect.y = m_view_window_rect.y + m_view_window_rect.h;
-            m_console_window_rect.w = Display::Instance()->GetWidth();
+            m_console_window_rect.w = (float) Display::Instance()->GetWidth();
             m_console_window_rect.h = Display::Instance()->GetHeight() - m_view_window_rect.y - m_view_window_rect.h;
 
             ImVec2 view_size = { size.x - ImGui::GetStyle().WindowPadding.x * 2, size.y - ImGui::GetCursorPos().y - ImGui::GetStyle().WindowPadding.y };
