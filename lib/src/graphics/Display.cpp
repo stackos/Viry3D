@@ -3891,6 +3891,11 @@ void main()
 #endif
     }
 
+    void* Display::GetWindow()
+    {
+        return m_private->m_window;
+    }
+
     void Display::SetWindow(void* window)
     {
         m_private->m_window = window;

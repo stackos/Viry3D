@@ -45,6 +45,52 @@ namespace Viry3D
             return false;
         }
 
+        static bool LabelButton(const char* label, const char* text, const ImVec2& text_align = ImVec2(0.5f, 0.5f))
+        {
+            const ImVec2& button_text_align = ImGui::GetStyle().ButtonTextAlign;
+            const ImVec2& item_spacing = ImGui::GetStyle().ItemSpacing;
+            const ImVec2 label_size = ImGui::CalcTextSize(label, nullptr, true);
+            const ImVec2 button_size(ImGui::CalcItemWidth(), label_size.y + ImGui::GetStyle().FramePadding.y * 2);
+
+            ImGui::GetStyle().ButtonTextAlign = text_align;
+            bool pressed = ImGui::Button(text, button_size);
+            ImGui::GetStyle().ButtonTextAlign = button_text_align;
+            ImGui::SameLine();
+            ImGui::GetStyle().ItemSpacing.x = ImGui::GetStyle().ItemInnerSpacing.x;
+            ImGui::Text(label);
+            ImGui::GetStyle().ItemSpacing.x = item_spacing.x;
+
+            return pressed;
+        }
+
+        static String OpenFilePanel(const String& initial_path, const char* filter)
+        {
+            String file_path;
+
+#if VR_WINDOWS
+            char path[MAX_PATH];
+            String data_path = initial_path.Replace("/", "\\");
+            strcpy(path, data_path.CString());
+
+            OPENFILENAME open = { };
+            open.lStructSize = sizeof(open);
+            open.hwndOwner = (HWND) Display::Instance()->GetWindow();
+            open.lpstrFilter = filter;
+            open.lpstrFile = path;
+            open.nMaxFile = MAX_PATH;
+            open.nFilterIndex = 0;
+            open.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
+
+            if (GetOpenFileName(&open))
+            {
+                file_path = path;
+                file_path = file_path.Replace("\\", "/");
+            }
+#endif
+
+            return file_path;
+        }
+
         static bool DrawAlignmentCombo(const char* label, int* alignment)
         {
             bool value_changed = false;
@@ -256,21 +302,14 @@ namespace Viry3D
                         }
                     }
 
-                    const ImVec2& button_text_align = ImGui::GetStyle().ButtonTextAlign;
-                    const ImVec2& item_spacing = ImGui::GetStyle().ItemSpacing;
-                    const ImVec2 label_size = ImGui::CalcTextSize("Texture", nullptr, true);
-                    const ImVec2 button_size(ImGui::CalcItemWidth(), label_size.y + ImGui::GetStyle().FramePadding.y * 2);
-
-                    ImGui::GetStyle().ButtonTextAlign = ImVec2(0, 0.5f);
-                    if (ImGui::Button(texture_path.CString(), button_size))
+                    if (LabelButton("Texture", texture_path.CString(), ImVec2(0, 0.5f)))
                     {
-
+                        String path = OpenFilePanel(Application::Instance()->GetDataPath(), "Texture\0*.png;*.jpg\0");
+                        if (path.Size() > 0)
+                        {
+                            
+                        }
                     }
-                    ImGui::GetStyle().ButtonTextAlign = button_text_align;
-                    ImGui::SameLine();
-                    ImGui::GetStyle().ItemSpacing.x = ImGui::GetStyle().ItemInnerSpacing.x;
-                    ImGui::Text("Texture");
-                    ImGui::GetStyle().ItemSpacing.x = item_spacing.x;
                 }
 
                 Ref<Label> label = RefCast<Label>(obj);
