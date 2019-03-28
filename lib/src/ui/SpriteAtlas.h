@@ -41,9 +41,11 @@ namespace Viry3D
         virtual ~SpriteAtlas();
         const Ref<Texture>& GetTexture() const { return m_texture; }
         const Sprite& GetSprite(const String& name) const { return m_sprites[name]; }
+        const String& GetFilePath() const { return m_file_path; }
 
     private:
         Ref<Texture> m_texture;
         Map<String, Sprite> m_sprites;
+        String m_file_path;
     };
 }

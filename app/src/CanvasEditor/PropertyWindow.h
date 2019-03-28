@@ -291,7 +291,7 @@ namespace Viry3D
                     const Ref<SpriteAtlas>& atlas = sprite->GetAtlas();
                     if (atlas)
                     {
-                        
+                        texture_path = atlas->GetFilePath();
                     }
                     else
                     {
@@ -304,10 +304,23 @@ namespace Viry3D
 
                     if (LabelButton("Texture", texture_path.CString(), ImVec2(0, 0.5f)))
                     {
-                        String path = OpenFilePanel(Application::Instance()->GetDataPath(), "Texture\0*.png;*.jpg\0");
-                        if (path.Size() > 0)
+                        String initial_path = texture_path;
+                        if (initial_path.Size() == 0)
+                        {
+                            initial_path = Application::Instance()->GetDataPath();
+                        }
+                        texture_path = OpenFilePanel(initial_path, "Texture or Atlas\0*.png;*.jpg;*.atlas\0");
+                        if (texture_path.EndsWith(".atlas"))
                         {
                             
+                        }
+                        else if (texture_path.Size() > 0)
+                        {
+                            Ref<Texture> texture = Texture::LoadTexture2DFromFile(texture_path, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
+                            if (texture)
+                            {
+                                sprite->SetTexture(texture);
+                            }
                         }
                     }
                 }

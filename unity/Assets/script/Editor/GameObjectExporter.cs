@@ -181,7 +181,7 @@ public class GameObjectExporter
             jatlas["width"] = texture.width;
             jatlas["height"] = texture.height;
 
-            file_path = out_dir + "/" + obj.name + ".json";
+            file_path = out_dir + "/" + obj.name + ".atlas";
             CreateFileDirIfNeed(file_path);
 
             File.WriteAllText(file_path, jatlas.ToString());

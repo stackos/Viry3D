@@ -540,8 +540,8 @@ void main()
         AtlasTreeNode* node = nullptr;
 
         AtlasTreeNode** node_ptr;
-        if ((mesh.texture && m_atlas_cache.TryGet(mesh.texture.get(), &node_ptr)) ||
-            (mesh.image && m_atlas_cache.TryGet(mesh.image.get(), &node_ptr)))
+        if ((mesh.texture && m_atlas_cache.TryGet(mesh.texture->GetId(), &node_ptr)) ||
+            (mesh.image && m_atlas_cache.TryGet(mesh.image->GetId(), &node_ptr)))
         {
             node = *node_ptr;
 
@@ -622,7 +622,7 @@ void main()
                     node->rect.x, node->rect.y,
                     node->rect.w, node->rect.h);
 
-                m_atlas_cache.Add(mesh.texture.get(), node);
+                m_atlas_cache.Add(mesh.texture->GetId(), node);
             }
             else if (mesh.image)
             {
@@ -640,7 +640,7 @@ void main()
                     0);
 #endif
 
-                m_atlas_cache.Add(mesh.image.get(), node);
+                m_atlas_cache.Add(mesh.image->GetId(), node);
             }
 
             updated = true;

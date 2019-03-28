@@ -23,4 +23,3 @@ export out
 export out.meta
 .DS_Store
 xcuserdata
-imgui.ini

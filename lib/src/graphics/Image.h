@@ -19,6 +19,7 @@
 
 #include "string/String.h"
 #include "memory/Ref.h"
+#include "Object.h"
 
 namespace Viry3D
 {
@@ -30,7 +31,7 @@ namespace Viry3D
         R8G8B8A8,
     };
 
-	class Image
+	class Image : public Object
 	{
 	public:
 		static Ref<Image> LoadJPEG(const ByteBuffer& jpeg);

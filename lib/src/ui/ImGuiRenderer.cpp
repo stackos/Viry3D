@@ -54,6 +54,7 @@ namespace Viry3D
         io.KeyMap[ImGuiKey_X] = (int) KeyCode::X;
         io.KeyMap[ImGuiKey_Y] = (int) KeyCode::Y;
         io.KeyMap[ImGuiKey_Z] = (int) KeyCode::Z;
+        io.IniFilename = nullptr;
     }
 
     ImGuiRenderer::~ImGuiRenderer()

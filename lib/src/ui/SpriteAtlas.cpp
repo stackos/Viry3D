@@ -56,6 +56,8 @@ namespace Viry3D
                 
                     atlas->m_sprites.Add(sprite.name, sprite);
                 }
+
+                atlas->m_file_path = file;
             }
         }
 

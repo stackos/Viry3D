@@ -94,7 +94,7 @@ namespace Viry3D
                 group->AddSubview(button);
             }
 
-            auto atlas = SpriteAtlas::LoadFromFile(Application::Instance()->GetDataPath() + "/res/SunnyLand/tileset-sliced.json");
+            auto atlas = SpriteAtlas::LoadFromFile(Application::Instance()->GetDataPath() + "/res/SunnyLand/tileset-sliced.atlas");
 
             auto sprite = RefMake<Sprite>();
             sprite->SetSize(Vector2i(256, 256));
