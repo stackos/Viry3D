@@ -40,12 +40,14 @@ namespace Viry3D
         SpriteAtlas();
         virtual ~SpriteAtlas();
         const Ref<Texture>& GetTexture() const { return m_texture; }
+        Vector<String> GetSpriteNames() const { return m_sprite_names; }
         const Sprite& GetSprite(const String& name) const { return m_sprites[name]; }
         const String& GetFilePath() const { return m_file_path; }
 
     private:
         Ref<Texture> m_texture;
         Map<String, Sprite> m_sprites;
+        Vector<String> m_sprite_names;
         String m_file_path;
     };
 }

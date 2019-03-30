@@ -285,13 +285,15 @@ namespace Viry3D
                 Ref<Sprite> sprite = RefCast<Sprite>(obj);
                 if (sprite)
                 {
-                    // texture
+                    // texture or atlas
                     String texture_path;
+                    const char* texture_type = nullptr;
 
                     const Ref<SpriteAtlas>& atlas = sprite->GetAtlas();
                     if (atlas)
                     {
                         texture_path = atlas->GetFilePath();
+                        texture_type = "Atlas";
                     }
                     else
                     {
@@ -300,9 +302,10 @@ namespace Viry3D
                         {
                             texture_path = texture->GetFilePath();
                         }
+                        texture_type = "Texture";
                     }
 
-                    if (LabelButton("Texture", texture_path.CString(), ImVec2(0, 0.5f)))
+                    if (LabelButton(texture_type, texture_path.CString(), ImVec2(0, 0.5f)))
                     {
                         String initial_path = texture_path;
                         if (initial_path.Size() == 0)
@@ -312,7 +315,17 @@ namespace Viry3D
                         texture_path = OpenFilePanel(initial_path, "Texture or Atlas\0*.png;*.jpg;*.atlas\0");
                         if (texture_path.EndsWith(".atlas"))
                         {
-                            
+                            Ref<SpriteAtlas> atlas = SpriteAtlas::LoadFromFile(texture_path);
+                            if (atlas)
+                            {
+                                sprite->SetAtlas(atlas);
+
+                                Vector<String> sprite_names = atlas->GetSpriteNames();
+                                if (sprite_names.Size() > 0)
+                                {
+                                    sprite->SetSpriteName(sprite_names[0]);
+                                }
+                            }
                         }
                         else if (texture_path.Size() > 0)
                         {
@@ -323,6 +336,28 @@ namespace Viry3D
                             }
                         }
                     }
+
+                    if (atlas)
+                    {
+                        Vector<String> sprite_names = atlas->GetSpriteNames();
+                        if (ImGui::BeginCombo("Sprite", sprite->GetSpriteName().CString()))
+                        {
+                            for (int i = 0; i < sprite_names.Size(); ++i)
+                            {
+                                bool select = (sprite_names[i] == sprite->GetSpriteName());
+                                if (ImGui::Selectable(sprite_names[i].CString(), &select))
+                                {
+                                    sprite->SetSpriteName(sprite_names[i]);
+                                }
+                            }
+                            
+                            ImGui::EndCombo();
+                        }
+                    }
+
+                    // sprite type
+                    SpriteType type = sprite->GetSpriteType();
+
                 }
 
                 Ref<Label> label = RefCast<Label>(obj);

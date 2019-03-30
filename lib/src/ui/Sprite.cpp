@@ -52,6 +52,7 @@ namespace Viry3D
         m_texture = texture;
         m_texture_rect = texture_rect;
         m_texture_border = texture_border;
+        m_atlas.reset();
         m_sprite_name = "";
         this->MarkCanvasDirty();
     }

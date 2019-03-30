@@ -55,6 +55,7 @@ namespace Viry3D
                     sprite.border = Vector4(border[0].asFloat(), border[1].asFloat(), border[2].asFloat(), border[3].asFloat());
                 
                     atlas->m_sprites.Add(sprite.name, sprite);
+                    atlas->m_sprite_names.Add(sprite.name);
                 }
 
                 atlas->m_file_path = file;
