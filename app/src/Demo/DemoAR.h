@@ -28,9 +28,9 @@ namespace Viry3D
     {
     public:
         ARScene* m_scene = nullptr;
-        Camera* m_clear_camera = nullptr;
-        Camera* m_bg_camera = nullptr;
-        Camera* m_scene_camera = nullptr;
+        Ref<Camera> m_clear_camera;
+        Ref<Camera> m_bg_camera;
+        Ref<Camera> m_scene_camera;
         Ref<Material> m_bg_material;
         Rect m_viewport;
         Ref<MeshRenderer> m_sphere;
@@ -56,19 +56,19 @@ namespace Viry3D
             if (m_scene_camera)
             {
                 Display::Instance()->DestroyCamera(m_scene_camera);
-                m_scene_camera = nullptr;
+                m_scene_camera.reset();
             }
             
             if (m_bg_camera)
             {
                 Display::Instance()->DestroyCamera(m_bg_camera);
-                m_bg_camera = nullptr;
+                m_bg_camera.reset();
             }
             
             if (m_clear_camera)
             {
                 Display::Instance()->DestroyCamera(m_clear_camera);
-                m_clear_camera = nullptr;
+                m_clear_camera.reset();
             }
             
             delete m_scene;

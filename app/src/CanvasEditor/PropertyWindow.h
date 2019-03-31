@@ -173,7 +173,6 @@ namespace Viry3D
 
         static void OnGUI(CanvasEditor* editor)
         {
-            Camera* camera = editor->GetCamera();
             Vector<uint32_t>& selections = editor->GetSelections();
             
             if (selections.Size() == 1)

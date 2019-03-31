@@ -591,7 +591,7 @@ namespace Viry3D
             m_renderers.AddLast(instance);
             this->MarkRendererOrderDirty();
 
-            renderer->OnAddToCamera(this);
+            renderer->OnAddToCamera(Display::Instance()->GetCameraRef(this));
         }
     }
 
@@ -626,7 +626,7 @@ namespace Viry3D
         Display::Instance()->MarkPrimaryCmdDirty();
 #endif
 
-        renderer->OnRemoveFromCamera(this);
+        renderer->OnRemoveFromCamera(Display::Instance()->GetCameraRef(this));
     }
 
     Vector<Ref<Renderer>> Camera::GetRenderers() const

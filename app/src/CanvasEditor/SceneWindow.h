@@ -31,28 +31,16 @@ namespace Viry3D
     public:
         static void OnGUI(CanvasEditor* editor)
         {
-            Camera* camera = editor->GetCamera();
             Vector<uint32_t>& selections = editor->GetSelections();
 
             if (ImGui::BeginPopupContextWindow())
             {
                 if (ImGui::BeginMenu("Create"))
                 {
-                    /*if (ImGui::MenuItem("Camera"))
+                    if (ImGui::MenuItem("Camera"))
                     {
-
-                    }*/
-
-                    if (ImGui::BeginMenu("UI"))
-                    {
-                        if (ImGui::MenuItem("Canvas"))
-                        {
-                            auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
-                            canvas->SetName("Canvas");
-                            camera->AddRenderer(canvas);
-                        }
-
-                        ImGui::EndMenu();
+                        Ref<Camera> camera = editor->CreateCamera();
+                        camera->SetName("Camera");
                     }
 
                     ImGui::EndMenu();
@@ -61,8 +49,83 @@ namespace Viry3D
                 ImGui::EndPopup();
             }
 
-            Vector<Ref<Renderer>> renderers = camera->GetRenderers();
+            const Vector<Ref<Camera>>& cameras = editor->GetCameras();
+            int node_clicked = -1;
+            for (int i = 0; i < cameras.Size(); ++i)
+            {
+                Ref<Camera> camera = cameras[i];
+                Vector<Ref<Renderer>> renderers = camera->GetRenderers();
 
+                ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selections.Contains(camera->GetId()) ? ImGuiTreeNodeFlags_Selected : 0);
+                bool leaf = (renderers.Size() == 0);
+
+                if (leaf)
+                {
+                    node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+                }
+
+                bool node_open = ImGui::TreeNodeEx((void*) (intptr_t) i, node_flags, camera->GetName().CString());
+                if (ImGui::IsItemClicked())
+                {
+                    node_clicked = i;
+                }
+
+                String id = String::Format("camera context menu id %d", camera->GetId());
+                if (ImGui::BeginPopupContextItem(id.CString()))
+                {
+                    if (ImGui::BeginMenu("Create"))
+                    {
+                        if (ImGui::BeginMenu("UI"))
+                        {
+                            if (ImGui::MenuItem("Canvas"))
+                            {
+                                auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
+                                canvas->SetName("Canvas");
+                                camera->AddRenderer(canvas);
+                            }
+
+                            ImGui::EndMenu();
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+                    ImGui::EndPopup();
+                }
+
+                if (!leaf)
+                {
+                    if (node_open)
+                    {
+                        DrawRendererNodes(renderers, selections);
+                        ImGui::TreePop();
+                    }
+                }
+            }
+            if (node_clicked != -1)
+            {
+                uint32_t node_id = cameras[node_clicked]->GetId();
+                if (ImGui::GetIO().KeyCtrl)
+                {
+                    if (selections.Contains(node_id))
+                    {
+                        selections.Remove(node_id);
+                    }
+                    else
+                    {
+                        selections.Add(node_id);
+                    }
+                }
+                else
+                {
+                    selections.Clear();
+                    selections.Add(node_id);
+                }
+            }
+        }
+
+        static void DrawRendererNodes(const Vector<Ref<Renderer>>& renderers, Vector<uint32_t>& selections)
+        {
             int node_clicked = -1;
             for (int i = 0; i < renderers.Size(); ++i)
             {
@@ -82,37 +145,32 @@ namespace Viry3D
                 {
                     node_clicked = i;
                 }
-                
+
                 String id = String::Format("canvas context menu id %d", canvas->GetId());
                 if (ImGui::BeginPopupContextItem(id.CString()))
                 {
                     if (ImGui::BeginMenu("Create"))
                     {
-                        if (ImGui::BeginMenu("UI"))
+                        if (ImGui::MenuItem("View"))
                         {
-                            if (ImGui::MenuItem("View"))
-                            {
-                                auto view = RefMake<View>();
-                                view->SetName("View");
-                                canvas->AddView(view);
-                            }
+                            auto view = RefMake<View>();
+                            view->SetName("View");
+                            canvas->AddView(view);
+                        }
 
-                            if (ImGui::MenuItem("Sprite"))
-                            {
-                                auto view = RefMake<Sprite>();
-                                view->SetName("Sprite");
-                                canvas->AddView(view);
-                            }
+                        if (ImGui::MenuItem("Sprite"))
+                        {
+                            auto view = RefMake<Sprite>();
+                            view->SetName("Sprite");
+                            canvas->AddView(view);
+                        }
 
-                            if (ImGui::MenuItem("Label"))
-                            {
-                                auto view = RefMake<Label>();
-                                view->SetName("Label");
-                                view->SetText("Label");
-                                canvas->AddView(view);
-                            }
-
-                            ImGui::EndMenu();
+                        if (ImGui::MenuItem("Label"))
+                        {
+                            auto view = RefMake<Label>();
+                            view->SetName("Label");
+                            view->SetText("Label");
+                            canvas->AddView(view);
                         }
 
                         ImGui::EndMenu();
@@ -179,31 +237,26 @@ namespace Viry3D
                 {
                     if (ImGui::BeginMenu("Create"))
                     {
-                        if (ImGui::BeginMenu("UI"))
+                        if (ImGui::MenuItem("View"))
                         {
-                            if (ImGui::MenuItem("View"))
-                            {
-                                auto subview = RefMake<View>();
-                                subview->SetName("View");
-                                view->AddSubview(subview);
-                            }
+                            auto subview = RefMake<View>();
+                            subview->SetName("View");
+                            view->AddSubview(subview);
+                        }
 
-                            if (ImGui::MenuItem("Sprite"))
-                            {
-                                auto subview = RefMake<Sprite>();
-                                subview->SetName("Sprite");
-                                view->AddSubview(subview);
-                            }
+                        if (ImGui::MenuItem("Sprite"))
+                        {
+                            auto subview = RefMake<Sprite>();
+                            subview->SetName("Sprite");
+                            view->AddSubview(subview);
+                        }
 
-                            if (ImGui::MenuItem("Label"))
-                            {
-                                auto subview = RefMake<Label>();
-                                subview->SetName("Label");
-                                subview->SetText("Label");
-                                view->AddSubview(subview);
-                            }
-
-                            ImGui::EndMenu();
+                        if (ImGui::MenuItem("Label"))
+                        {
+                            auto subview = RefMake<Label>();
+                            subview->SetName("Label");
+                            subview->SetText("Label");
+                            view->AddSubview(subview);
                         }
 
                         ImGui::EndMenu();

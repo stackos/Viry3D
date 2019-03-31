@@ -60,10 +60,11 @@ namespace Viry3D
         void OnDraw();
         int GetWidth() const;
         int GetHeight() const;
-        Camera* CreateCamera();
-        Camera* CreateBlitCamera(int depth, const Ref<Texture>& texture, CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
-        Camera* CreateBlitCamera(int depth, const Ref<Material>& material, CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
-        void DestroyCamera(Camera* camera);
+        const Ref<Camera>& CreateCamera();
+        const Ref<Camera>& CreateBlitCamera(int depth, const Ref<Texture>& texture, CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
+        const Ref<Camera>& CreateBlitCamera(int depth, const Ref<Material>& material, CameraClearFlags clear_flags = CameraClearFlags::Invalidate, const Rect& rect = Rect(0, 0, 1, 1));
+        void DestroyCamera(const Ref<Camera>& camera);
+        Ref<Camera> GetCameraRef(const Camera* camera) const;
         int GetMaxSamples();
 #if VR_VULKAN
         VkDevice GetDevice() const;

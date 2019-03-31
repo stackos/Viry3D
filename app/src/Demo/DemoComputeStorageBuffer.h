@@ -26,7 +26,7 @@ namespace Viry3D
     class DemoComputeStorageBuffer : public DemoMesh
     {
     public:
-        Camera* m_blit_color_camera = nullptr;
+        Ref<Camera> m_blit_color_camera;
         Ref<BufferObject> m_buffer;
 
         void InitCompute()
@@ -137,7 +137,7 @@ void main()
         virtual void Done()
         {
             Display::Instance()->DestroyCamera(m_blit_color_camera);
-            m_blit_color_camera = nullptr;
+            m_blit_color_camera.reset();
 
             if (m_buffer)
             {

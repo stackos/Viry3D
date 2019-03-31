@@ -26,7 +26,7 @@ namespace Viry3D
     class DemoPostEffectBlur : public DemoMesh
     {
     public:
-        Vector<Camera*> m_blit_cameras;
+        Vector<Ref<Camera>> m_blit_cameras;
         int m_downsample = 2;
         float m_texel_offset = 1.6f;
         int m_iter_count = 3;

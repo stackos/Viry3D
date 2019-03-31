@@ -71,9 +71,9 @@ namespace Viry3D
         int GetLightmapIndex() const { return m_lightmap_index; }
         void SetLightmapIndex(int index);
         void SetLightmapScaleOffset(const Vector4& vec);
-        void OnAddToCamera(Camera* camera);
-        void OnRemoveFromCamera(Camera* camera);
-        Camera* GetCamera() const { return m_camera; }
+        void OnAddToCamera(const Ref<Camera>& camera);
+        void OnRemoveFromCamera(const Ref<Camera>& camera);
+        Ref<Camera> GetCamera() const { return m_camera.lock(); }
         void MarkRendererOrderDirty();
 #if VR_VULKAN
         void MarkInstanceCmdDirty();
@@ -108,7 +108,7 @@ namespace Viry3D
     private:
         Vector<Ref<Material>> m_materials;
         Vector<Ref<Material>> m_instance_materials;
-        Camera* m_camera;
+        WeakRef<Camera> m_camera;
         bool m_model_matrix_dirty;
         Vector<RendererInstanceTransform> m_instances;
         Ref<BufferObject> m_instance_buffer;

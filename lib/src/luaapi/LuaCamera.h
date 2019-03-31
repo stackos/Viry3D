@@ -28,13 +28,14 @@ namespace Viry3D
     public:
         static void Set(lua_State* L)
         {
-            LuaAPI::SetMetaTable(L, LuaClassType::Camera, Index, nullptr, nullptr);
+            LuaAPI::SetMetaTable(L, LuaClassType::Camera, Index, nullptr, GC);
 
             GetMethods().Add("AddRenderer", AddRenderer);
         }
 
     private:
         IMPL_INDEX_EXTENDS_FUNC(Node);
+        IMPL_GC_FUNC(Camera);
         IMPL_GET_METHODS_FUNC();
 
         static int AddRenderer(lua_State* L)

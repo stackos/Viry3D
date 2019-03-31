@@ -49,7 +49,8 @@ namespace Viry3D
         void ShowViewWindow();
         void ShowConsoleWindow();
 
-        Camera* GetCamera() const { return m_ui_camera; }
+        Ref<Camera> CreateCamera();
+        const Vector<Ref<Camera>>& GetCameras() const { return m_cameras; }
         Vector<uint32_t>& GetSelections() { return m_selections; }
         ByteBuffer& GetTextBuffer(const String& name);
         Ref<Object> GetSelectionObject(uint32_t id);
@@ -58,8 +59,7 @@ namespace Viry3D
         Ref<View> FindView(const Vector<Ref<View>>& views, uint32_t id);
 
     private:
-        Camera* m_imgui_camera = nullptr;
-        Camera* m_ui_camera = nullptr;
+        Ref<Camera> m_imgui_camera;
         Ref<ImGuiRenderer> m_imgui;
         bool m_show_demo_window = false;
         Rect m_menu_rect;
@@ -67,7 +67,9 @@ namespace Viry3D
         Rect m_property_window_rect = Rect(0, 0, (float) (Display::Instance()->GetWidth() * 200 / 1280), 0);
         Rect m_view_window_rect = Rect(0, 0, 0, 0);
         Rect m_console_window_rect = Rect(0, 0, 0, 0);
-        Ref<Texture> m_ui_rt;
+        Vector<Ref<Camera>> m_cameras;
+        Ref<Texture> m_view_rt;
+        Ref<Texture> m_view_depth;
         Vector<uint32_t> m_selections;
         Map<String, ByteBuffer> m_text_buffer;
     };

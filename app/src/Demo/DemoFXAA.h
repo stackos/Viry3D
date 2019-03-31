@@ -31,7 +31,7 @@ namespace Viry3D
     class DemoFXAA : public DemoMesh
     {
     public:
-        Camera* m_blit_camera = nullptr;
+        Ref<Camera> m_blit_camera;
         int m_target_quality = 1;
 
         void InitRenderTexture()
@@ -276,7 +276,7 @@ void main()
         {
             if (on)
             {
-                if (m_blit_camera == nullptr)
+                if (!m_blit_camera)
                 {
                     this->InitRenderTexture();
                 }
@@ -288,7 +288,7 @@ void main()
                 if (m_blit_camera)
                 {
                     Display::Instance()->DestroyCamera(m_blit_camera);
-                    m_blit_camera = nullptr;
+                    m_blit_camera.reset();
                 }
             }
         }
@@ -300,7 +300,7 @@ void main()
             if (m_blit_camera)
             {
                 Display::Instance()->DestroyCamera(m_blit_camera);
-                m_blit_camera = nullptr;
+                m_blit_camera.reset();
                 this->InitRenderTexture();
             }
         }
@@ -318,7 +318,7 @@ void main()
             if (m_blit_camera)
             {
                 Display::Instance()->DestroyCamera(m_blit_camera);
-                m_blit_camera = nullptr;
+                m_blit_camera.reset();
             }
 
             DemoMesh::Done();

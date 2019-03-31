@@ -66,8 +66,8 @@ namespace Viry3D
             0.8f
         };
 
-        Camera* m_camera = nullptr;
-        Camera* m_ui_camera = nullptr;
+        Ref<Camera> m_camera;
+        Ref<Camera> m_ui_camera;
         Vector<Ref<MeshRenderer>> m_renderers;
         Label* m_label = nullptr;
         Ref<Light> m_light;
@@ -212,12 +212,12 @@ namespace Viry3D
             if (m_ui_camera)
             {
                 Display::Instance()->DestroyCamera(m_ui_camera);
-                m_ui_camera = nullptr;
+                m_ui_camera.reset();
             }
             if (m_camera)
             {
                 Display::Instance()->DestroyCamera(m_camera);
-                m_camera = nullptr;
+                m_camera.reset();
             }
         }
 

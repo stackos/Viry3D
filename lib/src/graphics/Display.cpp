@@ -3932,19 +3932,18 @@ void main()
         return m_private->m_height;
     }
 
-    Camera* Display::CreateCamera()
+    const Ref<Camera>& Display::CreateCamera()
     {
-        Ref<Camera> camera = RefMake<Camera>();
-        m_private->m_cameras.AddLast(camera);
+        m_private->m_cameras.AddLast(RefMake<Camera>());
 
 #if VR_VULKAN
         this->MarkPrimaryCmdDirty();
 #endif
 
-        return camera.get();
+        return m_private->m_cameras.Last();
     }
 
-    Camera* Display::CreateBlitCamera(int depth, const Ref<Texture>& texture, CameraClearFlags clear_flags, const Rect& rect)
+    const Ref<Camera>& Display::CreateBlitCamera(int depth, const Ref<Texture>& texture, CameraClearFlags clear_flags, const Rect& rect)
     {
         if (!m_private->m_blit_shader)
         {
@@ -3960,7 +3959,7 @@ void main()
         return this->CreateBlitCamera(depth, material, clear_flags, rect);
     }
 
-    Camera* Display::CreateBlitCamera(int depth, const Ref<Material>& material, CameraClearFlags clear_flags, const Rect& rect)
+    const Ref<Camera>& Display::CreateBlitCamera(int depth, const Ref<Material>& material, CameraClearFlags clear_flags, const Rect& rect)
     {
         if (!m_private->m_blit_mesh)
         {
@@ -3971,7 +3970,7 @@ void main()
         renderer->SetMaterial(material);
         renderer->SetMesh(m_private->m_blit_mesh);
 
-        Camera* camera = this->CreateCamera();
+        const Ref<Camera>& camera = this->CreateCamera();
         camera->SetViewportRect(rect);
         camera->SetClearFlags(clear_flags);
         camera->SetDepth(depth);
@@ -3980,7 +3979,7 @@ void main()
         return camera;
     }
 
-    void Display::DestroyCamera(Camera* camera)
+    void Display::DestroyCamera(const Ref<Camera>& camera)
     {
 #if VR_VULKAN
         this->WaitDevice();
@@ -3988,7 +3987,7 @@ void main()
 
         for (const auto& i : m_private->m_cameras)
         {
-            if (i.get() == camera)
+            if (i == camera)
             {
                 m_private->m_cameras.Remove(i);
                 break;
@@ -3998,6 +3997,19 @@ void main()
 #if VR_VULKAN
         this->MarkPrimaryCmdDirty();
 #endif
+    }
+
+    Ref<Camera> Display::GetCameraRef(const Camera* camera) const
+    {
+        for (const auto& i : m_private->m_cameras)
+        {
+            if (i.get() == camera)
+            {
+                return i;
+            }
+        }
+
+        return Ref<Camera>();
     }
 
     int Display::GetMaxSamples()

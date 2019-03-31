@@ -34,15 +34,16 @@ namespace Viry3D
     private:
         static int CreateCamera(lua_State* L)
         {
-            Camera* camera = Display::Instance()->CreateCamera();
-            LuaAPI::PushPtr(L, { camera, LuaClassType::Camera, LuaPtrType::Raw });
+            Ref<Camera>* ptr = new Ref<Camera>(Display::Instance()->CreateCamera());
+            LuaAPI::PushPtr(L, { ptr, LuaClassType::Camera, LuaPtrType::Shared });
             return 1;
         }
 
         static int DestroyCamera(lua_State* L)
         {
-            Camera* p1 = LuaAPI::GetRawPtr<Camera>(L, 1);
-            Display::Instance()->DestroyCamera(p1);
+            LuaClassPtr* p1 = (LuaClassPtr*) lua_touserdata(L, 1);
+            Ref<Camera>* camera = (Ref<Camera>*) p1->ptr;
+            Display::Instance()->DestroyCamera(*camera);
             return 0;
         }
     };

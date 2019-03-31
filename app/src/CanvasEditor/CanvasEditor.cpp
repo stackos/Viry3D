@@ -32,11 +32,8 @@ namespace Viry3D
 {
     void CanvasEditor::InitUI()
     {
-        m_ui_camera = Display::Instance()->CreateCamera();
-        m_ui_camera->SetDepth(0);
-
         m_imgui_camera = Display::Instance()->CreateCamera();
-        m_imgui_camera->SetDepth(1);
+        m_imgui_camera->SetDepth(0x7fffffff);
 
         m_imgui = RefMake<ImGuiRenderer>();
         m_imgui->SetDrawAction([this]() {
@@ -52,16 +49,16 @@ namespace Viry3D
 
     void CanvasEditor::Done()
     {
-        if (m_ui_camera)
+        for (int i = 0; i < m_cameras.Size(); ++i)
         {
-            Display::Instance()->DestroyCamera(m_ui_camera);
-            m_ui_camera = nullptr;
+            Display::Instance()->DestroyCamera(m_cameras[i]);
         }
+        m_cameras.Clear();
 
         if (m_imgui_camera)
         {
             Display::Instance()->DestroyCamera(m_imgui_camera);
-            m_imgui_camera = nullptr;
+            m_imgui_camera.reset();
         }
     }
 
@@ -196,9 +193,9 @@ namespace Viry3D
             ImVec2 view_size = { size.x - ImGui::GetStyle().WindowPadding.x * 2, size.y - ImGui::GetCursorPos().y - ImGui::GetStyle().WindowPadding.y };
             int view_w = (int) view_size.x;
             int view_h = (int) view_size.y;
-            if (!m_ui_rt || m_ui_rt->GetWidth() != view_w || m_ui_rt->GetHeight() != view_h)
+            if (!m_view_rt || m_view_rt->GetWidth() != view_w || m_view_rt->GetHeight() != view_h)
             {
-                m_ui_rt = Texture::CreateRenderTexture(
+                m_view_rt = Texture::CreateRenderTexture(
                     view_w,
                     view_h,
                     TextureFormat::R8G8B8A8,
@@ -207,11 +204,23 @@ namespace Viry3D
                     true,
                     FilterMode::Nearest,
                     SamplerAddressMode::ClampToEdge);
-                m_ui_camera->SetRenderTarget(m_ui_rt, Ref<Texture>());
-                m_ui_camera->OnResize(view_w, view_h);
+                m_view_depth = Texture::CreateRenderTexture(
+                    view_w,
+                    view_h,
+                    Texture::ChooseDepthFormatSupported(true),
+                    1,
+                    1,
+                    true,
+                    FilterMode::Nearest,
+                    SamplerAddressMode::ClampToEdge);
+                for (int i = 0; i < m_cameras.Size(); ++i)
+                {
+                    m_cameras[i]->SetRenderTarget(m_view_rt, m_view_depth);
+                    m_cameras[i]->OnResize(view_w, view_h);
+                }
             }
 
-            ImGui::Image(&m_ui_rt, view_size);
+            ImGui::Image(&m_view_rt, view_size);
         }
         this->EndMainWindow();
     }
@@ -230,6 +239,17 @@ namespace Viry3D
             m_console_window_rect = Rect(pos.x, pos.y, size.x, size.y);
         }
         this->EndMainWindow();
+    }
+
+    Ref<Camera> CanvasEditor::CreateCamera()
+    {
+        Ref<Camera> camera = Display::Instance()->CreateCamera();
+        if (m_view_rt)
+        {
+            camera->SetRenderTarget(m_view_rt, m_view_depth);
+        }
+        m_cameras.Add(camera);
+        return camera;
     }
 
     ByteBuffer& CanvasEditor::GetTextBuffer(const String& name)
@@ -274,23 +294,34 @@ namespace Viry3D
     {
         Ref<Object> obj;
 
-        Vector<Ref<Renderer>> renderers = this->GetCamera()->GetRenderers();
-        for (int i = 0; i < renderers.Size(); ++i)
+        for (int i = 0; i < m_cameras.Size(); ++i)
         {
-            Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(renderers[i]);
-            
-            if (canvas->GetId() == id)
+            if (m_cameras[i]->GetId() == id)
             {
-                obj = canvas;
+                obj = m_cameras[i];
                 break;
             }
-            else
+
+            Vector<Ref<Renderer>> renderers = m_cameras[i]->GetRenderers();
+            for (int j = 0; j < renderers.Size(); ++j)
             {
-                Ref<View> view = this->FindView(canvas->GetViews(), id);
-                if (view)
+                Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(renderers[j]);
+                if (canvas)
                 {
-                    obj = view;
-                    break;
+                    if (canvas->GetId() == id)
+                    {
+                        obj = canvas;
+                        break;
+                    }
+                    else
+                    {
+                        Ref<View> view = this->FindView(canvas->GetViews(), id);
+                        if (view)
+                        {
+                            obj = view;
+                            break;
+                        }
+                    }
                 }
             }
         }

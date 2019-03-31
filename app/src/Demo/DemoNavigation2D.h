@@ -34,7 +34,7 @@ namespace Viry3D
     class DemoNavigation2D : public Demo
     {
     public:
-        Camera* m_ui_camera = nullptr;
+        Ref<Camera> m_ui_camera;
         Label* m_label = nullptr;
         CanvasRenderer* m_canvas = nullptr;
         Ref<NavigationPolygonInstance> m_navigation;
@@ -245,7 +245,7 @@ namespace Viry3D
             if (m_ui_camera)
             {
                 Display::Instance()->DestroyCamera(m_ui_camera);
-                m_ui_camera = nullptr;
+                m_ui_camera.reset();
             }
         }
 

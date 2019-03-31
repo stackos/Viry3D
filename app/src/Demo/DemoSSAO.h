@@ -70,13 +70,13 @@ namespace Viry3D
             0.8f
         };
 
-        Camera* m_camera = nullptr;
-        Camera* m_ui_camera = nullptr;
+        Ref<Camera> m_camera;
+        Ref<Camera> m_ui_camera;
         Label* m_label = nullptr;
         Ref<Light> m_light;
-        Camera* m_ssao_camera = nullptr;
-        Camera* m_blur_camera = nullptr;
-        Camera* m_blit_color_camera = nullptr;
+        Ref<Camera> m_ssao_camera;
+        Ref<Camera> m_blur_camera;
+        Ref<Camera> m_blit_color_camera;
 
         void InitRenderTexture()
         {
@@ -484,27 +484,27 @@ void main()
             if (m_ssao_camera)
             {
                 Display::Instance()->DestroyCamera(m_ssao_camera);
-                m_ssao_camera = nullptr;
+                m_ssao_camera.reset();
             }
             if (m_blur_camera)
             {
                 Display::Instance()->DestroyCamera(m_blur_camera);
-                m_blur_camera = nullptr;
+                m_blur_camera.reset();
             }
             if (m_blit_color_camera)
             {
                 Display::Instance()->DestroyCamera(m_blit_color_camera);
-                m_blit_color_camera = nullptr;
+                m_blit_color_camera.reset();
             }
             if (m_ui_camera)
             {
                 Display::Instance()->DestroyCamera(m_ui_camera);
-                m_ui_camera = nullptr;
+                m_ui_camera.reset();
             }
             if (m_camera)
             {
                 Display::Instance()->DestroyCamera(m_camera);
-                m_camera = nullptr;
+                m_camera.reset();
             }
 
             Shader::RemoveCache("Diffuse");

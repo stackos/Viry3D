@@ -65,7 +65,7 @@ namespace Viry3D
     {
     private:
         Vector<DemoEntry> m_demo_entries;
-        Camera* m_camera = nullptr;
+        Ref<Camera> m_camera;
         Demo* m_demo = nullptr;
         CanvasRenderer* m_canvas = nullptr;
         ScrollView* m_scroll = nullptr;
@@ -252,7 +252,7 @@ namespace Viry3D
             if (m_camera)
             {
                 Display::Instance()->DestroyCamera(m_camera);
-                m_camera = nullptr;
+                m_camera.reset();
             }
 
             if (m_demo)

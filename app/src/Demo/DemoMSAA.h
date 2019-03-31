@@ -25,7 +25,7 @@ namespace Viry3D
     class DemoMSAA: public DemoMesh
     {
     public:
-        Camera* m_blit_camera = nullptr;
+        Ref<Camera> m_blit_camera;
         int m_max_sample_count = 64;
         int m_sample_count = -1;
         int m_sample_count_target = -1;
@@ -132,7 +132,7 @@ namespace Viry3D
             if (m_blit_camera)
             {
                 Display::Instance()->DestroyCamera(m_blit_camera);
-                m_blit_camera = nullptr;
+                m_blit_camera.reset();
             }
 
             DemoMesh::Done();
@@ -151,7 +151,7 @@ namespace Viry3D
                 if (m_blit_camera)
                 {
                     Display::Instance()->DestroyCamera(m_blit_camera);
-                    m_blit_camera = nullptr;
+                    m_blit_camera.reset();
                 }
 
                 this->InitRenderTexture();

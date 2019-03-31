@@ -24,8 +24,8 @@ namespace Viry3D
     class DemoRenderToTexture : public DemoMesh
     {
     public:
-        Camera* m_blit_depth_camera = nullptr;
-        Camera* m_blit_color_camera = nullptr;
+        Ref<Camera> m_blit_depth_camera;
+        Ref<Camera> m_blit_color_camera;
 
         void InitRenderTexture()
         {
@@ -69,9 +69,9 @@ namespace Viry3D
         virtual void Done()
         {
             Display::Instance()->DestroyCamera(m_blit_depth_camera);
-            m_blit_depth_camera = nullptr;
+            m_blit_depth_camera.reset();
             Display::Instance()->DestroyCamera(m_blit_color_camera);
-            m_blit_color_camera = nullptr;
+            m_blit_color_camera.reset();
 
             DemoMesh::Done();
         }

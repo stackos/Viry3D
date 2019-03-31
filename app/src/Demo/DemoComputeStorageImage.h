@@ -25,8 +25,8 @@ namespace Viry3D
     class DemoComputeStorageImage : public DemoMesh
     {
     public:
-        Camera* m_blit_origin_camera = nullptr;
-        Camera* m_blit_result_camera = nullptr;
+        Ref<Camera> m_blit_origin_camera;
+        Ref<Camera> m_blit_result_camera;
 
         void InitCompute()
         {
@@ -115,9 +115,9 @@ void main()
         virtual void Done()
         {
             Display::Instance()->DestroyCamera(m_blit_origin_camera);
-            m_blit_origin_camera = nullptr;
+            m_blit_origin_camera.reset();
             Display::Instance()->DestroyCamera(m_blit_result_camera);
-            m_blit_result_camera = nullptr;
+            m_blit_result_camera.reset();
 
             DemoMesh::Done();
         }

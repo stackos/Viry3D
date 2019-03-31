@@ -26,7 +26,6 @@ namespace Viry3D
 {
     Renderer::Renderer():
         m_draw_buffer_dirty(true),
-		m_camera(nullptr),
         m_model_matrix_dirty(true),
         m_instance_buffer_dirty(false),
         m_instance_extra_vector_count(0),
@@ -91,14 +90,14 @@ namespace Viry3D
         this->MarkInstanceCmdDirty();
 #endif
 
-        if (m_camera)
+        if (!m_camera.expired())
         {
             for (auto& i : m_materials)
             {
                 if (i)
                 {
-                    m_camera->SetViewUniforms(i);
-                    m_camera->SetProjectionUniform(i);
+                    m_camera.lock()->SetViewUniforms(i);
+                    m_camera.lock()->SetProjectionUniform(i);
                 }
             }
         }
@@ -125,32 +124,32 @@ namespace Viry3D
         m_lightmap_uv_dirty = true;
     }
 
-    void Renderer::OnAddToCamera(Camera* camera)
+    void Renderer::OnAddToCamera(const Ref<Camera>& camera)
     {
-		assert(m_camera == nullptr);
+		assert(m_camera.expired());
 		m_camera = camera;
     }
 
-    void Renderer::OnRemoveFromCamera(Camera* camera)
+    void Renderer::OnRemoveFromCamera(const Ref<Camera>& camera)
     {
-		assert(m_camera == camera);
-		m_camera = nullptr;
+		assert(m_camera.lock() == camera);
+		m_camera.reset();
     }
 
     void Renderer::MarkRendererOrderDirty()
     {
-		if (m_camera)
+		if (!m_camera.expired())
 		{
-			m_camera->MarkRendererOrderDirty();
+			m_camera.lock()->MarkRendererOrderDirty();
 		}
     }
 
 #if VR_VULKAN
     void Renderer::MarkInstanceCmdDirty()
     {
-		if (m_camera)
+		if (!m_camera.expired())
 		{
-			m_camera->MarkInstanceCmdDirty(this);
+			m_camera.lock()->MarkInstanceCmdDirty(this);
 		}
     }
 #endif
