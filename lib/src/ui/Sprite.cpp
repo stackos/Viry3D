@@ -78,6 +78,7 @@ namespace Viry3D
     void Sprite::SetFillMethod(SpriteFillMethod method)
     {
         m_fill_method = method;
+        m_fill_origin = 0;
         this->MarkCanvasDirty();
     }
 
@@ -150,18 +151,10 @@ namespace Viry3D
         vs[0].uv = Vector2(m_texture_rect.x / (float) m_texture->GetWidth(), m_texture_rect.y / (float) m_texture->GetHeight());
 
         x = (int) (rect.x + border_l);
-        if (this->GetSize().x < m_texture_rect.w - border_l - border_r)
-        {
-            x = (int) (rect.x + rect.w / 2);
-        }
         vs[1].vertex = Vector3((float) x, vs[0].vertex.y, 0);
         vs[1].uv = Vector2((m_texture_rect.x + border_l) / (float) m_texture->GetWidth(), vs[0].uv.y);
 
         x = (int) (rect.x + rect.w - border_r);
-        if (this->GetSize().x < m_texture_rect.w - border_l - border_r)
-        {
-            x = (int) (rect.x + rect.w / 2);
-        }
         vs[2].vertex = Vector3((float) x, vs[0].vertex.y, 0);
         vs[2].uv = Vector2((m_texture_rect.x + m_texture_rect.w - border_r) / (float) m_texture->GetWidth(), vs[0].uv.y);
 
@@ -169,10 +162,6 @@ namespace Viry3D
         vs[3].uv = Vector2((m_texture_rect.x + m_texture_rect.w) / (float) m_texture->GetWidth(), vs[0].uv.y);
 
         y = (int) (rect.y - border_t);
-        if (this->GetSize().y < m_texture_rect.h - border_t - border_b)
-        {
-            y = (int) (rect.y - rect.h / 2);
-        }
         vs[4].vertex = Vector3(vs[0].vertex.x, (float) y, 0);
         vs[4].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + border_t) / (float) m_texture->GetHeight());
 
@@ -184,10 +173,6 @@ namespace Viry3D
         vs[7].uv = Vector2(vs[3].uv.x, vs[4].uv.y);
 
         y = (int) (rect.y - rect.h + border_b);
-        if (this->GetSize().y < m_texture_rect.h - border_t - border_b)
-        {
-            y = (int) (rect.y - rect.h / 2);
-        }
         vs[8].vertex = Vector3(vs[0].vertex.x, (float) y, 0);
         vs[8].uv = Vector2(vs[0].uv.x, (m_texture_rect.y + m_texture_rect.h - border_b) / (float) m_texture->GetHeight());
 

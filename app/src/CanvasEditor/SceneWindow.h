@@ -38,6 +38,11 @@ namespace Viry3D
             {
                 if (ImGui::BeginMenu("Create"))
                 {
+                    /*if (ImGui::MenuItem("Camera"))
+                    {
+
+                    }*/
+
                     if (ImGui::BeginMenu("UI"))
                     {
                         if (ImGui::MenuItem("Canvas"))

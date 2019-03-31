@@ -47,11 +47,11 @@
 #include "ui/ScrollView.h"
 
 // TODO:
-// - Canvas Editor
+// - Scene Editor
 // - 2D Game Demo
 // - PBR optimize
-// - Ray Tracing
 // - GPU Particle
+// - Ray Tracing
 
 namespace Viry3D
 {

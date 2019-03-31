@@ -290,6 +290,7 @@ namespace Viry3D
                     const char* texture_type = nullptr;
 
                     const Ref<SpriteAtlas>& atlas = sprite->GetAtlas();
+                    const Ref<Texture>& texture = sprite->GetTexture();
                     if (atlas)
                     {
                         texture_path = atlas->GetFilePath();
@@ -297,7 +298,6 @@ namespace Viry3D
                     }
                     else
                     {
-                        const Ref<Texture>& texture = sprite->GetTexture();
                         if (texture)
                         {
                             texture_path = texture->GetFilePath();
@@ -356,8 +356,96 @@ namespace Viry3D
                     }
 
                     // sprite type
-                    SpriteType type = sprite->GetSpriteType();
+                    if (atlas || texture)
+                    {
+                        SpriteType type = sprite->GetSpriteType();
+                        Vector<String> type_names = { "Simple", "Sliced", "Filled" };
+                        if (ImGui::BeginCombo("SpriteType", type_names[(int) type].CString()))
+                        {
+                            for (int i = 0; i < type_names.Size(); ++i)
+                            {
+                                bool select = (i == (int) type);
+                                if (ImGui::Selectable(type_names[i].CString(), &select))
+                                {
+                                    sprite->SetSpriteType((SpriteType) i);
+                                }
+                            }
 
+                            ImGui::EndCombo();
+                        }
+
+                        if (type == SpriteType::Filled)
+                        {
+                            SpriteFillMethod fill_method = sprite->GetFillMethod();
+                            Vector<String> method_names = { "Horizontal", "Vertical", "Radial90", "Radial180", "Radial360" };
+                            if (ImGui::BeginCombo("FillMethod", method_names[(int) fill_method].CString()))
+                            {
+                                for (int i = 0; i < method_names.Size(); ++i)
+                                {
+                                    bool select = (i == (int) fill_method);
+                                    if (ImGui::Selectable(method_names[i].CString(), &select))
+                                    {
+                                        sprite->SetFillMethod((SpriteFillMethod) i);
+                                    }
+                                }
+
+                                ImGui::EndCombo();
+                            }
+
+                            if (fill_method == SpriteFillMethod::Radial90 ||
+                                fill_method == SpriteFillMethod::Radial180 ||
+                                fill_method == SpriteFillMethod::Radial360)
+                            {
+                                bool fill_clockwise = sprite->IsFillClockWise();
+                                if (ImGui::Checkbox("FillClockWise", &fill_clockwise))
+                                {
+                                    sprite->SetFillClockWise(fill_clockwise);
+                                }
+                            }
+
+                            int fill_origin = sprite->GetFillOrigin();
+                            Vector<String> origin_names;
+                            if (fill_method == SpriteFillMethod::Horizontal)
+                            {
+                                origin_names = { "Left", "Right" };
+                            }
+                            else if (fill_method == SpriteFillMethod::Vertical)
+                            {
+                                origin_names = { "Bottom", "Top" };
+                            }
+                            else if (fill_method == SpriteFillMethod::Radial90)
+                            {
+                                origin_names = { "BottomLeft", "TopLeft", "TopRight", "BottomRight" };
+                            }
+                            else if (fill_method == SpriteFillMethod::Radial180)
+                            {
+                                origin_names = { "Bottom", "Left", "Top", "Right" };
+                            }
+                            else if (fill_method == SpriteFillMethod::Radial360)
+                            {
+                                origin_names = { "Bottom", "Left", "Top", "Right" };
+                            }
+                            if (ImGui::BeginCombo("FillOrigin", origin_names[fill_origin].CString()))
+                            {
+                                for (int i = 0; i < origin_names.Size(); ++i)
+                                {
+                                    bool select = (i == fill_origin);
+                                    if (ImGui::Selectable(origin_names[i].CString(), &select))
+                                    {
+                                        sprite->SetFillOrigin(i);
+                                    }
+                                }
+
+                                ImGui::EndCombo();
+                            }
+
+                            float fill_amount = sprite->GetFillAmount();
+                            if (ImGui::SliderFloat("FillAmount", &fill_amount, 0.0f, 1.0f))
+                            {
+                                sprite->SetFillAmount(fill_amount);
+                            }
+                        }
+                    }
                 }
 
                 Ref<Label> label = RefCast<Label>(obj);
