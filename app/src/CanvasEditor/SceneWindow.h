@@ -54,10 +54,10 @@ namespace Viry3D
             for (int i = 0; i < cameras.Size(); ++i)
             {
                 Ref<Camera> camera = cameras[i];
-                Vector<Ref<Renderer>> renderers = camera->GetRenderers();
+                Vector<Ref<Node>> nodes = camera->GetNodes();
 
                 ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selections.Contains(camera->GetId()) ? ImGuiTreeNodeFlags_Selected : 0);
-                bool leaf = (renderers.Size() == 0);
+                bool leaf = (nodes.Size() == 0);
 
                 if (leaf)
                 {
@@ -81,7 +81,7 @@ namespace Viry3D
                             {
                                 auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
                                 canvas->SetName("Canvas");
-                                camera->AddRenderer(canvas);
+                                camera->AddNode(canvas);
                             }
 
                             ImGui::EndMenu();
@@ -97,7 +97,7 @@ namespace Viry3D
                 {
                     if (node_open)
                     {
-                        DrawRendererNodes(renderers, selections);
+                        DrawNodes(nodes, selections);
                         ImGui::TreePop();
                     }
                 }
@@ -124,73 +124,102 @@ namespace Viry3D
             }
         }
 
-        static void DrawRendererNodes(const Vector<Ref<Renderer>>& renderers, Vector<uint32_t>& selections)
+        static void DrawNodes(const Vector<Ref<Node>>& nodes, Vector<uint32_t>& selections)
         {
             int node_clicked = -1;
-            for (int i = 0; i < renderers.Size(); ++i)
+            for (int i = 0; i < nodes.Size(); ++i)
             {
-                Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(renderers[i]);
-                const Vector<Ref<View>>& views = canvas->GetViews();
+                const Ref<Node>& node = nodes[i];
+                int child_count = node->GetChildCount();
+                Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(node);
 
-                ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selections.Contains(canvas->GetId()) ? ImGuiTreeNodeFlags_Selected : 0);
-                bool leaf = (views.Size() == 0);
+                ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selections.Contains(node->GetId()) ? ImGuiTreeNodeFlags_Selected : 0);
+                bool leaf = true;
+                
+                if (canvas)
+                {
+                    leaf = (canvas->GetViews().Size() == 0);
+                }
+                else
+                {
+                    leaf = (child_count == 0);
+                }
 
                 if (leaf)
                 {
                     node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
                 }
 
-                bool node_open = ImGui::TreeNodeEx((void*) (intptr_t) i, node_flags, canvas->GetName().CString());
+                bool node_open = ImGui::TreeNodeEx((void*) (intptr_t) i, node_flags, node->GetName().CString());
                 if (ImGui::IsItemClicked())
                 {
                     node_clicked = i;
                 }
 
-                String id = String::Format("canvas context menu id %d", canvas->GetId());
-                if (ImGui::BeginPopupContextItem(id.CString()))
+                if (canvas)
                 {
-                    if (ImGui::BeginMenu("Create"))
+                    String id = String::Format("canvas context menu id %d", canvas->GetId());
+                    if (ImGui::BeginPopupContextItem(id.CString()))
                     {
-                        if (ImGui::MenuItem("View"))
+                        if (ImGui::BeginMenu("Create"))
                         {
-                            auto view = RefMake<View>();
-                            view->SetName("View");
-                            canvas->AddView(view);
+                            if (ImGui::MenuItem("View"))
+                            {
+                                auto view = RefMake<View>();
+                                view->SetName("View");
+                                canvas->AddView(view);
+                            }
+
+                            if (ImGui::MenuItem("Sprite"))
+                            {
+                                auto view = RefMake<Sprite>();
+                                view->SetName("Sprite");
+                                canvas->AddView(view);
+                            }
+
+                            if (ImGui::MenuItem("Label"))
+                            {
+                                auto view = RefMake<Label>();
+                                view->SetName("Label");
+                                view->SetText("Label");
+                                canvas->AddView(view);
+                            }
+
+                            ImGui::EndMenu();
                         }
 
-                        if (ImGui::MenuItem("Sprite"))
-                        {
-                            auto view = RefMake<Sprite>();
-                            view->SetName("Sprite");
-                            canvas->AddView(view);
-                        }
-
-                        if (ImGui::MenuItem("Label"))
-                        {
-                            auto view = RefMake<Label>();
-                            view->SetName("Label");
-                            view->SetText("Label");
-                            canvas->AddView(view);
-                        }
-
-                        ImGui::EndMenu();
+                        ImGui::EndPopup();
                     }
 
-                    ImGui::EndPopup();
-                }
-
-                if (!leaf)
-                {
-                    if (node_open)
+                    if (!leaf)
                     {
-                        DrawViewNodes(views, selections);
-                        ImGui::TreePop();
+                        if (node_open)
+                        {
+                            DrawViewNodes(canvas->GetViews(), selections);
+                            ImGui::TreePop();
+                        }
+                    }
+                }
+                else
+                {
+                    if (!leaf)
+                    {
+                        if (node_open)
+                        {
+                            Vector<Ref<Node>> children(child_count);
+                            for (int j = 0; j < children.Size(); j++)
+                            {
+                                children[j] = node->GetChild(j);
+                            }
+                            DrawNodes(children, selections);
+                            ImGui::TreePop();
+                        }
                     }
                 }
             }
             if (node_clicked != -1)
             {
-                uint32_t node_id = renderers[node_clicked]->GetId();
+                uint32_t node_id = nodes[node_clicked]->GetId();
                 if (ImGui::GetIO().KeyCtrl)
                 {
                     if (selections.Contains(node_id))

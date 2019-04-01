@@ -76,6 +76,9 @@ namespace Viry3D
         void AddRenderer(const Ref<Renderer>& renderer);
         void RemoveRenderer(const Ref<Renderer>& renderer);
         Vector<Ref<Renderer>> GetRenderers() const;
+        void AddNode(const Ref<Node>& node);
+        void RemoveNode(const Ref<Node>& node);
+        const Vector<Ref<Node>>& GetNodes() const { return m_nodes; }
         float GetFieldOfView() const { return m_field_of_view; }
         void SetFieldOfView(float fov);
         float GetNearClip() const { return m_near_clip; }
@@ -146,6 +149,7 @@ namespace Viry3D
         Ref<Texture> m_render_target_depth;
         Vector<Ref<Texture>> m_extra_render_targets;
         List<RendererInstance> m_renderers;
+        Vector<Ref<Node>> m_nodes;
         Matrix4x4 m_view_matrix;
         bool m_view_matrix_dirty;
         Matrix4x4 m_projection_matrix;

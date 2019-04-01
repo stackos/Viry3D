@@ -641,6 +641,46 @@ namespace Viry3D
         return renderers;
     }
 
+    void Camera::AddNode(const Ref<Node>& node)
+    {
+        if (!node->GetParent())
+        {
+            m_nodes.Add(node);
+        }
+
+        Ref<Renderer> renderer = RefCast<Renderer>(node);
+        if (renderer)
+        {
+            this->AddRenderer(renderer);
+        }
+
+        for (int i = 0; i < node->GetChildCount(); ++i)
+        {
+            Ref<Node> child = node->GetChild(i);
+            this->AddNode(child);
+        }
+    }
+
+    void Camera::RemoveNode(const Ref<Node>& node)
+    {
+        if (!node->GetParent())
+        {
+            m_nodes.Remove(node);
+        }
+
+        Ref<Renderer> renderer = RefCast<Renderer>(node);
+        if (renderer)
+        {
+            this->RemoveRenderer(renderer);
+        }
+
+        for (int i = 0; i < node->GetChildCount(); ++i)
+        {
+            Ref<Node> child = node->GetChild(i);
+            this->RemoveNode(child);
+        }
+    }
+
     void Camera::MarkRendererOrderDirty()
     {
         m_renderer_order_dirty = true;
