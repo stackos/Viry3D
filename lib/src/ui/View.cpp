@@ -194,9 +194,9 @@ namespace Viry3D
         this->MarkCanvasDirty();
     }
 
-    void View::SetLocalRotation(const Vector3& euler)
+    void View::SetLocalRotation(const Quaternion& rot)
     {
-        m_local_rotation = euler;
+        m_local_rotation = rot;
         this->MarkCanvasDirty();
     }
 
@@ -345,7 +345,7 @@ namespace Viry3D
         pivot_pos.y = y - Mathf::Round(m_pivot.y * m_rect.h);
         pivot_pos.z = 0;
 
-        m_vertex_matrix = Matrix4x4::Translation(pivot_pos) * Matrix4x4::Rotation(Quaternion::Euler(m_local_rotation)) * Matrix4x4::Scaling(Vector3(m_local_scale.x, m_local_scale.y, 1)) * Matrix4x4::Translation(-pivot_pos);
+        m_vertex_matrix = Matrix4x4::Translation(pivot_pos) * Matrix4x4::Rotation(m_local_rotation) * Matrix4x4::Scaling(Vector3(m_local_scale.x, m_local_scale.y, 1)) * Matrix4x4::Translation(-pivot_pos);
 
         if (m_parent_view)
         {

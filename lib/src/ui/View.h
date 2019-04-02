@@ -109,8 +109,8 @@ namespace Viry3D
         // left, top, right, bottom
         const Vector4& GetMargin() const { return m_margin; }
         void SetMargin(const Vector4& margin);
-        const Vector3& GetLocalRotation() const { return m_local_rotation; }
-        void SetLocalRotation(const Vector3& euler);
+        const Quaternion& GetLocalRotation() const { return m_local_rotation; }
+        void SetLocalRotation(const Quaternion& rot);
         const Vector2& GetLocalScale() const { return m_local_scale; }
         void SetLocalScale(const Vector2& scale);
         const Recti& GetRect() const { return m_rect; }
@@ -145,7 +145,7 @@ namespace Viry3D
         Vector2i m_size;
         Vector2i m_offset;
         Vector4 m_margin;
-        Vector3 m_local_rotation;
+        Quaternion m_local_rotation;
         Vector2 m_local_scale;
         bool m_clip_rect;
         Recti m_rect;

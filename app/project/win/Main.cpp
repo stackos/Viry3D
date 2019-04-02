@@ -540,8 +540,8 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     String name = "Viry3D";
-    int window_width = 1280;
-    int window_height = 720;
+    int window_width = 1920;
+    int window_height = 1040;
 
     WNDCLASSEX win_class;
     ZeroMemory(&win_class, sizeof(win_class));
@@ -572,6 +572,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     int x = (GetSystemMetrics(SM_CXSCREEN) - window_width) / 2 + wr.left;
     int y = (GetSystemMetrics(SM_CYSCREEN) - window_height) / 2 + wr.top;
+    int w = wr.right - wr.left;
+    int h = wr.bottom - wr.top;
+
+    if (GetSystemMetrics(SM_CXSCREEN) == window_width)
+    {
+        x = wr.left;
+        y = wr.top;
+    }
 
     HWND hwnd = CreateWindowEx(
         style_ex,			// window ex style
@@ -579,8 +587,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         name.CString(),		// app name
         style,			    // window style
         x, y,				// x, y
-        wr.right - wr.left, // width
-        wr.bottom - wr.top, // height
+        w, h,               // w, h
         nullptr,		    // handle to parent
         nullptr,            // handle to menu
         hInstance,			// hInstance

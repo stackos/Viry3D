@@ -58,7 +58,7 @@ namespace Viry3D
             line->SetPivot(Vector2(0.5f, 0.5f));
             line->SetSize(Vector2i(len, m_line_width));
             line->SetOffset(center);
-            line->SetLocalRotation(Quaternion::FromToRotation(Vector3(1, 0, 0), Vector3((float) (end.x - begin.x), (float) -(end.y - begin.y), 0)).ToEulerAngles());
+            line->SetLocalRotation(Quaternion::FromToRotation(Vector3(1, 0, 0), Vector3((float) (end.x - begin.x), (float) -(end.y - begin.y), 0)));
             line->SetColor(this->GetColor());
             this->AddSubview(line);
         }

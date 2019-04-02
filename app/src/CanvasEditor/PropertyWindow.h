@@ -262,10 +262,10 @@ namespace Viry3D
                         view->SetMargin(margin);
                     }
 
-                    Vector3 rotation = view->GetLocalRotation();
-                    if (ImGui::InputFloat3("Rotation", (float*) &rotation, 3))
+                    Vector3 euler = view->GetLocalRotation().ToEulerAngles();
+                    if (ImGui::InputFloat3("Rotation", (float*) &euler, 3))
                     {
-                        view->SetLocalRotation(rotation);
+                        view->SetLocalRotation(Quaternion::Euler(euler));
                     }
 
                     Vector2 scale = view->GetLocalScale();

@@ -49,7 +49,7 @@ namespace Viry3D
                 ImGui::EndPopup();
             }
 
-            const Vector<Ref<Camera>>& cameras = editor->GetCameras();
+            Vector<Ref<Camera>> cameras = editor->GetCameras();
             int node_clicked = -1;
             for (int i = 0; i < cameras.Size(); ++i)
             {
@@ -90,6 +90,21 @@ namespace Viry3D
                         ImGui::EndMenu();
                     }
 
+                    if (ImGui::MenuItem("Destroy"))
+                    {
+                        editor->DestroyCamera(camera);
+
+                        if (selections.Contains(camera->GetId()))
+                        {
+                            selections.Remove(camera->GetId());
+                        }
+
+                        for (int j = 0; j < nodes.Size(); ++j)
+                        {
+                            RemoveNodeSelection(nodes[j], selections);
+                        }
+                    }
+
                     ImGui::EndPopup();
                 }
 
@@ -97,7 +112,7 @@ namespace Viry3D
                 {
                     if (node_open)
                     {
-                        DrawNodes(nodes, selections);
+                        DrawNodes(nodes, selections, camera);
                         ImGui::TreePop();
                     }
                 }
@@ -124,7 +139,7 @@ namespace Viry3D
             }
         }
 
-        static void DrawNodes(const Vector<Ref<Node>>& nodes, Vector<uint32_t>& selections)
+        static void DrawNodes(const Vector<Ref<Node>>& nodes, Vector<uint32_t>& selections, const Ref<Camera>& camera)
         {
             int node_clicked = -1;
             for (int i = 0; i < nodes.Size(); ++i)
@@ -188,6 +203,21 @@ namespace Viry3D
                             ImGui::EndMenu();
                         }
 
+                        if (ImGui::MenuItem("Destroy"))
+                        {
+                            if (camera)
+                            {
+                                camera->RemoveNode(node);
+                            }
+
+                            if (selections.Contains(node->GetId()))
+                            {
+                                selections.Remove(node->GetId());
+                            }
+
+                            RemoveNodeSelection(node, selections);
+                        }
+
                         ImGui::EndPopup();
                     }
 
@@ -211,7 +241,7 @@ namespace Viry3D
                             {
                                 children[j] = node->GetChild(j);
                             }
-                            DrawNodes(children, selections);
+                            DrawNodes(children, selections, Ref<Camera>());
                             ImGui::TreePop();
                         }
                     }
@@ -291,6 +321,25 @@ namespace Viry3D
                         ImGui::EndMenu();
                     }
 
+                    if (ImGui::MenuItem("Destroy"))
+                    {
+                        if (view->GetParentView())
+                        {
+                            view->GetParentView()->RemoveSubview(view);
+                        }
+                        else if (view->GetCanvas())
+                        {
+                            view->GetCanvas()->RemoveView(view);
+                        }
+
+                        if (selections.Contains(view->GetId()))
+                        {
+                            selections.Remove(view->GetId());
+                        }
+
+                        RemoveViewSelection(view, selections);
+                    }
+
                     ImGui::EndPopup();
                 }
 
@@ -322,6 +371,44 @@ namespace Viry3D
                     selections.Clear();
                     selections.Add(node_id);
                 }
+            }
+        }
+
+        static void RemoveNodeSelection(const Ref<Node>& node, Vector<uint32_t>& selections)
+        {
+            if (selections.Contains(node->GetId()))
+            {
+                selections.Remove(node->GetId());
+            }
+
+            Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(node);
+            if (canvas)
+            {
+                const Vector<Ref<View>>& views = canvas->GetViews();
+                for (int i = 0; i < views.Size(); ++i)
+                {
+                    RemoveViewSelection(views[i], selections);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < node->GetChildCount(); ++i)
+                {
+                    RemoveNodeSelection(node->GetChild(i), selections);
+                }
+            }
+        }
+
+        static void RemoveViewSelection(const Ref<View>& view, Vector<uint32_t>& selections)
+        {
+            if (selections.Contains(view->GetId()))
+            {
+                selections.Remove(view->GetId());
+            }
+
+            for (int i = 0; i < view->GetSubviewCount(); ++i)
+            {
+                RemoveViewSelection(view->GetSubview(i), selections);
             }
         }
     };

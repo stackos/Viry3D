@@ -252,6 +252,12 @@ namespace Viry3D
         return camera;
     }
 
+    void CanvasEditor::DestroyCamera(const Ref<Camera>& camera)
+    {
+        Display::Instance()->DestroyCamera(camera);
+        m_cameras.Remove(camera);
+    }
+
     ByteBuffer& CanvasEditor::GetTextBuffer(const String& name)
     {
         ByteBuffer* ptr = nullptr;
@@ -266,28 +272,66 @@ namespace Viry3D
         return *ptr;
     }
 
-    Ref<View> CanvasEditor::FindView(const Vector<Ref<View>>& views, uint32_t id)
+    Ref<Object> CanvasEditor::FindView(const Ref<View>& view, uint32_t id)
     {
-        Ref<View> view;
+        Ref<Object> find;
 
-        for (int i = 0; i < views.Size(); ++i)
+        if (view->GetId() == id)
         {
-            if (views[i]->GetId() == id)
+            find = view;
+        }
+        else
+        {
+            for (int i = 0; i < view->GetSubviewCount(); ++i)
             {
-                view = views[i];
-                break;
-            }
-            else
-            {
-                view = this->FindView(views[i]->GetSubviews(), id);
-                if (view)
+                find = this->FindView(view->GetSubview(i), id);
+                if (find)
                 {
                     break;
                 }
             }
         }
 
-        return view;
+        return find;
+    }
+
+    Ref<Object> CanvasEditor::FindNode(const Ref<Node>& node, uint32_t id)
+    {
+        Ref<Object> find;
+
+        if (node->GetId() == id)
+        {
+            find = node;
+        }
+        else
+        {
+            Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(node);
+            if (canvas)
+            {
+                const Vector<Ref<View>>& views = canvas->GetViews();
+                for (int i = 0; i < views.Size(); ++i)
+                {
+                    find = this->FindView(views[i], id);
+                    if (find)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < node->GetChildCount(); ++i)
+                {
+                    find = this->FindNode(node->GetChild(i), id);
+                    if (find)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return find;
     }
 
     Ref<Object> CanvasEditor::GetSelectionObject(uint32_t id)
@@ -302,26 +346,13 @@ namespace Viry3D
                 break;
             }
 
-            Vector<Ref<Renderer>> renderers = m_cameras[i]->GetRenderers();
-            for (int j = 0; j < renderers.Size(); ++j)
+            const Vector<Ref<Node>>& nodes = m_cameras[i]->GetNodes();
+            for (int j = 0; j < nodes.Size(); ++j)
             {
-                Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(renderers[j]);
-                if (canvas)
+                obj = this->FindNode(nodes[j], id);
+                if (obj)
                 {
-                    if (canvas->GetId() == id)
-                    {
-                        obj = canvas;
-                        break;
-                    }
-                    else
-                    {
-                        Ref<View> view = this->FindView(canvas->GetViews(), id);
-                        if (view)
-                        {
-                            obj = view;
-                            break;
-                        }
-                    }
+                    break;
                 }
             }
         }

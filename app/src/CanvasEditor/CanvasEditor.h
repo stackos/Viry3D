@@ -27,6 +27,7 @@
 namespace Viry3D
 {
     class Object;
+    class Node;
     class Camera;
     class ImGuiRenderer;
     class Texture;
@@ -50,13 +51,15 @@ namespace Viry3D
         void ShowConsoleWindow();
 
         Ref<Camera> CreateCamera();
+        void DestroyCamera(const Ref<Camera>& camera);
         const Vector<Ref<Camera>>& GetCameras() const { return m_cameras; }
         Vector<uint32_t>& GetSelections() { return m_selections; }
         ByteBuffer& GetTextBuffer(const String& name);
         Ref<Object> GetSelectionObject(uint32_t id);
 
     private:
-        Ref<View> FindView(const Vector<Ref<View>>& views, uint32_t id);
+        Ref<Object> FindView(const Ref<View>& view, uint32_t id);
+        Ref<Object> FindNode(const Ref<Node>& node, uint32_t id);
 
     private:
         Ref<Camera> m_imgui_camera;
