@@ -91,13 +91,10 @@ namespace Viry3D
 
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("New")) { }
-
-                if (ImGui::MenuItem("Open", "Ctrl+O")) { }
-
-                if (ImGui::MenuItem("Save", "Ctrl+S")) { }
-
-                if (ImGui::MenuItem("Save As..")) { }
+                if (ImGui::MenuItem("Quit", "Alt+F4"))
+                {
+                    Application::Instance()->Quit();
+                }
 
                 ImGui::EndMenu();
             }

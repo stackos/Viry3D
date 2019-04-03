@@ -24,6 +24,7 @@
 #include "graphics/Material.h"
 #include "graphics/Camera.h"
 #include "Input.h"
+#include "Application.h"
 #include "imgui/imgui.h"
 
 namespace Viry3D
@@ -55,6 +56,8 @@ namespace Viry3D
         io.KeyMap[ImGuiKey_Y] = (int) KeyCode::Y;
         io.KeyMap[ImGuiKey_Z] = (int) KeyCode::Z;
         io.IniFilename = nullptr;
+        String font_path = Application::Instance()->GetDataPath() + "/font/PingFangSC.ttf";
+        io.Fonts->AddFontFromFileTTF(font_path.CString(), 20, nullptr, io.Fonts->GetGlyphRangesChineseFull());
     }
 
     ImGuiRenderer::~ImGuiRenderer()
@@ -213,6 +216,33 @@ void main()
         for (int i = 0; i < (int) KeyCode::COUNT; ++i)
         {
             io.KeysDown[i] = Input::GetKey((KeyCode) i);
+        }
+
+        const Vector<unsigned short>& chars = Input::GetInputQueueCharacters();
+        if (chars.Size() > 0)
+        {
+            Vector<char> cs;
+            for (int i = 0; i < chars.Size(); ++i)
+            {
+                unsigned short c = chars[i];
+                if (c <= 0xff)
+                {
+                    cs.Add(c & 0xff);
+                }
+                else
+                {
+                    cs.Add((c & 0xff00) >> 8);
+                    cs.Add(c & 0xff);
+                }
+            }
+
+#if VR_WINDOWS
+            String str = String::Gb2312ToUtf8(String(&cs[0], cs.Size()));
+#else
+            String str = String(&cs[0], cs.Size());
+#endif
+
+            io.AddInputCharactersUTF8(str.CString());
         }
 
         if (!m_font_texture)

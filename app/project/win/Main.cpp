@@ -19,7 +19,6 @@
 #include "App.h"
 #include "Input.h"
 #include "time/Time.h"
-#include "imgui/imgui.h"
 #include <Windows.h>
 #include <windowsx.h>
 
@@ -329,11 +328,6 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             if (wParam > 0 && wParam < 0x10000)
             {
                 unsigned short c = (unsigned short) wParam;
-                if (ImGui::GetCurrentContext())
-                {
-                    ImGuiIO& io = ImGui::GetIO();
-                    io.AddInputCharacter(c);
-                }
                 Input::AddInputCharacter(c);
             }
             break;

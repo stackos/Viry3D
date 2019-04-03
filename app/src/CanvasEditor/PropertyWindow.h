@@ -23,6 +23,7 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
 #include "ui/Label.h"
+#include "ui/Font.h"
 
 namespace Viry3D
 {
@@ -180,7 +181,7 @@ namespace Viry3D
                 Ref<Object> obj = editor->GetSelectionObject(selections[0]);
 
                 String name = obj->GetName();
-                if (InputText(editor, "Name", "object_name", name))
+                if (InputText(editor, "Name", "ObjectName", name))
                 {
                     obj->SetName(name);
                 }
@@ -450,7 +451,62 @@ namespace Viry3D
                 Ref<Label> label = RefCast<Label>(obj);
                 if (label)
                 {
+                    // font
+                    const Ref<Font>& font = label->GetFont();
+                    Vector<String> font_names = { "Arial", "Consola", "PingFangSC", "SimSun" };
+                    String font_name;
+                    for (int i = 0; i < font_names.Size(); ++i)
+                    {
+                        if (font == Font::GetFont((FontType) i))
+                        {
+                            font_name = font_names[i];
+                            break;
+                        }
+                    }
+                    if (ImGui::BeginCombo("Font", font_name.CString()))
+                    {
+                        for (int i = 0; i < font_names.Size(); ++i)
+                        {
+                            bool select = (font == Font::GetFont((FontType) i));
+                            if (ImGui::Selectable(font_names[i].CString(), &select))
+                            {
+                                label->SetFont(Font::GetFont((FontType) i));
+                            }
+                        }
 
+                        ImGui::EndCombo();
+                    }
+
+                    FontStyle font_style = label->GetFontStyle();
+                    Vector<String> style_names = { "Normal", "Bold", "Italic", "BoldAndItalic" };
+                    if (ImGui::BeginCombo("FontStyle", style_names[(int) font_style].CString()))
+                    {
+                        for (int i = 0; i < style_names.Size(); ++i)
+                        {
+                            bool select = (i == (int) font_style);
+                            if (ImGui::Selectable(style_names[i].CString(), &select))
+                            {
+                                label->SetFontStyle((FontStyle) i);
+                            }
+                        }
+
+                        ImGui::EndCombo();
+                    }
+
+                    int font_size = label->GetFontSize();
+                    if (ImGui::InputInt("FontSize", &font_size))
+                    {
+                        if (font_size > 0)
+                        {
+                            label->SetFontSize(font_size);
+                        }
+                    }
+
+                    String text = label->GetText();
+                    if (InputText(editor, "Text", "LabelText", text))
+                    {
+                        label->SetText(text);
+                    }
                 }
             }
             else if (selections.Size() > 1)
