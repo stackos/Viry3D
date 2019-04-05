@@ -40,4 +40,24 @@
     return layer;
 }
 
+-(BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+- (void)keyUp:(NSEvent*)event {
+    NSLog(@"keyUp");
+}
+
+- (void)keyDown:(NSEvent*)event {
+    NSLog(@"keyDown");
+}
+
+-(void)flagsChanged:(NSEvent*)event {
+    NSLog(@"flagsChanged");
+}
+
+-(void)scrollWheel:(NSEvent*)event {
+    NSLog(@"scrollWheel");
+}
+
 @end
