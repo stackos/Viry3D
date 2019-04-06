@@ -17,6 +17,11 @@
 
 #import "VkView.h"
 #import <QuartzCore/CAMetalLayer.h>
+#include "Input.h"
+
+using namespace Viry3D;
+
+extern float g_mouse_scroll_wheel;
 
 @implementation View
 
@@ -57,7 +62,28 @@
 }
 
 -(void)scrollWheel:(NSEvent*)event {
-    NSLog(@"scrollWheel");
+    if (event.type == NSEventTypeScrollWheel) {
+        float wheel_dy = 0.0;
+        
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6)
+        {
+            wheel_dy = [event scrollingDeltaY];
+            if ([event hasPreciseScrollingDeltas])
+            {
+                wheel_dy *= 0.1f;
+            }
+        }
+        else
+#endif
+        {
+            wheel_dy = [event deltaY];
+        }
+        
+        if (fabs(wheel_dy) > 0.0f) {
+            g_mouse_scroll_wheel = wheel_dy * 0.1f;
+        }
+    }
 }
 
 @end

@@ -960,7 +960,7 @@ elseif (${Target} MATCHES "Mac")
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/Main.m
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/AppDelegate.m
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/ViewController.mm
-                   ${VIRY3D_APP_SRC_DIR}/../project/mac/VkView.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/VkView.mm
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
                    ${VIRY3D_APP_SRC_DIR}/../bin/Assets
                    )
