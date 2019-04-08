@@ -68,12 +68,65 @@ extern float g_mouse_scroll_wheel;
     }
 }
 
-- (void)keyDown:(NSEvent*)event {
+- (int)getKey:(int)c {
+    int key = -1;
     
+    if (c >= 'a' && c <= 'z') {
+        key = (int) KeyCode::A + c - 'a';
+    } else if (c == 13) {
+        key = (int) KeyCode::Return;
+    } else if (c == 25) {
+        key = (int) KeyCode::Tab;
+    } else if (c == 27) {
+        key = (int) KeyCode::Escape;
+    } else if (c == 32) {
+        key = (int) KeyCode::Space;
+    } else if (c == 63232) {
+        key = (int) KeyCode::UpArrow;
+    } else if (c == 63233) {
+        key = (int) KeyCode::DownArrow;
+    } else if (c == 63234) {
+        key = (int) KeyCode::LeftArrow;
+    } else if (c == 63235) {
+        key = (int) KeyCode::RightArrow;
+    }
+    
+    return key;
+}
+
+- (void)keyDown:(NSEvent*)event {
+    NSString* str = [event characters];
+    int len = (int) [str length];
+    for (int i = 0; i < len; i++) {
+        int ch = [str characterAtIndex:i];
+        if (ch < 0xF700 && !g_key[(int) KeyCode::LeftControl]) {
+            unsigned short c = (unsigned short) ch;
+            if (ch == 127) {
+                c = '\b';
+            }
+            Input::AddInputCharacter(c);
+        }
+        if (ch == 127) {
+            [self onKeyDown:(int) KeyCode::Backspace];
+            [self onKeyDown:(int) KeyCode::Delete];
+        } else {
+            [self onKeyDown:[self getKey:ch]];
+        }
+    }
 }
 
 - (void)keyUp:(NSEvent*)event {
-    
+    NSString* str = [event characters];
+    int len = (int) [str length];
+    for (int i = 0; i < len; i++) {
+        int ch = [str characterAtIndex:i];
+        if (ch == 127) {
+            [self onKeyUp:(int) KeyCode::Backspace];
+            [self onKeyUp:(int) KeyCode::Delete];
+        } else {
+            [self onKeyUp:[self getKey:ch]];
+        }
+    }
 }
 
 - (void)flagsChanged:(NSEvent*)event {
