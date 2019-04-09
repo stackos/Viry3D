@@ -554,7 +554,6 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP" OR ${Target} MATCHES 
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcModulator.c
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcReverb.c
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcRing.c
-         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/ALu.c
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/bs2b.c
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/helpers.c
@@ -625,6 +624,7 @@ if (${Target} MATCHES "Windows")
 
     file(GLOB VIRY3D_DEP_SRCS_WIN
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/xaudio2.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/GenericCodeGen/CodeGen.cpp
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/GenericCodeGen/Link.cpp
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/attribute.cpp
@@ -804,7 +804,7 @@ elseif (${Target} MATCHES "UWP")
 
     file(GLOB VIRY3D_DEP_SRCS_UWP
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/xaudio2.cpp
-         ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThreadCpp11.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThreadCpp11.cpp
          )
 
     source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_UWP})
@@ -896,6 +896,7 @@ elseif (${Target} MATCHES "Android")
 
     target_sources(Viry3DDep PRIVATE
                    ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/opensl.c
+				   ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
                    )
 
     target_include_directories(Viry3DDep PRIVATE

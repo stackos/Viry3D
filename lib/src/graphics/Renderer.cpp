@@ -333,8 +333,8 @@ namespace Viry3D
             if (clip_rect)
             {
                 glEnable(GL_SCISSOR_TEST);
-                int target_width = m_camera->GetTargetWidth();
-                int target_height = m_camera->GetTargetHeight();
+                int target_width = m_camera.lock()->GetTargetWidth();
+                int target_height = m_camera.lock()->GetTargetHeight();
                 glScissor((int) (clip_rect->x * target_width),
                     (int) ((1.0f - clip_rect->y - clip_rect->w) * target_height),
                     (int) (clip_rect->z * target_width),
