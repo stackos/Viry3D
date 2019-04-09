@@ -441,7 +441,8 @@ if ( FALSE )
 endif ()
 
 # imgui
-if (${Target} MATCHES "Windows"
+if (${Target} MATCHES "Windows" OR
+	${Target} MATCHES "Mac"
     )
 
     file(GLOB VIRY3D_DEP_SRCS_IMGUI
@@ -986,6 +987,50 @@ elseif (${Target} MATCHES "Mac")
                           )
 
     set_target_properties(Viry3DApp PROPERTIES
+                          MACOSX_BUNDLE TRUE
+                          MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Info.plist
+                          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
+                          )
+
+	file(GLOB VIRY3D_APP_CANVAS_EDITOR_SRCS
+         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.h
+         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.cpp
+         ${VIRY3D_APP_SRC_DIR}/App.h
+         ${VIRY3D_APP_SRC_DIR}/AppCanvasEditor.cpp
+         )
+
+    source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_CANVAS_EDITOR_SRCS})
+
+    add_executable(Viry3DAppCanvasEditor
+                   ${VIRY3D_APP_CANVAS_EDITOR_SRCS}
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/Main.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/AppDelegate.m
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/ViewController.mm
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/VkView.mm
+                   ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
+                   ${VIRY3D_APP_SRC_DIR}/../bin/Assets
+                   )
+
+	target_include_directories(Viry3DAppCanvasEditor PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                               ${VIRY3D_APP_SRC_DIR}
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
+                               )
+
+    target_link_libraries(Viry3DAppCanvasEditor
+                          Viry3D Viry3DDep
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/macOS/libMoltenVK.a
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework
+                          "-framework OpenAL"
+                          "-framework AppKit"
+                          "-framework Metal"
+                          "-framework QuartzCore"
+                          "-framework IOKit"
+                          z.1.2.8
+                          )
+
+    set_target_properties(Viry3DAppCanvasEditor PROPERTIES
                           MACOSX_BUNDLE TRUE
                           MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Info.plist
                           XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
