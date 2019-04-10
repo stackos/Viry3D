@@ -47,15 +47,37 @@ namespace Viry3D
         bool match = true;
         auto tag_cstr = tag_str.CString();
 
-        for (int i = 0; i < tag_str.Size(); ++i)
-        {
-            if (tag_cstr[i] != str[char_index + i])
-            {
-                match = false;
-                break;
-            }
-        }
+		if (str.Size() - char_index < tag_str.Size())
+		{
+			match = false;
+		}
+		else
+		{
+			for (int i = 0; i < tag_str.Size(); ++i)
+			{
+				if (tag_cstr[i] != str[char_index + i])
+				{
+					match = false;
+					break;
+				}
+			}
+		}
 
+		if (match)
+		{
+			if (value_length > 0)
+			{
+				if (str.Size() - char_index < tag_str.Size() + value_length + 1)
+				{
+					match = false;
+				}
+				else if (str[char_index + tag_str.Size() + value_length] != '>')
+				{
+					match = false;
+				}
+			}
+		}
+		
         if (match)
         {
             if (value_length > 0)
@@ -90,14 +112,21 @@ namespace Viry3D
         bool match = true;
         auto tag_cstr = tag_str.CString();
 
-        for (int i = 0; i < tag_str.Size(); ++i)
-        {
-            if (tag_cstr[i] != str[char_index + i])
-            {
-                match = false;
-                break;
-            }
-        }
+		if (str.Size() - char_index < tag_str.Size())
+		{
+			match = false;
+		}
+		else
+		{
+			for (int i = 0; i < tag_str.Size(); ++i)
+			{
+				if (tag_cstr[i] != str[char_index + i])
+				{
+					match = false;
+					break;
+				}
+			}
+		}
 
         if (match)
         {

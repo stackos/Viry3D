@@ -507,6 +507,18 @@ namespace Viry3D
                     {
                         label->SetText(text);
                     }
+
+					int line_space = label->GetLineSpace();
+					if (ImGui::InputInt("LineSpace", &line_space))
+					{
+						label->SetLineSpace(line_space);
+					}
+
+					bool rich_text = label->IsRich();
+					if (ImGui::Checkbox("RichText", &rich_text))
+					{
+						label->SetRich(rich_text);
+					}
                 }
             }
             else if (selections.Size() > 1)
