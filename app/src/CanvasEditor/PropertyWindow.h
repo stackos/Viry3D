@@ -519,6 +519,14 @@ namespace Viry3D
 					{
 						label->SetRich(rich_text);
 					}
+
+					bool mono_font = label->IsMono();
+					if (ImGui::Checkbox("Mono", &mono_font))
+					{
+						label->SetMono(mono_font);
+					}
+
+
                 }
             }
             else if (selections.Size() > 1)

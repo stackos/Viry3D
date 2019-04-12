@@ -126,7 +126,10 @@ namespace Viry3D
 
 	GlyphInfo Font::GetGlyph(char32_t c, int size, bool bold, bool italic, bool mono)
 	{
-		int size_key = size | (bold ? (1 << 24) : 0) | (italic ? (1 << 16) : 0);
+		int size_key = size |
+			(bold ? (1 << 31) : 0) |
+			(italic ? (1 << 30) : 0) |
+			(mono ? (1 << 29) : 0);
 
 		Map<int, GlyphInfo>* p_size_glyphs;
 		if (!m_glyphs.TryGet(c, &p_size_glyphs))
@@ -208,7 +211,7 @@ namespace Viry3D
         {
             ByteBuffer pixels = ByteBuffer(p_glyph->width * p_glyph->height * 4);
 
-            if (mono)
+            if (mono || slot->bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
             {
                 for (int i = 0; i < p_glyph->height; ++i)
                 {
