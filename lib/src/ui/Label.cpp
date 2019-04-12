@@ -327,7 +327,7 @@ namespace Viry3D
         this->MarkCanvasDirty();
     }
 
-    void Label::EnableWrapContent(bool enable)
+    void Label::SetWrapContent(bool enable)
     {
         m_wrap_content = enable;
         m_lines_dirty = true;

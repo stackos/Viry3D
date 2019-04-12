@@ -55,7 +55,7 @@ namespace Viry3D
             label->SetFontSize(26);
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetText(text);
-            label->EnableWrapContent(true);
+            label->SetWrapContent(true);
 
             auto texture = Texture::LoadTexture2DFromFile(Application::Instance()->GetDataPath() + "/texture/ui/button.png", FilterMode::Linear, SamplerAddressMode::ClampToEdge, false, false);
 

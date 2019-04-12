@@ -81,7 +81,7 @@ namespace Viry3D
         // use ViewAlignment
         void SetTextAlignment(int alignment);
         bool IsWrapContent() const { return m_wrap_content; }
-        void EnableWrapContent(bool enable);
+        void SetWrapContent(bool enable);
         const Vector<LabelLine>& GetLines();
 
     protected:

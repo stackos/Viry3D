@@ -526,7 +526,17 @@ namespace Viry3D
 						label->SetMono(mono_font);
 					}
 
+					int text_alignment = label->GetTextAlignment();
+					if (DrawAlignmentCombo("TextAlignment", &text_alignment))
+					{
+						label->SetTextAlignment(text_alignment);
+					}
 
+					bool wrap_content = label->IsWrapContent();
+					if (ImGui::Checkbox("WrapContent", &wrap_content))
+					{
+						label->SetWrapContent(wrap_content);
+					}
                 }
             }
             else if (selections.Size() > 1)
