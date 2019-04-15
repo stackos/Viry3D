@@ -202,6 +202,16 @@ namespace Viry3D
 			}
 		}
 
+		static void DrawCamera(CanvasEditor* editor, const Ref<Camera>& camera)
+		{
+
+		}
+
+		static void DrawCanvas(CanvasEditor* editor, const Ref<CanvasRenderer>& canvas)
+		{
+			
+		}
+
 		static void DrawView(CanvasEditor* editor, const Ref<View>& view)
 		{
 			Color color = view->GetColor();
@@ -566,6 +576,18 @@ namespace Viry3D
 				if (node)
 				{
 					DrawNode(editor, node);
+				}
+
+				Ref<Camera> camera = RefCast<Camera>(obj);
+				if (camera)
+				{
+					DrawCamera(editor, camera);
+				}
+
+				Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(obj);
+				if (canvas)
+				{
+					DrawCanvas(editor, canvas);
 				}
 
                 Ref<View> view = RefCast<View>(obj);
