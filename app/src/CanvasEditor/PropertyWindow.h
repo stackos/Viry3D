@@ -226,7 +226,52 @@ namespace Viry3D
 				camera->SetClearColor(clear_color);
 			}
 
+			Rect rect = camera->GetViewportRect();
+			if (ImGui::InputFloat4("Rect", (float*) &rect, 3))
+			{
+				camera->SetViewportRect(rect);
+			}
 
+			int depth = camera->GetDepth();
+			if (ImGui::InputInt("Depth", &depth))
+			{
+				camera->SetDepth(depth);
+			}
+
+			bool ortho = camera->IsOrthographic();
+			if (ImGui::Checkbox("Orthographic", &ortho))
+			{
+				camera->SetOrthographic(ortho);
+			}
+
+			if (ortho)
+			{
+				float ortho_size = camera->GetOrthographicSize();
+				if (ImGui::InputFloat("Size", &ortho_size))
+				{
+					camera->SetOrthographicSize(ortho_size);
+				}
+			}
+			else
+			{
+				float fov = camera->GetFieldOfView();
+				if (ImGui::SliderFloat("FOV", &fov, 1.0f, 179.0f))
+				{
+					camera->SetFieldOfView(fov);
+				}
+			}
+
+			float near_clip = camera->GetNearClip();
+			if (ImGui::InputFloat("Near", &near_clip))
+			{
+				camera->SetNearClip(near_clip);
+			}
+
+			float far_clip = camera->GetFarClip();
+			if (ImGui::InputFloat("Far", &far_clip))
+			{
+				camera->SetFarClip(far_clip);
+			}
 		}
 
 		static void DrawCanvas(CanvasEditor* editor, const Ref<CanvasRenderer>& canvas)

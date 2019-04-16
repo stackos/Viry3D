@@ -61,37 +61,37 @@ namespace Viry3D
         void SetViewportRect(const Rect& rect);
         int GetDepth() const { return m_depth; }
         void SetDepth(int depth);
-        bool HasRenderTarget() const { return m_render_target_color || m_render_target_depth; }
-        const Ref<Texture>& GetRenderTargetColor() const { return m_render_target_color; }
-        const Ref<Texture>& GetRenderTargetDepth() const { return m_render_target_depth; }
-        void SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture);
-        const Vector<Ref<Texture>>& GetExtraRenderTargets() const { return m_extra_render_targets; }
-        void SetExtraRenderTargets(const Vector<Ref<Texture>>& color_textures);
-        void Update();
-        void OnFrameEnd();
-        void OnResize(int width, int height);
-        void OnPause();
-        int GetTargetWidth() const;
-        int GetTargetHeight() const;
-        void AddRenderer(const Ref<Renderer>& renderer);
-        void RemoveRenderer(const Ref<Renderer>& renderer);
-        Vector<Ref<Renderer>> GetRenderers() const;
-        void AddNode(const Ref<Node>& node);
-        void RemoveNode(const Ref<Node>& node);
-        const Vector<Ref<Node>>& GetNodes() const { return m_nodes; }
+		bool IsOrthographic() const { return m_orthographic; }
+		void SetOrthographic(bool enable);
+		float GetOrthographicSize() const { return m_orthographic_size; }
+		void SetOrthographicSize(float size);
         float GetFieldOfView() const { return m_field_of_view; }
         void SetFieldOfView(float fov);
         float GetNearClip() const { return m_near_clip; }
         void SetNearClip(float clip);
         float GetFarClip() const { return m_far_clip; }
         void SetFarClip(float clip);
-        bool IsOrthographic() const { return m_orthographic; }
-        void SetOrthographic(bool enable);
-        float GetOrthographicSize() const { return m_orthographic_size; }
-        void SetOrthographicSize(float size);
         bool IsStereoRendering() const { return m_stereo_rendering; }
         void SetStereoRendering(bool enable);
         void SetStereoOffset(float offset);
+		bool HasRenderTarget() const { return m_render_target_color || m_render_target_depth; }
+		const Ref<Texture>& GetRenderTargetColor() const { return m_render_target_color; }
+		const Ref<Texture>& GetRenderTargetDepth() const { return m_render_target_depth; }
+		void SetRenderTarget(const Ref<Texture>& color_texture, const Ref<Texture>& depth_texture);
+		const Vector<Ref<Texture>>& GetExtraRenderTargets() const { return m_extra_render_targets; }
+		void SetExtraRenderTargets(const Vector<Ref<Texture>>& color_textures);
+		void Update();
+		void OnFrameEnd();
+		void OnResize(int width, int height);
+		void OnPause();
+		int GetTargetWidth() const;
+		int GetTargetHeight() const;
+		void AddRenderer(const Ref<Renderer>& renderer);
+		void RemoveRenderer(const Ref<Renderer>& renderer);
+		Vector<Ref<Renderer>> GetRenderers() const;
+		void AddNode(const Ref<Node>& node);
+		void RemoveNode(const Ref<Node>& node);
+		const Vector<Ref<Node>>& GetNodes() const { return m_nodes; }
         void SetViewMatrixExternal(const Matrix4x4& mat);
         void SetProjectionMatrixExternal(const Matrix4x4& mat);
         const Matrix4x4& GetViewMatrix();
