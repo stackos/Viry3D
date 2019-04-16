@@ -1167,6 +1167,7 @@ extern void UnbindSharedContext();
                 {
                     color_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
                     depth_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+					depth_initial_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                     break;
                 }
                 case CameraClearFlags::Depth:

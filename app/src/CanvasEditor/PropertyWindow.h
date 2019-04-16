@@ -27,150 +27,150 @@
 
 namespace Viry3D
 {
-    class PropertyWindow
-    {
-    public:
-        static bool InputText(CanvasEditor* editor, const char* label, const String& buffer_name, String& target, ImGuiInputTextFlags flags = 0)
-        {
-            ByteBuffer& name_buffer = editor->GetTextBuffer(buffer_name);
-            if (target.Size() < name_buffer.Size())
-            {
-                Memory::Copy(name_buffer.Bytes(), target.CString(), target.Size());
-                name_buffer[target.Size()] = 0;
-            }
-            if (ImGui::InputText(label, (char*) name_buffer.Bytes(), name_buffer.Size(), flags))
-            {
-                target = String((char*) name_buffer.Bytes(), (int) strlen((char*) name_buffer.Bytes()));
-                return true;
-            }
-            return false;
-        }
+	class PropertyWindow
+	{
+	public:
+		static bool InputText(CanvasEditor* editor, const char* label, const String& buffer_name, String& target, ImGuiInputTextFlags flags = 0)
+		{
+			ByteBuffer& name_buffer = editor->GetTextBuffer(buffer_name);
+			if (target.Size() < name_buffer.Size())
+			{
+				Memory::Copy(name_buffer.Bytes(), target.CString(), target.Size());
+				name_buffer[target.Size()] = 0;
+			}
+			if (ImGui::InputText(label, (char*) name_buffer.Bytes(), name_buffer.Size(), flags))
+			{
+				target = String((char*) name_buffer.Bytes(), (int) strlen((char*) name_buffer.Bytes()));
+				return true;
+			}
+			return false;
+		}
 
-        static bool LabelButton(const char* label, const char* text, const ImVec2& text_align = ImVec2(0.5f, 0.5f))
-        {
-            const ImVec2& button_text_align = ImGui::GetStyle().ButtonTextAlign;
-            const ImVec2& item_spacing = ImGui::GetStyle().ItemSpacing;
-            const ImVec2 label_size = ImGui::CalcTextSize(label, nullptr, true);
-            const ImVec2 button_size(ImGui::CalcItemWidth(), label_size.y + ImGui::GetStyle().FramePadding.y * 2);
+		static bool LabelButton(const char* label, const char* text, const ImVec2& text_align = ImVec2(0.5f, 0.5f))
+		{
+			const ImVec2& button_text_align = ImGui::GetStyle().ButtonTextAlign;
+			const ImVec2& item_spacing = ImGui::GetStyle().ItemSpacing;
+			const ImVec2 label_size = ImGui::CalcTextSize(label, nullptr, true);
+			const ImVec2 button_size(ImGui::CalcItemWidth(), label_size.y + ImGui::GetStyle().FramePadding.y * 2);
 
-            ImGui::GetStyle().ButtonTextAlign = text_align;
-            bool pressed = ImGui::Button(text, button_size);
-            ImGui::GetStyle().ButtonTextAlign = button_text_align;
-            ImGui::SameLine();
-            ImGui::GetStyle().ItemSpacing.x = ImGui::GetStyle().ItemInnerSpacing.x;
-            ImGui::Text(label);
-            ImGui::GetStyle().ItemSpacing.x = item_spacing.x;
+			ImGui::GetStyle().ButtonTextAlign = text_align;
+			bool pressed = ImGui::Button(text, button_size);
+			ImGui::GetStyle().ButtonTextAlign = button_text_align;
+			ImGui::SameLine();
+			ImGui::GetStyle().ItemSpacing.x = ImGui::GetStyle().ItemInnerSpacing.x;
+			ImGui::Text(label);
+			ImGui::GetStyle().ItemSpacing.x = item_spacing.x;
 
-            return pressed;
-        }
+			return pressed;
+		}
 
-        static String OpenFilePanel(const String& initial_path, const char* filter)
-        {
-            String file_path;
+		static String OpenFilePanel(const String& initial_path, const char* filter)
+		{
+			String file_path;
 
 #if VR_WINDOWS
-            char path[MAX_PATH];
-            String data_path = initial_path.Replace("/", "\\");
-            strcpy(path, data_path.CString());
+			char path[MAX_PATH];
+			String data_path = initial_path.Replace("/", "\\");
+			strcpy(path, data_path.CString());
 
-            OPENFILENAME open = { };
-            open.lStructSize = sizeof(open);
-            open.hwndOwner = (HWND) Display::Instance()->GetWindow();
-            open.lpstrFilter = filter;
-            open.lpstrFile = path;
-            open.nMaxFile = MAX_PATH;
-            open.nFilterIndex = 0;
-            open.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
+			OPENFILENAME open = { };
+			open.lStructSize = sizeof(open);
+			open.hwndOwner = (HWND) Display::Instance()->GetWindow();
+			open.lpstrFilter = filter;
+			open.lpstrFile = path;
+			open.nMaxFile = MAX_PATH;
+			open.nFilterIndex = 0;
+			open.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
 
-            if (GetOpenFileName(&open))
-            {
-                file_path = path;
-                file_path = file_path.Replace("\\", "/");
-            }
+			if (GetOpenFileName(&open))
+			{
+				file_path = path;
+				file_path = file_path.Replace("\\", "/");
+			}
 #endif
 
-            return file_path;
-        }
+			return file_path;
+		}
 
-        static bool DrawAlignmentCombo(const char* label, int* alignment)
-        {
-            bool value_changed = false;
+		static bool DrawAlignmentCombo(const char* label, int* alignment)
+		{
+			bool value_changed = false;
 
-            String alignment_str;
-            switch (*alignment & 0x0000000f)
-            {
-                case ViewAlignment::Left:
-                    alignment_str += "Left";
-                    break;
-                case ViewAlignment::HCenter:
-                    alignment_str += "HCenter";
-                    break;
-                case ViewAlignment::Right:
-                    alignment_str += "Right";
-                    break;
-            }
-            alignment_str += "-";
-            switch (*alignment & 0x000000f0)
-            {
-                case ViewAlignment::Top:
-                    alignment_str += "Top";
-                    break;
-                case ViewAlignment::VCenter:
-                    alignment_str += "VCenter";
-                    break;
-                case ViewAlignment::Bottom:
-                    alignment_str += "Bottom";
-                    break;
-            }
-            if (ImGui::BeginCombo(label, alignment_str.CString()))
-            {
-                bool select = *alignment & ViewAlignment::Left;
-                if (ImGui::Selectable("Left", &select))
-                {
-                    *alignment = (*alignment & 0xfffffff0) | ViewAlignment::Left;
-                    value_changed = true;
-                }
+			String alignment_str;
+			switch (*alignment & 0x0000000f)
+			{
+			case ViewAlignment::Left:
+				alignment_str += "Left";
+				break;
+			case ViewAlignment::HCenter:
+				alignment_str += "HCenter";
+				break;
+			case ViewAlignment::Right:
+				alignment_str += "Right";
+				break;
+			}
+			alignment_str += "-";
+			switch (*alignment & 0x000000f0)
+			{
+			case ViewAlignment::Top:
+				alignment_str += "Top";
+				break;
+			case ViewAlignment::VCenter:
+				alignment_str += "VCenter";
+				break;
+			case ViewAlignment::Bottom:
+				alignment_str += "Bottom";
+				break;
+			}
+			if (ImGui::BeginCombo(label, alignment_str.CString()))
+			{
+				bool select = *alignment & ViewAlignment::Left;
+				if (ImGui::Selectable("Left", &select))
+				{
+					*alignment = (*alignment & 0xfffffff0) | ViewAlignment::Left;
+					value_changed = true;
+				}
 
-                select = *alignment & ViewAlignment::HCenter;
-                if (ImGui::Selectable("HCenter", &select))
-                {
-                    *alignment = (*alignment & 0xfffffff0) | ViewAlignment::HCenter;
-                    value_changed = true;
-                }
+				select = *alignment & ViewAlignment::HCenter;
+				if (ImGui::Selectable("HCenter", &select))
+				{
+					*alignment = (*alignment & 0xfffffff0) | ViewAlignment::HCenter;
+					value_changed = true;
+				}
 
-                select = *alignment & ViewAlignment::Right;
-                if (ImGui::Selectable("Right", &select))
-                {
-                    *alignment = (*alignment & 0xfffffff0) | ViewAlignment::Right;
-                    value_changed = true;
-                }
+				select = *alignment & ViewAlignment::Right;
+				if (ImGui::Selectable("Right", &select))
+				{
+					*alignment = (*alignment & 0xfffffff0) | ViewAlignment::Right;
+					value_changed = true;
+				}
 
-                select = *alignment & ViewAlignment::Top;
-                if (ImGui::Selectable("Top", &select))
-                {
-                    *alignment = (*alignment & 0xffffff0f) | ViewAlignment::Top;
-                    value_changed = true;
-                }
+				select = *alignment & ViewAlignment::Top;
+				if (ImGui::Selectable("Top", &select))
+				{
+					*alignment = (*alignment & 0xffffff0f) | ViewAlignment::Top;
+					value_changed = true;
+				}
 
-                select = *alignment & ViewAlignment::VCenter;
-                if (ImGui::Selectable("VCenter", &select))
-                {
-                    *alignment = (*alignment & 0xffffff0f) | ViewAlignment::VCenter;
-                    value_changed = true;
-                }
+				select = *alignment & ViewAlignment::VCenter;
+				if (ImGui::Selectable("VCenter", &select))
+				{
+					*alignment = (*alignment & 0xffffff0f) | ViewAlignment::VCenter;
+					value_changed = true;
+				}
 
-                select = *alignment & ViewAlignment::Bottom;
-                if (ImGui::Selectable("Bottom", &select))
-                {
-                    *alignment = (*alignment & 0xffffff0f) | ViewAlignment::Bottom;
-                    value_changed = true;
-                }
+				select = *alignment & ViewAlignment::Bottom;
+				if (ImGui::Selectable("Bottom", &select))
+				{
+					*alignment = (*alignment & 0xffffff0f) | ViewAlignment::Bottom;
+					value_changed = true;
+				}
 
-                ImGui::EndCombo();
-            }
+				ImGui::EndCombo();
+			}
 
-            return value_changed;
-        }
+			return value_changed;
+		}
 
 		static void DrawObject(CanvasEditor* editor, const Ref<Object>& obj)
 		{
@@ -190,13 +190,13 @@ namespace Viry3D
 			}
 
 			Vector3 rotation = node->GetLocalRotation().ToEulerAngles();
-			if (ImGui::InputFloat3("Rotation", (float*)&rotation, 3))
+			if (ImGui::InputFloat3("Rotation", (float*) &rotation, 3))
 			{
 				node->SetLocalRotation(Quaternion::Euler(rotation));
 			}
 
 			Vector3 scale = node->GetLocalScale();
-			if (ImGui::InputFloat3("Scale", (float*)&scale, 3))
+			if (ImGui::InputFloat3("Scale", (float*) &scale, 3))
 			{
 				node->SetLocalScale(scale);
 			}
@@ -204,18 +204,40 @@ namespace Viry3D
 
 		static void DrawCamera(CanvasEditor* editor, const Ref<Camera>& camera)
 		{
+			CameraClearFlags clear_flags = camera->GetClearFlags();
+			Vector<String> clear_flags_names = { "Invalidate", "Color", "Depth", "ColorAndDepth", "Nothing" };
+			if (ImGui::BeginCombo("ClearFlags", clear_flags_names[(int) clear_flags].CString()))
+			{
+				for (int i = 0; i < clear_flags_names.Size(); ++i)
+				{
+					bool select = (i == (int) clear_flags);
+					if (ImGui::Selectable(clear_flags_names[i].CString(), &select))
+					{
+						camera->SetClearFlags((CameraClearFlags) i);
+					}
+				}
+
+				ImGui::EndCombo();
+			}
+
+			Color clear_color = camera->GetClearColor();
+			if (ImGui::ColorEdit4("ClearColor", (float*) &clear_color))
+			{
+				camera->SetClearColor(clear_color);
+			}
+
 
 		}
 
 		static void DrawCanvas(CanvasEditor* editor, const Ref<CanvasRenderer>& canvas)
 		{
-			
+
 		}
 
 		static void DrawView(CanvasEditor* editor, const Ref<View>& view)
 		{
 			Color color = view->GetColor();
-			if (ImGui::ColorEdit4("Color", (float*)&color))
+			if (ImGui::ColorEdit4("Color", (float*) &color))
 			{
 				view->SetColor(color);
 			}
@@ -227,7 +249,7 @@ namespace Viry3D
 			}
 
 			Vector2 pivot = view->GetPivot();
-			if (ImGui::InputFloat2("Pivot", (float*)&pivot, 3))
+			if (ImGui::InputFloat2("Pivot", (float*) &pivot, 3))
 			{
 				view->SetPivot(pivot);
 			}
@@ -275,27 +297,27 @@ namespace Viry3D
 			}
 
 			Vector2i offset = view->GetOffset();
-			if (ImGui::InputInt2("Offset", (int*)&offset))
+			if (ImGui::InputInt2("Offset", (int*) &offset))
 			{
 				view->SetOffset(offset);
 			}
 
 			Vector4 margin = view->GetMargin();
-			int margin_i[4] = { (int)margin.x, (int)margin.y, (int)margin.z, (int)margin.w };
+			int margin_i[4] = { (int) margin.x, (int) margin.y, (int) margin.z, (int) margin.w };
 			if (ImGui::InputInt4("Margin", margin_i))
 			{
-				margin = Vector4((float)margin_i[0], (float)margin_i[1], (float)margin_i[2], (float)margin_i[3]);
+				margin = Vector4((float) margin_i[0], (float) margin_i[1], (float) margin_i[2], (float) margin_i[3]);
 				view->SetMargin(margin);
 			}
 
 			Vector3 euler = view->GetLocalRotation().ToEulerAngles();
-			if (ImGui::InputFloat3("Rotation", (float*)&euler, 3))
+			if (ImGui::InputFloat3("Rotation", (float*) &euler, 3))
 			{
 				view->SetLocalRotation(Quaternion::Euler(euler));
 			}
 
 			Vector2 scale = view->GetLocalScale();
-			if (ImGui::InputFloat2("Scale", (float*)&scale, 3))
+			if (ImGui::InputFloat2("Scale", (float*) &scale, 3))
 			{
 				view->SetLocalScale(scale);
 			}
@@ -384,14 +406,14 @@ namespace Viry3D
 			{
 				SpriteType type = sprite->GetSpriteType();
 				Vector<String> type_names = { "Simple", "Sliced", "Filled" };
-				if (ImGui::BeginCombo("SpriteType", type_names[(int)type].CString()))
+				if (ImGui::BeginCombo("SpriteType", type_names[(int) type].CString()))
 				{
 					for (int i = 0; i < type_names.Size(); ++i)
 					{
-						bool select = (i == (int)type);
+						bool select = (i == (int) type);
 						if (ImGui::Selectable(type_names[i].CString(), &select))
 						{
-							sprite->SetSpriteType((SpriteType)i);
+							sprite->SetSpriteType((SpriteType) i);
 						}
 					}
 
@@ -402,14 +424,14 @@ namespace Viry3D
 				{
 					SpriteFillMethod fill_method = sprite->GetFillMethod();
 					Vector<String> method_names = { "Horizontal", "Vertical", "Radial90", "Radial180", "Radial360" };
-					if (ImGui::BeginCombo("FillMethod", method_names[(int)fill_method].CString()))
+					if (ImGui::BeginCombo("FillMethod", method_names[(int) fill_method].CString()))
 					{
 						for (int i = 0; i < method_names.Size(); ++i)
 						{
-							bool select = (i == (int)fill_method);
+							bool select = (i == (int) fill_method);
 							if (ImGui::Selectable(method_names[i].CString(), &select))
 							{
-								sprite->SetFillMethod((SpriteFillMethod)i);
+								sprite->SetFillMethod((SpriteFillMethod) i);
 							}
 						}
 
@@ -480,7 +502,7 @@ namespace Viry3D
 			String font_name;
 			for (int i = 0; i < font_names.Size(); ++i)
 			{
-				if (font == Font::GetFont((FontType)i))
+				if (font == Font::GetFont((FontType) i))
 				{
 					font_name = font_names[i];
 					break;
@@ -490,10 +512,10 @@ namespace Viry3D
 			{
 				for (int i = 0; i < font_names.Size(); ++i)
 				{
-					bool select = (font == Font::GetFont((FontType)i));
+					bool select = (font == Font::GetFont((FontType) i));
 					if (ImGui::Selectable(font_names[i].CString(), &select))
 					{
-						label->SetFont(Font::GetFont((FontType)i));
+						label->SetFont(Font::GetFont((FontType) i));
 					}
 				}
 
@@ -502,14 +524,14 @@ namespace Viry3D
 
 			FontStyle font_style = label->GetFontStyle();
 			Vector<String> style_names = { "Normal", "Bold", "Italic", "BoldAndItalic" };
-			if (ImGui::BeginCombo("FontStyle", style_names[(int)font_style].CString()))
+			if (ImGui::BeginCombo("FontStyle", style_names[(int) font_style].CString()))
 			{
 				for (int i = 0; i < style_names.Size(); ++i)
 				{
-					bool select = (i == (int)font_style);
+					bool select = (i == (int) font_style);
 					if (ImGui::Selectable(style_names[i].CString(), &select))
 					{
-						label->SetFontStyle((FontStyle)i);
+						label->SetFontStyle((FontStyle) i);
 					}
 				}
 
@@ -562,13 +584,13 @@ namespace Viry3D
 			}
 		}
 
-        static void OnGUI(CanvasEditor* editor)
-        {
-            Vector<uint32_t>& selections = editor->GetSelections();
-            
-            if (selections.Size() == 1)
-            {
-                Ref<Object> obj = editor->GetSelectionObject(selections[0]);
+		static void OnGUI(CanvasEditor* editor)
+		{
+			Vector<uint32_t>& selections = editor->GetSelections();
+
+			if (selections.Size() == 1)
+			{
+				Ref<Object> obj = editor->GetSelectionObject(selections[0]);
 
 				DrawObject(editor, obj);
 
@@ -590,32 +612,32 @@ namespace Viry3D
 					DrawCanvas(editor, canvas);
 				}
 
-                Ref<View> view = RefCast<View>(obj);
-                if (view)
-                {
+				Ref<View> view = RefCast<View>(obj);
+				if (view)
+				{
 					DrawView(editor, view);
-                }
+				}
 
-                Ref<Sprite> sprite = RefCast<Sprite>(obj);
-                if (sprite)
-                {
+				Ref<Sprite> sprite = RefCast<Sprite>(obj);
+				if (sprite)
+				{
 					DrawSprite(editor, sprite);
-                }
+				}
 
-                Ref<Label> label = RefCast<Label>(obj);
-                if (label)
-                {
+				Ref<Label> label = RefCast<Label>(obj);
+				if (label)
+				{
 					DrawLabel(editor, label);
-                }
-            }
-            else if (selections.Size() > 1)
-            {
-                ImGui::Text("Multi-node selected");
-            }
-            else
-            {
-                ImGui::Text("No selection");
-            }
-        }
-    };
+				}
+			}
+			else if (selections.Size() > 1)
+			{
+				ImGui::Text("Multi-node selected");
+			}
+			else
+			{
+				ImGui::Text("No selection");
+			}
+		}
+	};
 }
