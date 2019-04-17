@@ -20,6 +20,7 @@
 #include "CanvasEditor.h"
 #include "imgui/imgui.h"
 #include "graphics/Camera.h"
+#include "graphics/SkinnedMeshRenderer.h"
 #include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
 #include "ui/Label.h"
@@ -274,9 +275,13 @@ namespace Viry3D
 			}
 		}
 
-		static void DrawCanvas(CanvasEditor* editor, const Ref<CanvasRenderer>& canvas)
+		static void DrawRenderer(CanvasEditor* editor, const Ref<Renderer>& renderer)
 		{
-
+			Ref<MeshRenderer> mesh_renderer = RefCast<MeshRenderer>(renderer);
+			if (mesh_renderer)
+			{
+				
+			}
 		}
 
 		static void DrawView(CanvasEditor* editor, const Ref<View>& view)
@@ -651,10 +656,10 @@ namespace Viry3D
 					DrawCamera(editor, camera);
 				}
 
-				Ref<CanvasRenderer> canvas = RefCast<CanvasRenderer>(obj);
-				if (canvas)
+				Ref<Renderer> renderer = RefCast<Renderer>(obj);
+				if (renderer && !RefCast<CanvasRenderer>(obj))
 				{
-					DrawCanvas(editor, canvas);
+					DrawRenderer(editor, renderer);
 				}
 
 				Ref<View> view = RefCast<View>(obj);

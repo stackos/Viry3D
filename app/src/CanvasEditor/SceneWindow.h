@@ -75,17 +75,26 @@ namespace Viry3D
                 {
                     if (ImGui::BeginMenu("Create"))
                     {
-                        if (ImGui::BeginMenu("UI"))
-                        {
-                            if (ImGui::MenuItem("Canvas"))
-                            {
-                                auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
-                                canvas->SetName("Canvas");
-                                camera->AddNode(canvas);
-                            }
+						if (ImGui::MenuItem("Node"))
+						{
+							auto node = RefMake<Node>();
+							node->SetName("Node");
+							camera->AddNode(node);
+						}
 
-                            ImGui::EndMenu();
-                        }
+						if (ImGui::MenuItem("MeshRenderer"))
+						{
+							auto mesh_renderer = RefMake<MeshRenderer>();
+							mesh_renderer->SetName("MeshRenderer");
+							camera->AddNode(mesh_renderer);
+						}
+
+						if (ImGui::MenuItem("Canvas"))
+						{
+							auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
+							canvas->SetName("Canvas");
+							camera->AddNode(canvas);
+						}
 
                         ImGui::EndMenu();
                     }
@@ -112,7 +121,7 @@ namespace Viry3D
                 {
                     if (node_open)
                     {
-                        DrawNodes(nodes, selections, camera);
+                        DrawNodes(nodes, selections, camera, Ref<Node>());
                         ImGui::TreePop();
                     }
                 }
@@ -139,7 +148,7 @@ namespace Viry3D
             }
         }
 
-        static void DrawNodes(const Vector<Ref<Node>>& nodes, Vector<uint32_t>& selections, const Ref<Camera>& camera)
+        static void DrawNodes(const Vector<Ref<Node>>& nodes, Vector<uint32_t>& selections, const Ref<Camera>& camera, const Ref<Node>& parent)
         {
             int node_clicked = -1;
             for (int i = 0; i < nodes.Size(); ++i)
@@ -205,7 +214,7 @@ namespace Viry3D
 
                         if (ImGui::MenuItem("Destroy"))
                         {
-                            if (camera)
+                            if (!parent)
                             {
                                 camera->RemoveNode(node);
                             }
@@ -232,6 +241,58 @@ namespace Viry3D
                 }
                 else
                 {
+					String id = String::Format("node context menu id %d", node->GetId());
+					if (ImGui::BeginPopupContextItem(id.CString()))
+					{
+						if (ImGui::BeginMenu("Create"))
+						{
+							if (ImGui::MenuItem("Node"))
+							{
+								auto child_node = RefMake<Node>();
+								child_node->SetName("Node");
+								Node::SetParent(child_node, node);
+							}
+
+							if (ImGui::MenuItem("MeshRenderer"))
+							{
+								auto mesh_renderer = RefMake<MeshRenderer>();
+								mesh_renderer->SetName("MeshRenderer");
+								Node::SetParent(mesh_renderer, node);
+
+								camera->AddRenderer(mesh_renderer);
+							}
+
+							ImGui::EndMenu();
+						}
+
+						if (ImGui::MenuItem("Destroy"))
+						{
+							if (!parent)
+							{
+								camera->RemoveNode(node);
+							}
+							else
+							{
+								Node::SetParent(node, Ref<Node>());
+
+								Ref<Renderer> renderer = RefCast<Renderer>(node);
+								if (renderer)
+								{
+									camera->RemoveRenderer(renderer);
+								}
+							}
+
+							if (selections.Contains(node->GetId()))
+							{
+								selections.Remove(node->GetId());
+							}
+
+							RemoveNodeSelection(node, selections);
+						}
+
+						ImGui::EndPopup();
+					}
+
                     if (!leaf)
                     {
                         if (node_open)
@@ -241,7 +302,7 @@ namespace Viry3D
                             {
                                 children[j] = node->GetChild(j);
                             }
-                            DrawNodes(children, selections, Ref<Camera>());
+                            DrawNodes(children, selections, camera, node);
                             ImGui::TreePop();
                         }
                     }
