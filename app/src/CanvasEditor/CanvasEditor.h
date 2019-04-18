@@ -56,6 +56,7 @@ namespace Viry3D
         Vector<uint32_t>& GetSelections() { return m_selections; }
         ByteBuffer& GetTextBuffer(const String& name);
         Ref<Object> GetSelectionObject(uint32_t id);
+		String OpenFilePanel(const String& initial_path, const char* filter);
 
     private:
         Ref<Object> FindView(const Ref<View>& view, uint32_t id);

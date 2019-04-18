@@ -356,4 +356,32 @@ namespace Viry3D
 
         return obj;
     }
+
+	String CanvasEditor::OpenFilePanel(const String& initial_path, const char* filter)
+	{
+		String file_path;
+
+#if VR_WINDOWS
+		char path[MAX_PATH];
+		String data_path = initial_path.Replace("/", "\\");
+		strcpy(path, data_path.CString());
+
+		OPENFILENAME open = { };
+		open.lStructSize = sizeof(open);
+		open.hwndOwner = (HWND) Display::Instance()->GetWindow();
+		open.lpstrFilter = filter;
+		open.lpstrFile = path;
+		open.nMaxFile = MAX_PATH;
+		open.nFilterIndex = 0;
+		open.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
+
+		if (GetOpenFileName(&open))
+		{
+			file_path = path;
+			file_path = file_path.Replace("\\", "/");
+		}
+#endif
+
+		return file_path;
+	}
 }

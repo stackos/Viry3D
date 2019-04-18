@@ -23,6 +23,7 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
 #include "ui/Label.h"
+#include "Resources.h"
 
 namespace Viry3D
 {
@@ -82,13 +83,6 @@ namespace Viry3D
 							camera->AddNode(node);
 						}
 
-						if (ImGui::MenuItem("MeshRenderer"))
-						{
-							auto mesh_renderer = RefMake<MeshRenderer>();
-							mesh_renderer->SetName("MeshRenderer");
-							camera->AddNode(mesh_renderer);
-						}
-
 						if (ImGui::MenuItem("Canvas"))
 						{
 							auto canvas = RefMake<CanvasRenderer>(FilterMode::Nearest);
@@ -98,6 +92,30 @@ namespace Viry3D
 
                         ImGui::EndMenu();
                     }
+
+					if (ImGui::BeginMenu("Load"))
+					{
+						if (ImGui::MenuItem("Node"))
+						{
+							String initial_path = Application::Instance()->GetDataPath();
+							String node_path = editor->OpenFilePanel(initial_path, "GameObject\0*.go\0");
+							if (node_path.Size() > 0)
+							{
+								int find = node_path.LastIndexOf("/Assets/");
+								if (find >= 0)
+								{
+									node_path = node_path.Substring(find + String("/Assets/").Size());
+									Ref<Node> node = Resources::LoadNode(node_path);
+									if (node)
+									{
+										camera->AddNode(node);
+									}
+								}
+							}
+						}
+
+						ImGui::EndMenu();
+					}
 
                     if (ImGui::MenuItem("Destroy"))
                     {
@@ -251,15 +269,6 @@ namespace Viry3D
 								auto child_node = RefMake<Node>();
 								child_node->SetName("Node");
 								Node::SetParent(child_node, node);
-							}
-
-							if (ImGui::MenuItem("MeshRenderer"))
-							{
-								auto mesh_renderer = RefMake<MeshRenderer>();
-								mesh_renderer->SetName("MeshRenderer");
-								Node::SetParent(mesh_renderer, node);
-
-								camera->AddRenderer(mesh_renderer);
 							}
 
 							ImGui::EndMenu();

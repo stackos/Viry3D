@@ -65,34 +65,6 @@ namespace Viry3D
 			return pressed;
 		}
 
-		static String OpenFilePanel(const String& initial_path, const char* filter)
-		{
-			String file_path;
-
-#if VR_WINDOWS
-			char path[MAX_PATH];
-			String data_path = initial_path.Replace("/", "\\");
-			strcpy(path, data_path.CString());
-
-			OPENFILENAME open = { };
-			open.lStructSize = sizeof(open);
-			open.hwndOwner = (HWND) Display::Instance()->GetWindow();
-			open.lpstrFilter = filter;
-			open.lpstrFile = path;
-			open.nMaxFile = MAX_PATH;
-			open.nFilterIndex = 0;
-			open.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
-
-			if (GetOpenFileName(&open))
-			{
-				file_path = path;
-				file_path = file_path.Replace("\\", "/");
-			}
-#endif
-
-			return file_path;
-		}
-
 		static bool DrawAlignmentCombo(const char* label, int* alignment)
 		{
 			bool value_changed = false;
@@ -277,10 +249,15 @@ namespace Viry3D
 
 		static void DrawRenderer(CanvasEditor* editor, const Ref<Renderer>& renderer)
 		{
-			Ref<MeshRenderer> mesh_renderer = RefCast<MeshRenderer>(renderer);
-			if (mesh_renderer)
+			Vector<Ref<Material>> materials = renderer->GetMaterials();
+			int material_count = materials.Size();
+			if (ImGui::InputInt("MaterialCount", &material_count))
 			{
-				
+				if (material_count >= 0)
+				{
+					materials.Resize(material_count);
+					renderer->SetMaterials(materials);
+				}
 			}
 		}
 
@@ -408,7 +385,7 @@ namespace Viry3D
 				{
 					initial_path = Application::Instance()->GetDataPath();
 				}
-				texture_path = OpenFilePanel(initial_path, "Texture or Atlas\0*.png;*.jpg;*.atlas\0");
+				texture_path = editor->OpenFilePanel(initial_path, "Texture or Atlas\0*.png;*.jpg;*.atlas\0");
 				if (texture_path.EndsWith(".atlas"))
 				{
 					Ref<SpriteAtlas> atlas = SpriteAtlas::LoadFromFile(texture_path);
