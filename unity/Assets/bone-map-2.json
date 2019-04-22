@@ -1,0 +1,102 @@
+{
+  "Hips": {
+    "src": "mixamorig:Hips",
+    "dst": "Hips"
+  },
+  "Spine": {
+    "src": "mixamorig:Spine",
+    "dst": "Spine"
+  },
+  "Chest": {
+    "src": "mixamorig:Spine1",
+    "dst": "Chest"
+  },
+  "UpperChest": {
+    "src": "mixamorig:Spine2",
+    "dst": ""
+  },
+  "Neck": {
+    "src": "mixamorig:Neck",
+    "dst": "Neck"
+  },
+  "Head": {
+    "src": "mixamorig:Head",
+    "dst": "Head"
+  },
+  "LeftEye": {
+    "src": "mixamorig:LeftEye",
+    "dst": "LeftEye"
+  },
+  "RightEye": {
+    "src": "mixamorig:RightEye",
+    "dst": "RightEye"
+  },
+  "Jaw": {
+    "src": "",
+    "dst": "Jaw"
+  },
+  "LeftShoulder": {
+    "src": "mixamorig:LeftShoulder",
+    "dst": "LeftShoulder"
+  },
+  "LeftUpperArm": {
+    "src": "mixamorig:LeftArm",
+    "dst": "LeftArm"
+  },
+  "LeftLowerArm": {
+    "src": "mixamorig:LeftForeArm",
+    "dst": "LeftForeArm"
+  },
+  "LeftHand": {
+    "src": "mixamorig:LeftHand",
+    "dst": "LeftHand"
+  },
+  "RightShoulder": {
+    "src": "mixamorig:RightShoulder",
+    "dst": "RightShoulder"
+  },
+  "RightUpperArm": {
+    "src": "mixamorig:RightArm",
+    "dst": "RightArm"
+  },
+  "RightLowerArm": {
+    "src": "mixamorig:RightForeArm",
+    "dst": "RightForeArm"
+  },
+  "RightHand": {
+    "src": "mixamorig:RightHand",
+    "dst": "RightHand"
+  },
+  "LeftUpperLeg": {
+    "src": "mixamorig:LeftUpLeg",
+    "dst": "LeftUpLeg"
+  },
+  "LeftLowerLeg": {
+    "src": "mixamorig:LeftLeg",
+    "dst": "LeftLeg"
+  },
+  "LeftFoot": {
+    "src": "mixamorig:LeftFoot",
+    "dst": "LeftFoot"
+  },
+  "LeftToes": {
+    "src": "mixamorig:LeftToeBase",
+    "dst": "LeftToes"
+  },
+  "RightUpperLeg": {
+    "src": "mixamorig:RightUpLeg",
+    "dst": "RightUpLeg"
+  },
+  "RightLowerLeg": {
+    "src": "mixamorig:RightLeg",
+    "dst": "RightLeg"
+  },
+  "RightFoot": {
+    "src": "mixamorig:RightFoot",
+    "dst": "RightFoot"
+  },
+  "RightToes": {
+    "src": "mixamorig:RightToeBase",
+    "dst": "RightToes"
+  }
+}

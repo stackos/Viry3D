@@ -1,0 +1,1660 @@
+{
+  "name": "Hips",
+  "localPosition": {
+    "x": 0.0,
+    "y": 0.963794,
+    "z": -0.0235067774
+  },
+  "localRotation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0,
+    "w": 1.0
+  },
+  "localScale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+  },
+  "childCount": 3,
+  "children": [
+    {
+      "name": "LeftUpLeg",
+      "localPosition": {
+        "x": -0.0754495,
+        "y": -0.0456640124,
+        "z": 0.0
+      },
+      "localRotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "localScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "childCount": 1,
+      "children": [
+        {
+          "name": "LeftLeg",
+          "localPosition": {
+            "x": -0.0205505043,
+            "y": -0.409129977,
+            "z": 0.00717136636
+          },
+          "localRotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "LeftFoot",
+              "localPosition": {
+                "x": -0.005153008,
+                "y": -0.4231559,
+                "z": -0.01203209
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 1,
+              "children": [
+                {
+                  "name": "LeftToes",
+                  "localPosition": {
+                    "x": -0.00748699158,
+                    "y": -0.0731672645,
+                    "z": 0.145427138
+                  },
+                  "localRotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "childCount": 0,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RightUpLeg",
+      "localPosition": {
+        "x": 0.0754495338,
+        "y": -0.0456640124,
+        "z": 0.0
+      },
+      "localRotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "localScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "childCount": 1,
+      "children": [
+        {
+          "name": "RightLeg",
+          "localPosition": {
+            "x": 0.0205504671,
+            "y": -0.409129977,
+            "z": 0.00717136636
+          },
+          "localRotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "RightFoot",
+              "localPosition": {
+                "x": 0.00515300035,
+                "y": -0.4231559,
+                "z": -0.01203209
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 1,
+              "children": [
+                {
+                  "name": "RightToes",
+                  "localPosition": {
+                    "x": 0.007486999,
+                    "y": -0.0731672645,
+                    "z": 0.14542751
+                  },
+                  "localRotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "childCount": 0,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Spine",
+      "localPosition": {
+        "x": 0.0,
+        "y": 0.09226322,
+        "z": 0.0157713331
+      },
+      "localRotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "localScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "childCount": 1,
+      "children": [
+        {
+          "name": "Chest",
+          "localPosition": {
+            "x": 0.0,
+            "y": 0.1625402,
+            "z": 0.02185072
+          },
+          "localRotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 3,
+          "children": [
+            {
+              "name": "LeftShoulder",
+              "localPosition": {
+                "x": -0.0382435732,
+                "y": 0.192178011,
+                "z": -0.017063085
+              },
+              "localRotation": {
+                "x": -0.0140067087,
+                "y": -0.0595068149,
+                "z": 0.228689879,
+                "w": 0.971577942
+              },
+              "localScale": {
+                "x": 1.00000024,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 1,
+              "children": [
+                {
+                  "name": "LeftArm",
+                  "localPosition": {
+                    "x": -0.083574675,
+                    "y": 0.0360975936,
+                    "z": -1.50734021E-08
+                  },
+                  "localRotation": {
+                    "x": 0.009464391,
+                    "y": 0.04369169,
+                    "z": -0.2230424,
+                    "w": 0.973783135
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.00000012
+                  },
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "name": "LeftForeArm",
+                      "localPosition": {
+                        "x": -0.2540494,
+                        "y": 4.70318128E-07,
+                        "z": -2.19768759E-09
+                      },
+                      "localRotation": {
+                        "x": -0.0006165201,
+                        "y": 0.0220786221,
+                        "z": -0.01607024,
+                        "w": 0.999626935
+                      },
+                      "localScale": {
+                        "x": 0.99999994,
+                        "y": 1.0,
+                        "z": 0.9999999
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "LeftHand",
+                          "localPosition": {
+                            "x": -0.246389359,
+                            "y": -1.89769892E-07,
+                            "z": -5.73217829E-09
+                          },
+                          "localRotation": {
+                            "x": 2.860212E-10,
+                            "y": -9.590635E-10,
+                            "z": -0.0214135461,
+                            "w": 0.9997707
+                          },
+                          "localScale": {
+                            "x": 0.99999994,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 5,
+                          "children": [
+                            {
+                              "name": "LeftHandIndex1",
+                              "localPosition": {
+                                "x": -0.0751256943,
+                                "y": -0.007841326,
+                                "z": 0.03265267
+                              },
+                              "localRotation": {
+                                "x": -0.00211891974,
+                                "y": 0.08025743,
+                                "z": 0.01753818,
+                                "w": 0.9966176
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 0.99999994
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "LeftHandIndex2",
+                                  "localPosition": {
+                                    "x": -0.03979706,
+                                    "y": 4.9526192E-05,
+                                    "z": 0.00118574023
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0005019311,
+                                    "y": 0.0154709,
+                                    "z": 0.0404141247,
+                                    "w": 0.999063134
+                                  },
+                                  "localScale": {
+                                    "x": 1.00000024,
+                                    "y": 1.00000024,
+                                    "z": 0.99999994
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "LeftHandIndex3",
+                                      "localPosition": {
+                                        "x": -0.02796851,
+                                        "y": -1.79063633E-07,
+                                        "z": -9.184371E-08
+                                      },
+                                      "localRotation": {
+                                        "x": 4.33656749E-10,
+                                        "y": -1.75894321E-08,
+                                        "z": -1.03787059E-08,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.00000012,
+                                        "z": 0.9999999
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "LeftHandMiddle1",
+                              "localPosition": {
+                                "x": -0.07602355,
+                                "y": -0.00188508059,
+                                "z": 0.0101412414
+                              },
+                              "localRotation": {
+                                "x": -0.0007688728,
+                                "y": 0.0333210751,
+                                "z": 0.02090753,
+                                "w": 0.999225736
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "LeftHandMiddle2",
+                                  "localPosition": {
+                                    "x": -0.0442805924,
+                                    "y": 4.51253936E-06,
+                                    "z": -0.000425422273
+                                  },
+                                  "localRotation": {
+                                    "x": -0.0013621418,
+                                    "y": -0.01915377,
+                                    "z": 0.03788976,
+                                    "w": 0.9990974
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.00000012,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "LeftHandMiddle3",
+                                      "localPosition": {
+                                        "x": -0.03396478,
+                                        "y": 1.61085282E-07,
+                                        "z": 5.419296E-09
+                                      },
+                                      "localRotation": {
+                                        "x": 6.132207E-10,
+                                        "y": -4.12469E-09,
+                                        "z": 1.82216342E-09,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "LeftHandPinky1",
+                              "localPosition": {
+                                "x": -0.06565987,
+                                "y": -0.007825262,
+                                "z": -0.0322512463
+                              },
+                              "localRotation": {
+                                "x": -0.000913206837,
+                                "y": 0.0121623212,
+                                "z": 0.0212220512,
+                                "w": 0.999700367
+                              },
+                              "localScale": {
+                                "x": 1.00000012,
+                                "y": 1.0,
+                                "z": 0.9999999
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "LeftHandPinky2",
+                                  "localPosition": {
+                                    "x": -0.0308053754,
+                                    "y": -3.11739277E-05,
+                                    "z": -0.00144808914
+                                  },
+                                  "localRotation": {
+                                    "x": -0.000170628569,
+                                    "y": -0.009661366,
+                                    "z": -0.00536239753,
+                                    "w": 0.999938965
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 0.9999998,
+                                    "z": 1.00000012
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "LeftHandPinky3",
+                                      "localPosition": {
+                                        "x": -0.0230638776,
+                                        "y": -6.67785343E-06,
+                                        "z": 6.90349244E-09
+                                      },
+                                      "localRotation": {
+                                        "x": -8.5187396E-10,
+                                        "y": -9.42559E-09,
+                                        "z": -1.31619675E-08,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 0.99999994
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "LeftHandRing1",
+                              "localPosition": {
+                                "x": -0.0703021139,
+                                "y": -0.00374529,
+                                "z": -0.01141179
+                              },
+                              "localRotation": {
+                                "x": -0.0003240919,
+                                "y": 0.0115982248,
+                                "z": 0.0247380212,
+                                "w": 0.999626637
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.00000024,
+                                "z": 0.99999994
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "LeftHandRing2",
+                                  "localPosition": {
+                                    "x": -0.04313532,
+                                    "y": -2.08693382E-05,
+                                    "z": -0.00223518023
+                                  },
+                                  "localRotation": {
+                                    "x": -0.0012032456,
+                                    "y": -0.02311376,
+                                    "z": 0.04097964,
+                                    "w": 0.9988919
+                                  },
+                                  "localScale": {
+                                    "x": 0.9999999,
+                                    "y": 0.9999997,
+                                    "z": 0.99999994
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "LeftHandRing3",
+                                      "localPosition": {
+                                        "x": -0.0308354236,
+                                        "y": -1.56879963E-07,
+                                        "z": -1.40963357E-08
+                                      },
+                                      "localRotation": {
+                                        "x": 4.93614649E-10,
+                                        "y": -1.58074331E-09,
+                                        "z": -5.78796078E-09,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 0.99999994,
+                                        "z": 0.9999999
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "LeftHandThumb1",
+                              "localPosition": {
+                                "x": -0.0142313093,
+                                "y": -0.012377888,
+                                "z": 0.0255316831
+                              },
+                              "localRotation": {
+                                "x": -0.0123126395,
+                                "y": -0.008525365,
+                                "z": 0.0125855152,
+                                "w": 0.999808669
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.00000012
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "LeftHandThumb2",
+                                  "localPosition": {
+                                    "x": -0.0163739249,
+                                    "y": -0.00528992061,
+                                    "z": 0.0234914143
+                                  },
+                                  "localRotation": {
+                                    "x": -0.0260628574,
+                                    "y": 0.09669004,
+                                    "z": 0.0036069674,
+                                    "w": 0.994966745
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "LeftHandThumb3",
+                                      "localPosition": {
+                                        "x": -0.0254599936,
+                                        "y": -0.007639924,
+                                        "z": 0.020832995
+                                      },
+                                      "localRotation": {
+                                        "x": 4.41585364E-08,
+                                        "y": 1.10925624E-09,
+                                        "z": -7.809326E-10,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Neck",
+              "localPosition": {
+                "x": 0.0,
+                "y": 0.235723972,
+                "z": -0.0324132554
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 1,
+              "children": [
+                {
+                  "name": "Head",
+                  "localPosition": {
+                    "x": 0.0,
+                    "y": 0.106355786,
+                    "z": 0.0113267824
+                  },
+                  "localRotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "childCount": 17,
+                  "children": [
+                    {
+                      "name": "Jaw",
+                      "localPosition": {
+                        "x": 0.0,
+                        "y": 0.0111267567,
+                        "z": 0.0103275422
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 6,
+                      "children": [
+                        {
+                          "name": "JawEND",
+                          "localPosition": {
+                            "x": 0.0,
+                            "y": -0.04828876,
+                            "z": 0.07185171
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        },
+                        {
+                          "name": "LeftLipCorner",
+                          "localPosition": {
+                            "x": -0.032843262,
+                            "y": -0.01657876,
+                            "z": 0.0661217645
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        },
+                        {
+                          "name": "LeftLipLower",
+                          "localPosition": {
+                            "x": -0.0142508168,
+                            "y": -0.02168876,
+                            "z": 0.08224063
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        },
+                        {
+                          "name": "RightLipCorner",
+                          "localPosition": {
+                            "x": 0.03284,
+                            "y": -0.01657876,
+                            "z": 0.0661187842
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        },
+                        {
+                          "name": "RightLipLower",
+                          "localPosition": {
+                            "x": 0.0142508168,
+                            "y": -0.02168876,
+                            "z": 0.0822387859
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        },
+                        {
+                          "name": "TongueBack",
+                          "localPosition": {
+                            "x": 0.0,
+                            "y": -0.022869369,
+                            "z": 0.0100954091
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "TongueTip",
+                              "localPosition": {
+                                "x": 0.0,
+                                "y": -0.000409444125,
+                                "z": 0.0282273
+                              },
+                              "localRotation": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 1.0
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 0,
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "LeftCheek",
+                      "localPosition": {
+                        "x": -0.0542440265,
+                        "y": 0.03370195,
+                        "z": 0.0594304
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "LeftEye",
+                      "localPosition": {
+                        "x": -0.0208482333,
+                        "y": 0.08250272,
+                        "z": 0.0554274321
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "Le_Eye_Mesh",
+                          "localPosition": {
+                            "x": -0.00168411725,
+                            "y": 0.0004057312,
+                            "z": 0.00531818857
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "LeftEyelidLower",
+                      "localPosition": {
+                        "x": -0.0356189571,
+                        "y": 0.06507366,
+                        "z": 0.07623474
+                      },
+                      "localRotation": {
+                        "x": -0.0348994955,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 0.999390841
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "LeftEyelidUpper",
+                      "localPosition": {
+                        "x": -0.0344068967,
+                        "y": 0.10060814,
+                        "z": 0.08020531
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "LeftInnerBrow",
+                      "localPosition": {
+                        "x": -0.0120626912,
+                        "y": 0.118765265,
+                        "z": 0.0934668258
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "LeftIOuterBrow",
+                      "localPosition": {
+                        "x": -0.05503987,
+                        "y": 0.114825293,
+                        "z": 0.061777398
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "LeftLipUpper",
+                      "localPosition": {
+                        "x": -0.0145013221,
+                        "y": -0.005111811,
+                        "z": 0.09461884
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "LeftNostril",
+                      "localPosition": {
+                        "x": -0.0179,
+                        "y": 0.0263128281,
+                        "z": 0.0908674
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "RightCheek",
+                      "localPosition": {
+                        "x": 0.0542399958,
+                        "y": 0.033702828,
+                        "z": 0.0594274
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "RightEye",
+                      "localPosition": {
+                        "x": 0.020849999,
+                        "y": 0.08250272,
+                        "z": 0.0554273948
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "Ri_Eye_Mesh",
+                          "localPosition": {
+                            "x": 0.00166187761,
+                            "y": 0.000383453356,
+                            "z": 0.00531667238
+                          },
+                          "localRotation": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0,
+                            "w": 1.0
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "RightEyelidLower",
+                      "localPosition": {
+                        "x": 0.03562,
+                        "y": 0.06507283,
+                        "z": 0.0762374
+                      },
+                      "localRotation": {
+                        "x": -0.0348994955,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 0.999390841
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "RightEyelidUpper",
+                      "localPosition": {
+                        "x": 0.03441,
+                        "y": 0.100612827,
+                        "z": 0.08020739
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "RightInnerBrow",
+                      "localPosition": {
+                        "x": 0.0120626874,
+                        "y": 0.118765265,
+                        "z": 0.0934668258
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "RightIOuterBrow",
+                      "localPosition": {
+                        "x": 0.0550400019,
+                        "y": 0.114822827,
+                        "z": 0.061777398
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "RightLipUpper",
+                      "localPosition": {
+                        "x": 0.0145013221,
+                        "y": -0.00510717137,
+                        "z": 0.094617404
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    },
+                    {
+                      "name": "RightNostril",
+                      "localPosition": {
+                        "x": 0.0179,
+                        "y": 0.0263089053,
+                        "z": 0.09087062
+                      },
+                      "localRotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0,
+                        "w": 1.0
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 0,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "RightShoulder",
+              "localPosition": {
+                "x": 0.038328547,
+                "y": 0.192177057,
+                "z": -0.0170630887
+              },
+              "localRotation": {
+                "x": 0.228672,
+                "y": 0.9715821,
+                "z": -0.0140056787,
+                "w": -0.05950737
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.00000012,
+                "z": 0.99999994
+              },
+              "childCount": 1,
+              "children": [
+                {
+                  "name": "RightArm",
+                  "localPosition": {
+                    "x": -0.0835754,
+                    "y": 0.03609594,
+                    "z": -4.69747263E-08
+                  },
+                  "localRotation": {
+                    "x": -0.21105209,
+                    "y": -0.9743941,
+                    "z": 0.0173117,
+                    "w": -0.0755877346
+                  },
+                  "localScale": {
+                    "x": 0.9999998,
+                    "y": 1.00000012,
+                    "z": 0.9999997
+                  },
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "name": "RightForeArm",
+                      "localPosition": {
+                        "x": 0.2534285,
+                        "y": 0.006010935,
+                        "z": -0.0167045332
+                      },
+                      "localRotation": {
+                        "x": -0.00061651913,
+                        "y": 0.022078624,
+                        "z": -0.0160702355,
+                        "w": 0.999626935
+                      },
+                      "localScale": {
+                        "x": 0.99999994,
+                        "y": 0.9999999,
+                        "z": 0.99999994
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "RightHand",
+                          "localPosition": {
+                            "x": 0.245373741,
+                            "y": 0.0216420237,
+                            "z": 0.00555047346
+                          },
+                          "localRotation": {
+                            "x": 5.431895E-10,
+                            "y": 3.124762E-10,
+                            "z": 0.0214136988,
+                            "w": 0.9997707
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.00000012
+                          },
+                          "childCount": 5,
+                          "children": [
+                            {
+                              "name": "RightHandIndex1",
+                              "localPosition": {
+                                "x": 0.07476979,
+                                "y": -0.00124282821,
+                                "z": 0.0343445241
+                              },
+                              "localRotation": {
+                                "x": -0.002118921,
+                                "y": 0.08025744,
+                                "z": 0.0175381843,
+                                "w": 0.9966176
+                              },
+                              "localScale": {
+                                "x": 1.00000012,
+                                "y": 1.0,
+                                "z": 0.99999994
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "RightHandIndex2",
+                                  "localPosition": {
+                                    "x": 0.037058223,
+                                    "y": 0.000725421763,
+                                    "z": 0.0145388739
+                                  },
+                                  "localRotation": {
+                                    "x": -0.00332129654,
+                                    "y": 0.015931258,
+                                    "z": 0.0606209077,
+                                    "w": 0.9980282
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 0.99999994,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "RightHandIndex3",
+                                      "localPosition": {
+                                        "x": 0.0252250955,
+                                        "y": -0.004966217,
+                                        "z": 0.0110121826
+                                      },
+                                      "localRotation": {
+                                        "x": 2.1617923E-09,
+                                        "y": 1.06850022E-08,
+                                        "z": -8.502302E-09,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.00000012,
+                                        "z": 1.00000012
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "RightHandMiddle1",
+                              "localPosition": {
+                                "x": 0.07564743,
+                                "y": 0.004790831,
+                                "z": 0.0118531957
+                              },
+                              "localRotation": {
+                                "x": -0.0007688736,
+                                "y": 0.03332107,
+                                "z": 0.0209075343,
+                                "w": 0.999225736
+                              },
+                              "localScale": {
+                                "x": 1.00000012,
+                                "y": 0.9999998,
+                                "z": 0.9999999
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "RightHandMiddle2",
+                                  "localPosition": {
+                                    "x": 0.04380931,
+                                    "y": 0.000194165463,
+                                    "z": 0.00645493949
+                                  },
+                                  "localRotation": {
+                                    "x": -0.004130255,
+                                    "y": -0.0335112251,
+                                    "z": 0.07611893,
+                                    "w": 0.9965269
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 0.9999999,
+                                    "z": 1.00000012
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "RightHandMiddle3",
+                                      "localPosition": {
+                                        "x": 0.0330725648,
+                                        "y": -0.00754737761,
+                                        "z": 0.00168985641
+                                      },
+                                      "localRotation": {
+                                        "x": -3.74255E-10,
+                                        "y": -4.22918145E-09,
+                                        "z": -1.05837294E-08,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 0.9999999,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "RightHandPinky1",
+                              "localPosition": {
+                                "x": 0.06680315,
+                                "y": -0.001994528,
+                                "z": -0.0307561476
+                              },
+                              "localRotation": {
+                                "x": 0.00317558949,
+                                "y": -0.192005128,
+                                "z": 0.04511044,
+                                "w": 0.9803515
+                              },
+                              "localScale": {
+                                "x": 1.00000024,
+                                "y": 1.0,
+                                "z": 0.99999994
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "RightHandPinky2",
+                                  "localPosition": {
+                                    "x": 0.02853096,
+                                    "y": -0.00139694544,
+                                    "z": -0.0116238492
+                                  },
+                                  "localRotation": {
+                                    "x": -0.000170628482,
+                                    "y": -0.009661341,
+                                    "z": -0.005362395,
+                                    "w": 0.999938965
+                                  },
+                                  "localScale": {
+                                    "x": 0.9999999,
+                                    "y": 1.0,
+                                    "z": 0.99999994
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "RightHandPinky3",
+                                      "localPosition": {
+                                        "x": 0.02142694,
+                                        "y": -0.0005537251,
+                                        "z": -0.008516632
+                                      },
+                                      "localRotation": {
+                                        "x": -8.53474069E-10,
+                                        "y": 1.63788574E-08,
+                                        "z": -1.38467993E-08,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.00000012
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "RightHandRing1",
+                              "localPosition": {
+                                "x": 0.070598565,
+                                "y": 0.00245756772,
+                                "z": -0.009821471
+                              },
+                              "localRotation": {
+                                "x": 0.000710569846,
+                                "y": -0.0543430857,
+                                "z": 0.0349452533,
+                                "w": 0.99791044
+                              },
+                              "localScale": {
+                                "x": 1.00000012,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "RightHandRing2",
+                                  "localPosition": {
+                                    "x": 0.0428872742,
+                                    "y": -0.0013759057,
+                                    "z": -0.00494588772
+                                  },
+                                  "localRotation": {
+                                    "x": 0.000482838746,
+                                    "y": -0.0212902725,
+                                    "z": 0.06984957,
+                                    "w": 0.9973302
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.00000024
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "RightHandRing3",
+                                      "localPosition": {
+                                        "x": 0.0295008179,
+                                        "y": -0.00769269653,
+                                        "z": -0.004622266
+                                      },
+                                      "localRotation": {
+                                        "x": -2.61377675E-09,
+                                        "y": -8.063096E-09,
+                                        "z": -6.118459E-09,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.00000012
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "RightHandThumb1",
+                              "localPosition": {
+                                "x": 0.014684936,
+                                "y": -0.0111049525,
+                                "z": 0.025858108
+                              },
+                              "localRotation": {
+                                "x": -0.0128134973,
+                                "y": -0.00325657148,
+                                "z": 0.0314576477,
+                                "w": 0.999417663
+                              },
+                              "localScale": {
+                                "x": 1.00000012,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "RightHandThumb2",
+                                  "localPosition": {
+                                    "x": 0.01637412,
+                                    "y": -0.00528976135,
+                                    "z": 0.02349138
+                                  },
+                                  "localRotation": {
+                                    "x": -0.02606717,
+                                    "y": -0.09668759,
+                                    "z": -0.00360274361,
+                                    "w": 0.994966865
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "RightHandThumb3",
+                                      "localPosition": {
+                                        "x": 0.0254600029,
+                                        "y": -0.007640302,
+                                        "z": 0.0208330136
+                                      },
+                                      "localRotation": {
+                                        "x": 1.31814053E-08,
+                                        "y": 1.05642839E-09,
+                                        "z": -2.01141526E-09,
+                                        "w": 1.0
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 0,
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
