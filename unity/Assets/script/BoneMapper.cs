@@ -191,6 +191,11 @@ public class BoneMapper : MonoBehaviour
 
                         Vector3 pos = src_bone.localPosition - src_base_state.pos;
                         dst_bone.localPosition = dst_base_state.pos + pos;
+
+                        dst_bone.localScale = new Vector3(
+                            dst_base_state.sca.x * src_bone.localScale.x / src_base_state.sca.x,
+                            dst_base_state.sca.y * src_bone.localScale.y / src_base_state.sca.y,
+                            dst_base_state.sca.z * src_bone.localScale.z / src_base_state.sca.z);
                     }
                 }
             }
