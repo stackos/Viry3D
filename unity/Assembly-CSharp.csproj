@@ -67,7 +67,6 @@
     <None Include="Assets\shader\SkinnedMesh\Diffuse.shader" />
     <None Include="Assets\shader\PBR.cginc" />
     <None Include="Assets\shader\Diffuse.shader" />
-    <None Include="Assets\res\model\animations\Raw Mocap Data\Animations\_CompleteAnimationList.txt" />
     <None Include="Assets\shader\Bone.shader" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>D:/Project/stack/Viry3D-master/unity/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>

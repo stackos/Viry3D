@@ -21,6 +21,48 @@ public class BoneMapper : MonoBehaviour
         public Vector3 pos;
         public Quaternion rot;
         public Vector3 sca;
+
+        public BoneState parent;
+        public Vector3 posWorld;
+        public Quaternion rotWorld;
+        public Vector3 scaWorld;
+
+        public Vector3 PosWorld()
+        {
+            if (parent == null)
+            {
+                return pos;
+            }
+            else
+            {
+                return parent.PosWorld() + pos;
+            }
+        }
+
+        public Quaternion RotWorld()
+        {
+            if (parent == null)
+            {
+                return rot;
+            }
+            else
+            {
+                return parent.RotWorld() * rot;
+            }
+        }
+
+        public Vector3 ScaWorld()
+        {
+            if (parent == null)
+            {
+                return sca;
+            }
+            else
+            {
+                Vector3 s = parent.ScaWorld();
+                return new Vector3(s.x * sca.x, s.y * sca.y, s.z * sca.z);
+            }
+        }
     }
 
     void Start()
@@ -106,14 +148,14 @@ public class BoneMapper : MonoBehaviour
         {
             var bone = JObject.Parse(srcBasePose.text);
             src_base_pose = new Dictionary<string, BoneState>();
-            LoadBoneState(bone, src_base_pose);
+            LoadBoneState(bone, src_base_pose, null);
         }
 
         if (dstBasePose)
         {
             var bone = JObject.Parse(dstBasePose.text);
             dst_base_pose = new Dictionary<string, BoneState>();
-            LoadBoneState(bone, dst_base_pose);
+            LoadBoneState(bone, dst_base_pose, null);
         }
 
         if (boneMap)
@@ -133,7 +175,7 @@ public class BoneMapper : MonoBehaviour
         }
     }
 
-    void LoadBoneState(JObject bone, Dictionary<string, BoneState> states)
+    void LoadBoneState(JObject bone, Dictionary<string, BoneState> states, BoneState parent)
     {
         string name = (string) bone["name"];
         if (!states.ContainsKey(name))
@@ -145,6 +187,10 @@ public class BoneMapper : MonoBehaviour
             state.rot = new Quaternion((float) rot["x"], (float) rot["y"], (float) rot["z"], (float) rot["w"]);
             JObject sca = (JObject) bone["localScale"];
             state.sca = new Vector3((float) sca["x"], (float) sca["y"], (float) sca["z"]);
+            state.parent = parent;
+            state.posWorld = state.PosWorld();
+            state.rotWorld = state.RotWorld();
+            state.scaWorld = state.ScaWorld();
 
             states.Add(name, state);
 
@@ -152,7 +198,7 @@ public class BoneMapper : MonoBehaviour
             for (int i = 0; i < children.Count; ++i)
             {
                 JObject child = (JObject) children[i];
-                LoadBoneState(child, states);
+                LoadBoneState(child, states, state);
             }
         }
     }
@@ -187,10 +233,19 @@ public class BoneMapper : MonoBehaviour
                         BoneState dst_base_state = dst_base_pose[dst];
 
                         Quaternion rot = Quaternion.Inverse(src_base_state.rot) * src_bone.localRotation;
-                        dst_bone.localRotation = dst_base_state.rot * rot;
+                        //dst_bone.localRotation = dst_base_state.rot * rot;
+                        Vector3 euler = rot.eulerAngles;
+                        Vector3 right = Quaternion.Inverse(dst_base_state.rotWorld) * new Vector3(1, 0, 0);
+                        Vector3 up = Quaternion.Inverse(dst_base_state.rotWorld) * new Vector3(0, 1, 0);
+                        Vector3 forward = Quaternion.Inverse(dst_base_state.rotWorld) * new Vector3(0, 0, 1);
+                        dst_bone.localRotation = dst_base_state.rot
+                            * Quaternion.AngleAxis(euler.y, up)
+                            * Quaternion.AngleAxis(euler.x, right)
+                            * Quaternion.AngleAxis(euler.z, forward);
 
+                        float scale = rootDst.localPosition.y / rootSrc.localPosition.y;
                         Vector3 pos = src_bone.localPosition - src_base_state.pos;
-                        dst_bone.localPosition = dst_base_state.pos + pos;
+                        dst_bone.localPosition = dst_base_state.pos + pos * scale;
 
                         dst_bone.localScale = new Vector3(
                             dst_base_state.sca.x * src_bone.localScale.x / src_base_state.sca.x,
