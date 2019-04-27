@@ -47,6 +47,8 @@
 #include "ui/ScrollView.h"
 
 // TODO:
+// - Scene GameObject Component Transform API
+// - Shader Find By Lua
 // - Scene Editor
 // - 2D Game Demo
 // - PBR optimize
