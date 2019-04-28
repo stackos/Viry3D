@@ -8,7 +8,7 @@
 	{
 		Pass
 		{
-			Tags { "LightMode" = "Unlit" }
+			Tags { "LightMode" = "ForwardBase" }
 
 			CGPROGRAM
 			#pragma vertex vert

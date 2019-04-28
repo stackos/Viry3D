@@ -6,12 +6,16 @@
 	}
 	SubShader
 	{
+		Tags { "Queue" = "Transparent" }
+
 		Blend SrcAlpha OneMinusSrcAlpha
 		ZTest Off
 		ZWrite Off
 
 		Pass
 		{
+			Tags { "LightMode" = "ForwardBase" }
+
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag

@@ -25,11 +25,18 @@ public class SRP : RenderPipeline
             context.ExecuteCommandBuffer(cmd);
             cmd.Release();
 
-            var draw = new DrawRendererSettings(camera, new ShaderPassName("Unlit"));
+            var draw = new DrawRendererSettings(camera, new ShaderPassName("ForwardBase"));
             draw.sorting.flags = SortFlags.CommonOpaque;
             var filter = new FilterRenderersSettings(true);
             filter.renderQueueRange = RenderQueueRange.opaque;
             context.DrawRenderers(cull.visibleRenderers, ref draw, filter);
+
+            draw = new DrawRendererSettings(camera, new ShaderPassName("ForwardBase"));
+            draw.sorting.flags = SortFlags.CommonTransparent;
+            filter = new FilterRenderersSettings(true);
+            filter.renderQueueRange = RenderQueueRange.transparent;
+            context.DrawRenderers(cull.visibleRenderers, ref draw, filter);
+
             context.Submit();
         }
     }

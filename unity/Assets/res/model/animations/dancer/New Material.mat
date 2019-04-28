@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: New Material
-  m_Shader: {fileID: 4800000, guid: de602e57b4834f346bd90c08513b104b, type: 3}
+  m_Shader: {fileID: 4800000, guid: c7d8370460e704d4591c2c6c44297d03, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -116,9 +116,9 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
-    - u_metallic: 0.245
+    - u_metallic: 0
     - u_occlusion_strength: 1
-    - u_smoothness: 0.81
+    - u_smoothness: 0.785
     m_Colors:
     - _AmbientColor: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
@@ -129,8 +129,9 @@ Material:
     - _LightDir: {r: 0, g: 0, b: -1, a: 0}
     - _OffsetSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _Spec: {r: 0.125, g: 0.125, b: 0.125, a: 1}
-    - u_ambient: {r: 0, g: 0, b: 0, a: 1}
+    - u_ambient: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 1}
     - u_color: {r: 1, g: 1, b: 1, a: 1}
     - u_emission_color: {r: 0, g: 0, b: 0, a: 1}
-    - u_lightColor: {r: 1, g: 1, b: 1, a: 1}
+    - u_lightColor: {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 1}
     - u_lightDir: {r: 0, g: 0, b: -1, a: 0}
+    - u_uv_scale_offset: {r: 1, g: 1, b: 0, a: 0}
