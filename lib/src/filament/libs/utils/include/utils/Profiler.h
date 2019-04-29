@@ -34,21 +34,20 @@
 namespace utils {
 
 class Profiler {
-    enum {
-        INSTRUCTIONS    = 0,   // must be zero
-        CPU_CYCLES      = 1,
-        DCACHE_REFS     = 2,
-        DCACHE_MISSES   = 3,
-        BRANCHES        = 4,
-        BRANCH_MISSES   = 5,
-        ICACHE_REFS     = 6,
-        ICACHE_MISSES   = 7,
-
-        // Must be last one
-        EVENT_COUNT
-    };
-
 public:
+	enum {
+		INSTRUCTIONS = 0,   // must be zero
+		CPU_CYCLES = 1,
+		DCACHE_REFS = 2,
+		DCACHE_MISSES = 3,
+		BRANCHES = 4,
+		BRANCH_MISSES = 5,
+		ICACHE_REFS = 6,
+		ICACHE_MISSES = 7,
+
+		// Must be last one
+		EVENT_COUNT
+	};
 
     enum {
         EV_CPU_CYCLES = 1 << CPU_CYCLES,
@@ -95,7 +94,7 @@ public:
             lhs.nr -= rhs.nr;
             lhs.time_enabled -= rhs.time_enabled;
             lhs.time_running -= rhs.time_running;
-            for (size_t i = 0; i < EVENT_COUNT; ++i) {
+            for (size_t i = 0; i < Profiler::EVENT_COUNT; ++i) {
                 lhs.counters[i].value -= rhs.counters[i].value;
             }
             return lhs;

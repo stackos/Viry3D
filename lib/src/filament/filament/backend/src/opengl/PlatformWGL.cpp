@@ -21,8 +21,6 @@
 #include "OpenGLDriver.h"
 
 #include "Windows.h"
-#include <GL/gl.h>
-#include "GL/glext.h"
 #include "GL/wglext.h"
 
 #include <utils/Log.h>

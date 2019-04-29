@@ -323,8 +323,7 @@ public:
      * @see PANIC_PRECONDITION, PANIC_POSTCONDITION, PANIC_ARITHMETIC
      * @see setMode()
      */
-    static void panic(char const* function, char const* file, int line, const char* format, ...)
-        __attribute__((noreturn));
+    static void panic(char const* function, char const* file, int line, const char* format, ...);
 
     /**
      * Depending on the mode set, either throws an exception of type T with the given reason plus
@@ -339,7 +338,7 @@ public:
      * @see setMode()
      */
     static inline void panic(char const* function, char const* file, int line, const std::string& s)
-        __attribute__((noreturn)) {
+	{
         panic(function, file, line, s.c_str());
     }
 
@@ -433,7 +432,7 @@ class ArithmeticPanic : public TPanic<ArithmeticPanic> {
  * @param format printf-style string describing the error in more details
  */
 #define PANIC_PRECONDITION(format, ...)                                                            \
-    ::utils::PreconditionPanic::panic(__PRETTY_FUNCTION__,                                         \
+    ::utils::PreconditionPanic::panic(__FUNCTION__,                                         \
             PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**
@@ -441,7 +440,7 @@ class ArithmeticPanic : public TPanic<ArithmeticPanic> {
  * @param format printf-style string describing the error in more details
  */
 #define PANIC_POSTCONDITION(format, ...)                                                           \
-    ::utils::PostconditionPanic::panic(__PRETTY_FUNCTION__,                                        \
+    ::utils::PostconditionPanic::panic(__FUNCTION__,                                        \
             PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**
@@ -449,7 +448,7 @@ class ArithmeticPanic : public TPanic<ArithmeticPanic> {
  * @param format printf-style string describing the error in more details
  */
 #define PANIC_ARITHMETIC(format, ...)                                                              \
-    ::utils::ArithmeticPanic::panic(__PRETTY_FUNCTION__,                                           \
+    ::utils::ArithmeticPanic::panic(__FUNCTION__,                                           \
             PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**
@@ -457,7 +456,7 @@ class ArithmeticPanic : public TPanic<ArithmeticPanic> {
  * @param format printf-style string describing the error in more details
  */
 #define PANIC_LOG(format, ...)                                                                     \
-    ::utils::details::logAndPanic(__PRETTY_FUNCTION__,                                             \
+    ::utils::details::logAndPanic(__FUNCTION__,                                             \
             PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**

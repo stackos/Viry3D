@@ -177,6 +177,25 @@ struct CommandType<void (Driver::*)(ARGS...)> {
     };
 };
 
+template<typename... ARGS>
+template<void (Driver::*METHOD)(ARGS...)>
+template<std::size_t... I>
+void CommandType<void (Driver::*)(ARGS...)>::Command<METHOD>::log(std::index_sequence<I...>) noexcept  {
+#if DEBUG_COMMAND_STREAM
+	static_assert(UTILS_HAS_RTTI, "DEBUG_COMMAND_STREAM can only be used with RTTI");
+	std::string command = utils::CallStack::demangleTypeName(typeid(Command).name()).c_str();
+	slog.d << extractMethodName(command) << " : size=" << sizeof(Command) << "\n\t";
+	printParameterPack(slog.d, std::get<I>(mArgs)...);
+	slog.d << io::endl;
+#endif
+}
+
+template<typename... ARGS>
+template<void (Driver::*METHOD)(ARGS...)>
+void CommandType<void (Driver::*)(ARGS...)>::Command<METHOD>::log() noexcept  {
+	log(std::make_index_sequence<std::tuple_size<SavedParameters>::value>{});
+}
+
 // convert an method of "class Driver" into a Command<> type
 #define COMMAND_TYPE(method) CommandType<decltype(&Driver::method)>::Command<&Driver::method>
 
@@ -206,11 +225,11 @@ public:
 // ------------------------------------------------------------------------------------------------
 
 #ifdef NDEBUG
-    #define DEBUG_COMMAND(methodName, params...)
+    #define DEBUG_COMMAND(methodName, ...)
 #else
     // For now, simply pass the method name down as a string and throw away the parameters.
     // This is good enough for certain debugging needs and we can improve this later.
-    #define DEBUG_COMMAND(methodName, params...) mDriver->debugCommand(#methodName)
+    #define DEBUG_COMMAND(methodName, ...) mDriver->debugCommand(#methodName)
 #endif
 
 class CommandStream {

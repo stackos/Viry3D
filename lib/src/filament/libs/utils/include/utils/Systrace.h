@@ -222,6 +222,10 @@ private:
 #else // !ANDROID
 // ------------------------------------------------------------------------------------------------
 
+#ifndef SYSTRACE_TAG
+#define SYSTRACE_TAG (SYSTRACE_TAG_ALWAYS)
+#endif
+
 #define SYSTRACE_ENABLE()
 #define SYSTRACE_DISABLE()
 #define SYSTRACE_CONTEXT()

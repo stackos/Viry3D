@@ -22,7 +22,8 @@ namespace filament {
 namespace backend {
 
 // We want these in the .cpp file so they're not inlined (not worth it)
-Program::Program() noexcept = default;
+Program::Program() noexcept {
+}
 
 Program::Program(Program&& rhs) noexcept = default;
 Program& Program::operator=(Program&& rhs) noexcept = default;

@@ -40,6 +40,34 @@ set(CMAKE_CXX_FLAGS
 
 file(GLOB VIRY3D_DEP_SRCS
      ${VIRY3D_LIB_SRC_DIR}/crypto/md5/md5.c
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/NoopDriver.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/PlatformNoop.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/gl_headers.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/GLUtils.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLBlitter.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLDriver.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLPlatform.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLProgram.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformWGL.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CircularBuffer.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CommandBufferQueue.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CommandStream.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/Driver.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/Handle.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/Platform.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/Program.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/SamplerGroup.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/TextureReshaper.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Allocator.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CallStack.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CountDownLatch.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CString.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/JobSystem.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Log.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Panic.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Profiler.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Systrace.cpp
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/autofit/autofit.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbase.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbbox.c
@@ -156,6 +184,12 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}
                            ${VIRY3D_LIB_SRC_DIR}/freetype/include
                            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src
+						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/math/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/third_party/robin-map
                            )
 
 file(GLOB VIRY3D_LIB_SRCS
@@ -200,6 +234,9 @@ target_include_directories(Viry3D PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/openal/OpenAL32/Include
                            ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src
                            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/math/include
+						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/include
                            )
 
 file(GLOB VIRY3D_APP_SRCS
@@ -665,7 +702,12 @@ if (${Target} MATCHES "Windows")
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvBuilder.cpp
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvPostProcess.cpp
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SPVRemapper.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLWindows.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreWindowsImpl.S
          )
+
+	enable_language(ASM_MASM)
+    set_property(SOURCE ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreWindowsImpl.S PROPERTY LANGUAGE ASM_MASM)
 
     source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_WIN})
 
