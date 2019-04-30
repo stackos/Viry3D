@@ -54,9 +54,10 @@ OpenGLProgram::OpenGLProgram(OpenGLDriver* gl, const Program& programBuilder) no
         if (!shadersSource[i].empty()) {
             GLint status;
             char const* const source = (const char*)shadersSource[i].data();
+			GLint length = shadersSource[i].size();
 
             GLuint shaderId = glCreateShader(glShaderType);
-            glShaderSource(shaderId, 1, &source, nullptr);
+            glShaderSource(shaderId, 1, &source, &length);
             glCompileShader(shaderId);
 
             glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);

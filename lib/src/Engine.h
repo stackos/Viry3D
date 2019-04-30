@@ -28,6 +28,7 @@ namespace Viry3D
 	public:
 		static Engine* Create(void* native_window, uint64_t flags = 0, void* shared_gl_context = nullptr);
 		static void Destroy(Engine** engine);
+		static Engine* Instance();
 		void Execute();
 
 	private:
