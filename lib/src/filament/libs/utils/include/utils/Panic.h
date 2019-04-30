@@ -337,8 +337,7 @@ public:
      * @see PANIC_PRECONDITION, PANIC_POSTCONDITION, PANIC_ARITHMETIC
      * @see setMode()
      */
-    static inline void panic(char const* function, char const* file, int line, const std::string& s)
-	{
+    static inline void panic(char const* function, char const* file, int line, const std::string& s) {
         panic(function, file, line, s.c_str());
     }
 

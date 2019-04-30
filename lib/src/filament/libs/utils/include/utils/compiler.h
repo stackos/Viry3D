@@ -137,7 +137,11 @@
 #       define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 1
 #   endif // ANDROID
 #else
-#   define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 0
+#	ifdef WIN32
+#		define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 1
+#	else
+#		define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 0
+#	endif
 #endif
 
 #if __has_feature(cxx_rtti)

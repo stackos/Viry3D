@@ -19,7 +19,7 @@
 
 #include <utils/compiler.h>
 
-#if UTILS_HAS_FEATURE_CXX_THREAD_LOCAL || 1
+#if UTILS_HAS_FEATURE_CXX_THREAD_LOCAL
 
 #define UTILS_DECLARE_TLS(clazz) thread_local clazz
 #define UTILS_DEFINE_TLS(clazz) thread_local clazz

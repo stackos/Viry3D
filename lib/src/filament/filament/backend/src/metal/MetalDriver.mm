@@ -149,7 +149,7 @@ void MetalDriver::createDefaultRenderTargetR(Handle<HwRenderTarget> rth, int dum
 
 void MetalDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
         TargetBufferFlags targetBufferFlags, uint32_t width, uint32_t height,
-        uint8_t samples, TextureFormat format, TargetBufferInfo color,
+        uint8_t samples, TargetBufferInfo color,
         TargetBufferInfo depth, TargetBufferInfo stencil) {
 
     auto getColorTexture = [&]() -> id<MTLTexture> {
@@ -157,7 +157,7 @@ void MetalDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
             auto colorTexture = handle_cast<MetalTexture>(mHandleMap, color.handle);
             return colorTexture->texture;
         } else if (targetBufferFlags & TargetBufferFlags::COLOR) {
-            ASSERT_POSTCONDITION(false, "A color buffer is required for a render target.");
+            ASSERT_POSTCONDITION(false, "The COLOR flag was specified, but no color texture provided.");
         }
         return nil;
     };
@@ -167,19 +167,12 @@ void MetalDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
             auto depthTexture = handle_cast<MetalTexture>(mHandleMap, depth.handle);
             return depthTexture->texture;
         } else if (targetBufferFlags & TargetBufferFlags::DEPTH) {
-            MTLTextureDescriptor *depthTextureDesc =
-                    [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float
-                                                                       width:width
-                                                                      height:height
-                                                                   mipmapped:NO];
-            depthTextureDesc.usage = MTLTextureUsageRenderTarget;
-            depthTextureDesc.resourceOptions = MTLResourceStorageModePrivate;
-            return [[mContext->device newTextureWithDescriptor:depthTextureDesc] autorelease];
+            ASSERT_POSTCONDITION(false, "The DEPTH flag was specified, but no depth texture provided.");
         }
         return nil;
     };
 
-    construct_handle<MetalRenderTarget>(mHandleMap, rth, mContext, width, height, samples, format,
+    construct_handle<MetalRenderTarget>(mHandleMap, rth, mContext, width, height, samples,
             getColorTexture(), getDepthTexture());
 
     ASSERT_POSTCONDITION(
@@ -543,11 +536,6 @@ void MetalDriver::discardSubRenderTargetBuffers(Handle<HwRenderTarget> rth,
 
 }
 
-void MetalDriver::resizeRenderTarget(Handle<HwRenderTarget> rth, uint32_t width,
-        uint32_t height) {
-
-}
-
 void MetalDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
         Handle<HwVertexBuffer> vbh, Handle<HwIndexBuffer> ibh, uint32_t enabledAttributes) {
     auto primitive = handle_cast<MetalRenderPrimitive>(mHandleMap, rph);
@@ -580,7 +568,9 @@ void MetalDriver::makeCurrent(Handle<HwSwapChain> schDraw, Handle<HwSwapChain> s
 }
 
 void MetalDriver::commit(Handle<HwSwapChain> sch) {
-    [mContext->currentCommandBuffer presentDrawable:mContext->currentDrawable];
+    if (mContext->currentDrawable != nil) {
+        [mContext->currentCommandBuffer presentDrawable:mContext->currentDrawable];
+    }
     [mContext->currentCommandBuffer commit];
     mContext->currentCommandBuffer = nil;
     mContext->currentDrawable = nil;

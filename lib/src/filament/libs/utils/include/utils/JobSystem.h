@@ -384,7 +384,7 @@ private:
     utils::Arena<utils::ThreadSafeObjectPoolAllocator<Job>, LockingPolicy::NoLock> mJobPool;
 
     template <typename T>
-    using aligned_vector = std::vector<T>;
+    using aligned_vector = std::vector<T, utils::STLAlignedAllocator<T>>;
 
     // these are essentially const, make sure they're on a different cache-lines than the
     // read-write atomics.

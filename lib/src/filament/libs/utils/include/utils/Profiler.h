@@ -36,14 +36,14 @@ namespace utils {
 class Profiler {
 public:
 	enum {
-		INSTRUCTIONS = 0,   // must be zero
-		CPU_CYCLES = 1,
-		DCACHE_REFS = 2,
-		DCACHE_MISSES = 3,
-		BRANCHES = 4,
-		BRANCH_MISSES = 5,
-		ICACHE_REFS = 6,
-		ICACHE_MISSES = 7,
+		INSTRUCTIONS    = 0,   // must be zero
+		CPU_CYCLES      = 1,
+		DCACHE_REFS     = 2,
+		DCACHE_MISSES   = 3,
+		BRANCHES        = 4,
+		BRANCH_MISSES   = 5,
+		ICACHE_REFS     = 6,
+		ICACHE_MISSES   = 7,
 
 		// Must be last one
 		EVENT_COUNT
