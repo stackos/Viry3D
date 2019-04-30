@@ -48,7 +48,6 @@ file(GLOB VIRY3D_DEP_SRCS
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLDriver.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLPlatform.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLProgram.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformWGL.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CircularBuffer.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CommandBufferQueue.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CommandStream.cpp
@@ -702,6 +701,7 @@ if (${Target} MATCHES "Windows")
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvBuilder.cpp
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvPostProcess.cpp
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SPVRemapper.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformWGL.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLWindows.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreWindowsImpl.S
          )
