@@ -59,6 +59,7 @@ file(GLOB VIRY3D_DEP_SRCS
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/TextureReshaper.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Allocator.cpp
+     ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/ashmem.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CallStack.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CountDownLatch.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CString.cpp
@@ -984,6 +985,20 @@ elseif (${Target} MATCHES "Mac")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_MAC -DVR_VULKAN=1 -DVR_GLES=0")
     add_definitions(-Wall -DHAVE_ASSERT_H -fobjc-arc)
+
+    file(GLOB VIRY3D_DEP_SRCS_MAC
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformCocoaGL.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLDarwin.cpp
+         ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreDarwinImpl.S
+         )
+
+    enable_language(ASM_MASM)
+    set_property(SOURCE ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreDarwinImpl.S PROPERTY LANGUAGE ASM_MASM)
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreDarwinImpl.S PROPERTIES XCODE_EXPLICIT_FILE_TYPE "sourcecode.asm")
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_MAC})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_MAC})
 
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")

@@ -16,11 +16,8 @@
 */
 
 #import "ViewController.h"
-#import "VkView.h"
-#include "graphics/Display.h"
+#include "Engine.h"
 #include "container/List.h"
-#include "thread/ThreadPool.h"
-#include "App.h"
 #include "Input.h"
 
 using namespace Viry3D;
@@ -41,9 +38,8 @@ struct MouseEvent
 static bool g_mouse_down = false;
 
 @implementation ViewController {
+    Engine* m_engine;
     NSTimer* m_timer;
-    Display* m_display;
-    App* m_app;
     int m_target_width;
     int m_target_height;
 }
@@ -54,35 +50,10 @@ static bool g_mouse_down = false;
     int window_width = size.width * scale;
     int window_height = size.height * scale;
     
-#if VR_VULKAN
-    View* view = [[View alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height)];
-    view.contentsScale = scale;
-    view.wantsLayer = YES;
-#elif VR_GLES
-    NSOpenGLPixelFormatAttribute attribs[] = {
-        NSOpenGLPFADoubleBuffer,
-        NSOpenGLPFAColorSize, 24,
-        NSOpenGLPFADepthSize, 24,
-        NSOpenGLPFAAccelerated,
-        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy, // mac gl 3.2 or 4.1 not support glsl 120
-        0
-    };
-    NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
-    NSOpenGLView* view = [[NSOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height) pixelFormat:format];
-    view.wantsBestResolutionOpenGLSurface = YES;
-
-    // this call will create context
-    [view openGLContext];
-#endif
-    
+    NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height)];
     self.view = view;
     
-    String name = "viry3d-vk-demo";
-    m_display = new Display(name, (__bridge void*) self.view, window_width, window_height);
-    
-    m_app = new App();
-    m_app->SetName(name);
-    m_app->Init();
+    m_engine = Engine::Create((__bridge void*) self.view);
     
     m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:self selector:@selector(drawFrame) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];
@@ -98,8 +69,7 @@ static bool g_mouse_down = false;
 }
 
 - (void)dealloc {
-    delete m_app;
-    delete m_display;
+    Engine::Destroy(&m_engine);
 }
 
 - (void)onResize:(int)width :(int)height {
@@ -108,14 +78,7 @@ static bool g_mouse_down = false;
 }
 
 - (void)drawFrame {
-    if (m_target_width != m_display->GetWidth() || m_target_height != m_display->GetHeight()) {
-        m_display->OnResize(m_target_width, m_target_height);
-    }
-    
-    m_app->OnFrameBegin();
-    m_app->Update();
-    m_display->OnDraw();
-    m_app->OnFrameEnd();
+    m_engine->Execute();
 }
 
 - (void)onMouseDown:(const MouseEvent*)e {

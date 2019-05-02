@@ -25,7 +25,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
     // Insert code here to initialize your application
     
-    const char* name = "viry3d-vk-demo";
+    const char* name = "Viry3D";
     int window_width = 1280;
     int window_height = 720;
     
