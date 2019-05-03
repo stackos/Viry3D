@@ -39,6 +39,7 @@ static bool g_mouse_down = false;
 static bool g_minimized = false;
 static int g_window_width;
 static int g_window_height;
+static Engine* g_engine;
 
 static int GetKeyCode(int wParam)
 {
@@ -206,6 +207,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     switch (uMsg)
     {
         case WM_CLOSE:
+			Engine::Destroy(&g_engine);
             DestroyWindow(hWnd);
             break;
 
@@ -598,7 +600,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     g_window_width = window_width;
     g_window_height = window_height;
 
-	Engine* engine = Engine::Create(hwnd);
+	g_engine = Engine::Create(hwnd);
 
     bool exit = false;
     MSG msg;
@@ -607,7 +609,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     {
         while (::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
-            if (WM_QUIT == msg.message)
+            if (msg.message == WM_QUIT)
             {
                 exit = true;
                 break;
@@ -626,10 +628,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		Sleep(16);
 
-		engine->Execute();
+		if (g_engine)
+		{
+			g_engine->Execute();
+		}
     }
-
-	Engine::Destroy(&engine);
 
     return 0;
 }
