@@ -626,8 +626,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break;
         }
 
-		Sleep(16);
-
 		if (g_engine)
 		{
 			g_engine->Execute();

@@ -25,6 +25,8 @@
 #include "private/backend/DriverApi.h"
 #include <thread>
 
+#include "math/Matrix4x4.h"
+
 using namespace filament;
 
 namespace Viry3D
@@ -59,6 +61,7 @@ namespace Viry3D
 		uint32_t m_frame_id = 0;
 		LinearAllocatorArena m_per_render_pass_allocator;
 		backend::RenderTargetHandle m_render_target;
+		utils::Mutex m_lock;
 
 		backend::DriverApi& GetDriverApi() noexcept { return m_command_stream; }
 		utils::JobSystem& GetJobSystem() noexcept { return m_job_system; }
@@ -102,6 +105,10 @@ namespace Viry3D
 
 		void Shutdown()
 		{
+			m_lock.lock();
+			m_terminated = true;
+			m_lock.unlock();
+
 			this->ShutdownTest();
 
 			this->GetDriverApi().destroyRenderTarget(m_render_target);
@@ -126,8 +133,6 @@ namespace Viry3D
 			}
 
 			m_job_system.emancipate();
-
-			m_terminated = true;
 		}
 
 		void Loop()
@@ -166,14 +171,32 @@ namespace Viry3D
 				return false;
 			}
 
+			bool terminated = false;
+
 			for (int i = 0; i < buffers.size(); ++i)
 			{
 				auto& item = buffers[i];
 				if (item.begin)
 				{
-					m_command_stream.execute(item.begin);
+					m_lock.lock();
+					if (!m_terminated)
+					{
+						m_command_stream.execute(item.begin);
+					}
+					else
+					{
+						terminated = true;
+					}
+					m_lock.unlock();
 					m_command_buffer_queue.releaseBuffer(item);
+
+					if (terminated)
+					{
+						break;
+					}
 				}
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 
 			return true;
@@ -235,6 +258,18 @@ namespace Viry3D
 		backend::IndexBufferHandle m_ib;
 		backend::RenderPrimitiveHandle m_primitive;
 		backend::ProgramHandle m_program;
+		backend::UniformBufferHandle m_ub;
+
+		enum class BindingPoints
+		{
+			PerView = 0,
+			PerRenderer = 1,
+			PerRendererBones = 2,
+			Lights = 3,
+			PostProcess = 4,
+			PerMaterialInstance = 5,
+			Count = 6,
+		};
 
 		void InitTest()
 		{
@@ -280,11 +315,15 @@ namespace Viry3D
 			std::string vs = R"(
 #version 410
 layout(location = 0) in vec4 i_position;
+layout(std140) uniform PerMaterialInstance
+{
+    mat4 u_mvp;
+};
 layout(location = 1) in vec4 i_color;
 layout(location = 0) out vec4 v_color;
 void main()
 {
-	gl_Position = i_position;
+	gl_Position = i_position * u_mvp;
 	v_color = i_color;
 }
 )";
@@ -301,14 +340,18 @@ void main()
 			backend::Program pb;
 			pb.diagnostics(utils::CString("Color"))
 				.withVertexShader(vs.data(), vs.size())
-				.withFragmentShader(fs.data(), fs.size());
+				.withFragmentShader(fs.data(), fs.size())
+				.setUniformBlock((size_t)BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"));
 			m_program = driver.createProgram(std::move(pb));
+
+			m_ub = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
 		}
 
 		void ShutdownTest()
 		{
 			auto& driver = this->GetDriverApi();
 
+			driver.destroyUniformBuffer(m_ub);
 			driver.destroyProgram(m_program);
 			driver.destroyRenderPrimitive(m_primitive);
 			driver.destroyVertexBuffer(m_vb);
@@ -331,6 +374,12 @@ void main()
 			{
 				// record driver commands
 				// 1. bind uniform buffer and sampler by per material instance
+				static float deg = 0;
+				deg += 1;
+				static Matrix4x4 mvp;
+				mvp = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
+				driver.loadUniformBuffer(m_ub, backend::BufferDescriptor(&mvp, sizeof(mvp)));
+				driver.bindUniformBuffer((size_t) BindingPoints::PerMaterialInstance, m_ub);
 				// 2. set scissor by per material instance
 				driver.setViewportScissor(0, 0, 1280, 720);
 				// 3. bind uniform buffer by per renderer instance
