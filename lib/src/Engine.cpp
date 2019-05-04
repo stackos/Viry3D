@@ -23,9 +23,22 @@
 #include "private/backend/CommandStream.h"
 #include "private/backend/CommandBufferQueue.h"
 #include "private/backend/DriverApi.h"
+#include "string/String.h"
+#include "Debug.h"
 #include <thread>
 
+#if VR_WINDOWS
+#include <Windows.h>
+#elif VR_IOS
+#import <UIKit/UIKit.h>
+#elif VR_MAC
+#import <Cocoa/Cocoa.h>
+#elif VR_ANDROID
+#include "android/jni.h"
+#endif
+
 #include "math/Matrix4x4.h"
+#include "graphics/Texture.h"
 
 using namespace filament;
 
@@ -62,7 +75,9 @@ namespace Viry3D
 		LinearAllocatorArena m_per_render_pass_allocator;
 		backend::RenderTargetHandle m_render_target;
 		utils::Mutex m_lock;
-
+        String m_data_path;
+        String m_save_path;
+        
 		backend::DriverApi& GetDriverApi() noexcept { return m_command_stream; }
 		utils::JobSystem& GetJobSystem() noexcept { return m_job_system; }
 
@@ -259,6 +274,8 @@ namespace Viry3D
 		backend::RenderPrimitiveHandle m_primitive;
 		backend::ProgramHandle m_program;
 		backend::UniformBufferHandle m_ub;
+        backend::SamplerGroupHandle m_sampler;
+        backend::TextureHandle m_texture;
 
 		enum class BindingPoints
 		{
@@ -271,6 +288,11 @@ namespace Viry3D
 			Count = 6,
 		};
 
+        static void FreeBufferTest(void* buffer, size_t size, void* user)
+        {
+            free(buffer);
+        }
+        
 		void InitTest()
 		{
 			auto& driver = this->GetDriverApi();
@@ -278,22 +300,22 @@ namespace Viry3D
 			int attribute_count = 2;
 			backend::AttributeArray attributes;
 			attributes[0].offset = 0;
-			attributes[0].stride = sizeof(float) * 6;
+			attributes[0].stride = sizeof(float) * 4;
 			attributes[0].buffer = 0;
 			attributes[0].type   = backend::ElementType::FLOAT2;
 			attributes[0].flags  = 0;
 			attributes[1].offset = sizeof(float) * 2;
-			attributes[1].stride = sizeof(float) * 6;
+            attributes[1].stride = sizeof(float) * 4;
 			attributes[1].buffer = 0;
-			attributes[1].type   = backend::ElementType::FLOAT4;
+			attributes[1].type   = backend::ElementType::FLOAT2;
 			attributes[1].flags  = 0;
 
-			static float vertices[] = {
-				0, 0.5f, 1, 0, 0, 1,
-				-0.5f, -0.5f, 0, 1, 0, 1,
-				0.5f, -0.5f, 0, 0, 1, 1
+			float vertices[] = {
+				0, 0.5f, 0.0f, 0.0f,
+				-0.5f, -0.5f, 0.0f, 1.0f,
+				0.5f, -0.5f, 1.0f, 1.0f
 			};
-			static uint16_t indices[] = {
+			uint16_t indices[] = {
 				0, 1, 2
 			};
 			int vertex_count = 3;
@@ -303,10 +325,14 @@ namespace Viry3D
 			int index_count = 3;
 
 			m_vb = driver.createVertexBuffer(1, attribute_count, vertex_count, attributes, backend::BufferUsage::STATIC);
-			driver.updateVertexBuffer(m_vb, 0, backend::BufferDescriptor(vertices, sizeof(vertices)), 0);
+            void* buffer = malloc(sizeof(vertices));
+            memcpy(buffer, vertices, sizeof(vertices));
+			driver.updateVertexBuffer(m_vb, 0, backend::BufferDescriptor(buffer, sizeof(vertices), FreeBufferTest), 0);
 
 			m_ib = driver.createIndexBuffer(backend::ElementType::USHORT, index_count, backend::BufferUsage::STATIC);
-			driver.updateIndexBuffer(m_ib, backend::BufferDescriptor(indices, sizeof(indices)), 0);
+            buffer = malloc(sizeof(indices));
+            memcpy(buffer, indices, sizeof(indices));
+			driver.updateIndexBuffer(m_ib, backend::BufferDescriptor(buffer, sizeof(indices), FreeBufferTest), 0);
 
 			m_primitive = driver.createRenderPrimitive();
 			driver.setRenderPrimitiveBuffer(m_primitive, m_vb, m_ib, (1 << 0 | 1 << 1));
@@ -314,43 +340,71 @@ namespace Viry3D
 			
 			std::string vs = R"(
 #version 410
-layout(location = 0) in vec4 i_position;
 layout(std140) uniform PerMaterialInstance
 {
     mat4 u_mvp;
 };
-layout(location = 1) in vec4 i_color;
-layout(location = 0) out vec4 v_color;
+layout(location = 0) in vec4 i_position;
+layout(location = 1) in vec2 i_uv;
+layout(location = 0) out vec2 v_uv;
 void main()
 {
 	gl_Position = i_position * u_mvp;
-	v_color = i_color;
+	v_uv = i_uv;
 }
 )";
 			std::string fs = R"(
 #version 410
-layout(location = 0) in vec4 v_color;
+uniform sampler2D u_texture;
+layout(location = 0) in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	o_color = v_color;
+    o_color = texture(u_texture, v_uv);
 }
 )";
 
-			backend::Program pb;
-			pb.diagnostics(utils::CString("Color"))
-				.withVertexShader(vs.data(), vs.size())
-				.withFragmentShader(fs.data(), fs.size())
-				.setUniformBlock((size_t)BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"));
-			m_program = driver.createProgram(std::move(pb));
+            {
+                backend::Program::Sampler sampler;
+                sampler.name = utils::CString("u_texture");
+                sampler.binding = (size_t) BindingPoints::PerMaterialInstance;
+                
+                backend::Program pb;
+                pb.diagnostics(utils::CString("Color"))
+                    .withVertexShader(vs.data(), vs.size())
+                    .withFragmentShader(fs.data(), fs.size())
+                    .setUniformBlock((size_t) BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"))
+                    .setSamplerGroup((size_t) BindingPoints::PerMaterialInstance, &sampler, 1);
+                m_program = driver.createProgram(std::move(pb));
+            }
 
 			m_ub = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
+            
+            m_sampler = driver.createSamplerGroup(1);
+            
+            Ref<Image> image = Texture::LoadImageFromFile(this->GetDataPath() + "/texture/logo.jpg");
+            m_texture = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
+            buffer = malloc(image->data.Size());
+            memcpy(buffer, image->data.Bytes(), image->data.Size());
+            backend::PixelBufferDescriptor data(buffer, image->data.Size(),
+                                                backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
+                                                FreeBufferTest);
+            driver.update2DImage(m_texture, 0, 0, 0, image->width, image->height, std::move(data));
+
+            {
+                backend::SamplerGroup sampler(1);
+                backend::SamplerParams sampler_params;
+                sampler.setSampler(0, m_texture, sampler_params);
+                driver.updateSamplerGroup(m_sampler, std::move(sampler));
+            }
 		}
 
 		void ShutdownTest()
 		{
 			auto& driver = this->GetDriverApi();
 
+            driver.destroyTexture(m_texture);
+            driver.destroySamplerGroup(m_sampler);
 			driver.destroyUniformBuffer(m_ub);
 			driver.destroyProgram(m_program);
 			driver.destroyRenderPrimitive(m_primitive);
@@ -378,8 +432,11 @@ void main()
 				deg += 1;
 				static Matrix4x4 mvp;
 				mvp = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
-				driver.loadUniformBuffer(m_ub, backend::BufferDescriptor(&mvp, sizeof(mvp)));
+                void* buffer = malloc(sizeof(mvp));
+                memcpy(buffer, &mvp, sizeof(mvp));
+				driver.loadUniformBuffer(m_ub, backend::BufferDescriptor(buffer, sizeof(mvp), FreeBufferTest));
 				driver.bindUniformBuffer((size_t) BindingPoints::PerMaterialInstance, m_ub);
+                driver.bindSamplers((size_t) BindingPoints::PerMaterialInstance, m_sampler);
 				// 2. set scissor by per material instance
 				driver.setViewportScissor(0, 0, 1280, 720);
 				// 3. bind uniform buffer by per renderer instance
@@ -402,6 +459,136 @@ void main()
 			this->GetDriverApi().endFrame(m_frame_id);
 			this->Flush();
 		}
+        
+#if VR_WINDOWS
+        const String& GetDataPath()
+        {
+            if (m_data_path.Empty())
+            {
+                char buffer[MAX_PATH];
+                ::GetModuleFileName(nullptr, buffer, MAX_PATH);
+                String path = buffer;
+                path = path.Replace("\\", "/").Substring(0, path.LastIndexOf("\\")) + "/Assets";
+                m_data_path = path;
+            }
+            
+            return m_data_path;
+        }
+        
+        const String& GetSavePath()
+        {
+            if (m_save_path.Empty())
+            {
+                m_save_path = this->GetDataPath();
+            }
+            
+            return m_save_path;
+        }
+#elif VR_IOS
+        const String& GetDataPath()
+        {
+            if (m_data_path.Empty())
+            {
+                String path = [[[NSBundle mainBundle] bundlePath] UTF8String];
+                path += "/Assets";
+                m_data_path = path;
+            }
+            
+            return m_data_path;
+        }
+        
+        const String& GetSavePath()
+        {
+            if (m_save_path.Empty())
+            {
+                NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString* doc_path = paths[0];
+                m_save_path = [doc_path UTF8String];
+            }
+            
+            return m_save_path;
+        }
+#elif VR_MAC
+        const String& GetDataPath()
+        {
+            if (m_data_path.Empty())
+            {
+                String path = [[[NSBundle mainBundle] resourcePath] UTF8String];
+                path += "/Assets";
+                m_data_path = path;
+            }
+            
+            return m_data_path;
+        }
+        
+        const String& GetSavePath()
+        {
+            if (m_save_path.Empty())
+            {
+                NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString* doc_path = [paths objectAtIndex:0];
+                m_save_path = [doc_path UTF8String];
+            }
+            
+            return m_save_path;
+        }
+#elif VR_ANDROID
+        const String& GetDataPath()
+        {
+            return m_data_path;
+        }
+        
+        const String& GetSavePath()
+        {
+            return m_save_path;
+        }
+        
+        void SetDataPath(const String& path)
+        {
+            m_data_path = path;
+        }
+        
+        void SetSavePath(const String& path)
+        {
+            m_save_path = path;
+        }
+#elif VR_WASM
+        const String& GetDataPath()
+        {
+            if (m_data_path.Empty())
+            {
+                m_data_path = "Assets";
+            }
+            return m_data_path;
+        }
+        
+        const String& GetSavePath()
+        {
+            Log("web has no save path");
+            
+            return m_save_path;
+        }
+#elif VR_UWP
+        const String& GetDataPath()
+        {
+            return m_data_path;
+        }
+        
+        const String& GetSavePath()
+        {
+            return m_save_path;
+        }
+        
+        void SetDataPath(const String& path)
+        {
+            m_data_path = path;
+        }
+        
+        void SetSavePath(const String& path)
+        {
+            m_save_path = path;
+        }
+#endif
 	};
 
 	Engine* g_engine = nullptr;

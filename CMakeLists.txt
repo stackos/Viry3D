@@ -1002,6 +1002,7 @@ elseif (${Target} MATCHES "Mac")
 
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Engine.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
@@ -1110,6 +1111,7 @@ elseif (${Target} MATCHES "iOS")
 
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Engine.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
     file(GLOB VIRY3D_LIB_SRCS_IOS
