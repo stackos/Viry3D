@@ -703,6 +703,20 @@ if (${Target} MATCHES "Windows")
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLWindows.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreWindowsImpl.S
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanBinder.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanBuffer.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanContext.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanDisposer.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanDriver.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanFboCache.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanHandles.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanPlatform.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanSamplerCache.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanStagePool.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanUtility.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/src/BlueVK.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/PlatformVkWindows.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/src/BlueVKWindows.cpp
          )
 
 	enable_language(ASM_MASM)
@@ -714,6 +728,8 @@ if (${Target} MATCHES "Windows")
 
     target_include_directories(Viry3DDep PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/openal/win
+							   ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/include
+							   ${VIRY3D_LIB_SRC_DIR}/filament/third_party/vkmemalloc/src
                                )
 
     target_include_directories(Viry3D PRIVATE
