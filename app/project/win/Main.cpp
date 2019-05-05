@@ -207,6 +207,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     switch (uMsg)
     {
         case WM_CLOSE:
+			g_engine->ShutdownTest();
 			Engine::Destroy(&g_engine);
             DestroyWindow(hWnd);
             break;
@@ -600,7 +601,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     g_window_width = window_width;
     g_window_height = window_height;
 
-	g_engine = Engine::Create(hwnd);
+	g_engine = Engine::Create(hwnd, g_window_width, g_window_height);
+	g_engine->InitTest();
 
     bool exit = false;
     MSG msg;
@@ -628,6 +630,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		if (g_engine)
 		{
+			if (g_window_width != g_engine->GetWidth() || g_window_height != g_engine->GetHeight())
+			{
+				g_engine->OnResize(hwnd, g_window_width, g_window_height);
+			}
+
 			g_engine->Execute();
 		}
     }

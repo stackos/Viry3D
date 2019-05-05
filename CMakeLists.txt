@@ -57,17 +57,14 @@ file(GLOB VIRY3D_DEP_SRCS
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/Program.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/SamplerGroup.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/TextureReshaper.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Allocator.cpp
      ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/ashmem.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CallStack.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CountDownLatch.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CString.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/JobSystem.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Log.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Panic.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Profiler.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Systrace.cpp
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/autofit/autofit.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbase.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbbox.c
@@ -703,6 +700,7 @@ if (${Target} MATCHES "Windows")
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvPostProcess.cpp
          ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SPVRemapper.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformWGL.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLWindows.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreWindowsImpl.S
          )
@@ -841,7 +839,7 @@ elseif (${Target} MATCHES "UWP")
 
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_UWP -DVR_VULKAN=0 -DVR_GLES=1")
-    add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
+    add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC /sdl-)
 
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
@@ -849,6 +847,7 @@ elseif (${Target} MATCHES "UWP")
     file(GLOB VIRY3D_DEP_SRCS_UWP
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/xaudio2.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThreadCpp11.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformUWP.cpp
          )
 
     source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_UWP})
@@ -857,6 +856,7 @@ elseif (${Target} MATCHES "UWP")
 
     target_include_directories(Viry3DDep PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/openal/win
+							   ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
                                )
 
     target_include_directories(Viry3D PRIVATE
@@ -988,6 +988,7 @@ elseif (${Target} MATCHES "Mac")
 
     file(GLOB VIRY3D_DEP_SRCS_MAC
          ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformCocoaGL.mm
+		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
          ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLDarwin.cpp
          ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreDarwinImpl.S
          )

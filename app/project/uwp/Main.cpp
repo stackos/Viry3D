@@ -22,10 +22,10 @@
 #include <EGL/eglplatform.h>
 #include <angle_windowsstore.h>
 
-#include "graphics/Display.h"
-#include "App.h"
+#include "Engine.h"
 #include "Debug.h"
 #include "Input.h"
+#include "container/List.h"
 #include "time/Time.h"
 
 using namespace Windows::ApplicationModel;
@@ -74,6 +74,8 @@ static EGLDisplay g_egl_display = EGL_NO_DISPLAY;
 static EGLContext g_egl_context = EGL_NO_CONTEXT;
 static EGLContext g_egl_shared_context = EGL_NO_CONTEXT;
 static EGLSurface g_egl_surface = EGL_NO_SURFACE;
+static EGLint g_egl_width = 0;
+static EGLint g_egl_height = 0;
 
 namespace app
 {
@@ -126,16 +128,14 @@ namespace app
                 {
                     CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
-                    EGLint window_width = 0;
-                    EGLint window_height = 0;
-                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &window_width);
-                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &window_height);
+                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &g_egl_width);
+                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &g_egl_height);
 
-                    this->Draw(window_width, window_height);
+                    this->Draw();
 
                     // The call to eglSwapBuffers might not be successful (e.g. due to Device Lost)
                     // If the call fails, then we must reinitialize EGL and the GL resources.
-                    if (eglSwapBuffers(g_egl_display, g_egl_surface) != GL_TRUE)
+                    if (eglSwapBuffers(g_egl_display, g_egl_surface) != EGL_TRUE)
                     {
                         this->DoneEGL();
                         this->InitEGL(CoreWindow::GetForCurrentThread());
@@ -292,8 +292,8 @@ namespace app
 
             // Create a PropertySet and initialize with the EGLNativeWindowType.
             PropertySet^ surface_properties = ref new PropertySet();
-            surface_properties->Insert(ref new String(EGLNativeWindowTypeProperty), window);
-
+            surface_properties->Insert(ref new Platform::String(EGLNativeWindowTypeProperty), window);
+			
             // You can configure the surface to render at a lower resolution and be scaled up to
             // the full window size. This scaling is often free on mobile hardware.
             //
@@ -387,10 +387,8 @@ namespace app
         {
             this->DoneRenderer();
 
-            EGLint window_width = 0;
-            EGLint window_height = 0;
-            eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &window_width);
-            eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &window_height);
+            eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &g_egl_width);
+            eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &g_egl_height);
 
             Viry3D::String name = "Viry3D";
             Viry3D::String data_path = ConvertString(Package::Current->InstalledLocation->Path);
@@ -398,51 +396,35 @@ namespace app
             data_path = data_path.Replace("\\", "/") + "/Assets";
             save_path = save_path.Replace("\\", "/");
 
-            m_display = new Viry3D::Display(name, nullptr, window_width, window_height);
-            if (m_is_glesv3)
-            {
-                m_display->EnableGLESv3();
-            }
-
-            m_app = new Viry3D::App();
-            m_app->SetName(name);
-            m_app->SetDataPath(data_path);
-            m_app->SetSavePath(save_path);
-            m_app->Init();
+			m_engine = Viry3D::Engine::Create(nullptr, g_egl_width, g_egl_height);
+			m_engine->SetDataPath(data_path);
+			m_engine->SetSavePath(save_path);
+			m_engine->InitTest();
         }
 
         void DoneRenderer()
         {
-            if (m_app)
-            {
-                delete m_app;
-                m_app = nullptr;
-            }
-            if (m_display)
-            {
-                delete m_display;
-                m_display = nullptr;
-            }
+			if (m_engine)
+			{
+				m_engine->ShutdownTest();
+				Viry3D::Engine::Destroy(&m_engine);
+			}
         }
 
-        void Draw(int width, int height)
+        void Draw()
         {
-            if (width != m_display->GetWidth() || height != m_display->GetHeight())
-            {
-                m_display->OnResize(width, height);
-            }
+			if (g_egl_width != m_engine->GetWidth() || g_egl_height != m_engine->GetHeight())
+			{
+				m_engine->OnResize(nullptr, g_egl_width, g_egl_height);
+			}
 
-            m_app->OnFrameBegin();
-            m_app->Update();
-            m_display->OnDraw();
-            m_app->OnFrameEnd();
+			m_engine->Execute();
         }
 
         bool m_window_closed = false;
         bool m_window_visible = true;
         bool m_is_glesv3 = false;
-        Viry3D::Display* m_display = nullptr;
-        Viry3D::App* m_app = nullptr;
+		Viry3D::Engine* m_engine = nullptr;
     };
 }
 
@@ -458,7 +440,7 @@ public:
 
 // The main function creates an IFrameworkViewSource for our app, and runs the app.
 [Platform::MTAThread]
-int main(Array<String^>^)
+int main(Array<Platform::String^>^)
 {
     auto app_source = ref new AppSource();
     CoreApplication::Run(app_source);
@@ -489,7 +471,7 @@ static void OnPointerPressed(CoreWindow^ window, PointerEventArgs^ e)
         t.deltaTime = 0;
         t.fingerId = 0;
         t.phase = TouchPhase::Began;
-        t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+        t.position = Vector2((float) x, (float) g_egl_height - y - 1);
         t.tapCount = 1;
         t.time = Time::GetRealTimeSinceStartup();
 
@@ -507,7 +489,7 @@ static void OnPointerPressed(CoreWindow^ window, PointerEventArgs^ e)
 
     g_mouse_button_down[0] = true;
     g_mouse_position.x = (float) x;
-    g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+    g_mouse_position.y = (float) g_egl_height - y - 1;
     g_mouse_button_held[0] = true;
 }
 
@@ -523,7 +505,7 @@ static void OnPointerMoved(CoreWindow^ window, PointerEventArgs^ e)
         t.deltaTime = 0;
         t.fingerId = 0;
         t.phase = TouchPhase::Moved;
-        t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+        t.position = Vector2((float) x, (float) g_egl_height - y - 1);
         t.tapCount = 1;
         t.time = Time::GetRealTimeSinceStartup();
 
@@ -559,7 +541,7 @@ static void OnPointerMoved(CoreWindow^ window, PointerEventArgs^ e)
     }
 
     g_mouse_position.x = (float) x;
-    g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+    g_mouse_position.y = (float) g_egl_height - y - 1;
 }
 
 static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
@@ -574,7 +556,7 @@ static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
         t.deltaTime = 0;
         t.fingerId = 0;
         t.phase = TouchPhase::Ended;
-        t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+        t.position = Vector2((float) x, (float) g_egl_height - y - 1);
         t.tapCount = 1;
         t.time = Time::GetRealTimeSinceStartup();
 
@@ -592,7 +574,7 @@ static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
 
     g_mouse_button_up[0] = true;
     g_mouse_position.x = (float) x;
-    g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+    g_mouse_position.y = (float) g_egl_height - y - 1;
     g_mouse_button_held[0] = false;
 }
 
@@ -600,8 +582,8 @@ namespace Viry3D
 {
     static bool GetPathFolder(const String& path, String& folder, String& local_path)
     {
-        const String& data_path = Application::Instance()->GetDataPath();
-        const String& save_path = Application::Instance()->GetSavePath();
+        const String& data_path = Engine::Instance()->GetDataPath();
+        const String& save_path = Engine::Instance()->GetSavePath();
         if (path.StartsWith(data_path))
         {
             folder = data_path.Replace("/", "\\");

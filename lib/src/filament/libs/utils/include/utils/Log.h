@@ -22,6 +22,7 @@
 #include <utils/ThreadLocal.h>
 #include <utils/bitset.h>
 #include <utils/compiler.h> // ssize_t is a POSIX type.
+#include <utils/unwindows.h>
 
 // We always use TINY IO, it seems to work well enough and that a nice way to not
 // break the android builds

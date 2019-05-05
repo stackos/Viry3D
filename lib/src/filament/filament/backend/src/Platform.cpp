@@ -44,6 +44,8 @@
     #if defined (FILAMENT_DRIVER_SUPPORTS_VULKAN)
         #include "vulkan/PlatformVkLinux.h"
     #endif
+#elif defined(VR_UWP)
+	#include "opengl/PlatformUWP.h"
 #elif defined(WIN32)
     #ifndef USE_EXTERNAL_GLES3
         #include "opengl/PlatformWGL.h"
@@ -118,6 +120,8 @@ DefaultPlatform* DefaultPlatform::create(Backend* backend) noexcept {
         return new PlatformCocoaGL();
     #elif defined(__linux__)
         return new PlatformGLX();
+	#elif defined(VR_UWP)
+		return new PlatformUWP();
     #elif defined(WIN32)
         return new PlatformWGL();
     #elif defined(__EMSCRIPTEN__)

@@ -18,6 +18,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "string/String.h"
 
 namespace Viry3D
 {
@@ -26,13 +27,25 @@ namespace Viry3D
     class Engine
     {
 	public:
-		static Engine* Create(void* native_window, uint64_t flags = 0, void* shared_gl_context = nullptr);
+		static Engine* Create(void* native_window, int width, int height, uint64_t flags = 0, void* shared_gl_context = nullptr);
 		static void Destroy(Engine** engine);
 		static Engine* Instance();
 		void Execute();
+		const String& GetDataPath();
+		const String& GetSavePath();
+#if VR_ANDROID || VR_UWP
+		void SetDataPath(const String& path);
+		void SetSavePath(const String& path);
+#endif
+		void OnResize(void* native_window, int width, int height, uint64_t flags = 0);
+		int GetWidth() const;
+		int GetHeight() const;
+
+		void InitTest();
+		void ShutdownTest();
 
 	private:
-		Engine(void* native_window, uint64_t flags, void* shared_gl_context);
+		Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context);
 		~Engine();
 
 	private:

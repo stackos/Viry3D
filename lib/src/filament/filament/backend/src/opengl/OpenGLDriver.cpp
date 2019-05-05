@@ -145,7 +145,9 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         << "GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = " << gets.uniform_buffer_offset_alignment << io::endl;
 #endif
 
-    if (strstr(renderer, "Adreno")) {
+	if (strstr(renderer, "ANGLE")) {
+		bugs.disable_invalidate_framebuffer = true;
+	} else if (strstr(renderer, "Adreno")) {
         bugs.clears_hurt_performance = true;
     } else if (strstr(renderer, "Mali")) {
         bugs.vao_doesnt_store_element_array_buffer_binding = true;
@@ -2622,7 +2624,7 @@ GLuint OpenGLDriver::getSamplerSlow(SamplerParams params) const noexcept {
     glSamplerParameteri(s, GL_TEXTURE_COMPARE_MODE, getTextureCompareMode(params.compareMode));
     glSamplerParameteri(s, GL_TEXTURE_COMPARE_FUNC, getTextureCompareFunc(params.compareFunc));
 // TODO: Why does this fail with WebGL 2.0? The run-time check should suffice.
-#if defined(GL_EXT_texture_filter_anisotropic) && !defined(__EMSCRIPTEN__)
+#if defined(GL_EXT_texture_filter_anisotropic) && !defined(__EMSCRIPTEN__) && !defined(VR_UWP)
     if (ext.texture_filter_anisotropic) {
         GLfloat anisotropy = float(1 << params.anisotropyLog2);
         glSamplerParameterf(s, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::min(mMaxAnisotropy, anisotropy));

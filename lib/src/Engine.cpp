@@ -19,11 +19,9 @@
 #include <backend/Platform.h>
 #include <utils/compiler.h>
 #include <utils/CountDownLatch.h>
-#include <utils/JobSystem.h>
 #include "private/backend/CommandStream.h"
 #include "private/backend/CommandBufferQueue.h"
 #include "private/backend/DriverApi.h"
-#include "string/String.h"
 #include "Debug.h"
 #include <thread>
 
@@ -37,6 +35,7 @@
 #include "android/jni.h"
 #endif
 
+// test
 #include "math/Matrix4x4.h"
 #include "graphics/Texture.h"
 
@@ -44,54 +43,46 @@ using namespace filament;
 
 namespace Viry3D
 {
-	using LinearAllocatorArena = utils::Arena<
-		utils::LinearAllocator,
-		utils::LockingPolicy::NoLock>;
-	using ArenaScope = utils::ArenaScope<LinearAllocatorArena>;
-
 	class EnginePrivate
 	{
 	public:
-		static constexpr size_t CONFIG_PER_RENDER_PASS_ARENA_SIZE		= 2 * 1024 * 1024;
 		static constexpr size_t CONFIG_MIN_COMMAND_BUFFERS_SIZE			= 1 * 1024 * 1024;
 		static constexpr size_t CONFIG_COMMAND_BUFFERS_SIZE				= 3 * CONFIG_MIN_COMMAND_BUFFERS_SIZE;
 
 		Engine* m_engine;
 		backend::Backend m_backend;
 		backend::Platform* m_platform = nullptr;
-		bool m_own_platform = false;
 		void* m_shared_gl_context = nullptr;
 		bool m_terminated = false;
 		std::thread m_driver_thread;
 		utils::CountDownLatch m_driver_barrier;
 		backend::Driver* m_driver = nullptr;
-		utils::JobSystem m_job_system;
 		backend::CommandBufferQueue m_command_buffer_queue;
 		backend::DriverApi m_command_stream;
 		void* m_native_window;
+		int m_width;
+		int m_height;
 		uint64_t m_window_flags;
 		backend::SwapChainHandle m_swap_chain;
 		uint32_t m_frame_id = 0;
-		LinearAllocatorArena m_per_render_pass_allocator;
 		backend::RenderTargetHandle m_render_target;
 		utils::Mutex m_lock;
         String m_data_path;
         String m_save_path;
         
 		backend::DriverApi& GetDriverApi() noexcept { return m_command_stream; }
-		utils::JobSystem& GetJobSystem() noexcept { return m_job_system; }
 
-		EnginePrivate(Engine* engine, void* native_window, uint64_t flags, void* shared_gl_context):
+		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
 			m_backend(backend::Backend::DEFAULT),
 			m_shared_gl_context(shared_gl_context),
 			m_driver_barrier(1),
 			m_command_buffer_queue(CONFIG_MIN_COMMAND_BUFFERS_SIZE, CONFIG_COMMAND_BUFFERS_SIZE),
 			m_native_window(native_window),
-			m_window_flags(flags),
-			m_per_render_pass_allocator("per-renderpass allocator", CONFIG_PER_RENDER_PASS_ARENA_SIZE)
+			m_width(width),
+			m_height(height),
+			m_window_flags(flags)
 		{
-			m_job_system.adopt();
 		}
 
 		~EnginePrivate()
@@ -101,10 +92,7 @@ namespace Viry3D
 				delete m_driver;
 			}
 			
-			if (m_own_platform)
-			{
-				backend::DefaultPlatform::destroy((backend::DefaultPlatform**) &m_platform);
-			}
+			backend::DefaultPlatform::destroy((backend::DefaultPlatform**) &m_platform);
 		}
 
 		void Init()
@@ -114,8 +102,6 @@ namespace Viry3D
 			m_swap_chain = this->GetDriverApi().createSwapChain(m_native_window, m_window_flags);
 
 			m_render_target = this->GetDriverApi().createDefaultRenderTarget();
-
-			this->InitTest();
 		}
 
 		void Shutdown()
@@ -123,8 +109,6 @@ namespace Viry3D
 			m_lock.lock();
 			m_terminated = true;
 			m_lock.unlock();
-
-			this->ShutdownTest();
 
 			this->GetDriverApi().destroyRenderTarget(m_render_target);
 
@@ -146,14 +130,11 @@ namespace Viry3D
 			{
 				m_driver_thread.join();
 			}
-
-			m_job_system.emancipate();
 		}
 
 		void Loop()
 		{
 			m_platform = backend::DefaultPlatform::create(&m_backend);
-			m_own_platform = true;
 			m_driver = m_platform->createDriver(m_shared_gl_context);
 			m_driver_barrier.latch();
 			if (!m_driver)
@@ -161,14 +142,8 @@ namespace Viry3D
 				return;
 			}
 
-			utils::JobSystem::setThreadName("EnginePrivate::Loop");
-			utils::JobSystem::setThreadPriority(utils::JobSystem::Priority::DISPLAY);
-
-			uint32_t id = std::thread::hardware_concurrency() - 1;
-
 			while (true)
 			{
-				utils::JobSystem::setThreadAffinityById(id);
 				if (!this->Execute())
 				{
 					break;
@@ -244,31 +219,16 @@ namespace Viry3D
 			int64_t monotonic_clock_ns(std::chrono::steady_clock::now().time_since_epoch().count());
 			driver.beginFrame(monotonic_clock_ns, m_frame_id);
 
-			this->Prepare();
-
 			return true;
-		}
-
-		void Prepare()
-		{
-			
 		}
 
 		void Render()
 		{
-			ArenaScope root_arena(m_per_render_pass_allocator);
-
-			auto& js = this->GetJobSystem();
-
-			auto master_job = js.setMasterJob(js.createJob());
-
-			this->RenderJob(root_arena);
-
+			this->RenderJob();
 			this->Flush();
-
-			js.runAndWait(master_job);
 		}
 
+		// test
 		backend::VertexBufferHandle m_vb;
 		backend::IndexBufferHandle m_ib;
 		backend::RenderPrimitiveHandle m_primitive;
@@ -300,29 +260,30 @@ namespace Viry3D
 			int attribute_count = 2;
 			backend::AttributeArray attributes;
 			attributes[0].offset = 0;
-			attributes[0].stride = sizeof(float) * 4;
+			attributes[0].stride = sizeof(float) * 5;
 			attributes[0].buffer = 0;
-			attributes[0].type   = backend::ElementType::FLOAT2;
+			attributes[0].type   = backend::ElementType::FLOAT3;
 			attributes[0].flags  = 0;
-			attributes[1].offset = sizeof(float) * 2;
-            attributes[1].stride = sizeof(float) * 4;
+			attributes[1].offset = sizeof(float) * 3;
+            attributes[1].stride = sizeof(float) * 5;
 			attributes[1].buffer = 0;
 			attributes[1].type   = backend::ElementType::FLOAT2;
 			attributes[1].flags  = 0;
 
 			float vertices[] = {
-				0, 0.5f, 0.0f, 0.0f,
-				-0.5f, -0.5f, 0.0f, 1.0f,
-				0.5f, -0.5f, 1.0f, 1.0f
+				-0.5f, 0.5f, -0.5f, 0.0f, 0.0f,
+				-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+				0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+				0.5f, 0.5f, -0.5f, 1.0f, 0.0f
 			};
 			uint16_t indices[] = {
-				0, 1, 2
+				0, 1, 2, 0, 2, 3
 			};
-			int vertex_count = 3;
+			int vertex_count = 4;
 			int min_index = 0;
-			int max_index = 2;
+			int max_index = 3;
 			int index_offset = 0;
-			int index_count = 3;
+			int index_count = 6;
 
 			m_vb = driver.createVertexBuffer(1, attribute_count, vertex_count, attributes, backend::BufferUsage::STATIC);
             void* buffer = malloc(sizeof(vertices));
@@ -338,25 +299,24 @@ namespace Viry3D
 			driver.setRenderPrimitiveBuffer(m_primitive, m_vb, m_ib, (1 << 0 | 1 << 1));
 			driver.setRenderPrimitiveRange(m_primitive, backend::PrimitiveType::TRIANGLES, index_offset, min_index, max_index, index_count);
 			
-			std::string vs = R"(
-#version 410
+			std::string vs = R"(#version 300 es
 layout(std140) uniform PerMaterialInstance
 {
     mat4 u_mvp;
 };
 layout(location = 0) in vec4 i_position;
 layout(location = 1) in vec2 i_uv;
-layout(location = 0) out vec2 v_uv;
+out vec2 v_uv;
 void main()
 {
 	gl_Position = i_position * u_mvp;
 	v_uv = i_uv;
 }
 )";
-			std::string fs = R"(
-#version 410
+			std::string fs = R"(#version 300 es
+precision highp float;
 uniform sampler2D u_texture;
-layout(location = 0) in vec2 v_uv;
+in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
@@ -393,8 +353,7 @@ void main()
 
             {
                 backend::SamplerGroup sampler(1);
-                backend::SamplerParams sampler_params;
-                sampler.setSampler(0, m_texture, sampler_params);
+                sampler.setSampler(0, m_texture, backend::SamplerParams());
                 driver.updateSamplerGroup(m_sampler, std::move(sampler));
             }
 		}
@@ -412,7 +371,7 @@ void main()
 			driver.destroyIndexBuffer(m_ib);
 		}
 
-		void RenderJob(ArenaScope& arena)
+		void RenderJob()
 		{
 			auto& driver = this->GetDriverApi();
 
@@ -421,7 +380,7 @@ void main()
 			params.flags.clear = backend::TargetBufferFlags::COLOR;
 			params.flags.discardStart = backend::TargetBufferFlags::ALL;
 			params.flags.discardEnd = backend::TargetBufferFlags::DEPTH_AND_STENCIL;
-			params.viewport = { 0, 0, 1280, 720 };
+			params.viewport = { 0, 0, (uint32_t) m_width, (uint32_t) m_height };
 			params.clearColor = math::float4(0, 0, 0, 1);
 
 			driver.beginRenderPass(target, params);
@@ -438,7 +397,7 @@ void main()
 				driver.bindUniformBuffer((size_t) BindingPoints::PerMaterialInstance, m_ub);
                 driver.bindSamplers((size_t) BindingPoints::PerMaterialInstance, m_sampler);
 				// 2. set scissor by per material instance
-				driver.setViewportScissor(0, 0, 1280, 720);
+				driver.setViewportScissor(0, 0, m_width, m_height);
 				// 3. bind uniform buffer by per renderer instance
 				// 4. draw with pipeline and primitive
 				backend::PipelineState pipeline;
@@ -589,18 +548,30 @@ void main()
             m_save_path = path;
         }
 #endif
+
+		void OnResize(void* native_window, int width, int height, uint64_t flags)
+		{
+			this->GetDriverApi().destroySwapChain(m_swap_chain);
+
+			m_native_window = native_window;
+			m_width = width;
+			m_height = height;
+			m_window_flags = flags;
+
+			m_swap_chain = this->GetDriverApi().createSwapChain(m_native_window, m_window_flags);
+		}
 	};
 
-	Engine* g_engine = nullptr;
+	static Engine* g_engine = nullptr;
 
-	Engine* Engine::Create(void* native_window, uint64_t flags, void* shared_gl_context)
+	Engine* Engine::Create(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context)
 	{
-		Engine* instance = new Engine(native_window, flags, shared_gl_context);
+		Engine* instance = new Engine(native_window, width, height, flags, shared_gl_context);
+		g_engine = instance;
 
 		if (!UTILS_HAS_THREADING)
 		{
 			instance->m_private->m_platform = backend::DefaultPlatform::create(&instance->m_private->m_backend);
-			instance->m_private->m_own_platform = true;
 			instance->m_private->m_driver = instance->m_private->m_platform->createDriver(instance->m_private->m_shared_gl_context);
 			instance->m_private->Init();
 			instance->m_private->Execute();
@@ -618,8 +589,6 @@ void main()
 			instance->m_private->Init();
 		}
 		
-		g_engine = instance;
-
 		return instance;
 	}
 
@@ -642,8 +611,8 @@ void main()
 		return g_engine;
 	}
 
-	Engine::Engine(void* native_window, uint64_t flags, void* shared_gl_context):
-		m_private(new EnginePrivate(this, native_window, flags, shared_gl_context))
+	Engine::Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
+		m_private(new EnginePrivate(this, native_window, width, height, flags, shared_gl_context))
 	{
 	
 	}
@@ -655,16 +624,63 @@ void main()
 
 	void Engine::Execute()
 	{
-		if (!UTILS_HAS_THREADING)
-		{
-			m_private->Flush();
-			m_private->Execute();
-		}
-
 		if (m_private->BeginFrame())
 		{
 			m_private->Render();
 			m_private->EndFrame();
 		}
+
+		if (!UTILS_HAS_THREADING)
+		{
+			m_private->Flush();
+			m_private->Execute();
+		}
+	}
+
+	const String& Engine::GetDataPath()
+	{
+		return m_private->GetDataPath();
+	}
+
+	const String& Engine::GetSavePath()
+	{
+		return m_private->GetSavePath();
+	}
+
+#if VR_ANDROID || VR_UWP
+	void Engine::SetDataPath(const String& path)
+	{
+		m_private->SetDataPath(path);
+	}
+
+	void Engine::SetSavePath(const String& path)
+	{
+		m_private->SetSavePath(path);
+	}
+#endif
+
+	void Engine::OnResize(void* native_window, int width, int height, uint64_t flags)
+	{
+		m_private->OnResize(native_window, width, height, flags);
+	}
+
+	int Engine::GetWidth() const
+	{
+		return m_private->m_width;
+	}
+
+	int Engine::GetHeight() const
+	{
+		return m_private->m_height;
+	}
+
+	void Engine::InitTest()
+	{
+		m_private->InitTest();
+	}
+
+	void Engine::ShutdownTest()
+	{
+		m_private->ShutdownTest();
 	}
 }
