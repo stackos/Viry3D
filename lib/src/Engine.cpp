@@ -299,7 +299,13 @@ namespace Viry3D
 			driver.setRenderPrimitiveBuffer(m_primitive, m_vb, m_ib, (1 << 0 | 1 << 1));
 			driver.setRenderPrimitiveRange(m_primitive, backend::PrimitiveType::TRIANGLES, index_offset, min_index, max_index, index_count);
 			
-			std::string vs = R"(#version 300 es
+#if VR_WINDOWS || VR_MAC
+            std::string version = "#version 410\n";
+#else
+            std::string version = "#version 300 es\n";
+#endif
+            
+			std::string vs = version + R"(
 layout(std140) uniform PerMaterialInstance
 {
     mat4 u_mvp;
@@ -313,7 +319,7 @@ void main()
 	v_uv = i_uv;
 }
 )";
-			std::string fs = R"(#version 300 es
+			std::string fs = version + R"(
 precision highp float;
 uniform sampler2D u_texture;
 in vec2 v_uv;
