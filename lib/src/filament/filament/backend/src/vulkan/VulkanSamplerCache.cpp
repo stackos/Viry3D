@@ -102,23 +102,23 @@ VkSampler VulkanSamplerCache::getSampler(backend::SamplerParams params) noexcept
     if (UTILS_LIKELY(iter != mCache.end())) {
         return iter->second;
     }
-    VkSamplerCreateInfo samplerInfo {
-        .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-        .magFilter = getFilter(params.filterMag),
-        .minFilter = getFilter(params.filterMin),
-        .addressModeU = getWrapMode(params.wrapS),
-        .addressModeV = getWrapMode(params.wrapT),
-        .addressModeW = getWrapMode(params.wrapR),
-        .anisotropyEnable = params.anisotropyLog2 == 0 ? 0u : 1u,
-        .maxAnisotropy = (float)(1u << params.anisotropyLog2),
-        .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
-        .unnormalizedCoordinates = VK_FALSE,
-        .compareEnable = getCompareEnable(params.compareMode),
-        .compareOp = getCompareOp(params.compareFunc),
-        .mipmapMode = getMipmapMode(params.filterMin),
-        .minLod = 0.0f,
-        .maxLod = getMaxLod(params.filterMin),
-    };
+	VkSamplerCreateInfo samplerInfo { };
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = getFilter(params.filterMag);
+	samplerInfo.minFilter = getFilter(params.filterMin);
+	samplerInfo.addressModeU = getWrapMode(params.wrapS);
+	samplerInfo.addressModeV = getWrapMode(params.wrapT);
+	samplerInfo.addressModeW = getWrapMode(params.wrapR);
+	samplerInfo.anisotropyEnable = params.anisotropyLog2 == 0 ? 0u : 1u;
+	samplerInfo.maxAnisotropy = (float)(1u << params.anisotropyLog2);
+	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.compareEnable = getCompareEnable(params.compareMode);
+	samplerInfo.compareOp = getCompareOp(params.compareFunc);
+	samplerInfo.mipmapMode = getMipmapMode(params.filterMin);
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = getMaxLod(params.filterMin);
+
     VkSampler sampler;
     VkResult error = vkCreateSampler(mContext.device, &samplerInfo, VKALLOC, &sampler);
     ASSERT_POSTCONDITION(!error, "Unable to create sampler.");

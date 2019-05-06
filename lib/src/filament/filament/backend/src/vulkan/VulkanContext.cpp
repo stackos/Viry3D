@@ -36,7 +36,7 @@ namespace filament {
 namespace backend {
 
 VulkanCmdFence::VulkanCmdFence(VkDevice device, bool signaled) : device(device) {
-    VkFenceCreateInfo fenceCreateInfo { .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+    VkFenceCreateInfo fenceCreateInfo { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
     if (signaled) {
         fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     }
@@ -169,11 +169,9 @@ void createVirtualDevice(VulkanContext& context) {
     // We could simply enable all supported features, but since that may have performance
     // consequences let's just enable the features we need.
     const auto& supportedFeatures = context.physicalDeviceFeatures;
-    VkPhysicalDeviceFeatures enabledFeatures {
-        .textureCompressionETC2 = supportedFeatures.textureCompressionETC2,
-        .textureCompressionBC = supportedFeatures.textureCompressionBC,
-    };
-
+	VkPhysicalDeviceFeatures enabledFeatures { };
+	enabledFeatures.textureCompressionETC2 = supportedFeatures.textureCompressionETC2;
+	enabledFeatures.textureCompressionBC = supportedFeatures.textureCompressionBC;
     deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
     deviceCreateInfo.enabledExtensionCount = (uint32_t)deviceExtensionNames.size();
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionNames.data();
@@ -190,39 +188,40 @@ void createVirtualDevice(VulkanContext& context) {
     result = vkCreateCommandPool(context.device, &createInfo, VKALLOC, &context.commandPool);
     ASSERT_POSTCONDITION(result == VK_SUCCESS, "vkCreateCommandPool error.");
 
-    const VmaVulkanFunctions funcs {
-        .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
-        .vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
-        .vkAllocateMemory = vkAllocateMemory,
-        .vkFreeMemory = vkFreeMemory,
-        .vkMapMemory = vkMapMemory,
-        .vkUnmapMemory = vkUnmapMemory,
-        .vkBindBufferMemory = vkBindBufferMemory,
-        .vkBindImageMemory = vkBindImageMemory,
-        .vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements,
-        .vkGetImageMemoryRequirements = vkGetImageMemoryRequirements,
-        .vkCreateBuffer = vkCreateBuffer,
-        .vkDestroyBuffer = vkDestroyBuffer,
-        .vkCreateImage = vkCreateImage,
-        .vkDestroyImage = vkDestroyImage,
-        .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
-        .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR
-    };
-    const VmaAllocatorCreateInfo allocatorInfo {
-        .physicalDevice = context.physicalDevice,
-        .device = context.device,
-        .pVulkanFunctions = &funcs
-    };
+	VmaVulkanFunctions funcs { };
+	funcs.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+	funcs.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
+	funcs.vkAllocateMemory = vkAllocateMemory;
+	funcs.vkFreeMemory = vkFreeMemory;
+	funcs.vkMapMemory = vkMapMemory;
+	funcs.vkUnmapMemory = vkUnmapMemory;
+	funcs.vkBindBufferMemory = vkBindBufferMemory;
+	funcs.vkBindImageMemory = vkBindImageMemory;
+	funcs.vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements;
+	funcs.vkGetImageMemoryRequirements = vkGetImageMemoryRequirements;
+	funcs.vkCreateBuffer = vkCreateBuffer;
+	funcs.vkDestroyBuffer = vkDestroyBuffer;
+	funcs.vkCreateImage = vkCreateImage;
+	funcs.vkDestroyImage = vkDestroyImage;
+	funcs.vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR;
+	funcs.vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR;
+
+	VmaAllocatorCreateInfo allocatorInfo { };
+	allocatorInfo.physicalDevice = context.physicalDevice;
+	allocatorInfo.device = context.device;
+	allocatorInfo.pVulkanFunctions = &funcs;
+
     vmaCreateAllocator(&allocatorInfo, &context.allocator);
 
     // Create the work command buffer and fence for work unrelated to the swap chain.
     const VkCommandBufferAllocateInfo allocateInfo = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .commandPool = context.commandPool,
-        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandBufferCount = 1
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		nullptr,
+        context.commandPool,
+        VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        1
     };
-    const VkCommandBufferBeginInfo binfo { .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    const VkCommandBufferBeginInfo binfo { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     vkAllocateCommandBuffers(context.device, &allocateInfo, &context.work.cmdbuffer);
     vkBeginCommandBuffer(context.work.cmdbuffer, &binfo);
 }
@@ -311,20 +310,20 @@ void createSwapChain(VulkanContext& context, VulkanSurfaceContext& surfaceContex
 
     // Create the low-level swap chain.
     const auto size = surfaceContext.surfaceCapabilities.currentExtent;
-    VkSwapchainCreateInfoKHR createInfo {
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .surface = surfaceContext.surface,
-        .minImageCount = desiredImageCount,
-        .imageFormat = surfaceContext.surfaceFormat.format,
-        .imageColorSpace = surfaceContext.surfaceFormat.colorSpace,
-        .imageExtent = size,
-        .imageArrayLayers = 1,
-        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-        .preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-        .compositeAlpha = compositeAlpha,
-        .presentMode = VK_PRESENT_MODE_FIFO_KHR,
-        .clipped = VK_TRUE
-    };
+	VkSwapchainCreateInfoKHR createInfo { };
+	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	createInfo.surface = surfaceContext.surface;
+	createInfo.minImageCount = desiredImageCount;
+	createInfo.imageFormat = surfaceContext.surfaceFormat.format;
+	createInfo.imageColorSpace = surfaceContext.surfaceFormat.colorSpace;
+	createInfo.imageExtent = size;
+	createInfo.imageArrayLayers = 1;
+	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	createInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	createInfo.compositeAlpha = compositeAlpha;
+	createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+	createInfo.clipped = VK_TRUE;
+
     VkSwapchainKHR swapchain;
     VkResult result = vkCreateSwapchainKHR(context.device, &createInfo, VKALLOC, &swapchain);
     ASSERT_POSTCONDITION(result == VK_SUCCESS, "vkGetPhysicalDeviceSurfaceFormatsKHR error.");
@@ -341,8 +340,8 @@ void createSwapChain(VulkanContext& context, VulkanSurfaceContext& surfaceContex
     ASSERT_POSTCONDITION(result == VK_SUCCESS, "vkGetSwapchainImagesKHR error.");
     for (size_t i = 0; i < images.size(); ++i) {
         surfaceContext.swapContexts[i].attachment = {
-            .image = images[i],
-            .format = surfaceContext.surfaceFormat.format
+			surfaceContext.surfaceFormat.format,
+            images[i]
         };
     }
     utils::slog.i
@@ -459,13 +458,14 @@ void acquireSwapCommandBuffer(VulkanContext& context) {
     // Restart the command buffer.
     VkCommandBuffer cmdbuffer = swap.commands.cmdbuffer;
     VkResult error = vkResetCommandBuffer(cmdbuffer, 0);
-    ASSERT_POSTCONDITION(not error, "vkResetCommandBuffer error.");
+    ASSERT_POSTCONDITION(!error, "vkResetCommandBuffer error.");
     VkCommandBufferBeginInfo beginInfo {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,
+        VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
     };
     error = vkBeginCommandBuffer(cmdbuffer, &beginInfo);
-    ASSERT_POSTCONDITION(not error, "vkBeginCommandBuffer error.");
+    ASSERT_POSTCONDITION(!error, "vkBeginCommandBuffer error.");
     context.currentCommands = &swap.commands;
 }
 
@@ -478,12 +478,11 @@ void flushCommandBuffer(VulkanContext& context) {
     VkResult error = vkEndCommandBuffer(context.currentCommands->cmdbuffer);
     ASSERT_POSTCONDITION(!error, "vkEndCommandBuffer error.");
     VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    VkSubmitInfo submitInfo {
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pWaitDstStageMask = &waitDestStageMask,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &context.currentCommands->cmdbuffer,
-    };
+	VkSubmitInfo submitInfo { };
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.pWaitDstStageMask = &waitDestStageMask;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &context.currentCommands->cmdbuffer;
 
     auto& cmdfence = sc.commands.fence;
     std::unique_lock<utils::Mutex> lock(cmdfence->mutex);
@@ -500,8 +499,9 @@ void flushCommandBuffer(VulkanContext& context) {
     error = vkResetCommandBuffer(context.currentCommands->cmdbuffer, 0);
     ASSERT_POSTCONDITION(!error, "vkResetCommandBuffer error.");
     VkCommandBufferBeginInfo beginInfo {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,
+        VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
     };
     error = vkBeginCommandBuffer(context.currentCommands->cmdbuffer, &beginInfo);
     ASSERT_POSTCONDITION(!error, "vkBeginCommandBuffer error.");
@@ -525,7 +525,7 @@ VkFormat findSupportedFormat(VulkanContext& context, const std::vector<VkFormat>
 
 VkCommandBuffer acquireWorkCommandBuffer(VulkanContext& context) {
     VulkanCommandBuffer& work = context.work;
-    const VkCommandBufferBeginInfo binfo { .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    const VkCommandBufferBeginInfo binfo { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     if (work.fence && work.fence->submitted) {
         work.fence->submitted = false;
         vkWaitForFences(context.device, 1, &work.fence->fence, VK_FALSE, UINT64_MAX);
@@ -540,12 +540,12 @@ void flushWorkCommandBuffer(VulkanContext& context) {
     VulkanCommandBuffer& work = context.work;
     ASSERT_PRECONDITION(!work.fence->submitted, "Flushed the work buffer more than once.");
     const VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    VkSubmitInfo submitInfo {
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pWaitDstStageMask = &waitDestStageMask,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &work.cmdbuffer,
-    };
+	VkSubmitInfo submitInfo { };
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.pWaitDstStageMask = &waitDestStageMask;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &work.cmdbuffer;
+
     vkEndCommandBuffer(work.cmdbuffer);
     vkQueueSubmit(context.graphicsQueue, 1, &submitInfo, work.fence->fence);
     work.fence->submitted = true;

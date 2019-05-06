@@ -32,21 +32,24 @@ VulkanStage const* VulkanStagePool::acquireStage(uint32_t numBytes) {
     }
     // We were not able to find a sufficiently large stage, so create a new one.
     VulkanStage* stage = new VulkanStage({
-        .memory = VK_NULL_HANDLE,
-        .buffer = VK_NULL_HANDLE,
-        .lastAccessed = mCurrentFrame,
-        .capacity = numBytes,
+        VK_NULL_HANDLE,
+        VK_NULL_HANDLE,
+        numBytes,
+		mCurrentFrame,
     });
 
     // Create the VkBuffer.
     mUsedStages.insert(stage);
     VkBufferCreateInfo bufferInfo {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = numBytes,
-        .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		nullptr,
+		0,
+        numBytes,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
     };
     VmaAllocationCreateInfo allocInfo {
-        .usage = VMA_MEMORY_USAGE_CPU_ONLY
+		0,
+        VMA_MEMORY_USAGE_CPU_ONLY
     };
     vmaCreateBuffer(mContext.allocator, &bufferInfo, &allocInfo, &stage->buffer, &stage->memory,
             nullptr);

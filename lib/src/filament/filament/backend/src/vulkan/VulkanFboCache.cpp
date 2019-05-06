@@ -58,15 +58,15 @@ VkFramebuffer VulkanFboCache::getFramebuffer(FboKey config, uint32_t w, uint32_t
             nAttachments++;
         }
     }
-    VkFramebufferCreateInfo info {
-        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-        .renderPass = config.renderPass,
-        .width = w,
-        .height = h,
-        .layers = 1,
-        .attachmentCount = nAttachments,
-        .pAttachments = config.attachments
-    };
+	VkFramebufferCreateInfo info { };
+	info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	info.renderPass = config.renderPass;
+	info.width = w;
+	info.height = h;
+	info.layers = 1;
+	info.attachmentCount = nAttachments;
+	info.pAttachments = config.attachments;
+
     mRenderPassRefCount[info.renderPass]++;
     VkFramebuffer framebuffer;
     VkResult error = vkCreateFramebuffer(mContext.device, &info, VKALLOC, &framebuffer);
@@ -97,33 +97,36 @@ VkRenderPass VulkanFboCache::getRenderPass(RenderPassKey config) noexcept {
       depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
       depthAttachmentRef.attachment = numAttachments++;
     }
-    VkSubpassDescription subpass {
-        .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-        .colorAttachmentCount = hasColor ? 1u : 0u,
-        .pColorAttachments = hasColor ? &colorAttachmentRef : nullptr,
-        .pDepthStencilAttachment = hasDepth ? &depthAttachmentRef : nullptr
-    };
+	VkSubpassDescription subpass { };
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = hasColor ? 1u : 0u;
+	subpass.pColorAttachments = hasColor ? &colorAttachmentRef : nullptr;
+	subpass.pDepthStencilAttachment = hasDepth ? &depthAttachmentRef : nullptr;
 
   // The attachment description specifies the layout to transition to at the END of the render pass.
     VkAttachmentDescription colorAttachment {
-        .format = config.colorFormat,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-        .loadOp = (config.flags.clear & TargetBufferFlags::COLOR) ?
+		0,
+        config.colorFormat,
+        VK_SAMPLE_COUNT_1_BIT,
+        (config.flags.clear & TargetBufferFlags::COLOR) ?
                 VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-        .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-        .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-        .finalLayout = config.finalLayout
+        VK_ATTACHMENT_STORE_OP_STORE,
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+        VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+        config.finalLayout
     };
     VkAttachmentDescription depthAttachment {
-        .format = config.depthFormat,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-        .loadOp = (config.flags.clear & TargetBufferFlags::DEPTH) ?
+		0,
+        config.depthFormat,
+        VK_SAMPLE_COUNT_1_BIT,
+        (config.flags.clear & TargetBufferFlags::DEPTH) ?
                 VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-        .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-        .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-        .finalLayout = depthOnly ? config.finalLayout :
+        VK_ATTACHMENT_STORE_OP_STORE,
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+        VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+        depthOnly ? config.finalLayout :
                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     };
 
@@ -132,33 +135,35 @@ VkRenderPass VulkanFboCache::getRenderPass(RenderPassKey config) noexcept {
     // not actually achieve anything since are neither defining multiple subpasses, nor reading back
     // from the framebuffer in the shader using subpassLoad().
     VkSubpassDependency dependencies[] = {{
-        .srcSubpass = VK_SUBPASS_EXTERNAL,
-        .dstSubpass = 0,
-        .srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-        .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
-        .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dependencyFlags = config.flags.dependencies
+        VK_SUBPASS_EXTERNAL,
+        0,
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        VK_ACCESS_MEMORY_READ_BIT,
+        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        config.flags.dependencies
     }, {
-        .srcSubpass = 0,
-        .dstSubpass = VK_SUBPASS_EXTERNAL,
-        .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        .dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-        .srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
-        .dependencyFlags = config.flags.dependencies
+        0,
+        VK_SUBPASS_EXTERNAL,
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        VK_ACCESS_MEMORY_READ_BIT,
+        config.flags.dependencies
     }};
 
     // Finally, create the VkRenderPass.
     VkAttachmentDescription attachments[2];
     VkRenderPassCreateInfo renderPassInfo {
-        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-        .attachmentCount = 0u,
-        .pAttachments = attachments,
-        .dependencyCount = config.flags.dependencies ? 2u : 0u,
-        .pDependencies = config.flags.dependencies ? dependencies : nullptr,
-        .subpassCount = 1,
-        .pSubpasses = &subpass
+        VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		nullptr,
+		0,
+        0u,
+        attachments,
+		1,
+		&subpass,
+        config.flags.dependencies ? 2u : 0u,
+        config.flags.dependencies ? dependencies : nullptr
     };
     if (hasColor) {
         attachments[renderPassInfo.attachmentCount++] = colorAttachment;

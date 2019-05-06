@@ -628,6 +628,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break;
         }
 
+		Sleep(16);
+
 		if (g_engine)
 		{
 			if (g_window_width != g_engine->GetWidth() || g_window_height != g_engine->GetHeight())

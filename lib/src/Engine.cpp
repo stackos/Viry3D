@@ -39,6 +39,14 @@
 #include "math/Matrix4x4.h"
 #include "graphics/Texture.h"
 
+#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
+#if VR_WINDOWS || VR_ANDROID
+#include "vulkan/vulkan_shader_compiler.h"
+#elif VR_IOS || VR_MAC
+#include "GLSLConversion.h"
+#endif
+#endif
+
 using namespace filament;
 
 namespace Viry3D
@@ -53,7 +61,6 @@ namespace Viry3D
 		backend::Backend m_backend;
 		backend::Platform* m_platform = nullptr;
 		void* m_shared_gl_context = nullptr;
-		bool m_terminated = false;
 		std::thread m_driver_thread;
 		utils::CountDownLatch m_driver_barrier;
 		backend::Driver* m_driver = nullptr;
@@ -66,7 +73,6 @@ namespace Viry3D
 		backend::SwapChainHandle m_swap_chain;
 		uint32_t m_frame_id = 0;
 		backend::RenderTargetHandle m_render_target;
-		utils::Mutex m_lock;
         String m_data_path;
         String m_save_path;
         
@@ -74,7 +80,7 @@ namespace Viry3D
 
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
-			m_backend(backend::Backend::DEFAULT),
+			m_backend(backend::Backend::VULKAN),
 			m_shared_gl_context(shared_gl_context),
 			m_driver_barrier(1),
 			m_command_buffer_queue(CONFIG_MIN_COMMAND_BUFFERS_SIZE, CONFIG_COMMAND_BUFFERS_SIZE),
@@ -106,10 +112,6 @@ namespace Viry3D
 
 		void Shutdown()
 		{
-			m_lock.lock();
-			m_terminated = true;
-			m_lock.unlock();
-
 			this->GetDriverApi().destroyRenderTarget(m_render_target);
 
 			if (!UTILS_HAS_THREADING)
@@ -161,32 +163,14 @@ namespace Viry3D
 				return false;
 			}
 
-			bool terminated = false;
-
 			for (int i = 0; i < buffers.size(); ++i)
 			{
 				auto& item = buffers[i];
 				if (item.begin)
 				{
-					m_lock.lock();
-					if (!m_terminated)
-					{
-						m_command_stream.execute(item.begin);
-					}
-					else
-					{
-						terminated = true;
-					}
-					m_lock.unlock();
+					m_command_stream.execute(item.begin);
 					m_command_buffer_queue.releaseBuffer(item);
-
-					if (terminated)
-					{
-						break;
-					}
 				}
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 
 			return true;
@@ -252,9 +236,66 @@ namespace Viry3D
         {
             free(buffer);
         }
-        
+
+#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
+		static void GlslToSpirv(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
+		{
+#if VR_WINDOWS || VR_ANDROID
+			String error;
+			bool success = GlslToSpv(shader_type, glsl.CString(), spirv, error);
+			if (!success)
+			{
+				Log("shader compile error: %s", error.CString());
+			}
+			assert(success);
+#elif VR_IOS || VR_MAC
+			MVKShaderStage stage;
+			switch (shader_type)
+			{
+			case VK_SHADER_STAGE_COMPUTE_BIT:
+				stage = kMVKShaderStageCompute;
+				break;
+			case VK_SHADER_STAGE_VERTEX_BIT:
+				stage = kMVKShaderStageVertex;
+				break;
+			case VK_SHADER_STAGE_FRAGMENT_BIT:
+				stage = kMVKShaderStageFragment;
+				break;
+			default:
+				stage = kMVKShaderStageAuto;
+				break;
+			}
+			uint32_t* spirv_code = nullptr;
+			size_t size = 0;
+			char* log = nullptr;
+			bool success = mvkConvertGLSLToSPIRV(glsl.CString(),
+				stage,
+				&spirv_code,
+				&size,
+				&log,
+				true,
+				true);
+			if (!success)
+			{
+				Log("shader compile error: %s", log);
+			}
+			assert(success);
+
+			spirv.Resize((int) size / 4);
+			Memory::Copy(&spirv[0], spirv_code, spirv.SizeInBytes());
+
+			free(log);
+			free(spirv_code);
+#endif
+		}
+#endif
+
 		void InitTest()
 		{
+#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
+			InitShaderCompiler();
+#endif
+
 			auto& driver = this->GetDriverApi();
 
 			int attribute_count = 2;
@@ -300,35 +341,82 @@ namespace Viry3D
 			driver.setRenderPrimitiveRange(m_primitive, backend::PrimitiveType::TRIANGLES, index_offset, min_index, max_index, index_count);
 			
 #if VR_WINDOWS || VR_MAC
-            std::string version = "#version 410\n";
+			String version = "#version 410\n";
 #else
-            std::string version = "#version 300 es\n";
+			String version = "#version 300 es\n";
 #endif
+			String define;
+			String vk_convert;
+			if (m_backend == backend::Backend::VULKAN)
+			{
+				define = "#extension GL_ARB_separate_shader_objects : enable\n"
+					"#extension GL_ARB_shading_language_420pack : enable\n"
+					"#define VK_LAYOUT_LOCATION(i) layout(location = i)\n"
+					"#define VK_UNIFORM_BINDING(i) layout(std140, set = 0, binding = i)\n"
+					"#define VK_SAMPLER_BINDING(i) layout(set = 1, binding = i)\n";
+				vk_convert = "void vk_convert() {\n"
+					"gl_Position.y = -gl_Position.y;\n"
+					"gl_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
+					"}\n";
+			}
+			else
+			{
+				define = "#define VK_LAYOUT_LOCATION(i)\n"
+					"#define VK_UNIFORM_BINDING(i) layout(std140)\n"
+					"#define VK_SAMPLER_BINDING(i)\n";
+				vk_convert = "void vk_convert(){}\n";
+			}
             
-			std::string vs = version + R"(
-layout(std140) uniform PerMaterialInstance
+			String vs = version + define + vk_convert + R"(
+VK_UNIFORM_BINDING(5) uniform PerMaterialInstance
 {
     mat4 u_mvp;
 };
 layout(location = 0) in vec4 i_position;
 layout(location = 1) in vec2 i_uv;
-out vec2 v_uv;
+VK_LAYOUT_LOCATION(0) out vec2 v_uv;
 void main()
 {
 	gl_Position = i_position * u_mvp;
 	v_uv = i_uv;
+
+	vk_convert();
 }
 )";
-			std::string fs = version + R"(
+			String fs = version + define + R"(
 precision highp float;
-uniform sampler2D u_texture;
-in vec2 v_uv;
+VK_SAMPLER_BINDING(5) uniform sampler2D u_texture;
+VK_LAYOUT_LOCATION(0) in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
     o_color = texture(u_texture, v_uv);
 }
 )";
+
+			Vector<char> vs_data;
+			Vector<char> fs_data;
+
+			if (m_backend == backend::Backend::VULKAN)
+			{
+#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
+				Vector<unsigned int> vs_spirv;
+				Vector<unsigned int> fs_spirv;
+				GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
+				GlslToSpirv(fs, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, fs_spirv);
+				vs_data.Resize(vs_spirv.Size() * 4);
+				memcpy(&vs_data[0], &vs_spirv[0], vs_data.Size());
+				fs_data.Resize(fs_spirv.Size() * 4);
+				memcpy(&fs_data[0], &fs_spirv[0], fs_data.Size());
+#endif
+			}
+			else
+			{
+				vs_data.Resize(vs.Size());
+				memcpy(&vs_data[0], &vs[0], vs_data.Size());
+				fs_data.Resize(fs.Size());
+				memcpy(&fs_data[0], &fs[0], fs_data.Size());
+			}
 
             {
                 backend::Program::Sampler sampler;
@@ -337,8 +425,8 @@ void main()
                 
                 backend::Program pb;
                 pb.diagnostics(utils::CString("Color"))
-                    .withVertexShader(vs.data(), vs.size())
-                    .withFragmentShader(fs.data(), fs.size())
+                    .withVertexShader(vs_data.Bytes(), vs_data.Size())
+                    .withFragmentShader(fs_data.Bytes(), fs_data.Size())
                     .setUniformBlock((size_t) BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"))
                     .setSamplerGroup((size_t) BindingPoints::PerMaterialInstance, &sampler, 1);
                 m_program = driver.createProgram(std::move(pb));
@@ -366,6 +454,10 @@ void main()
 
 		void ShutdownTest()
 		{
+#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
+			DeinitShaderCompiler();
+#endif
+
 			auto& driver = this->GetDriverApi();
 
             driver.destroyTexture(m_texture);
@@ -381,6 +473,16 @@ void main()
 		{
 			auto& driver = this->GetDriverApi();
 
+			{
+				static float deg = 0;
+				deg += 1;
+				static Matrix4x4 mvp;
+				mvp = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
+				void* buffer = malloc(sizeof(mvp));
+				memcpy(buffer, &mvp, sizeof(mvp));
+				driver.loadUniformBuffer(m_ub, backend::BufferDescriptor(buffer, sizeof(mvp), FreeBufferTest));
+			}
+
 			backend::RenderTargetHandle target = m_render_target;
 			backend::RenderPassParams params;
 			params.flags.clear = backend::TargetBufferFlags::COLOR;
@@ -389,27 +491,21 @@ void main()
 			params.viewport = { 0, 0, (uint32_t) m_width, (uint32_t) m_height };
 			params.clearColor = math::float4(0, 0, 0, 1);
 
+			backend::PipelineState pipeline;
+			pipeline.rasterState.colorWrite = true;
+			pipeline.rasterState.depthFunc = backend::SamplerCompareFunc::A;
+			pipeline.program = m_program;
+
 			driver.beginRenderPass(target, params);
 			{
 				// record driver commands
 				// 1. bind uniform buffer and sampler by per material instance
-				static float deg = 0;
-				deg += 1;
-				static Matrix4x4 mvp;
-				mvp = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
-                void* buffer = malloc(sizeof(mvp));
-                memcpy(buffer, &mvp, sizeof(mvp));
-				driver.loadUniformBuffer(m_ub, backend::BufferDescriptor(buffer, sizeof(mvp), FreeBufferTest));
 				driver.bindUniformBuffer((size_t) BindingPoints::PerMaterialInstance, m_ub);
                 driver.bindSamplers((size_t) BindingPoints::PerMaterialInstance, m_sampler);
 				// 2. set scissor by per material instance
 				driver.setViewportScissor(0, 0, m_width, m_height);
 				// 3. bind uniform buffer by per renderer instance
 				// 4. draw with pipeline and primitive
-				backend::PipelineState pipeline;
-				pipeline.rasterState.colorWrite = true;
-				pipeline.rasterState.depthFunc = backend::SamplerCompareFunc::A;
-				pipeline.program = m_program;
 				driver.draw(pipeline, m_primitive);
 			}
 			driver.endRenderPass();

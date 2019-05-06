@@ -391,9 +391,9 @@ void VulkanDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
     if (color.handle) {
         auto colorTexture = handle_cast<VulkanTexture>(mHandleMap, color.handle);
         renderTarget->setColorImage({
-            .image = colorTexture->textureImage,
-            .view = colorTexture->imageView,
-            .format = colorTexture->vkformat
+			colorTexture->vkformat,
+            colorTexture->textureImage,
+            colorTexture->imageView
         });
     } else if (targets & TargetBufferFlags::COLOR) {
 //        renderTarget->createColorImage(getVkFormat(format));
@@ -401,9 +401,9 @@ void VulkanDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
     if (depth.handle) {
         auto depthTexture = handle_cast<VulkanTexture>(mHandleMap, depth.handle);
         renderTarget->setDepthImage({
-            .image = depthTexture->textureImage,
-            .view = depthTexture->imageView,
-            .format = depthTexture->vkformat
+			depthTexture->vkformat,
+            depthTexture->textureImage,
+            depthTexture->imageView
         });
     } else if (targets & TargetBufferFlags::DEPTH) {
         renderTarget->createDepthImage(mContext.depthFormat);
@@ -693,17 +693,19 @@ void VulkanDriver::beginRenderPass(Handle<HwRenderTarget> rth,
     }
 
     VkRenderPass renderPass = mFramebufferCache.getRenderPass({
-        .finalLayout = finalLayout,
-        .colorFormat = color.format,
-        .depthFormat = depth.format,
-        .flags.clear         = params.flags.clear,
-        .flags.discardStart  = params.flags.discardStart,
-        .flags.discardEnd    = params.flags.discardEnd,
-        .flags.dependencies  = params.flags.dependencies
+        finalLayout,
+        color.format,
+        depth.format,
+		{
+			params.flags.clear,
+			params.flags.discardStart,
+			params.flags.discardEnd,
+			params.flags.dependencies
+		}
     });
     mBinder.bindRenderPass(renderPass);
 
-    VulkanFboCache::FboKey fbo { .renderPass = renderPass };
+    VulkanFboCache::FboKey fbo { renderPass };
     int numAttachments = 0;
     if (hasColor) {
       fbo.attachments[numAttachments++] = color.view;
@@ -713,13 +715,16 @@ void VulkanDriver::beginRenderPass(Handle<HwRenderTarget> rth,
     }
 
     VkRenderPassBeginInfo renderPassInfo {
-        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-        .renderPass = renderPass,
-        .framebuffer = mFramebufferCache.getFramebuffer(fbo, extent.width, extent.height),
-        .renderArea.offset.x = params.viewport.left,
-        .renderArea.offset.y = params.viewport.bottom,
-        .renderArea.extent.width = params.viewport.width,
-        .renderArea.extent.height = params.viewport.height,
+        VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+        renderPass,
+        mFramebufferCache.getFramebuffer(fbo, extent.width, extent.height),
+		{
+			params.viewport.left,
+			params.viewport.bottom,
+			params.viewport.width,
+			params.viewport.height
+		}
     };
 
     rt->transformClientRectToPlatform(&renderPassInfo.renderArea);
@@ -742,16 +747,16 @@ void VulkanDriver::beginRenderPass(Handle<HwRenderTarget> rth,
             VK_SUBPASS_CONTENTS_INLINE);
 
     VkViewport viewport = mContext.viewport = {
-            .x = (float) params.viewport.left,
-            .y = (float) params.viewport.bottom,
-            .width = (float) params.viewport.width,
-            .height = (float) params.viewport.height,
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f
+            (float) params.viewport.left,
+            (float) params.viewport.bottom,
+            (float) params.viewport.width,
+            (float) params.viewport.height,
+            0.0f,
+            1.0f
     };
     VkRect2D scissor {
-            .extent = { (uint32_t) viewport.width, (uint32_t) viewport.height },
-            .offset = { std::max(0, (int32_t) viewport.x), std::max(0, (int32_t) viewport.y) }
+		{ std::max(0, (int32_t) viewport.x), std::max(0, (int32_t) viewport.y) },
+        { (uint32_t) viewport.width, (uint32_t) viewport.height }
     };
 
     mCurrentRenderTarget->transformClientRectToPlatform(&scissor);
@@ -807,8 +812,8 @@ void VulkanDriver::setViewportScissor(
     int32_t top = std::min(bottom + (int32_t) height,
             (int32_t) (mContext.viewport.y + mContext.viewport.height));
     VkRect2D scissor {
-        .extent = { (uint32_t) right - x, (uint32_t) top - y },
-        .offset = { std::max(0, x), std::max(0, y) }
+		{ std::max(0, x), std::max(0, y) },
+        { (uint32_t) right - x, (uint32_t) top - y }
     };
 
     mCurrentRenderTarget->transformClientRectToPlatform(&scissor);
@@ -836,16 +841,15 @@ void VulkanDriver::commit(Handle<HwSwapChain> sch) {
     VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
     VulkanSurfaceContext& surfaceContext = *mContext.currentSurface;
     SwapContext& swapContext = getSwapContext(mContext);
-    VkSubmitInfo submitInfo {
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .waitSemaphoreCount = 1u,
-            .pWaitSemaphores = &surfaceContext.imageAvailable,
-            .pWaitDstStageMask = &waitDestStageMask,
-            .commandBufferCount = 1,
-            .pCommandBuffers = &swapContext.commands.cmdbuffer,
-            .signalSemaphoreCount = 1u,
-            .pSignalSemaphores = &surfaceContext.renderingFinished,
-    };
+	VkSubmitInfo submitInfo { };
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.waitSemaphoreCount = 1u;
+	submitInfo.pWaitSemaphores = &surfaceContext.imageAvailable;
+	submitInfo.pWaitDstStageMask = &waitDestStageMask;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &swapContext.commands.cmdbuffer;
+	submitInfo.signalSemaphoreCount = 1u;
+	submitInfo.pSignalSemaphores = &surfaceContext.renderingFinished;
 
     auto& cmdfence = swapContext.commands.fence;
     std::unique_lock<utils::Mutex> lock(cmdfence->mutex);
@@ -857,14 +861,14 @@ void VulkanDriver::commit(Handle<HwSwapChain> sch) {
 
     // Present the backbuffer.
     VulkanSurfaceContext& surface = handle_cast<VulkanSwapChain>(mHandleMap, sch)->surfaceContext;
-    VkPresentInfoKHR presentInfo {
-        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &surface.renderingFinished,
-        .swapchainCount = 1,
-        .pSwapchains = &surface.swapchain,
-        .pImageIndices = &surface.currentSwapIndex,
-    };
+	VkPresentInfoKHR presentInfo { };
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = &surface.renderingFinished;
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &surface.swapchain;
+	presentInfo.pImageIndices = &surface.currentSwapIndex;
+
     result = vkQueuePresentKHR(surface.presentQueue, &presentInfo);
     ASSERT_POSTCONDITION(result != VK_ERROR_OUT_OF_DATE_KHR && result != VK_SUBOPTIMAL_KHR,
             "Stale / resized swap chain not yet supported.");
@@ -958,10 +962,10 @@ void VulkanDriver::blit(TargetBufferFlags buffers,
     const uint32_t dstLevel = dstTarget->getColorLevel();
 
     const VkImageBlit blitRegions[1] = {{
-        .srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, srcLevel, 0, 1 },
-        .srcOffsets = { { srcRect.left, srcRect.bottom, 0 }, { srcRight, srcTop, 1 }},
-        .dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, dstLevel, 0, 1 },
-        .dstOffsets = { { dstRect.left, dstRect.bottom, 0 }, { dstRight, dstTop, 1 }}
+        { VK_IMAGE_ASPECT_COLOR_BIT, srcLevel, 0, 1 },
+        { { srcRect.left, srcRect.bottom, 0 }, { srcRight, srcTop, 1 } },
+        { VK_IMAGE_ASPECT_COLOR_BIT, dstLevel, 0, 1 },
+        { { dstRect.left, dstRect.bottom, 0 }, { dstRight, dstTop, 1 } }
     }};
 
     auto vkblit = [=](VkCommandBuffer cmdbuffer) {
@@ -1011,25 +1015,23 @@ void VulkanDriver::draw(PipelineState pipelineState, Handle<HwRenderPrimitive> r
 #endif
 
     // Update the VK raster state.
-    mContext.rasterState.depthStencil = {
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-        .depthTestEnable = VK_TRUE,
-        .depthWriteEnable = (VkBool32) rasterState.depthWrite,
-        .depthCompareOp = getCompareOp(rasterState.depthFunc),
-        .depthBoundsTestEnable = VK_FALSE,
-        .stencilTestEnable = VK_FALSE,
-    };
+	mContext.rasterState.depthStencil = { };
+	mContext.rasterState.depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	mContext.rasterState.depthStencil.depthTestEnable = VK_TRUE;
+	mContext.rasterState.depthStencil.depthWriteEnable = (VkBool32)rasterState.depthWrite;
+	mContext.rasterState.depthStencil.depthCompareOp = getCompareOp(rasterState.depthFunc);
+	mContext.rasterState.depthStencil.depthBoundsTestEnable = VK_FALSE;
+	mContext.rasterState.depthStencil.stencilTestEnable = VK_FALSE;
 
-    mContext.rasterState.blending = {
-        .blendEnable = (VkBool32) rasterState.hasBlending(),
-        .srcColorBlendFactor = getBlendFactor(rasterState.blendFunctionSrcRGB),
-        .dstColorBlendFactor = getBlendFactor(rasterState.blendFunctionDstRGB),
-        .colorBlendOp = (VkBlendOp) rasterState.blendEquationRGB,
-        .srcAlphaBlendFactor = getBlendFactor(rasterState.blendFunctionSrcAlpha),
-        .dstAlphaBlendFactor = getBlendFactor(rasterState.blendFunctionDstAlpha),
-        .alphaBlendOp =  (VkBlendOp) rasterState.blendEquationAlpha,
-        .colorWriteMask = (VkColorComponentFlags) (rasterState.colorWrite ? 0xf : 0x0),
-    };
+	mContext.rasterState.blending = { };
+	mContext.rasterState.blending.blendEnable = (VkBool32)rasterState.hasBlending();
+	mContext.rasterState.blending.srcColorBlendFactor = getBlendFactor(rasterState.blendFunctionSrcRGB);
+	mContext.rasterState.blending.dstColorBlendFactor = getBlendFactor(rasterState.blendFunctionDstRGB);
+	mContext.rasterState.blending.colorBlendOp = (VkBlendOp)rasterState.blendEquationRGB;
+	mContext.rasterState.blending.srcAlphaBlendFactor = getBlendFactor(rasterState.blendFunctionSrcAlpha);
+	mContext.rasterState.blending.dstAlphaBlendFactor = getBlendFactor(rasterState.blendFunctionDstAlpha);
+	mContext.rasterState.blending.alphaBlendOp = (VkBlendOp)rasterState.blendEquationAlpha;
+	mContext.rasterState.blending.colorWriteMask = (VkColorComponentFlags)(rasterState.colorWrite ? 0xf : 0x0);
 
     auto& vkraster = mContext.rasterState.rasterization;
     vkraster.cullMode = getCullMode(rasterState.culling);
@@ -1086,11 +1088,11 @@ void VulkanDriver::draw(PipelineState pipelineState, Handle<HwRenderPrimitive> r
             const auto* texture = handle_const_cast<VulkanTexture>(mHandleMap, boundSampler->t);
             mDisposer.acquire(texture, commands->resources);
             mBinder.bindSampler(bindingPoint, {
-                .sampler = vksampler,
-                .imageView = texture->imageView,
-                .imageLayout = samplerParams.depthStencil ?
-                        VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL :
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                vksampler,
+                texture->imageView,
+                samplerParams.depthStencil ?
+                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL :
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             });
         }
     }

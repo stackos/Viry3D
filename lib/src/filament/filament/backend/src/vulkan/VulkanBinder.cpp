@@ -119,9 +119,9 @@ bool VulkanBinder::getOrCreateDescriptors(VkDescriptorSet descriptors[2],
     // calls to getOrCreateDescriptor when nothing has been dirtied. Note that the robin_map
     // iterator type proffers a "value" method, which returns a stable reference.
     mCurrentDescriptor = &mDescriptorSets.emplace(std::make_pair(mDescriptorKey, DescriptorVal {
-        .handles = { descriptors[0], descriptors[1] },
-        .timestamp = mCurrentTime,
-        .bound = true
+        { descriptors[0], descriptors[1] },
+        mCurrentTime,
+        true
     })).first.value();
     mDirtyDescriptor = false;
 
@@ -387,7 +387,9 @@ void VulkanBinder::unbindImageView(VkImageView imageView) noexcept {
     for (auto& sampler : mDescriptorKey.samplers) {
         if (sampler.imageView == imageView) {
             sampler = {
-                .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+				VK_NULL_HANDLE,
+				VK_NULL_HANDLE,
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             };
             mDirtyDescriptor = true;
         }
@@ -412,9 +414,9 @@ void VulkanBinder::evictDescriptors(std::function<bool(const DescriptorKey&)> fi
         if (filter(pair.first)) {
             auto& cacheEntry = iter->second;
             mDescriptorGraveyard.push_back({
-                .handles = { cacheEntry.handles[0], cacheEntry.handles[1] },
-                .timestamp = cacheEntry.timestamp,
-                .bound = false
+                { cacheEntry.handles[0], cacheEntry.handles[1] },
+                cacheEntry.timestamp,
+                false
             });
             iter = mDescriptorSets.erase(iter);
         } else {
@@ -509,8 +511,8 @@ void VulkanBinder::gc() noexcept {
            vkFreeDescriptorSets(mDevice, mDescriptorPool, 2, val.handles);
         } else {
             mDescriptorGraveyard.emplace_back(DescriptorVal {
-                .handles = { val.handles[0], val.handles[1] },
-                .timestamp = val.timestamp
+                { val.handles[0], val.handles[1] },
+                val.timestamp
             });
         }
     }
@@ -556,11 +558,12 @@ void VulkanBinder::createLayoutsAndDescriptors() noexcept {
     // Create the VkDescriptorPool.
     VkDescriptorPoolSize poolSizes[2] = {};
     VkDescriptorPoolCreateInfo poolInfo {
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-        .poolSizeCount = 2,
-        .pPoolSizes = &poolSizes[0],
-        .maxSets = MAX_NUM_DESCRIPTORS,
-        .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
+        VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		nullptr,
+		VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+		MAX_NUM_DESCRIPTORS,
+        2,
+        &poolSizes[0]
     };
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = poolInfo.maxSets * UBUFFER_BINDING_COUNT;

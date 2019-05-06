@@ -163,16 +163,16 @@ void VulkanRenderTarget::createColorImage(VkFormat format) {
     this->mColor.format = format;
     mSharedColorImage = false;
     // Create an appropriately-sized device-only VkImage for the color attachment.
-    VkImageCreateInfo colorImageInfo {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .imageType = VK_IMAGE_TYPE_2D,
-        .extent = { width, height, 1 },
-        .format = mColor.format,
-        .mipLevels = 1,
-        .arrayLayers = 1,
-        .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-    };
+	VkImageCreateInfo colorImageInfo { };
+	colorImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	colorImageInfo.imageType = VK_IMAGE_TYPE_2D;
+	colorImageInfo.extent = { width, height, 1 };
+	colorImageInfo.format = mColor.format;
+	colorImageInfo.mipLevels = 1;
+	colorImageInfo.arrayLayers = 1;
+	colorImageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	colorImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
     VkResult error = vkCreateImage(mContext.device, &colorImageInfo, VKALLOC, &mColor.image);
     ASSERT_POSTCONDITION(!error, "Unable to create color attachment.");
 
@@ -180,10 +180,11 @@ void VulkanRenderTarget::createColorImage(VkFormat format) {
     VkMemoryRequirements memReqs;
     vkGetImageMemoryRequirements(mContext.device, mColor.image, &memReqs);
     VkMemoryAllocateInfo allocInfo {
-        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize = memReqs.size,
-        .memoryTypeIndex = selectMemoryType(mContext, memReqs.memoryTypeBits,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		nullptr,
+        memReqs.size,
+        selectMemoryType(mContext, memReqs.memoryTypeBits,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
     };
     error = vkAllocateMemory(mContext.device, &allocInfo, nullptr, &mColor.memory);
     ASSERT_POSTCONDITION(!error, "Unable to allocate color memory.");
@@ -191,29 +192,41 @@ void VulkanRenderTarget::createColorImage(VkFormat format) {
     ASSERT_POSTCONDITION(!error, "Unable to bind color memory.");
 
     // Transition the color image into an optimal layout.
-    VkImageMemoryBarrier barrier {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = mColor.image,
-        .subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-        .subresourceRange.levelCount = 1,
-        .subresourceRange.layerCount = 1,
-        .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
-    };
+	VkImageMemoryBarrier barrier { };
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = mColor.image;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
     vkCmdPipelineBarrier(mContext.currentCommands->cmdbuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
     // Create a VkImageView so that we can attach it to the framebuffer.
     VkImageViewCreateInfo colorViewInfo {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .image = mColor.image,
-        .viewType = VK_IMAGE_VIEW_TYPE_2D,
-        .format = mColor.format,
-        .subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-        .subresourceRange.levelCount = 1,
-        .subresourceRange.layerCount = 1,
+        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		nullptr,
+		0,
+        mColor.image,
+        VK_IMAGE_VIEW_TYPE_2D,
+        mColor.format,
+		{
+			VK_COMPONENT_SWIZZLE_IDENTITY,
+			VK_COMPONENT_SWIZZLE_IDENTITY,
+			VK_COMPONENT_SWIZZLE_IDENTITY,
+			VK_COMPONENT_SWIZZLE_IDENTITY
+		},
+		{
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0,
+			1,
+			0,
+			1
+		}
     };
     error = vkCreateImageView(mContext.device, &colorViewInfo, VKALLOC, &mColor.view);
     ASSERT_POSTCONDITION(!error, "Unable to create color attachment view.");
@@ -225,16 +238,16 @@ void VulkanRenderTarget::createDepthImage(VkFormat format) {
     mSharedDepthImage = false;
     // Create an appropriately-sized device-only VkImage for the depth attachment.
     // TODO: for depth, can we re-use the image associated with the swap chain?
-    VkImageCreateInfo depthImageInfo {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .imageType = VK_IMAGE_TYPE_2D,
-        .extent = { width, height, 1 },
-        .format = mDepth.format,
-        .mipLevels = 1,
-        .arrayLayers = 1,
-        .usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-    };
+	VkImageCreateInfo depthImageInfo { };
+	depthImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	depthImageInfo.imageType = VK_IMAGE_TYPE_2D;
+	depthImageInfo.extent = { width, height, 1 };
+	depthImageInfo.format = mDepth.format;
+	depthImageInfo.mipLevels = 1;
+	depthImageInfo.arrayLayers = 1;
+	depthImageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	depthImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
     VkResult error = vkCreateImage(mContext.device, &depthImageInfo, VKALLOC, &mDepth.image);
     ASSERT_POSTCONDITION(!error, "Unable to create depth attachment.");
 
@@ -242,10 +255,11 @@ void VulkanRenderTarget::createDepthImage(VkFormat format) {
     VkMemoryRequirements memReqs;
     vkGetImageMemoryRequirements(mContext.device, mDepth.image, &memReqs);
     VkMemoryAllocateInfo depthAllocInfo {
-        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize = memReqs.size,
-        .memoryTypeIndex = selectMemoryType(mContext, memReqs.memoryTypeBits,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		nullptr,
+        memReqs.size,
+        selectMemoryType(mContext, memReqs.memoryTypeBits,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
     };
     error = vkAllocateMemory(mContext.device, &depthAllocInfo, nullptr, &mDepth.memory);
     ASSERT_POSTCONDITION(!error, "Unable to allocate depth memory.");
@@ -253,30 +267,42 @@ void VulkanRenderTarget::createDepthImage(VkFormat format) {
     ASSERT_POSTCONDITION(!error, "Unable to bind depth memory.");
 
     // Transition the depth image into an optimal layout and assume there's no need to read from it.
-    VkImageMemoryBarrier depthBarrier {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = mDepth.image,
-        .subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
-        .subresourceRange.levelCount = 1,
-        .subresourceRange.layerCount = 1,
-        .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT
-    };
+	VkImageMemoryBarrier depthBarrier { };
+	depthBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	depthBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	depthBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	depthBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	depthBarrier.image = mDepth.image;
+	depthBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+	depthBarrier.subresourceRange.levelCount = 1;
+	depthBarrier.subresourceRange.layerCount = 1;
+	depthBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
     vkCmdPipelineBarrier(mContext.currentCommands->cmdbuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
             VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0, 0, nullptr, 0, nullptr, 1,
             &depthBarrier);
 
     // Create a VkImageView so that we can attach it to the framebuffer.
     VkImageViewCreateInfo depthViewInfo {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .image = mDepth.image,
-        .viewType = VK_IMAGE_VIEW_TYPE_2D,
-        .format = mDepth.format,
-        .subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
-        .subresourceRange.levelCount = 1,
-        .subresourceRange.layerCount = 1,
+		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		nullptr,
+		0,
+		mDepth.image,
+		VK_IMAGE_VIEW_TYPE_2D,
+		mDepth.format,
+		{
+			VK_COMPONENT_SWIZZLE_IDENTITY,
+			VK_COMPONENT_SWIZZLE_IDENTITY,
+			VK_COMPONENT_SWIZZLE_IDENTITY,
+			VK_COMPONENT_SWIZZLE_IDENTITY
+		},
+		{
+			VK_IMAGE_ASPECT_DEPTH_BIT,
+			0,
+			1,
+			0,
+			1
+		}
     };
     error = vkCreateImageView(mContext.device, &depthViewInfo, VKALLOC, &mDepth.view);
     ASSERT_POSTCONDITION(!error, "Unable to create depth attachment view.");
@@ -315,12 +341,15 @@ VulkanUniformBuffer::VulkanUniformBuffer(VulkanContext& context, VulkanStagePool
         : mContext(context), mStagePool(stagePool) {
     // Create the VkBuffer.
     VkBufferCreateInfo bufferInfo {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = numBytes,
-        .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		nullptr,
+		0,
+        numBytes,
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
     };
     VmaAllocationCreateInfo allocInfo {
-        .usage = VMA_MEMORY_USAGE_GPU_ONLY
+		0,
+        VMA_MEMORY_USAGE_GPU_ONLY
     };
     vmaCreateBuffer(mContext.allocator, &bufferInfo, &allocInfo, &mGpuBuffer, &mGpuMemory, nullptr);
 }
@@ -334,19 +363,19 @@ void VulkanUniformBuffer::loadFromCpu(const void* cpuData, uint32_t numBytes) {
     vmaFlushAllocation(mContext.allocator, stage->memory, 0, numBytes);
 
     auto copyToDevice = [this, numBytes, stage] (VulkanCommandBuffer& commands) {
-        VkBufferCopy region { .size = numBytes };
+        VkBufferCopy region { 0, 0, numBytes };
         vkCmdCopyBuffer(commands.cmdbuffer, stage->buffer, mGpuBuffer, 1, &region);
 
         // Ensure that the copy finishes before the next draw call.
-        VkBufferMemoryBarrier barrier {
-            .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-            .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-            .dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_INDEX_READ_BIT,
-            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .buffer = mGpuBuffer,
-            .size = VK_WHOLE_SIZE
-        };
+		VkBufferMemoryBarrier barrier { };
+		barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_INDEX_READ_BIT;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.buffer = mGpuBuffer;
+		barrier.size = VK_WHOLE_SIZE;
+
         vkCmdPipelineBarrier(commands.cmdbuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
                 VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 
@@ -373,18 +402,18 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
         HwTexture(target, levels, samples, w, h, depth, tformat, usage),
         vkformat(getVkFormat(tformat)), mContext(context), mStagePool(stagePool) {
     // Create an appropriately-sized device-only VkImage, but do not fill it yet.
-    VkImageCreateInfo imageInfo {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .imageType = VK_IMAGE_TYPE_2D,
-        .extent.width = w,
-        .extent.height = h,
-        .extent.depth = depth,
-        .format = vkformat,
-        .mipLevels = levels,
-        .arrayLayers = 1,
-        .usage = VK_IMAGE_USAGE_SAMPLED_BIT,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-    };
+	VkImageCreateInfo imageInfo { };
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = w;
+	imageInfo.extent.height = h;
+	imageInfo.extent.depth = depth;
+	imageInfo.format = vkformat;
+	imageInfo.mipLevels = levels;
+	imageInfo.arrayLayers = 1;
+	imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
     if (target == SamplerType::SAMPLER_CUBEMAP) {
         imageInfo.arrayLayers = 6;
         imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
@@ -418,10 +447,11 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
     VkMemoryRequirements memReqs = {};
     vkGetImageMemoryRequirements(context.device, textureImage, &memReqs);
     VkMemoryAllocateInfo allocInfo = {
-        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize = memReqs.size,
-        .memoryTypeIndex = selectMemoryType(context, memReqs.memoryTypeBits,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		nullptr,
+        memReqs.size,
+        selectMemoryType(context, memReqs.memoryTypeBits,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
     };
     error = vkAllocateMemory(context.device, &allocInfo, nullptr, &textureImageMemory);
     ASSERT_POSTCONDITION(!error, "Unable to allocate image memory.");
@@ -669,15 +699,15 @@ void VulkanRenderPrimitive::setBuffers(VulkanVertexBuffer* vertexBuffer,
         buffers.push_back(vertexBuffer->buffers[attrib.buffer]->getGpuBuffer());
         offsets.push_back(attrib.offset);
         varray.attributes[bufferIndex] = {
-            .location = attribIndex, // matches the GLSL layout specifier
-            .binding = bufferIndex,  // matches the position within vkCmdBindVertexBuffers
-            .format = getVkFormat(attrib.type, attrib.flags & Attribute::FLAG_NORMALIZED),
-            .offset = 0
+            attribIndex, // matches the GLSL layout specifier
+            bufferIndex,  // matches the position within vkCmdBindVertexBuffers
+            getVkFormat(attrib.type, attrib.flags & Attribute::FLAG_NORMALIZED),
+            0
         };
         varray.buffers[bufferIndex] = {
-            .binding = bufferIndex,
-            .stride = attrib.stride,
-            .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
+            bufferIndex,
+            attrib.stride,
+            VK_VERTEX_INPUT_RATE_VERTEX
         };
         bufferIndex++;
     }
