@@ -35,6 +35,51 @@ namespace Viry3D
         int size;
     };
 
+    Ref<Image> Image::LoadFromFile(const String& path)
+    {
+        Ref<Image> image;
+        
+        if (File::Exist(path))
+        {
+            if (path.EndsWith(".png"))
+            {
+                ByteBuffer png = File::ReadAllBytes(path);
+                image = Image::LoadPNG(png);
+            }
+            else if (path.EndsWith(".jpg"))
+            {
+                ByteBuffer jpg = File::ReadAllBytes(path);
+                image = Image::LoadJPEG(jpg);
+            }
+            else
+            {
+                assert(!"image file format not support");
+            }
+            
+            // vulkan not support R8G8B8, convert to R8G8B8A8 always
+            if (image->format == ImageFormat::R8G8B8)
+            {
+                int pixel_count = image->data.Size() / 3;
+                ByteBuffer rgba(pixel_count * 4);
+                for (int i = 0; i < pixel_count; ++i)
+                {
+                    rgba[i * 4 + 0] = image->data[i * 3 + 0];
+                    rgba[i * 4 + 1] = image->data[i * 3 + 1];
+                    rgba[i * 4 + 2] = image->data[i * 3 + 2];
+                    rgba[i * 4 + 3] = 255;
+                }
+                image->data = rgba;
+                image->format = ImageFormat::R8G8B8A8;
+            }
+        }
+        else
+        {
+            Log("image file not exist: %s", path.CString());
+        }
+        
+        return image;
+    }
+    
     Ref<Image> Image::LoadJPEG(const ByteBuffer& jpeg)
     {
         Ref<Image> image = RefMake<Image>();

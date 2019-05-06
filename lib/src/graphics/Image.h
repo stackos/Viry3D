@@ -17,8 +17,6 @@
 
 #pragma once
 
-#include "string/String.h"
-#include "memory/Ref.h"
 #include "Object.h"
 
 namespace Viry3D
@@ -34,6 +32,7 @@ namespace Viry3D
 	class Image : public Object
 	{
 	public:
+        static Ref<Image> LoadFromFile(const String& path);
 		static Ref<Image> LoadJPEG(const ByteBuffer& jpeg);
 		static Ref<Image> LoadPNG(const ByteBuffer& png);
 		void EncodeToPNG(const String& file);

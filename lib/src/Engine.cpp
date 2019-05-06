@@ -23,6 +23,11 @@
 #include "private/backend/CommandBufferQueue.h"
 #include "private/backend/DriverApi.h"
 #include "Debug.h"
+#include "Input.h"
+#include "Scene.h"
+#include "graphics/Shader.h"
+#include "graphics/Texture.h"
+#include "time/Time.h"
 #include <thread>
 
 #if VR_WINDOWS
@@ -37,15 +42,7 @@
 
 // test
 #include "math/Matrix4x4.h"
-#include "graphics/Texture.h"
-
-#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
-#if VR_WINDOWS || VR_ANDROID
-#include "vulkan/vulkan_shader_compiler.h"
-#elif VR_IOS || VR_MAC
-#include "GLSLConversion.h"
-#endif
-#endif
+#include "graphics/Image.h"
 
 using namespace filament;
 
@@ -76,15 +73,17 @@ namespace Viry3D
 		backend::RenderTargetHandle m_render_target;
         String m_data_path;
         String m_save_path;
+        bool m_quit = false;
+        Ref<Scene> m_scene;
 
 		backend::DriverApi& GetDriverApi() noexcept { return m_command_stream; }
 
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
-#if VR_UWP
-			m_backend(backend::Backend::OPENGL),
-#else
+#if VR_WINDOWS
 			m_backend(backend::Backend::VULKAN),
+#else
+			m_backend(backend::Backend::OPENGL),
 #endif
 			m_shared_gl_context(shared_gl_context),
 			m_driver_barrier(1),
@@ -110,14 +109,23 @@ namespace Viry3D
 		void Init()
 		{
 			m_command_stream = backend::CommandStream(*m_driver, m_command_buffer_queue.getCircularBuffer());
-			
 			m_swap_chain = this->GetDriverApi().createSwapChain(m_native_window, m_window_flags);
-
 			m_render_target = this->GetDriverApi().createDefaultRenderTarget();
+            
+            this->GetDataPath();
+            this->GetSavePath();
+            
+            Shader::Init();
+            Texture::Init();
 		}
 
 		void Shutdown()
 		{
+            m_scene.reset();
+            
+            Texture::Done();
+            Shader::Done();
+            
 			this->GetDriverApi().destroyRenderTarget(m_render_target);
 
 			if (!UTILS_HAS_THREADING)
@@ -190,6 +198,8 @@ namespace Viry3D
 
 		void BeginFrame()
 		{
+            Time::Update();
+            
 			++m_frame_id;
 
 			auto& driver = this->GetDriverApi();
@@ -223,7 +233,27 @@ namespace Viry3D
 				m_frame_barrier.await();
 				m_frame_barrier.reset(1);
 			}
+            
+#if VR_ANDROID
+            if (Input::GetKeyDown(KeyCode::Backspace))
+#else
+            if (Input::GetKeyDown(KeyCode::Escape))
+#endif
+            {
+                this->Quit();
+            }
+            
+            Input::Update();
 		}
+        
+        void Quit()
+        {
+            m_quit = true;
+            
+#if VR_ANDROID
+            java_quit_application();
+#endif
+        }
 
 		// test
 		backend::VertexBufferHandle m_vb;
@@ -251,65 +281,8 @@ namespace Viry3D
             free(buffer);
         }
 
-#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
-		static void GlslToSpirv(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
-		{
-#if VR_WINDOWS || VR_ANDROID
-			String error;
-			bool success = GlslToSpv(shader_type, glsl.CString(), spirv, error);
-			if (!success)
-			{
-				Log("shader compile error: %s", error.CString());
-			}
-			assert(success);
-#elif VR_IOS || VR_MAC
-			MVKShaderStage stage;
-			switch (shader_type)
-			{
-			case VK_SHADER_STAGE_COMPUTE_BIT:
-				stage = kMVKShaderStageCompute;
-				break;
-			case VK_SHADER_STAGE_VERTEX_BIT:
-				stage = kMVKShaderStageVertex;
-				break;
-			case VK_SHADER_STAGE_FRAGMENT_BIT:
-				stage = kMVKShaderStageFragment;
-				break;
-			default:
-				stage = kMVKShaderStageAuto;
-				break;
-			}
-			uint32_t* spirv_code = nullptr;
-			size_t size = 0;
-			char* log = nullptr;
-			bool success = mvkConvertGLSLToSPIRV(glsl.CString(),
-				stage,
-				&spirv_code,
-				&size,
-				&log,
-				true,
-				true);
-			if (!success)
-			{
-				Log("shader compile error: %s", log);
-			}
-			assert(success);
-
-			spirv.Resize((int) size / 4);
-			Memory::Copy(&spirv[0], spirv_code, spirv.SizeInBytes());
-
-			free(log);
-			free(spirv_code);
-#endif
-		}
-#endif
-
 		void InitTest()
 		{
-#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
-			InitShaderCompiler();
-#endif
-
 			auto& driver = this->GetDriverApi();
 
 			int attribute_count = 2;
@@ -414,7 +387,7 @@ void main()
 
 			if (m_backend == backend::Backend::VULKAN)
 			{
-#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
+#if VR_VULKAN
 				Vector<unsigned int> vs_spirv;
 				Vector<unsigned int> fs_spirv;
 				GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
@@ -453,7 +426,7 @@ void main()
             
 			m_samplers = driver.createSamplerGroup(2);
             
-            Ref<Image> image = Texture::LoadImageFromFile(this->GetDataPath() + "/texture/logo.jpg");
+            Ref<Image> image = Image::LoadFromFile(this->GetDataPath() + "/texture/logo.jpg");
             m_texture_0 = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
             buffer = malloc(image->data.Size());
             memcpy(buffer, image->data.Bytes(), image->data.Size());
@@ -462,7 +435,7 @@ void main()
                                                 FreeBufferTest);
             driver.update2DImage(m_texture_0, 0, 0, 0, image->width, image->height, std::move(data));
 
-			image = Texture::LoadImageFromFile(this->GetDataPath() + "/texture/checkflag.png.tex.png");
+			image = Image::LoadFromFile(this->GetDataPath() + "/texture/checkflag.png.tex.png");
 			m_texture_1 = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
 			buffer = malloc(image->data.Size());
 			memcpy(buffer, image->data.Bytes(), image->data.Size());
@@ -481,10 +454,6 @@ void main()
 
 		void ShutdownTest()
 		{
-#if defined(FILAMENT_DRIVER_SUPPORTS_VULKAN)
-			DeinitShaderCompiler();
-#endif
-
 			auto& driver = this->GetDriverApi();
 
             driver.destroyTexture(m_texture_0);
@@ -746,6 +715,12 @@ void main()
 
 	void Engine::Execute()
 	{
+        if (!m_private->m_scene)
+        {
+            m_private->m_scene = RefMake<Scene>();
+        }
+        m_private->m_scene->Update();
+        
 		m_private->BeginFrame();
 		m_private->Render();
 		m_private->EndFrame();
@@ -794,6 +769,11 @@ void main()
 		return m_private->m_height;
 	}
 
+    bool Engine::HasQuit() const
+    {
+        return m_private->m_quit;
+    }
+    
 	void Engine::InitTest()
 	{
 		m_private->InitTest();

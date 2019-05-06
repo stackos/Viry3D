@@ -40,7 +40,8 @@ namespace Viry3D
 		void OnResize(void* native_window, int width, int height, uint64_t flags = 0);
 		int GetWidth() const;
 		int GetHeight() const;
-
+        bool HasQuit() const;
+        
 		void InitTest();
 		void ShutdownTest();
 

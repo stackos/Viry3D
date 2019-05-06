@@ -194,28 +194,18 @@ file(GLOB VIRY3D_LIB_SRCS
      ${VIRY3D_LIB_SRC_DIR}/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/2d/*.h
      ${VIRY3D_LIB_SRC_DIR}/2d/*.cpp
-     ${VIRY3D_LIB_SRC_DIR}/animation/*.h
-     ${VIRY3D_LIB_SRC_DIR}/animation/*.cpp
-     ${VIRY3D_LIB_SRC_DIR}/audio/*.h
-     ${VIRY3D_LIB_SRC_DIR}/audio/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/graphics/*.h
      ${VIRY3D_LIB_SRC_DIR}/graphics/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/io/*.h
      ${VIRY3D_LIB_SRC_DIR}/io/*.cpp
-     ${VIRY3D_LIB_SRC_DIR}/luaapi/*.h
-     ${VIRY3D_LIB_SRC_DIR}/luaapi/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/math/*.h
      ${VIRY3D_LIB_SRC_DIR}/math/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/memory/*.h
      ${VIRY3D_LIB_SRC_DIR}/memory/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/string/*.h
      ${VIRY3D_LIB_SRC_DIR}/string/*.cpp
-     ${VIRY3D_LIB_SRC_DIR}/thread/*.h
-     ${VIRY3D_LIB_SRC_DIR}/thread/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/time/*.h
      ${VIRY3D_LIB_SRC_DIR}/time/*.cpp
-     ${VIRY3D_LIB_SRC_DIR}/ui/*.h
-     ${VIRY3D_LIB_SRC_DIR}/ui/*.cpp
      )
 
 source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS})
@@ -237,9 +227,6 @@ target_include_directories(Viry3D PRIVATE
                            )
 
 file(GLOB VIRY3D_APP_SRCS
-     ${VIRY3D_APP_SRC_DIR}/Demo/*.h
-     ${VIRY3D_APP_SRC_DIR}/App.h
-     ${VIRY3D_APP_SRC_DIR}/App.cpp
      )
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
@@ -614,22 +601,24 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP" OR ${Target} MATCHES 
 endif ()
 
 # spirv_cross
-if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android" OR ${Target} MATCHES "Mac" OR ${Target} MATCHES "iOS")
+if ( FALSE )
+    if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android" OR ${Target} MATCHES "Mac" OR ${Target} MATCHES "iOS")
 
-    file(GLOB VIRY3D_DEP_SRCS_SPIRV_CROSS
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
-         )
+        file(GLOB VIRY3D_DEP_SRCS_SPIRV_CROSS
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
+             )
 
-    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+        source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
 
-    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+        target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
 
+    endif ()
 endif ()
 
 # vulkan shader compiler
@@ -999,7 +988,7 @@ elseif (${Target} MATCHES "Android")
 
 elseif (${Target} MATCHES "Mac")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -DVR_MAC -DVR_VULKAN=1 -DVR_GLES=0")
+        "${CMAKE_CXX_FLAGS} -DVR_MAC -DVR_VULKAN=0 -DVR_GLES=1")
     add_definitions(-Wall -DHAVE_ASSERT_H -fobjc-arc)
 
     file(GLOB VIRY3D_DEP_SRCS_MAC
@@ -1018,7 +1007,6 @@ elseif (${Target} MATCHES "Mac")
     target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_MAC})
 
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
-    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Engine.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
     target_include_directories(Viry3D PRIVATE
@@ -1037,7 +1025,6 @@ elseif (${Target} MATCHES "Mac")
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/Main.m
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/AppDelegate.m
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/ViewController.mm
-                   ${VIRY3D_APP_SRC_DIR}/../project/mac/VkView.mm
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
                    ${VIRY3D_APP_SRC_DIR}/../bin/Assets
                    )
@@ -1062,50 +1049,6 @@ elseif (${Target} MATCHES "Mac")
                           )
 
     set_target_properties(Viry3DApp PROPERTIES
-                          MACOSX_BUNDLE TRUE
-                          MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Info.plist
-                          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
-                          )
-
-	file(GLOB VIRY3D_APP_CANVAS_EDITOR_SRCS
-         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.h
-         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.cpp
-         ${VIRY3D_APP_SRC_DIR}/App.h
-         ${VIRY3D_APP_SRC_DIR}/AppCanvasEditor.cpp
-         )
-
-    source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_CANVAS_EDITOR_SRCS})
-
-    add_executable(Viry3DAppCanvasEditor
-                   ${VIRY3D_APP_CANVAS_EDITOR_SRCS}
-                   ${VIRY3D_APP_SRC_DIR}/../project/mac/Main.m
-                   ${VIRY3D_APP_SRC_DIR}/../project/mac/AppDelegate.m
-                   ${VIRY3D_APP_SRC_DIR}/../project/mac/ViewController.mm
-                   ${VIRY3D_APP_SRC_DIR}/../project/mac/VkView.mm
-                   ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
-                   ${VIRY3D_APP_SRC_DIR}/../bin/Assets
-                   )
-
-	target_include_directories(Viry3DAppCanvasEditor PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
-                               )
-
-    target_link_libraries(Viry3DAppCanvasEditor
-                          Viry3D Viry3DDep
-                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/macOS/libMoltenVK.a
-                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework
-                          "-framework OpenAL"
-                          "-framework AppKit"
-                          "-framework Metal"
-                          "-framework QuartzCore"
-                          "-framework IOKit"
-                          z.1.2.8
-                          )
-
-    set_target_properties(Viry3DAppCanvasEditor PROPERTIES
                           MACOSX_BUNDLE TRUE
                           MACOSX_BUNDLE_INFO_PLIST ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Info.plist
                           XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
