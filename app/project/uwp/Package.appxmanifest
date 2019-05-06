@@ -14,7 +14,7 @@
   <mp:PhoneIdentity PhoneProductId="1485c4be-1937-403b-8352-f24b96f22a99" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>app</DisplayName>
+    <DisplayName>Viry3D</DisplayName>
     <PublisherDisplayName>Stack</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -32,7 +32,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="app.App">
       <uap:VisualElements
-        DisplayName="app"
+        DisplayName="Viry3D"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="app"

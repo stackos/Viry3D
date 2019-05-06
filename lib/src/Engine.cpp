@@ -63,6 +63,7 @@ namespace Viry3D
 		void* m_shared_gl_context = nullptr;
 		std::thread m_driver_thread;
 		utils::CountDownLatch m_driver_barrier;
+		utils::CountDownLatch m_frame_barrier;
 		backend::Driver* m_driver = nullptr;
 		backend::CommandBufferQueue m_command_buffer_queue;
 		backend::DriverApi m_command_stream;
@@ -75,14 +76,19 @@ namespace Viry3D
 		backend::RenderTargetHandle m_render_target;
         String m_data_path;
         String m_save_path;
-        
+
 		backend::DriverApi& GetDriverApi() noexcept { return m_command_stream; }
 
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
+#if VR_UWP
+			m_backend(backend::Backend::OPENGL),
+#else
 			m_backend(backend::Backend::VULKAN),
+#endif
 			m_shared_gl_context(shared_gl_context),
 			m_driver_barrier(1),
+			m_frame_barrier(1),
 			m_command_buffer_queue(CONFIG_MIN_COMMAND_BUFFERS_SIZE, CONFIG_COMMAND_BUFFERS_SIZE),
 			m_native_window(native_window),
 			m_width(width),
@@ -182,28 +188,16 @@ namespace Viry3D
 			m_command_buffer_queue.flush();
 		}
 
-		void MakeCurrent()
-		{
-			this->GetDriverApi().makeCurrent(m_swap_chain, m_swap_chain);
-		}
-
-		void Commit()
-		{
-			this->GetDriverApi().commit(m_swap_chain);
-		}
-
-		bool BeginFrame()
+		void BeginFrame()
 		{
 			++m_frame_id;
 
 			auto& driver = this->GetDriverApi();
 			driver.updateStreams(&driver);
-			this->MakeCurrent();
+			driver.makeCurrent(m_swap_chain, m_swap_chain);
 
 			int64_t monotonic_clock_ns(std::chrono::steady_clock::now().time_since_epoch().count());
 			driver.beginFrame(monotonic_clock_ns, m_frame_id);
-
-			return true;
 		}
 
 		void Render()
@@ -212,14 +206,34 @@ namespace Viry3D
 			this->Flush();
 		}
 
+		void EndFrame()
+		{
+			this->GetDriverApi().commit(m_swap_chain);
+			this->GetDriverApi().endFrame(m_frame_id);
+			if (UTILS_HAS_THREADING)
+			{
+				this->GetDriverApi().queueCommand([this]() {
+					m_frame_barrier.latch();
+				});
+			}
+			this->Flush();
+
+			if (UTILS_HAS_THREADING)
+			{
+				m_frame_barrier.await();
+				m_frame_barrier.reset(1);
+			}
+		}
+
 		// test
 		backend::VertexBufferHandle m_vb;
 		backend::IndexBufferHandle m_ib;
 		backend::RenderPrimitiveHandle m_primitive;
 		backend::ProgramHandle m_program;
 		backend::UniformBufferHandle m_ub;
-        backend::SamplerGroupHandle m_sampler;
-        backend::TextureHandle m_texture;
+        backend::SamplerGroupHandle m_samplers;
+        backend::TextureHandle m_texture_0;
+		backend::TextureHandle m_texture_1;
 
 		enum class BindingPoints
 		{
@@ -385,12 +399,13 @@ void main()
 )";
 			String fs = version + define + R"(
 precision highp float;
-VK_SAMPLER_BINDING(5) uniform sampler2D u_texture;
+VK_SAMPLER_BINDING(0) uniform sampler2D u_texture_0;
+VK_SAMPLER_BINDING(1) uniform sampler2D u_texture_1;
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-    o_color = texture(u_texture, v_uv);
+    o_color = texture(u_texture_0, v_uv) * texture(u_texture_1, v_uv);
 }
 )";
 
@@ -419,36 +434,48 @@ void main()
 			}
 
             {
-                backend::Program::Sampler sampler;
-                sampler.name = utils::CString("u_texture");
-                sampler.binding = (size_t) BindingPoints::PerMaterialInstance;
-                
+                backend::Program::Sampler samplers[2];
+				samplers[0].name = utils::CString("u_texture_0");
+				samplers[0].binding = 0;
+				samplers[1].name = utils::CString("u_texture_1");
+				samplers[1].binding = 1;
+
                 backend::Program pb;
                 pb.diagnostics(utils::CString("Color"))
                     .withVertexShader(vs_data.Bytes(), vs_data.Size())
                     .withFragmentShader(fs_data.Bytes(), fs_data.Size())
                     .setUniformBlock((size_t) BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"))
-                    .setSamplerGroup((size_t) BindingPoints::PerMaterialInstance, &sampler, 1);
+                    .setSamplerGroup((size_t) BindingPoints::PerMaterialInstance, samplers, 2);
                 m_program = driver.createProgram(std::move(pb));
             }
 
 			m_ub = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
             
-            m_sampler = driver.createSamplerGroup(1);
+			m_samplers = driver.createSamplerGroup(2);
             
             Ref<Image> image = Texture::LoadImageFromFile(this->GetDataPath() + "/texture/logo.jpg");
-            m_texture = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
+            m_texture_0 = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
             buffer = malloc(image->data.Size());
             memcpy(buffer, image->data.Bytes(), image->data.Size());
-            backend::PixelBufferDescriptor data(buffer, image->data.Size(),
+            auto data = backend::PixelBufferDescriptor(buffer, image->data.Size(),
                                                 backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
                                                 FreeBufferTest);
-            driver.update2DImage(m_texture, 0, 0, 0, image->width, image->height, std::move(data));
+            driver.update2DImage(m_texture_0, 0, 0, 0, image->width, image->height, std::move(data));
+
+			image = Texture::LoadImageFromFile(this->GetDataPath() + "/texture/checkflag.png.tex.png");
+			m_texture_1 = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
+			buffer = malloc(image->data.Size());
+			memcpy(buffer, image->data.Bytes(), image->data.Size());
+			data = backend::PixelBufferDescriptor(buffer, image->data.Size(),
+				backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
+				FreeBufferTest);
+			driver.update2DImage(m_texture_1, 0, 0, 0, image->width, image->height, std::move(data));
 
             {
-                backend::SamplerGroup sampler(1);
-                sampler.setSampler(0, m_texture, backend::SamplerParams());
-                driver.updateSamplerGroup(m_sampler, std::move(sampler));
+                backend::SamplerGroup samplers(2);
+                samplers.setSampler(0, m_texture_0, backend::SamplerParams());
+				samplers.setSampler(1, m_texture_1, backend::SamplerParams());
+                driver.updateSamplerGroup(m_samplers, std::move(samplers));
             }
 		}
 
@@ -460,8 +487,9 @@ void main()
 
 			auto& driver = this->GetDriverApi();
 
-            driver.destroyTexture(m_texture);
-            driver.destroySamplerGroup(m_sampler);
+            driver.destroyTexture(m_texture_0);
+			driver.destroyTexture(m_texture_1);
+            driver.destroySamplerGroup(m_samplers);
 			driver.destroyUniformBuffer(m_ub);
 			driver.destroyProgram(m_program);
 			driver.destroyRenderPrimitive(m_primitive);
@@ -501,7 +529,7 @@ void main()
 				// record driver commands
 				// 1. bind uniform buffer and sampler by per material instance
 				driver.bindUniformBuffer((size_t) BindingPoints::PerMaterialInstance, m_ub);
-                driver.bindSamplers((size_t) BindingPoints::PerMaterialInstance, m_sampler);
+                driver.bindSamplers((size_t) BindingPoints::PerMaterialInstance, m_samplers);
 				// 2. set scissor by per material instance
 				driver.setViewportScissor(0, 0, m_width, m_height);
 				// 3. bind uniform buffer by per renderer instance
@@ -511,14 +539,6 @@ void main()
 			driver.endRenderPass();
 
 			driver.flush();
-			this->Flush();
-		}
-
-		void EndFrame()
-		{
-			this->Commit();
-			this->GetDriverApi().endFrame(m_frame_id);
-			this->Flush();
 		}
         
 #if VR_WINDOWS
@@ -726,11 +746,9 @@ void main()
 
 	void Engine::Execute()
 	{
-		if (m_private->BeginFrame())
-		{
-			m_private->Render();
-			m_private->EndFrame();
-		}
+		m_private->BeginFrame();
+		m_private->Render();
+		m_private->EndFrame();
 
 		if (!UTILS_HAS_THREADING)
 		{

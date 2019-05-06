@@ -220,16 +220,10 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
             if (wParam == SIZE_MINIMIZED)
             {
                 g_minimized = true;
-
-                //Display::Instance()->OnPause();
             }
             else
             {
-                if (g_minimized)
-                {
-                    //Display::Instance()->OnResume();
-                }
-                else
+                if (!g_minimized)
                 {
                     int width = lParam & 0xffff;
                     int height = (lParam & 0xffff0000) >> 16;
@@ -628,7 +622,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break;
         }
 
-		Sleep(16);
+		if (g_minimized)
+		{
+			continue;
+		}
 
 		if (g_engine)
 		{
