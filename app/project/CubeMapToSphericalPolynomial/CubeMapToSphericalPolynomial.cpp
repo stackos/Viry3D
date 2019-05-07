@@ -16,7 +16,7 @@
 */
 
 #include "json/json.h"
-#include "graphics/Texture.h"
+#include "graphics/Image.h"
 #include "graphics/CubeMapToSphericalPolynomialTools.h"
 #include "io/File.h"
 
@@ -47,19 +47,19 @@ int main(int argc, char* argv[])
 
         if (cubemap_faces.isArray() && cubemap_faces.size() == 6 && format.isString() && gamma_space.isBool() && output.isString())
         {
-            TextureFormat texture_format = TextureFormat::None;
+            ImageFormat image_format = ImageFormat::None;
             if (format.asString() == "R8G8B8A8")
             {
-                texture_format = TextureFormat::R8G8B8A8;
+				image_format = ImageFormat::R8G8B8A8;
             }
 
-            if (texture_format != TextureFormat::None)
+            if (image_format != ImageFormat::None)
             {
                 int width = 0;
                 Vector<ByteBuffer> faces(6);
                 for (int i = 0; i < faces.Size(); ++i)
                 {
-                    Ref<Image> image = Texture::LoadImageFromFile(cubemap_faces[i].asCString());
+                    Ref<Image> image = Image::LoadFromFile(cubemap_faces[i].asCString());
                     if (!image)
                     {
                         return 0;
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 
                 SphericalPolynomial sp = CubeMapToSphericalPolynomialTools::ConvertCubeMapToSphericalPolynomial(
                     width,
-                    texture_format,
+					image_format,
                     faces,
                     gamma_space.asBool());
 

@@ -20,6 +20,16 @@
 #include <stdint.h>
 #include "string/String.h"
 
+namespace filament
+{
+	namespace backend
+	{
+		class CommandStream;
+		using DriverApi = CommandStream;
+		enum class Backend : uint8_t;
+	}
+}
+
 namespace Viry3D
 {
 	class EnginePrivate;
@@ -31,6 +41,8 @@ namespace Viry3D
 		static void Destroy(Engine** engine);
 		static Engine* Instance();
 		void Execute();
+		filament::backend::DriverApi& GetDriverApi();
+		const filament::backend::Backend& GetBackend() const;
 		const String& GetDataPath();
 		const String& GetSavePath();
 #if VR_ANDROID || VR_UWP

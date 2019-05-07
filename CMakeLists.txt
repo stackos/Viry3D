@@ -638,7 +638,7 @@ endif ()
 if (${Target} MATCHES "Windows")
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_WIN32_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
+        "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=1 -DVK_USE_PLATFORM_WIN32_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
     set(EXECUTABLE_OUTPUT_PATH
         ${PROJECT_BINARY_DIR}/bin)
     add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
@@ -722,8 +722,8 @@ if (${Target} MATCHES "Windows")
                                )
 
     target_include_directories(Viry3D PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                ${VIRY3D_LIB_SRC_DIR}/zlib
+							   ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/include
                                )
 
     source_group(src FILES ${VIRY3D_APP_SRC_DIR}/../project/win/Main.cpp)
@@ -737,12 +737,10 @@ if (${Target} MATCHES "Windows")
                                ${VIRY3D_LIB_SRC_DIR}
                                ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
                                ${VIRY3D_APP_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                )
 
     target_link_libraries(Viry3DApp
                           Viry3D Viry3DDep
-                          ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
                           opengl32.lib
                           winmm.lib
                           Xaudio2.lib
@@ -767,12 +765,10 @@ if (${Target} MATCHES "Windows")
     target_include_directories(CubeMapToSphericalPolynomial PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}
                                ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                )
 
     target_link_libraries(CubeMapToSphericalPolynomial
                           Viry3D Viry3DDep
-                          ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
                           winmm.lib
                           Xaudio2.lib
                           )
@@ -784,13 +780,11 @@ if (${Target} MATCHES "Windows")
     target_include_directories(CubeMapCompress PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}
                                ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                ${VIRY3D_APP_SRC_DIR}/../project/CubeMapCompress/Compressonator/include
                                )
 
     target_link_libraries(CubeMapCompress
                           Viry3D Viry3DDep
-                          ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
                           winmm.lib
                           Xaudio2.lib
                           ${VIRY3D_APP_SRC_DIR}/../project/CubeMapCompress/Compressonator/lib/VS2015/${Arch}/Compressonator_MD_DLL.lib
@@ -801,43 +795,6 @@ if (${Target} MATCHES "Windows")
     add_custom_command(TARGET CubeMapCompress
                        POST_BUILD
                        COMMAND copy /Y ${COMP_DLL_SRC} ${COMP_DLL_DST}
-                       )
-
-    file(GLOB VIRY3D_APP_CANVAS_EDITOR_SRCS
-         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.h
-         ${VIRY3D_APP_SRC_DIR}/CanvasEditor/*.cpp
-         ${VIRY3D_APP_SRC_DIR}/App.h
-         ${VIRY3D_APP_SRC_DIR}/AppCanvasEditor.cpp
-         )
-
-    source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_CANVAS_EDITOR_SRCS})
-
-    add_executable(Viry3DAppCanvasEditor
-                   ${VIRY3D_APP_CANVAS_EDITOR_SRCS}
-                   ${VIRY3D_APP_SRC_DIR}/../project/win/Main.cpp
-                   )
-
-    target_include_directories(Viry3DAppCanvasEditor PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
-                               )
-
-    target_link_libraries(Viry3DAppCanvasEditor
-                          Viry3D Viry3DDep
-                          ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_sdk/lib/${Arch}/vulkan-1.lib
-                          opengl32.lib
-                          winmm.lib
-                          Xaudio2.lib
-                          )
-
-    set_property(TARGET Viry3DAppCanvasEditor PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")
-
-    add_custom_command(TARGET Viry3DAppCanvasEditor
-                       POST_BUILD
-                       COMMAND if not exist ${ASSETS_LINK_LINK} (mklink /d ${ASSETS_LINK_LINK} ${ASSETS_LINK_TARGET})
-                       COMMAND copy /Y ${ICON_SRC} ${ICON_DST}
                        )
 
 elseif (${Target} MATCHES "UWP")

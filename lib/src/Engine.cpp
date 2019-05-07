@@ -21,7 +21,6 @@
 #include <utils/CountDownLatch.h>
 #include "private/backend/CommandStream.h"
 #include "private/backend/CommandBufferQueue.h"
-#include "private/backend/DriverApi.h"
 #include "Debug.h"
 #include "Input.h"
 #include "Scene.h"
@@ -76,7 +75,7 @@ namespace Viry3D
         bool m_quit = false;
         Ref<Scene> m_scene;
 
-		backend::DriverApi& GetDriverApi() noexcept { return m_command_stream; }
+		backend::DriverApi& GetDriverApi() { return m_command_stream; }
 
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
@@ -265,17 +264,6 @@ namespace Viry3D
         backend::TextureHandle m_texture_0;
 		backend::TextureHandle m_texture_1;
 
-		enum class BindingPoints
-		{
-			PerView = 0,
-			PerRenderer = 1,
-			PerRendererBones = 2,
-			Lights = 3,
-			PostProcess = 4,
-			PerMaterialInstance = 5,
-			Count = 6,
-		};
-
         static void FreeBufferTest(void* buffer, size_t size, void* user)
         {
             free(buffer);
@@ -390,8 +378,8 @@ void main()
 #if VR_VULKAN
 				Vector<unsigned int> vs_spirv;
 				Vector<unsigned int> fs_spirv;
-				GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
-				GlslToSpirv(fs, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, fs_spirv);
+				Shader::GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
+				Shader::GlslToSpirv(fs, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, fs_spirv);
 				vs_data.Resize(vs_spirv.Size() * 4);
 				memcpy(&vs_data[0], &vs_spirv[0], vs_data.Size());
 				fs_data.Resize(fs_spirv.Size() * 4);
@@ -417,8 +405,8 @@ void main()
                 pb.diagnostics(utils::CString("Color"))
                     .withVertexShader(vs_data.Bytes(), vs_data.Size())
                     .withFragmentShader(fs_data.Bytes(), fs_data.Size())
-                    .setUniformBlock((size_t) BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"))
-                    .setSamplerGroup((size_t) BindingPoints::PerMaterialInstance, samplers, 2);
+                    .setUniformBlock((size_t) Shader::BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"))
+                    .setSamplerGroup((size_t) Shader::BindingPoints::PerMaterialInstance, samplers, 2);
                 m_program = driver.createProgram(std::move(pb));
             }
 
@@ -488,6 +476,8 @@ void main()
 			params.viewport = { 0, 0, (uint32_t) m_width, (uint32_t) m_height };
 			params.clearColor = math::float4(0, 0, 0, 1);
 
+			auto shader = Shader::Find("Unlit/Texture");
+
 			backend::PipelineState pipeline;
 			pipeline.rasterState.colorWrite = true;
 			pipeline.rasterState.depthFunc = backend::SamplerCompareFunc::A;
@@ -497,8 +487,8 @@ void main()
 			{
 				// record driver commands
 				// 1. bind uniform buffer and sampler by per material instance
-				driver.bindUniformBuffer((size_t) BindingPoints::PerMaterialInstance, m_ub);
-                driver.bindSamplers((size_t) BindingPoints::PerMaterialInstance, m_samplers);
+				driver.bindUniformBuffer((size_t) Shader::BindingPoints::PerMaterialInstance, m_ub);
+                driver.bindSamplers((size_t) Shader::BindingPoints::PerMaterialInstance, m_samplers);
 				// 2. set scissor by per material instance
 				driver.setViewportScissor(0, 0, m_width, m_height);
 				// 3. bind uniform buffer by per renderer instance
@@ -730,6 +720,16 @@ void main()
 			m_private->Flush();
 			m_private->Execute();
 		}
+	}
+
+	backend::DriverApi& Engine::GetDriverApi()
+	{
+		return m_private->GetDriverApi();
+	}
+
+	const backend::Backend& Engine::GetBackend() const
+	{
+		return m_private->m_backend;
 	}
 
 	const String& Engine::GetDataPath()
