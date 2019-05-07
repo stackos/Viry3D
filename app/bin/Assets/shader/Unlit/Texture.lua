@@ -1,4 +1,4 @@
-vs = [[
+local vs = [[
 	VK_UNIFORM_BINDING(0) uniform PerView
 	{
 		mat4 u_vp;
@@ -8,7 +8,7 @@ vs = [[
 		mat4 u_world;
 	};
 	layout(location = 0) in vec4 i_position;
-	layout(location = 1) in vec2 i_uv;
+	layout(location = 2) in vec2 i_uv;
 	VK_LAYOUT_LOCATION(0) out vec2 v_uv;
 	void main()
 	{
@@ -19,7 +19,7 @@ vs = [[
 	}
 ]]
 
-fs = [[
+local fs = [[
 	precision highp float;
 	VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
 	VK_LAYOUT_LOCATION(0) in vec2 v_uv;
@@ -39,7 +39,8 @@ fs = [[
 	    On | Off
     SrcBlendMode
 	DstBlendMode
-	    One Zero SrcColor SrcAlpha DstColor DstAlpha OneMinusSrcColor OneMinusSrcAlpha OneMinusDstColor OneMinusDstAlpha
+	    One | Zero | SrcColor | SrcAlpha | DstColor | DstAlpha
+		| OneMinusSrcColor | OneMinusSrcAlpha | OneMinusDstColor | OneMinusDstAlpha
 	CWrite
 		On | Off
 	Queue
@@ -60,6 +61,34 @@ local pass = {
     vs = vs,
     fs = fs,
     rs = rs,
+	uniforms = {
+		{
+			name = "PerView",
+			binding = 0,
+			members = {
+				{
+					name = "u_vp",
+					size = 64,
+				},
+			},
+		},
+		{
+			name = "PerRenderer",
+			binding = 1,
+			members = {
+				{
+					name = "u_world",
+					size = 64,
+				},
+			},
+		},
+	},
+	samplers = {
+		{
+			name = "u_texture",
+			binding = 0,
+		},
+	},
 }
 
 -- return pass array

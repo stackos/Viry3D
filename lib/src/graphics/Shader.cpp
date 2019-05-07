@@ -34,7 +34,7 @@ namespace Viry3D
 	Map<String, Ref<Shader>> Shader::m_shaders;
 
 #if VR_VULKAN
-    void Shader::GlslToSpirv(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
+    static void GlslToSpirv(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
     {
 #if VR_WINDOWS || VR_ANDROID
         String error;
@@ -138,6 +138,8 @@ namespace Viry3D
 				shader = RefMake<Shader>(name);
 				shader->Load(lua_src, keyword_list);
 				shader->Compile();
+
+				m_shaders.Add(key, shader);
 			}
 			else
 			{
@@ -156,7 +158,17 @@ namespace Viry3D
     
     Shader::~Shader()
     {
-        
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		for (int i = 0; i < m_passes.Size(); ++i)
+		{
+			auto& pass = m_passes[i];
+
+			if (pass.pipeline.program)
+			{
+				driver.destroyProgram(pass.pipeline.program);
+			}
+		}
     }
 
 	static void SetGlobalInt(lua_State* L, const char* key, int value)
@@ -293,13 +305,80 @@ namespace Viry3D
 						pass.pipeline.rasterState.colorWrite = color_write;
 
 						GetTableInt(L, "Queue", pass.queue);
+
+						if (m_queue < pass.queue)
+						{
+							m_queue = pass.queue;
+						}
 					}
 					lua_pop(L, 1);
 
-					if (m_queue < pass.queue)
+					lua_pushstring(L, "uniforms");
+					lua_gettable(L, -2);
+					if (lua_istable(L, -1))
 					{
-						m_queue = pass.queue;
+						lua_pushnil(L);
+						while (lua_next(L, -2))
+						{
+							if (lua_istable(L, -1))
+							{
+								Uniform uniform;
+								GetTableString(L, "name", uniform.name);
+								GetTableInt(L, "binding", uniform.binding);
+
+								int offset = 0;
+
+								lua_pushstring(L, "members");
+								lua_gettable(L, -2);
+								if (lua_istable(L, -1))
+								{
+									lua_pushnil(L);
+									while (lua_next(L, -2))
+									{
+										if (lua_istable(L, -1))
+										{
+											Member member;
+											GetTableString(L, "name", member.name);
+											GetTableInt(L, "size", member.size);
+
+											member.offset = offset;
+											offset += member.size;
+
+											uniform.members.Add(member);
+										}
+										lua_pop(L, 1);
+									}
+								}
+								lua_pop(L, 1);
+
+								uniform.size = offset;
+
+								pass.uniforms.Add(uniform);
+							}
+							lua_pop(L, 1);
+						}
 					}
+					lua_pop(L, 1);
+
+					lua_pushstring(L, "samplers");
+					lua_gettable(L, -2);
+					if (lua_istable(L, -1))
+					{
+						lua_pushnil(L);
+						while (lua_next(L, -2))
+						{
+							if (lua_istable(L, -1))
+							{
+								Sampler sampler;
+								GetTableString(L, "name", sampler.name);
+								GetTableInt(L, "binding", sampler.binding);
+
+								pass.samplers.Add(sampler);
+							}
+							lua_pop(L, 1);
+						}
+					}
+					lua_pop(L, 1);
 
 					m_passes.Add(pass);
 				}
@@ -313,6 +392,8 @@ namespace Viry3D
 
 	void Shader::Compile()
 	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+
 #if VR_WINDOWS || VR_MAC
 		String version = "#version 410\n";
 #else
@@ -353,8 +434,52 @@ namespace Viry3D
 
 			String vs = version + define + vk_convert + pass.vs;
 			String fs = version + define + pass.fs;
+			
+			Vector<char> vs_data;
+			Vector<char> fs_data;
 
+			if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN)
+			{
+#if VR_VULKAN
+				Vector<unsigned int> vs_spirv;
+				Vector<unsigned int> fs_spirv;
+				GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
+				GlslToSpirv(fs, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, fs_spirv);
+				vs_data.Resize(vs_spirv.Size() * 4);
+				memcpy(&vs_data[0], &vs_spirv[0], vs_data.Size());
+				fs_data.Resize(fs_spirv.Size() * 4);
+				memcpy(&fs_data[0], &fs_spirv[0], fs_data.Size());
+#endif
+			}
+			else
+			{
+				vs_data.Resize(vs.Size());
+				memcpy(&vs_data[0], &vs[0], vs_data.Size());
+				fs_data.Resize(fs.Size());
+				memcpy(&fs_data[0], &fs[0], fs_data.Size());
+			}
 
+			filament::backend::Program pb;
+			pb.diagnostics(utils::CString(this->GetName().CString()))
+				.withVertexShader(vs_data.Bytes(), vs_data.Size())
+				.withFragmentShader(fs_data.Bytes(), fs_data.Size());
+
+			for (int i = 0; i < pass.uniforms.Size(); ++i)
+			{
+				pb.setUniformBlock(pass.uniforms[i].binding, utils::CString(pass.uniforms[i].name.CString()));
+			}
+			
+			Vector<filament::backend::Program::Sampler> samplers;
+			for (int i = 0; i < pass.samplers.Size(); ++i)
+			{
+				filament::backend::Program::Sampler sampler;
+				sampler.name = utils::CString(pass.samplers[i].name.CString());
+				sampler.binding = pass.samplers[i].binding;
+				samplers.Add(sampler);
+			}
+			pb.setSamplerGroup((size_t) Shader::BindingPoint::PerMaterialInstance, &samplers[0], samplers.Size());
+
+			pass.pipeline.program = driver.createProgram(std::move(pb));
 		}
 	}
 }

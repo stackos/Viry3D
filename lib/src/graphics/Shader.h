@@ -32,7 +32,7 @@ namespace Viry3D
     class Shader : public Object
     {
     public:
-		enum class BindingPoints
+		enum class BindingPoint
 		{
 			PerView = 0,
 			PerRenderer = 1,
@@ -41,6 +41,20 @@ namespace Viry3D
 			PostProcess = 4,
 			PerMaterialInstance = 5,
 			Count = 6,
+		};
+
+		enum class AttributeLocation
+		{
+			Vertex = 0,
+			Color = 1,
+			Texcoord = 2,
+			Texcoord2 = 3,
+			Normal = 4,
+			Tangent = 5,
+			BlendWeight = 6,
+			BlendIndices = 7,
+
+			Count = filament::backend::MAX_VERTEX_ATTRIBUTE_COUNT
 		};
 
 		enum class Queue
@@ -52,17 +66,36 @@ namespace Viry3D
 			Overlay = 4000,
 		};
 
+		struct Member
+		{
+			String name;
+			int offset;
+			int size;
+		};
+
+		struct Uniform
+		{
+			String name;
+			int binding;
+			Vector<Member> members;
+			int size;
+		};
+
+		struct Sampler
+		{
+			String name;
+			int binding;
+		};
+
 		struct Pass
 		{
 			String vs;
 			String fs;
 			int queue = (int) Queue::Geometry;
+			Vector<Uniform> uniforms;
+			Vector<Sampler> samplers;
 			filament::backend::PipelineState pipeline;
 		};
-
-#if VR_VULKAN
-		static void GlslToSpirv(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv);
-#endif
 
         static void Init();
         static void Done();
@@ -70,6 +103,8 @@ namespace Viry3D
 
         Shader(const String& name);
         virtual ~Shader();
+		int GetPassCount() const { return m_passes.Size(); }
+		const Pass& GetPass(int index) const { return m_passes[index]; }
 
 	private:
 		void Load(const String& src, const List<String>& keywords);

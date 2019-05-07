@@ -42,8 +42,7 @@ namespace backend {
 static constexpr uint64_t SWAP_CHAIN_CONFIG_TRANSPARENT = 0x1;
 static constexpr uint64_t SWAP_CHAIN_CONFIG_READABLE = 0x2;
 
-static constexpr size_t MAX_ATTRIBUTE_BUFFER_COUNT = 8; // FIXME: what should this be?
-static constexpr size_t MAX_VERTEX_ATTRIBUTE_COUNT = 7; // FIXME: what should this be?
+static constexpr size_t MAX_VERTEX_ATTRIBUTE_COUNT = 8; // FIXME: what should this be?
 static constexpr size_t MAX_SAMPLER_COUNT = 16;         // Matches the Adreno Vulkan driver.
 
 static constexpr size_t CONFIG_UNIFORM_BINDING_COUNT = 6;
@@ -671,7 +670,7 @@ struct Attribute {
     uint8_t flags = 0x0;
 };
 
-using AttributeArray = std::array<Attribute, MAX_ATTRIBUTE_BUFFER_COUNT>;
+using AttributeArray = std::array<Attribute, MAX_VERTEX_ATTRIBUTE_COUNT>;
 
 struct PolygonOffset {
     float slope = 0;        // factor in GL-speak

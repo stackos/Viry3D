@@ -258,11 +258,10 @@ namespace Viry3D
 		backend::VertexBufferHandle m_vb;
 		backend::IndexBufferHandle m_ib;
 		backend::RenderPrimitiveHandle m_primitive;
-		backend::ProgramHandle m_program;
-		backend::UniformBufferHandle m_ub;
+		backend::UniformBufferHandle m_ub_world;
+		backend::UniformBufferHandle m_ub_vp;
         backend::SamplerGroupHandle m_samplers;
-        backend::TextureHandle m_texture_0;
-		backend::TextureHandle m_texture_1;
+        backend::TextureHandle m_texture;
 
         static void FreeBufferTest(void* buffer, size_t size, void* user)
         {
@@ -275,16 +274,19 @@ namespace Viry3D
 
 			int attribute_count = 2;
 			backend::AttributeArray attributes;
-			attributes[0].offset = 0;
-			attributes[0].stride = sizeof(float) * 5;
-			attributes[0].buffer = 0;
-			attributes[0].type   = backend::ElementType::FLOAT3;
-			attributes[0].flags  = 0;
-			attributes[1].offset = sizeof(float) * 3;
-            attributes[1].stride = sizeof(float) * 5;
-			attributes[1].buffer = 0;
-			attributes[1].type   = backend::ElementType::FLOAT2;
-			attributes[1].flags  = 0;
+			attributes[(int) Shader::AttributeLocation::Vertex].offset = 0;
+			attributes[(int) Shader::AttributeLocation::Vertex].stride = sizeof(float) * 5;
+			attributes[(int) Shader::AttributeLocation::Vertex].buffer = 0;
+			attributes[(int) Shader::AttributeLocation::Vertex].type   = backend::ElementType::FLOAT3;
+			attributes[(int) Shader::AttributeLocation::Vertex].flags  = 0;
+			attributes[(int) Shader::AttributeLocation::Texcoord].offset = sizeof(float) * 3;
+            attributes[(int) Shader::AttributeLocation::Texcoord].stride = sizeof(float) * 5;
+			attributes[(int) Shader::AttributeLocation::Texcoord].buffer = 0;
+			attributes[(int) Shader::AttributeLocation::Texcoord].type   = backend::ElementType::FLOAT2;
+			attributes[(int) Shader::AttributeLocation::Texcoord].flags  = 0;
+			uint32_t enabled_attributes =
+				(1 << (int) Shader::AttributeLocation::Vertex) |
+				(1 << (int) Shader::AttributeLocation::Texcoord);
 
 			float vertices[] = {
 				-0.5f, 0.5f, -0.5f, 0.0f, 0.0f,
@@ -312,143 +314,36 @@ namespace Viry3D
 			driver.updateIndexBuffer(m_ib, backend::BufferDescriptor(buffer, sizeof(indices), FreeBufferTest), 0);
 
 			m_primitive = driver.createRenderPrimitive();
-			driver.setRenderPrimitiveBuffer(m_primitive, m_vb, m_ib, (1 << 0 | 1 << 1));
+			driver.setRenderPrimitiveBuffer(m_primitive, m_vb, m_ib, enabled_attributes);
 			driver.setRenderPrimitiveRange(m_primitive, backend::PrimitiveType::TRIANGLES, index_offset, min_index, max_index, index_count);
 			
-#if VR_WINDOWS || VR_MAC
-			String version = "#version 410\n";
-#else
-			String version = "#version 300 es\n";
-#endif
-			String define;
-			String vk_convert;
-			if (m_backend == backend::Backend::VULKAN)
-			{
-				define = "#extension GL_ARB_separate_shader_objects : enable\n"
-					"#extension GL_ARB_shading_language_420pack : enable\n"
-					"#define VK_LAYOUT_LOCATION(i) layout(location = i)\n"
-					"#define VK_UNIFORM_BINDING(i) layout(std140, set = 0, binding = i)\n"
-					"#define VK_SAMPLER_BINDING(i) layout(set = 1, binding = i)\n";
-				vk_convert = "void vk_convert() {\n"
-					"gl_Position.y = -gl_Position.y;\n"
-					"gl_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
-					"}\n";
-			}
-			else
-			{
-				define = "#define VK_LAYOUT_LOCATION(i)\n"
-					"#define VK_UNIFORM_BINDING(i) layout(std140)\n"
-					"#define VK_SAMPLER_BINDING(i)\n";
-				vk_convert = "void vk_convert(){}\n";
-			}
-            
-			String vs = version + define + vk_convert + R"(
-VK_UNIFORM_BINDING(5) uniform PerMaterialInstance
-{
-    mat4 u_mvp;
-};
-layout(location = 0) in vec4 i_position;
-layout(location = 1) in vec2 i_uv;
-VK_LAYOUT_LOCATION(0) out vec2 v_uv;
-void main()
-{
-	gl_Position = i_position * u_mvp;
-	v_uv = i_uv;
+			m_ub_world = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
+			m_ub_vp = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
 
-	vk_convert();
-}
-)";
-			String fs = version + define + R"(
-precision highp float;
-VK_SAMPLER_BINDING(0) uniform sampler2D u_texture_0;
-VK_SAMPLER_BINDING(1) uniform sampler2D u_texture_1;
-VK_LAYOUT_LOCATION(0) in vec2 v_uv;
-layout(location = 0) out vec4 o_color;
-void main()
-{
-    o_color = texture(u_texture_0, v_uv) * texture(u_texture_1, v_uv);
-}
-)";
-
-			Vector<char> vs_data;
-			Vector<char> fs_data;
-
-			if (m_backend == backend::Backend::VULKAN)
-			{
-#if VR_VULKAN
-				Vector<unsigned int> vs_spirv;
-				Vector<unsigned int> fs_spirv;
-				Shader::GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
-				Shader::GlslToSpirv(fs, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, fs_spirv);
-				vs_data.Resize(vs_spirv.Size() * 4);
-				memcpy(&vs_data[0], &vs_spirv[0], vs_data.Size());
-				fs_data.Resize(fs_spirv.Size() * 4);
-				memcpy(&fs_data[0], &fs_spirv[0], fs_data.Size());
-#endif
-			}
-			else
-			{
-				vs_data.Resize(vs.Size());
-				memcpy(&vs_data[0], &vs[0], vs_data.Size());
-				fs_data.Resize(fs.Size());
-				memcpy(&fs_data[0], &fs[0], fs_data.Size());
-			}
-
-            {
-                backend::Program::Sampler samplers[2];
-				samplers[0].name = utils::CString("u_texture_0");
-				samplers[0].binding = 0;
-				samplers[1].name = utils::CString("u_texture_1");
-				samplers[1].binding = 1;
-
-                backend::Program pb;
-                pb.diagnostics(utils::CString("Color"))
-                    .withVertexShader(vs_data.Bytes(), vs_data.Size())
-                    .withFragmentShader(fs_data.Bytes(), fs_data.Size())
-                    .setUniformBlock((size_t) Shader::BindingPoints::PerMaterialInstance, utils::CString("PerMaterialInstance"))
-                    .setSamplerGroup((size_t) Shader::BindingPoints::PerMaterialInstance, samplers, 2);
-                m_program = driver.createProgram(std::move(pb));
-            }
-
-			m_ub = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
-            
 			m_samplers = driver.createSamplerGroup(2);
             
             Ref<Image> image = Image::LoadFromFile(this->GetDataPath() + "/texture/logo.jpg");
-            m_texture_0 = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
+            m_texture = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
             buffer = malloc(image->data.Size());
             memcpy(buffer, image->data.Bytes(), image->data.Size());
             auto data = backend::PixelBufferDescriptor(buffer, image->data.Size(),
                                                 backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
                                                 FreeBufferTest);
-            driver.update2DImage(m_texture_0, 0, 0, 0, image->width, image->height, std::move(data));
+            driver.update2DImage(m_texture, 0, 0, 0, image->width, image->height, std::move(data));
 
-			image = Image::LoadFromFile(this->GetDataPath() + "/texture/checkflag.png.tex.png");
-			m_texture_1 = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
-			buffer = malloc(image->data.Size());
-			memcpy(buffer, image->data.Bytes(), image->data.Size());
-			data = backend::PixelBufferDescriptor(buffer, image->data.Size(),
-				backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
-				FreeBufferTest);
-			driver.update2DImage(m_texture_1, 0, 0, 0, image->width, image->height, std::move(data));
-
-            {
-                backend::SamplerGroup samplers(2);
-                samplers.setSampler(0, m_texture_0, backend::SamplerParams());
-				samplers.setSampler(1, m_texture_1, backend::SamplerParams());
-                driver.updateSamplerGroup(m_samplers, std::move(samplers));
-            }
+			backend::SamplerGroup samplers(1);
+			samplers.setSampler(0, m_texture, backend::SamplerParams());
+			driver.updateSamplerGroup(m_samplers, std::move(samplers));
 		}
 
 		void ShutdownTest()
 		{
 			auto& driver = this->GetDriverApi();
 
-            driver.destroyTexture(m_texture_0);
-			driver.destroyTexture(m_texture_1);
+            driver.destroyTexture(m_texture);
             driver.destroySamplerGroup(m_samplers);
-			driver.destroyUniformBuffer(m_ub);
-			driver.destroyProgram(m_program);
+			driver.destroyUniformBuffer(m_ub_world);
+			driver.destroyUniformBuffer(m_ub_vp);
 			driver.destroyRenderPrimitive(m_primitive);
 			driver.destroyVertexBuffer(m_vb);
 			driver.destroyIndexBuffer(m_ib);
@@ -461,11 +356,15 @@ void main()
 			{
 				static float deg = 0;
 				deg += 1;
-				static Matrix4x4 mvp;
-				mvp = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
-				void* buffer = malloc(sizeof(mvp));
-				memcpy(buffer, &mvp, sizeof(mvp));
-				driver.loadUniformBuffer(m_ub, backend::BufferDescriptor(buffer, sizeof(mvp), FreeBufferTest));
+				Matrix4x4 world = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
+				void* buffer = malloc(sizeof(world));
+				memcpy(buffer, &world, sizeof(world));
+				driver.loadUniformBuffer(m_ub_world, backend::BufferDescriptor(buffer, sizeof(world), FreeBufferTest));
+
+				Matrix4x4 vp = Matrix4x4::Identity();
+				buffer = malloc(sizeof(vp));
+				memcpy(buffer, &vp, sizeof(vp));
+				driver.loadUniformBuffer(m_ub_vp, backend::BufferDescriptor(buffer, sizeof(vp), FreeBufferTest));
 			}
 
 			backend::RenderTargetHandle target = m_render_target;
@@ -476,19 +375,15 @@ void main()
 			params.viewport = { 0, 0, (uint32_t) m_width, (uint32_t) m_height };
 			params.clearColor = math::float4(0, 0, 0, 1);
 
-			auto shader = Shader::Find("Unlit/Texture");
-
-			backend::PipelineState pipeline;
-			pipeline.rasterState.colorWrite = true;
-			pipeline.rasterState.depthFunc = backend::SamplerCompareFunc::A;
-			pipeline.program = m_program;
-
+			const auto& pipeline = Shader::Find("Unlit/Texture")->GetPass(0).pipeline;
+			
 			driver.beginRenderPass(target, params);
 			{
 				// record driver commands
 				// 1. bind uniform buffer and sampler by per material instance
-				driver.bindUniformBuffer((size_t) Shader::BindingPoints::PerMaterialInstance, m_ub);
-                driver.bindSamplers((size_t) Shader::BindingPoints::PerMaterialInstance, m_samplers);
+				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRenderer, m_ub_world);
+				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerView, m_ub_vp);
+                driver.bindSamplers((size_t) Shader::BindingPoint::PerMaterialInstance, m_samplers);
 				// 2. set scissor by per material instance
 				driver.setViewportScissor(0, 0, m_width, m_height);
 				// 3. bind uniform buffer by per renderer instance
