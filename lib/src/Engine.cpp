@@ -47,6 +47,11 @@ using namespace filament;
 
 namespace Viry3D
 {
+    void FreeBufferCallback(void* buffer, size_t size, void* user)
+    {
+        free(buffer);
+    }
+    
 	class EnginePrivate
 	{
 	public:
@@ -263,11 +268,6 @@ namespace Viry3D
         backend::SamplerGroupHandle m_samplers;
         backend::TextureHandle m_texture;
 
-        static void FreeBufferTest(void* buffer, size_t size, void* user)
-        {
-            free(buffer);
-        }
-
 		void InitTest()
 		{
 			auto& driver = this->GetDriverApi();
@@ -306,12 +306,12 @@ namespace Viry3D
 			m_vb = driver.createVertexBuffer(1, attribute_count, vertex_count, attributes, backend::BufferUsage::STATIC);
             void* buffer = malloc(sizeof(vertices));
             memcpy(buffer, vertices, sizeof(vertices));
-			driver.updateVertexBuffer(m_vb, 0, backend::BufferDescriptor(buffer, sizeof(vertices), FreeBufferTest), 0);
+			driver.updateVertexBuffer(m_vb, 0, backend::BufferDescriptor(buffer, sizeof(vertices), FreeBufferCallback), 0);
 
 			m_ib = driver.createIndexBuffer(backend::ElementType::USHORT, index_count, backend::BufferUsage::STATIC);
             buffer = malloc(sizeof(indices));
             memcpy(buffer, indices, sizeof(indices));
-			driver.updateIndexBuffer(m_ib, backend::BufferDescriptor(buffer, sizeof(indices), FreeBufferTest), 0);
+			driver.updateIndexBuffer(m_ib, backend::BufferDescriptor(buffer, sizeof(indices), FreeBufferCallback), 0);
 
 			m_primitive = driver.createRenderPrimitive();
 			driver.setRenderPrimitiveBuffer(m_primitive, m_vb, m_ib, enabled_attributes);
@@ -328,7 +328,7 @@ namespace Viry3D
             memcpy(buffer, image->data.Bytes(), image->data.Size());
             auto data = backend::PixelBufferDescriptor(buffer, image->data.Size(),
                                                 backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
-                                                FreeBufferTest);
+                                                FreeBufferCallback);
             driver.update2DImage(m_texture, 0, 0, 0, image->width, image->height, std::move(data));
 
 			backend::SamplerGroup samplers(1);
@@ -359,12 +359,12 @@ namespace Viry3D
 				Matrix4x4 world = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
 				void* buffer = malloc(sizeof(world));
 				memcpy(buffer, &world, sizeof(world));
-				driver.loadUniformBuffer(m_ub_world, backend::BufferDescriptor(buffer, sizeof(world), FreeBufferTest));
+				driver.loadUniformBuffer(m_ub_world, backend::BufferDescriptor(buffer, sizeof(world), FreeBufferCallback));
 
 				Matrix4x4 vp = Matrix4x4::Identity();
 				buffer = malloc(sizeof(vp));
 				memcpy(buffer, &vp, sizeof(vp));
-				driver.loadUniformBuffer(m_ub_vp, backend::BufferDescriptor(buffer, sizeof(vp), FreeBufferTest));
+				driver.loadUniformBuffer(m_ub_vp, backend::BufferDescriptor(buffer, sizeof(vp), FreeBufferCallback));
 			}
 
 			backend::RenderTargetHandle target = m_render_target;

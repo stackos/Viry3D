@@ -64,4 +64,6 @@ namespace Viry3D
 	private:
 		EnginePrivate* m_private;
     };
+    
+    void FreeBufferCallback(void* buffer, size_t size, void* user);
 }
