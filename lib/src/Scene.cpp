@@ -16,21 +16,76 @@
 */
 
 #include "Scene.h"
+#include "GameObject.h"
 
 namespace Viry3D
 {
+	static Scene* g_scene = nullptr;
+
+	Scene* Scene::Instance()
+	{
+		return g_scene;
+	}
+
     Scene::Scene()
     {
+		g_scene = this;
 
+		GameObject::Create("test");
     }
     
     Scene::~Scene()
     {
-        
+		m_added_objects.Clear();
+		m_removed_objects.Clear();
+		m_objects.Clear();
+
+		g_scene = nullptr;
     }
+
+	void Scene::AddGameObject(const Ref<GameObject>& obj)
+	{
+		m_added_objects.Add(obj);
+	}
+
+	void Scene::RemoveGameObject(const Ref<GameObject>& obj)
+	{
+		m_removed_objects.Add(obj);
+	}
     
     void Scene::Update()
     {
-        
+		for (auto& i : m_objects)
+		{
+			auto& obj = i.second;
+			if (obj->IsActiveInTree())
+			{
+				obj->Update();
+			}
+		}
+
+		do
+		{
+			Vector<Ref<GameObject>> added = m_added_objects;
+			m_added_objects.Clear();
+
+			for (int i = 0; i < added.Size(); ++i)
+			{
+				auto& obj = added[i];
+				if (obj->IsActiveInTree())
+				{
+					obj->Update();
+				}
+				m_objects.Add(obj->GetId(), obj);
+			}
+			added.Clear();
+		} while (m_added_objects.Size() > 0);
+
+		for (int i = 0; i < m_removed_objects.Size(); ++i)
+		{
+			auto& obj = m_removed_objects[i];
+			m_objects.Remove(obj->GetId());
+		}
+		m_removed_objects.Clear();
     }
 }

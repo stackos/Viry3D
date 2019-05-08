@@ -42,6 +42,7 @@
 // test
 #include "math/Matrix4x4.h"
 #include "graphics/Image.h"
+#include "graphics/Mesh.h"
 
 using namespace filament;
 
@@ -260,63 +261,24 @@ namespace Viry3D
         }
 
 		// test
-		backend::VertexBufferHandle m_vb;
-		backend::IndexBufferHandle m_ib;
-		backend::RenderPrimitiveHandle m_primitive;
+		Ref<Mesh> m_mesh;
 		backend::UniformBufferHandle m_ub_world;
 		backend::UniformBufferHandle m_ub_vp;
         backend::SamplerGroupHandle m_samplers;
         backend::TextureHandle m_texture;
+		// material
+		// texture
+		// renderer
+		// camera
+		// transform
+		// component
 
 		void InitTest()
 		{
 			auto& driver = this->GetDriverApi();
 
-			int attribute_count = 2;
-			backend::AttributeArray attributes;
-			attributes[(int) Shader::AttributeLocation::Vertex].offset = 0;
-			attributes[(int) Shader::AttributeLocation::Vertex].stride = sizeof(float) * 5;
-			attributes[(int) Shader::AttributeLocation::Vertex].buffer = 0;
-			attributes[(int) Shader::AttributeLocation::Vertex].type   = backend::ElementType::FLOAT3;
-			attributes[(int) Shader::AttributeLocation::Vertex].flags  = 0;
-			attributes[(int) Shader::AttributeLocation::Texcoord].offset = sizeof(float) * 3;
-            attributes[(int) Shader::AttributeLocation::Texcoord].stride = sizeof(float) * 5;
-			attributes[(int) Shader::AttributeLocation::Texcoord].buffer = 0;
-			attributes[(int) Shader::AttributeLocation::Texcoord].type   = backend::ElementType::FLOAT2;
-			attributes[(int) Shader::AttributeLocation::Texcoord].flags  = 0;
-			uint32_t enabled_attributes =
-				(1 << (int) Shader::AttributeLocation::Vertex) |
-				(1 << (int) Shader::AttributeLocation::Texcoord);
+			m_mesh = Mesh::LoadFromFile(this->GetDataPath() + "/Library/unity default resources.Cube.mesh");
 
-			float vertices[] = {
-				-0.5f, 0.5f, -0.5f, 0.0f, 0.0f,
-				-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-				0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-				0.5f, 0.5f, -0.5f, 1.0f, 0.0f
-			};
-			uint16_t indices[] = {
-				0, 1, 2, 0, 2, 3
-			};
-			int vertex_count = 4;
-			int min_index = 0;
-			int max_index = 3;
-			int index_offset = 0;
-			int index_count = 6;
-
-			m_vb = driver.createVertexBuffer(1, attribute_count, vertex_count, attributes, backend::BufferUsage::STATIC);
-            void* buffer = malloc(sizeof(vertices));
-            memcpy(buffer, vertices, sizeof(vertices));
-			driver.updateVertexBuffer(m_vb, 0, backend::BufferDescriptor(buffer, sizeof(vertices), FreeBufferCallback), 0);
-
-			m_ib = driver.createIndexBuffer(backend::ElementType::USHORT, index_count, backend::BufferUsage::STATIC);
-            buffer = malloc(sizeof(indices));
-            memcpy(buffer, indices, sizeof(indices));
-			driver.updateIndexBuffer(m_ib, backend::BufferDescriptor(buffer, sizeof(indices), FreeBufferCallback), 0);
-
-			m_primitive = driver.createRenderPrimitive();
-			driver.setRenderPrimitiveBuffer(m_primitive, m_vb, m_ib, enabled_attributes);
-			driver.setRenderPrimitiveRange(m_primitive, backend::PrimitiveType::TRIANGLES, index_offset, min_index, max_index, index_count);
-			
 			m_ub_world = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
 			m_ub_vp = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
 
@@ -324,7 +286,7 @@ namespace Viry3D
             
             Ref<Image> image = Image::LoadFromFile(this->GetDataPath() + "/texture/logo.jpg");
             m_texture = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
-            buffer = malloc(image->data.Size());
+            void* buffer = malloc(image->data.Size());
             memcpy(buffer, image->data.Bytes(), image->data.Size());
             auto data = backend::PixelBufferDescriptor(buffer, image->data.Size(),
                                                 backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
@@ -344,9 +306,7 @@ namespace Viry3D
             driver.destroySamplerGroup(m_samplers);
 			driver.destroyUniformBuffer(m_ub_world);
 			driver.destroyUniformBuffer(m_ub_vp);
-			driver.destroyRenderPrimitive(m_primitive);
-			driver.destroyVertexBuffer(m_vb);
-			driver.destroyIndexBuffer(m_ib);
+			m_mesh.reset();
 		}
 
 		void RenderJob()
@@ -356,7 +316,7 @@ namespace Viry3D
 			{
 				static float deg = 0;
 				deg += 1;
-				Matrix4x4 world = Matrix4x4::Rotation(Quaternion::Euler(0, 0, deg));
+				Matrix4x4 world = Matrix4x4::Rotation(Quaternion::Euler(deg, deg, 0));
 				void* buffer = malloc(sizeof(world));
 				memcpy(buffer, &world, sizeof(world));
 				driver.loadUniformBuffer(m_ub_world, backend::BufferDescriptor(buffer, sizeof(world), FreeBufferCallback));
@@ -379,16 +339,11 @@ namespace Viry3D
 			
 			driver.beginRenderPass(target, params);
 			{
-				// record driver commands
-				// 1. bind uniform buffer and sampler by per material instance
 				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRenderer, m_ub_world);
 				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerView, m_ub_vp);
                 driver.bindSamplers((size_t) Shader::BindingPoint::PerMaterialInstance, m_samplers);
-				// 2. set scissor by per material instance
 				driver.setViewportScissor(0, 0, m_width, m_height);
-				// 3. bind uniform buffer by per renderer instance
-				// 4. draw with pipeline and primitive
-				driver.draw(pipeline, m_primitive);
+				driver.draw(pipeline, m_mesh->GetPrimitive(0));
 			}
 			driver.endRenderPass();
 

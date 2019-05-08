@@ -635,6 +635,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			g_engine->Execute();
+
+			if (g_engine->HasQuit())
+			{
+				SendMessage(hwnd, WM_CLOSE, 0, 0);
+			}
 		}
     }
 

@@ -58,6 +58,7 @@ namespace Viry3D
         const Submesh& GetSubmesh(int submesh) const { return m_submeshes[submesh]; }
         void SetBindposes(const Vector<Matrix4x4>& bindposes) { m_bindposes = bindposes; }
         const Vector<Matrix4x4>& GetBindposes() const { return m_bindposes; }
+		const filament::backend::RenderPrimitiveHandle& GetPrimitive(int submesh) const { return m_primitives[submesh]; }
 
     private:
         int m_vertex_count;

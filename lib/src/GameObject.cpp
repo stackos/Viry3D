@@ -15,23 +15,38 @@
 * limitations under the License.
 */
 
-#pragma once
-
-#include "string/String.h"
+#include "GameObject.h"
+#include "Scene.h"
 
 namespace Viry3D
 {
-    class Object
-    {
-    public:
-        Object() { static int s_id = 0; m_id = ++s_id; }
-        virtual ~Object() { }
-        const String& GetName() const { return m_name; }
-        void SetName(const String& name) { m_name = name; }
-		int GetId() const { return m_id; }
+	Ref<GameObject> GameObject::Create(const String& name)
+	{
+		Ref<GameObject> obj = Ref<GameObject>(new GameObject(name));
+		Scene::Instance()->AddGameObject(obj);
+		return obj;
+	}
+	
+	void GameObject::Destroy(Ref<GameObject>& obj)
+	{
+		Scene::Instance()->RemoveGameObject(obj);
+		obj.reset();
+	}
 
-    private:
-        String m_name;
-		int m_id;
-    };
+	GameObject::GameObject(const String& name):
+		m_is_active_self(true),
+		m_is_active_in_tree(true)
+	{
+		this->SetName(name);
+	}
+    
+	GameObject::~GameObject()
+    {
+        
+    }
+
+	void GameObject::Update()
+	{
+	
+	}
 }

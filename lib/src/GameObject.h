@@ -17,21 +17,25 @@
 
 #pragma once
 
-#include "string/String.h"
+#include "Object.h"
 
 namespace Viry3D
 {
-    class Object
+    class GameObject : public Object
     {
     public:
-        Object() { static int s_id = 0; m_id = ++s_id; }
-        virtual ~Object() { }
-        const String& GetName() const { return m_name; }
-        void SetName(const String& name) { m_name = name; }
-		int GetId() const { return m_id; }
+		static Ref<GameObject> Create(const String& name);
+		static void Destroy(Ref<GameObject>& obj);
+        virtual ~GameObject();
+		void Update();
+		bool IsActiveSelf() const { return m_is_active_self; }
+		bool IsActiveInTree() const { return m_is_active_in_tree; }
+		
+	private:
+		GameObject(const String& name);
 
-    private:
-        String m_name;
-		int m_id;
+	private:
+		bool m_is_active_self;
+		bool m_is_active_in_tree;
     };
 }
