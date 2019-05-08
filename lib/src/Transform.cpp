@@ -15,33 +15,17 @@
 * limitations under the License.
 */
 
-#pragma once
-
-#include "Object.h"
-#include "container/Map.h"
-#include "container/Vector.h"
+#include "Transform.h"
 
 namespace Viry3D
 {
-	class GameObject;
-
-    class Scene : public Object
+    Transform::Transform()
     {
-    public:
-		static Scene* Instance();
-        Scene();
-        virtual ~Scene();
-        void Update();
-        Ref<GameObject> GetGameObject(const GameObject* obj);
-
-	private:
-		friend class GameObject;
-		void AddGameObject(const Ref<GameObject>& obj);
-		void RemoveGameObject(const Ref<GameObject>& obj);
-
-	private:
-		Map<int, Ref<GameObject>> m_objects;
-		Vector<Ref<GameObject>> m_added_objects;
-		Vector<Ref<GameObject>> m_removed_objects;
-    };
+        
+    }
+    
+    Transform::~Transform()
+    {
+        
+    }
 }

@@ -18,6 +18,9 @@
 #pragma once
 
 #include "Object.h"
+#include "container/Vector.h"
+#include "Component.h"
+#include "Transform.h"
 
 namespace Viry3D
 {
@@ -27,15 +30,68 @@ namespace Viry3D
 		static Ref<GameObject> Create(const String& name);
 		static void Destroy(Ref<GameObject>& obj);
         virtual ~GameObject();
+        template <class T> Ref<T> AddComponent();
+        template <class T> Ref<T> GetComponent() const;
+        void RemoveComponent(const Ref<Component>& com);
+        const Ref<Transform>& GetTransform() const { return m_transform; }
 		void Update();
 		bool IsActiveSelf() const { return m_is_active_self; }
 		bool IsActiveInTree() const { return m_is_active_in_tree; }
 		
 	private:
 		GameObject(const String& name);
+        void BindComponent(const Ref<Component>& com) const;
 
 	private:
 		bool m_is_active_self;
 		bool m_is_active_in_tree;
+        Vector<Ref<Component>> m_components;
+        Vector<Ref<Component>> m_added_components;
+        Vector<Ref<Component>> m_removed_components;
+        Ref<Transform> m_transform;
     };
+    
+    template <class T>
+    Ref<T> GameObject::AddComponent()
+    {
+        Ref<T> com = RefMake<T>();
+        
+        auto is_transform = RefCast<Transform>(com);
+        if (m_transform && is_transform)
+        {
+            return Ref<T>();
+        }
+        
+        m_added_components.Add(com);
+        
+        this->BindComponent(com);
+        
+        return com;
+    }
+    
+    template <class T>
+    Ref<T> GameObject::GetComponent() const
+    {
+        for (int i = 0; i < m_added_components.Size(); ++i)
+        {
+            auto& com = m_added_components[i];
+            auto t = RefCast<T>(com);
+            if (t)
+            {
+                return t;
+            }
+        }
+        
+        for (int i = 0; i < m_components.Size(); ++i)
+        {
+            auto& com = m_components[i];
+            auto t = RefCast<T>(com);
+            if (t)
+            {
+                return t;
+            }
+        }
+        
+        return Ref<T>();
+    }
 }

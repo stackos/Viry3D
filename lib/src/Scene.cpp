@@ -31,7 +31,7 @@ namespace Viry3D
     {
 		g_scene = this;
 
-		GameObject::Create("test");
+		auto obj = GameObject::Create("test");
     }
     
     Scene::~Scene()
@@ -50,7 +50,10 @@ namespace Viry3D
 
 	void Scene::RemoveGameObject(const Ref<GameObject>& obj)
 	{
-		m_removed_objects.Add(obj);
+        if (!m_added_objects.Remove(obj))
+        {
+            m_removed_objects.Add(obj);
+        }
 	}
     
     void Scene::Update()
@@ -83,9 +86,29 @@ namespace Viry3D
 
 		for (int i = 0; i < m_removed_objects.Size(); ++i)
 		{
-			auto& obj = m_removed_objects[i];
+			const auto& obj = m_removed_objects[i];
 			m_objects.Remove(obj->GetId());
 		}
 		m_removed_objects.Clear();
+    }
+    
+    Ref<GameObject> Scene::GetGameObject(const GameObject* obj)
+    {
+        for (int i = 0; i < m_added_objects.Size(); ++i)
+        {
+            const auto& obj_ref = m_added_objects[i];
+            if (obj_ref.get() == obj)
+            {
+                return obj_ref;
+            }
+        }
+        
+        Ref<GameObject>* find;
+        if (m_objects.TryGet(obj->GetId(), &find))
+        {
+            return *find;
+        }
+        
+        return Ref<GameObject>();
     }
 }

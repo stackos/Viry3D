@@ -21,13 +21,25 @@
 
 namespace Viry3D
 {
+    class GameObject;
+    class Transform;
+    
     class Component : public Object
     {
     public:
         Component();
         virtual ~Component();
+        Ref<GameObject> GetGameObject() const { return m_object.lock(); }
+        const Ref<Transform>& GetTransform() const;
 
     protected:
+        virtual void Update() { }
         virtual void OnTransformDirty() { }
+        
+    private:
+        friend class GameObject;
+        
+    private:
+        WeakRef<GameObject> m_object;
     };
 }

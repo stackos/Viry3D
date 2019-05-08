@@ -271,7 +271,6 @@ namespace Viry3D
 		// renderer
 		// camera
 		// transform
-		// component
 
 		void InitTest()
 		{
