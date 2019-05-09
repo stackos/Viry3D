@@ -90,7 +90,7 @@ protected:
 public:
     // alignment of all Commands in the CommandStream
     static constexpr size_t align(size_t v) {
-        return (v + (FILAMENT_OBJECT_ALIGNMENT - 1)) & -FILAMENT_OBJECT_ALIGNMENT;
+        return (v + (FILAMENT_OBJECT_ALIGNMENT - 1)) & (~FILAMENT_OBJECT_ALIGNMENT + 1);
     }
 
     // executes this command and returns the next one

@@ -39,8 +39,10 @@ namespace Viry3D
 		bool IsActiveInTree() const { return m_is_active_in_tree; }
 		
 	private:
+		friend class Transform;
 		GameObject(const String& name);
         void BindComponent(const Ref<Component>& com) const;
+		void OnTransformDirty();
 
 	private:
 		bool m_is_active_self;

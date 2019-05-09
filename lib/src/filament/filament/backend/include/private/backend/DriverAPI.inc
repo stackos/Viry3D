@@ -201,8 +201,8 @@
  * Driver API below...
  */
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wunused-parameter"
 
 DECL_DRIVER_API_2(beginFrame,
         int64_t, monotonic_clock_ns,
@@ -486,7 +486,7 @@ DECL_DRIVER_API_2(draw,
         backend::PipelineState, state,
         backend::RenderPrimitiveHandle, rph)
 
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
 
 #undef SINGLE_ARG
 #undef PARAM_LIST_ADD

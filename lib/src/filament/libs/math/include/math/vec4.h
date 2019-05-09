@@ -89,13 +89,13 @@ public:
     constexpr TVec4(A v) : x(v), y(v), z(v), w(v) { }
 
     template<typename A, typename B, typename C, typename D>
-    constexpr TVec4(A x, B y, C z, D w) : x(x), y(y), z(z), w(w) { }
+    constexpr TVec4(A x, B y, C z, D w) : x((T) x), y((T) y), z((T) z), w((T) w) { }
 
     template<typename A, typename B, typename C>
-    constexpr TVec4(const TVec2<A>& v, B z, C w) : x(v.x), y(v.y), z(z), w(w) { }
+    constexpr TVec4(const TVec2<A>& v, B z, C w) : x(v.x), y(v.y), z((T) z), w((T) w) { }
 
     template<typename A, typename B>
-    constexpr TVec4(const TVec3<A>& v, B w) : x(v.x), y(v.y), z(v.z), w(w) { }
+    constexpr TVec4(const TVec3<A>& v, B w) : x(v.x), y(v.y), z(v.z), w((T) w) { }
 
     template<typename A>
     constexpr TVec4(const TVec4<A>& v) : x(v.x), y(v.y), z(v.z), w(v.w) { }

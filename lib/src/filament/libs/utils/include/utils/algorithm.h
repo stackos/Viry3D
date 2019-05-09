@@ -24,6 +24,8 @@
 #include <limits.h>
 #include <stdint.h>
 
+#pragma warning(disable:4293)
+
 namespace utils {
 
 namespace details {

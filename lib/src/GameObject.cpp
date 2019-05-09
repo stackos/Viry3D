@@ -67,6 +67,21 @@ namespace Viry3D
         auto obj = Scene::Instance()->GetGameObject(this);
         com->m_object = obj;
     }
+
+	void GameObject::OnTransformDirty()
+	{
+		for (int i = 0; i < m_added_components.Size(); ++i)
+		{
+			auto& com = m_added_components[i];
+			com->OnTransformDirty();
+		}
+
+		for (int i = 0; i < m_components.Size(); ++i)
+		{
+			auto& com = m_components[i];
+			com->OnTransformDirty();
+		}
+	}
     
 	void GameObject::Update()
 	{
