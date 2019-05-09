@@ -270,7 +270,6 @@ namespace Viry3D
 		// texture
 		// renderer
 		// camera
-		// transform
 
 		void InitTest()
 		{

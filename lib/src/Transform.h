@@ -41,8 +41,11 @@ namespace Viry3D
 		const Vector3& GetLocalScale() const { return m_local_scale; }
 		void SetLocalScale(const Vector3& scale);
 		const Vector3& GetPosition();
+        void SetPosition(const Vector3& pos);
 		const Quaternion& GetRotation();
+        void SetRotation(const Quaternion& rot);
 		const Vector3& GetScale();
+        void SetScale(const Vector3& scale);
 		const Matrix4x4& GetLocalToWorldMatrix();
 		const Matrix4x4& GetWorldToLocalMatrix();
 		Vector3 GetRight();
