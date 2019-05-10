@@ -43,6 +43,7 @@ namespace Viry3D
 		void Execute();
 		filament::backend::DriverApi& GetDriverApi();
 		const filament::backend::Backend& GetBackend() const;
+		void* GetDefaultRenderTarget();
 		const String& GetDataPath();
 		const String& GetSavePath();
 #if VR_ANDROID || VR_UWP
@@ -53,15 +54,17 @@ namespace Viry3D
 		int GetWidth() const;
 		int GetHeight() const;
         bool HasQuit() const;
-        
+
+		// test
 		void InitTest();
 		void ShutdownTest();
-
+        
 	private:
 		Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context);
 		~Engine();
 
 	private:
+		static Engine* m_instance;
 		EnginePrivate* m_private;
     };
     

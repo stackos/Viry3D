@@ -18,20 +18,23 @@
 #include "Scene.h"
 #include "GameObject.h"
 
+// test
+#include "graphics/Camera.h"
+
 namespace Viry3D
 {
-	static Scene* g_scene = nullptr;
+	Scene* Scene::m_instance = nullptr;
 
 	Scene* Scene::Instance()
 	{
-		return g_scene;
+		return m_instance;
 	}
 
     Scene::Scene()
     {
-		g_scene = this;
+		m_instance = this;
 
-		auto obj = GameObject::Create("test");
+		auto camera = GameObject::Create("")->AddComponent<Camera>();
     }
     
     Scene::~Scene()
@@ -40,7 +43,7 @@ namespace Viry3D
 		m_removed_objects.Clear();
 		m_objects.Clear();
 
-		g_scene = nullptr;
+		m_instance = nullptr;
     }
 
 	void Scene::AddGameObject(const Ref<GameObject>& obj)

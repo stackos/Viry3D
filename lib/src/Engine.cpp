@@ -26,6 +26,7 @@
 #include "Scene.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
+#include "graphics/Camera.h"
 #include "time/Time.h"
 #include <thread>
 
@@ -217,7 +218,8 @@ namespace Viry3D
 
 		void Render()
 		{
-			this->RenderJob();
+			Camera::RenderAll();
+			RenderTest();
 			this->Flush();
 		}
 
@@ -269,7 +271,6 @@ namespace Viry3D
 		// material
 		// texture
 		// renderer
-		// camera
 
 		void InitTest()
 		{
@@ -307,7 +308,7 @@ namespace Viry3D
 			m_mesh.reset();
 		}
 
-		void RenderJob()
+		void RenderTest()
 		{
 			auto& driver = this->GetDriverApi();
 
@@ -491,12 +492,12 @@ namespace Viry3D
 		}
 	};
 
-	static Engine* g_engine = nullptr;
+	Engine* Engine::m_instance = nullptr;
 
 	Engine* Engine::Create(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context)
 	{
 		Engine* instance = new Engine(native_window, width, height, flags, shared_gl_context);
-		g_engine = instance;
+		m_instance = instance;
 
 		if (!UTILS_HAS_THREADING)
 		{
@@ -530,14 +531,14 @@ namespace Viry3D
 				(*engine)->m_private->Shutdown();
 				delete (*engine);
 				*engine = nullptr;
-				g_engine = nullptr;
+				m_instance = nullptr;
 			}
 		}
 	}
 
 	Engine* Engine::Instance()
 	{
-		return g_engine;
+		return m_instance;
 	}
 
 	Engine::Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
@@ -578,6 +579,11 @@ namespace Viry3D
 	const backend::Backend& Engine::GetBackend() const
 	{
 		return m_private->m_backend;
+	}
+
+	void* Engine::GetDefaultRenderTarget()
+	{
+		return &m_private->m_render_target;
 	}
 
 	const String& Engine::GetDataPath()
@@ -621,7 +627,7 @@ namespace Viry3D
     {
         return m_private->m_quit;
     }
-    
+
 	void Engine::InitTest()
 	{
 		m_private->InitTest();

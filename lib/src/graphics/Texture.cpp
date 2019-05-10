@@ -29,7 +29,9 @@ namespace Viry3D
         
     }
     
-    Texture::Texture(const String& name)
+    Texture::Texture(const String& name):
+		m_width(0),
+		m_height(0)
     {
         this->SetName(name);
     }

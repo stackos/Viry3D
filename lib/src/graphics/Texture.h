@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Object.h"
+#include "private/backend/DriverApi.h"
 
 namespace Viry3D
 {
@@ -28,5 +29,11 @@ namespace Viry3D
         static void Done();
         Texture(const String& name);
         virtual ~Texture();
+		int GetWidth() const { return m_width; }
+		int GetHeight() const { return m_height; }
+
+	private:
+		int m_width;
+		int m_height;
     };
 }
