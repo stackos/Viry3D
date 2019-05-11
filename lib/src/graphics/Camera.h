@@ -67,9 +67,11 @@ namespace Viry3D
 		int GetTargetHeight() const;
 
 	private:
-		void Render();
-        void RenderPass();
         void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);
+        void Prepare(const List<Renderer*>& renderers);
+        void PrepareRenderer(Renderer* renderer);
+		void Draw(const List<Renderer*>& renderers);
+        void DrawRenderer(Renderer* renderer);
 
 	private:
 		static List<Camera*> m_cameras;

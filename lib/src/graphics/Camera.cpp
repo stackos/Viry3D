@@ -20,6 +20,7 @@
 #include "Texture.h"
 #include "Engine.h"
 #include "Renderer.h"
+#include "Material.h"
 
 namespace Viry3D
 {
@@ -38,11 +39,50 @@ namespace Viry3D
 
 		for (auto i : m_cameras)
 		{
-			i->Render();
+            List<Renderer*> renderers;
+            i->CullRenderers(Renderer::GetRenderers(), renderers);
+            i->Prepare(renderers);
+			i->Draw(renderers);
 		}
 	}
+    
+    void Camera::CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result)
+    {
+        for (auto i : renderers)
+        {
+            int layer = i->GetGameObject()->GetLayer();
+            if ((1 << layer) & m_culling_mask)
+            {
+                result.AddLast(i);
+            }
+        }
+        result.Sort([](Renderer* a, Renderer* b) {
+            return false;
+        });
+    }
+    
+    void Camera::Prepare(const List<Renderer*>& renderers)
+    {
+        for (auto i : renderers)
+        {
+            this->PrepareRenderer(i);
+        }
+    }
+    
+    void Camera::PrepareRenderer(Renderer* renderer)
+    {
+        const auto& materials = renderer->GetMaterials();
+        for (int i = 0; i < materials.Size(); ++i)
+        {
+            auto& material = materials[i];
+            if (material)
+            {
+                material->Prepare();
+            }
+        }
+    }
 
-	void Camera::Render()
+	void Camera::Draw(const List<Renderer*>& renderers)
 	{
 		auto& driver = Engine::Instance()->GetDriverApi();
 
@@ -133,37 +173,40 @@ namespace Viry3D
 
 		driver.beginRenderPass(target, params);
 
-        this->RenderPass();
+        for (auto i : renderers)
+        {
+            this->DrawRenderer(i);
+        }
         
 		driver.endRenderPass();
 
 		driver.flush();
 	}
     
-    void Camera::RenderPass()
+    void Camera::DrawRenderer(Renderer* renderer)
     {
-        List<Renderer*> renderers;
-        this->CullRenderers(Renderer::GetRenderers(), renderers);
-     
-        for (auto i : renderers)
+        auto& driver = Engine::Instance()->GetDriverApi();
+        
+        const auto& materials = renderer->GetMaterials();
+        for (int i = 0; i < materials.Size(); ++i)
         {
-            
-        }
-    }
-    
-    void Camera::CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result)
-    {
-        for (auto i : renderers)
-        {
-            int layer = i->GetGameObject()->GetLayer();
-            if ((1 << layer) & m_culling_mask)
+            auto& material = materials[i];
+            if (material)
             {
-                result.AddLast(i);
+                auto primitive = renderer->GetPrimitive(i);
+                if (primitive)
+                {
+                    const auto& shader = material->GetShader();
+                    for (int j = 0; j < shader->GetPassCount(); ++j)
+                    {
+                        material->Apply(this, j);
+                        
+                        const auto& pipeline = shader->GetPass(j).pipeline;
+                        //driver.draw(pipeline, primitive);
+                    }
+                }
             }
         }
-        result.Sort([](Renderer* a, Renderer* b) {
-            return false;
-        });
     }
 
 	Camera::Camera():

@@ -127,7 +127,7 @@ namespace Viry3D
             this->GetSavePath();
             
 #if !VR_WASM
-            m_thread_pool = RefMake<ThreadPool>(8);
+            m_thread_pool = RefMake<ThreadPool>(4);
 #endif
             
             Shader::Init();

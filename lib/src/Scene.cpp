@@ -20,7 +20,8 @@
 
 // test
 #include "graphics/Camera.h"
-#include "graphics/Renderer.h"
+#include "graphics/MeshRenderer.h"
+#include "Engine.h"
 
 namespace Viry3D
 {
@@ -36,7 +37,11 @@ namespace Viry3D
 		m_instance = this;
 
 		auto camera = GameObject::Create("")->AddComponent<Camera>();
-        auto renderer = GameObject::Create("")->AddComponent<Renderer>();
+        auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+        auto mesh = Mesh::LoadFromFile(Engine::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
+        renderer->SetMesh(mesh);
+        auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+        renderer->SetMaterial(material);
     }
     
     Scene::~Scene()

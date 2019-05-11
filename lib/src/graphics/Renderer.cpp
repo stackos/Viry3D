@@ -21,7 +21,9 @@ namespace Viry3D
 {
     List<Renderer*> Renderer::m_renderers;
     
-    Renderer::Renderer()
+    Renderer::Renderer():
+        m_lightmap_scale_offset(1, 1, 0, 0),
+        m_lightmap_index(-1)
     {
         m_renderers.AddLast(this);
     }
@@ -29,5 +31,43 @@ namespace Viry3D
     Renderer::~Renderer()
     {
         m_renderers.Remove(this);
+    }
+    
+    Ref<Material> Renderer::GetMaterial() const
+    {
+        Ref<Material> material;
+        
+        if (m_materials.Size() > 0)
+        {
+            material = m_materials[0];
+        }
+        
+        return material;
+    }
+    
+    void Renderer::SetMaterial(const Ref<Material>& material)
+    {
+        this->SetMaterials({ material });
+    }
+    
+    void Renderer::SetMaterials(const Vector<Ref<Material>>& materials)
+    {
+        m_materials = materials;
+    }
+    
+    void Renderer::SetLightmapIndex(int index)
+    {
+        m_lightmap_index = index;
+    }
+    
+    void Renderer::SetLightmapScaleOffset(const Vector4& vec)
+    {
+        m_lightmap_scale_offset = vec;
+    }
+    
+    filament::backend::RenderPrimitiveHandle Renderer::GetPrimitive(int submesh) const
+    {
+        filament::backend::RenderPrimitiveHandle primitive;
+        return primitive;
     }
 }

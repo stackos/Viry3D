@@ -18,7 +18,11 @@
 #pragma once
 
 #include "Component.h"
+#include "Material.h"
 #include "container/List.h"
+#include "container/Vector.h"
+#include "math/Vector4.h"
+#include "private/backend/DriverApi.h"
 
 namespace Viry3D
 {
@@ -28,8 +32,20 @@ namespace Viry3D
         static const List<Renderer*>& GetRenderers() { return m_renderers; }
         Renderer();
         virtual ~Renderer();
-
+        Ref<Material> GetMaterial() const;
+        void SetMaterial(const Ref<Material>& material);
+        const Vector<Ref<Material>>& GetMaterials() const { return m_materials; }
+        void SetMaterials(const Vector<Ref<Material>>& materials);
+        int GetLightmapIndex() const { return m_lightmap_index; }
+        void SetLightmapIndex(int index);
+        const Vector4& GetLightmapScaleOffset() const { return m_lightmap_scale_offset; }
+        void SetLightmapScaleOffset(const Vector4& vec);
+        virtual filament::backend::RenderPrimitiveHandle GetPrimitive(int submesh) const;
+        
 	private:
         static List<Renderer*> m_renderers;
+        Vector<Ref<Material>> m_materials;
+        Vector4 m_lightmap_scale_offset;
+        int m_lightmap_index;
     };
 }
