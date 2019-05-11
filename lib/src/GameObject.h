@@ -35,6 +35,7 @@ namespace Viry3D
         void RemoveComponent(const Ref<Component>& com);
         const Ref<Transform>& GetTransform() const { return m_transform; }
 		void Update();
+        int GetLayer() const { return m_layer; }
 		bool IsActiveSelf() const { return m_is_active_self; }
 		bool IsActiveInTree() const { return m_is_active_in_tree; }
 		
@@ -45,12 +46,13 @@ namespace Viry3D
 		void OnTransformDirty();
 
 	private:
-		bool m_is_active_self;
-		bool m_is_active_in_tree;
         Vector<Ref<Component>> m_components;
         Vector<Ref<Component>> m_added_components;
         Vector<Ref<Component>> m_removed_components;
         Ref<Transform> m_transform;
+        int m_layer;
+        bool m_is_active_self;
+        bool m_is_active_in_tree;
     };
     
     template <class T>

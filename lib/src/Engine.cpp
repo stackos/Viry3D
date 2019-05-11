@@ -27,6 +27,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "graphics/Camera.h"
+#include "audio/AudioManager.h"
 #include "time/Time.h"
 #include <thread>
 
@@ -81,7 +82,10 @@ namespace Viry3D
         String m_save_path;
         bool m_quit = false;
         Ref<Scene> m_scene;
-
+        Ref<ThreadPool> m_thread_pool;
+        List<Action> m_actions;
+        Mutex m_mutex;
+        
 		backend::DriverApi& GetDriverApi() { return m_command_stream; }
 
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
@@ -100,6 +104,7 @@ namespace Viry3D
 			m_height(height),
 			m_window_flags(flags)
 		{
+
 		}
 
 		~EnginePrivate()
@@ -121,16 +126,24 @@ namespace Viry3D
             this->GetDataPath();
             this->GetSavePath();
             
+#if !VR_WASM
+            m_thread_pool = RefMake<ThreadPool>(8);
+#endif
+            
             Shader::Init();
             Texture::Init();
+            AudioManager::Init();
 		}
 
 		void Shutdown()
 		{
             m_scene.reset();
             
+            AudioManager::Done();
             Texture::Done();
             Shader::Done();
+            
+            m_thread_pool.reset();
             
 			this->GetDriverApi().destroyRenderTarget(m_render_target);
 
@@ -205,6 +218,7 @@ namespace Viry3D
 		void BeginFrame()
 		{
             Time::Update();
+            this->ProcessActions();
             
 			++m_frame_id;
 
@@ -262,6 +276,27 @@ namespace Viry3D
 #endif
         }
 
+        void PostAction(Action action)
+        {
+            m_mutex.lock();
+            m_actions.AddLast(action);
+            m_mutex.unlock();
+        }
+        
+        void ProcessActions()
+        {
+            m_mutex.lock();
+            for (const auto& action : m_actions)
+            {
+                if (action)
+                {
+                    action();
+                }
+            }
+            m_actions.Clear();
+            m_mutex.unlock();
+        }
+        
 		// test
 		Ref<Mesh> m_mesh;
 		backend::UniformBufferHandle m_ub_world;
@@ -628,6 +663,16 @@ namespace Viry3D
         return m_private->m_quit;
     }
 
+    ThreadPool* Engine::GetThreadPool() const
+    {
+        return m_private->m_thread_pool.get();
+    }
+    
+    void Engine::PostAction(Action action)
+    {
+        m_private->PostAction(action);
+    }
+    
 	void Engine::InitTest()
 	{
 		m_private->InitTest();

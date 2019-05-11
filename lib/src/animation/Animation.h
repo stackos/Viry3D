@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "Component.h"
 #include "AnimationCurve.h"
 #include "container/List.h"
 
@@ -75,7 +75,7 @@ namespace Viry3D
     {
         int clip_index;
         float play_start_time;
-        Vector<Node*> targets;
+        Vector<Transform*> targets;
         FadeState fade_state;
         float fade_start_time;
         float fade_length;
@@ -83,7 +83,7 @@ namespace Viry3D
         float weight;
     };
 
-    class Animation : public Node
+    class Animation : public Component
     {
     public:
         Animation();
@@ -93,8 +93,10 @@ namespace Viry3D
         const String& GetClipName(int index) const;
         void Play(int index, float fade_length);
         void Stop();
-        void Update();
 
+    protected:
+        virtual void Update();
+        
     private:
         void Sample(AnimationState& state, float time, float weight, bool first_state, bool last_state);
 

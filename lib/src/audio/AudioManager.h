@@ -17,25 +17,20 @@
 
 #pragma once
 
-#include "Node.h"
-
 namespace Viry3D
 {
-    class AudioListenerPrivate;
+    class AudioListener;
 
-    class AudioListener : public Node
+    class AudioManager
     {
     public:
-        virtual ~AudioListener();
-
-    protected:
-        virtual void OnMatrixDirty();
-
-    private:
-        friend class AudioManager;
-        AudioListener();
-
-    private:
-        AudioListenerPrivate* m_private;
+        static void Init();
+        static void Done();
+        static AudioListener* GetListener();
+#if VR_WASM
+        static void PlayAudio(const String& url, bool loop);
+        static void PauseAudio();
+        static void StopAudio();
+#endif
     };
 }

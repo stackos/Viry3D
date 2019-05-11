@@ -16,11 +16,12 @@
 */
 
 #include "AudioClip.h"
+#include "Debug.h"
+#include "Engine.h"
 #include "io/File.h"
 #include "io/MemoryStream.h"
 #include "memory/Memory.h"
-#include "Debug.h"
-#include "Application.h"
+#include "container/List.h"
 
 #if VR_MAC || VR_IOS
 #include <OpenAL/OpenAL.h>
@@ -192,7 +193,7 @@ namespace Viry3D
 
                     return Ref<Object>();
                 };
-                Application::Instance()->GetThreadPool()->AddTask(task);
+                Engine::Instance()->GetThreadPool()->AddTask(task);
             }
         }
 

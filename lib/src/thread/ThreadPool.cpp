@@ -17,8 +17,7 @@
 
 #include "ThreadPool.h"
 #include "Object.h"
-#include "Application.h"
-#include "graphics/Display.h"
+#include "Engine.h"
 
 namespace Viry3D
 {
@@ -105,16 +104,9 @@ namespace Viry3D
             {
                 Ref<Object> res = task.job();
 
-#if VR_GLES
-                if (gl_thread)
-                {
-                    Display::Instance()->Flush();
-                }
-#endif
-
                 if (task.complete)
                 {
-                    Application::Instance()->PostAction([=]() {
+                    Engine::Instance()->PostAction([=]() {
                         task.complete(res);
                     });
                 }

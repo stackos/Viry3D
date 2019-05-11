@@ -35,6 +35,7 @@ namespace Viry3D
 	}
 
 	GameObject::GameObject(const String& name):
+        m_layer(0),
 		m_is_active_self(true),
 		m_is_active_in_tree(true)
 	{

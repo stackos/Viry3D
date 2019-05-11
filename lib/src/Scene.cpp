@@ -20,6 +20,7 @@
 
 // test
 #include "graphics/Camera.h"
+#include "graphics/Renderer.h"
 
 namespace Viry3D
 {
@@ -35,6 +36,7 @@ namespace Viry3D
 		m_instance = this;
 
 		auto camera = GameObject::Create("")->AddComponent<Camera>();
+        auto renderer = GameObject::Create("")->AddComponent<Renderer>();
     }
     
     Scene::~Scene()

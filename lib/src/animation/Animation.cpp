@@ -16,7 +16,9 @@
 */
 
 #include "Animation.h"
+#include "GameObject.h"
 #include "time/Time.h"
+#include "math/Mathf.h"
 
 namespace Viry3D
 {
@@ -187,14 +189,15 @@ namespace Viry3D
         for (int i = 0; i < clip.curves.Size(); ++i)
         {
             const auto& curve = clip.curves[i];
-            Node* target = state.targets[i];
+            Transform* target = state.targets[i];
             if (target == nullptr)
             {
-                target = this->Find(curve.path).get();
-                state.targets[i] = target;
-                if (target)
+                auto find = this->GetTransform()->Find(curve.path);
+                if (find)
                 {
-                    target->EnableNotifyChildrenOnMatrixDirty(false);
+                    target = find.get();
+                    state.targets[i] = target;
+                    target->EnableNotifyChildrenOnDirty(false);
                 }
                 else
                 {

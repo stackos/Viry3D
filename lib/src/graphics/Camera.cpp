@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "Texture.h"
 #include "Engine.h"
+#include "Renderer.h"
 
 namespace Viry3D
 {
@@ -132,13 +133,42 @@ namespace Viry3D
 
 		driver.beginRenderPass(target, params);
 
+        this->RenderPass();
+        
 		driver.endRenderPass();
 
 		driver.flush();
 	}
+    
+    void Camera::RenderPass()
+    {
+        List<Renderer*> renderers;
+        this->CullRenderers(Renderer::GetRenderers(), renderers);
+     
+        for (auto i : renderers)
+        {
+            
+        }
+    }
+    
+    void Camera::CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result)
+    {
+        for (auto i : renderers)
+        {
+            int layer = i->GetGameObject()->GetLayer();
+            if ((1 << layer) & m_culling_mask)
+            {
+                result.AddLast(i);
+            }
+        }
+        result.Sort([](Renderer* a, Renderer* b) {
+            return false;
+        });
+    }
 
 	Camera::Camera():
 		m_depth(0),
+        m_culling_mask(0xffffffff),
 		m_clear_flags(CameraClearFlags::ColorAndDepth),
 		m_clear_color(0, 0, 0, 1),
 		m_viewport_rect(0, 0, 1, 1),
@@ -166,6 +196,11 @@ namespace Viry3D
 		m_depth = depth;
 	}
 
+    void Camera::SetCullingMask(uint32_t mask)
+    {
+        m_culling_mask = mask;
+    }
+    
 	void Camera::SetClearFlags(CameraClearFlags flags)
 	{
 		m_clear_flags = flags;

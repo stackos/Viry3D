@@ -17,22 +17,19 @@
 
 #pragma once
 
-#include "Node.h"
+#include "Component.h"
+#include "container/List.h"
 
 namespace Viry3D
 {
-    class AudioListener;
-
-    class AudioManager
+    class Renderer : public Component
     {
     public:
-        static void Init();
-        static void Done();
-        static AudioListener* GetListener();
-#if VR_WASM
-        static void PlayAudio(const String& url, bool loop);
-        static void PauseAudio();
-        static void StopAudio();
-#endif
+        static const List<Renderer*>& GetRenderers() { return m_renderers; }
+        Renderer();
+        virtual ~Renderer();
+
+	private:
+        static List<Renderer*> m_renderers;
     };
 }

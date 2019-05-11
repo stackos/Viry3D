@@ -17,42 +17,25 @@
 
 #pragma once
 
-#include "Node.h"
+#include "Component.h"
 
 namespace Viry3D
 {
-    class AudioClip;
-    class AudioSourcePrivate;
+    class AudioListenerPrivate;
 
-    class AudioSource: public Node
+    class AudioListener : public Component
     {
     public:
-        enum class State
-        {
-            Unknown,
-
-            Initial,
-            Playing,
-            Paused,
-            Stopped,
-        };
-
-        AudioSource();
-        virtual ~AudioSource();
-        const Ref<AudioClip>& GetClip() const { return m_clip; }
-        void SetClip(const Ref<AudioClip>& clip);
-        void SetLoop(bool loop);
-        void Play();
-        void Pause();
-        void Stop();
-        State GetState() const;
-        virtual void Update();
+        virtual ~AudioListener();
 
     protected:
-        virtual void OnMatrixDirty();
+        virtual void OnTransformDirty();
 
     private:
-        AudioSourcePrivate* m_private;
-        Ref<AudioClip> m_clip;
+        friend class AudioManager;
+        AudioListener();
+
+    private:
+        AudioListenerPrivate* m_private;
     };
 }

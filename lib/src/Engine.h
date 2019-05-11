@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include "string/String.h"
+#include "thread/ThreadPool.h"
 
 namespace filament
 {
@@ -54,6 +55,8 @@ namespace Viry3D
 		int GetWidth() const;
 		int GetHeight() const;
         bool HasQuit() const;
+        ThreadPool* GetThreadPool() const;
+        void PostAction(Action action);
 
 		// test
 		void InitTest();

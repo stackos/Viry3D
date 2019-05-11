@@ -17,6 +17,7 @@
 
 #include "AudioListener.h"
 #include "memory/Memory.h"
+#include "Transform.h"
 
 #if VR_MAC || VR_IOS
 #include <OpenAL/OpenAL.h>
@@ -72,11 +73,11 @@ namespace Viry3D
         Memory::SafeDelete(m_private);
     }
 
-    void AudioListener::OnMatrixDirty()
+    void AudioListener::OnTransformDirty()
     {
-        Vector3 pos = this->GetPosition();
-        Vector3 forward = this->GetForward();
-        Vector3 up = this->GetUp();
+        Vector3 pos = this->GetTransform()->GetPosition();
+        Vector3 forward = this->GetTransform()->GetForward();
+        Vector3 up = this->GetTransform()->GetUp();
 
         m_private->SetPosition(pos);
         m_private->SetOrientation(forward, up);

@@ -19,8 +19,8 @@
 #include "AudioClip.h"
 #include "memory/Memory.h"
 #include "container/List.h"
-#include "thread/ThreadPool.h"
 #include "Debug.h"
+#include "Transform.h"
 
 #if VR_MAC || VR_IOS
 #include <OpenAL/OpenAL.h>
@@ -278,10 +278,10 @@ namespace Viry3D
         }
     }
 
-    void AudioSource::OnMatrixDirty()
+    void AudioSource::OnTransformDirty()
     {
-        Vector3 pos = this->GetPosition();
-        Vector3 forward = this->GetForward();
+        Vector3 pos = this->GetTransform()->GetPosition();
+        Vector3 forward = this->GetTransform()->GetForward();
 
         m_private->SetPosition(pos);
         m_private->SetDirection(forward);

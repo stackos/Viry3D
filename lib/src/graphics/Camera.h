@@ -27,6 +27,7 @@
 namespace Viry3D
 {
 	class Texture;
+    class Renderer;
 
     class Camera : public Component
     {
@@ -36,6 +37,8 @@ namespace Viry3D
         virtual ~Camera();
 		int GetDepth() const { return m_depth; }
 		void SetDepth(int depth);
+        uint32_t GetCullingMask() const { return m_culling_mask; }
+        void SetCullingMask(uint32_t mask);
 		CameraClearFlags GetClearFlags() const { return m_clear_flags; }
 		void SetClearFlags(CameraClearFlags flags);
 		const Color& GetClearColor() const { return m_clear_color; }
@@ -65,11 +68,14 @@ namespace Viry3D
 
 	private:
 		void Render();
+        void RenderPass();
+        void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);
 
 	private:
 		static List<Camera*> m_cameras;
 		static bool m_cameras_order_dirty;
 		int m_depth;
+        uint32_t m_culling_mask;
 		CameraClearFlags m_clear_flags;
 		Color m_clear_color;
 		Rect m_viewport_rect;
