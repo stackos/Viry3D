@@ -130,12 +130,12 @@ namespace Viry3D
         template <class T>
         const T* GetProperty(const String& name, MaterialProperty::Type type) const
         {
-            const MaterialProperty* ptr;
-            if (m_properties.TryGet(name, &ptr))
+            const MaterialProperty* property_ptr;
+            if (m_properties.TryGet(name, &property_ptr))
             {
-                if (ptr->type == type)
+                if (property_ptr->type == type)
                 {
-                    return (const T*) &ptr->data;
+                    return (const T*) &property_ptr->data;
                 }
             }
             

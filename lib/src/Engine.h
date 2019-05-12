@@ -57,10 +57,6 @@ namespace Viry3D
         bool HasQuit() const;
         ThreadPool* GetThreadPool() const;
         void PostAction(Action action);
-
-		// test
-		void InitTest();
-		void ShutdownTest();
         
 	private:
 		Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context);

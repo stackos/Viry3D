@@ -25,6 +25,9 @@
 
 namespace Viry3D
 {
+    // test
+    MeshRenderer* cube;
+    
 	Scene* Scene::m_instance = nullptr;
 
 	Scene* Scene::Instance()
@@ -36,12 +39,26 @@ namespace Viry3D
     {
 		m_instance = this;
 
-		auto camera = GameObject::Create("")->AddComponent<Camera>();
-        auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+        // test
         auto mesh = Mesh::LoadFromFile(Engine::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
-        renderer->SetMesh(mesh);
+        
+        auto texture = Texture::LoadTexture2DFromFile(
+            Engine::Instance()->GetDataPath() + "/texture/logo.jpg",
+            FilterMode::Linear,
+            SamplerAddressMode::ClampToEdge,
+            true);
+        
         auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+        material->SetTexture("u_texture", texture);
+        
+		auto camera = GameObject::Create("")->AddComponent<Camera>();
+        camera->GetTransform()->SetPosition(Vector3(0, 0, -3));
+        
+        auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+        renderer->SetMesh(mesh);
         renderer->SetMaterial(material);
+        
+        cube = renderer.get();
     }
     
     Scene::~Scene()
@@ -100,6 +117,11 @@ namespace Viry3D
 			m_objects.Remove(obj->GetId());
 		}
 		m_removed_objects.Clear();
+        
+        // test
+        static float deg = 0;
+        deg += 1.0f;
+        cube->GetTransform()->SetLocalRotation(Quaternion::Euler(deg, deg, deg));
     }
     
     Ref<GameObject> Scene::GetGameObject(const GameObject* obj)

@@ -55,8 +55,7 @@ static bool g_mouse_down = false;
     self.view = view;
     
     m_engine = Engine::Create((__bridge void*) self.view, window_width, window_height);
-    m_engine->InitTest();
-    
+
     m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:self selector:@selector(drawFrame) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];
     
@@ -71,7 +70,6 @@ static bool g_mouse_down = false;
 }
 
 - (void)dealloc {
-    m_engine->ShutdownTest();
     Engine::Destroy(&m_engine);
 }
 

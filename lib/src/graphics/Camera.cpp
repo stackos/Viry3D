@@ -46,6 +46,19 @@ namespace Viry3D
 		}
 	}
     
+    void Camera::OnResizeAll(int width, int height)
+    {
+        for (auto i : m_cameras)
+        {
+            i->OnResize(width, height);
+        }
+    }
+    
+    void Camera::OnResize(int width, int height)
+    {
+        m_projection_matrix_dirty = true;
+    }
+    
     void Camera::CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result)
     {
         for (auto i : renderers)
@@ -57,7 +70,27 @@ namespace Viry3D
             }
         }
         result.Sort([](Renderer* a, Renderer* b) {
-            return false;
+            const auto& materials_a = a->GetMaterials();
+            int queue_a = 0;
+            for (int i = 0; i < materials_a.Size(); ++i)
+            {
+                int queue = materials_a[i]->GetQueue();
+                if (queue_a < queue)
+                {
+                    queue_a = queue;
+                }
+            }
+            const auto& materials_b = b->GetMaterials();
+            int queue_b = 0;
+            for (int i = 0; i < materials_b.Size(); ++i)
+            {
+                int queue = materials_b[i]->GetQueue();
+                if (queue_b < queue)
+                {
+                    queue_b = queue;
+                }
+            }
+            return queue_a < queue_b;
         });
     }
     
@@ -77,6 +110,10 @@ namespace Viry3D
             auto& material = materials[i];
             if (material)
             {
+                material->SetMatrix(MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
+                material->SetMatrix(VIEW_MATRIX, this->GetViewMatrix());
+                material->SetMatrix(PROJECTION_MATRIX, this->GetProjectionMatrix());
+                
                 material->Prepare();
             }
         }
@@ -202,7 +239,7 @@ namespace Viry3D
                         material->Apply(this, j);
                         
                         const auto& pipeline = shader->GetPass(j).pipeline;
-                        //driver.draw(pipeline, primitive);
+                        driver.draw(pipeline, primitive);
                     }
                 }
             }

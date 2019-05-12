@@ -215,17 +215,119 @@ namespace Viry3D
             }
         }
         
+        auto& driver = Engine::Instance()->GetDriverApi();
         
+        for (int i = 0; i < m_unifrom_buffers.Size(); ++i)
+        {
+            auto& unifrom_buffers = m_unifrom_buffers[i];
+            
+            for (int j = 0; j < unifrom_buffers.Size(); ++j)
+            {
+                auto& unifrom_buffer = unifrom_buffers[j];
+                
+                if (unifrom_buffer.dirty)
+                {
+                    unifrom_buffer.dirty = false;
+                    
+                    void* buffer = Memory::Alloc<void>(unifrom_buffer.buffer.Size());
+                    Memory::Copy(buffer, unifrom_buffer.buffer.Bytes(), unifrom_buffer.buffer.Size());
+                    driver.loadUniformBuffer(unifrom_buffer.uniform_buffer, filament::backend::BufferDescriptor(buffer, unifrom_buffer.buffer.Size(), FreeBufferCallback));
+                }
+            }
+        }
+        
+        for (int i = 0; i < m_samplers.Size(); ++i)
+        {
+            auto& sampler_group = m_samplers[i];
+            
+            if (sampler_group.dirty)
+            {
+                sampler_group.dirty = false;
+                
+                filament::backend::SamplerGroup samplers(sampler_group.samplers.Size());
+                for (int j = 0; j < sampler_group.samplers.Size(); ++j)
+                {
+                    const auto& sampler = sampler_group.samplers[j];
+                    
+                    if (sampler.texture)
+                    {
+                        samplers.setSampler(sampler.binding, sampler.texture->GetTexture(), sampler.texture->GetSampler());
+                    }
+                    else
+                    {
+                        const auto& default_texture = Texture::GetSharedWhiteTexture();
+                        samplers.setSampler(sampler.binding, default_texture->GetTexture(), default_texture->GetSampler());
+                    }
+                }
+                driver.updateSamplerGroup(sampler_group.sampler_group, std::move(samplers));
+            }
+        }
     }
     
     void Material::UpdateUniformMember(const String& name, const void* data, int size)
     {
+        auto& driver = Engine::Instance()->GetDriverApi();
         
+        for (int i = 0; i < m_shader->GetPassCount(); ++i)
+        {
+            const auto& pass = m_shader->GetPass(i);
+            
+            for (int j = 0; j < pass.uniforms.Size(); ++j)
+            {
+                const auto& uniform = pass.uniforms[j];
+                
+                for (int k = 0; k < uniform.members.Size(); ++k)
+                {
+                    const auto& member = uniform.members[k];
+                    
+                    if (name == member.name)
+                    {
+                        auto& unifrom_buffer = m_unifrom_buffers[i][uniform.binding];
+                        
+                        if (!unifrom_buffer.uniform_buffer)
+                        {
+                            unifrom_buffer.uniform_buffer = driver.createUniformBuffer(uniform.size, filament::backend::BufferUsage::DYNAMIC);
+                            unifrom_buffer.buffer = ByteBuffer(uniform.size);
+                        }
+                        
+                        Memory::Copy(&unifrom_buffer.buffer[member.offset], data, size);
+                        
+                        unifrom_buffer.dirty = true;
+                    }
+                }
+            }
+        }
     }
     
     void Material::UpdateUniformTexture(const String& name, const Ref<Texture>& texture)
     {
+        auto& driver = Engine::Instance()->GetDriverApi();
         
+        for (int i = 0; i < m_shader->GetPassCount(); ++i)
+        {
+            const auto& pass = m_shader->GetPass(i);
+            
+            for (int j = 0; j < pass.samplers.Size(); ++j)
+            {
+                const auto& sampler = pass.samplers[j];
+                
+                if (name == sampler.name)
+                {
+                    auto& sampler_group = m_samplers[i];
+                    
+                    if (!sampler_group.sampler_group)
+                    {
+                        sampler_group.sampler_group = driver.createSamplerGroup(pass.samplers.Size());
+                        sampler_group.samplers.Resize(pass.samplers.Size());
+                    }
+                    
+                    sampler_group.samplers[j].binding = sampler.binding;
+                    sampler_group.samplers[j].texture = texture;
+                    
+                    sampler_group.dirty = true;
+                }
+            }
+        }
     }
     
     void Material::Apply(const Camera* camera, int pass)

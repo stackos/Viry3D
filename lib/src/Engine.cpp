@@ -233,7 +233,6 @@ namespace Viry3D
 		void Render()
 		{
 			Camera::RenderAll();
-			RenderTest();
 			this->Flush();
 		}
 
@@ -296,93 +295,6 @@ namespace Viry3D
             m_actions.Clear();
             m_mutex.unlock();
         }
-        
-		// test
-		Ref<Mesh> m_mesh;
-		backend::UniformBufferHandle m_ub_world;
-		backend::UniformBufferHandle m_ub_vp;
-        backend::SamplerGroupHandle m_samplers;
-        backend::TextureHandle m_texture;
-		// material
-		// texture
-		// renderer
-
-		void InitTest()
-		{
-			auto& driver = this->GetDriverApi();
-
-			m_mesh = Mesh::LoadFromFile(this->GetDataPath() + "/Library/unity default resources.Cube.mesh");
-
-			m_ub_world = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
-			m_ub_vp = driver.createUniformBuffer(sizeof(Matrix4x4), backend::BufferUsage::DYNAMIC);
-
-			m_samplers = driver.createSamplerGroup(2);
-            
-            Ref<Image> image = Image::LoadFromFile(this->GetDataPath() + "/texture/logo.jpg");
-            m_texture = driver.createTexture(backend::SamplerType::SAMPLER_2D, 1, backend::TextureFormat::RGBA8, 1, image->width, image->height, 1, backend::TextureUsage::DEFAULT);
-            void* buffer = malloc(image->data.Size());
-            memcpy(buffer, image->data.Bytes(), image->data.Size());
-            auto data = backend::PixelBufferDescriptor(buffer, image->data.Size(),
-                                                backend::PixelDataFormat::RGBA, backend::PixelDataType::UBYTE,
-                                                FreeBufferCallback);
-            driver.update2DImage(m_texture, 0, 0, 0, image->width, image->height, std::move(data));
-
-			backend::SamplerGroup samplers(1);
-			samplers.setSampler(0, m_texture, backend::SamplerParams());
-			driver.updateSamplerGroup(m_samplers, std::move(samplers));
-		}
-
-		void ShutdownTest()
-		{
-			auto& driver = this->GetDriverApi();
-
-            driver.destroyTexture(m_texture);
-            driver.destroySamplerGroup(m_samplers);
-			driver.destroyUniformBuffer(m_ub_world);
-			driver.destroyUniformBuffer(m_ub_vp);
-			m_mesh.reset();
-		}
-
-		void RenderTest()
-		{
-			auto& driver = this->GetDriverApi();
-
-			{
-				static float deg = 0;
-				deg += 1;
-				Matrix4x4 world = Matrix4x4::Rotation(Quaternion::Euler(deg, deg, 0));
-				void* buffer = malloc(sizeof(world));
-				memcpy(buffer, &world, sizeof(world));
-				driver.loadUniformBuffer(m_ub_world, backend::BufferDescriptor(buffer, sizeof(world), FreeBufferCallback));
-
-				Matrix4x4 vp = Matrix4x4::Identity();
-				buffer = malloc(sizeof(vp));
-				memcpy(buffer, &vp, sizeof(vp));
-				driver.loadUniformBuffer(m_ub_vp, backend::BufferDescriptor(buffer, sizeof(vp), FreeBufferCallback));
-			}
-
-			backend::RenderTargetHandle target = m_render_target;
-			backend::RenderPassParams params;
-			params.flags.clear = backend::TargetBufferFlags::COLOR;
-			params.flags.discardStart = backend::TargetBufferFlags::ALL;
-			params.flags.discardEnd = backend::TargetBufferFlags::DEPTH_AND_STENCIL;
-			params.viewport = { 0, 0, (uint32_t) m_width, (uint32_t) m_height };
-			params.clearColor = math::float4(0, 0, 0, 1);
-
-			const auto& pipeline = Shader::Find("Unlit/Texture")->GetPass(0).pipeline;
-			
-			driver.beginRenderPass(target, params);
-			{
-				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRenderer, m_ub_world);
-				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerView, m_ub_vp);
-                driver.bindSamplers((size_t) Shader::BindingPoint::PerMaterialInstance, m_samplers);
-				driver.setViewportScissor(0, 0, m_width, m_height);
-				driver.draw(pipeline, m_mesh->GetPrimitive(0));
-			}
-			driver.endRenderPass();
-
-			driver.flush();
-		}
         
 #if VR_WINDOWS
         const String& GetDataPath()
@@ -524,6 +436,8 @@ namespace Viry3D
 			m_window_flags = flags;
 
 			m_swap_chain = this->GetDriverApi().createSwapChain(m_native_window, m_window_flags);
+            
+            Camera::OnResizeAll(m_width, m_height);
 		}
 	};
 
@@ -672,14 +586,4 @@ namespace Viry3D
     {
         m_private->PostAction(action);
     }
-    
-	void Engine::InitTest()
-	{
-		m_private->InitTest();
-	}
-
-	void Engine::ShutdownTest()
-	{
-		m_private->ShutdownTest();
-	}
 }

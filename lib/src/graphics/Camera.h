@@ -33,6 +33,7 @@ namespace Viry3D
     {
     public:
 		static void RenderAll();
+        static void OnResizeAll(int width, int height);
 		Camera();
         virtual ~Camera();
 		int GetDepth() const { return m_depth; }
@@ -67,6 +68,7 @@ namespace Viry3D
 		int GetTargetHeight() const;
 
 	private:
+        void OnResize(int width, int height);
         void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);
         void Prepare(const List<Renderer*>& renderers);
         void PrepareRenderer(Renderer* renderer);
