@@ -123,6 +123,7 @@ struct VulkanTexture : public HwTexture {
             int miplevel);
     void updateCubeImage(const PixelBufferDescriptor& data, const FaceOffsets& faceOffsets,
             int miplevel);
+	void generateMipmaps();
 
     // Issues a barrier that transforms the layout of the image, e.g. from a CPU-writeable
     // layout to a GPU-readable layout.

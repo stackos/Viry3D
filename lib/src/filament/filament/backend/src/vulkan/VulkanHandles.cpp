@@ -19,6 +19,7 @@
 #include "DataReshaper.h"
 
 #include <utils/Panic.h>
+#include <algorithm>
 
 #define FILAMENT_VULKAN_VERBOSE 0
 
@@ -411,7 +412,7 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
 	imageInfo.format = vkformat;
 	imageInfo.mipLevels = levels;
 	imageInfo.arrayLayers = 1;
-	imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+	imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 
     if (target == SamplerType::SAMPLER_CUBEMAP) {
@@ -583,6 +584,65 @@ void VulkanTexture::updateCubeImage(const PixelBufferDescriptor& data,
         copyToDevice(mContext.work);
         flushWorkCommandBuffer(mContext);
     }
+}
+
+void VulkanTexture::generateMipmaps() {
+	int mipLevelCount = (int) floor(log2(float(std::max(this->width, this->height)))) + 1;
+	int layerCount = (target == SamplerType::SAMPLER_CUBEMAP ? 6 : 1);
+
+	auto blit = [this, mipLevelCount, layerCount] (VulkanCommandBuffer& commands) {
+		transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 0, layerCount);
+
+		for (int i = 1; i < mipLevelCount; ++i) {
+			transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_UNDEFINED,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, i, layerCount);
+
+			VkImageBlit region = { };
+			region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			region.srcSubresource.mipLevel = i - 1;
+			region.srcSubresource.layerCount = layerCount;
+			region.srcOffsets[1].x = std::max(this->width >> (i - 1), 1u);
+			region.srcOffsets[1].y = std::max(this->height >> (i - 1), 1u);
+			region.srcOffsets[1].z = 1;
+			region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			region.dstSubresource.mipLevel = i;
+			region.dstSubresource.layerCount = layerCount;
+			region.dstOffsets[1].x = std::max(this->width >> i, 1u);
+			region.dstOffsets[1].y = std::max(this->height >> i, 1u);
+			region.dstOffsets[1].z = 1;
+
+			vkCmdBlitImage(
+				commands.cmdbuffer,
+				textureImage,
+				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				textureImage,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				1,
+				&region,
+				VK_FILTER_LINEAR);
+
+			if (i == mipLevelCount - 1) {
+				transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, i, layerCount);
+			} else {
+				transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, i, layerCount);
+			}
+			
+			transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, i - 1, layerCount);
+		}
+	};
+
+	// If inside beginFrame / endFrame, use the swap context, otherwise use the work cmdbuffer.
+	if (mContext.currentCommands) {
+		blit(*mContext.currentCommands);
+	} else {
+		acquireWorkCommandBuffer(mContext);
+		blit(mContext.work);
+		flushWorkCommandBuffer(mContext);
+	}
 }
 
 void VulkanTexture::transitionImageLayout(VkCommandBuffer cmd, VkImage image,

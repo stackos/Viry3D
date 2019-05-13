@@ -643,10 +643,12 @@ void VulkanDriver::setExternalImage(Handle<HwTexture> th, void* image) {
 void VulkanDriver::setExternalStream(Handle<HwTexture> th, Handle<HwStream> sh) {
 }
 
-void VulkanDriver::generateMipmaps(Handle<HwTexture> th) { }
+void VulkanDriver::generateMipmaps(Handle<HwTexture> th) {
+	handle_cast<VulkanTexture>(mHandleMap, th)->generateMipmaps();
+}
 
 bool VulkanDriver::canGenerateMipmaps() {
-    return false;
+    return true;
 }
 
 void VulkanDriver::loadUniformBuffer(Handle<HwUniformBuffer> ubh, BufferDescriptor&& data) {

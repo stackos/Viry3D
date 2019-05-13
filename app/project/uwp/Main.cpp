@@ -399,14 +399,12 @@ namespace app
 			m_engine = Viry3D::Engine::Create(nullptr, g_egl_width, g_egl_height);
 			m_engine->SetDataPath(data_path);
 			m_engine->SetSavePath(save_path);
-			m_engine->InitTest();
         }
 
         void DoneRenderer()
         {
 			if (m_engine)
 			{
-				m_engine->ShutdownTest();
 				Viry3D::Engine::Destroy(&m_engine);
 			}
         }
