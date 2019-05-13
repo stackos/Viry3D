@@ -23,7 +23,7 @@
 
 namespace Viry3D
 {
-    enum class CurvePropertyType
+    enum class AnimationCurvePropertyType
     {
         Unknown = 0,
 
@@ -37,13 +37,20 @@ namespace Viry3D
         LocalScaleX,
         LocalScaleY,
         LocalScaleZ,
+        BlendShape,
+    };
+    
+    struct AnimationCurveProperty
+    {
+        AnimationCurvePropertyType type;
+        String name;
+        AnimationCurve curve;
     };
 
     struct AnimationCurveWrapper
     {
         String path;
-        Vector<CurvePropertyType> property_types;
-        Vector<AnimationCurve> curves;
+        Vector<AnimationCurveProperty> properties;
     };
 
     enum class AnimationWrapMode

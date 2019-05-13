@@ -112,6 +112,44 @@ namespace Viry3D
                 ms.Read(&(*bindposes)[0], bindposes->SizeInBytes());
             }
             
+            int blend_shape_count = ms.Read<int>();
+            if (blend_shape_count > 0)
+            {
+                Vector<Vector3>* delta_vertices = new Vector<Vector3>(vertex_count);
+                Vector<Vector3>* delta_normals = new Vector<Vector3>(normal_count);
+                Vector<Vector3>* delta_tangents = new Vector<Vector3>(tangent_count);
+                
+                for (int i = 0; i < blend_shape_count; ++i)
+                {
+                    int string_size = ms.Read<int>();
+                    String shape_name = ms.ReadString(string_size);
+                    int frame_count = ms.Read<int>();
+                    for (int j = 0; j < frame_count; ++j)
+                    {
+                        float frame_weight = ms.Read<float>();
+                        
+                        if (vertex_count > 0)
+                        {
+                            ms.Read(&(*delta_vertices)[0], delta_vertices->SizeInBytes());
+                        }
+                        
+                        if (normal_count > 0)
+                        {
+                            ms.Read(&(*delta_normals)[0], delta_normals->SizeInBytes());
+                        }
+                        
+                        if (tangent_count > 0)
+                        {
+                            ms.Read(&(*delta_tangents)[0], delta_tangents->SizeInBytes());
+                        }
+                    }
+                }
+                
+                delete delta_vertices;
+                delete delta_normals;
+                delete delta_tangents;
+            }
+            
             mesh = RefMake<Mesh>(*vertices, *indices, *submeshes);
             mesh->SetName(mesh_name);
             mesh->SetBindposes(*bindposes);

@@ -212,57 +212,60 @@ namespace Viry3D
             bool set_rot = false;
             bool set_scale = false;
 
-            for (int j = 0; j < curve.property_types.Size(); ++j)
+            for (int j = 0; j < curve.properties.Size(); ++j)
             {
-                auto type = curve.property_types[j];
-                float value = curve.curves[j].Evaluate(time);
+                auto type = curve.properties[j].type;
+                float value = curve.properties[j].curve.Evaluate(time);
 
                 switch (type)
                 {
-                    case CurvePropertyType::LocalPositionX:
+                    case AnimationCurvePropertyType::LocalPositionX:
                         local_pos.x = value;
                         set_pos = true;
                         break;
-                    case CurvePropertyType::LocalPositionY:
+                    case AnimationCurvePropertyType::LocalPositionY:
                         local_pos.y = value;
                         set_pos = true;
                         break;
-                    case CurvePropertyType::LocalPositionZ:
+                    case AnimationCurvePropertyType::LocalPositionZ:
                         local_pos.z = value;
                         set_pos = true;
                         break;
 
-                    case CurvePropertyType::LocalRotationX:
+                    case AnimationCurvePropertyType::LocalRotationX:
                         local_rot.x = value;
                         set_rot = true;
                         break;
-                    case CurvePropertyType::LocalRotationY:
+                    case AnimationCurvePropertyType::LocalRotationY:
                         local_rot.y = value;
                         set_rot = true;
                         break;
-                    case CurvePropertyType::LocalRotationZ:
+                    case AnimationCurvePropertyType::LocalRotationZ:
                         local_rot.z = value;
                         set_rot = true;
                         break;
-                    case CurvePropertyType::LocalRotationW:
+                    case AnimationCurvePropertyType::LocalRotationW:
                         local_rot.w = value;
                         set_rot = true;
                         break;
 
-                    case CurvePropertyType::LocalScaleX:
+                    case AnimationCurvePropertyType::LocalScaleX:
                         local_scale.x = value;
                         set_scale = true;
                         break;
-                    case CurvePropertyType::LocalScaleY:
+                    case AnimationCurvePropertyType::LocalScaleY:
                         local_scale.y = value;
                         set_scale = true;
                         break;
-                    case CurvePropertyType::LocalScaleZ:
+                    case AnimationCurvePropertyType::LocalScaleZ:
                         local_scale.z = value;
                         set_scale = true;
                         break;
+                        
+                    case AnimationCurvePropertyType::BlendShape:
+                        break;
 
-                    case CurvePropertyType::Unknown:
+                    case AnimationCurvePropertyType::Unknown:
                         break;
                 }
             }
