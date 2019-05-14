@@ -291,6 +291,8 @@ namespace Viry3D
                             unifrom_buffer.buffer = ByteBuffer(uniform.size);
                         }
                         
+                        assert(size <= member.size);
+                        
                         Memory::Copy(&unifrom_buffer.buffer[member.offset], data, size);
                         
                         unifrom_buffer.dirty = true;

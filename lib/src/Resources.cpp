@@ -143,15 +143,23 @@ namespace Viry3D
 
             String material_name = ReadString(ms);
             String shader_name = ReadString(ms);
-            int property_count = ms.Read<int>();
-
-            Ref<Shader> shader = Shader::Find(shader_name);
+            
+            int keyword_count = ms.Read<int>();
+            Vector<String> keywords;
+            for (int i = 0; i < keyword_count; ++i)
+            {
+                String keyword = ReadString(ms);
+                keywords.Add(keyword);
+            }
+            
+            Ref<Shader> shader = Shader::Find(shader_name, keywords);
             if (shader)
             {
                 material = RefMake<Material>(shader);
                 material->SetName(material_name);
             }
-
+            
+            int property_count = ms.Read<int>();
             for (int i = 0; i < property_count; ++i)
             {
                 String property_name = ReadString(ms);

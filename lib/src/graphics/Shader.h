@@ -45,14 +45,14 @@ namespace Viry3D
 
 		enum class AttributeLocation
 		{
-			Vertex = 0,
+			Position = 0,
 			Color = 1,
-			Texcoord = 2,
-			Texcoord2 = 3,
+			UV = 2,
+			UV2 = 3,
 			Normal = 4,
 			Tangent = 5,
-			BlendWeight = 6,
-			BlendIndices = 7,
+			BoneWeights = 6,
+			BoneIndices = 7,
 
 			Count = filament::backend::MAX_VERTEX_ATTRIBUTE_COUNT
 		};

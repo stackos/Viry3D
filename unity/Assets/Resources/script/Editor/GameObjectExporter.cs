@@ -309,12 +309,18 @@ public class GameObjectExporter
         bw.Write((byte) (renderer.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.Off ? 0 : 1));
         bw.Write((byte) (renderer.receiveShadows ? 1 : 0));
 
+        List<string> keywords = new List<string>();
+        if (com is SkinnedMeshRenderer)
+        {
+            keywords.Add("SKIN_ON");
+        }
+
         bw.Write(materials.Length);
         for (int i = 0; i < materials.Length; ++i)
         {
             if (materials[i])
             {
-                WriteMaterial(materials[i]);
+                WriteMaterial(materials[i], keywords);
             }
             else
             {
@@ -656,7 +662,7 @@ public class GameObjectExporter
         bw = bw_save;
     }
 
-    static void WriteMaterial(Material material)
+    static void WriteMaterial(Material material, List<string> keywords)
     {
         string asset_path = AssetDatabase.GetAssetPath(material);
         if (asset_path.StartsWith("Assets/"))
@@ -684,8 +690,14 @@ public class GameObjectExporter
 
         WriteString(material.name);
         WriteString(shader.name);
-        bw.Write(property_count);
 
+        bw.Write(keywords.Count);
+        for (int i = 0; i < keywords.Count; ++i)
+        {
+            WriteString(keywords[i]);
+        }
+
+        bw.Write(property_count);
         for (int i = 0; i < property_count; ++i)
         {
             var property_name = ShaderUtil.GetPropertyName(shader, i);

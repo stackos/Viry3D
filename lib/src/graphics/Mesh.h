@@ -31,13 +31,13 @@ namespace Viry3D
     public:
         struct Vertex
         {
-            Vector3 vertex;
+            Vector3 position;
             Color color;
             Vector2 uv;
             Vector2 uv2;
             Vector3 normal;
             Vector4 tangent;
-            Vector4 bone_weight;
+            Vector4 bone_weights;
             Vector4 bone_indices;
         };
         

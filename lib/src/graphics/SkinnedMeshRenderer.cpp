@@ -17,6 +17,7 @@
 
 #include "SkinnedMeshRenderer.h"
 #include "GameObject.h"
+#include "Engine.h"
 #include "Debug.h"
 
 namespace Viry3D
@@ -28,7 +29,12 @@ namespace Viry3D
 
     SkinnedMeshRenderer::~SkinnedMeshRenderer()
     {
-
+        auto& driver = Engine::Instance()->GetDriverApi();
+        
+        if (m_bones_uniform_buffer)
+        {
+            driver.destroyUniformBuffer(m_bones_uniform_buffer);
+        }
     }
 
     void SkinnedMeshRenderer::FindBones()
@@ -81,10 +87,21 @@ namespace Viry3D
                 bone_vectors[i * 3 + 2] = mat.GetRow(2);
             }
 
-			for (int i = 0; i < materials.Size(); ++i)
-			{
-				materials[i]->SetVectorArray("u_bones", bone_vectors);
-			}
+            auto& driver = Engine::Instance()->GetDriverApi();
+            if (!m_bones_uniform_buffer)
+            {
+                m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(Vector4) * bone_max * 3, filament::backend::BufferUsage::DYNAMIC);
+            }
+            void* buffer = Memory::Alloc<void>(bone_vectors.SizeInBytes());
+            Memory::Copy(buffer, bone_vectors.Bytes(), bone_vectors.SizeInBytes());
+            driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, bone_vectors.SizeInBytes(), FreeBufferCallback));
+        }
+        else
+        {
+            if (m_bone_paths.Size() == 0)
+            {
+                Log("%s bones empty", this->GetName().CString());
+            }
         }
     }
 }

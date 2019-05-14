@@ -49,16 +49,18 @@ namespace Viry3D
         material->SetTexture("u_texture", texture);
         
 		auto camera = GameObject::Create("")->AddComponent<Camera>();
-        camera->GetTransform()->SetPosition(Vector3(0, 0.6f, 3));
+        camera->GetTransform()->SetPosition(Vector3(0, 0.5f, 3));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
 
         auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+        renderer->GetTransform()->SetPosition(Vector3(1, 0.5f, 0));
         renderer->SetMesh(mesh);
         renderer->SetMaterial(material);
         
         cube = renderer.get();
 
 		auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
+        obj->GetTransform()->SetPosition(Vector3(-1, 0, 0));
 		anim = obj.get();
     }
     

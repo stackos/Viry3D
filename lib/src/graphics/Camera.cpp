@@ -21,6 +21,7 @@
 #include "Engine.h"
 #include "Renderer.h"
 #include "Material.h"
+#include "SkinnedMeshRenderer.h"
 
 namespace Viry3D
 {
@@ -223,6 +224,12 @@ namespace Viry3D
     void Camera::DrawRenderer(Renderer* renderer)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
+        
+        SkinnedMeshRenderer* skin = dynamic_cast<SkinnedMeshRenderer*>(renderer);
+        if (skin && skin->GetBonesUniformBuffer())
+        {
+            driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBonesUniformBuffer());
+        }
         
         const auto& materials = renderer->GetMaterials();
         for (int i = 0; i < materials.Size(); ++i)

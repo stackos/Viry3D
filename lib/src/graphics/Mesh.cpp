@@ -46,7 +46,7 @@ namespace Viry3D
 
             for (int i = 0; i < vertex_count; ++i)
             {
-                (*vertices)[i].vertex = ms.Read<Vector3>();
+                (*vertices)[i].position = ms.Read<Vector3>();
             }
 
             int color_count = ms.Read<int>();
@@ -86,7 +86,7 @@ namespace Viry3D
             int bone_weight_count = ms.Read<int>();
             for (int i = 0; i < bone_weight_count; ++i)
             {
-                (*vertices)[i].bone_weight = ms.Read<Vector4>();
+                (*vertices)[i].bone_weights = ms.Read<Vector4>();
                 float index0 = (float) ms.Read<byte>();
                 float index1 = (float) ms.Read<byte>();
                 float index2 = (float) ms.Read<byte>();
@@ -193,9 +193,8 @@ namespace Viry3D
         }
         
         int sizes[] = {
-            sizeof(Vertex::vertex), sizeof(Vertex::color), sizeof(Vertex::uv), sizeof(Vertex::uv2),
-            sizeof(Vertex::normal), sizeof(Vertex::tangent), sizeof(Vertex::bone_weight), sizeof(Vertex::bone_indices)
-            
+            sizeof(Vertex::position), sizeof(Vertex::color), sizeof(Vertex::uv), sizeof(Vertex::uv2),
+            sizeof(Vertex::normal), sizeof(Vertex::tangent), sizeof(Vertex::bone_weights), sizeof(Vertex::bone_indices)
         };
         filament::backend::ElementType types[] = {
             filament::backend::ElementType::FLOAT3,
@@ -294,14 +293,14 @@ namespace Viry3D
         m_primitives.Clear();
         
         uint32_t enabled_attributes =
-            (1 << (int) Shader::AttributeLocation::Vertex) |
+            (1 << (int) Shader::AttributeLocation::Position) |
             (1 << (int) Shader::AttributeLocation::Color) |
-            (1 << (int) Shader::AttributeLocation::Texcoord) |
-            (1 << (int) Shader::AttributeLocation::Texcoord2) |
+            (1 << (int) Shader::AttributeLocation::UV) |
+            (1 << (int) Shader::AttributeLocation::UV2) |
             (1 << (int) Shader::AttributeLocation::Normal) |
             (1 << (int) Shader::AttributeLocation::Tangent) |
-            (1 << (int) Shader::AttributeLocation::BlendWeight) |
-            (1 << (int) Shader::AttributeLocation::BlendIndices);
+            (1 << (int) Shader::AttributeLocation::BoneWeights) |
+            (1 << (int) Shader::AttributeLocation::BoneIndices);
         
         m_primitives.Resize(m_submeshes.Size());
         for (int i = 0; i < m_submeshes.Size(); ++i)

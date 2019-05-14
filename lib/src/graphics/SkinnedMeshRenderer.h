@@ -30,6 +30,7 @@ namespace Viry3D
         void SetBonePaths(const Vector<String>& bones) { m_bone_paths = bones; }
         Ref<Transform> GetBonesRoot() const { return m_bones_root.lock(); }
         void SetBonesRoot(const Ref<Transform>& node) { m_bones_root = node; }
+        const filament::backend::UniformBufferHandle& GetBonesUniformBuffer() const { return m_bones_uniform_buffer; }
 
 	protected:
 		virtual void Update();
@@ -41,5 +42,6 @@ namespace Viry3D
         Vector<String> m_bone_paths;
         WeakRef<Transform> m_bones_root;
         Vector<WeakRef<Transform>> m_bones;
+        filament::backend::UniformBufferHandle m_bones_uniform_buffer;
     };
 }
