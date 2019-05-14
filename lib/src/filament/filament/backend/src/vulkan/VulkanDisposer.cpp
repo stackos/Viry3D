@@ -15,6 +15,7 @@
  */
 
 #include "vulkan/VulkanDisposer.h"
+#include <assert.h>
 
 namespace filament {
 namespace backend {
@@ -24,17 +25,25 @@ void VulkanDisposer::createDisposable(Key resource, std::function<void()> destru
 }
 
 void VulkanDisposer::addReference(Key resource) noexcept {
-    assert(mDisposables[resource].refcount > 0);
-    ++mDisposables[resource].refcount;
+	assert(mDisposables.count(resource) > 0);
+	auto& ptr = mDisposables[resource];
+	assert(ptr.refcount > 0);
+
+    ++ptr.refcount;
 }
 
 void VulkanDisposer::removeReference(Key resource) noexcept {
-    assert(mDisposables[resource].refcount > 0);
-    if (--mDisposables[resource].refcount == 0) {
-        mGraveyard.emplace_back(std::move(mDisposables[resource]));
+	assert(mDisposables.count(resource) > 0);
+	auto& ptr = mDisposables[resource];
+	assert(ptr.refcount > 0);
+
+	--ptr.refcount;
+    if (ptr.refcount == 0) {
+        mGraveyard.emplace_back(std::move(ptr));
         mDisposables.erase(resource);
     }
 }
+
 void VulkanDisposer::acquire(Key resource, Set& resources) noexcept {
     auto iter = resources.find(resource);
     if (iter == resources.end()) {

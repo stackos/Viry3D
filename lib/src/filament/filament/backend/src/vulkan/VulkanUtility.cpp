@@ -123,8 +123,7 @@ VkFormat getVkFormat(TextureFormat format) {
         case TextureFormat::RGB8UI:            return VK_FORMAT_R8G8B8A8_UINT;
         case TextureFormat::RGB8I:             return VK_FORMAT_R8G8B8A8_SINT;
 
-        case TextureFormat::DEPTH24:
-            return VK_FORMAT_UNDEFINED;
+        case TextureFormat::DEPTH24:		   return VK_FORMAT_X8_D24_UNORM_PACK32;
 
         // 32 bits per element.
         case TextureFormat::R32F:              return VK_FORMAT_R32_SFLOAT;

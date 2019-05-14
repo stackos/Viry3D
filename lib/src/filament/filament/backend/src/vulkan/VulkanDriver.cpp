@@ -679,6 +679,13 @@ void VulkanDriver::beginRenderPass(Handle<HwRenderTarget> rth,
 
     mDisposer.acquire(rt, mContext.currentCommands->resources);
 
+	if (!rt->isOffscreen()) {
+		if (rt->getDepth().format == VK_FORMAT_UNDEFINED) {
+			// create depth image for default render target
+			rt->createDepthImage(mContext.depthFormat);
+		}
+	}
+
     const auto color = rt->getColor();
     const auto depth = rt->getDepth();
     const bool hasColor = color.format != VK_FORMAT_UNDEFINED;

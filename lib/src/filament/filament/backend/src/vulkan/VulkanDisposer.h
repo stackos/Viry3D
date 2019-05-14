@@ -17,8 +17,11 @@
 #ifndef TNT_FILAMENT_DRIVER_VULKANDISPOSER_H
 #define TNT_FILAMENT_DRIVER_VULKANDISPOSER_H
 
-#include <tsl/robin_map.h>
-#include <tsl/robin_set.h>
+//#include <tsl/robin_map.h>
+//#include <tsl/robin_set.h>
+
+#include <unordered_map>
+#include <unordered_set>
 
 #include <functional>
 #include <memory>
@@ -35,7 +38,8 @@ namespace backend {
 class VulkanDisposer {
 public:
     using Key = const void*;
-    using Set = tsl::robin_set<Key>;
+    //using Set = tsl::robin_set<Key>;
+	using Set = std::unordered_set<Key>;
 
     // Adds the given resource to the disposer and sets its reference count to 1.
     void createDisposable(Key resource, std::function<void()> destructor) noexcept;
@@ -64,7 +68,8 @@ private:
         size_t refcount = 1;
         std::function<void()> destructor;
     };
-    tsl::robin_map<Key, Disposable> mDisposables;
+    //tsl::robin_map<Key, Disposable> mDisposables;
+	std::unordered_map<Key, Disposable> mDisposables;
     std::vector<Disposable> mGraveyard;
 };
 

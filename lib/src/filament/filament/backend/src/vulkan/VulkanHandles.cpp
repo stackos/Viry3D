@@ -156,7 +156,7 @@ VulkanAttachment VulkanRenderTarget::getColor() const {
 }
 
 VulkanAttachment VulkanRenderTarget::getDepth() const {
-    return mOffscreen ? mDepth : VulkanAttachment {};
+    return mDepth;
 }
 
 void VulkanRenderTarget::createColorImage(VkFormat format) {
@@ -234,7 +234,13 @@ void VulkanRenderTarget::createColorImage(VkFormat format) {
 }
 
 void VulkanRenderTarget::createDepthImage(VkFormat format) {
-    assert(mOffscreen);
+	VkExtent2D extent;
+	if (mOffscreen) {
+		extent.width = width;
+		extent.height = height;
+	} else {
+		extent = mContext.currentSurface->surfaceCapabilities.currentExtent;
+	}
     this->mDepth.format = format;
     mSharedDepthImage = false;
     // Create an appropriately-sized device-only VkImage for the depth attachment.
@@ -242,7 +248,7 @@ void VulkanRenderTarget::createDepthImage(VkFormat format) {
 	VkImageCreateInfo depthImageInfo { };
 	depthImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	depthImageInfo.imageType = VK_IMAGE_TYPE_2D;
-	depthImageInfo.extent = { width, height, 1 };
+	depthImageInfo.extent = { extent.width, extent.height, 1 };
 	depthImageInfo.format = mDepth.format;
 	depthImageInfo.mipLevels = 1;
 	depthImageInfo.arrayLayers = 1;
@@ -422,6 +428,9 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
     if (usage & TextureUsage::COLOR_ATTACHMENT) {
         imageInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     }
+	if (usage & TextureUsage::DEPTH_ATTACHMENT) {
+		imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	}
     if (usage & TextureUsage::STENCIL_ATTACHMENT) {
         imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     }
@@ -429,9 +438,6 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
         // Uploadable textures can be used as a blit source (e.g. for mipmap generation)
         // therefore we must set both the TRANSFER_DST and TRANSFER_SRC flags.
         imageInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    }
-    if (usage & TextureUsage::DEPTH_ATTACHMENT) {
-        imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     }
 
     VkResult error = vkCreateImage(context.device, &imageInfo, VKALLOC, &textureImage);
@@ -464,7 +470,7 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     viewInfo.image = textureImage;
     viewInfo.format = vkformat;
-    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.aspectMask = 0;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = levels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -475,9 +481,16 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewInfo.subresourceRange.layerCount = 1;
     }
-    if (usage == TextureUsage::DEPTH_ATTACHMENT) {
-        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-    }
+	if ((usage & TextureUsage::DEPTH_ATTACHMENT) || (usage & TextureUsage::STENCIL_ATTACHMENT)) {
+		if (usage & TextureUsage::DEPTH_ATTACHMENT) {
+			viewInfo.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
+		if (usage & TextureUsage::STENCIL_ATTACHMENT) {
+			viewInfo.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+	} else {
+		viewInfo.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_COLOR_BIT;
+	}
     error = vkCreateImageView(context.device, &viewInfo, VKALLOC, &imageView);
     ASSERT_POSTCONDITION(!error, "Unable to create image view.");
 }
