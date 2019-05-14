@@ -106,6 +106,19 @@ namespace Viry3D
 		return find;
 	}
 
+	Ref<Transform> Transform::GetRoot() const
+	{
+		auto parent = this->GetParent();
+		if (parent)
+		{
+			return parent->GetRoot();
+		}
+		else
+		{
+			return this->GetGameObject()->GetTransform();
+		}
+	}
+
 	void Transform::SetLocalPosition(const Vector3& pos)
 	{
         m_local_position = pos;

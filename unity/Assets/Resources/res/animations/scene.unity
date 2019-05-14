@@ -2426,6 +2426,18 @@ Prefab:
       propertyPath: m_Name
       value: unitychan
       objectReference: {fileID: 0}
+    - target: {fileID: 1739741343016000, guid: 7322a073eec7c0347a4659c86ac8723c, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580158883389218, guid: 7322a073eec7c0347a4659c86ac8723c, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1303900439383358, guid: 7322a073eec7c0347a4659c86ac8723c, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7322a073eec7c0347a4659c86ac8723c, type: 2}
   m_IsPrefabAsset: 0
@@ -6028,6 +6040,22 @@ Prefab:
       propertyPath: m_Name
       value: avatar
       objectReference: {fileID: 0}
+    - target: {fileID: 13700004, guid: 2ab0893f5bba9b243b65e309e78089d0, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: b7ea6aee242ed8349816e5ad85f181a8, type: 2}
+    - target: {fileID: 13700004, guid: 2ab0893f5bba9b243b65e309e78089d0, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: c46b61d8956ccde45ae8a78ee57c2739, type: 2}
+    - target: {fileID: 2300002, guid: 2ab0893f5bba9b243b65e309e78089d0, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e4a12fd3405832f448a43cdddb4a4e87, type: 2}
+    - target: {fileID: 2300000, guid: 2ab0893f5bba9b243b65e309e78089d0, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e4a12fd3405832f448a43cdddb4a4e87, type: 2}
     m_RemovedComponents:
     - {fileID: 9500000, guid: 2ab0893f5bba9b243b65e309e78089d0, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 2ab0893f5bba9b243b65e309e78089d0, type: 3}

@@ -67,6 +67,7 @@ namespace Viry3D
     {
         auto obj = Scene::Instance()->GetGameObject(this);
         com->m_object = obj;
+		com->SetName(this->GetName());
     }
 
 	void GameObject::OnTransformDirty()
@@ -84,6 +85,16 @@ namespace Viry3D
 		}
 	}
     
+	void GameObject::SetLayer(int layer)
+	{
+		m_layer = layer;
+	}
+
+	void GameObject::SetActive(bool active)
+	{
+		m_is_active_self = active;
+	}
+
 	void GameObject::Update()
 	{
         for (int i = 0; i < m_components.Size(); ++i)

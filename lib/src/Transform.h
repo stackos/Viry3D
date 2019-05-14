@@ -34,6 +34,7 @@ namespace Viry3D
 		int GetChildCount() const { return m_children.Size(); }
 		const Ref<Transform>& GetChild(int index) const { return m_children[index]; }
 		Ref<Transform> Find(const String& path) const;
+		Ref<Transform> GetRoot() const;
 		const Vector3& GetLocalPosition() const { return m_local_position; }
 		void SetLocalPosition(const Vector3& pos);
 		const Quaternion& GetLocalRotation() const { return m_local_rotation; }

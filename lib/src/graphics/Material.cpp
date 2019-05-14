@@ -275,6 +275,7 @@ namespace Viry3D
             for (int j = 0; j < pass.uniforms.Size(); ++j)
             {
                 const auto& uniform = pass.uniforms[j];
+				bool find = false;
                 
                 for (int k = 0; k < uniform.members.Size(); ++k)
                 {
@@ -293,8 +294,16 @@ namespace Viry3D
                         Memory::Copy(&unifrom_buffer.buffer[member.offset], data, size);
                         
                         unifrom_buffer.dirty = true;
+
+						find = true;
+						break;
                     }
                 }
+
+				if (find)
+				{
+					break;
+				}
             }
         }
     }

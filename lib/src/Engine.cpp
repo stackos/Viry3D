@@ -24,6 +24,7 @@
 #include "Debug.h"
 #include "Input.h"
 #include "Scene.h"
+#include "Resources.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "graphics/Camera.h"
@@ -40,11 +41,6 @@
 #elif VR_ANDROID
 #include "android/jni.h"
 #endif
-
-// test
-#include "math/Matrix4x4.h"
-#include "graphics/Image.h"
-#include "graphics/Mesh.h"
 
 using namespace filament;
 
@@ -122,7 +118,7 @@ namespace Viry3D
 			m_command_stream = backend::CommandStream(*m_driver, m_command_buffer_queue.getCircularBuffer());
 			m_swap_chain = this->GetDriverApi().createSwapChain(m_native_window, m_window_flags);
 			m_render_target = this->GetDriverApi().createDefaultRenderTarget();
-            
+
             this->GetDataPath();
             this->GetSavePath();
             
@@ -133,12 +129,14 @@ namespace Viry3D
             Shader::Init();
             Texture::Init();
             AudioManager::Init();
+			Resources::Init();
 		}
 
 		void Shutdown()
 		{
             m_scene.reset();
             
+			Resources::Done();
             AudioManager::Done();
             Texture::Done();
             Shader::Done();
@@ -428,6 +426,7 @@ namespace Viry3D
 
 		void OnResize(void* native_window, int width, int height, uint64_t flags)
 		{
+			this->GetDriverApi().destroyRenderTarget(m_render_target);
 			this->GetDriverApi().destroySwapChain(m_swap_chain);
 
 			m_native_window = native_window;
@@ -436,7 +435,8 @@ namespace Viry3D
 			m_window_flags = flags;
 
 			m_swap_chain = this->GetDriverApi().createSwapChain(m_native_window, m_window_flags);
-            
+			m_render_target = this->GetDriverApi().createDefaultRenderTarget();
+
             Camera::OnResizeAll(m_width, m_height);
 		}
 	};

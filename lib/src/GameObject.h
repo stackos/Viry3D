@@ -34,10 +34,12 @@ namespace Viry3D
         template <class T> Ref<T> GetComponent() const;
         void RemoveComponent(const Ref<Component>& com);
         const Ref<Transform>& GetTransform() const { return m_transform; }
-		void Update();
         int GetLayer() const { return m_layer; }
+		void SetLayer(int layer);
 		bool IsActiveSelf() const { return m_is_active_self; }
+		void SetActive(bool active);
 		bool IsActiveInTree() const { return m_is_active_in_tree; }
+		void Update();
 		
 	private:
 		friend class Transform;

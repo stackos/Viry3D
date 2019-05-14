@@ -22,11 +22,13 @@
 #include "graphics/Camera.h"
 #include "graphics/MeshRenderer.h"
 #include "Engine.h"
+#include "Resources.h"
 
 namespace Viry3D
 {
     // test
     MeshRenderer* cube;
+	GameObject* anim;
     
 	Scene* Scene::m_instance = nullptr;
 
@@ -40,25 +42,24 @@ namespace Viry3D
 		m_instance = this;
 
         // test
-        auto mesh = Mesh::LoadFromFile(Engine::Instance()->GetDataPath() + "/Library/unity default resources.Cube.mesh");
-        
-        auto texture = Texture::LoadTexture2DFromFile(
-            Engine::Instance()->GetDataPath() + "/texture/logo.jpg",
-            FilterMode::Linear,
-            SamplerAddressMode::ClampToEdge,
-            true);
+        auto mesh = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
+        auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
         
         auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
         material->SetTexture("u_texture", texture);
         
 		auto camera = GameObject::Create("")->AddComponent<Camera>();
-        camera->GetTransform()->SetPosition(Vector3(0, 0, -3));
-        
+        camera->GetTransform()->SetPosition(Vector3(0, 0.6f, 3));
+		camera->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+
         auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
         renderer->SetMesh(mesh);
         renderer->SetMaterial(material);
         
         cube = renderer.get();
+
+		auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
+		anim = obj.get();
     }
     
     Scene::~Scene()
@@ -121,7 +122,8 @@ namespace Viry3D
         // test
         static float deg = 0;
         deg += 1.0f;
-        cube->GetTransform()->SetLocalRotation(Quaternion::Euler(deg, deg, deg));
+		cube->GetTransform()->SetLocalRotation(Quaternion::Euler(deg, deg, deg));
+		anim->GetTransform()->SetLocalRotation(Quaternion::Euler(0, deg, 0));
     }
     
     Ref<GameObject> Scene::GetGameObject(const GameObject* obj)
