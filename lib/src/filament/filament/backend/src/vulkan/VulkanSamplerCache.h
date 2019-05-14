@@ -20,7 +20,7 @@
 #include "VulkanContext.h"
 #include "VulkanUtility.h"
 
-#include <tsl/robin_map.h>
+#include <unordered_map>
 
 namespace filament {
 namespace backend {
@@ -33,7 +33,7 @@ public:
     void reset() noexcept;
 private:
     VulkanContext& mContext;
-    tsl::robin_map<uint32_t, VkSampler> mCache;
+	std::unordered_map<uint32_t, VkSampler> mCache;
 };
 
 } // namespace filament

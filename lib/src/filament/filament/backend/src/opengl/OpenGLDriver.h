@@ -26,7 +26,7 @@
 
 #include <math/vec4.h>
 
-#include <tsl/robin_map.h>
+#include <unordered_map>
 
 #include <set>
 
@@ -521,7 +521,7 @@ private:
     // sampler buffer binding points (nullptr if not used)
     std::array<backend::HwSamplerGroup*, backend::Program::SAMPLER_BINDING_COUNT> mSamplerBindings;   // 8 pointers
 
-    mutable tsl::robin_map<uint32_t, GLuint> mSamplerMap;
+    mutable std::unordered_map<uint32_t, GLuint> mSamplerMap;
     mutable std::vector<GLTexture*> mExternalStreams;
 
     // glGet*() values

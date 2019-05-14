@@ -49,7 +49,7 @@ VulkanFboCache::~VulkanFboCache() {
 VkFramebuffer VulkanFboCache::getFramebuffer(FboKey config, uint32_t w, uint32_t h) noexcept {
     auto iter = mFramebufferCache.find(config);
     if (UTILS_LIKELY(iter != mFramebufferCache.end() && iter->second.handle != VK_NULL_HANDLE)) {
-        iter.value().timestamp = mCurrentTime;
+        iter->second.timestamp = mCurrentTime;
         return iter->second.handle;
     }
     uint32_t nAttachments = 0;
@@ -78,7 +78,7 @@ VkFramebuffer VulkanFboCache::getFramebuffer(FboKey config, uint32_t w, uint32_t
 VkRenderPass VulkanFboCache::getRenderPass(RenderPassKey config) noexcept {
     auto iter = mRenderPassCache.find(config);
     if (UTILS_LIKELY(iter != mRenderPassCache.end() && iter->second.handle != VK_NULL_HANDLE)) {
-        iter.value().timestamp = mCurrentTime;
+        iter->second.timestamp = mCurrentTime;
         return iter->second.handle;
     }
     const bool hasColor = config.colorFormat != VK_FORMAT_UNDEFINED;
@@ -198,14 +198,14 @@ void VulkanFboCache::gc() noexcept {
     for (auto iter = mFramebufferCache.begin(); iter != mFramebufferCache.end(); ++iter) {
         if (iter->second.timestamp < evictTime) {
             vkDestroyFramebuffer(mContext.device, iter->second.handle, VKALLOC);
-            iter.value().handle = VK_NULL_HANDLE;
+            iter->second.handle = VK_NULL_HANDLE;
         }
     }
     for (auto iter = mRenderPassCache.begin(); iter != mRenderPassCache.end(); ++iter) {
         VkRenderPass handle = iter->second.handle;
         if (iter->second.timestamp < evictTime && mRenderPassRefCount[handle] == 0) {
             vkDestroyRenderPass(mContext.device, handle, VKALLOC);
-            iter.value().handle = VK_NULL_HANDLE;
+            iter->second.handle = VK_NULL_HANDLE;
         }
     }
 }

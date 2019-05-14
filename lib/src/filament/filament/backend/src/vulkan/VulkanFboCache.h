@@ -21,7 +21,7 @@
 
 #include <utils/Hash.h>
 
-#include <tsl/robin_map.h>
+#include <unordered_map>
 
 namespace filament {
 namespace backend {
@@ -100,9 +100,9 @@ public:
 
 private:
     VulkanContext& mContext;
-    tsl::robin_map<FboKey, FboVal, FboKeyHashFn, FboKeyEqualFn> mFramebufferCache;
-    tsl::robin_map<RenderPassKey, RenderPassVal, RenderPassHash, RenderPassEq> mRenderPassCache;
-    tsl::robin_map<VkRenderPass, uint32_t> mRenderPassRefCount;
+	std::unordered_map<FboKey, FboVal, FboKeyHashFn, FboKeyEqualFn> mFramebufferCache;
+	std::unordered_map<RenderPassKey, RenderPassVal, RenderPassHash, RenderPassEq> mRenderPassCache;
+	std::unordered_map<VkRenderPass, uint32_t> mRenderPassRefCount;
     uint32_t mCurrentTime = 0;
     static constexpr uint32_t TIME_BEFORE_EVICTION = 2;
 };

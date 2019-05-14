@@ -26,7 +26,7 @@
 #include <utils/compiler.h>
 #include <utils/Hash.h>
 
-#include <tsl/robin_map.h>
+#include <unordered_map>
 #include <vector>
 
 namespace filament {
@@ -254,8 +254,8 @@ private:
     // Cached Vulkan objects. These objects are owned by the Binder.
     VkDescriptorSetLayout mDescriptorSetLayouts[2] = {};
     VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
-    tsl::robin_map<PipelineKey, PipelineVal, PipelineHashFn, PipelineEqual> mPipelines;
-    tsl::robin_map<DescriptorKey, DescriptorVal, DescHashFn, DescEqual> mDescriptorSets;
+    std::unordered_map<PipelineKey, PipelineVal, PipelineHashFn, PipelineEqual> mPipelines;
+	std::unordered_map<DescriptorKey, DescriptorVal, DescHashFn, DescEqual> mDescriptorSets;
     VkDescriptorPool mDescriptorPool;
     std::vector<DescriptorVal> mDescriptorGraveyard;
 

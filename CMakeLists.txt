@@ -186,7 +186,6 @@ target_include_directories(Viry3DDep PRIVATE
 						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/math/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/include
-						   ${VIRY3D_LIB_SRC_DIR}/filament/third_party/robin-map
                            )
 
 file(GLOB VIRY3D_LIB_SRCS

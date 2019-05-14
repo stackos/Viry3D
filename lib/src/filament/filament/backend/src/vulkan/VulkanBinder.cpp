@@ -92,7 +92,7 @@ bool VulkanBinder::getOrCreateDescriptors(VkDescriptorSet descriptors[2],
     // value method for obtaining a stable reference.
     auto iter = mDescriptorSets.find(mDescriptorKey);
     if (UTILS_LIKELY(iter != mDescriptorSets.end())) {
-        mCurrentDescriptor = &iter.value();
+        mCurrentDescriptor = &iter->second;
         descriptors[0] = mCurrentDescriptor->handles[0];
         descriptors[1] = mCurrentDescriptor->handles[1];
         mCurrentDescriptor->timestamp = mCurrentTime;
@@ -122,7 +122,7 @@ bool VulkanBinder::getOrCreateDescriptors(VkDescriptorSet descriptors[2],
         { descriptors[0], descriptors[1] },
         mCurrentTime,
         true
-    })).first.value();
+    })).first->second;
     mDirtyDescriptor = false;
 
     // Mutate the descriptor by setting all non-null bindings.
@@ -193,7 +193,7 @@ bool VulkanBinder::getOrCreatePipeline(VkPipeline* pipeline) noexcept {
     // method for obtaining a stable reference.
     auto iter = mPipelines.find(mPipelineKey);
     if (UTILS_LIKELY(iter != mPipelines.end())) {
-        mCurrentPipeline = &iter.value();
+        mCurrentPipeline = &iter->second;
         *pipeline = mCurrentPipeline->handle;
         mCurrentPipeline->timestamp = mCurrentTime;
         mCurrentPipeline->bound = true;
@@ -279,7 +279,7 @@ bool VulkanBinder::getOrCreatePipeline(VkPipeline* pipeline) noexcept {
     // calls to getOrCreatePipeline when nothing has been dirtied. Note that the robin_map
     // iterator type proffers a "value" method, which returns a stable reference.
     mCurrentPipeline = &mPipelines.emplace(std::make_pair(mPipelineKey, PipelineVal {
-        *pipeline, mCurrentTime, true })).first.value();
+        *pipeline, mCurrentTime, true })).first->second;
     mDirtyPipeline = false;
     return true;
 }
