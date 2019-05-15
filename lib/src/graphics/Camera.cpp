@@ -97,24 +97,41 @@ namespace Viry3D
     
     void Camera::Prepare(const List<Renderer*>& renderers)
     {
+		this->UpdateViewUniforms();
+		
         for (auto i : renderers)
         {
             this->PrepareRenderer(i);
         }
     }
+
+	void Camera::UpdateViewUniforms()
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+		if (!m_view_uniform_buffer)
+		{
+			m_view_uniform_buffer = driver.createUniformBuffer(sizeof(Matrix4x4) * 2, filament::backend::BufferUsage::DYNAMIC);
+		}
+
+		Matrix4x4 view_uniforms[2];
+		view_uniforms[0] = this->GetViewMatrix();
+		view_uniforms[1] = this->GetProjectionMatrix();
+
+		void* buffer = Memory::Alloc<void>(sizeof(view_uniforms));
+		Memory::Copy(buffer, view_uniforms, sizeof(view_uniforms));
+		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(view_uniforms), FreeBufferCallback));
+	}
     
     void Camera::PrepareRenderer(Renderer* renderer)
     {
+		renderer->PrepareRender();
+
         const auto& materials = renderer->GetMaterials();
         for (int i = 0; i < materials.Size(); ++i)
         {
             auto& material = materials[i];
             if (material)
             {
-                material->SetMatrix(MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
-                material->SetMatrix(VIEW_MATRIX, this->GetViewMatrix());
-                material->SetMatrix(PROJECTION_MATRIX, this->GetProjectionMatrix());
-                
                 material->Prepare();
             }
         }
@@ -211,6 +228,8 @@ namespace Viry3D
 
 		driver.beginRenderPass(target, params);
 
+		driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerView, m_view_uniform_buffer);
+
         for (auto i : renderers)
         {
             this->DrawRenderer(i);
@@ -225,6 +244,8 @@ namespace Viry3D
     {
         auto& driver = Engine::Instance()->GetDriverApi();
         
+		driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRenderer, renderer->GetTransformUniformBuffer());
+
         SkinnedMeshRenderer* skin = dynamic_cast<SkinnedMeshRenderer*>(renderer);
         if (skin && skin->GetBonesUniformBuffer())
         {
@@ -275,7 +296,12 @@ namespace Viry3D
     
 	Camera::~Camera()
     {
-        
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		if (m_view_uniform_buffer)
+		{
+			driver.destroyUniformBuffer(m_view_uniform_buffer);
+		}
     }
 
 	void Camera::SetDepth(int depth)

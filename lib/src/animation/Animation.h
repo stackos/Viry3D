@@ -98,7 +98,7 @@ namespace Viry3D
         void SetClips(Vector<AnimationClip>&& clips) { m_clips = std::move(clips); }
         int GetClipCount() const { return m_clips.Size(); }
         const String& GetClipName(int index) const;
-        void Play(int index, float fade_length);
+        void Play(int index, float fade_length = 0.3f);
         void Stop();
 
     protected:

@@ -33,7 +33,7 @@ namespace Viry3D
         const filament::backend::UniformBufferHandle& GetBonesUniformBuffer() const { return m_bones_uniform_buffer; }
 
 	protected:
-		virtual void Update();
+		virtual void PrepareRender();
 
     private:
         void FindBones();

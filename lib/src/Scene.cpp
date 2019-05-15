@@ -21,6 +21,7 @@
 // test
 #include "graphics/Camera.h"
 #include "graphics/MeshRenderer.h"
+#include "animation/Animation.h"
 #include "Engine.h"
 #include "Resources.h"
 
@@ -28,7 +29,7 @@ namespace Viry3D
 {
     // test
     MeshRenderer* cube;
-	GameObject* anim;
+	GameObject* skin;
     
 	Scene* Scene::m_instance = nullptr;
 
@@ -61,7 +62,9 @@ namespace Viry3D
 
 		auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
         obj->GetTransform()->SetPosition(Vector3(-1, 0, 0));
-		anim = obj.get();
+		auto anim = obj->GetComponent<Animation>();
+		anim->Play(0);
+		skin = obj.get();
     }
     
     Scene::~Scene()
@@ -125,7 +128,7 @@ namespace Viry3D
         static float deg = 0;
         deg += 1.0f;
 		cube->GetTransform()->SetLocalRotation(Quaternion::Euler(deg, deg, deg));
-		anim->GetTransform()->SetLocalRotation(Quaternion::Euler(0, deg, 0));
+		skin->GetTransform()->SetLocalRotation(Quaternion::Euler(0, deg, 0));
     }
     
     Ref<GameObject> Scene::GetGameObject(const GameObject* obj)

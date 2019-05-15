@@ -197,7 +197,6 @@ namespace Viry3D
                 {
                     target = find.get();
                     state.targets[i] = target;
-                    target->EnableNotifyChildrenOnDirty(false);
                 }
                 else
                 {

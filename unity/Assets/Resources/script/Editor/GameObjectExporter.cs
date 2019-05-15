@@ -312,7 +312,11 @@ public class GameObjectExporter
         List<string> keywords = new List<string>();
         if (com is SkinnedMeshRenderer)
         {
-            keywords.Add("SKIN_ON");
+            var skin = com as SkinnedMeshRenderer;
+            if (skin.bones != null && skin.bones.Length > 0)
+            {
+                keywords.Add("SKIN_ON");
+            }
         }
 
         bw.Write(materials.Length);

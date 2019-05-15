@@ -23,6 +23,7 @@
 #include "math/Rect.h"
 #include "math/Matrix4x4.h"
 #include "container/List.h"
+#include "private/backend/DriverApi.h"
 
 namespace Viry3D
 {
@@ -71,6 +72,7 @@ namespace Viry3D
         void OnResize(int width, int height);
         void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);
         void Prepare(const List<Renderer*>& renderers);
+		void UpdateViewUniforms();
         void PrepareRenderer(Renderer* renderer);
 		void Draw(const List<Renderer*>& renderers);
         void DrawRenderer(Renderer* renderer);
@@ -96,5 +98,6 @@ namespace Viry3D
 		bool m_projection_matrix_external;
 		Ref<Texture> m_render_target_color;
 		Ref<Texture> m_render_target_depth;
+		filament::backend::UniformBufferHandle m_view_uniform_buffer;
     };
 }

@@ -29,8 +29,7 @@ namespace Viry3D
 		m_scale(m_local_scale),
 		m_local_to_world(Matrix4x4::Identity()),
 		m_world_to_local(Matrix4x4::Identity()),
-		m_dirty(false),
-		m_notify_children_on_dirty(true)
+		m_dirty(false)
 	{
 
 	}
@@ -263,12 +262,9 @@ namespace Viry3D
 		m_dirty = true;
 		this->GetGameObject()->OnTransformDirty();
 
-		if (m_notify_children_on_dirty)
+		for (auto& i : m_children)
 		{
-			for (auto& i : m_children)
-			{
-				i->MarkDirty();
-			}
+			i->MarkDirty();
 		}
 	}
 }

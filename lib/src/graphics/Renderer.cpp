@@ -16,6 +16,8 @@
 */
 
 #include "Renderer.h"
+#include "Engine.h"
+#include "GameObject.h"
 
 namespace Viry3D
 {
@@ -30,6 +32,13 @@ namespace Viry3D
     
     Renderer::~Renderer()
     {
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		if (m_transform_uniform_buffer)
+		{
+			driver.destroyUniformBuffer(m_transform_uniform_buffer);
+		}
+
         m_renderers.Remove(this);
     }
     
@@ -70,4 +79,17 @@ namespace Viry3D
         filament::backend::RenderPrimitiveHandle primitive;
         return primitive;
     }
+
+	void Renderer::PrepareRender()
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+		if (!m_transform_uniform_buffer)
+		{
+			m_transform_uniform_buffer = driver.createUniformBuffer(sizeof(Matrix4x4), filament::backend::BufferUsage::DYNAMIC);
+		}
+
+		void* buffer = Memory::Alloc<void>(sizeof(Matrix4x4));
+		Memory::Copy(buffer, &this->GetTransform()->GetLocalToWorldMatrix(), sizeof(Matrix4x4));
+		driver.loadUniformBuffer(m_transform_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(Matrix4x4), FreeBufferCallback));
+	}
 }

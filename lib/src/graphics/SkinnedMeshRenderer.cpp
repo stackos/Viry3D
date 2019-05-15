@@ -57,8 +57,10 @@ namespace Viry3D
         }
     }
 
-    void SkinnedMeshRenderer::Update()
+    void SkinnedMeshRenderer::PrepareRender()
     {
+		MeshRenderer::PrepareRender();
+
         const auto& materials = this->GetMaterials();
         const auto& mesh = this->GetMesh();
 
@@ -92,16 +94,10 @@ namespace Viry3D
             {
                 m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(Vector4) * bone_max * 3, filament::backend::BufferUsage::DYNAMIC);
             }
+
             void* buffer = Memory::Alloc<void>(bone_vectors.SizeInBytes());
             Memory::Copy(buffer, bone_vectors.Bytes(), bone_vectors.SizeInBytes());
             driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, bone_vectors.SizeInBytes(), FreeBufferCallback));
-        }
-        else
-        {
-            if (m_bone_paths.Size() == 0)
-            {
-                Log("%s bones empty", this->GetName().CString());
-            }
         }
     }
 }

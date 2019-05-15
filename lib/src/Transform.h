@@ -52,7 +52,6 @@ namespace Viry3D
 		Vector3 GetRight();
 		Vector3 GetUp();
 		Vector3 GetForward();
-		void EnableNotifyChildrenOnDirty(bool enable) { m_notify_children_on_dirty = enable; }
 
 	private:
 		void MarkDirty();
@@ -69,6 +68,5 @@ namespace Viry3D
 		Matrix4x4 m_local_to_world;
 		Matrix4x4 m_world_to_local;
 		bool m_dirty;
-		bool m_notify_children_on_dirty;
     };
 }
