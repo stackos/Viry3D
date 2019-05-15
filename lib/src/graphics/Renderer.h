@@ -40,8 +40,8 @@ namespace Viry3D
         void SetLightmapIndex(int index);
         const Vector4& GetLightmapScaleOffset() const { return m_lightmap_scale_offset; }
         void SetLightmapScaleOffset(const Vector4& vec);
-        virtual filament::backend::RenderPrimitiveHandle GetPrimitive(int submesh) const;
-		const filament::backend::UniformBufferHandle& GetTransformUniformBuffer() const { return m_transform_uniform_buffer; }
+        const filament::backend::UniformBufferHandle& GetTransformUniformBuffer() const { return m_transform_uniform_buffer; }
+        virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
 
 	protected:
 		virtual void PrepareRender();

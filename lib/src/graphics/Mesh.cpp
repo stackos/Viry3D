@@ -40,13 +40,14 @@ namespace Viry3D
             Vector<unsigned int>* indices = new Vector<unsigned int>();
             Vector<Submesh>* submeshes = new Vector<Submesh>();
             Vector<Matrix4x4>* bindposes = new Vector<Matrix4x4>();
-
+            Vector<BlendShape>* blend_shapes = new Vector<BlendShape>();
+            
             int vertex_count = ms.Read<int>();
             vertices->Resize(vertex_count);
 
             for (int i = 0; i < vertex_count; ++i)
             {
-                (*vertices)[i].position = ms.Read<Vector3>();
+                (*vertices)[i].vertex = ms.Read<Vector3>();
             }
 
             int color_count = ms.Read<int>();
@@ -115,49 +116,58 @@ namespace Viry3D
             int blend_shape_count = ms.Read<int>();
             if (blend_shape_count > 0)
             {
-                Vector<Vector3>* delta_vertices = new Vector<Vector3>(vertex_count);
-                Vector<Vector3>* delta_normals = new Vector<Vector3>(normal_count);
-                Vector<Vector3>* delta_tangents = new Vector<Vector3>(tangent_count);
+                blend_shapes->Resize(blend_shape_count);
                 
                 for (int i = 0; i < blend_shape_count; ++i)
                 {
+                    auto& shape = (*blend_shapes)[i];
+                    
                     int string_size = ms.Read<int>();
                     String shape_name = ms.ReadString(string_size);
                     int frame_count = ms.Read<int>();
+                    
+                    shape.name = shape_name;
+                    shape.frames.Resize(frame_count);
+                    
                     for (int j = 0; j < frame_count; ++j)
                     {
+                        auto& frame = shape.frames[j];
+                        
                         float frame_weight = ms.Read<float>();
+                        
+                        frame.weight = frame_weight / 100.0f;
+                        frame.vertices.Resize(vertex_count);
+                        frame.normals.Resize(normal_count);
+                        frame.tangents.Resize(tangent_count);
                         
                         if (vertex_count > 0)
                         {
-                            ms.Read(&(*delta_vertices)[0], delta_vertices->SizeInBytes());
+                            ms.Read(&frame.vertices[0], frame.vertices.SizeInBytes());
                         }
                         
                         if (normal_count > 0)
                         {
-                            ms.Read(&(*delta_normals)[0], delta_normals->SizeInBytes());
+                            ms.Read(&frame.normals[0], frame.normals.SizeInBytes());
                         }
                         
                         if (tangent_count > 0)
                         {
-                            ms.Read(&(*delta_tangents)[0], delta_tangents->SizeInBytes());
+                            ms.Read(&frame.tangents[0], frame.tangents.SizeInBytes());
                         }
                     }
                 }
-                
-                delete delta_vertices;
-                delete delta_normals;
-                delete delta_tangents;
             }
             
-            mesh = RefMake<Mesh>(*vertices, *indices, *submeshes);
+            mesh = RefMake<Mesh>(std::move(*vertices), std::move(*indices), *submeshes);
             mesh->SetName(mesh_name);
-            mesh->SetBindposes(*bindposes);
-
+            mesh->SetBindposes(std::move(*bindposes));
+            mesh->SetBlendShapes(std::move(*blend_shapes));
+            
             delete vertices;
             delete indices;
             delete submeshes;
             delete bindposes;
+            delete blend_shapes;
         }
         else
         {
@@ -167,9 +177,7 @@ namespace Viry3D
         return mesh;
     }
 
-    Mesh::Mesh(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes, bool uint32_index, bool dynamic):
-        m_vertex_count(vertices.Size()),
-        m_index_count(indices.Size()),
+    Mesh::Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes, bool uint32_index, bool dynamic):
         m_buffer_vertex_count(vertices.Size()),
         m_buffer_index_count(indices.Size()),
         m_uint32_index(uint32_index)
@@ -193,7 +201,7 @@ namespace Viry3D
         }
         
         int sizes[] = {
-            sizeof(Vertex::position), sizeof(Vertex::color), sizeof(Vertex::uv), sizeof(Vertex::uv2),
+            sizeof(Vertex::vertex), sizeof(Vertex::color), sizeof(Vertex::uv), sizeof(Vertex::uv2),
             sizeof(Vertex::normal), sizeof(Vertex::tangent), sizeof(Vertex::bone_weights), sizeof(Vertex::bone_indices)
         };
         filament::backend::ElementType types[] = {
@@ -220,7 +228,7 @@ namespace Viry3D
             offset += sizes[i];
         }
         
-        m_vb = driver.createVertexBuffer(1, (uint8_t) Shader::AttributeLocation::Count, m_vertex_count, attributes, usage);
+        m_vb = driver.createVertexBuffer(1, (uint8_t) Shader::AttributeLocation::Count, vertices.Size(), attributes, usage);
 
         filament::backend::ElementType index_type;
         if (uint32_index)
@@ -232,9 +240,9 @@ namespace Viry3D
             index_type = filament::backend::ElementType::USHORT;
         }
         
-        m_ib = driver.createIndexBuffer(index_type, m_index_count, usage);
+        m_ib = driver.createIndexBuffer(index_type, indices.Size(), usage);
         
-        Mesh::Update(vertices, indices, submeshes);
+        Mesh::Update(std::move(vertices), std::move(indices), submeshes);
     }
     
     Mesh::~Mesh()
@@ -250,50 +258,45 @@ namespace Viry3D
         driver.destroyVertexBuffer(m_vb);
     }
 
-    void Mesh::Update(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes)
+    void Mesh::Update(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
+     
+        m_vertices = std::move(vertices);
+        m_indices = std::move(indices);
         
-        assert(vertices.Size() <= m_buffer_vertex_count);
-        assert(indices.Size() <= m_buffer_index_count);
+        assert(m_vertices.Size() <= m_buffer_vertex_count);
+        assert(m_indices.Size() <= m_buffer_index_count);
         
-        m_vertex_count = vertices.Size();
-        m_index_count = indices.Size();
         m_submeshes = submeshes;
         if (m_submeshes.Empty())
         {
-            m_submeshes.Add(Submesh({ 0, indices.Size() }));
+            m_submeshes.Add(Submesh({ 0, m_indices.Size() }));
         }
         
-        void* buffer = Memory::Alloc<void>(vertices.SizeInBytes());
-        Memory::Copy(buffer, vertices.Bytes(), vertices.SizeInBytes());
-        driver.updateVertexBuffer(m_vb, 0, filament::backend::BufferDescriptor(buffer, vertices.SizeInBytes(), FreeBufferCallback), 0);
+        void* buffer = Memory::Alloc<void>(m_vertices.SizeInBytes());
+        Memory::Copy(buffer, m_vertices.Bytes(), m_vertices.SizeInBytes());
+        driver.updateVertexBuffer(m_vb, 0, filament::backend::BufferDescriptor(buffer, m_vertices.SizeInBytes(), FreeBufferCallback), 0);
     
         if (m_uint32_index)
         {
-            buffer = Memory::Alloc<void>(indices.SizeInBytes());
-            Memory::Copy(buffer, indices.Bytes(), indices.SizeInBytes());
-            driver.updateIndexBuffer(m_ib, filament::backend::BufferDescriptor(buffer, indices.SizeInBytes(), FreeBufferCallback), 0);
+            buffer = Memory::Alloc<void>(m_indices.SizeInBytes());
+            Memory::Copy(buffer, m_indices.Bytes(), m_indices.SizeInBytes());
+            driver.updateIndexBuffer(m_ib, filament::backend::BufferDescriptor(buffer, m_indices.SizeInBytes(), FreeBufferCallback), 0);
         }
         else
         {
-            int size = sizeof(unsigned short) * indices.Size();
+            int size = sizeof(unsigned short) * m_indices.Size();
             unsigned short* indices_uint16 = Memory::Alloc<unsigned short>(size);
-            for (int i = 0; i < indices.Size(); ++i)
+            for (int i = 0; i < m_indices.Size(); ++i)
             {
-                indices_uint16[i] = indices[i];
+                indices_uint16[i] = m_indices[i];
             }
             driver.updateIndexBuffer(m_ib, filament::backend::BufferDescriptor(indices_uint16, size, FreeBufferCallback), 0);
         }
         
-        for (int i = 0; i < m_primitives.Size(); ++i)
-        {
-            driver.destroyRenderPrimitive(m_primitives[i]);
-        }
-        m_primitives.Clear();
-        
         uint32_t enabled_attributes =
-            (1 << (int) Shader::AttributeLocation::Position) |
+            (1 << (int) Shader::AttributeLocation::Vertex) |
             (1 << (int) Shader::AttributeLocation::Color) |
             (1 << (int) Shader::AttributeLocation::UV) |
             (1 << (int) Shader::AttributeLocation::UV2) |
@@ -302,13 +305,19 @@ namespace Viry3D
             (1 << (int) Shader::AttributeLocation::BoneWeights) |
             (1 << (int) Shader::AttributeLocation::BoneIndices);
         
+        for (int i = 0; i < m_primitives.Size(); ++i)
+        {
+            driver.destroyRenderPrimitive(m_primitives[i]);
+        }
+        m_primitives.Clear();
+        
         m_primitives.Resize(m_submeshes.Size());
         for (int i = 0; i < m_submeshes.Size(); ++i)
         {
             m_primitives[i] = driver.createRenderPrimitive();
             
             driver.setRenderPrimitiveBuffer(m_primitives[i], m_vb, m_ib, enabled_attributes);
-            driver.setRenderPrimitiveRange(m_primitives[i], filament::backend::PrimitiveType::TRIANGLES, m_submeshes[i].index_first, 0, m_vertex_count - 1, m_submeshes[i].index_count);
+            driver.setRenderPrimitiveRange(m_primitives[i], filament::backend::PrimitiveType::TRIANGLES, m_submeshes[i].index_first, 0, m_vertices.Size() - 1, m_submeshes[i].index_count);
         }
     }
 }

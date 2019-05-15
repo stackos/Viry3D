@@ -74,10 +74,9 @@ namespace Viry3D
         m_lightmap_scale_offset = vec;
     }
     
-    filament::backend::RenderPrimitiveHandle Renderer::GetPrimitive(int submesh) const
+    Vector<filament::backend::RenderPrimitiveHandle> Renderer::GetPrimitives()
     {
-        filament::backend::RenderPrimitiveHandle primitive;
-        return primitive;
+        return Vector<filament::backend::RenderPrimitiveHandle>();
     }
 
 	void Renderer::PrepareRender()

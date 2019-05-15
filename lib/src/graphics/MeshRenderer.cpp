@@ -34,15 +34,15 @@ namespace Viry3D
         m_mesh = mesh;
     }
     
-    filament::backend::RenderPrimitiveHandle MeshRenderer::GetPrimitive(int submesh) const
+    Vector<filament::backend::RenderPrimitiveHandle> MeshRenderer::GetPrimitives()
     {
-        filament::backend::RenderPrimitiveHandle primitive;
+        Vector<filament::backend::RenderPrimitiveHandle> primitives;
         
         if (m_mesh)
         {
-            primitive = m_mesh->GetPrimitive(submesh);
+            primitives = m_mesh->GetPrimitives();
         }
         
-        return primitive;
+        return primitives;
     }
 }

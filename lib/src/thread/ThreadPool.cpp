@@ -73,8 +73,6 @@ namespace Viry3D
 
     void Thread::Run()
     {
-        bool gl_thread = m_init_action && m_done_action;
-        
         if (m_init_action)
         {
             m_init_action();

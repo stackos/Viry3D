@@ -45,7 +45,7 @@ namespace Viry3D
 
 		enum class AttributeLocation
 		{
-			Position = 0,
+			Vertex = 0,
 			Color = 1,
 			UV = 2,
 			UV2 = 3,

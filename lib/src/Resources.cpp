@@ -89,6 +89,8 @@ namespace Viry3D
                     int mipmap_count = root["mipmap"].asInt();
                     Json::Value levels = root["levels"];
 
+                    assert(width == height);
+                    
                     texture = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, filter_mode, wrap_mode, mipmap_count > 1);
 
                     for (int i = 0; i < mipmap_count; ++i)
@@ -198,6 +200,8 @@ namespace Viry3D
                     case MaterialProperty::Type::Texture:
                     {
                         Vector4 uv_scale_offset = ms.Read<Vector4>();
+                        (void) uv_scale_offset;
+                        
                         String texture_path = ReadString(ms);
                         if (texture_path.Size() > 0)
                         {

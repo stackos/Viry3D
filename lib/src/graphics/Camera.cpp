@@ -258,7 +258,18 @@ namespace Viry3D
             auto& material = materials[i];
             if (material)
             {
-                auto primitive = renderer->GetPrimitive(i);
+                filament::backend::RenderPrimitiveHandle primitive;
+                
+                auto primitives = renderer->GetPrimitives();
+                if (i < primitives.Size())
+                {
+                    primitive = primitives[i];
+                }
+                else if (primitives.Size() > 0)
+                {
+                    primitive = primitives[0];
+                }
+                
                 if (primitive)
                 {
                     const auto& shader = material->GetShader();

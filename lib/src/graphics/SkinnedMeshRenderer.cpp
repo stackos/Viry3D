@@ -100,4 +100,25 @@ namespace Viry3D
             driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, bone_vectors.SizeInBytes(), FreeBufferCallback));
         }
     }
+    
+    float SkinnedMeshRenderer::GetBlendShapeWeight(int index) const
+    {
+        float weight = 0;
+        
+        return weight;
+    }
+    
+    void SkinnedMeshRenderer::SetBlendShapeWeight(int index, float weight)
+    {
+        
+    }
+    
+    Vector<filament::backend::RenderPrimitiveHandle> SkinnedMeshRenderer::GetPrimitives()
+    {
+        Vector<filament::backend::RenderPrimitiveHandle> primitives;
+        
+        primitives = MeshRenderer::GetPrimitives();
+        
+        return primitives;
+    }
 }

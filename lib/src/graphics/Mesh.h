@@ -31,7 +31,7 @@ namespace Viry3D
     public:
         struct Vertex
         {
-            Vector3 position;
+            Vector3 vertex;
             Color color;
             Vector2 uv;
             Vector2 uv2;
@@ -46,27 +46,45 @@ namespace Viry3D
             int index_first;
             int index_count;
         };
+        
+        struct BlendShapeFrame
+        {
+            float weight;
+            Vector<Vector3> vertices;
+            Vector<Vector3> normals;
+            Vector<Vector3> tangents;
+        };
+        
+        struct BlendShape
+        {
+            String name;
+            Vector<BlendShapeFrame> frames;
+        };
 
     public:
         static Ref<Mesh> LoadFromFile(const String& path);
-        Mesh(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool uint32_index = false, bool dynamic = false);
+        Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool uint32_index = false, bool dynamic = false);
         virtual ~Mesh();
-        void Update(const Vector<Vertex>& vertices, const Vector<unsigned int>& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
-        int GetVertexCount() const { return m_vertex_count; }
-        int GetIndexCount() const { return m_index_count; }
-        int GetSubmeshCount() const { return m_submeshes.Size(); }
-        const Submesh& GetSubmesh(int submesh) const { return m_submeshes[submesh]; }
-        void SetBindposes(const Vector<Matrix4x4>& bindposes) { m_bindposes = bindposes; }
+        void Update(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
+        const Vector<Vertex>& GetVertices() const { return m_vertices; }
+        const Vector<unsigned int>& GetIndices() const { return m_indices; }
+        const Vector<Submesh>& GetSubmeshes() const { return m_submeshes; }
         const Vector<Matrix4x4>& GetBindposes() const { return m_bindposes; }
-		const filament::backend::RenderPrimitiveHandle& GetPrimitive(int submesh) const { return m_primitives[submesh]; }
+        const Vector<BlendShape>& GetBlendShapes() const { return m_blend_shapes; }
+		const Vector<filament::backend::RenderPrimitiveHandle>& GetPrimitives() const { return m_primitives; }
 
     private:
-        int m_vertex_count;
-        int m_index_count;
+        void SetBindposes(Vector<Matrix4x4>&& bindposes) { m_bindposes = std::move(bindposes); }
+        void SetBlendShapes(Vector<BlendShape>&& blend_shapes) { m_blend_shapes = std::move(blend_shapes); }
+        
+    private:
+        Vector<Vertex> m_vertices;
+        Vector<unsigned int> m_indices;
         int m_buffer_vertex_count;
         int m_buffer_index_count;
         Vector<Submesh> m_submeshes;
         Vector<Matrix4x4> m_bindposes;
+        Vector<BlendShape> m_blend_shapes;
         bool m_uint32_index;
         filament::backend::VertexBufferHandle m_vb;
         filament::backend::IndexBufferHandle m_ib;

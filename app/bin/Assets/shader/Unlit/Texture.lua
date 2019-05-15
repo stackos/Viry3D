@@ -12,7 +12,7 @@ VK_UNIFORM_BINDING(1) uniform PerRenderer
 {
 	mat4 u_model_matrix;
 };
-layout(location = 0) in vec4 i_position;
+layout(location = 0) in vec4 i_vertex;
 layout(location = 2) in vec2 i_uv;
 VK_LAYOUT_LOCATION(0) out vec2 v_uv;
 
@@ -48,7 +48,7 @@ void main()
 #else
     mat4 model_matrix = u_model_matrix;
 #endif
-	gl_Position = i_position * model_matrix * u_view_matrix * u_projection_matrix;
+	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
 	v_uv = i_uv;
 
 	vk_convert();
