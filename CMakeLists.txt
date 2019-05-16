@@ -40,9 +40,6 @@ set(CMAKE_CXX_FLAGS
 
 file(GLOB VIRY3D_DEP_SRCS
      ${VIRY3D_LIB_SRC_DIR}/crypto/md5/md5.c
-     ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/ExternalStreamManagerAndroid.cpp
-     ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/ExternalTextureManagerAndroid.cpp
-     ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/VirtualMachineEnv.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/NoopDriver.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/PlatformNoop.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/gl_headers.cpp
@@ -69,8 +66,6 @@ file(GLOB VIRY3D_DEP_SRCS
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Panic.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Profiler.cpp
      ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Systrace.cpp
-     ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/linux/Condition.cpp
-     ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/linux/Mutex.cpp
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/autofit/autofit.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbase.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbbox.c
@@ -916,6 +911,11 @@ elseif (${Target} MATCHES "Android")
     target_sources(Viry3DDep PRIVATE
                    ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/opensl.c
 				   ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
+                   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/ExternalStreamManagerAndroid.cpp
+                   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/ExternalTextureManagerAndroid.cpp
+                   ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/linux/Condition.cpp
+                   ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/linux/Mutex.cpp
+                   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/VirtualMachineEnv.cpp
                    ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformEGL.cpp
                    )
 
