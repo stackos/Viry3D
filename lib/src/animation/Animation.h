@@ -100,7 +100,7 @@ namespace Viry3D
     public:
         Animation();
         virtual ~Animation();
-        void SetClips(const Vector<Ref<AnimationClip>>& clips) { m_clips = clips; }
+		void SetClips(const Vector<Ref<AnimationClip>>& clips);
         int GetClipCount() const { return m_clips.Size(); }
         const String& GetClipName(int index) const;
         void Play(int index, float fade_length = 0.3f);

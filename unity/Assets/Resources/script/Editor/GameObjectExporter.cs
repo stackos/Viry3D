@@ -31,6 +31,7 @@ public class GameObjectExporter
         public Dictionary<string, Mesh> meshes = new Dictionary<string, Mesh>();
         public Dictionary<string, Material> materials = new Dictionary<string, Material>();
         public Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
+        public Dictionary<string, AnimationClip> clips = new Dictionary<string, AnimationClip>();
     }
 
     static BinaryWriter bw;
@@ -430,84 +431,121 @@ public class GameObjectExporter
         for (int i = 0; i < clips.Length; ++i)
         {
             var clip = clips[i];
-            var bindings = AnimationUtility.GetCurveBindings(clip);
 
-            WriteString(clip.name);
-            bw.Write(clip.length);
-            bw.Write(clip.frameRate);
-            bw.Write((int) clip.wrapMode);
-
-            bw.Write(bindings.Length);
-            for (int j = 0; j < bindings.Length; ++j)
+            if (clip != null)
             {
-                var bind = bindings[j];
-                var curve = AnimationUtility.GetEditorCurve(clip, bind);
-                var keys = curve.keys;
-                CurvePropertyType property_type = CurvePropertyType.Unknown;
-
-                switch (bind.propertyName)
-                {
-                    case "m_LocalPosition.x":
-                        property_type = CurvePropertyType.LocalPositionX;
-                        break;
-                    case "m_LocalPosition.y":
-                        property_type = CurvePropertyType.LocalPositionY;
-                        break;
-                    case "m_LocalPosition.z":
-                        property_type = CurvePropertyType.LocalPositionZ;
-                        break;
-
-                    case "m_LocalRotation.x":
-                        property_type = CurvePropertyType.LocalRotationX;
-                        break;
-                    case "m_LocalRotation.y":
-                        property_type = CurvePropertyType.LocalRotationY;
-                        break;
-                    case "m_LocalRotation.z":
-                        property_type = CurvePropertyType.LocalRotationZ;
-                        break;
-                    case "m_LocalRotation.w":
-                        property_type = CurvePropertyType.LocalRotationW;
-                        break;
-
-                    case "m_LocalScale.x":
-                        property_type = CurvePropertyType.LocalScaleX;
-                        break;
-                    case "m_LocalScale.y":
-                        property_type = CurvePropertyType.LocalScaleY;
-                        break;
-                    case "m_LocalScale.z":
-                        property_type = CurvePropertyType.LocalScaleZ;
-                        break;
-
-                    default:
-                        if (bind.propertyName.StartsWith("blendShape."))
-                        {
-                            property_type = CurvePropertyType.BlendShape;
-                        }
-                        else
-                        {
-                            Debug.LogError(bind.propertyName);
-                        }
-                        break;
-                }
-
-                WriteString(bind.path);
-                bw.Write((int) property_type);
-                WriteString(bind.propertyName);
-
-                bw.Write(keys.Length);
-                for (int k = 0; k < keys.Length; ++k)
-                {
-                    var key = keys[k];
-
-                    bw.Write(key.time);
-                    bw.Write(key.value);
-                    bw.Write(key.inTangent);
-                    bw.Write(key.outTangent);
-                }
+                WriteAnimationClip(clip);
+            }
+            else
+            {
+                WriteString("");
             }
         }
+    }
+
+    static void WriteAnimationClip(AnimationClip clip)
+    {
+        string asset_path = AssetDatabase.GetAssetPath(clip) + "." + clip.name + ".clip";
+        if (asset_path.StartsWith("Assets/"))
+        {
+            asset_path = asset_path.Substring("Assets/".Length);
+        }
+        WriteString(asset_path);
+
+        if (cache.clips.ContainsKey(asset_path))
+        {
+            return;
+        }
+        cache.clips.Add(asset_path, clip);
+
+        var bw_save = bw;
+        var ms = new MemoryStream();
+        bw = new BinaryWriter(ms);
+
+        WriteString(clip.name);
+        bw.Write(clip.length);
+        bw.Write(clip.frameRate);
+        bw.Write((int) clip.wrapMode);
+
+        var bindings = AnimationUtility.GetCurveBindings(clip);
+
+        bw.Write(bindings.Length);
+        for (int j = 0; j < bindings.Length; ++j)
+        {
+            var bind = bindings[j];
+            var curve = AnimationUtility.GetEditorCurve(clip, bind);
+            var keys = curve.keys;
+            CurvePropertyType property_type = CurvePropertyType.Unknown;
+
+            switch (bind.propertyName)
+            {
+                case "m_LocalPosition.x":
+                    property_type = CurvePropertyType.LocalPositionX;
+                    break;
+                case "m_LocalPosition.y":
+                    property_type = CurvePropertyType.LocalPositionY;
+                    break;
+                case "m_LocalPosition.z":
+                    property_type = CurvePropertyType.LocalPositionZ;
+                    break;
+
+                case "m_LocalRotation.x":
+                    property_type = CurvePropertyType.LocalRotationX;
+                    break;
+                case "m_LocalRotation.y":
+                    property_type = CurvePropertyType.LocalRotationY;
+                    break;
+                case "m_LocalRotation.z":
+                    property_type = CurvePropertyType.LocalRotationZ;
+                    break;
+                case "m_LocalRotation.w":
+                    property_type = CurvePropertyType.LocalRotationW;
+                    break;
+
+                case "m_LocalScale.x":
+                    property_type = CurvePropertyType.LocalScaleX;
+                    break;
+                case "m_LocalScale.y":
+                    property_type = CurvePropertyType.LocalScaleY;
+                    break;
+                case "m_LocalScale.z":
+                    property_type = CurvePropertyType.LocalScaleZ;
+                    break;
+
+                default:
+                    if (bind.propertyName.StartsWith("blendShape."))
+                    {
+                        property_type = CurvePropertyType.BlendShape;
+                    }
+                    else
+                    {
+                        Debug.LogError(bind.propertyName);
+                    }
+                    break;
+            }
+
+            WriteString(bind.path);
+            bw.Write((int) property_type);
+            WriteString(bind.propertyName);
+
+            bw.Write(keys.Length);
+            for (int k = 0; k < keys.Length; ++k)
+            {
+                var key = keys[k];
+
+                bw.Write(key.time);
+                bw.Write(key.value);
+                bw.Write(key.inTangent);
+                bw.Write(key.outTangent);
+            }
+        }
+
+        string file_path = out_dir + "/" + asset_path;
+        CreateFileDirIfNeed(file_path);
+
+        File.WriteAllBytes(file_path, ms.ToArray());
+
+        bw = bw_save;
     }
 
     static void WriteMesh(Mesh mesh)

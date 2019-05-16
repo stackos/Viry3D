@@ -272,8 +272,11 @@ namespace Viry3D
         ReadRenderer(ms, renderer);
 
         String mesh_path = ReadString(ms);
-		auto mesh = ReadMesh(mesh_path);
-        renderer->SetMesh(mesh);
+		if (mesh_path.Size() > 0)
+		{
+			auto mesh = ReadMesh(mesh_path);
+			renderer->SetMesh(mesh);
+		}
     }
 
     static void ReadSkinnedMeshRenderer(MemoryStream& ms, const Ref<SkinnedMeshRenderer>& renderer)
@@ -290,68 +293,95 @@ namespace Viry3D
         renderer->SetBonePaths(bones);
     }
 
-    static void ReadAnimation(MemoryStream& ms, const Ref<Animation>& animation)
-    {
-        int clip_count = ms.Read<int>();
+	static Ref<AnimationClip> ReadAnimationClip(const String& path)
+	{
+		if (g_cache.Contains(path))
+		{
+			return RefCast<AnimationClip>(g_cache[path]);
+		}
 
-        Vector<Ref<AnimationClip>> clips(clip_count, Ref<AnimationClip>(new AnimationClip()));
+		Ref<AnimationClip> clip;
 
-        for (int i = 0; i < clip_count; ++i)
-        {
-            String clip_name = ReadString(ms);
-            float clip_length = ms.Read<float>();
-            float clip_fps = ms.Read<float>();
-            int clip_wrap_mode = ms.Read<int>();
-            int curve_count = ms.Read<int>();
+		String full_path = Engine::Instance()->GetDataPath() + "/" + path;
+		if (File::Exist(full_path))
+		{
+			MemoryStream ms(File::ReadAllBytes(full_path));
 
-            AnimationClip& clip = *clips[i];
-            clip.name = clip_name;
-            clip.length = clip_length;
-            clip.fps = clip_fps;
-            clip.wrap_mode = (AnimationWrapMode) clip_wrap_mode;
+			clip = RefMake<AnimationClip>();
 
-            for (int j = 0; j < curve_count; ++j)
-            {
-                String curve_path = ReadString(ms);
+			String clip_name = ReadString(ms);
+			float clip_length = ms.Read<float>();
+			float clip_fps = ms.Read<float>();
+			int clip_wrap_mode = ms.Read<int>();
+			int curve_count = ms.Read<int>();
+
+			clip->name = clip_name;
+			clip->length = clip_length;
+			clip->fps = clip_fps;
+			clip->wrap_mode = (AnimationWrapMode) clip_wrap_mode;
+
+			for (int j = 0; j < curve_count; ++j)
+			{
+				String curve_path = ReadString(ms);
 				AnimationCurvePropertyType property_type = (AnimationCurvePropertyType) ms.Read<int>();
 				String property_name = ReadString(ms);
-                int key_count = ms.Read<int>();
+				int key_count = ms.Read<int>();
 
-                AnimationCurveWrapper* curve = nullptr;
-                for (int k = 0; k < clip.curves.Size(); ++k)
-                {
-                    if (clip.curves[k].path == curve_path)
-                    {
-                        curve = &clip.curves[k];
-                        break;
-                    }
-                }
-                if (curve == nullptr)
-                {
-                    AnimationCurveWrapper new_path_curve;
-                    new_path_curve.path = curve_path;
-                    clip.curves.Add(new_path_curve);
-                    curve = &clip.curves[clip.curves.Size() - 1];
-                }
-                
+				AnimationCurveWrapper* curve = nullptr;
+				for (int k = 0; k < clip->curves.Size(); ++k)
+				{
+					if (clip->curves[k].path == curve_path)
+					{
+						curve = &clip->curves[k];
+						break;
+					}
+				}
+				if (curve == nullptr)
+				{
+					AnimationCurveWrapper new_path_curve;
+					new_path_curve.path = curve_path;
+					clip->curves.Add(new_path_curve);
+					curve = &clip->curves[clip->curves.Size() - 1];
+				}
+
 				AnimationCurveProperty property;
 				property.type = property_type;
 				property.name = property_name;
 
-                curve->properties.Add(property);
+				curve->properties.Add(property);
 
-                AnimationCurve* anim_curve = &curve->properties[curve->properties.Size() - 1].curve;
+				AnimationCurve* anim_curve = &curve->properties[curve->properties.Size() - 1].curve;
 
-                for (int k = 0; k < key_count; ++k)
-                {
-                    float time = ms.Read<float>();
-                    float value = ms.Read<float>();
-                    float in_tangent = ms.Read<float>();
-                    float out_tangent = ms.Read<float>();
+				for (int k = 0; k < key_count; ++k)
+				{
+					float time = ms.Read<float>();
+					float value = ms.Read<float>();
+					float in_tangent = ms.Read<float>();
+					float out_tangent = ms.Read<float>();
 
-                    anim_curve->AddKey(time, value, in_tangent, out_tangent);
-                }
-            }
+					anim_curve->AddKey(time, value, in_tangent, out_tangent);
+				}
+			}
+		}
+
+		g_cache.Add(path, clip);
+
+		return clip;
+	}
+
+    static void ReadAnimation(MemoryStream& ms, const Ref<Animation>& animation)
+    {
+        int clip_count = ms.Read<int>();
+
+        Vector<Ref<AnimationClip>> clips(clip_count);
+
+        for (int i = 0; i < clip_count; ++i)
+        {
+			String clip_path = ReadString(ms);
+			if (clip_path.Size() > 0)
+			{
+				clips[i] = ReadAnimationClip(clip_path);
+			}
         }
 
         animation->SetClips(clips);
@@ -420,11 +450,6 @@ namespace Viry3D
 
     Ref<GameObject> Resources::LoadGameObject(const String& path)
     {
-		if (g_cache.Contains(path))
-		{
-			return RefCast<GameObject>(g_cache[path]);
-		}
-
 		Ref<GameObject> obj;
 
         String full_path = Engine::Instance()->GetDataPath() + "/" + path;
@@ -434,8 +459,6 @@ namespace Viry3D
 
 			obj = ReadGameObject(ms, Ref<GameObject>());
         }
-
-		g_cache.Add(path, obj);
 
         return obj;
     }

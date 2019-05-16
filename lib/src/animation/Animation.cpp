@@ -33,6 +33,13 @@ namespace Viry3D
     
     }
 
+	void Animation::SetClips(const Vector<Ref<AnimationClip>>& clips)
+	{
+		m_clips = clips;
+
+		m_states.Clear();
+	}
+
     const String& Animation::GetClipName(int index) const
     {
         return m_clips[index]->name;
@@ -96,7 +103,7 @@ namespace Viry3D
             float time = Time::GetTime() - state.play_start_time;
             const auto& clip = *m_clips[state.clip_index];
             bool remove_later = false;
-
+			
             if (time >= clip.length)
             {
                 switch (clip.wrap_mode)
