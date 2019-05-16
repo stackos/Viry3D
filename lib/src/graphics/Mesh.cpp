@@ -180,7 +180,8 @@ namespace Viry3D
     Mesh::Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes, bool uint32_index, bool dynamic):
         m_buffer_vertex_count(vertices.Size()),
         m_buffer_index_count(indices.Size()),
-        m_uint32_index(uint32_index)
+        m_uint32_index(uint32_index),
+		m_enabled_attributes(0)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
         
@@ -216,19 +217,18 @@ namespace Viry3D
         };
         int offset = 0;
         
-        filament::backend::AttributeArray attributes;
         for (int i = 0; i < (int) Shader::AttributeLocation::Count; ++i)
         {
-            attributes[i].offset = offset;
-            attributes[i].stride = sizeof(Vertex);
-            attributes[i].buffer = 0;
-            attributes[i].type = types[i];
-            attributes[i].flags = 0;
+			m_attributes[i].offset = offset;
+			m_attributes[i].stride = sizeof(Vertex);
+			m_attributes[i].buffer = 0;
+			m_attributes[i].type = types[i];
+			m_attributes[i].flags = 0;
             
             offset += sizes[i];
         }
         
-        m_vb = driver.createVertexBuffer(1, (uint8_t) Shader::AttributeLocation::Count, vertices.Size(), attributes, usage);
+        m_vb = driver.createVertexBuffer(1, (uint8_t) Shader::AttributeLocation::Count, vertices.Size(), m_attributes, usage);
 
         filament::backend::ElementType index_type;
         if (uint32_index)
@@ -249,13 +249,13 @@ namespace Viry3D
     {
         auto& driver = Engine::Instance()->GetDriverApi();
         
-        for (int i = 0; i < m_primitives.Size(); ++i)
-        {
-            driver.destroyRenderPrimitive(m_primitives[i]);
-        }
-        m_primitives.Clear();
-        driver.destroyIndexBuffer(m_ib);
-        driver.destroyVertexBuffer(m_vb);
+		driver.destroyVertexBuffer(m_vb);
+		driver.destroyIndexBuffer(m_ib);
+		for (int i = 0; i < m_primitives.Size(); ++i)
+		{
+			driver.destroyRenderPrimitive(m_primitives[i]);
+		}
+		m_primitives.Clear();
     }
 
     void Mesh::Update(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes)
@@ -295,7 +295,7 @@ namespace Viry3D
             driver.updateIndexBuffer(m_ib, filament::backend::BufferDescriptor(indices_uint16, size, FreeBufferCallback), 0);
         }
         
-        uint32_t enabled_attributes =
+		m_enabled_attributes =
             (1 << (int) Shader::AttributeLocation::Vertex) |
             (1 << (int) Shader::AttributeLocation::Color) |
             (1 << (int) Shader::AttributeLocation::UV) |
@@ -312,11 +312,11 @@ namespace Viry3D
         m_primitives.Clear();
         
         m_primitives.Resize(m_submeshes.Size());
-        for (int i = 0; i < m_submeshes.Size(); ++i)
+        for (int i = 0; i < m_primitives.Size(); ++i)
         {
             m_primitives[i] = driver.createRenderPrimitive();
             
-            driver.setRenderPrimitiveBuffer(m_primitives[i], m_vb, m_ib, enabled_attributes);
+            driver.setRenderPrimitiveBuffer(m_primitives[i], m_vb, m_ib, m_enabled_attributes);
             driver.setRenderPrimitiveRange(m_primitives[i], filament::backend::PrimitiveType::TRIANGLES, m_submeshes[i].index_first, 0, m_vertices.Size() - 1, m_submeshes[i].index_count);
         }
     }

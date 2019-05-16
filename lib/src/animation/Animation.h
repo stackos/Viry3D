@@ -62,8 +62,13 @@ namespace Viry3D
         ClampForever = 8,
     };
 
-    struct AnimationClip
+    class AnimationClip : public Object
     {
+	public:
+		AnimationClip(): length(0), fps(0), wrap_mode(AnimationWrapMode::Default) { }
+		virtual ~AnimationClip() { }
+
+	public:
         String name;
         float length;
         float fps;
@@ -95,7 +100,7 @@ namespace Viry3D
     public:
         Animation();
         virtual ~Animation();
-        void SetClips(Vector<AnimationClip>&& clips) { m_clips = std::move(clips); }
+        void SetClips(const Vector<Ref<AnimationClip>>& clips) { m_clips = clips; }
         int GetClipCount() const { return m_clips.Size(); }
         const String& GetClipName(int index) const;
         void Play(int index, float fade_length = 0.3f);
@@ -108,7 +113,7 @@ namespace Viry3D
         void Sample(AnimationState& state, float time, float weight, bool first_state, bool last_state);
 
     private:
-        Vector<AnimationClip> m_clips;
+        Vector<Ref<AnimationClip>> m_clips;
         List<AnimationState> m_states;
     };
 }
