@@ -294,7 +294,7 @@ namespace Viry3D
     {
         int clip_count = ms.Read<int>();
 
-        Vector<AnimationClip> clips(clip_count);
+        Vector<Ref<AnimationClip>> clips(clip_count, Ref<AnimationClip>(new AnimationClip()));
 
         for (int i = 0; i < clip_count; ++i)
         {
@@ -304,7 +304,7 @@ namespace Viry3D
             int clip_wrap_mode = ms.Read<int>();
             int curve_count = ms.Read<int>();
 
-            AnimationClip& clip = clips[i];
+            AnimationClip& clip = *clips[i];
             clip.name = clip_name;
             clip.length = clip_length;
             clip.fps = clip_fps;
@@ -354,7 +354,7 @@ namespace Viry3D
             }
         }
 
-        animation->SetClips(std::move(clips));
+        animation->SetClips(clips);
     }
 
     static Ref<GameObject> ReadGameObject(MemoryStream& ms, const Ref<GameObject>& parent)

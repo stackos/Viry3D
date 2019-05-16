@@ -71,6 +71,10 @@ namespace Viry3D
         const Vector<Submesh>& GetSubmeshes() const { return m_submeshes; }
         const Vector<Matrix4x4>& GetBindposes() const { return m_bindposes; }
         const Vector<BlendShape>& GetBlendShapes() const { return m_blend_shapes; }
+		const filament::backend::AttributeArray& GetAttributes() const { return m_attributes; }
+		uint32_t GetEnabledAttributes() const { return m_enabled_attributes; }
+		const filament::backend::VertexBufferHandle& GetVertexBuffer() const { return m_vb; }
+		const filament::backend::IndexBufferHandle& GetIndexBuffer() const { return m_ib; }
 		const Vector<filament::backend::RenderPrimitiveHandle>& GetPrimitives() const { return m_primitives; }
 
     private:
@@ -86,6 +90,8 @@ namespace Viry3D
         Vector<Matrix4x4> m_bindposes;
         Vector<BlendShape> m_blend_shapes;
         bool m_uint32_index;
+		filament::backend::AttributeArray m_attributes;
+		uint32_t m_enabled_attributes;
         filament::backend::VertexBufferHandle m_vb;
         filament::backend::IndexBufferHandle m_ib;
         Vector<filament::backend::RenderPrimitiveHandle> m_primitives;

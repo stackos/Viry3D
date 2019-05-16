@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "time/Time.h"
 #include "math/Mathf.h"
+#include "graphics/SkinnedMeshRenderer.h"
 
 namespace Viry3D
 {
@@ -34,7 +35,7 @@ namespace Viry3D
 
     const String& Animation::GetClipName(int index) const
     {
-        return m_clips[index].name;
+        return m_clips[index]->name;
     }
 
     void Animation::Play(int index, float fade_length)
@@ -93,7 +94,7 @@ namespace Viry3D
         {
             auto& state = *i;
             float time = Time::GetTime() - state.play_start_time;
-            const auto& clip = m_clips[state.clip_index];
+            const auto& clip = *m_clips[state.clip_index];
             bool remove_later = false;
 
             if (time >= clip.length)
@@ -180,7 +181,7 @@ namespace Viry3D
 
     void Animation::Sample(AnimationState& state, float time, float weight, bool first_state, bool last_state)
     {
-        const auto& clip = m_clips[state.clip_index];
+        const auto& clip = *m_clips[state.clip_index];
         if (state.targets.Size() == 0)
         {
             state.targets.Resize(clip.curves.Size(), nullptr);
@@ -262,8 +263,15 @@ namespace Viry3D
                         break;
                         
                     case AnimationCurvePropertyType::BlendShape:
-                        break;
-
+					{
+						auto skin = target->GetGameObject()->GetComponent<SkinnedMeshRenderer>();
+						if (skin)
+						{
+							String blend_shape_name = curve.properties[j].name.Substring(String("blendShape.").Size());
+							skin->SetBlendShapeWeight(blend_shape_name, value / 100.0f);
+						}
+						break;
+					}
                     case AnimationCurvePropertyType::Unknown:
                         break;
                 }

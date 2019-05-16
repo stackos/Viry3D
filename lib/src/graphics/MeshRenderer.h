@@ -30,7 +30,7 @@ namespace Viry3D
         MeshRenderer();
         virtual ~MeshRenderer();
         const Ref<Mesh>& GetMesh() const { return m_mesh; }
-        void SetMesh(const Ref<Mesh>& mesh);
+		virtual void SetMesh(const Ref<Mesh>& mesh);
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
         
 	private:

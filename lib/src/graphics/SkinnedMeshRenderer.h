@@ -18,6 +18,7 @@
 #pragma once
 
 #include "MeshRenderer.h"
+#include "container/Map.h"
 
 namespace Viry3D
 {
@@ -26,12 +27,13 @@ namespace Viry3D
     public:
         SkinnedMeshRenderer();
         virtual ~SkinnedMeshRenderer();
+		virtual void SetMesh(const Ref<Mesh>& mesh);
         const Vector<String>& GetBonePaths() const { return m_bone_paths; }
         void SetBonePaths(const Vector<String>& bones) { m_bone_paths = bones; }
         Ref<Transform> GetBonesRoot() const { return m_bones_root.lock(); }
         void SetBonesRoot(const Ref<Transform>& node) { m_bones_root = node; }
-        float GetBlendShapeWeight(int index) const;
-        void SetBlendShapeWeight(int index, float weight);
+        float GetBlendShapeWeight(const String& name);
+        void SetBlendShapeWeight(const String& name, float weight);
         const filament::backend::UniformBufferHandle& GetBonesUniformBuffer() const { return m_bones_uniform_buffer; }
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
         
@@ -41,10 +43,23 @@ namespace Viry3D
     private:
         void FindBones();
 
+	private:
+		struct BlendShapeWeight
+		{
+			int index;
+			float weight;
+		};
+
     private:
         Vector<String> m_bone_paths;
         WeakRef<Transform> m_bones_root;
         Vector<WeakRef<Transform>> m_bones;
+		Map<String, BlendShapeWeight> m_blend_shape_weights;
+		bool m_blend_shape_dirty;
         filament::backend::UniformBufferHandle m_bones_uniform_buffer;
+		filament::backend::VertexBufferHandle m_vb;
+		Vector<filament::backend::RenderPrimitiveHandle> m_primitives;
+		int m_vb_vertex_count;
+		Vector<Mesh::Submesh> m_submeshes;
     };
 }
