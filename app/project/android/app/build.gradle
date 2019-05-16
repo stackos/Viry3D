@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId "com.viry3d.app"
-        minSdkVersion 18
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -30,7 +30,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_PLATFORM=android-18', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_shared', '-DTarget=Android'
+                arguments '-DANDROID_PLATFORM=android-21', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_shared', '-DTarget=Android'
             }
         }
     }

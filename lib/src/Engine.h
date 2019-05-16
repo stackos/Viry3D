@@ -21,6 +21,8 @@
 #include "string/String.h"
 #include "thread/ThreadPool.h"
 
+#define VR_VERSION_NAME "1.0.0"
+
 namespace filament
 {
 	namespace backend

@@ -23,10 +23,6 @@
 #include "container/Map.h"
 #include "private/backend/DriverApi.h"
 
-#if VR_VULKAN
-#include <bluevk/BlueVK.h>
-#endif
-
 namespace Viry3D
 {
     class Shader : public Object

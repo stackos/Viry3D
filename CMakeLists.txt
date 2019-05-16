@@ -40,6 +40,9 @@ set(CMAKE_CXX_FLAGS
 
 file(GLOB VIRY3D_DEP_SRCS
      ${VIRY3D_LIB_SRC_DIR}/crypto/md5/md5.c
+     ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/ExternalStreamManagerAndroid.cpp
+     ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/ExternalTextureManagerAndroid.cpp
+     ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/VirtualMachineEnv.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/NoopDriver.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/PlatformNoop.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/gl_headers.cpp
@@ -65,6 +68,9 @@ file(GLOB VIRY3D_DEP_SRCS
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Log.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Panic.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Profiler.cpp
+     ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Systrace.cpp
+     ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/linux/Condition.cpp
+     ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/linux/Mutex.cpp
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/autofit/autofit.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbase.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbbox.c
@@ -467,21 +473,23 @@ if ( FALSE )
 endif ()
 
 # imgui
-if (${Target} MATCHES "Windows" OR
-	${Target} MATCHES "Mac"
-    )
+if (FALSE)
+    if (${Target} MATCHES "Windows" OR
+        ${Target} MATCHES "Mac"
+        )
 
-    file(GLOB VIRY3D_DEP_SRCS_IMGUI
-         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui.cpp
-         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_demo.cpp
-         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_draw.cpp
-         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_widgets.cpp
-         )
+        file(GLOB VIRY3D_DEP_SRCS_IMGUI
+             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui.cpp
+             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_demo.cpp
+             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_draw.cpp
+             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_widgets.cpp
+             )
 
-    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_IMGUI})
+        source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_IMGUI})
 
-    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_IMGUI})
+        target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_IMGUI})
 
+    endif ()
 endif ()
 
 # zlib
@@ -627,7 +635,7 @@ if ( FALSE )
 endif ()
 
 # vulkan shader compiler
-if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
+if (${Target} MATCHES "Windows") #OR ${Target} MATCHES "Android")
 
     file(GLOB VIRY3D_LIB_SRCS_VULKAN
          ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
@@ -902,12 +910,13 @@ elseif (${Target} MATCHES "Android")
     # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -DVR_ANDROID -DVR_VULKAN=1 -DVR_GLES=0 -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -frtti")
+        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_ANDROID -DVR_VULKAN=0 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -frtti")
     add_definitions(-Wall -DIOAPI_NO_64 -DHAVE_GCC_DESTRUCTOR)
 
     target_sources(Viry3DDep PRIVATE
                    ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/opensl.c
 				   ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
+                   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformEGL.cpp
                    )
 
     target_include_directories(Viry3DDep PRIVATE

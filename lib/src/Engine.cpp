@@ -184,6 +184,8 @@ namespace Viry3D
 			}
 
 			this->GetDriverApi().terminate();
+
+			Log("driver thread terminated");
 		}
 
 		bool Execute()

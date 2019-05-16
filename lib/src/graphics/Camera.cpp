@@ -313,6 +313,8 @@ namespace Viry3D
 		{
 			driver.destroyUniformBuffer(m_view_uniform_buffer);
 		}
+
+		m_cameras.Remove(this);
     }
 
 	void Camera::SetDepth(int depth)

@@ -18,13 +18,11 @@
 #include <jni.h>
 #include <android/native_window_jni.h>
 #include <android/asset_manager_jni.h>
+#include "Engine.h"
 #include "Debug.h"
-#include "Application.h"
-#include "App.h"
 #include "Input.h"
 #include "io/File.h"
 #include "io/Directory.h"
-#include "graphics/Display.h"
 #include "container/List.h"
 #include "container/FastList.h"
 
@@ -42,8 +40,7 @@ struct TouchEvent
 
 static JNIEnv* g_env;
 static jobject g_jni_obj;
-static Display* g_display = nullptr;
-static App* g_app = nullptr;
+static Engine* g_engine = nullptr;
 static bool g_paused = false;
 
 static int call_activity_method_int(const char* name, const char* sig, ...);
@@ -73,15 +70,10 @@ extern "C"
 	    auto data_path = data_files_path + "/Assets";
         extract_assets_if_needed(asset_manager, package_path, data_path, true);
 
-        String name = "Viry3D";
         ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
-        g_display = new Display(name, window, width, height);
-
-        g_app = new App();
-        g_app->SetName(name);
-        g_app->SetDataPath(data_path);
-        g_app->SetSavePath(data_path);
-        g_app->Init();
+        g_engine = Engine::Create(window, width, height);
+        g_engine->SetDataPath(data_path);
+        g_engine->SetSavePath(data_path);
 
         Log("engineCreate end");
     }
@@ -91,13 +83,11 @@ extern "C"
         g_env = env;
         g_jni_obj = obj;
 
-        Log("engineDestroy");
+        Log("engineDestroy begin");
 
-        delete g_app;
-        g_app = nullptr;
+        Engine::Destroy(&g_engine);
 
-        delete g_display;
-        g_display = nullptr;
+        Log("engineDestroy end");
     }
 
     void Java_com_viry3d_lib_JNI_engineSurfaceResize(JNIEnv* env, jobject obj, jobject surface, jint width, jint height)
@@ -109,13 +99,7 @@ extern "C"
         Log("surface w: %d h: %d", width, height);
 
         ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
-        g_display->SetWindow(window);
-        if (g_paused)
-        {
-            g_display->OnResume();
-            g_paused = false;
-        }
-        g_display->OnResize(width, height);
+        g_engine->OnResize(window, width, height);
 
         Log("engineSurfaceResize end");
     }
@@ -125,7 +109,6 @@ extern "C"
         g_env = env;
         g_jni_obj = obj;
 
-        g_display->OnPause();
         g_paused = true;
 
         Log("engineSurfaceDestroy");
@@ -152,10 +135,7 @@ extern "C"
         g_env = env;
         g_jni_obj = obj;
 
-        g_app->OnFrameBegin();
-        g_app->Update();
-        g_display->OnDraw();
-        g_app->OnFrameEnd();
+        g_engine->Execute();
     }
 
     void Java_com_viry3d_lib_JNI_engineKeyDown(JNIEnv* env, jobject obj, jint key_code)
@@ -208,7 +188,7 @@ extern "C"
                     float y = e.xys[i * 2 + 1];
                     swap_bytes(&x, sizeof(x));
                     swap_bytes(&y, sizeof(y));
-                    y = (float) g_display->GetHeight() - y - 1;
+                    y = (float) g_engine->GetHeight() - y - 1;
                     e.xys[i * 2] = x;
                     e.xys[i * 2 + 1] = y;
                 }
@@ -517,10 +497,9 @@ static void extract_assets_if_needed(jobject asset_manager, const String& packag
 	}
 	else
 	{
-		auto buffer = File::ReadAllBytes(version_file);
-		auto version = String(buffer);
+		auto version = File::ReadAllText(version_file);
 
-		if (version != APP_VERSION_NAME)
+		if (version != VR_VERSION_NAME)
 		{
 			extract = true;
 		}
@@ -534,6 +513,8 @@ static void extract_assets_if_needed(jobject asset_manager, const String& packag
         // so use asset manager instead.
         //File::Unzip(package_path, "assets/Assets", data_path, true);
         extract_assets(asset_manager, "Assets", data_path);
+
+        File::WriteAllText(version_file, VR_VERSION_NAME);
 	}
 	else
 	{
