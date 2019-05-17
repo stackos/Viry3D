@@ -75,6 +75,8 @@ extern "C"
         g_engine->SetDataPath(data_path);
         g_engine->SetSavePath(data_path);
 
+        g_paused = false;
+
         Log("engineCreate end");
     }
 
@@ -100,6 +102,8 @@ extern "C"
 
         ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
         g_engine->OnResize(window, width, height);
+
+        g_paused = false;
 
         Log("engineSurfaceResize end");
     }
@@ -135,7 +139,10 @@ extern "C"
         g_env = env;
         g_jni_obj = obj;
 
-        g_engine->Execute();
+        if (!g_paused)
+        {
+            g_engine->Execute();
+        }
     }
 
     void Java_com_viry3d_lib_JNI_engineKeyDown(JNIEnv* env, jobject obj, jint key_code)
