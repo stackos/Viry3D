@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include "string/String.h"
+
 namespace Viry3D
 {
     class AudioListener;

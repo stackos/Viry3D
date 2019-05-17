@@ -15,8 +15,7 @@
 * limitations under the License.
 */
 
-#include "App.h"
-#include "graphics/Display.h"
+#include "Engine.h"
 #include "Debug.h"
 #include "Input.h"
 #include "time/Time.h"
@@ -32,8 +31,7 @@ extern bool g_mouse_button_up[3];
 extern Vector3 g_mouse_position;
 extern bool g_mouse_button_held[3];
 
-static Display* g_display;
-static App* g_app;
+static Engine* g_engine;
 
 extern "C" void EMSCRIPTEN_KEEPALIVE InitEngine(const char* msg)
 {
@@ -52,17 +50,8 @@ extern "C" void EMSCRIPTEN_KEEPALIVE InitEngine(const char* msg)
     int height = value["height"].asInt();
     bool glesv3 = value["glesv3"].asBool();
     int platform = value["platform"].asInt();
-
-    g_display = new Display(name, nullptr, width, height);
-    if (glesv3)
-    {
-        g_display->EnableGLESv3();
-    }
-    g_display->SetPlatform((Display::Platform) platform);
-
-    g_app = new App();
-    g_app->SetName(name);
-    g_app->Init();
+	
+	g_engine = Engine::Create(nullptr, width, height);
 
     Log("InitEngine success");
 }
@@ -71,8 +60,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE DoneEngine(const char* msg)
 {
     Log("DoneEngine with msg: %s", msg);
 
-    delete g_app;
-    delete g_display;
+	Engine::Destroy(&g_engine);
 }
 
 extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
@@ -100,7 +88,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
             t.deltaTime = 0;
             t.fingerId = 0;
             t.phase = TouchPhase::Began;
-            t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+            t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
             t.tapCount = 1;
             t.time = Time::GetRealTimeSinceStartup();
 
@@ -115,7 +103,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
 
             g_mouse_button_down[0] = true;
             g_mouse_position.x = (float) x;
-            g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+            g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
             g_mouse_button_held[0] = true;
         }
         else if (type == "MouseMove")
@@ -125,7 +113,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
             t.deltaTime = 0;
             t.fingerId = 0;
             t.phase = TouchPhase::Moved;
-            t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+            t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
             t.tapCount = 1;
             t.time = Time::GetRealTimeSinceStartup();
 
@@ -153,7 +141,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
             }
 
             g_mouse_position.x = (float) x;
-            g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+            g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
         }
         else if (type == "MouseUp")
         {
@@ -162,7 +150,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
             t.deltaTime = 0;
             t.fingerId = 0;
             t.phase = TouchPhase::Ended;
-            t.position = Vector2((float) x, (float) Display::Instance()->GetHeight() - y - 1);
+            t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
             t.tapCount = 1;
             t.time = Time::GetRealTimeSinceStartup();
 
@@ -177,15 +165,12 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
 
             g_mouse_button_up[0] = true;
             g_mouse_position.x = (float) x;
-            g_mouse_position.y = (float) Display::Instance()->GetHeight() - y - 1;
+            g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
             g_mouse_button_held[0] = false;
         }
     }
 
-    g_app->OnFrameBegin();
-    g_app->Update();
-    g_display->OnDraw();
-    g_app->OnFrameEnd();
+	g_engine->Execute();
 }
 
 int main()
