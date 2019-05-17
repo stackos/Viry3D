@@ -1059,13 +1059,19 @@ elseif (${Target} MATCHES "iOS")
     set(CMAKE_OSX_ARCHITECTURES arm64)
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -DVR_IOS")
-    add_definitions(-Wall -DVR_VULKAN=1 -DVR_GLES=0 -DHAVE_ASSERT_H -fobjc-arc)
+        "${CMAKE_CXX_FLAGS} -std=c++14")
+    add_definitions(-Wall -DVR_IOS -DIOS -DVR_VULKAN=0 -DVR_GLES=1 -DHAVE_ASSERT_H -fobjc-arc)
+
+    file(GLOB VIRY3D_DEP_SRCS_IOS
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformCocoaTouchGL.mm
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_IOS})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_IOS})
 
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
-    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Application.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Engine.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
-    set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/ios/ARScene.mm PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
     file(GLOB VIRY3D_LIB_SRCS_IOS
          ${VIRY3D_LIB_SRC_DIR}/ios/*.h
@@ -1093,7 +1099,6 @@ elseif (${Target} MATCHES "iOS")
                    ${VIRY3D_APP_SRC_DIR}/../project/ios/Main.m
                    ${VIRY3D_APP_SRC_DIR}/../project/ios/AppDelegate.m
                    ${VIRY3D_APP_SRC_DIR}/../project/ios/ViewController.mm
-                   ${VIRY3D_APP_SRC_DIR}/../project/ios/VkView.m
                    ${VIRY3D_APP_SRC_DIR}/../project/ios/app/Assets.xcassets
                    ${VIRY3D_APP_SRC_DIR}/../project/ios/app/Base.lproj/LaunchScreen.storyboard
                    ${VIRY3D_APP_SRC_DIR}/../bin/Assets
@@ -1113,6 +1118,7 @@ elseif (${Target} MATCHES "iOS")
                           "-framework OpenAL"
                           "-framework UIKit"
                           "-framework Metal"
+                          "-framework OpenGLES"
                           "-framework QuartzCore"
                           "-framework IOKit"
                           "-framework ARKit"

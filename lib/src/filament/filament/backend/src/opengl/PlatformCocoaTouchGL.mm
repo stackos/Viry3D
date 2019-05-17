@@ -51,7 +51,7 @@ PlatformCocoaTouchGL::~PlatformCocoaTouchGL() noexcept {
 }
 
 Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept {
-    EAGLSharegroup* sharegroup = (EAGLSharegroup*) sharedGLContext;
+    EAGLSharegroup* sharegroup = (__bridge EAGLSharegroup*) sharedGLContext;
 
     EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:sharegroup];
     ASSERT_POSTCONDITION(context, "Unable to create OpenGL ES context.");
@@ -66,14 +66,6 @@ Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept
     glGenFramebuffers(1, &framebuffer);
     glGenRenderbuffers(2, renderbuffer);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer[0]);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer[0]);
-
-    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer[1]);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer[1]);
-
     pImpl->mDefaultFramebuffer = framebuffer;
     pImpl->mDefaultColorbuffer = renderbuffer[0];
     pImpl->mDefaultDepthbuffer = renderbuffer[1];
@@ -82,7 +74,7 @@ Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept
 }
 
 void PlatformCocoaTouchGL::terminate() noexcept {
-    [pImpl->mGLContext release];
+
 }
 
 Platform::SwapChain* PlatformCocoaTouchGL::createSwapChain(void* nativewindow, uint64_t& flags) noexcept {
@@ -92,6 +84,7 @@ Platform::SwapChain* PlatformCocoaTouchGL::createSwapChain(void* nativewindow, u
 }
 
 void PlatformCocoaTouchGL::destroySwapChain(Platform::SwapChain* swapChain) noexcept {
+    pImpl->mCurrentGlLayer = nullptr;
 }
 
 void PlatformCocoaTouchGL::createDefaultRenderTarget(uint32_t& framebuffer, uint32_t& colorbuffer,
@@ -104,7 +97,7 @@ void PlatformCocoaTouchGL::createDefaultRenderTarget(uint32_t& framebuffer, uint
 void PlatformCocoaTouchGL::makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept {
     ASSERT_PRECONDITION_NON_FATAL(drawSwapChain == readSwapChain,
                                   "PlatformCocoaTouchGL does not support using distinct draw/read swap chains.");
-    CAEAGLLayer* glLayer = (CAEAGLLayer*) drawSwapChain;
+    CAEAGLLayer* glLayer = (__bridge CAEAGLLayer*) drawSwapChain;
 
     [EAGLContext setCurrentContext:pImpl->mGLContext];
 
@@ -115,6 +108,7 @@ void PlatformCocoaTouchGL::makeCurrent(SwapChain* drawSwapChain, SwapChain* read
 
         glBindRenderbuffer(GL_RENDERBUFFER, pImpl->mDefaultColorbuffer);
         [pImpl->mGLContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:glLayer];
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, pImpl->mDefaultColorbuffer);
 
         // Retrieve width and height of color buffer.
         GLint width;
@@ -124,7 +118,8 @@ void PlatformCocoaTouchGL::makeCurrent(SwapChain* drawSwapChain, SwapChain* read
 
         glBindRenderbuffer(GL_RENDERBUFFER, pImpl->mDefaultDepthbuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, pImpl->mDefaultDepthbuffer);
+        
         // Test the framebuffer for completeness.
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         ASSERT_POSTCONDITION(status == GL_FRAMEBUFFER_COMPLETE, "Incomplete framebuffer.");

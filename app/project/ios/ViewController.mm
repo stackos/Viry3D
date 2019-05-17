@@ -16,15 +16,9 @@
 */
 
 #import "ViewController.h"
-#import "VkView.h"
-#include "graphics/Display.h"
+#include "Engine.h"
 #include "container/List.h"
-#include "App.h"
 #include "Input.h"
-
-#if VR_GLES
-#import <GLKit/GLKit.h>
-#endif
 
 using namespace Viry3D;
 
@@ -125,10 +119,32 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     }
 }
 
+@interface View : UIView
+
+@end
+
+@implementation View
+
++ (Class)layerClass {
+    return [CAEAGLLayer class];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        CAEAGLLayer* layer = (CAEAGLLayer*) self.layer;
+        layer.opaque = YES;
+
+        self.contentScaleFactor = UIScreen.mainScreen.nativeScale;
+    }
+
+    return self;
+}
+
+@end
+
 @implementation ViewController {
     CADisplayLink* m_display_link;
-    Display* m_display;
-    App* m_app;
+    Engine* m_engine;
     UIDeviceOrientation m_orientation;
 }
 
@@ -138,45 +154,10 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     int window_width = bounds.size.width * scale;
     int window_height = bounds.size.height * scale;
     
-#if VR_VULKAN
-    VkView* view = [[VkView alloc] initWithFrame:bounds];
-    view.contentScaleFactor = UIScreen.mainScreen.nativeScale;
-#elif VR_GLES
-    bool glesv3 = false;
-    EAGLContext* context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
-    if (context == nil) {
-        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    } else {
-        glesv3 = true;
-    }
-    GLKView* view = [[GLKView alloc] initWithFrame:bounds context:context];
-    view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
-    view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-    view.drawableStencilFormat = GLKViewDrawableStencilFormatNone;
-    view.drawableMultisample = GLKViewDrawableMultisampleNone;
-    view.enableSetNeedsDisplay = FALSE;
-    view.delegate = self;
-    
-    [EAGLContext setCurrentContext:context];
-#endif
-    
+    UIView* view = [[View alloc] initWithFrame:CGRectMake(0, 0, window_width, window_height)];
     self.view = view;
     
-    String name = "viry3d-vk-demo";
-    m_display = new Display(name, (__bridge void*) self.view, window_width, window_height);
-    
-#if VR_GLES
-    m_display->SetBindDefaultFramebufferImplemment([=]() {
-        [view bindDrawable];
-    });
-    if (glesv3) {
-        m_display->EnableGLESv3();
-    }
-#endif
-    
-    m_app = new App();
-    m_app->SetName(name);
-	m_app->Init();
+    m_engine = Engine::Create((__bridge void*) self.view.layer, window_width, window_height);
     
     m_display_link = [CADisplayLink displayLinkWithTarget: self selector: @selector(drawFrame)];
     [m_display_link setFrameInterval: 1];
@@ -190,29 +171,11 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    delete m_app;
-    delete m_display;
+    Engine::Destroy(&m_engine);
 }
-
-#if VR_GLES
-- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
-    [self doDraw];
-}
-#endif
 
 - (void)drawFrame {
-#if VR_VULKAN
-    [self doDraw];
-#elif VR_GLES
-    [((GLKView*) self.view) display];
-#endif
-}
-
-- (void)doDraw {
-    m_app->OnFrameBegin();
-    m_app->Update();
-    m_display->OnDraw();
-    m_app->OnFrameEnd();
+    m_engine->Execute();
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -234,7 +197,7 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
             m_orientation = orientation;
         } else if (m_orientation != orientation) {
             m_orientation = orientation;
-            m_display->OnResize(window_width, window_height);
+            m_engine->OnResize((__bridge void*) self.view.layer, window_width, window_height);
         }
     }
 }
