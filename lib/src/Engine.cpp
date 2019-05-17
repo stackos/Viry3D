@@ -88,6 +88,8 @@ namespace Viry3D
 			m_engine(engine),
 #if VR_WINDOWS
 			m_backend(backend::Backend::VULKAN),
+#elif VR_ANDROID
+			m_backend(backend::Backend::VULKAN),
 #else
 			m_backend(backend::Backend::OPENGL),
 #endif

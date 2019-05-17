@@ -237,6 +237,75 @@ file(GLOB VIRY3D_APP_SRCS
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
 
+# filament vulkan
+if ( ${Target} MATCHES "Windows" OR
+     ${Target} MATCHES "Android" )
+
+    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_VULKAN
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanBinder.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanBuffer.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanContext.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanDisposer.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanDriver.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanFboCache.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanHandles.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanPlatform.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanSamplerCache.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanStagePool.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanUtility.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/src/BlueVK.cpp
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_VULKAN})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_VULKAN})
+
+    target_include_directories(Viry3DDep PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/include
+							   ${VIRY3D_LIB_SRC_DIR}/filament/third_party/vkmemalloc/src
+                               )
+
+endif ()
+
+# vulkan shader compiler
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
+
+    file(GLOB VIRY3D_LIB_SRCS_VULKAN
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/*.cpp
+         )
+
+	source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS_VULKAN})
+
+    target_sources(Viry3D PRIVATE ${VIRY3D_LIB_SRCS_VULKAN})
+
+    target_include_directories(Viry3D PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/include
+                               )
+
+endif ()
+
+# spirv_cross
+if ( FALSE )
+    if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android" OR ${Target} MATCHES "Mac" OR ${Target} MATCHES "iOS")
+
+        file(GLOB VIRY3D_DEP_SRCS_SPIRV_CROSS
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
+             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
+             )
+
+        source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+
+        target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+
+    endif ()
+endif ()
+
 # lua
 if ( TRUE )
 
@@ -608,41 +677,6 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP" OR ${Target} MATCHES 
 
 endif ()
 
-# spirv_cross
-if ( FALSE )
-    if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android" OR ${Target} MATCHES "Mac" OR ${Target} MATCHES "iOS")
-
-        file(GLOB VIRY3D_DEP_SRCS_SPIRV_CROSS
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
-             )
-
-        source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
-
-        target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
-
-    endif ()
-endif ()
-
-# vulkan shader compiler
-if (${Target} MATCHES "Windows") #OR ${Target} MATCHES "Android")
-
-    file(GLOB VIRY3D_LIB_SRCS_VULKAN
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/*.cpp
-         )
-
-    target_sources(Viry3D PRIVATE ${VIRY3D_LIB_SRCS_VULKAN})
-
-    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS_VULKAN})
-
-endif ()
-
 if (${Target} MATCHES "Windows")
 
     set(CMAKE_CXX_FLAGS
@@ -700,18 +734,6 @@ if (${Target} MATCHES "Windows")
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLWindows.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLCoreWindowsImpl.S
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanBinder.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanBuffer.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanContext.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanDisposer.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanDriver.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanFboCache.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanHandles.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanPlatform.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanSamplerCache.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanStagePool.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanUtility.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/src/BlueVK.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/PlatformVkWindows.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/src/BlueVKWindows.cpp
          )
@@ -725,8 +747,6 @@ if (${Target} MATCHES "Windows")
 
     target_include_directories(Viry3DDep PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/openal/win
-							   ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/include
-							   ${VIRY3D_LIB_SRC_DIR}/filament/third_party/vkmemalloc/src
                                )
 
     target_include_directories(Viry3D PRIVATE
@@ -905,7 +925,7 @@ elseif (${Target} MATCHES "Android")
     # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_ANDROID -DVR_VULKAN=0 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -frtti")
+        "${CMAKE_CXX_FLAGS} -std=c++14 -fexceptions -frtti -DVR_ANDROID -DVR_VULKAN=1 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
     add_definitions(-Wall -DIOAPI_NO_64 -DHAVE_GCC_DESTRUCTOR)
 
     target_sources(Viry3DDep PRIVATE
@@ -917,6 +937,8 @@ elseif (${Target} MATCHES "Android")
                    ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/linux/Mutex.cpp
                    ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/android/VirtualMachineEnv.cpp
                    ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformEGL.cpp
+				   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/PlatformVkAndroid.cpp
+				   ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/src/BlueVKLinuxAndroid.cpp
                    )
 
     target_include_directories(Viry3DDep PRIVATE
