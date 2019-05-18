@@ -15,14 +15,14 @@
  */
 
 #include "PlatformUWP.h"
-#include "OpenGLDriver.h"
+#include "OpenGLDriverFactory.h"
 
 namespace filament {
 
 using namespace backend;
 
 Driver* PlatformUWP::createDriver(void* const sharedGLContext) noexcept {
-    return OpenGLDriver::create(this, sharedGLContext);
+    return OpenGLDriverFactory::create(this, sharedGLContext);
 }
 
 void PlatformUWP::terminate() noexcept {

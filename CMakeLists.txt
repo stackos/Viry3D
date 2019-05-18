@@ -63,8 +63,10 @@ file(GLOB VIRY3D_DEP_SRCS
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CountDownLatch.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/CString.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Log.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/ostream.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Panic.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Profiler.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/sstream.cpp
      ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/src/Systrace.cpp
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/autofit/autofit.c
      ${VIRY3D_LIB_SRC_DIR}/freetype/src/base/ftbase.c

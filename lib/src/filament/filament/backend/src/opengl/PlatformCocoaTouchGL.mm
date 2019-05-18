@@ -28,7 +28,7 @@
 
 #include <utils/Panic.h>
 
-#include "OpenGLDriver.h"
+#include "OpenGLDriverFactory.h"
 
 namespace filament {
 
@@ -70,7 +70,7 @@ Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept
     pImpl->mDefaultColorbuffer = renderbuffer[0];
     pImpl->mDefaultDepthbuffer = renderbuffer[1];
 
-    return OpenGLDriver::create(this, sharedGLContext);
+    return OpenGLDriverFactory::create(this, sharedGLContext);
 }
 
 void PlatformCocoaTouchGL::terminate() noexcept {

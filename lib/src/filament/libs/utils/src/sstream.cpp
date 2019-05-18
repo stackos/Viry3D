@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-#include "PlatformDummyGL.h"
+#include <utils/sstream.h>
 
-namespace filament {
+namespace utils {
+namespace io {
 
-Driver* PlatformDummyGL::createDriver(void* const sharedGLContext) noexcept {
-    return nullptr;
+utils::io::ostream& sstream::flush() noexcept {
+    // no-op.
+    return *this;
 }
 
-} // namespace filament
+const char* sstream::c_str() const noexcept {
+    return mData.get();
+}
 
-// ---------------------------------------------------------------------------------------------
+} // namespace io
+} // namespace utils

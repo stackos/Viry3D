@@ -24,6 +24,7 @@
 #include <QuartzCore/QuartzCore.h> // for CAMetalLayer
 
 #include "MetalContext.h"
+#include "MetalDefines.h"
 #include "MetalEnums.h"
 #include "MetalExternalImage.h"
 #include "MetalState.h" // for MetalState::VertexDescription
@@ -31,6 +32,8 @@
 
 #include <utils/Panic.h>
 
+#include <condition_variable>
+#include <memory>
 #include <vector>
 
 namespace filament {
@@ -143,17 +146,19 @@ struct MetalSamplerGroup : public HwSamplerGroup {
 class MetalRenderTarget : public HwRenderTarget {
 public:
     MetalRenderTarget(MetalContext* context, uint32_t width, uint32_t height, uint8_t samples,
-            id<MTLTexture> color, id<MTLTexture> depth);
+            id<MTLTexture> color, id<MTLTexture> depth, uint8_t level);
     explicit MetalRenderTarget(MetalContext* context)
             : HwRenderTarget(0, 0), context(context), defaultRenderTarget(true) {}
     ~MetalRenderTarget();
 
     bool isDefaultRenderTarget() const { return defaultRenderTarget; }
-    bool isMultisampled() const { return samples > 1; }
     uint8_t getSamples() const { return samples; }
+    MTLLoadAction getLoadAction(const RenderPassParams& params, TargetBufferFlags buffer);
+    MTLStoreAction getStoreAction(const RenderPassParams& params, TargetBufferFlags buffer);
 
     id<MTLTexture> getColor();
     id<MTLTexture> getColorResolve();
+    uint8_t getColorLevel() { return level; }
     id<MTLTexture> getDepth();
     id<MTLTexture> getDepthResolve();
 
@@ -162,15 +167,32 @@ private:
             uint32_t width, uint32_t height, uint8_t samples);
 
     MetalContext* context;
-    id<MTLTexture> color = nil;
-    id<MTLTexture> depth = nil;
     bool defaultRenderTarget = false;
     uint8_t samples = 1;
+    uint8_t level = 0;
 
-    // These textures are only used if this render target is multisampled.
+    id<MTLTexture> color = nil;
+    id<MTLTexture> depth = nil;
     id<MTLTexture> multisampledColor = nil;
     id<MTLTexture> multisampledDepth = nil;
+};
 
+class MetalFence : public HwFence {
+public:
+
+    MetalFence(MetalContext& context);
+    ~MetalFence();
+
+    FenceStatus wait(uint64_t timeoutNs);
+
+private:
+
+#if METAL_FENCES_SUPPORTED
+    std::shared_ptr<std::condition_variable> cv;
+    std::mutex mutex;
+    id<MTLSharedEvent> event;
+    uint64_t value;
+#endif
 };
 
 } // namespace metal

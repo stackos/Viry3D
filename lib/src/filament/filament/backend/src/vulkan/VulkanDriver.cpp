@@ -19,6 +19,7 @@
 #include "CommandStreamDispatcher.h"
 
 #include "VulkanBuffer.h"
+#include "VulkanDriverFactory.h"
 #include "VulkanHandles.h"
 #include "VulkanPlatform.h"
 
@@ -75,6 +76,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
 
 namespace filament {
 namespace backend {
+
+Driver* VulkanDriverFactory::create(VulkanPlatform* const platform,
+        const char* const* ppEnabledExtensions, uint32_t enabledExtensionCount) noexcept {
+    return VulkanDriver::create(platform, ppEnabledExtensions, enabledExtensionCount);
+}
 
 VulkanDriver::VulkanDriver(VulkanPlatform* platform,
         const char* const* ppEnabledExtensions, uint32_t enabledExtensionCount) noexcept :
@@ -177,6 +183,7 @@ VulkanDriver::VulkanDriver(VulkanPlatform* platform,
 
 VulkanDriver::~VulkanDriver() noexcept = default;
 
+UTILS_NOINLINE
 Driver* VulkanDriver::create(VulkanPlatform* const platform,
         const char* const* ppEnabledExtensions, uint32_t enabledExtensionCount) noexcept {
     assert(platform);
@@ -395,8 +402,6 @@ void VulkanDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
             colorTexture->textureImage,
             colorTexture->imageView
         });
-    } else if (targets & TargetBufferFlags::COLOR) {
-//        renderTarget->createColorImage(getVkFormat(format));
     }
     if (depth.handle) {
         auto depthTexture = handle_cast<VulkanTexture>(mHandleMap, depth.handle);
@@ -405,8 +410,6 @@ void VulkanDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
             depthTexture->textureImage,
             depthTexture->imageView
         });
-    } else if (targets & TargetBufferFlags::DEPTH) {
-        renderTarget->createDepthImage(mContext.depthFormat);
     }
     mDisposer.createDisposable(renderTarget, [this, rth] () {
         destruct_handle<VulkanRenderTarget>(mHandleMap, rth);

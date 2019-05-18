@@ -159,80 +159,6 @@ VulkanAttachment VulkanRenderTarget::getDepth() const {
     return mDepth;
 }
 
-void VulkanRenderTarget::createColorImage(VkFormat format) {
-    assert(mOffscreen);
-    this->mColor.format = format;
-    mSharedColorImage = false;
-    // Create an appropriately-sized device-only VkImage for the color attachment.
-	VkImageCreateInfo colorImageInfo { };
-	colorImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	colorImageInfo.imageType = VK_IMAGE_TYPE_2D;
-	colorImageInfo.extent = { width, height, 1 };
-	colorImageInfo.format = mColor.format;
-	colorImageInfo.mipLevels = 1;
-	colorImageInfo.arrayLayers = 1;
-	colorImageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	colorImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-
-    VkResult error = vkCreateImage(mContext.device, &colorImageInfo, VKALLOC, &mColor.image);
-    ASSERT_POSTCONDITION(!error, "Unable to create color attachment.");
-
-    // Allocate memory for the color image and bind it.
-    VkMemoryRequirements memReqs;
-    vkGetImageMemoryRequirements(mContext.device, mColor.image, &memReqs);
-    VkMemoryAllocateInfo allocInfo {
-        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-		nullptr,
-        memReqs.size,
-        selectMemoryType(mContext, memReqs.memoryTypeBits,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-    };
-    error = vkAllocateMemory(mContext.device, &allocInfo, nullptr, &mColor.memory);
-    ASSERT_POSTCONDITION(!error, "Unable to allocate color memory.");
-    error = vkBindImageMemory(mContext.device, mColor.image, mColor.memory, 0);
-    ASSERT_POSTCONDITION(!error, "Unable to bind color memory.");
-
-    // Transition the color image into an optimal layout.
-	VkImageMemoryBarrier barrier { };
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = mColor.image;
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	barrier.subresourceRange.levelCount = 1;
-	barrier.subresourceRange.layerCount = 1;
-	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-    vkCmdPipelineBarrier(mContext.currentCommands->cmdbuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-
-    // Create a VkImageView so that we can attach it to the framebuffer.
-    VkImageViewCreateInfo colorViewInfo {
-        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-		nullptr,
-		0,
-        mColor.image,
-        VK_IMAGE_VIEW_TYPE_2D,
-        mColor.format,
-		{
-			VK_COMPONENT_SWIZZLE_IDENTITY,
-			VK_COMPONENT_SWIZZLE_IDENTITY,
-			VK_COMPONENT_SWIZZLE_IDENTITY,
-			VK_COMPONENT_SWIZZLE_IDENTITY
-		},
-		{
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			0,
-			1,
-			0,
-			1
-		}
-    };
-    error = vkCreateImageView(mContext.device, &colorViewInfo, VKALLOC, &mColor.view);
-    ASSERT_POSTCONDITION(!error, "Unable to create color attachment view.");
-}
-
 void VulkanRenderTarget::createDepthImage(VkFormat format) {
 	VkExtent2D extent;
 	if (mOffscreen) {
@@ -408,6 +334,12 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
         TextureUsage usage, VulkanStagePool& stagePool) :
         HwTexture(target, levels, samples, w, h, depth, tformat, usage),
         vkformat(getVkFormat(tformat)), mContext(context), mStagePool(stagePool) {
+
+    // Vulkan does not support 24-bit depth, use the official fallback format.
+    if (tformat == TextureFormat::DEPTH24) {
+        vkformat = mContext.depthFormat;
+    }
+
     // Create an appropriately-sized device-only VkImage, but do not fill it yet.
 	VkImageCreateInfo imageInfo { };
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -418,12 +350,15 @@ VulkanTexture::VulkanTexture(VulkanContext& context, SamplerType target, uint8_t
 	imageInfo.format = vkformat;
 	imageInfo.mipLevels = levels;
 	imageInfo.arrayLayers = 1;
-	imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	imageInfo.usage = 0;
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 
     if (target == SamplerType::SAMPLER_CUBEMAP) {
         imageInfo.arrayLayers = 6;
         imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    }
+    if (usage & TextureUsage::SAMPLEABLE) {
+        imageInfo.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
     }
     if (usage & TextureUsage::COLOR_ATTACHMENT) {
         imageInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;

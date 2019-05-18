@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-#include "PlatformDummyGL.h"
+#ifndef TNT_SSTREAM_H
+#define TNT_SSTREAM_H
 
-namespace filament {
+#include <utils/ostream.h>
 
-Driver* PlatformDummyGL::createDriver(void* const sharedGLContext) noexcept {
-    return nullptr;
-}
+namespace utils {
+namespace io {
 
-} // namespace filament
+class sstream : public ostream {
+public:
 
-// ---------------------------------------------------------------------------------------------
+    ostream &flush() noexcept override;
+
+    const char* c_str() const noexcept;
+
+};
+
+} // namespace io
+} // namespace utils
+
+#endif //TNT_SSTREAM_H

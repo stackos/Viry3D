@@ -19,6 +19,8 @@
 #include "metal/MetalDriver.h"
 
 #include "MetalContext.h"
+#include "MetalDefines.h"
+#include "MetalDriverFactory.h"
 #include "MetalEnums.h"
 #include "MetalHandles.h"
 #include "MetalState.h"
@@ -31,17 +33,16 @@
 #include <utils/Log.h>
 #include <utils/Panic.h>
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "HidingNonVirtualFunction"
-
 namespace filament {
 namespace backend {
+
+Driver* MetalDriverFactory::create(MetalPlatform* const platform) {
+    return metal::MetalDriver::create(platform);
+}
+
 namespace metal {
 
-static MTLLoadAction determineLoadAction(const RenderPassParams& params, TargetBufferFlags buffer);
-static MTLStoreAction determineStoreAction(const RenderPassParams& params, TargetBufferFlags buffer,
-        bool isMultisampled);
-
+UTILS_NOINLINE
 Driver* MetalDriver::create(MetalPlatform* const platform) {
     assert(platform);
     return new MetalDriver(platform);
@@ -58,10 +59,16 @@ MetalDriver::MetalDriver(backend::MetalPlatform* platform) noexcept
     mContext->depthStencilStateCache.setDevice(mContext->device);
     mContext->samplerStateCache.setDevice(mContext->device);
     mContext->bufferPool = new MetalBufferPool(*mContext);
+    mContext->blitter = new MetalBlitter(*mContext);
 
     CVReturn success = CVMetalTextureCacheCreate(kCFAllocatorDefault, nullptr, mContext->device,
             nullptr, &mContext->textureCache);
     ASSERT_POSTCONDITION(success == kCVReturnSuccess, "Could not create Metal texture cache.");
+
+#if METAL_FENCES_SUPPORTED
+    dispatch_queue_t queue = dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
+    mContext->eventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:queue];
+#endif
 }
 
 MetalDriver::~MetalDriver() noexcept {
@@ -94,6 +101,14 @@ void MetalDriver::setPresentationTime(int64_t monotonic_clock_ns) {
 }
 
 void MetalDriver::endFrame(uint32_t frameId) {
+    // If we haven't commited the command buffer (if the frame was canceled), do it now. There may
+    // be commands in it (like fence signaling) that need to execute.
+    if (mContext->currentCommandBuffer) {
+        assert(mContext->currentCommandBuffer.status != MTLCommandBufferStatusCommitted);
+        [mContext->currentCommandBuffer commit];
+        mContext->currentCommandBuffer = nil;
+    }
+
     // Release resources created during frame execution- like commandBuffer and currentDrawable.
     [mContext->framePool drain];
     mContext->bufferPool->gc();
@@ -173,15 +188,16 @@ void MetalDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
     };
 
     construct_handle<MetalRenderTarget>(mHandleMap, rth, mContext, width, height, samples,
-            getColorTexture(), getDepthTexture());
+            getColorTexture(), getDepthTexture(), color.level);
 
     ASSERT_POSTCONDITION(
             !stencil.handle && !(targetBufferFlags & TargetBufferFlags::STENCIL),
             "Stencil buffer not supported.");
 }
 
-void MetalDriver::createFenceR(Handle<HwFence>, int dummy) {
-
+void MetalDriver::createFenceR(Handle<HwFence> fh, int dummy) {
+    ASSERT_PRECONDITION(mContext->currentCommandBuffer, "createFence must be called within a frame.");
+    construct_handle<MetalFence>(mHandleMap, fh, *mContext);
 }
 
 void MetalDriver::createSwapChainR(Handle<HwSwapChain> sch, void* nativeWindow, uint64_t flags) {
@@ -231,7 +247,7 @@ Handle<HwRenderTarget> MetalDriver::createRenderTargetS() noexcept {
 }
 
 Handle<HwFence> MetalDriver::createFenceS() noexcept {
-    return {};
+    return alloc_handle<MetalFence, HwFence>();
 }
 
 Handle<HwSwapChain> MetalDriver::createSwapChainS() noexcept {
@@ -317,6 +333,7 @@ void MetalDriver::terminate() {
     [mContext->driverPool drain];
 
     MetalExternalImage::shutdown();
+    MetalBlitter::shutdown();
 }
 
 ShaderModel MetalDriver::getShaderModel() const noexcept {
@@ -345,11 +362,17 @@ void MetalDriver::updateStreams(backend::DriverApi* driver) {
 }
 
 void MetalDriver::destroyFence(Handle<HwFence> fh) {
-
+    if (fh) {
+        destruct_handle<MetalFence>(mHandleMap, fh);
+    }
 }
 
 FenceStatus MetalDriver::wait(Handle<HwFence> fh, uint64_t timeout) {
-    return FenceStatus::ERROR;
+    auto* fence = handle_cast<MetalFence>(mHandleMap, fh);
+    if (!fence) {
+        return FenceStatus::ERROR;
+    }
+    return fence->wait(timeout);
 }
 
 bool MetalDriver::isTextureFormatSupported(TextureFormat format) {
@@ -364,7 +387,12 @@ bool MetalDriver::isRenderTargetFormatSupported(TextureFormat format) {
 }
 
 bool MetalDriver::isFrameTimeSupported() {
+    // Frame time is calculated via hard fences.
+#if METAL_FENCES_SUPPORTED
+    return true;
+#else
     return false;
+#endif
 }
 
 // TODO: the implementations here for updateVertexBuffer and updateIndexBuffer assume static usage.
@@ -465,33 +493,33 @@ void MetalDriver::beginRenderPass(Handle<HwRenderTarget> rth,
 
     MTLRenderPassDescriptor* descriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 
-    const auto discardFlags = (TargetBufferFlags) params.flags.discardEnd;
+    const auto discardFlags = params.flags.discardEnd;
     const auto discardColor = (discardFlags & TargetBufferFlags::COLOR);
     const auto discardDepth = (discardFlags & TargetBufferFlags::DEPTH);
 
     // Color
 
-    descriptor.colorAttachments[0].texture = renderTarget->getColor();
-    descriptor.colorAttachments[0].resolveTexture = discardColor ? nil : renderTarget->getColorResolve();
-    mContext->currentSurfacePixelFormat = descriptor.colorAttachments[0].texture.pixelFormat;
+    const auto& colorAttachment = descriptor.colorAttachments[0];
+    colorAttachment.texture = renderTarget->getColor();
+    colorAttachment.resolveTexture = discardColor ? nil : renderTarget->getColorResolve();
+    mContext->currentSurfacePixelFormat = colorAttachment.texture.pixelFormat;
 
     // Metal clears the entire attachment without respect to viewport or scissor.
     // TODO: Might need to clear the scissor area manually via a draw if we need that functionality.
 
-    descriptor.colorAttachments[0].loadAction = determineLoadAction(params, TargetBufferFlags::COLOR);
-    descriptor.colorAttachments[0].storeAction = determineStoreAction(params, TargetBufferFlags::COLOR,
-            renderTarget->isMultisampled());
-    descriptor.colorAttachments[0].clearColor = MTLClearColorMake(
+    colorAttachment.loadAction = renderTarget->getLoadAction(params, TargetBufferFlags::COLOR);
+    colorAttachment.storeAction = renderTarget->getStoreAction(params, TargetBufferFlags::COLOR);
+    colorAttachment.clearColor = MTLClearColorMake(
             params.clearColor.r, params.clearColor.g, params.clearColor.b, params.clearColor.a);
 
     // Depth
 
-    descriptor.depthAttachment.texture = renderTarget->getDepth();
-    descriptor.depthAttachment.resolveTexture = discardDepth ? nil : renderTarget->getDepthResolve();
-    descriptor.depthAttachment.loadAction = determineLoadAction(params, TargetBufferFlags::DEPTH);
-    descriptor.depthAttachment.storeAction = determineStoreAction(params, TargetBufferFlags::DEPTH,
-            renderTarget->isMultisampled());
-    descriptor.depthAttachment.clearDepth = params.clearDepth;
+    const auto& depthAttachment = descriptor.depthAttachment;
+    depthAttachment.texture = renderTarget->getDepth();
+    depthAttachment.resolveTexture = discardDepth ? nil : renderTarget->getDepthResolve();
+    depthAttachment.loadAction = renderTarget->getLoadAction(params, TargetBufferFlags::DEPTH);
+    depthAttachment.storeAction = renderTarget->getStoreAction(params, TargetBufferFlags::DEPTH);
+    depthAttachment.clearDepth = params.clearDepth;
     mContext->currentDepthPixelFormat = descriptor.depthAttachment.texture.pixelFormat;
 
     mContext->currentCommandEncoder =
@@ -624,7 +652,57 @@ void MetalDriver::blit(TargetBufferFlags buffers,
         Handle<HwRenderTarget> dst, backend::Viewport dstRect,
         Handle<HwRenderTarget> src, backend::Viewport srcRect,
         SamplerMagFilter filter) {
-    ASSERT_POSTCONDITION(false, "Blitting not implemented.");
+    ASSERT_PRECONDITION(mContext->currentCommandBuffer != nil &&
+                        mContext->currentCommandEncoder == nil,
+                        "Blitting must be done during a frame, but outside of a render pass.");
+
+    auto srcTarget = handle_cast<MetalRenderTarget>(mHandleMap, src);
+    auto dstTarget = handle_cast<MetalRenderTarget>(mHandleMap, dst);
+
+    ASSERT_PRECONDITION(srcRect.left >= 0 && srcRect.bottom >= 0 &&
+                        dstRect.left >= 0 && dstRect.bottom >= 0,
+            "Source and destination rects must be positive.");
+
+    id<MTLTexture> srcTexture = srcTarget->getColor();
+    id<MTLTexture> dstTexture = dstTarget->getColor();
+
+    // Metal's texture coordinates have (0, 0) at the top-left of the texture, but Filament's
+    // coordinates have (0, 0) at bottom-left.
+    MTLRegion srcRegion = MTLRegionMake2D(
+            (NSUInteger) srcRect.left,
+            srcTexture.height - (NSUInteger) srcRect.bottom - srcRect.height,
+            srcRect.width, srcRect.height);
+
+    MTLRegion dstRegion = MTLRegionMake2D(
+            (NSUInteger) dstRect.left,
+            dstTexture.height - (NSUInteger) dstRect.bottom - dstRect.height,
+            dstRect.width, dstRect.height);
+
+    const uint8_t srcLevel = srcTarget->getColorLevel();
+    const uint8_t dstLevel = dstTarget->getColorLevel();
+
+    ASSERT_PRECONDITION(srcTexture.textureType == MTLTextureType2D &&
+                        dstTexture.textureType == MTLTextureType2D,
+                        "Metal does not support blitting to/from non-2D textures.");
+
+    MetalBlitter::BlitArgs args;
+    args.filter = filter;
+    args.source.level = srcLevel;
+    args.source.region = srcRegion;
+    args.destination.level = dstLevel;
+    args.destination.region = dstRegion;
+
+    if (buffers & TargetBufferFlags::COLOR) {
+        args.source.color = srcTexture;
+        args.destination.color = dstTexture;
+    }
+
+    if (buffers & TargetBufferFlags::DEPTH) {
+        args.source.depth = srcTarget->getDepth();
+        args.destination.depth = dstTarget->getDepth();
+    }
+
+    mContext->blitter->blit(args);
 }
 
 void MetalDriver::draw(backend::PipelineState ps, Handle<HwRenderPrimitive> rph) {
@@ -817,26 +895,6 @@ void MetalDriver::enumerateBoundUniformBuffers(
     }
 }
 
-MTLLoadAction determineLoadAction(const RenderPassParams& params, TargetBufferFlags buffer) {
-    const auto clearFlags = (TargetBufferFlags) params.flags.clear;
-    const auto discardStartFlags = (TargetBufferFlags) params.flags.discardStart;
-    if (clearFlags & buffer) {
-        return MTLLoadActionClear;
-    } else if (discardStartFlags & buffer) {
-        return MTLLoadActionDontCare;
-    }
-    return MTLLoadActionLoad;
-}
-
-static MTLStoreAction determineStoreAction(const RenderPassParams& params, TargetBufferFlags buffer,
-        bool isMultisampled) {
-    const auto discardEndFlags = (TargetBufferFlags) params.flags.discardEnd;
-    if (discardEndFlags & buffer) {
-        return MTLStoreActionDontCare;
-    }
-    return isMultisampled ? MTLStoreActionMultisampleResolve : MTLStoreActionStore;
-}
-
 } // namespace metal
 
 // explicit instantiation of the Dispatcher
@@ -844,5 +902,3 @@ template class ConcreteDispatcher<metal::MetalDriver>;
 
 } // namespace backend
 } // namespace filament
-
-#pragma clang diagnostic pop
