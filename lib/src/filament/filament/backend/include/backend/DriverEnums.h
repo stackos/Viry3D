@@ -477,6 +477,8 @@ enum class TextureFormat : uint16_t {
     SRGB8_ALPHA8_ASTC_12x12,
 };
 
+size_t getTextureFormatSize(TextureFormat format) noexcept;
+
 enum TextureUsage : uint8_t {
     COLOR_ATTACHMENT    = 0x1,
     DEPTH_ATTACHMENT    = 0x2,
