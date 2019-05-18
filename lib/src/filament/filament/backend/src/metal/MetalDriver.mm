@@ -52,7 +52,6 @@ MetalDriver::MetalDriver(backend::MetalPlatform* platform) noexcept
         : DriverBase(new ConcreteDispatcher<MetalDriver>()),
         mPlatform(*platform),
         mContext(new MetalContext) {
-    mContext->driverPool = [[NSAutoreleasePool alloc] init];
     mContext->device = MTLCreateSystemDefaultDevice();
     mContext->commandQueue = [mContext->device newCommandQueue];
     mContext->pipelineStateCache.setDevice(mContext->device);
@@ -72,7 +71,6 @@ MetalDriver::MetalDriver(backend::MetalPlatform* platform) noexcept
 }
 
 MetalDriver::~MetalDriver() noexcept {
-    [mContext->device release];
     CFRelease(mContext->textureCache);
     delete mContext->bufferPool;
     delete mContext;
@@ -88,11 +86,9 @@ void MetalDriver::debugCommand(const char *methodName) {
 #endif
 
 void MetalDriver::beginFrame(int64_t monotonic_clock_ns, uint32_t frameId) {
-    mContext->framePool = [[NSAutoreleasePool alloc] init];
-
     id<MTLCommandBuffer> commandBuffer = acquireCommandBuffer(mContext);
     [commandBuffer addCompletedHandler:^(id <MTLCommandBuffer> buffer) {
-        mContext->resourceTracker.clearResources(buffer);
+        mContext->resourceTracker.clearResources((__bridge MetalResourceTracker::CommandBuffer) buffer);
     }];
 }
 
@@ -110,7 +106,6 @@ void MetalDriver::endFrame(uint32_t frameId) {
     }
 
     // Release resources created during frame execution- like commandBuffer and currentDrawable.
-    [mContext->framePool drain];
     mContext->bufferPool->gc();
 
     CVMetalTextureCacheFlush(mContext->textureCache, 0);
@@ -201,7 +196,7 @@ void MetalDriver::createFenceR(Handle<HwFence> fh, int dummy) {
 }
 
 void MetalDriver::createSwapChainR(Handle<HwSwapChain> sch, void* nativeWindow, uint64_t flags) {
-    auto* metalLayer = (CAMetalLayer*) nativeWindow;
+    auto* metalLayer = (__bridge CAMetalLayer*) nativeWindow;
     construct_handle<MetalSwapChain>(mHandleMap, sch, mContext->device, metalLayer);
 }
 
@@ -329,8 +324,6 @@ void MetalDriver::terminate() {
     [oneOffBuffer waitUntilCompleted];
 
     mContext->bufferPool->reset();
-    [mContext->commandQueue release];
-    [mContext->driverPool drain];
 
     MetalExternalImage::shutdown();
     MetalBlitter::shutdown();

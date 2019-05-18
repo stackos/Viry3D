@@ -25,7 +25,7 @@
 #include <backend/DriverEnums.h>
 
 #include <memory>
-#include <tsl/robin_map.h>
+#include <unordered_map>
 #include <utils/Hash.h>
 
 namespace filament {
@@ -128,7 +128,7 @@ public:
 
     ~StateCache() {
         for (auto it = mStateCache.begin(); it != mStateCache.end(); ++it) {
-            [it.value() release];
+
         }
     }
 
@@ -138,7 +138,7 @@ public:
         // Check if a valid state already exists in the cache.
         auto iter = mStateCache.find(state);
         if (UTILS_LIKELY(iter != mStateCache.end())) {
-            auto foundState = iter.value();
+            auto foundState = iter->second;
             return foundState;
         }
 
@@ -159,7 +159,7 @@ private:
     id<MTLDevice> mDevice = nil;
 
     using HashFn = utils::hash::MurmurHashFn<StateType>;
-    tsl::robin_map<StateType, MetalType, HashFn> mStateCache;
+    std::unordered_map<StateType, MetalType, HashFn> mStateCache;
 
 };
 

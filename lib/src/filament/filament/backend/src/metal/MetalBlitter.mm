@@ -245,10 +245,6 @@ void MetalBlitter::blit(const BlitArgs& args) {
 }
 
 void MetalBlitter::shutdown() noexcept {
-    [gVertexFunction release];
-    [gFragmentColor release];
-    [gFragmentDepth release];
-    [gFragmentColorDepth release];
     gFragmentColor = nil;
     gFragmentColorDepth = nil;
     gVertexFunction = nil;
@@ -299,7 +295,6 @@ void MetalBlitter::ensureFunctions() {
     gFragmentColor = [library newFunctionWithName:@"blitterFragColor"];
     gFragmentDepth = [library newFunctionWithName:@"blitterFragDepth"];
     gFragmentColorDepth = [library newFunctionWithName:@"blitterFragColorDepth"];
-    [library release];
 }
 
 } // namespace metal

@@ -17,8 +17,8 @@
 #ifndef TNT_METALRESOURCETRACKER_H
 #define TNT_METALRESOURCETRACKER_H
 
-#include <tsl/robin_map.h>
-#include <tsl/robin_set.h>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <functional>
 #include <mutex>
@@ -70,8 +70,8 @@ private:
     };
 
     using ResourcesKey = CommandBuffer;
-    using Resources = tsl::robin_set<ResourceEntry, ResourceEntryHash>;
-    tsl::robin_map<ResourcesKey, Resources> mResources;
+    using Resources = std::unordered_set<ResourceEntry, ResourceEntryHash>;
+    std::unordered_map<ResourcesKey, Resources> mResources;
 
     // Synchronizes access to the map.
     // trackResource and clearResources may be called on separate threads (the engine thread and a

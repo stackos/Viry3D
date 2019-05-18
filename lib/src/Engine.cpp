@@ -90,6 +90,8 @@ namespace Viry3D
 			m_backend(backend::Backend::VULKAN),
 #elif VR_ANDROID
 			m_backend(backend::Backend::VULKAN),
+#elif VR_USE_METAL
+            m_backend(backend::Backend::METAL),
 #else
 			m_backend(backend::Backend::OPENGL),
 #endif

@@ -32,7 +32,7 @@ bool MetalResourceTracker::trackResource(CommandBuffer buffer, Resource resource
     }
 
     assert(found != mResources.end());
-    Resources& resources = found.value();
+    Resources& resources = found->second;
     auto inserted = resources.insert({resource, deleter});
     return inserted.second;
 }
@@ -45,7 +45,7 @@ void MetalResourceTracker::clearResources(CommandBuffer buffer) {
         return;
     }
 
-    for (const auto& resource : found.value()) {
+    for (const auto& resource : found->second) {
         resource.deleter(resource.resource);
     }
     mResources.erase(found);

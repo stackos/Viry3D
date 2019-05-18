@@ -17,8 +17,9 @@
 
 #import "ViewController.h"
 #include "Engine.h"
-#include "container/List.h"
 #include "Input.h"
+#include "container/List.h"
+#include <QuartzCore/QuartzCore.h>
 
 using namespace Viry3D;
 
@@ -50,11 +51,25 @@ static bool g_mouse_down = false;
     int window_width = size.width * scale;
     int window_height = size.height * scale;
     
+    void* window = nullptr;
+    
     NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height)];
-    view.wantsBestResolutionOpenGLSurface = YES;
     self.view = view;
     
-    m_engine = Engine::Create((__bridge void*) self.view, window_width, window_height);
+#if VR_USE_METAL
+    [view setWantsLayer:YES];
+    CAMetalLayer* layer = [CAMetalLayer layer];
+    layer.bounds = view.bounds;
+    layer.drawableSize = [view convertSizeToBacking:view.bounds.size];
+    layer.opaque = YES;
+    [view setLayer:layer];
+    window = (__bridge void*) layer;
+#else
+    view.wantsBestResolutionOpenGLSurface = YES;
+    window = (__bridge void*) view;
+#endif
+    
+    m_engine = Engine::Create(window, window_width, window_height);
 
     m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:self selector:@selector(drawFrame) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];

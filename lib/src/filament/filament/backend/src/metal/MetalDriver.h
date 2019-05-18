@@ -23,7 +23,7 @@
 #include <utils/compiler.h>
 #include <utils/Log.h>
 
-#include <tsl/robin_map.h>
+#include <unordered_map>
 
 #include <mutex>
 
@@ -86,7 +86,7 @@ private:
     // For now we're not bothering to store handles in pools, just simple on-demand allocation.
     // We have a little map from integer handles to "blobs" which get replaced with the Hw objects.
     using Blob = void*;
-    using HandleMap = tsl::robin_map<HandleBase::HandleId, Blob>;
+    using HandleMap = std::unordered_map<HandleBase::HandleId, Blob>;
     std::mutex mHandleMapMutex;
     HandleMap mHandleMap;
     HandleBase::HandleId mNextId = 1;
@@ -104,7 +104,7 @@ private:
         assert(handle);
         auto iter = handleMap.find(handle.getId());
         assert(iter != handleMap.end());
-        Blob& blob = iter.value();
+        Blob& blob = iter->second;
         return reinterpret_cast<Dp*>(blob);
     }
 
@@ -114,7 +114,7 @@ private:
         assert(handle);
         auto iter = handleMap.find(handle.getId());
         assert(iter != handleMap.end());
-        Blob& blob = iter.value();
+        Blob& blob = iter->second;
         return reinterpret_cast<const Dp*>(blob);
     }
 
@@ -123,7 +123,7 @@ private:
         std::lock_guard<std::mutex> lock(mHandleMapMutex);
         auto iter = handleMap.find(handle.getId());
         assert(iter != handleMap.end());
-        Blob& blob = iter.value();
+        Blob& blob = iter->second;
         Dp* addr = reinterpret_cast<Dp*>(blob);
         new(addr) Dp(std::forward<ARGS>(args)...);
         return addr;
@@ -136,7 +136,7 @@ private:
         // Call the destructor, remove the blob, don't bother reclaiming the integer id.
         auto iter = handleMap.find(handle.getId());
         assert(iter != handleMap.end());
-        Blob& blob = iter.value();
+        Blob& blob = iter->second;
         reinterpret_cast<Dp*>(blob)->~Dp();
         free(blob);
         handleMap.erase(handle.getId());

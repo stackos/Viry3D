@@ -308,6 +308,28 @@ if ( FALSE )
     endif ()
 endif ()
 
+# filament metal
+if ( ${Target} MATCHES "Mac" OR
+     ${Target} MATCHES "iOS" )
+
+    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_METAL
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalBlitter.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalBufferPool.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalContext.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalDriver.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalExternalImage.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalHandles.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalResourceTracker.cpp
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalState.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/PlatformMetal.mm
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_METAL})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_METAL})
+
+endif ()
+
 # lua
 if ( TRUE )
 
@@ -983,8 +1005,8 @@ elseif (${Target} MATCHES "Android")
 
 elseif (${Target} MATCHES "Mac")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_MAC -DVR_VULKAN=0 -DVR_GLES=1")
-    add_definitions(-Wall -DHAVE_ASSERT_H -fobjc-arc)
+        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_MAC -DVR_VULKAN=0 -DVR_GLES=1 -DVR_METAL=1 -DVR_USE_METAL=0")
+    add_definitions(-Wall -DHAVE_ASSERT_H -fobjc-arc -DFILAMENT_SUPPORTS_METAL)
 
     file(GLOB VIRY3D_DEP_SRCS_MAC
          ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformCocoaGL.mm
