@@ -20,13 +20,17 @@
 #include "Engine.h"
 #include "io/File.h"
 #include "lua/lua.hpp"
+#include "memory/Memory.h"
 
 #if VR_VULKAN
 #if VR_WINDOWS || VR_ANDROID
 #include "vulkan/vulkan_shader_compiler.h"
-#elif VR_IOS || VR_MAC
-#include "GLSLConversion.h"
 #endif
+#endif
+
+#if VR_METAL
+#include "GLSLConversion.h"
+#include "SPIRVConversion.h"
 #endif
 
 namespace Viry3D
@@ -407,7 +411,8 @@ namespace Viry3D
 		String define;
 		String vk_convert;
 
-		if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN)
+		if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN ||
+            Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)
 		{
 			define = "#extension GL_ARB_separate_shader_objects : enable\n"
 				"#extension GL_ARB_shading_language_420pack : enable\n"
@@ -450,11 +455,81 @@ namespace Viry3D
 				GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
 				GlslToSpirv(fs, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, fs_spirv);
 				vs_data.Resize(vs_spirv.Size() * 4);
-				memcpy(&vs_data[0], &vs_spirv[0], vs_data.Size());
+				Memory::Copy(&vs_data[0], &vs_spirv[0], vs_data.Size());
 				fs_data.Resize(fs_spirv.Size() * 4);
-				memcpy(&fs_data[0], &fs_spirv[0], fs_data.Size());
+				Memory::Copy(&fs_data[0], &fs_spirv[0], fs_data.Size());
 #endif
 			}
+            else if (Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)
+            {
+#if VR_METAL
+                auto glsl_to_spirv = [](const String& glsl, filament::backend::Program::Shader shader_type, Vector<unsigned int>& spirv) {
+                    MVKShaderStage stage;
+                    switch (shader_type)
+                    {
+                        case filament::backend::Program::Shader::VERTEX:
+                            stage = kMVKShaderStageVertex;
+                            break;
+                        case filament::backend::Program::Shader::FRAGMENT:
+                            stage = kMVKShaderStageFragment;
+                            break;
+                        default:
+                            stage = kMVKShaderStageAuto;
+                            break;
+                    }
+                    uint32_t* spirv_code = nullptr;
+                    size_t size = 0;
+                    char* log = nullptr;
+                    bool success = mvkConvertGLSLToSPIRV(glsl.CString(),
+                                                         stage,
+                                                         &spirv_code,
+                                                         &size,
+                                                         &log,
+                                                         true,
+                                                         true);
+                    if (!success)
+                    {
+                        Log("shader compile error: %s", log);
+                    }
+                    assert(success);
+                    
+                    spirv.Resize((int) size / 4);
+                    Memory::Copy(&spirv[0], spirv_code, spirv.SizeInBytes());
+                    
+                    free(log);
+                    free(spirv_code);
+                };
+                auto spirv_to_msl = [](const Vector<unsigned int>& spirv, String& msl) {
+                    char* msl_code = nullptr;
+                    char* log = nullptr;
+                    bool success = mvkConvertSPIRVToMSL((uint32_t*) spirv.Bytes(), spirv.Size(), &msl_code, &log, true, true);
+                    if (!success)
+                    {
+                        Log("shader compile error: %s", log);
+                    }
+                    assert(success);
+                    
+                    msl = msl_code;
+                    
+                    free(log);
+                    free(msl_code);
+                };
+                
+                Vector<unsigned int> vs_spirv;
+                Vector<unsigned int> fs_spirv;
+                glsl_to_spirv(vs, filament::backend::Program::Shader::VERTEX, vs_spirv);
+                glsl_to_spirv(fs, filament::backend::Program::Shader::FRAGMENT, fs_spirv);
+                String vs_msl;
+                String fs_msl;
+                spirv_to_msl(vs_spirv, vs_msl);
+                spirv_to_msl(fs_spirv, fs_msl);
+                
+                vs_data.Resize(vs_msl.Size());
+                Memory::Copy(&vs_data[0], &vs_msl[0], vs_msl.Size());
+                fs_data.Resize(fs_msl.Size());
+                Memory::Copy(&fs_data[0], &fs_msl[0], fs_msl.Size());
+#endif
+            }
 			else
 			{
 				vs_data.Resize(vs.Size());

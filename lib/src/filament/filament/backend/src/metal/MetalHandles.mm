@@ -211,7 +211,7 @@ MetalProgram::MetalProgram(id<MTLDevice> device, const Program& program) noexcep
     using MetalFunctionPtr = id<MTLFunction>;
 
     static_assert(Program::SHADER_TYPE_COUNT == 2, "Only vertex and fragment shaders expected.");
-    MetalFunctionPtr shaderFunctions[2] = { vertexFunction, fragmentFunction };
+    MetalFunctionPtr shaderFunctions[2];
 
     const auto& sources = program.getShadersSource();
     for (size_t i = 0; i < Program::SHADER_TYPE_COUNT; i++) {
@@ -237,7 +237,9 @@ MetalProgram::MetalProgram(id<MTLDevice> device, const Program& program) noexcep
 
         shaderFunctions[i] = [library newFunctionWithName:@"main0"];
     }
-
+    vertexFunction = shaderFunctions[0];
+    fragmentFunction = shaderFunctions[1];
+    
     samplerGroupInfo = program.getSamplerGroupInfo();
 }
 
@@ -451,6 +453,21 @@ MTLStoreAction MetalRenderTarget::getStoreAction(const RenderPassParams& params,
 }
 
 MetalRenderTarget::~MetalRenderTarget() {
+}
+    
+void MetalRenderTarget::createDepth(MTLPixelFormat format, uint32_t width, uint32_t height) {
+    MTLTextureDescriptor* descriptor =
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format
+                                                           width:width
+                                                          height:height
+                                                       mipmapped:false];
+    descriptor.mipmapLevelCount = 1;
+    descriptor.textureType = MTLTextureType2D;
+    descriptor.sampleCount = 1;
+    descriptor.usage = MTLTextureUsageRenderTarget;
+    descriptor.storageMode = MTLStorageModePrivate;
+
+    depth = [context->device newTextureWithDescriptor:descriptor];
 }
 
 id<MTLTexture> MetalRenderTarget::createMultisampledTexture(id<MTLDevice> device,

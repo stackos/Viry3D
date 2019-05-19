@@ -51,11 +51,10 @@ static bool g_mouse_down = false;
     int window_width = size.width * scale;
     int window_height = size.height * scale;
     
-    void* window = nullptr;
-    
     NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, size.width, size.height)];
     self.view = view;
     
+    void* window = nullptr;
 #if VR_USE_METAL
     [view setWantsLayer:YES];
     CAMetalLayer* layer = [CAMetalLayer layer];
@@ -91,6 +90,11 @@ static bool g_mouse_down = false;
 - (void)onResize:(int)width :(int)height {
     m_target_width = width;
     m_target_height = height;
+    
+#if VR_USE_METAL
+    CAMetalLayer* layer = (CAMetalLayer*) self.view.layer;
+    layer.drawableSize = [self.view convertSizeToBacking:self.view.bounds.size];
+#endif
 }
 
 - (void)drawFrame {

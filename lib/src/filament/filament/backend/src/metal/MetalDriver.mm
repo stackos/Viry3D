@@ -506,6 +506,16 @@ void MetalDriver::beginRenderPass(Handle<HwRenderTarget> rth,
             params.clearColor.r, params.clearColor.g, params.clearColor.b, params.clearColor.a);
 
     // Depth
+    
+    if (mContext->currentRenderTarget->isDefaultRenderTarget()) {
+        if (renderTarget->getDepth() == nil) {
+            MTLPixelFormat depthFormat = MTLPixelFormatDepth24Unorm_Stencil8;
+            if (!mContext->device.depth24Stencil8PixelFormatSupported) {
+                depthFormat = MTLPixelFormatDepth32Float;
+            }
+            renderTarget->createDepth(depthFormat, colorAttachment.texture.width, colorAttachment.texture.height);
+        }
+    }
 
     const auto& depthAttachment = descriptor.depthAttachment;
     depthAttachment.texture = renderTarget->getDepth();

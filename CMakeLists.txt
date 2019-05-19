@@ -946,8 +946,6 @@ elseif (${Target} MATCHES "Android")
     set_target_properties(shaderc_lib PROPERTIES IMPORTED_LOCATION
                           ${SHADERC_SRC}/libs/${ANDROID_STL}/${ANDROID_ABI}/libshaderc.a)
 
-    # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
-
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -std=c++14 -fexceptions -frtti -DVR_ANDROID -DVR_VULKAN=1 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
     add_definitions(-Wall -DIOAPI_NO_64 -DHAVE_GCC_DESTRUCTOR)
@@ -969,10 +967,6 @@ elseif (${Target} MATCHES "Android")
                                ${VIRY3D_LIB_SRC_DIR}/openal/android
                                )
 
-    target_sources(Viry3D PRIVATE
-                   ${VIRY3D_LIB_SRC_DIR}/vulkan/vulkan_wrapper/vulkan_wrapper.cpp
-                   )
-
     target_include_directories(Viry3D PRIVATE
                                ${ANDROID_NDK}/sources/third_party/shaderc/include
                                ${SHADERC_SRC}/third_party/spirv-tools/include
@@ -982,15 +976,12 @@ elseif (${Target} MATCHES "Android")
     add_library(Viry3DApp SHARED
                 ${VIRY3D_APP_SRCS}
                 ${CMAKE_SOURCE_DIR}/app/project/android/app/src/main/jni/jni.cpp
-                # ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
-                # ${CMAKE_SOURCE_DIR}/app/project/android/app/src/main/jni/jni_native_activity.cpp
                 )
 
     target_include_directories(Viry3DApp PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}
                                ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
                                ${VIRY3D_APP_SRC_DIR}
-                               ${ANDROID_NDK}/sources/android/native_app_glue
                                )
 
     target_link_libraries(Viry3DApp
@@ -1005,7 +996,7 @@ elseif (${Target} MATCHES "Android")
 
 elseif (${Target} MATCHES "Mac")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_MAC -DVR_VULKAN=0 -DVR_GLES=1 -DVR_METAL=1 -DVR_USE_METAL=0")
+        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_MAC -DVR_VULKAN=0 -DVR_GLES=1 -DVR_METAL=1 -DVR_USE_METAL=1")
     add_definitions(-Wall -DHAVE_ASSERT_H -fobjc-arc -DFILAMENT_SUPPORTS_METAL)
 
     file(GLOB VIRY3D_DEP_SRCS_MAC
@@ -1029,6 +1020,7 @@ elseif (${Target} MATCHES "Mac")
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework/Headers
+                               ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/macOS/MoltenVKSPIRVToMSLConverter.framework/Headers
                                )
 
     set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
@@ -1057,6 +1049,7 @@ elseif (${Target} MATCHES "Mac")
                           Viry3D Viry3DDep
                           ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/macOS/libMoltenVK.a
                           ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework
+                          ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/macOS/MoltenVKSPIRVToMSLConverter.framework
                           "-framework OpenAL"
                           "-framework AppKit"
                           "-framework Metal"

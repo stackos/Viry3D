@@ -161,6 +161,8 @@ public:
     uint8_t getColorLevel() { return level; }
     id<MTLTexture> getDepth();
     id<MTLTexture> getDepthResolve();
+    
+    void createDepth(MTLPixelFormat format, uint32_t width, uint32_t height);
 
 private:
     static id<MTLTexture> createMultisampledTexture(id<MTLDevice> device, MTLPixelFormat format,
