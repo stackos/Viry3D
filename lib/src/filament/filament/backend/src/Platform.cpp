@@ -45,7 +45,7 @@
         #include "vulkan/PlatformVkLinux.h"
     #endif
 #elif defined(VR_UWP)
-	#include "opengl/PlatformUWP.h"
+	#include "d3d/PlatformD3D11.h"
 #elif defined(WIN32)
     #ifndef USE_EXTERNAL_GLES3
         #include "opengl/PlatformWGL.h"
@@ -121,7 +121,7 @@ DefaultPlatform* DefaultPlatform::create(Backend* backend) noexcept {
     #elif defined(__linux__)
         return new PlatformGLX();
 	#elif defined(VR_UWP)
-		return new PlatformUWP();
+		return new PlatformD3D11();
     #elif defined(WIN32)
         return new PlatformWGL();
     #elif defined(__EMSCRIPTEN__)

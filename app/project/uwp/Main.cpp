@@ -17,10 +17,13 @@
 
 #include <wrl.h>
 #include <ppltasks.h>
+
+#if VR_GLES
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
 #include <angle_windowsstore.h>
+#endif
 
 #include "Engine.h"
 #include "Debug.h"
@@ -70,12 +73,15 @@ static Platform::String^ ConvertString(const Viry3D::String& src)
     return ref new Platform::String(data16);
 }
 
+#if VR_GLES
 static EGLDisplay g_egl_display = EGL_NO_DISPLAY;
 static EGLContext g_egl_context = EGL_NO_CONTEXT;
 static EGLContext g_egl_shared_context = EGL_NO_CONTEXT;
 static EGLSurface g_egl_surface = EGL_NO_SURFACE;
-static EGLint g_egl_width = 0;
-static EGLint g_egl_height = 0;
+#endif
+
+static int g_window_width = 0;
+static int g_window_height = 0;
 
 namespace app
 {
@@ -94,6 +100,11 @@ namespace app
             applicationView->Activated +=
                 ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &App::OnActivated);
 
+			CoreApplication::Suspending +=
+				ref new EventHandler<SuspendingEventArgs^>(this, &App::OnSuspending);
+			CoreApplication::Resuming +=
+				ref new EventHandler<Platform::Object^>(this, &App::OnResuming);
+
             // Logic for other event handlers could go here.
             // Information about the Suspending and Resuming event handlers can be found here:
             // http://msdn.microsoft.com/en-us/library/windows/apps/xaml/hh994930.aspx
@@ -101,18 +112,31 @@ namespace app
 
         virtual void SetWindow(CoreWindow^ window)
         {
-            window->VisibilityChanged +=
-                ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &App::OnVisibilityChanged);
-
+            window->SizeChanged +=
+                ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &App::OnWindowSizeChanged);
+			window->VisibilityChanged +=
+				ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &App::OnVisibilityChanged);
             window->Closed +=
                 ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::OnWindowClosed);
 
-            window->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerPressed);
-            window->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerMoved);
-            window->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerReleased);
+			window->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerPressed);
+			window->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerMoved);
+			window->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(&OnPointerReleased);
 
+			DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
+			currentDisplayInformation->DpiChanged +=
+				ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDpiChanged);
+			currentDisplayInformation->OrientationChanged +=
+				ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnOrientationChanged);
+			DisplayInformation::DisplayContentsInvalidated +=
+				ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
+
+			m_window = window;
+
+#if VR_GLES
             // The CoreWindow has been created, so EGL can be initialized.
             this->InitEGL(window);
+#endif
         }
 
         virtual void Load(Platform::String^ entryPoint)
@@ -128,11 +152,14 @@ namespace app
                 {
                     CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
-                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &g_egl_width);
-                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &g_egl_height);
+#if VR_GLES
+                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &g_window_width);
+                    eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &g_window_height);
+#endif
 
                     this->Draw();
 
+#if VR_GLES
                     // The call to eglSwapBuffers might not be successful (e.g. due to Device Lost)
                     // If the call fails, then we must reinitialize EGL and the GL resources.
                     if (eglSwapBuffers(g_egl_display, g_egl_surface) != EGL_TRUE)
@@ -141,6 +168,7 @@ namespace app
                         this->InitEGL(CoreWindow::GetForCurrentThread());
                         this->RecreateRenderer();
                     }
+#endif
                 }
                 else
                 {
@@ -149,13 +177,17 @@ namespace app
             }
 
             this->DoneRenderer();
+
+#if VR_GLES
             this->DoneEGL();
+#endif
         }
 
         virtual void Uninitialize()
         {
         }
 
+#if VR_GLES
         void BindSharedContext()
         {
             eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, g_egl_shared_context);
@@ -165,8 +197,10 @@ namespace app
         {
             eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         }
+#endif
 
     private:
+#if VR_GLES
         void InitEGL(CoreWindow^ window)
         {
             const EGLint config_attribs[] =
@@ -364,6 +398,7 @@ namespace app
                 }
             }
         }
+#endif
 
         // Application lifecycle event handlers.
         void OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
@@ -372,7 +407,32 @@ namespace app
             CoreWindow::GetForCurrentThread()->Activate();
         }
 
+		void OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
+		{
+			// 在请求延期后异步保存应用程序状态。保留延期
+			// 表示应用程序正忙于执行挂起操作。
+			// 请注意，延期不是无限期的。在大约五秒后，
+			// 将强制应用程序退出。
+			SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
+			deferral->Complete();
+		}
+
+		void OnResuming(Platform::Object^ sender, Platform::Object^ args)
+		{
+			// 还原在挂起时卸载的任何数据或状态。默认情况下，
+			// 在从挂起中恢复时，数据和状态会持续保留。请注意，
+			// 如果之前已终止应用程序，则不会发生此事件。
+
+			// 在此处插入代码。
+		}
+
         // Window event handlers.
+		void OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
+		{
+			g_window_width = (int) sender->Bounds.Width;
+			g_window_height = (int) sender->Bounds.Height;
+		}
+
         void OnVisibilityChanged(CoreWindow^ window, VisibilityChangedEventArgs^ e)
         {
             m_window_visible = e->Visible;
@@ -381,24 +441,50 @@ namespace app
         void OnWindowClosed(CoreWindow^ window, CoreWindowEventArgs^ e)
         {
             m_window_closed = true;
+			m_window.Release();
         }
+
+		void OnDpiChanged(DisplayInformation^ sender, Object^ args)
+		{
+			float dpi = sender->LogicalDpi;
+		}
+
+		void OnOrientationChanged(DisplayInformation^ sender, Object^ args)
+		{
+			auto orientation = sender->CurrentOrientation;
+		}
+
+		void OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
+		{
+			
+		}
 
         void RecreateRenderer()
         {
             this->DoneRenderer();
 
-            eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &g_egl_width);
-            eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &g_egl_height);
+			Viry3D::String name = "Viry3D";
+			Viry3D::String data_path = ConvertString(Package::Current->InstalledLocation->Path);
+			Viry3D::String save_path = ConvertString(ApplicationData::Current->LocalFolder->Path);
+			data_path = data_path.Replace("\\", "/") + "/Assets";
+			save_path = save_path.Replace("\\", "/");
 
-            Viry3D::String name = "Viry3D";
-            Viry3D::String data_path = ConvertString(Package::Current->InstalledLocation->Path);
-            Viry3D::String save_path = ConvertString(ApplicationData::Current->LocalFolder->Path);
-            data_path = data_path.Replace("\\", "/") + "/Assets";
-            save_path = save_path.Replace("\\", "/");
+#if VR_GLES
+            eglQuerySurface(g_egl_display, g_egl_surface, EGL_WIDTH, &g_window_width);
+            eglQuerySurface(g_egl_display, g_egl_surface, EGL_HEIGHT, &g_window_height);
+#else
+			g_window_width = (int) m_window->Bounds.Width;
+			g_window_height = (int) m_window->Bounds.Height;
+#endif
 
-			m_engine = Viry3D::Engine::Create(nullptr, g_egl_width, g_egl_height);
-			m_engine->SetDataPath(data_path);
-			m_engine->SetSavePath(save_path);
+			void* window = reinterpret_cast<IUnknown*>(m_window.Get());
+
+			m_engine = Viry3D::Engine::Create(window, g_window_width, g_window_height);
+			if (m_engine)
+			{
+				m_engine->SetDataPath(data_path);
+				m_engine->SetSavePath(save_path);
+			}
         }
 
         void DoneRenderer()
@@ -411,14 +497,20 @@ namespace app
 
         void Draw()
         {
-			if (g_egl_width != m_engine->GetWidth() || g_egl_height != m_engine->GetHeight())
+			if (m_engine)
 			{
-				m_engine->OnResize(nullptr, g_egl_width, g_egl_height);
-			}
+				if (g_window_width != m_engine->GetWidth() || g_window_height != m_engine->GetHeight())
+				{
+					void* window = reinterpret_cast<IUnknown*>(m_window.Get());
 
-			m_engine->Execute();
+					m_engine->OnResize(window, g_window_width, g_window_height);
+				}
+				m_engine->Execute();
+			}
         }
 
+	private:
+		Agile<CoreWindow> m_window;
         bool m_window_closed = false;
         bool m_window_visible = true;
         bool m_is_glesv3 = false;
@@ -469,7 +561,7 @@ static void OnPointerPressed(CoreWindow^ window, PointerEventArgs^ e)
         t.deltaTime = 0;
         t.fingerId = 0;
         t.phase = TouchPhase::Began;
-        t.position = Vector2((float) x, (float) g_egl_height - y - 1);
+        t.position = Vector2((float) x, (float) g_window_height - y - 1);
         t.tapCount = 1;
         t.time = Time::GetRealTimeSinceStartup();
 
@@ -487,7 +579,7 @@ static void OnPointerPressed(CoreWindow^ window, PointerEventArgs^ e)
 
     g_mouse_button_down[0] = true;
     g_mouse_position.x = (float) x;
-    g_mouse_position.y = (float) g_egl_height - y - 1;
+    g_mouse_position.y = (float) g_window_height - y - 1;
     g_mouse_button_held[0] = true;
 }
 
@@ -503,7 +595,7 @@ static void OnPointerMoved(CoreWindow^ window, PointerEventArgs^ e)
         t.deltaTime = 0;
         t.fingerId = 0;
         t.phase = TouchPhase::Moved;
-        t.position = Vector2((float) x, (float) g_egl_height - y - 1);
+        t.position = Vector2((float) x, (float) g_window_height - y - 1);
         t.tapCount = 1;
         t.time = Time::GetRealTimeSinceStartup();
 
@@ -539,7 +631,7 @@ static void OnPointerMoved(CoreWindow^ window, PointerEventArgs^ e)
     }
 
     g_mouse_position.x = (float) x;
-    g_mouse_position.y = (float) g_egl_height - y - 1;
+    g_mouse_position.y = (float) g_window_height - y - 1;
 }
 
 static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
@@ -554,7 +646,7 @@ static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
         t.deltaTime = 0;
         t.fingerId = 0;
         t.phase = TouchPhase::Ended;
-        t.position = Vector2((float) x, (float) g_egl_height - y - 1);
+        t.position = Vector2((float) x, (float) g_window_height - y - 1);
         t.tapCount = 1;
         t.time = Time::GetRealTimeSinceStartup();
 
@@ -572,7 +664,7 @@ static void OnPointerReleased(CoreWindow^ window, PointerEventArgs^ e)
 
     g_mouse_button_up[0] = true;
     g_mouse_position.x = (float) x;
-    g_mouse_position.y = (float) g_egl_height - y - 1;
+    g_mouse_position.y = (float) g_window_height - y - 1;
     g_mouse_button_held[0] = false;
 }
 
@@ -722,6 +814,7 @@ namespace Viry3D
         return *result;
     }
 
+#if VR_GLES
     void BindSharedContext()
     {
         eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, g_egl_shared_context);
@@ -731,4 +824,5 @@ namespace Viry3D
     {
         eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
+#endif
 }

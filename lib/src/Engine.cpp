@@ -88,6 +88,8 @@ namespace Viry3D
 			m_engine(engine),
 #if VR_WINDOWS
 			m_backend(backend::Backend::VULKAN),
+#elif VR_UWP
+			m_backend(backend::Backend::D3D11),
 #elif VR_ANDROID
 			m_backend(backend::Backend::VULKAN),
 #elif VR_USE_METAL
@@ -458,6 +460,12 @@ namespace Viry3D
 		{
 			instance->m_private->m_platform = backend::DefaultPlatform::create(&instance->m_private->m_backend);
 			instance->m_private->m_driver = instance->m_private->m_platform->createDriver(instance->m_private->m_shared_gl_context);
+			if (!instance->m_private->m_driver)
+			{
+				delete instance;
+				m_instance = nullptr;
+				return nullptr;
+			}
 			instance->m_private->Init();
 			instance->m_private->Execute();
 		}
@@ -469,6 +477,7 @@ namespace Viry3D
 			{
 				instance->m_private->m_driver_thread.join();
 				delete instance;
+				m_instance = nullptr;
 				return nullptr;
 			}
 			instance->m_private->Init();

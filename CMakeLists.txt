@@ -852,7 +852,7 @@ if (${Target} MATCHES "Windows")
 elseif (${Target} MATCHES "UWP")
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -DVR_UWP -DVR_VULKAN=0 -DVR_GLES=1")
+        "${CMAKE_CXX_FLAGS} -DVR_UWP -DVR_VULKAN=0 -DVR_GLES=0 -DVR_D3D=1")
     add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC /sdl-)
 
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -861,7 +861,10 @@ elseif (${Target} MATCHES "UWP")
     file(GLOB VIRY3D_DEP_SRCS_UWP
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/xaudio2.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThreadCpp11.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformUWP.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Context.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Driver.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Handles.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/PlatformD3D11.cpp
          )
 
     source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_UWP})
@@ -872,6 +875,8 @@ elseif (${Target} MATCHES "UWP")
                                ${VIRY3D_LIB_SRC_DIR}/openal/win
 							   ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
                                )
+
+	set_property(TARGET Viry3DDep PROPERTY VS_WINRT_COMPONENT TRUE)
 
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/zlib
