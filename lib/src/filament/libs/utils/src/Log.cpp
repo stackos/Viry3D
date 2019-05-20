@@ -19,12 +19,7 @@
 #include <string>
 #include <utils/compiler.h>
 
-#ifdef ANDROID
-#   include <android/log.h>
-#   ifndef UTILS_LOG_TAG
-#       define UTILS_LOG_TAG "Filament"
-#   endif
-#endif
+#include "Debug.h"
 
 namespace utils {
 
@@ -32,33 +27,7 @@ namespace io {
 
 ostream& LogStream::flush() noexcept {
     Buffer& buf = getBuffer();
-#if ANDROID
-    switch (mPriority) {
-        case DEBUG:
-            __android_log_write(ANDROID_LOG_DEBUG, UTILS_LOG_TAG, buf.get());
-            break;
-        case ERROR:
-            __android_log_write(ANDROID_LOG_ERROR, UTILS_LOG_TAG, buf.get());
-            break;
-        case WARNING:
-            __android_log_write(ANDROID_LOG_WARN, UTILS_LOG_TAG, buf.get());
-            break;
-        case INFO:
-            __android_log_write(ANDROID_LOG_INFO, UTILS_LOG_TAG, buf.get());
-            break;
-    }
-#else
-    switch (mPriority) {
-        case DEBUG:
-        case WARNING:
-        case INFO:
-            fprintf(stdout, "%s", buf.get());
-            break;
-        case ERROR:
-            fprintf(stderr, "%s", buf.get());
-            break;
-    }
-#endif
+	Viry3D::Debug::LogString(buf.get(), false);
     buf.reset();
     return *this;
 }
