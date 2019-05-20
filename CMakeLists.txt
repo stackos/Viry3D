@@ -330,6 +330,23 @@ if ( ${Target} MATCHES "Mac" OR
 
 endif ()
 
+# filament d3d
+if ( ${Target} MATCHES "Windows" OR
+     ${Target} MATCHES "UWP" )
+
+    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_D3D11
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Context.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Driver.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Handles.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/PlatformD3D11.cpp
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_D3D11})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_D3D11})
+
+endif ()
+
 # lua
 if ( TRUE )
 
@@ -704,7 +721,7 @@ endif ()
 if (${Target} MATCHES "Windows")
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=1 -DVK_USE_PLATFORM_WIN32_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
+        "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=1 -DVR_D3D=1 -DVK_USE_PLATFORM_WIN32_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
     set(EXECUTABLE_OUTPUT_PATH
         ${PROJECT_BINARY_DIR}/bin)
     add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
@@ -794,6 +811,7 @@ if (${Target} MATCHES "Windows")
     target_link_libraries(Viry3DApp
                           Viry3D Viry3DDep
                           opengl32.lib
+						  d3d11.lib
                           winmm.lib
                           Xaudio2.lib
                           )
@@ -861,10 +879,6 @@ elseif (${Target} MATCHES "UWP")
     file(GLOB VIRY3D_DEP_SRCS_UWP
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/xaudio2.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThreadCpp11.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Context.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Driver.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Handles.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/PlatformD3D11.cpp
          )
 
     source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_UWP})

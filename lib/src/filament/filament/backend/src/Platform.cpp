@@ -45,7 +45,9 @@
         #include "vulkan/PlatformVkLinux.h"
     #endif
 #elif defined(VR_UWP)
-	#include "d3d/PlatformD3D11.h"
+	#if VR_D3D
+		#include "d3d/PlatformD3D11.h"
+	#endif
 #elif defined(WIN32)
     #ifndef USE_EXTERNAL_GLES3
         #include "opengl/PlatformWGL.h"
@@ -53,6 +55,9 @@
     #if defined (FILAMENT_DRIVER_SUPPORTS_VULKAN)
         #include "vulkan/PlatformVkWindows.h"
     #endif
+	#if VR_D3D
+		#include "d3d/PlatformD3D11.h"
+	#endif
 #elif defined(__EMSCRIPTEN__)
     #include "opengl/PlatformWebGL.h"
 #else
@@ -110,6 +115,13 @@ DefaultPlatform* DefaultPlatform::create(Backend* backend) noexcept {
         return nullptr;
 #endif
     }
+	if (*backend == Backend::D3D11) {
+#if VR_D3D
+		return new PlatformD3D11();
+#else
+		return nullptr;
+#endif
+	}
     #if defined(USE_EXTERNAL_GLES3)
         return nullptr;
     #elif defined(ANDROID)
@@ -121,7 +133,7 @@ DefaultPlatform* DefaultPlatform::create(Backend* backend) noexcept {
     #elif defined(__linux__)
         return new PlatformGLX();
 	#elif defined(VR_UWP)
-		return new PlatformD3D11();
+		return nullptr;
     #elif defined(WIN32)
         return new PlatformWGL();
     #elif defined(__EMSCRIPTEN__)

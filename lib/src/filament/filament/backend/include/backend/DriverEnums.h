@@ -56,7 +56,7 @@ enum class Backend : uint8_t {
     OPENGL = 1,   //!< Selects the OpenGL driver (which supports OpenGL ES as well).
     VULKAN = 2,   //!< Selects the Vulkan driver if the platform supports it.
     METAL = 3,    //!< Selects the Metal driver if the platform supports it.
-	D3D11 = 4,	  //!< Selects the Metal driver if the platform supports it.
+	D3D11 = 4,	  //!< Selects the D3D11 driver if the platform supports it.
     NOOP = 5,     //!< Selects the no-op driver for testing purposes.
 };
 
