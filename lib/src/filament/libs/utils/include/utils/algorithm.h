@@ -24,7 +24,9 @@
 #include <limits.h>
 #include <stdint.h>
 
+#ifdef WIN32
 #pragma warning(disable:4293)
+#endif
 
 namespace utils {
 

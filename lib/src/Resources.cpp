@@ -213,6 +213,8 @@ namespace Viry3D
                         }
                         break;
                     }
+                    default:
+                        break;
                 }
             }
         }

@@ -126,14 +126,26 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
 @implementation View
 
 + (Class)layerClass {
+#if VR_USE_METAL
+    return [CAMetalLayer class];
+#else
     return [CAEAGLLayer class];
+#endif
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
+#if VR_USE_METAL
+        CAMetalLayer* layer = (CAMetalLayer*) self.layer;
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        
+        CGRect nativeBounds = [UIScreen mainScreen].nativeBounds;
+        layer.drawableSize = nativeBounds.size;
+#else
         CAEAGLLayer* layer = (CAEAGLLayer*) self.layer;
         layer.opaque = YES;
-
+#endif
+        
         self.contentScaleFactor = UIScreen.mainScreen.nativeScale;
     }
 
@@ -198,6 +210,11 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
         } else if (m_orientation != orientation) {
             m_orientation = orientation;
             m_engine->OnResize((__bridge void*) self.view.layer, window_width, window_height);
+            
+#if VR_USE_METAL
+            CAMetalLayer* layer = (CAMetalLayer*) self.view.layer;
+            layer.drawableSize = CGSizeMake(window_width, window_height);
+#endif
         }
     }
 }

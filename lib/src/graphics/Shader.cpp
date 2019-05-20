@@ -402,7 +402,8 @@ namespace Viry3D
 		String version = "#version 410\n";
 #else
 		String version = "#version 300 es\n";
-		if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN)
+		if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN ||
+            Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)
 		{
 			version = "#version 310 es\n";
 		}

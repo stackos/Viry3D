@@ -59,7 +59,7 @@ static bool g_mouse_down = false;
     [view setWantsLayer:YES];
     CAMetalLayer* layer = [CAMetalLayer layer];
     layer.bounds = view.bounds;
-    layer.drawableSize = [view convertSizeToBacking:view.bounds.size];
+    layer.drawableSize = CGSizeMake(window_width, window_height);
     layer.opaque = YES;
     [view setLayer:layer];
     window = (__bridge void*) layer;
@@ -77,12 +77,6 @@ static bool g_mouse_down = false;
     m_target_height = window_height;
 }
 
-- (void)viewWillDisappear {
-    [super viewWillDisappear];
-    
-    [m_timer invalidate];
-}
-
 - (void)dealloc {
     Engine::Destroy(&m_engine);
 }
@@ -93,13 +87,20 @@ static bool g_mouse_down = false;
     
 #if VR_USE_METAL
     CAMetalLayer* layer = (CAMetalLayer*) self.view.layer;
-    layer.drawableSize = [self.view convertSizeToBacking:self.view.bounds.size];
+    layer.drawableSize = CGSizeMake(m_target_width, m_target_height);
 #endif
 }
 
 - (void)drawFrame {
     if (m_target_width != m_engine->GetWidth() || m_target_height != m_engine->GetHeight()) {
-        m_engine->OnResize((__bridge void*) self.view, m_target_width, m_target_height);
+        void* window = nullptr;
+#if VR_USE_METAL
+        window = (__bridge void*) self.view.layer;
+#else
+        window = (__bridge void*) self.view;
+#endif
+        
+        m_engine->OnResize(window, m_target_width, m_target_height);
     }
     
     m_engine->Execute();

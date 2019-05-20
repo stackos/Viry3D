@@ -509,11 +509,16 @@ void MetalDriver::beginRenderPass(Handle<HwRenderTarget> rth,
     
     if (mContext->currentRenderTarget->isDefaultRenderTarget()) {
         if (renderTarget->getDepth() == nil) {
+#if VR_MAC
             MTLPixelFormat depthFormat = MTLPixelFormatDepth24Unorm_Stencil8;
             if (!mContext->device.depth24Stencil8PixelFormatSupported) {
                 depthFormat = MTLPixelFormatDepth32Float;
             }
-            renderTarget->createDepth(depthFormat, colorAttachment.texture.width, colorAttachment.texture.height);
+#else
+            MTLPixelFormat depthFormat = MTLPixelFormatDepth32Float;
+#endif
+            
+            renderTarget->createDepth(depthFormat, (uint32_t) colorAttachment.texture.width, (uint32_t) colorAttachment.texture.height);
         }
     }
 
