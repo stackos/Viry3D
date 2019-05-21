@@ -48,7 +48,11 @@ namespace filament
 				size_t offset = 0;
 				size_t size = 0;
 			};
-			static constexpr const size_t MAX_UNIFORM_BUFFER_BINDINGS = 8;
+			
+			struct SamplerGroupBinding
+			{
+				SamplerGroupHandle sampler_group;
+			};
 
 			struct RenderState
 			{
@@ -67,7 +71,8 @@ namespace filament
 			D3D11SwapChain* current_swap_chain = nullptr;
 			D3D11RenderTarget* current_render_target = nullptr;
 			RenderPassFlags current_render_pass_flags;
-			UniformBufferBinding uniform_buffer_bindings[MAX_UNIFORM_BUFFER_BINDINGS];
+			UniformBufferBinding uniform_buffer_bindings[CONFIG_UNIFORM_BINDING_COUNT];
+			SamplerGroupBinding sampler_group_binding[CONFIG_SAMPLER_BINDING_COUNT];
 			std::unordered_map<uint32_t, RenderState> rasterizer_states;
 		};
 	}

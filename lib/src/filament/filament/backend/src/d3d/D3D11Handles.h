@@ -70,5 +70,14 @@ namespace filament
 			size_t size;
 			BufferUsage usage;
 		};
+
+		struct D3D11SamplerGroup : public HwSamplerGroup
+		{
+			D3D11SamplerGroup(D3D11Context* context, size_t size);
+			~D3D11SamplerGroup();
+			void Update(D3D11Context* context, SamplerGroup&& sg);
+
+			std::vector<ID3D11SamplerState*> samplers;
+		};
 	}
 }

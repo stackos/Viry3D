@@ -67,7 +67,7 @@ namespace filament
 
 		void D3D11Driver::endFrame(uint32_t frame_id)
 		{
-			
+
 		}
 
 		void D3D11Driver::flush(int dummy)
@@ -109,9 +109,9 @@ namespace filament
 
 		}
 
-		void D3D11Driver::createSamplerGroupR(Handle<HwSamplerGroup> sbh, size_t size)
+		void D3D11Driver::createSamplerGroupR(Handle<HwSamplerGroup> sgh, size_t size)
 		{
-
+			construct_handle<D3D11SamplerGroup>(m_handle_map, sgh, m_context, size);
 		}
 
 		void D3D11Driver::createUniformBufferR(Handle<HwUniformBuffer> ubh, size_t size, BufferUsage usage)
@@ -183,7 +183,7 @@ namespace filament
 
 		Handle<HwSamplerGroup> D3D11Driver::createSamplerGroupS() noexcept
 		{
-			return Handle<HwSamplerGroup>();
+			return alloc_handle<D3D11SamplerGroup, HwSamplerGroup>();
 		}
 
 		Handle<HwUniformBuffer> D3D11Driver::createUniformBufferS() noexcept
@@ -246,9 +246,9 @@ namespace filament
 			destruct_handle<D3D11Program>(m_handle_map, ph);
 		}
 
-		void D3D11Driver::destroySamplerGroup(Handle<HwSamplerGroup> sbh)
+		void D3D11Driver::destroySamplerGroup(Handle<HwSamplerGroup> sgh)
 		{
-			
+			destruct_handle<D3D11SamplerGroup>(m_handle_map, sgh);
 		}
 
 		void D3D11Driver::destroyUniformBuffer(Handle<HwUniformBuffer> ubh)
@@ -400,9 +400,10 @@ namespace filament
 			uniform_buffer->Load(m_context, std::move(data));
 		}
 
-		void D3D11Driver::updateSamplerGroup(Handle<HwSamplerGroup> sbh, SamplerGroup&& samplerGroup)
+		void D3D11Driver::updateSamplerGroup(Handle<HwSamplerGroup> sgh, SamplerGroup&& sg)
 		{
-
+			auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, sgh);
+			sampler_group->Update(m_context, std::move(sg));
 		}
 
 		void D3D11Driver::beginRenderPass(
@@ -543,7 +544,7 @@ namespace filament
 		{
 			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
 
-			assert(index < D3D11Context::MAX_UNIFORM_BUFFER_BINDINGS);
+			assert(index < CONFIG_UNIFORM_BINDING_COUNT);
 			
 			m_context->uniform_buffer_bindings[index].buffer = uniform_buffer->buffer;
 			m_context->uniform_buffer_bindings[index].offset = 0;
@@ -558,7 +559,7 @@ namespace filament
 		{
 			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
 
-			assert(index < D3D11Context::MAX_UNIFORM_BUFFER_BINDINGS);
+			assert(index < CONFIG_UNIFORM_BINDING_COUNT);
 			assert(offset < uniform_buffer->size);
 			assert(offset + size <= uniform_buffer->size);
 
@@ -567,9 +568,13 @@ namespace filament
 			m_context->uniform_buffer_bindings[index].size = size;
 		}
 
-		void D3D11Driver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh)
+		void D3D11Driver::bindSamplers(size_t index, Handle<HwSamplerGroup> sgh)
 		{
+			auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, sgh);
 
+			assert(index < CONFIG_SAMPLER_BINDING_COUNT);
+
+			m_context->sampler_group_binding[index].sampler_group = sgh;
 		}
 
 		void D3D11Driver::insertEventMarker(const char* string, size_t len)
@@ -634,6 +639,11 @@ namespace filament
 				m_context->context->PSSetShader(program->pixel_shader, nullptr, 0);
 			}
 
+			this->SetState(ps);
+		}
+
+		void D3D11Driver::SetState(const backend::PipelineState& ps)
+		{
 			auto rs = m_context->rasterizer_states.find(ps.rasterState.u);
 			if (rs == m_context->rasterizer_states.end())
 			{
@@ -733,7 +743,7 @@ namespace filament
 				depth_desc.DepthEnable = TRUE;
 				depth_desc.DepthWriteMask = ps.rasterState.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
 				depth_desc.DepthFunc = get_depth_func(ps.rasterState.depthFunc);
-				
+
 				ID3D11DepthStencilState* depth = nullptr;
 				hr = m_context->device->CreateDepthStencilState(&depth_desc, &depth);
 				assert(SUCCEEDED(hr));
@@ -746,7 +756,7 @@ namespace filament
 
 				rs = m_context->rasterizer_states.find(ps.rasterState.u);
 			}
-			
+
 			m_context->context->RSSetState(rs->second.raster);
 			m_context->context->OMSetBlendState(rs->second.blend, nullptr, D3D11_DEFAULT_SAMPLE_MASK);
 			m_context->context->OMSetDepthStencilState(rs->second.depth, D3D11_DEFAULT_STENCIL_REFERENCE);

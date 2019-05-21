@@ -295,5 +295,87 @@ namespace filament
 					0);
 			}
 		}
+
+		D3D11SamplerGroup::D3D11SamplerGroup(D3D11Context* context, size_t size):
+			HwSamplerGroup(size),
+			samplers(size, nullptr)
+		{
+		
+		}
+
+		D3D11SamplerGroup::~D3D11SamplerGroup()
+		{
+			for (int i = 0; i < samplers.size(); ++i)
+			{
+				SAFE_RELEASE(samplers[i]);
+			}
+		}
+
+		void D3D11SamplerGroup::Update(D3D11Context* context, SamplerGroup&& sg)
+		{
+			assert(samplers.size() == sg.getSize());
+
+			for (int i = 0; i < sb->getSize(); ++i)
+			{
+				if (sb->getSamplers()[i].s.u != sg.getSamplers()[i].s.u)
+				{
+					SAFE_RELEASE(samplers[i]);
+				}
+			}
+
+			*sb = std::move(sg);
+
+			for (int i = 0; i < samplers.size(); ++i)
+			{
+				if (samplers[i] == nullptr)
+				{
+					const auto& s = sb->getSamplers()[i].s;
+
+					D3D11_SAMPLER_DESC sampler_desc = { };
+					sampler_desc.MaxAnisotropy = 1;
+					sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+					sampler_desc.MinLOD = -3.402823466e+38F;
+					sampler_desc.MaxLOD = 3.402823466e+38F;
+
+					switch (s.filterMag)
+					{
+					case SamplerMagFilter::NEAREST:
+						sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+						break;
+					case SamplerMagFilter::LINEAR:
+						sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+						break;
+					default:
+						assert(false);
+						break;
+					}
+
+					switch (s.wrapS)
+					{
+					case SamplerWrapMode::CLAMP_TO_EDGE:
+						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+						break;
+					case SamplerWrapMode::REPEAT:
+						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+						break;
+					case SamplerWrapMode::MIRRORED_REPEAT:
+						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+						break;
+					default:
+						assert(false);
+						break;
+					}
+
+					HRESULT hr = context->device->CreateSamplerState(&sampler_desc, &samplers[i]);
+					assert(SUCCEEDED(hr));
+				}
+			}
+		}
 	}
 }

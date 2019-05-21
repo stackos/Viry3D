@@ -37,8 +37,8 @@ namespace filament
 		private:
 			explicit D3D11Driver(backend::D3D11Platform* platform) noexcept;
 			~D3D11Driver() noexcept override;
-
 			ShaderModel getShaderModel() const noexcept final;
+			void SetState(const backend::PipelineState& ps);
 
 			template<typename T>
 			friend class backend::ConcreteDispatcher;
