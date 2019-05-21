@@ -16,6 +16,8 @@
 */
 
 #include "D3D11Handles.h"
+#include <d3dcompiler.h>
+#include <assert.h>
 
 #if VR_UWP
 #include <wrl.h>
@@ -37,6 +39,12 @@ namespace filament
 			CoreWindow^ window = reinterpret_cast<CoreWindow^>(native_window);
 			window_width = (int) window->Bounds.Width;
 			window_height = (int) window->Bounds.Height;
+#else
+			HWND window = reinterpret_cast<HWND>(native_window);
+			RECT rect;
+			GetClientRect(window, &rect);
+			window_width = rect.right - rect.left;
+			window_height = rect.bottom - rect.top;
 #endif
 
 			desc.Width = window_width;
@@ -52,23 +60,23 @@ namespace filament
 			desc.Scaling = DXGI_SCALING_NONE;
 			desc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 
-			IDXGIDevice3* dxgi_device;
+			IDXGIDevice3* dxgi_device = nullptr;
 			context->device->QueryInterface(__uuidof(IDXGIDevice3), (void**) &dxgi_device);
-			IDXGIAdapter* dxgi_adapter;
+			IDXGIAdapter* dxgi_adapter = nullptr;
 			dxgi_device->GetAdapter(&dxgi_adapter);
-			IDXGIFactory4* dxgi_factory;
+			IDXGIFactory4* dxgi_factory = nullptr;
 			dxgi_adapter->GetParent(IID_PPV_ARGS(&dxgi_factory));
-			IDXGISwapChain1* swap_chain_1;
+			IDXGISwapChain1* swap_chain_1 = nullptr;
 
 #if VR_UWP
-			dxgi_factory->CreateSwapChainForCoreWindow(
+			HRESULT hr = dxgi_factory->CreateSwapChainForCoreWindow(
 				context->device,
 				reinterpret_cast<IUnknown*>(native_window),
 				&desc,
 				nullptr,
 				&swap_chain_1);
 #else
-			dxgi_factory->CreateSwapChainForHwnd(
+			HRESULT hr = dxgi_factory->CreateSwapChainForHwnd(
 				context->device,
 				reinterpret_cast<HWND>(native_window),
 				&desc,
@@ -76,6 +84,7 @@ namespace filament
 				nullptr,
 				&swap_chain_1);
 #endif
+			assert(SUCCEEDED(hr));
 
 			swap_chain_1->QueryInterface(__uuidof(IDXGISwapChain3), (void**) &swap_chain);
 
@@ -86,7 +95,7 @@ namespace filament
 			SAFE_RELEASE(dxgi_adapter);
 			SAFE_RELEASE(dxgi_device);
 
-			ID3D11Texture2D1* back_buffer;
+			ID3D11Texture2D1* back_buffer = nullptr;
 			swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));
 
 			context->device->CreateRenderTargetView1(
@@ -138,19 +147,153 @@ namespace filament
 				D3D11_BIND_DEPTH_STENCIL
 			);
 
-			ID3D11Texture2D1* texture;
-			context->device->CreateTexture2D1(
+			ID3D11Texture2D1* texture = nullptr;
+			HRESULT hr = context->device->CreateTexture2D1(
 				&texture_desc,
 				nullptr,
 				&texture);
+			assert(SUCCEEDED(hr));
 
 			CD3D11_DEPTH_STENCIL_VIEW_DESC depth_view_desc(D3D11_DSV_DIMENSION_TEXTURE2D);
-			context->device->CreateDepthStencilView(
+			hr = context->device->CreateDepthStencilView(
 				texture,
 				&depth_view_desc,
 				&depth_view);
+			assert(SUCCEEDED(hr));
 
 			SAFE_RELEASE(texture);
+		}
+
+		D3D11Program::D3D11Program(D3D11Context* context, Program&& program):
+			HwProgram(program.getName())
+		{
+			const auto& sources = program.getShadersSource();
+			for (int i = 0; i < sources.size(); ++i)
+			{
+				std::string src((const char*) &sources[i][0], sources[i].size());
+				auto type = (Program::Shader) i;
+
+				const char* target = nullptr;
+				if (type == Program::Shader::VERTEX)
+				{
+					target = "vs_4_0_level_9_3";
+				}
+				else if (type == Program::Shader::FRAGMENT)
+				{
+					target = "ps_4_0_level_9_3";
+				}
+
+				ID3DBlob *binary = nullptr;
+				ID3DBlob *error = nullptr;
+
+				HRESULT hr = D3DCompile(
+					&src[0],
+					src.size(),
+					program.getName().c_str(),
+					nullptr,
+					nullptr,
+					"main",
+					target,
+					0,
+					0,
+					&binary,
+					&error);
+
+				if (error)
+				{
+					std::string message = reinterpret_cast<const char*>(error->GetBufferPointer());
+					assert(!error);
+				}
+
+				if (type == Program::Shader::VERTEX)
+				{
+					hr = context->device->CreateVertexShader(
+						binary->GetBufferPointer(),
+						binary->GetBufferSize(),
+						nullptr,
+						&vertex_shader);
+					assert(SUCCEEDED(hr));
+				}
+				else if (type == Program::Shader::FRAGMENT)
+				{
+					hr = context->device->CreatePixelShader(
+						binary->GetBufferPointer(),
+						binary->GetBufferSize(),
+						nullptr,
+						&pixel_shader);
+					assert(SUCCEEDED(hr));
+				}
+
+				SAFE_RELEASE(binary);
+				SAFE_RELEASE(error);
+			}
+		}
+
+		D3D11Program::~D3D11Program()
+		{
+			SAFE_RELEASE(vertex_shader);
+			SAFE_RELEASE(pixel_shader);
+		}
+
+		D3D11UniformBuffer::D3D11UniformBuffer(D3D11Context* context, size_t size, BufferUsage usage):
+			size(size),
+			usage(usage)
+		{
+			CD3D11_BUFFER_DESC buffer_desc((UINT) size, D3D11_BIND_CONSTANT_BUFFER);
+			
+			switch (usage)
+			{
+			case BufferUsage::STATIC:
+				buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+				break;
+			case BufferUsage::DYNAMIC:
+				buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+				buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			HRESULT hr = context->device->CreateBuffer(&buffer_desc, nullptr, &buffer);
+			assert(SUCCEEDED(hr));
+		}
+
+		D3D11UniformBuffer::~D3D11UniformBuffer()
+		{
+			SAFE_RELEASE(buffer);
+		}
+
+		void D3D11UniformBuffer::Load(D3D11Context* context, BufferDescriptor&& data)
+		{
+			if (usage == BufferUsage::DYNAMIC)
+			{
+				D3D11_MAPPED_SUBRESOURCE res = { };
+				HRESULT hr = context->context->Map(
+					buffer,
+					0,
+					D3D11_MAP_WRITE_DISCARD,
+					0,
+					&res);
+				assert(SUCCEEDED(hr));
+
+				memcpy(res.pData, data.buffer, data.size);
+
+				context->context->Unmap(buffer, 0);
+			}
+			else
+			{
+				UINT offset = 0;
+				D3D11_BOX box = { offset, 0, 0, offset + (UINT) data.size, 1, 1 };
+				context->context->UpdateSubresource1(
+					buffer,
+					0,
+					&box,
+					data.buffer,
+					0,
+					0,
+					0);
+			}
 		}
 	}
 }

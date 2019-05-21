@@ -269,8 +269,62 @@ if ( ${Target} MATCHES "Windows" OR
 
 endif ()
 
+# glslang
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP")
+
+    file(GLOB VIRY3D_DEP_SRCS_GLSLANG
+		 ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/GenericCodeGen/CodeGen.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/GenericCodeGen/Link.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/attribute.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Constant.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/glslang_tab.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/InfoSink.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Initialize.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Intermediate.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/intermOut.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/IntermTraverse.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/iomapper.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/limits.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/linkValidate.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/parseConst.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/ParseContextBase.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/ParseHelper.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/PoolAlloc.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/Pp.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpAtom.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpContext.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpScanner.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpTokens.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/propagateNoContraction.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/reflection.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/RemoveTree.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Scan.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/ShaderLang.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/SymbolTable.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Versions.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/OSDependent/Windows/ossource.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/OGLCompilersDLL/InitializeDll.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/disassemble.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/doc.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/GlslangToSpv.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/InReadableOrder.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/Logger.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvBuilder.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvPostProcess.cpp
+         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SPVRemapper.cpp
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_GLSLANG})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_GLSLANG})
+
+    target_include_directories(Viry3DDep PRIVATE
+                               )
+
+endif ()
+
 # vulkan shader compiler
-if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP" OR ${Target} MATCHES "Android")
 
     file(GLOB VIRY3D_LIB_SRCS_VULKAN
          ${VIRY3D_LIB_SRC_DIR}/vulkan/*.h
@@ -282,30 +336,27 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android")
     target_sources(Viry3D PRIVATE ${VIRY3D_LIB_SRCS_VULKAN})
 
     target_include_directories(Viry3D PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/include
                                )
 
 endif ()
 
 # spirv_cross
-if ( FALSE )
-    if (${Target} MATCHES "Windows" OR ${Target} MATCHES "Android" OR ${Target} MATCHES "Mac" OR ${Target} MATCHES "iOS")
+if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP")
 
-        file(GLOB VIRY3D_DEP_SRCS_SPIRV_CROSS
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
-             ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
-             )
+    file(GLOB VIRY3D_DEP_SRCS_SPIRV_CROSS
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cfg.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cpp.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_cross_util.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_glsl.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_hlsl.cpp
+            ${VIRY3D_LIB_SRC_DIR}/vulkan/spirv_cross/spirv_msl.cpp
+            )
 
-        source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
 
-        target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
 
-    endif ()
 endif ()
 
 # filament metal
@@ -732,45 +783,6 @@ if (${Target} MATCHES "Windows")
     file(GLOB VIRY3D_DEP_SRCS_WIN
          ${VIRY3D_LIB_SRC_DIR}/openal/Alc/backends/xaudio2.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/openal/Alc/alcThread.c
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/GenericCodeGen/CodeGen.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/GenericCodeGen/Link.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/attribute.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Constant.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/glslang_tab.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/InfoSink.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Initialize.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Intermediate.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/intermOut.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/IntermTraverse.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/iomapper.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/limits.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/linkValidate.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/parseConst.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/ParseContextBase.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/ParseHelper.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/PoolAlloc.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/Pp.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpAtom.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpContext.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpScanner.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/preprocessor/PpTokens.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/propagateNoContraction.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/reflection.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/RemoveTree.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Scan.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/ShaderLang.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/SymbolTable.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/MachineIndependent/Versions.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/glslang/OSDependent/Windows/ossource.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/OGLCompilersDLL/InitializeDll.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/disassemble.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/doc.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/GlslangToSpv.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/InReadableOrder.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/Logger.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvBuilder.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SpvPostProcess.cpp
-         ${VIRY3D_LIB_SRC_DIR}/vulkan/glslang/SPIRV/SPVRemapper.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformWGL.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGL.cpp
 		 ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/src/BlueGLWindows.cpp
@@ -812,6 +824,7 @@ if (${Target} MATCHES "Windows")
                           Viry3D Viry3DDep
                           opengl32.lib
 						  d3d11.lib
+						  d3dcompiler.lib
                           winmm.lib
                           Xaudio2.lib
                           )

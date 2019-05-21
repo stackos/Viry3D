@@ -22,10 +22,12 @@
 #include "lua/lua.hpp"
 #include "memory/Memory.h"
 
-#if VR_VULKAN
-#if VR_WINDOWS || VR_ANDROID
-#include "vulkan/vulkan_shader_compiler.h"
+#if VR_VULKAN || VR_D3D
+#include "vulkan/spirv_shader_compiler.h"
 #endif
+
+#if VR_D3D
+#include "vulkan/spirv_cross/spirv_hlsl.hpp"
 #endif
 
 #if VR_METAL
@@ -37,10 +39,10 @@ namespace Viry3D
 {
 	Map<String, Ref<Shader>> Shader::m_shaders;
 
-#if VR_VULKAN
-    static void GlslToSpirv(const String& glsl, VkShaderStageFlagBits shader_type, Vector<unsigned int>& spirv)
+#if VR_VULKAN || VR_D3D
+    static void GlslToSpirv(const String& glsl, ShaderCompiler::ShaderType shader_type, Vector<unsigned int>& spirv)
     {
-#if VR_WINDOWS || VR_ANDROID
+#if VR_WINDOWS || VR_ANDROID || VR_UWP
         String error;
         bool success = GlslToSpv(shader_type, glsl.CString(), spirv, error);
         if (!success)
@@ -48,22 +50,19 @@ namespace Viry3D
             Log("shader compile error: %s", error.CString());
         }
         assert(success);
-#elif VR_IOS || VR_MAC
+#elif VR_MAC || VR_IOS
         MVKShaderStage stage;
         switch (shader_type)
         {
-            case VK_SHADER_STAGE_COMPUTE_BIT:
-                stage = kMVKShaderStageCompute;
-                break;
-            case VK_SHADER_STAGE_VERTEX_BIT:
-                stage = kMVKShaderStageVertex;
-                break;
-            case VK_SHADER_STAGE_FRAGMENT_BIT:
-                stage = kMVKShaderStageFragment;
-                break;
-            default:
-                stage = kMVKShaderStageAuto;
-                break;
+		case ShaderCompiler::ShaderType::Vertex:
+            stage = kMVKShaderStageVertex;
+            break;
+        case ShaderCompiler::ShaderType::Fragment:
+            stage = kMVKShaderStageFragment;
+            break;
+        default:
+            stage = kMVKShaderStageAuto;
+            break;
         }
         uint32_t* spirv_code = nullptr;
         size_t size = 0;
@@ -92,10 +91,8 @@ namespace Viry3D
     
     void Shader::Init()
     {
-#if VR_VULKAN
-#if VR_WINDOWS || VR_ANDROID
-        InitShaderCompiler();
-#endif
+#if VR_VULKAN || VR_D3D
+		ShaderCompiler::InitShaderCompiler();
 #endif
     }
     
@@ -103,10 +100,8 @@ namespace Viry3D
     {
 		m_shaders.Clear();
 
-#if VR_VULKAN
-#if VR_WINDOWS || VR_ANDROID
-        DeinitShaderCompiler();
-#endif
+#if VR_VULKAN || VR_D3D
+		ShaderCompiler::DeinitShaderCompiler();
 #endif
     }
 
@@ -403,7 +398,8 @@ namespace Viry3D
 #else
 		String version = "#version 300 es\n";
 		if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN ||
-            Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)
+            Engine::Instance()->GetBackend() == filament::backend::Backend::METAL ||
+			Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
 		{
 			version = "#version 310 es\n";
 		}
@@ -413,7 +409,8 @@ namespace Viry3D
 		String vk_convert;
 
 		if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN ||
-            Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)
+            Engine::Instance()->GetBackend() == filament::backend::Backend::METAL ||
+			Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
 		{
 			define = "#extension GL_ARB_separate_shader_objects : enable\n"
 				"#extension GL_ARB_shading_language_420pack : enable\n"
@@ -448,17 +445,40 @@ namespace Viry3D
 			Vector<char> vs_data;
 			Vector<char> fs_data;
 
-			if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN)
+			if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN ||
+				Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
 			{
-#if VR_VULKAN
+#if VR_VULKAN || VR_D3D
 				Vector<unsigned int> vs_spirv;
 				Vector<unsigned int> fs_spirv;
-				GlslToSpirv(vs, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vs_spirv);
-				GlslToSpirv(fs, VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, fs_spirv);
-				vs_data.Resize(vs_spirv.Size() * 4);
-				Memory::Copy(&vs_data[0], &vs_spirv[0], vs_data.Size());
-				fs_data.Resize(fs_spirv.Size() * 4);
-				Memory::Copy(&fs_data[0], &fs_spirv[0], fs_data.Size());
+				GlslToSpirv(vs, ShaderCompiler::ShaderType::Vertex, vs_spirv);
+				GlslToSpirv(fs, ShaderCompiler::ShaderType::Fragment, fs_spirv);
+
+				if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN)
+				{
+					vs_data.Resize(vs_spirv.Size() * 4);
+					Memory::Copy(&vs_data[0], &vs_spirv[0], vs_data.Size());
+					fs_data.Resize(fs_spirv.Size() * 4);
+					Memory::Copy(&fs_data[0], &fs_spirv[0], fs_data.Size());
+				}
+				else if (Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
+				{
+					spirv_cross::CompilerHLSL::Options options;
+					options.shader_model = 40;
+
+					spirv_cross::CompilerHLSL vs_compiler(&vs_spirv[0], vs_spirv.Size());
+					vs_compiler.set_hlsl_options(options);
+					std::string vs_hlsl = vs_compiler.compile();
+
+					spirv_cross::CompilerHLSL fs_compiler(&fs_spirv[0], fs_spirv.Size());
+					fs_compiler.set_hlsl_options(options);
+					std::string fs_hlsl = fs_compiler.compile();
+
+					vs_data.Resize((int) vs_hlsl.size());
+					Memory::Copy(&vs_data[0], &vs_hlsl[0], (int) vs_hlsl.size());
+					fs_data.Resize((int) fs_hlsl.size());
+					Memory::Copy(&fs_data[0], &fs_hlsl[0], (int) fs_hlsl.size());
+				}
 #endif
 			}
             else if (Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)

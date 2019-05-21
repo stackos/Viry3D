@@ -65,8 +65,8 @@ namespace filament
 				D3D_FEATURE_LEVEL_9_1
 			};
 
-			ID3D11DeviceContext* context_0;
-			ID3D11Device* device_0;
+			ID3D11DeviceContext* context_0 = nullptr;
+			ID3D11Device* device_0 = nullptr;
 			HRESULT hr = D3D11CreateDevice(
 				nullptr,					// 指定 nullptr 以使用默认适配器。
 				D3D_DRIVER_TYPE_HARDWARE,	// 创建使用硬件图形驱动程序的设备。
@@ -82,7 +82,7 @@ namespace filament
 			
 			if (FAILED(hr))
 			{
-				D3D11CreateDevice(
+				hr = D3D11CreateDevice(
 					nullptr,
 					D3D_DRIVER_TYPE_WARP, // 创建 WARP 设备而不是硬件设备。
 					0,
@@ -107,6 +107,14 @@ namespace filament
 
 		D3D11Context::~D3D11Context()
 		{
+			for (auto i : rasterizer_states)
+			{
+				SAFE_RELEASE(i.second.raster);
+				SAFE_RELEASE(i.second.blend);
+				SAFE_RELEASE(i.second.depth);
+			}
+			rasterizer_states.clear();
+
 			SAFE_RELEASE(device);
 			SAFE_RELEASE(context);
 		}

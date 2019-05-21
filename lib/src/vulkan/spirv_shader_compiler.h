@@ -17,13 +17,21 @@
 
 #pragma once
 
-#include <bluevk/BlueVK.h>
 #include "container/Vector.h"
 #include "string/String.h"
 
 namespace Viry3D
 {
-	void InitShaderCompiler();
-	bool GlslToSpv(const VkShaderStageFlagBits shader_type, const char* src, Vector<unsigned int>& spirv, String& error);
-	void DeinitShaderCompiler();
+	namespace ShaderCompiler
+	{
+		enum class ShaderType
+		{
+			Vertex,
+			Fragment,
+		};
+
+		void InitShaderCompiler();
+		bool GlslToSpv(ShaderType shader_type, const char* src, Vector<unsigned int>& spirv, String& error);
+		void DeinitShaderCompiler();
+	}
 }

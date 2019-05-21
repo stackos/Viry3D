@@ -116,7 +116,7 @@ namespace filament
 
 		void D3D11Driver::createUniformBufferR(Handle<HwUniformBuffer> ubh, size_t size, BufferUsage usage)
 		{
-
+			construct_handle<D3D11UniformBuffer>(m_handle_map, ubh, m_context, size, usage);
 		}
 
 		void D3D11Driver::createRenderPrimitiveR(Handle<HwRenderPrimitive> rph, int dummy)
@@ -124,9 +124,9 @@ namespace filament
 
 		}
 
-		void D3D11Driver::createProgramR(Handle<HwProgram> rph, Program&& program)
+		void D3D11Driver::createProgramR(Handle<HwProgram> ph, Program&& program)
 		{
-
+			construct_handle<D3D11Program>(m_handle_map, ph, m_context, std::move(program));
 		}
 
 		void D3D11Driver::createDefaultRenderTargetR(Handle<HwRenderTarget> rth, int dummy)
@@ -188,7 +188,7 @@ namespace filament
 
 		Handle<HwUniformBuffer> D3D11Driver::createUniformBufferS() noexcept
 		{
-			return Handle<HwUniformBuffer>();
+			return alloc_handle<D3D11UniformBuffer, HwUniformBuffer>();
 		}
 
 		Handle<HwRenderPrimitive> D3D11Driver::createRenderPrimitiveS() noexcept
@@ -198,7 +198,7 @@ namespace filament
 
 		Handle<HwProgram> D3D11Driver::createProgramS() noexcept
 		{
-			return Handle<HwProgram>();
+			return alloc_handle<D3D11Program, HwProgram>();
 		}
 
 		Handle<HwRenderTarget> D3D11Driver::createDefaultRenderTargetS() noexcept
@@ -243,17 +243,17 @@ namespace filament
 
 		void D3D11Driver::destroyProgram(Handle<HwProgram> ph)
 		{
-
+			destruct_handle<D3D11Program>(m_handle_map, ph);
 		}
 
 		void D3D11Driver::destroySamplerGroup(Handle<HwSamplerGroup> sbh)
 		{
-
+			
 		}
 
 		void D3D11Driver::destroyUniformBuffer(Handle<HwUniformBuffer> ubh)
 		{
-
+			destruct_handle<D3D11UniformBuffer>(m_handle_map, ubh);
 		}
 
 		void D3D11Driver::destroyTexture(Handle<HwTexture> th)
@@ -396,7 +396,8 @@ namespace filament
 
 		void D3D11Driver::loadUniformBuffer(Handle<HwUniformBuffer> ubh, BufferDescriptor&& data)
 		{
-
+			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
+			uniform_buffer->Load(m_context, std::move(data));
 		}
 
 		void D3D11Driver::updateSamplerGroup(Handle<HwSamplerGroup> sbh, SamplerGroup&& samplerGroup)
@@ -540,7 +541,13 @@ namespace filament
 
 		void D3D11Driver::bindUniformBuffer(size_t index, Handle<HwUniformBuffer> ubh)
 		{
+			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
 
+			assert(index < D3D11Context::MAX_UNIFORM_BUFFER_BINDINGS);
+			
+			m_context->uniform_buffer_bindings[index].buffer = uniform_buffer->buffer;
+			m_context->uniform_buffer_bindings[index].offset = 0;
+			m_context->uniform_buffer_bindings[index].size = uniform_buffer->size;
 		}
 
 		void D3D11Driver::bindUniformBufferRange(
@@ -549,7 +556,15 @@ namespace filament
 			size_t offset,
 			size_t size)
 		{
+			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
 
+			assert(index < D3D11Context::MAX_UNIFORM_BUFFER_BINDINGS);
+			assert(offset < uniform_buffer->size);
+			assert(offset + size <= uniform_buffer->size);
+
+			m_context->uniform_buffer_bindings[index].buffer = uniform_buffer->buffer;
+			m_context->uniform_buffer_bindings[index].offset = offset;
+			m_context->uniform_buffer_bindings[index].size = size;
 		}
 
 		void D3D11Driver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh)
@@ -607,7 +622,134 @@ namespace filament
 
 		void D3D11Driver::draw(backend::PipelineState ps, Handle<HwRenderPrimitive> rph)
 		{
+			auto program = handle_cast<D3D11Program>(m_handle_map, ps.program);
+
+			if (program->vertex_shader)
+			{
+				m_context->context->VSSetShader(program->vertex_shader, nullptr, 0);
+			}
 			
+			if (program->pixel_shader)
+			{
+				m_context->context->PSSetShader(program->pixel_shader, nullptr, 0);
+			}
+
+			auto rs = m_context->rasterizer_states.find(ps.rasterState.u);
+			if (rs == m_context->rasterizer_states.end())
+			{
+				D3D11_RASTERIZER_DESC raster_desc = { };
+				raster_desc.FillMode = D3D11_FILL_SOLID;
+				raster_desc.FrontCounterClockwise = ps.rasterState.inverseFrontFaces;
+				raster_desc.DepthClipEnable = TRUE;
+				raster_desc.ScissorEnable = TRUE;
+
+				switch (ps.rasterState.culling)
+				{
+				case CullingMode::NONE:
+					raster_desc.CullMode = D3D11_CULL_NONE;
+					break;
+				case CullingMode::FRONT:
+					raster_desc.CullMode = D3D11_CULL_FRONT;
+					break;
+				case CullingMode::BACK:
+					raster_desc.CullMode = D3D11_CULL_BACK;
+					break;
+				default:
+					assert(false);
+					break;
+				}
+
+				ID3D11RasterizerState* raster = nullptr;
+				HRESULT hr = m_context->device->CreateRasterizerState(&raster_desc, &raster);
+				assert(SUCCEEDED(hr));
+
+				auto get_blend_func = [](BlendFunction func) {
+					switch (func)
+					{
+					case BlendFunction::ZERO: return D3D11_BLEND_ZERO;
+					case BlendFunction::ONE: return D3D11_BLEND_ONE;
+					case BlendFunction::SRC_COLOR: return D3D11_BLEND_SRC_COLOR;
+					case BlendFunction::ONE_MINUS_SRC_COLOR: return D3D11_BLEND_INV_SRC_COLOR;
+					case BlendFunction::DST_COLOR: return D3D11_BLEND_DEST_COLOR;
+					case BlendFunction::ONE_MINUS_DST_COLOR: return D3D11_BLEND_INV_DEST_COLOR;
+					case BlendFunction::SRC_ALPHA: return D3D11_BLEND_SRC_ALPHA;
+					case BlendFunction::ONE_MINUS_SRC_ALPHA: return D3D11_BLEND_INV_SRC_ALPHA;
+					case BlendFunction::DST_ALPHA: return D3D11_BLEND_DEST_ALPHA;
+					case BlendFunction::ONE_MINUS_DST_ALPHA: return D3D11_BLEND_INV_DEST_ALPHA;
+					case BlendFunction::SRC_ALPHA_SATURATE: return D3D11_BLEND_SRC_ALPHA_SAT;
+					default: assert(false);
+					}
+					return D3D11_BLEND_ZERO;
+				};
+				auto get_blend_op = [](BlendEquation op) {
+					switch (op)
+					{
+					case BlendEquation::ADD: return D3D11_BLEND_OP_ADD;
+					case BlendEquation::SUBTRACT: return D3D11_BLEND_OP_SUBTRACT;
+					case BlendEquation::REVERSE_SUBTRACT: return D3D11_BLEND_OP_REV_SUBTRACT;
+					case BlendEquation::MIN: return D3D11_BLEND_OP_MIN;
+					case BlendEquation::MAX: return D3D11_BLEND_OP_MAX;
+					default: assert(false);
+					}
+					return D3D11_BLEND_OP_ADD;
+				};
+
+				D3D11_BLEND_DESC blend_desc = { };
+				blend_desc.AlphaToCoverageEnable = ps.rasterState.alphaToCoverage;
+				for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
+				{
+					auto& target = blend_desc.RenderTarget[i];
+					target.BlendEnable = ps.rasterState.hasBlending();
+					target.SrcBlend = get_blend_func(ps.rasterState.blendFunctionSrcRGB);
+					target.DestBlend = get_blend_func(ps.rasterState.blendFunctionDstRGB);
+					target.SrcBlendAlpha = get_blend_func(ps.rasterState.blendFunctionSrcAlpha);
+					target.DestBlendAlpha = get_blend_func(ps.rasterState.blendFunctionDstAlpha);
+					target.BlendOp = get_blend_op(ps.rasterState.blendEquationRGB);
+					target.BlendOpAlpha = get_blend_op(ps.rasterState.blendEquationAlpha);
+					target.RenderTargetWriteMask = ps.rasterState.colorWrite ? D3D11_COLOR_WRITE_ENABLE_ALL : 0;
+				}
+
+				ID3D11BlendState* blend = nullptr;
+				hr = m_context->device->CreateBlendState(&blend_desc, &blend);
+				assert(SUCCEEDED(hr));
+
+				auto get_depth_func = [](SamplerCompareFunc func) {
+					switch (func)
+					{
+					case SamplerCompareFunc::LE: return D3D11_COMPARISON_LESS_EQUAL;
+					case SamplerCompareFunc::GE: return D3D11_COMPARISON_GREATER_EQUAL;
+					case SamplerCompareFunc::L: return D3D11_COMPARISON_LESS;
+					case SamplerCompareFunc::G: return D3D11_COMPARISON_GREATER;
+					case SamplerCompareFunc::E: return D3D11_COMPARISON_EQUAL;
+					case SamplerCompareFunc::NE: return D3D11_COMPARISON_NOT_EQUAL;
+					case SamplerCompareFunc::A: return D3D11_COMPARISON_ALWAYS;
+					case SamplerCompareFunc::N: return D3D11_COMPARISON_NEVER;
+					default: assert(false);
+					}
+					return D3D11_COMPARISON_LESS_EQUAL;
+				};
+
+				D3D11_DEPTH_STENCIL_DESC depth_desc = { };
+				depth_desc.DepthEnable = TRUE;
+				depth_desc.DepthWriteMask = ps.rasterState.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+				depth_desc.DepthFunc = get_depth_func(ps.rasterState.depthFunc);
+				
+				ID3D11DepthStencilState* depth = nullptr;
+				hr = m_context->device->CreateDepthStencilState(&depth_desc, &depth);
+				assert(SUCCEEDED(hr));
+
+				D3D11Context::RenderState state;
+				state.raster = raster;
+				state.blend = blend;
+				state.depth = depth;
+				m_context->rasterizer_states.insert({ ps.rasterState.u, state });
+
+				rs = m_context->rasterizer_states.find(ps.rasterState.u);
+			}
+			
+			m_context->context->RSSetState(rs->second.raster);
+			m_context->context->OMSetBlendState(rs->second.blend, nullptr, D3D11_DEFAULT_SAMPLE_MASK);
+			m_context->context->OMSetDepthStencilState(rs->second.depth, D3D11_DEFAULT_STENCIL_REFERENCE);
 		}
 	}
 }

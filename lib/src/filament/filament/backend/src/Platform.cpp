@@ -44,10 +44,6 @@
     #if defined (FILAMENT_DRIVER_SUPPORTS_VULKAN)
         #include "vulkan/PlatformVkLinux.h"
     #endif
-#elif defined(VR_UWP)
-	#if VR_D3D
-		#include "d3d/PlatformD3D11.h"
-	#endif
 #elif defined(WIN32)
     #ifndef USE_EXTERNAL_GLES3
         #include "opengl/PlatformWGL.h"
@@ -55,9 +51,6 @@
     #if defined (FILAMENT_DRIVER_SUPPORTS_VULKAN)
         #include "vulkan/PlatformVkWindows.h"
     #endif
-	#if VR_D3D
-		#include "d3d/PlatformD3D11.h"
-	#endif
 #elif defined(__EMSCRIPTEN__)
     #include "opengl/PlatformWebGL.h"
 #else
@@ -68,6 +61,10 @@
 
 #if defined (FILAMENT_SUPPORTS_METAL)
     #include "metal/PlatformMetal.h"
+#endif
+
+#if VR_D3D
+	#include "d3d/PlatformD3D11.h"
 #endif
 
 #include "noop/PlatformNoop.h"

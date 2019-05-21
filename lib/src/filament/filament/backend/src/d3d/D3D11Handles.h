@@ -50,5 +50,25 @@ namespace filament
 			ID3D11RenderTargetView1* color_view = nullptr;
 			ID3D11DepthStencilView* depth_view = nullptr;
 		};
+
+		struct D3D11Program : public HwProgram
+		{
+			D3D11Program(D3D11Context* context, Program&& program);
+			~D3D11Program();
+
+			ID3D11VertexShader* vertex_shader = nullptr;
+			ID3D11PixelShader* pixel_shader = nullptr;
+		};
+
+		struct D3D11UniformBuffer : public HwUniformBuffer
+		{
+			D3D11UniformBuffer(D3D11Context* context, size_t size, BufferUsage usage);
+			~D3D11UniformBuffer();
+			void Load(D3D11Context* context, BufferDescriptor&& data);
+
+			ID3D11Buffer* buffer = nullptr;
+			size_t size;
+			BufferUsage usage;
+		};
 	}
 }

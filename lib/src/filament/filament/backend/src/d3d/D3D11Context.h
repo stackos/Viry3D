@@ -18,6 +18,7 @@
 #pragma once
 
 #include "private/backend/Driver.h"
+#include <unordered_map>
 #include <dxgi1_4.h>
 #include <d3d11_3.h>
 
@@ -41,6 +42,21 @@ namespace filament
 			D3D11Context();
 			~D3D11Context();
 
+			struct UniformBufferBinding
+			{
+				ID3D11Buffer* buffer = nullptr;
+				size_t offset = 0;
+				size_t size = 0;
+			};
+			static constexpr const size_t MAX_UNIFORM_BUFFER_BINDINGS = 8;
+
+			struct RenderState
+			{
+				ID3D11RasterizerState* raster = nullptr;
+				ID3D11BlendState* blend = nullptr;
+				ID3D11DepthStencilState* depth = nullptr;
+			};
+
 		public:
 			ID3D11DeviceContext3* context = nullptr;
 			ID3D11Device3* device = nullptr;
@@ -51,6 +67,8 @@ namespace filament
 			D3D11SwapChain* current_swap_chain = nullptr;
 			D3D11RenderTarget* current_render_target = nullptr;
 			RenderPassFlags current_render_pass_flags;
+			UniformBufferBinding uniform_buffer_bindings[MAX_UNIFORM_BUFFER_BINDINGS];
+			std::unordered_map<uint32_t, RenderState> rasterizer_states;
 		};
 	}
 }
