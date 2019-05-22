@@ -646,5 +646,43 @@ namespace filament
 					0);
 			}
 		}
+
+		D3D11RenderPrimitive::D3D11RenderPrimitive(D3D11Context* context)
+		{
+		
+		}
+
+		D3D11RenderPrimitive::~D3D11RenderPrimitive()
+		{
+		
+		}
+
+		void D3D11RenderPrimitive::SetBuffer(
+			D3D11Context* context,
+			Handle<HwVertexBuffer> vbh,
+			Handle<HwIndexBuffer> ibh,
+			uint32_t enabled_attributes,
+			uint32_t vertex_count)
+		{
+			this->vertex_buffer = vbh;
+			this->index_buffer = ibh;
+			this->enabled_attributes = enabled_attributes;
+			this->maxVertexCount = vertex_count;
+		}
+
+		void D3D11RenderPrimitive::SetRange(
+			D3D11Context* context,
+			PrimitiveType pt,
+			uint32_t offset,
+			uint32_t min_index,
+			uint32_t max_index,
+			uint32_t count)
+		{
+			this->offset = offset;
+			this->minIndex = min_index;
+			this->maxIndex = max_index;
+			this->count = count;
+			this->type = pt;
+		}
 	}
 }

@@ -135,7 +135,7 @@ namespace filament
 
 		void D3D11Driver::createRenderPrimitiveR(Handle<HwRenderPrimitive> rph, int dummy)
 		{
-
+			construct_handle<D3D11RenderPrimitive>(m_handle_map, rph, m_context);
 		}
 
 		void D3D11Driver::createProgramR(Handle<HwProgram> ph, Program&& program)
@@ -217,7 +217,7 @@ namespace filament
 
 		Handle<HwRenderPrimitive> D3D11Driver::createRenderPrimitiveS() noexcept
 		{
-			return Handle<HwRenderPrimitive>();
+			return alloc_handle<D3D11RenderPrimitive, HwRenderPrimitive>();
 		}
 
 		Handle<HwProgram> D3D11Driver::createProgramS() noexcept
@@ -262,7 +262,7 @@ namespace filament
 
 		void D3D11Driver::destroyRenderPrimitive(Handle<HwRenderPrimitive> rph)
 		{
-
+			destruct_handle<D3D11RenderPrimitive>(m_handle_map, rph);
 		}
 
 		void D3D11Driver::destroyProgram(Handle<HwProgram> ph)
@@ -461,12 +461,13 @@ namespace filament
 
 			ID3D11RenderTargetView* color = nullptr;
 			ID3D11DepthStencilView* depth = nullptr;
+			uint32_t target_height = 0;
 
 			// set render target
 			if (render_target->default_render_target)
 			{
 				color = m_context->current_swap_chain->color_view;
-
+				
 				if (render_target->depth_view == nullptr)
 				{
 					DXGI_SWAP_CHAIN_DESC1 swap_chain_desc = { };
@@ -477,14 +478,17 @@ namespace filament
 						DXGI_FORMAT_D24_UNORM_S8_UINT,
 						swap_chain_desc.Width,
 						swap_chain_desc.Height);
+					render_target->height = swap_chain_desc.Height;
 				}
 
 				depth = render_target->depth_view;
+				target_height = render_target->height;
 			}
 			else
 			{
 				color = render_target->color_view;
 				depth = render_target->depth_view;
+				target_height = render_target->height;
 			}
 
 			m_context->context->OMSetRenderTargets(1, &color, depth);
@@ -492,7 +496,7 @@ namespace filament
 			// set viewport
 			D3D11_VIEWPORT viewport = CD3D11_VIEWPORT(
 				(float) params.viewport.left,
-				(float) (params.viewport.height - (params.viewport.bottom + params.viewport.height)),
+				(float) (target_height - (params.viewport.bottom + params.viewport.height)),
 				(float) params.viewport.width,
 				(float) params.viewport.height
 			);
@@ -549,18 +553,21 @@ namespace filament
 			Handle<HwIndexBuffer> ibh,
 			uint32_t enabled_attributes)
 		{
-
+			auto primitive = handle_cast<D3D11RenderPrimitive>(m_handle_map, rph);
+			auto vertex_buffer = handle_cast<D3D11VertexBuffer>(m_handle_map, vbh);
+			primitive->SetBuffer(m_context, vbh, ibh, enabled_attributes, vertex_buffer->vertexCount);
 		}
 
 		void D3D11Driver::setRenderPrimitiveRange(
 			Handle<HwRenderPrimitive> rph,
 			PrimitiveType pt,
 			uint32_t offset,
-			uint32_t minIndex,
-			uint32_t maxIndex,
+			uint32_t min_index,
+			uint32_t max_index,
 			uint32_t count)
 		{
-
+			auto primitive = handle_cast<D3D11RenderPrimitive>(m_handle_map, rph);
+			primitive->SetRange(m_context, pt, offset, min_index, max_index, count);
 		}
 
 		void D3D11Driver::setViewportScissor(
@@ -569,7 +576,12 @@ namespace filament
 			uint32_t width,
 			uint32_t height)
 		{
-
+			CD3D11_RECT rect(
+				(LONG) left,
+				(LONG) (m_context->current_render_target->height - (bottom + height)),
+				(LONG) left + width,
+				(LONG) bottom + height);
+			m_context->context->RSSetScissorRects(1, &rect);
 		}
 
 		void D3D11Driver::makeCurrent(Handle<HwSwapChain> sch_draw, Handle<HwSwapChain> sch_read)
@@ -673,7 +685,10 @@ namespace filament
 		void D3D11Driver::draw(backend::PipelineState ps, Handle<HwRenderPrimitive> rph)
 		{
 			auto program = handle_cast<D3D11Program>(m_handle_map, ps.program);
-
+			auto primitive = handle_cast<D3D11RenderPrimitive>(m_handle_map, rph);
+			auto vertex_buffer = handle_cast<D3D11VertexBuffer>(m_handle_map, primitive->vertex_buffer);
+			auto index_buffer = handle_cast<D3D11IndexBuffer>(m_handle_map, primitive->index_buffer);
+			
 			if (program->vertex_shader)
 			{
 				m_context->context->VSSetShader(program->vertex_shader, nullptr, 0);
@@ -727,10 +742,59 @@ namespace filament
 
 			m_context->SetState(ps);
 
-			//m_context->context->IASetVertexBuffers
-			//m_context->context->IASetIndexBuffer
+			std::vector<ID3D11Buffer*> buffers;
+			std::vector<UINT> strides;
+			std::vector<UINT> offsets;
+
+			for (size_t i = 0; i < vertex_buffer->attributes.size(); ++i)
+			{
+				const auto& attribute = vertex_buffer->attributes[i];
+				if (attribute.buffer != 0XFF)
+				{
+					buffers.push_back(vertex_buffer->buffers[attribute.buffer]);
+					strides.push_back(attribute.stride);
+					offsets.push_back(attribute.offset);
+				}
+			}
+			
+			m_context->context->IASetVertexBuffers(
+				0,
+				(UINT) buffers.size(),
+				&buffers[0],
+				&strides[0],
+				&offsets[0]);
+
+			DXGI_FORMAT index_format = DXGI_FORMAT_UNKNOWN;
+			if (index_buffer->elementSize == 2)
+			{
+				index_format = DXGI_FORMAT_R16_UINT;
+			}
+			else if (index_buffer->elementSize == 4)
+			{
+				index_format = DXGI_FORMAT_R32_UINT;
+			}
+			m_context->context->IASetIndexBuffer(index_buffer->buffer, index_format, 0);
+
+			D3D11_PRIMITIVE_TOPOLOGY primitive_type = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+			switch (primitive->type)
+			{
+			case PrimitiveType::POINTS:
+				primitive_type = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+				break;
+			case PrimitiveType::LINES:
+				primitive_type = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+				break;
+			case PrimitiveType::TRIANGLES:
+				primitive_type = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+				break;
+			default:
+				assert(false);
+				break;
+			}
+			m_context->context->IASetPrimitiveTopology(primitive_type);
+
 			//m_context->context->IASetInputLayout
-			//m_context->context->IASetPrimitiveTopology
+			//m_context->context->DrawIndexed
 		}
 	}
 }

@@ -148,5 +148,28 @@ namespace filament
 			ID3D11Buffer* buffer = nullptr;
 			BufferUsage usage;
 		};
+
+		struct D3D11RenderPrimitive : public HwRenderPrimitive
+		{
+			D3D11RenderPrimitive(D3D11Context* context);
+			~D3D11RenderPrimitive();
+			void SetBuffer(
+				D3D11Context* context,
+				Handle<HwVertexBuffer> vbh,
+				Handle<HwIndexBuffer> ibh,
+				uint32_t enabled_attributes,
+				uint32_t vertex_count);
+			void SetRange(
+				D3D11Context* context,
+				PrimitiveType pt,
+				uint32_t offset,
+				uint32_t min_index,
+				uint32_t max_index,
+				uint32_t count);
+
+			VertexBufferHandle vertex_buffer;
+			IndexBufferHandle index_buffer;
+			uint32_t enabled_attributes = 0;
+		};
 	}
 }
