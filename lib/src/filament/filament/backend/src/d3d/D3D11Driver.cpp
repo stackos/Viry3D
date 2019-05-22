@@ -106,7 +106,7 @@ namespace filament
 			uint32_t depth,
 			TextureUsage usage)
 		{
-
+			construct_handle<D3D11Texture>(m_handle_map, th, m_context, target, levels, format, samples, width, height, depth, usage);
 		}
 
 		void D3D11Driver::createSamplerGroupR(Handle<HwSamplerGroup> sgh, size_t size)
@@ -178,7 +178,7 @@ namespace filament
 
 		Handle<HwTexture> D3D11Driver::createTextureS() noexcept
 		{
-			return Handle<HwTexture>();
+			return alloc_handle<D3D11Texture, HwTexture>();
 		}
 
 		Handle<HwSamplerGroup> D3D11Driver::createSamplerGroupS() noexcept
@@ -258,7 +258,7 @@ namespace filament
 
 		void D3D11Driver::destroyTexture(Handle<HwTexture> th)
 		{
-
+			destruct_handle<D3D11Texture>(m_handle_map, th);
 		}
 
 		void D3D11Driver::destroyRenderTarget(Handle<HwRenderTarget> rth)
@@ -313,12 +313,12 @@ namespace filament
 
 		bool D3D11Driver::isTextureFormatSupported(TextureFormat format)
 		{
-			return false;
+			return true;
 		}
 
 		bool D3D11Driver::isRenderTargetFormatSupported(TextureFormat format)
 		{
-			return false;
+			return true;
 		}
 
 		bool D3D11Driver::isFrameTimeSupported()
@@ -332,7 +332,7 @@ namespace filament
 			BufferDescriptor&& data,
 			uint32_t byteOffset)
 		{
-
+			this->scheduleDestroy(std::move(data));
 		}
 
 		void D3D11Driver::updateIndexBuffer(
@@ -340,28 +340,43 @@ namespace filament
 			BufferDescriptor&& data,
 			uint32_t byteOffset)
 		{
-
+			this->scheduleDestroy(std::move(data));
 		}
 
 		void D3D11Driver::update2DImage(
 			Handle<HwTexture> th,
 			uint32_t level,
-			uint32_t xoffset,
-			uint32_t yoffset,
+			uint32_t x,
+			uint32_t y,
 			uint32_t width,
 			uint32_t height,
 			PixelBufferDescriptor&& data)
 		{
-
+			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
+			texture->Update2DImage(
+				m_context,
+				level,
+				x,
+				y,
+				width,
+				height,
+				data);
+			this->scheduleDestroy(std::move(data));
 		}
 
 		void D3D11Driver::updateCubeImage(
 			Handle<HwTexture> th,
 			uint32_t level,
 			PixelBufferDescriptor&& data,
-			FaceOffsets faceOffsets)
+			FaceOffsets face_offsets)
 		{
-
+			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
+			texture->UpdateCubeImage(
+				m_context,
+				level,
+				data,
+				face_offsets);
+			this->scheduleDestroy(std::move(data));
 		}
 
 		void D3D11Driver::setupExternalImage(void* image)
@@ -386,18 +401,20 @@ namespace filament
 
 		void D3D11Driver::generateMipmaps(Handle<HwTexture> th)
 		{
-
+			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
+			texture->GenerateMipmaps(m_context);
 		}
 
 		bool D3D11Driver::canGenerateMipmaps()
 		{
-			return false;
+			return true;
 		}
 
 		void D3D11Driver::loadUniformBuffer(Handle<HwUniformBuffer> ubh, BufferDescriptor&& data)
 		{
 			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
-			uniform_buffer->Load(m_context, std::move(data));
+			uniform_buffer->Load(m_context, data);
+			this->scheduleDestroy(std::move(data));
 		}
 
 		void D3D11Driver::updateSamplerGroup(Handle<HwSamplerGroup> sgh, SamplerGroup&& sg)
@@ -544,7 +561,7 @@ namespace filament
 		{
 			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
 
-			assert(index < CONFIG_UNIFORM_BINDING_COUNT);
+			assert(index < m_context->uniform_buffer_bindings.size());
 			
 			m_context->uniform_buffer_bindings[index].buffer = uniform_buffer->buffer;
 			m_context->uniform_buffer_bindings[index].offset = 0;
@@ -559,7 +576,7 @@ namespace filament
 		{
 			auto uniform_buffer = handle_cast<D3D11UniformBuffer>(m_handle_map, ubh);
 
-			assert(index < CONFIG_UNIFORM_BINDING_COUNT);
+			assert(index < m_context->uniform_buffer_bindings.size());
 			assert(offset < uniform_buffer->size);
 			assert(offset + size <= uniform_buffer->size);
 
@@ -572,7 +589,7 @@ namespace filament
 		{
 			auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, sgh);
 
-			assert(index < CONFIG_SAMPLER_BINDING_COUNT);
+			assert(index < m_context->sampler_group_binding.size());
 
 			m_context->sampler_group_binding[index].sampler_group = sgh;
 		}
@@ -632,134 +649,55 @@ namespace filament
 			if (program->vertex_shader)
 			{
 				m_context->context->VSSetShader(program->vertex_shader, nullptr, 0);
+
+				for (size_t i = 0; i < m_context->uniform_buffer_bindings.size(); ++i)
+				{
+					if (m_context->uniform_buffer_bindings[i].buffer)
+					{
+						m_context->context->VSSetConstantBuffers1((UINT) i, 1, &m_context->uniform_buffer_bindings[i].buffer, nullptr, nullptr);
+					}
+				}
 			}
 			
 			if (program->pixel_shader)
 			{
 				m_context->context->PSSetShader(program->pixel_shader, nullptr, 0);
-			}
 
-			this->SetState(ps);
-		}
-
-		void D3D11Driver::SetState(const backend::PipelineState& ps)
-		{
-			auto rs = m_context->rasterizer_states.find(ps.rasterState.u);
-			if (rs == m_context->rasterizer_states.end())
-			{
-				D3D11_RASTERIZER_DESC raster_desc = { };
-				raster_desc.FillMode = D3D11_FILL_SOLID;
-				raster_desc.FrontCounterClockwise = ps.rasterState.inverseFrontFaces;
-				raster_desc.DepthClipEnable = TRUE;
-				raster_desc.ScissorEnable = TRUE;
-
-				switch (ps.rasterState.culling)
+				for (size_t i = 0; i < m_context->uniform_buffer_bindings.size(); ++i)
 				{
-				case CullingMode::NONE:
-					raster_desc.CullMode = D3D11_CULL_NONE;
-					break;
-				case CullingMode::FRONT:
-					raster_desc.CullMode = D3D11_CULL_FRONT;
-					break;
-				case CullingMode::BACK:
-					raster_desc.CullMode = D3D11_CULL_BACK;
-					break;
-				default:
-					assert(false);
-					break;
+					if (m_context->uniform_buffer_bindings[i].buffer)
+					{
+						m_context->context->PSSetConstantBuffers1((UINT) i, 1, &m_context->uniform_buffer_bindings[i].buffer, nullptr, nullptr);
+					}
 				}
 
-				ID3D11RasterizerState* raster = nullptr;
-				HRESULT hr = m_context->device->CreateRasterizerState(&raster_desc, &raster);
-				assert(SUCCEEDED(hr));
-
-				auto get_blend_func = [](BlendFunction func) {
-					switch (func)
-					{
-					case BlendFunction::ZERO: return D3D11_BLEND_ZERO;
-					case BlendFunction::ONE: return D3D11_BLEND_ONE;
-					case BlendFunction::SRC_COLOR: return D3D11_BLEND_SRC_COLOR;
-					case BlendFunction::ONE_MINUS_SRC_COLOR: return D3D11_BLEND_INV_SRC_COLOR;
-					case BlendFunction::DST_COLOR: return D3D11_BLEND_DEST_COLOR;
-					case BlendFunction::ONE_MINUS_DST_COLOR: return D3D11_BLEND_INV_DEST_COLOR;
-					case BlendFunction::SRC_ALPHA: return D3D11_BLEND_SRC_ALPHA;
-					case BlendFunction::ONE_MINUS_SRC_ALPHA: return D3D11_BLEND_INV_SRC_ALPHA;
-					case BlendFunction::DST_ALPHA: return D3D11_BLEND_DEST_ALPHA;
-					case BlendFunction::ONE_MINUS_DST_ALPHA: return D3D11_BLEND_INV_DEST_ALPHA;
-					case BlendFunction::SRC_ALPHA_SATURATE: return D3D11_BLEND_SRC_ALPHA_SAT;
-					default: assert(false);
-					}
-					return D3D11_BLEND_ZERO;
-				};
-				auto get_blend_op = [](BlendEquation op) {
-					switch (op)
-					{
-					case BlendEquation::ADD: return D3D11_BLEND_OP_ADD;
-					case BlendEquation::SUBTRACT: return D3D11_BLEND_OP_SUBTRACT;
-					case BlendEquation::REVERSE_SUBTRACT: return D3D11_BLEND_OP_REV_SUBTRACT;
-					case BlendEquation::MIN: return D3D11_BLEND_OP_MIN;
-					case BlendEquation::MAX: return D3D11_BLEND_OP_MAX;
-					default: assert(false);
-					}
-					return D3D11_BLEND_OP_ADD;
-				};
-
-				D3D11_BLEND_DESC blend_desc = { };
-				blend_desc.AlphaToCoverageEnable = ps.rasterState.alphaToCoverage;
-				for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
+				for (size_t i = 0; i < m_context->sampler_group_binding.size(); ++i)
 				{
-					auto& target = blend_desc.RenderTarget[i];
-					target.BlendEnable = ps.rasterState.hasBlending();
-					target.SrcBlend = get_blend_func(ps.rasterState.blendFunctionSrcRGB);
-					target.DestBlend = get_blend_func(ps.rasterState.blendFunctionDstRGB);
-					target.SrcBlendAlpha = get_blend_func(ps.rasterState.blendFunctionSrcAlpha);
-					target.DestBlendAlpha = get_blend_func(ps.rasterState.blendFunctionDstAlpha);
-					target.BlendOp = get_blend_op(ps.rasterState.blendEquationRGB);
-					target.BlendOpAlpha = get_blend_op(ps.rasterState.blendEquationAlpha);
-					target.RenderTargetWriteMask = ps.rasterState.colorWrite ? D3D11_COLOR_WRITE_ENABLE_ALL : 0;
-				}
-
-				ID3D11BlendState* blend = nullptr;
-				hr = m_context->device->CreateBlendState(&blend_desc, &blend);
-				assert(SUCCEEDED(hr));
-
-				auto get_depth_func = [](SamplerCompareFunc func) {
-					switch (func)
+					if (m_context->sampler_group_binding[i].sampler_group)
 					{
-					case SamplerCompareFunc::LE: return D3D11_COMPARISON_LESS_EQUAL;
-					case SamplerCompareFunc::GE: return D3D11_COMPARISON_GREATER_EQUAL;
-					case SamplerCompareFunc::L: return D3D11_COMPARISON_LESS;
-					case SamplerCompareFunc::G: return D3D11_COMPARISON_GREATER;
-					case SamplerCompareFunc::E: return D3D11_COMPARISON_EQUAL;
-					case SamplerCompareFunc::NE: return D3D11_COMPARISON_NOT_EQUAL;
-					case SamplerCompareFunc::A: return D3D11_COMPARISON_ALWAYS;
-					case SamplerCompareFunc::N: return D3D11_COMPARISON_NEVER;
-					default: assert(false);
+						auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, m_context->sampler_group_binding[i].sampler_group);
+
+						for (size_t j = 0; j < sampler_group->sb->getSize(); ++j)
+						{
+							auto& s = sampler_group->sb->getSamplers()[j];
+
+							if (s.t)
+							{
+								auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
+								if (texture->image_view)
+								{
+									m_context->context->PSSetShaderResources((UINT) j, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
+									
+									ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
+									m_context->context->PSSetSamplers((UINT) j, 1, &sampler);
+								}
+							}
+						}
 					}
-					return D3D11_COMPARISON_LESS_EQUAL;
-				};
-
-				D3D11_DEPTH_STENCIL_DESC depth_desc = { };
-				depth_desc.DepthEnable = TRUE;
-				depth_desc.DepthWriteMask = ps.rasterState.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-				depth_desc.DepthFunc = get_depth_func(ps.rasterState.depthFunc);
-
-				ID3D11DepthStencilState* depth = nullptr;
-				hr = m_context->device->CreateDepthStencilState(&depth_desc, &depth);
-				assert(SUCCEEDED(hr));
-
-				D3D11Context::RenderState state;
-				state.raster = raster;
-				state.blend = blend;
-				state.depth = depth;
-				m_context->rasterizer_states.insert({ ps.rasterState.u, state });
-
-				rs = m_context->rasterizer_states.find(ps.rasterState.u);
+				}
 			}
 
-			m_context->context->RSSetState(rs->second.raster);
-			m_context->context->OMSetBlendState(rs->second.blend, nullptr, D3D11_DEFAULT_SAMPLE_MASK);
-			m_context->context->OMSetDepthStencilState(rs->second.depth, D3D11_DEFAULT_STENCIL_REFERENCE);
+			m_context->SetState(ps);
 		}
 	}
 }

@@ -264,7 +264,7 @@ namespace filament
 			SAFE_RELEASE(buffer);
 		}
 
-		void D3D11UniformBuffer::Load(D3D11Context* context, BufferDescriptor&& data)
+		void D3D11UniformBuffer::Load(D3D11Context* context, const BufferDescriptor& data)
 		{
 			if (usage == BufferUsage::DYNAMIC)
 			{
@@ -297,85 +297,174 @@ namespace filament
 		}
 
 		D3D11SamplerGroup::D3D11SamplerGroup(D3D11Context* context, size_t size):
-			HwSamplerGroup(size),
-			samplers(size, nullptr)
+			HwSamplerGroup(size)
 		{
 		
 		}
 
 		D3D11SamplerGroup::~D3D11SamplerGroup()
 		{
-			for (int i = 0; i < samplers.size(); ++i)
-			{
-				SAFE_RELEASE(samplers[i]);
-			}
+			
 		}
 
 		void D3D11SamplerGroup::Update(D3D11Context* context, SamplerGroup&& sg)
 		{
-			assert(samplers.size() == sg.getSize());
-
-			for (int i = 0; i < sb->getSize(); ++i)
-			{
-				if (sb->getSamplers()[i].s.u != sg.getSamplers()[i].s.u)
-				{
-					SAFE_RELEASE(samplers[i]);
-				}
-			}
-
 			*sb = std::move(sg);
+		}
 
-			for (int i = 0; i < samplers.size(); ++i)
+		D3D11Texture::D3D11Texture(
+			D3D11Context* context,
+			backend::SamplerType target,
+			uint8_t levels,
+			TextureFormat format,
+			uint8_t samples,
+			uint32_t width,
+			uint32_t height,
+			uint32_t depth,
+			TextureUsage usage):
+			HwTexture(target, levels, samples, width, height, depth, format, usage)
+		{
+			UINT mip_levels = levels;
+			UINT array_size = depth;
+			DXGI_FORMAT dx_format = DXGI_FORMAT_UNKNOWN;
+			UINT bind_flags = 0;
+			UINT misc_flags = 0;
+
+			switch (format)
 			{
-				if (samplers[i] == nullptr)
-				{
-					const auto& s = sb->getSamplers()[i].s;
-
-					D3D11_SAMPLER_DESC sampler_desc = { };
-					sampler_desc.MaxAnisotropy = 1;
-					sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-					sampler_desc.MinLOD = -3.402823466e+38F;
-					sampler_desc.MaxLOD = 3.402823466e+38F;
-
-					switch (s.filterMag)
-					{
-					case SamplerMagFilter::NEAREST:
-						sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-						break;
-					case SamplerMagFilter::LINEAR:
-						sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-						break;
-					default:
-						assert(false);
-						break;
-					}
-
-					switch (s.wrapS)
-					{
-					case SamplerWrapMode::CLAMP_TO_EDGE:
-						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-						break;
-					case SamplerWrapMode::REPEAT:
-						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-						break;
-					case SamplerWrapMode::MIRRORED_REPEAT:
-						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
-						break;
-					default:
-						assert(false);
-						break;
-					}
-
-					HRESULT hr = context->device->CreateSamplerState(&sampler_desc, &samplers[i]);
-					assert(SUCCEEDED(hr));
-				}
+			case TextureFormat::RGBA8:
+				dx_format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				break;
+			default:
+				assert(false);
+				break;
 			}
+
+			if (usage & TextureUsage::COLOR_ATTACHMENT)
+			{
+				bind_flags |= D3D11_BIND_RENDER_TARGET;
+			}
+			if ((usage & TextureUsage::DEPTH_ATTACHMENT) ||
+				(usage & TextureUsage::STENCIL_ATTACHMENT))
+			{
+				bind_flags |= D3D11_BIND_DEPTH_STENCIL;
+			}
+			if (usage & TextureUsage::SAMPLEABLE)
+			{
+				bind_flags |= D3D11_BIND_SHADER_RESOURCE;
+			}
+
+			if (levels > 1)
+			{
+				mip_levels = 0;
+				bind_flags |= D3D11_BIND_RENDER_TARGET;
+				misc_flags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+			}
+
+			if (target == backend::SamplerType::SAMPLER_CUBEMAP)
+			{
+				array_size = depth * 6;
+				misc_flags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+			}
+
+			D3D11_TEXTURE2D_DESC1 texture_desc = { };
+			texture_desc.Width = width;
+			texture_desc.Height = height;
+			texture_desc.MipLevels = mip_levels;
+			texture_desc.ArraySize = array_size;
+			texture_desc.Format = dx_format;
+			texture_desc.SampleDesc.Count = samples;
+			texture_desc.Usage = D3D11_USAGE_DEFAULT;
+			texture_desc.BindFlags = bind_flags;
+			texture_desc.CPUAccessFlags = 0;
+			texture_desc.MiscFlags = misc_flags;
+			texture_desc.TextureLayout = D3D11_TEXTURE_LAYOUT_UNDEFINED;
+
+			HRESULT hr = context->device->CreateTexture2D1(
+				&texture_desc,
+				nullptr,
+				&texture);
+			assert(SUCCEEDED(hr));
+
+			if (usage & TextureUsage::SAMPLEABLE)
+			{
+				D3D11_SHADER_RESOURCE_VIEW_DESC1 view_desc = { };
+				view_desc.Format = dx_format;
+
+				if (target == backend::SamplerType::SAMPLER_CUBEMAP)
+				{
+					view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+					view_desc.TextureCube.MipLevels = -1;
+				}
+				else
+				{
+					view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+					view_desc.Texture2D.MipLevels = -1;
+				}
+
+				hr = context->device->CreateShaderResourceView1(texture, &view_desc, &image_view);
+				assert(SUCCEEDED(hr));
+			}
+		}
+
+		D3D11Texture::~D3D11Texture()
+		{
+			SAFE_RELEASE(texture);
+			SAFE_RELEASE(image_view);
+		}
+
+		void D3D11Texture::Update2DImage(
+			D3D11Context* context,
+			uint32_t level,
+			uint32_t x,
+			uint32_t y,
+			uint32_t width,
+			uint32_t height,
+			const PixelBufferDescriptor& data)
+		{
+			UINT subresource = D3D11CalcSubresource(level, 0, levels);
+			D3D11_BOX box = { x, y, 0, x + width, y + height, 1 };
+			UINT row_pitch = (UINT) getTextureFormatSize(format) * width;
+
+			context->context->UpdateSubresource1(
+				texture,
+				subresource,
+				&box,
+				data.buffer,
+				row_pitch,
+				0,
+				D3D11_COPY_DISCARD);
+		}
+
+		void D3D11Texture::UpdateCubeImage(
+			D3D11Context* context,
+			uint32_t level,
+			const PixelBufferDescriptor& data,
+			FaceOffsets face_offsets)
+		{
+			D3D11_BOX box = { 0, 0, 0, width, height, 1 };
+			UINT row_pitch = (UINT) getTextureFormatSize(format) * width;
+			uint8_t* buffer = (uint8_t*) data.buffer;
+
+			for (int i = 0; i < 6; ++i)
+			{
+				UINT subresource = D3D11CalcSubresource(level, i, levels);
+				size_t offset = face_offsets[i];
+
+				context->context->UpdateSubresource1(
+					texture,
+					subresource,
+					&box,
+					&buffer[offset],
+					row_pitch,
+					0,
+					D3D11_COPY_DISCARD);
+			}
+		}
+
+		void D3D11Texture::GenerateMipmaps(D3D11Context* context)
+		{
+			context->context->GenerateMips(image_view);
 		}
 	}
 }

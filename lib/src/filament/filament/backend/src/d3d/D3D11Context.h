@@ -41,6 +41,8 @@ namespace filament
 		public:
 			D3D11Context();
 			~D3D11Context();
+			void SetState(const backend::PipelineState& ps);
+			ID3D11SamplerState* GetSampler(const backend::SamplerParams& s);
 
 			struct UniformBufferBinding
 			{
@@ -71,9 +73,10 @@ namespace filament
 			D3D11SwapChain* current_swap_chain = nullptr;
 			D3D11RenderTarget* current_render_target = nullptr;
 			RenderPassFlags current_render_pass_flags;
-			UniformBufferBinding uniform_buffer_bindings[CONFIG_UNIFORM_BINDING_COUNT];
-			SamplerGroupBinding sampler_group_binding[CONFIG_SAMPLER_BINDING_COUNT];
+			std::array<UniformBufferBinding, CONFIG_UNIFORM_BINDING_COUNT> uniform_buffer_bindings;
+			std::array<SamplerGroupBinding, CONFIG_SAMPLER_BINDING_COUNT> sampler_group_binding;
 			std::unordered_map<uint32_t, RenderState> rasterizer_states;
+			std::unordered_map<uint32_t, ID3D11SamplerState*> samplers;
 		};
 	}
 }

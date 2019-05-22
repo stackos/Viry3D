@@ -64,7 +64,7 @@ namespace filament
 		{
 			D3D11UniformBuffer(D3D11Context* context, size_t size, BufferUsage usage);
 			~D3D11UniformBuffer();
-			void Load(D3D11Context* context, BufferDescriptor&& data);
+			void Load(D3D11Context* context, const BufferDescriptor& data);
 
 			ID3D11Buffer* buffer = nullptr;
 			size_t size;
@@ -76,8 +76,38 @@ namespace filament
 			D3D11SamplerGroup(D3D11Context* context, size_t size);
 			~D3D11SamplerGroup();
 			void Update(D3D11Context* context, SamplerGroup&& sg);
+		};
 
-			std::vector<ID3D11SamplerState*> samplers;
+		struct D3D11Texture : public HwTexture
+		{
+			D3D11Texture(
+				D3D11Context* context,
+				backend::SamplerType target,
+				uint8_t levels,
+				TextureFormat format,
+				uint8_t samples,
+				uint32_t width,
+				uint32_t height,
+				uint32_t depth,
+				TextureUsage usage);
+			~D3D11Texture();
+			void Update2DImage(
+				D3D11Context* context,
+				uint32_t level,
+				uint32_t x,
+				uint32_t y,
+				uint32_t width,
+				uint32_t height,
+				const PixelBufferDescriptor& data);
+			void UpdateCubeImage(
+				D3D11Context* context,
+				uint32_t level,
+				const PixelBufferDescriptor& data,
+				FaceOffsets face_offsets);
+			void GenerateMipmaps(D3D11Context* context);
+
+			ID3D11Texture2D1* texture = nullptr;
+			ID3D11ShaderResourceView1* image_view = nullptr;
 		};
 	}
 }
