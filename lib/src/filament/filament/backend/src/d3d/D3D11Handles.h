@@ -37,11 +37,13 @@ namespace filament
 		{
 			D3D11RenderTarget(
 				D3D11Context* context,
+				TargetBufferFlags flags,
 				uint32_t width,
 				uint32_t height,
-				ID3D11Texture2D1* color,
-				ID3D11Texture2D1* depth,
-				uint8_t level);
+				uint8_t samples,
+				TargetBufferInfo color,
+				TargetBufferInfo depth,
+				TargetBufferInfo stencil);
 			explicit D3D11RenderTarget(D3D11Context* context);
 			~D3D11RenderTarget();
 			void CreateDepth(D3D11Context* context, DXGI_FORMAT format, uint32_t width, uint32_t height);
@@ -108,6 +110,43 @@ namespace filament
 
 			ID3D11Texture2D1* texture = nullptr;
 			ID3D11ShaderResourceView1* image_view = nullptr;
+		};
+
+		struct D3D11VertexBuffer : public HwVertexBuffer
+		{
+			D3D11VertexBuffer(
+				D3D11Context* context,
+				uint8_t buffer_count,
+				uint8_t attribute_count,
+				uint32_t vertex_count,
+				AttributeArray attributes,
+				BufferUsage usage);
+			~D3D11VertexBuffer();
+			void Update(
+				D3D11Context* context,
+				size_t index,
+				const BufferDescriptor& data,
+				uint32_t offset);
+
+			std::vector<ID3D11Buffer*> buffers;
+			BufferUsage usage;
+		};
+
+		struct D3D11IndexBuffer : public HwIndexBuffer
+		{
+			D3D11IndexBuffer(
+				D3D11Context* context,
+				ElementType element_type,
+				uint32_t index_count,
+				BufferUsage usage);
+			~D3D11IndexBuffer();
+			void Update(
+				D3D11Context* context,
+				const BufferDescriptor& data,
+				uint32_t offset);
+
+			ID3D11Buffer* buffer = nullptr;
+			BufferUsage usage;
 		};
 	}
 }

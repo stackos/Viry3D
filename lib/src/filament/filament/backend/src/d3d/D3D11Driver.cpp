@@ -77,22 +77,36 @@ namespace filament
 
 		void D3D11Driver::createVertexBufferR(
 			Handle<HwVertexBuffer> vbh,
-			uint8_t bufferCount,
-			uint8_t attributeCount,
-			uint32_t vertexCount,
+			uint8_t buffer_count,
+			uint8_t attribute_count,
+			uint32_t vertex_count,
 			AttributeArray attributes,
 			BufferUsage usage)
 		{
-			
+			construct_handle<D3D11VertexBuffer>(
+				m_handle_map,
+				vbh,
+				m_context,
+				buffer_count,
+				attribute_count,
+				vertex_count,
+				attributes,
+				usage);
 		}
 
 		void D3D11Driver::createIndexBufferR(
 			Handle<HwIndexBuffer> ibh,
-			ElementType elementType,
-			uint32_t indexCount,
+			ElementType element_type,
+			uint32_t index_count,
 			BufferUsage usage)
 		{
-
+			construct_handle<D3D11IndexBuffer>(
+				m_handle_map,
+				ibh,
+				m_context,
+				element_type,
+				index_count,
+				usage);
 		}
 
 		void D3D11Driver::createTextureR(
@@ -144,7 +158,17 @@ namespace filament
 			TargetBufferInfo depth,
 			TargetBufferInfo stencil)
 		{
-
+			construct_handle<D3D11RenderTarget>(
+				m_handle_map,
+				rth,
+				m_context,
+				targetBufferFlags,
+				width,
+				height,
+				samples,
+				color,
+				depth,
+				stencil);
 		}
 
 		void D3D11Driver::createFenceR(Handle<HwFence> fh, int dummy)
@@ -168,12 +192,12 @@ namespace filament
 
 		Handle<HwVertexBuffer> D3D11Driver::createVertexBufferS() noexcept
 		{
-			return Handle<HwVertexBuffer>();
+			return alloc_handle<D3D11VertexBuffer, HwVertexBuffer>();
 		}
 
 		Handle<HwIndexBuffer> D3D11Driver::createIndexBufferS() noexcept
 		{
-			return Handle<HwIndexBuffer>();
+			return alloc_handle<D3D11IndexBuffer, HwIndexBuffer>();
 		}
 
 		Handle<HwTexture> D3D11Driver::createTextureS() noexcept
@@ -228,12 +252,12 @@ namespace filament
 
 		void D3D11Driver::destroyVertexBuffer(Handle<HwVertexBuffer> vbh)
 		{
-
+			destruct_handle<D3D11VertexBuffer>(m_handle_map, vbh);
 		}
 
 		void D3D11Driver::destroyIndexBuffer(Handle<HwIndexBuffer> ibh)
 		{
-
+			destruct_handle<D3D11IndexBuffer>(m_handle_map, ibh);
 		}
 
 		void D3D11Driver::destroyRenderPrimitive(Handle<HwRenderPrimitive> rph)
@@ -330,16 +354,20 @@ namespace filament
 			Handle<HwVertexBuffer> vbh,
 			size_t index,
 			BufferDescriptor&& data,
-			uint32_t byteOffset)
+			uint32_t offset)
 		{
+			auto buffer = handle_cast<D3D11VertexBuffer>(m_handle_map, vbh);
+			buffer->Update(m_context, index, data, offset);
 			this->scheduleDestroy(std::move(data));
 		}
 
 		void D3D11Driver::updateIndexBuffer(
 			Handle<HwIndexBuffer> ibh,
 			BufferDescriptor&& data,
-			uint32_t byteOffset)
+			uint32_t offset)
 		{
+			auto buffer = handle_cast<D3D11IndexBuffer>(m_handle_map, ibh);
+			buffer->Update(m_context, data, offset);
 			this->scheduleDestroy(std::move(data));
 		}
 
@@ -441,7 +469,7 @@ namespace filament
 
 				if (render_target->depth_view == nullptr)
 				{
-					DXGI_SWAP_CHAIN_DESC1 swap_chain_desc;
+					DXGI_SWAP_CHAIN_DESC1 swap_chain_desc = { };
 					m_context->current_swap_chain->swap_chain->GetDesc1(&swap_chain_desc);
 
 					render_target->CreateDepth(
@@ -519,7 +547,7 @@ namespace filament
 			Handle<HwRenderPrimitive> rph,
 			Handle<HwVertexBuffer> vbh,
 			Handle<HwIndexBuffer> ibh,
-			uint32_t enabledAttributes)
+			uint32_t enabled_attributes)
 		{
 
 		}
@@ -698,6 +726,11 @@ namespace filament
 			}
 
 			m_context->SetState(ps);
+
+			//m_context->context->IASetVertexBuffers
+			//m_context->context->IASetIndexBuffer
+			//m_context->context->IASetInputLayout
+			//m_context->context->IASetPrimitiveTopology
 		}
 	}
 }

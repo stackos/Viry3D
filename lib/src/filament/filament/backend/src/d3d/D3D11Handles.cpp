@@ -114,11 +114,13 @@ namespace filament
 
 		D3D11RenderTarget::D3D11RenderTarget(
 			D3D11Context* context,
+			TargetBufferFlags flags,
 			uint32_t width,
 			uint32_t height,
-			ID3D11Texture2D1* color,
-			ID3D11Texture2D1* depth,
-			uint8_t level):
+			uint8_t samples,
+			TargetBufferInfo color,
+			TargetBufferInfo depth,
+			TargetBufferInfo stencil):
 			HwRenderTarget(width, height)
 		{
 			
@@ -465,6 +467,184 @@ namespace filament
 		void D3D11Texture::GenerateMipmaps(D3D11Context* context)
 		{
 			context->context->GenerateMips(image_view);
+		}
+
+		D3D11VertexBuffer::D3D11VertexBuffer(
+			D3D11Context* context,
+			uint8_t buffer_count,
+			uint8_t attribute_count,
+			uint32_t vertex_count,
+			AttributeArray attributes,
+			BufferUsage usage):
+			HwVertexBuffer(buffer_count, attribute_count, vertex_count, attributes),
+			buffers(buffer_count, nullptr),
+			usage(usage)
+		{
+
+		}
+
+		D3D11VertexBuffer::~D3D11VertexBuffer()
+		{
+			for (int i = 0; i < buffers.size(); ++i)
+			{
+				SAFE_RELEASE(buffers[i]);
+			}
+		}
+
+		void D3D11VertexBuffer::Update(
+			D3D11Context* context,
+			size_t index,
+			const BufferDescriptor& data,
+			uint32_t offset)
+		{
+			assert(index < buffers.size());
+
+			if (buffers[index])
+			{
+				D3D11_BUFFER_DESC buffer_desc = { };
+				buffers[index]->GetDesc(&buffer_desc);
+
+				assert(offset + data.size <= buffer_desc.ByteWidth);
+			}
+			else
+			{
+				CD3D11_BUFFER_DESC buffer_desc((UINT) (offset + data.size), D3D11_BIND_VERTEX_BUFFER);
+
+				switch (usage)
+				{
+				case BufferUsage::STATIC:
+					buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+					break;
+				case BufferUsage::DYNAMIC:
+					buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+					buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+					break;
+				default:
+					assert(false);
+					break;
+				}
+
+				HRESULT hr = context->device->CreateBuffer(&buffer_desc, nullptr, &buffers[index]);
+				assert(SUCCEEDED(hr));
+			}
+
+			if (usage == BufferUsage::DYNAMIC)
+			{
+				D3D11_MAPPED_SUBRESOURCE res = { };
+				D3D11_MAP map_type = D3D11_MAP_WRITE;
+				if (offset == 0)
+				{
+					D3D11_BUFFER_DESC buffer_desc = { };
+					buffers[index]->GetDesc(&buffer_desc);
+
+					if (data.size == buffer_desc.ByteWidth)
+					{
+						map_type = D3D11_MAP_WRITE_DISCARD;
+					}
+				}
+				HRESULT hr = context->context->Map(
+					buffers[index],
+					0,
+					map_type,
+					0,
+					&res);
+				assert(SUCCEEDED(hr));
+
+				uint8_t* p = (uint8_t*) res.pData;
+				memcpy(&p[offset], data.buffer, data.size);
+
+				context->context->Unmap(buffers[index], 0);
+			}
+			else
+			{
+				D3D11_BOX box = { offset, 0, 0, offset + (UINT) data.size, 1, 1 };
+				context->context->UpdateSubresource1(
+					buffers[index],
+					0,
+					&box,
+					data.buffer,
+					0,
+					0,
+					0);
+			}
+		}
+
+		D3D11IndexBuffer::D3D11IndexBuffer(
+			D3D11Context* context,
+			ElementType element_type,
+			uint32_t index_count,
+			BufferUsage usage):
+			HwIndexBuffer((uint8_t) D3D11Driver::getElementTypeSize(element_type), index_count),
+			usage(usage)
+		{
+			CD3D11_BUFFER_DESC buffer_desc((UINT) (elementSize * index_count), D3D11_BIND_INDEX_BUFFER);
+
+			switch (usage)
+			{
+			case BufferUsage::STATIC:
+				buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+				break;
+			case BufferUsage::DYNAMIC:
+				buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+				buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			HRESULT hr = context->device->CreateBuffer(&buffer_desc, nullptr, &buffer);
+			assert(SUCCEEDED(hr));
+		}
+
+		D3D11IndexBuffer::~D3D11IndexBuffer()
+		{
+			SAFE_RELEASE(buffer);
+		}
+
+		void D3D11IndexBuffer::Update(
+			D3D11Context* context,
+			const BufferDescriptor& data,
+			uint32_t offset)
+		{
+			if (usage == BufferUsage::DYNAMIC)
+			{
+				D3D11_MAPPED_SUBRESOURCE res = { };
+				D3D11_MAP map_type = D3D11_MAP_WRITE;
+				if (offset == 0)
+				{
+					size_t buffer_size = elementSize * count;
+
+					if (data.size == buffer_size)
+					{
+						map_type = D3D11_MAP_WRITE_DISCARD;
+					}
+				}
+				HRESULT hr = context->context->Map(
+					buffer,
+					0,
+					map_type,
+					0,
+					&res);
+				assert(SUCCEEDED(hr));
+
+				uint8_t* p = (uint8_t*) res.pData;
+				memcpy(&p[offset], data.buffer, data.size);
+
+				context->context->Unmap(buffer, 0);
+			}
+			else
+			{
+				D3D11_BOX box = { offset, 0, 0, offset + (UINT) data.size, 1, 1 };
+				context->context->UpdateSubresource1(
+					buffer,
+					0,
+					&box,
+					data.buffer,
+					0,
+					0,
+					0);
+			}
 		}
 	}
 }
