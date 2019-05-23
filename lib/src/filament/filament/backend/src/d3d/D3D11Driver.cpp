@@ -595,6 +595,7 @@ namespace filament
 			auto swap_chain = handle_cast<D3D11SwapChain>(m_handle_map, sch);
 			DXGI_PRESENT_PARAMETERS parameters = { };
 			HRESULT hr = swap_chain->swap_chain->Present1(1, 0, &parameters);
+			assert(SUCCEEDED(hr));
 		}
 
 		void D3D11Driver::bindUniformBuffer(size_t index, Handle<HwUniformBuffer> ubh)

@@ -903,8 +903,6 @@ elseif (${Target} MATCHES "UWP")
 							   ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
                                )
 
-	set_property(TARGET Viry3DDep PROPERTY VS_WINRT_COMPONENT TRUE)
-
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/zlib
                                ${VIRY3D_LIB_SRC_DIR}/gles/angle/include

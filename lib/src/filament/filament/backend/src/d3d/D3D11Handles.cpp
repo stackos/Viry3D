@@ -20,8 +20,10 @@
 #include <assert.h>
 
 #if VR_UWP
-#include <wrl.h>
-using namespace Windows::UI::Core;
+namespace Viry3D
+{
+	extern void GetCoreWindowSize(void* window, int* width, int* height);
+}
 #endif
 
 namespace filament
@@ -36,9 +38,7 @@ namespace filament
 			DXGI_SWAP_CHAIN_DESC1 desc = { };
 
 #if VR_UWP
-			CoreWindow^ window = reinterpret_cast<CoreWindow^>(native_window);
-			window_width = (int) window->Bounds.Width;
-			window_height = (int) window->Bounds.Height;
+			Viry3D::GetCoreWindowSize(native_window, &window_width, &window_height);
 #else
 			HWND window = reinterpret_cast<HWND>(native_window);
 			RECT rect;
@@ -78,11 +78,14 @@ namespace filament
 #else
 			HRESULT hr = dxgi_factory->CreateSwapChainForHwnd(
 				context->device,
-				reinterpret_cast<HWND>(native_window),
+				window,
 				&desc,
 				nullptr,
 				nullptr,
 				&swap_chain_1);
+			assert(SUCCEEDED(hr));
+
+			hr = dxgi_factory->MakeWindowAssociation(window, DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
 #endif
 			assert(SUCCEEDED(hr));
 

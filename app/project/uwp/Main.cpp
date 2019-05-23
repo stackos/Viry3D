@@ -825,4 +825,11 @@ namespace Viry3D
         eglMakeCurrent(g_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
 #endif
+
+	void GetCoreWindowSize(void* window, int* width, int* height)
+	{
+		auto size = reinterpret_cast<CoreWindow^>(window)->Bounds;
+		*width = (int) size.Width;
+		*height = (int) size.Height;
+	}
 }
