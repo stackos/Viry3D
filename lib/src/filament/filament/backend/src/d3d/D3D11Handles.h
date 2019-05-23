@@ -58,6 +58,8 @@ namespace filament
 			D3D11Program(D3D11Context* context, Program&& program);
 			~D3D11Program();
 
+			ID3DBlob* vertex_binary = nullptr;
+			ID3DBlob* pixel_binary = nullptr;
 			ID3D11VertexShader* vertex_shader = nullptr;
 			ID3D11PixelShader* pixel_shader = nullptr;
 		};
@@ -169,6 +171,7 @@ namespace filament
 
 			VertexBufferHandle vertex_buffer;
 			IndexBufferHandle index_buffer;
+			ID3D11InputLayout* input_layout = nullptr;
 			uint32_t enabled_attributes = 0;
 		};
 	}

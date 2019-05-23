@@ -417,17 +417,25 @@ namespace Viry3D
 				"#define VK_LAYOUT_LOCATION(i) layout(location = i)\n"
 				"#define VK_UNIFORM_BINDING(i) layout(std140, set = 0, binding = i)\n"
 				"#define VK_SAMPLER_BINDING(i) layout(set = 1, binding = i)\n";
-			vk_convert = "void vk_convert() {\n"
-				"gl_Position.y = -gl_Position.y;\n"
-				"gl_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
-				"}\n";
+			if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN ||
+				Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)
+			{
+				vk_convert = "void vk_convert() {\n"
+					"gl_Position.y = -gl_Position.y;\n"
+					"gl_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
+					"}\n";
+			}
+			else
+			{
+				vk_convert = "void vk_convert() { }\n";
+			}
 		}
 		else
 		{
 			define = "#define VK_LAYOUT_LOCATION(i)\n"
 				"#define VK_UNIFORM_BINDING(i) layout(std140)\n"
 				"#define VK_SAMPLER_BINDING(i)\n";
-			vk_convert = "void vk_convert(){}\n";
+			vk_convert = "void vk_convert() { }\n";
 		}
 
 		for (const auto& i : m_keywords)

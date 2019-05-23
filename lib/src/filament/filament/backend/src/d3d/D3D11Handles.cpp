@@ -96,7 +96,8 @@ namespace filament
 			SAFE_RELEASE(dxgi_device);
 
 			ID3D11Texture2D1* back_buffer = nullptr;
-			swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));
+			hr = swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));
+			assert(SUCCEEDED(hr));
 
 			context->device->CreateRenderTargetView1(
 				back_buffer,
@@ -185,8 +186,8 @@ namespace filament
 					target = "ps_4_0_level_9_3";
 				}
 
-				ID3DBlob *binary = nullptr;
-				ID3DBlob *error = nullptr;
+				ID3DBlob* binary = nullptr;
+				ID3DBlob* error = nullptr;
 
 				HRESULT hr = D3DCompile(
 					&src[0],
@@ -215,6 +216,8 @@ namespace filament
 						nullptr,
 						&vertex_shader);
 					assert(SUCCEEDED(hr));
+
+					vertex_binary = binary;
 				}
 				else if (type == Program::Shader::FRAGMENT)
 				{
@@ -224,15 +227,18 @@ namespace filament
 						nullptr,
 						&pixel_shader);
 					assert(SUCCEEDED(hr));
+
+					pixel_binary = binary;
 				}
 
-				SAFE_RELEASE(binary);
 				SAFE_RELEASE(error);
 			}
 		}
 
 		D3D11Program::~D3D11Program()
 		{
+			SAFE_RELEASE(vertex_binary);
+			SAFE_RELEASE(pixel_binary);
 			SAFE_RELEASE(vertex_shader);
 			SAFE_RELEASE(pixel_shader);
 		}
@@ -613,7 +619,7 @@ namespace filament
 				D3D11_MAP map_type = D3D11_MAP_WRITE;
 				if (offset == 0)
 				{
-					size_t buffer_size = elementSize * count;
+					size_t buffer_size = count * (size_t) elementSize;
 
 					if (data.size == buffer_size)
 					{
@@ -654,7 +660,7 @@ namespace filament
 
 		D3D11RenderPrimitive::~D3D11RenderPrimitive()
 		{
-		
+			SAFE_RELEASE(input_layout);
 		}
 
 		void D3D11RenderPrimitive::SetBuffer(

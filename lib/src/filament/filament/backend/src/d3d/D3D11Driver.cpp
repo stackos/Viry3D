@@ -793,8 +793,46 @@ namespace filament
 			}
 			m_context->context->IASetPrimitiveTopology(primitive_type);
 
-			//m_context->context->IASetInputLayout
-			//m_context->context->DrawIndexed
+			if (primitive->input_layout == nullptr)
+			{
+				auto get_format = [](ElementType type) {
+					switch (type)
+					{
+					case ElementType::FLOAT2: return DXGI_FORMAT_R32G32_FLOAT;
+					case ElementType::FLOAT3: return DXGI_FORMAT_R32G32B32_FLOAT;
+					case ElementType::FLOAT4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+					default: assert(false); return DXGI_FORMAT_UNKNOWN;
+					}
+				};
+
+				std::vector<D3D11_INPUT_ELEMENT_DESC> input_descs;
+				for (size_t i = 0; i < vertex_buffer->attributes.size(); ++i)
+				{
+					if (primitive->enabled_attributes & (1 << i))
+					{
+						const auto& attribute = vertex_buffer->attributes[i];
+						D3D11_INPUT_ELEMENT_DESC desc = { };
+						desc.SemanticName = "TEXCOORD";
+						desc.SemanticIndex = (UINT) i;
+						desc.Format = get_format(attribute.type);
+						desc.InputSlot = (UINT) i;
+						desc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+						input_descs.push_back(desc);
+					}
+				}
+
+				HRESULT hr = m_context->device->CreateInputLayout(
+					&input_descs[0],
+					(UINT) input_descs.size(),
+					program->vertex_binary->GetBufferPointer(),
+					program->vertex_binary->GetBufferSize(),
+					&primitive->input_layout);
+				assert(SUCCEEDED(hr));
+			}
+			m_context->context->IASetInputLayout(primitive->input_layout);
+
+			m_context->context->DrawIndexed(primitive->count, primitive->offset, 0);
 		}
 	}
 }

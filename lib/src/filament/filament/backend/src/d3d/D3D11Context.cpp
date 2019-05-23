@@ -132,7 +132,7 @@ namespace filament
 			{
 				D3D11_RASTERIZER_DESC raster_desc = { };
 				raster_desc.FillMode = D3D11_FILL_SOLID;
-				raster_desc.FrontCounterClockwise = ps.rasterState.inverseFrontFaces;
+				raster_desc.FrontCounterClockwise = !ps.rasterState.inverseFrontFaces;
 				raster_desc.DepthClipEnable = TRUE;
 				raster_desc.ScissorEnable = TRUE;
 
