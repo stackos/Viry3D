@@ -453,40 +453,43 @@ namespace Viry3D
 			Vector<char> vs_data;
 			Vector<char> fs_data;
 
-			if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN ||
-				Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
+            if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN)
+            {
+#if VR_VULKAN
+                Vector<unsigned int> vs_spirv;
+                Vector<unsigned int> fs_spirv;
+                GlslToSpirv(vs, ShaderCompiler::ShaderType::Vertex, vs_spirv);
+                GlslToSpirv(fs, ShaderCompiler::ShaderType::Fragment, fs_spirv);
+
+                vs_data.Resize(vs_spirv.Size() * 4);
+                Memory::Copy(&vs_data[0], &vs_spirv[0], vs_data.Size());
+                fs_data.Resize(fs_spirv.Size() * 4);
+                Memory::Copy(&fs_data[0], &fs_spirv[0], fs_data.Size());
+#endif
+            }
+			else if (Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
 			{
-#if VR_VULKAN || VR_D3D
+#if VR_D3D
 				Vector<unsigned int> vs_spirv;
 				Vector<unsigned int> fs_spirv;
 				GlslToSpirv(vs, ShaderCompiler::ShaderType::Vertex, vs_spirv);
 				GlslToSpirv(fs, ShaderCompiler::ShaderType::Fragment, fs_spirv);
 
-				if (Engine::Instance()->GetBackend() == filament::backend::Backend::VULKAN)
-				{
-					vs_data.Resize(vs_spirv.Size() * 4);
-					Memory::Copy(&vs_data[0], &vs_spirv[0], vs_data.Size());
-					fs_data.Resize(fs_spirv.Size() * 4);
-					Memory::Copy(&fs_data[0], &fs_spirv[0], fs_data.Size());
-				}
-				else if (Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
-				{
-					spirv_cross::CompilerHLSL::Options options;
-					options.shader_model = 40;
+                spirv_cross::CompilerHLSL::Options options;
+                options.shader_model = 40;
 
-					spirv_cross::CompilerHLSL vs_compiler(&vs_spirv[0], vs_spirv.Size());
-					vs_compiler.set_hlsl_options(options);
-					std::string vs_hlsl = vs_compiler.compile();
+                spirv_cross::CompilerHLSL vs_compiler(&vs_spirv[0], vs_spirv.Size());
+                vs_compiler.set_hlsl_options(options);
+                std::string vs_hlsl = vs_compiler.compile();
 
-					spirv_cross::CompilerHLSL fs_compiler(&fs_spirv[0], fs_spirv.Size());
-					fs_compiler.set_hlsl_options(options);
-					std::string fs_hlsl = fs_compiler.compile();
+                spirv_cross::CompilerHLSL fs_compiler(&fs_spirv[0], fs_spirv.Size());
+                fs_compiler.set_hlsl_options(options);
+                std::string fs_hlsl = fs_compiler.compile();
 
-					vs_data.Resize((int) vs_hlsl.size());
-					Memory::Copy(&vs_data[0], &vs_hlsl[0], (int) vs_hlsl.size());
-					fs_data.Resize((int) fs_hlsl.size());
-					Memory::Copy(&fs_data[0], &fs_hlsl[0], (int) fs_hlsl.size());
-				}
+                vs_data.Resize((int) vs_hlsl.size());
+                Memory::Copy(&vs_data[0], &vs_hlsl[0], (int) vs_hlsl.size());
+                fs_data.Resize((int) fs_hlsl.size());
+                Memory::Copy(&fs_data[0], &fs_hlsl[0], (int) fs_hlsl.size());
 #endif
 			}
             else if (Engine::Instance()->GetBackend() == filament::backend::Backend::METAL)

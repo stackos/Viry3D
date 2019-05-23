@@ -24,25 +24,21 @@
 
 struct shader_type_mapping
 {
-    VkShaderStageFlagBits vkshader_type;
+    Viry3D::ShaderCompiler::ShaderType shader_type;
     shaderc_shader_kind shaderc_type;
 };
 
 static const shader_type_mapping shader_map_table[] =
 {
-    {VK_SHADER_STAGE_VERTEX_BIT, shaderc_glsl_vertex_shader},
-    {VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, shaderc_glsl_tess_control_shader},
-    {VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT, shaderc_glsl_tess_evaluation_shader},
-    {VK_SHADER_STAGE_GEOMETRY_BIT, shaderc_glsl_geometry_shader},
-    {VK_SHADER_STAGE_FRAGMENT_BIT, shaderc_glsl_fragment_shader},
-    {VK_SHADER_STAGE_COMPUTE_BIT, shaderc_glsl_compute_shader},
+    {Viry3D::ShaderCompiler::ShaderType::Vertex, shaderc_glsl_vertex_shader},
+    {Viry3D::ShaderCompiler::ShaderType::Fragment, shaderc_glsl_fragment_shader},
 };
 
-shaderc_shader_kind MapShadercType(VkShaderStageFlagBits vkShader)
+shaderc_shader_kind MapShadercType(Viry3D::ShaderCompiler::ShaderType shader_type)
 {
     for (auto shader : shader_map_table)
     {
-        if (shader.vkshader_type == vkShader)
+        if (shader.shader_type == shader_type)
         {
             return shader.shaderc_type;
         }
