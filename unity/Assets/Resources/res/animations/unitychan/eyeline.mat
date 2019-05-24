@@ -70,6 +70,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - u_main_texture:
+        m_Texture: {fileID: 2800000, guid: 21b8f1424f8361e4f9f3a79470c536ad, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - u_texture:
         m_Texture: {fileID: 2800000, guid: 21b8f1424f8361e4f9f3a79470c536ad, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -106,3 +110,4 @@ Material:
     - _LightDir: {r: 0, g: 0, b: -1, a: 0}
     - _OffsetSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _Spec: {r: 0, g: 0, b: 0, a: 1}
+    - u_main_texture_scale_offset: {r: 1, g: 1, b: 0, a: 0}

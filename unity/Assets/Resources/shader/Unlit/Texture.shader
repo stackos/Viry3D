@@ -2,7 +2,8 @@
 {
 	Properties
 	{
-		u_texture ("Texture", 2D) = "white" { }
+		[NoScaleOffset] u_texture ("Texture", 2D) = "white" { }
+		u_texture_scale_offset ("TextureScaleOffset", Vector) = (1, 1, 0, 0)
 	}
 	SubShader
 	{
@@ -29,12 +30,13 @@
 			};
 
 			sampler2D u_texture;
+			float4 u_texture_scale_offset;
 
 			v2f vert (appdata v)
 			{
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.uv = v.uv;
+				o.uv = v.uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
 				return o;
 			}
 			

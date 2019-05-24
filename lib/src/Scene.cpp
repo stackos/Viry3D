@@ -27,10 +27,10 @@
 
 namespace Viry3D
 {
-    // test
-    MeshRenderer* cube;
+	// test
 	GameObject* skin;
-    
+    // test
+
 	Scene* Scene::m_instance = nullptr;
 
 	Scene* Scene::Instance()
@@ -42,22 +42,23 @@ namespace Viry3D
     {
 		m_instance = this;
 
-        // test
-        auto mesh = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
+		// test
+        auto cylinder = Resources::LoadMesh("Library/unity default resources.Cylinder.mesh");
         auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
         
         auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
-        material->SetTexture("u_texture", texture);
-        
+        material->SetTexture(MaterialProperty::TEXTURE, texture);
+		material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(20, 20, 0, 0));
+
 		auto camera = GameObject::Create("")->AddComponent<Camera>();
         camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
-		camera->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+		camera->GetTransform()->SetRotation(Quaternion::Euler(5, 180, 0));
 
-        auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-        renderer->GetTransform()->SetPosition(Vector3(1, 1, 0));
-        renderer->SetMesh(mesh);
-        renderer->SetMaterial(material);
-        cube = renderer.get();
+        auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
+		floor->GetTransform()->SetPosition(Vector3(0, -0.01f, 0));
+		floor->GetTransform()->SetScale(Vector3(20, 0.02f, 20));
+		floor->SetMesh(cylinder);
+		floor->SetMaterial(material);
 
 		auto obj_0 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
 		obj_0->GetTransform()->SetPosition(Vector3(0, 0, 0));
@@ -65,8 +66,11 @@ namespace Viry3D
 		anim->Play(0);
 
 		auto obj_1 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
-		obj_1->GetTransform()->SetPosition(Vector3(-1, 0, 0));
-		skin = obj_1.get();
+		obj_1->GetTransform()->SetPosition(Vector3(-2, 0, -2));
+
+		auto obj_2 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
+		obj_2->GetTransform()->SetPosition(Vector3(2, 0, -2));
+		skin = obj_2.get();
     }
     
     Scene::~Scene()
@@ -129,7 +133,6 @@ namespace Viry3D
         // test
         static float deg = 0;
         deg += 1.0f;
-		cube->GetTransform()->SetLocalRotation(Quaternion::Euler(deg, deg, deg));
 		skin->GetTransform()->SetLocalRotation(Quaternion::Euler(0, deg, 0));
     }
     

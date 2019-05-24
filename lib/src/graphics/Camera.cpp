@@ -110,16 +110,17 @@ namespace Viry3D
 		auto& driver = Engine::Instance()->GetDriverApi();
 		if (!m_view_uniform_buffer)
 		{
-			m_view_uniform_buffer = driver.createUniformBuffer(sizeof(Matrix4x4) * 2, filament::backend::BufferUsage::DYNAMIC);
+			m_view_uniform_buffer = driver.createUniformBuffer(sizeof(ViewUniforms), filament::backend::BufferUsage::DYNAMIC);
 		}
 
-		Matrix4x4 view_uniforms[2];
-		view_uniforms[0] = this->GetViewMatrix();
-		view_uniforms[1] = this->GetProjectionMatrix();
+		ViewUniforms view_uniforms;
+		view_uniforms.view_matrix = this->GetViewMatrix();
+		view_uniforms.projection_matrix = this->GetProjectionMatrix();
+		view_uniforms.camera_pos = this->GetTransform()->GetPosition();
 
-		void* buffer = Memory::Alloc<void>(sizeof(view_uniforms));
-		Memory::Copy(buffer, view_uniforms, sizeof(view_uniforms));
-		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(view_uniforms), FreeBufferCallback));
+		void* buffer = Memory::Alloc<void>(sizeof(ViewUniforms));
+		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));
+		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms), FreeBufferCallback));
 	}
     
     void Camera::PrepareRenderer(Renderer* renderer)

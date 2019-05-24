@@ -29,27 +29,55 @@
 #include "memory/Memory.h"
 #include "private/backend/DriverApi.h"
 
-#define MODEL_MATRIX "u_model_matrix"
-#define VIEW_MATRIX "u_view_matrix"
-#define PROJECTION_MATRIX "u_projection_matrix"
-
-#define AMBIENT_COLOR "u_ambient_color"
-#define LIGHT_POSITION "u_light_pos"
-#define LIGHT_COLOR "u_light_color"
-#define LIGHT_ITENSITY "u_light_intensity"
-#define LIGHTMAP_SCALE_OFFSET "u_lightmap_scale_offset"
-#define LIGHTMAP_INDEX "u_lightmap_index"
-
-#define CAMERA_POSITION "u_camera_pos"
-
-#define CLIP_RECT "u_clip_rect"
-
 namespace Viry3D
 {
     class Camera;
     
+	// per view uniforms, set by camera
+	struct ViewUniforms
+	{
+		static constexpr char* VIEW_MATRIX = "u_view_matrix";
+		static constexpr char* PROJECTION_MATRIX = "u_projection_matrix";
+		static constexpr char* CAMERA_POSITION = "u_camera_pos";
+
+		Matrix4x4 view_matrix;
+		Matrix4x4 projection_matrix;
+		Vector4 camera_pos;
+	};
+
+	// per renderer uniforms, set by renderer
+	struct RendererUniforms
+	{
+		static constexpr char* MODEL_MATRIX = "u_model_matrix";
+		static constexpr char* LIGHTMAP_SCALE_OFFSET = "u_lightmap_scale_offset";
+		static constexpr char* LIGHTMAP_INDEX = "u_lightmap_index";
+
+		Matrix4x4 model_matrix;
+		Vector4 lightmap_scale_offset;
+		int lightmap_index;
+		Vector3 padding; // d3d11 need constant buffer size in multiples of 16
+	};
+
+	// per renderer bones uniforms, set by skinned mesh renderer
+	struct SkinnedMeshRendererUniforms
+	{
+		static constexpr char* BONES = "u_bones";
+		static constexpr int BONES_VECTOR_MAX_COUNT = 210;
+
+		Vector4 bones[BONES_VECTOR_MAX_COUNT];
+	};
+
+	// per material uniforms, set by material
     struct MaterialProperty
     {
+		static constexpr char* TEXTURE = "u_texture";
+		static constexpr char* TEXTURE_SCALE_OFFSET = "u_texture_scale_offset";
+		static constexpr char* AMBIENT_COLOR = "u_ambient_color";
+		static constexpr char* LIGHT_POSITION = "u_light_pos";
+		static constexpr char* LIGHT_COLOR = "u_light_color";
+		static constexpr char* LIGHT_INTENSITY = "u_light_intensity";
+		static constexpr char* CLIP_RECT = "u_clip_rect";
+
         enum class Type
         {
             Color,

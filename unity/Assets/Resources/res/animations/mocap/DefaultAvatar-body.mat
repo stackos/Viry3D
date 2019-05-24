@@ -26,6 +26,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 6b1db26138562c24788b9bc0b4ab2b3e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - u_main_texture:
+        m_Texture: {fileID: 2800000, guid: 6b1db26138562c24788b9bc0b4ab2b3e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - u_texture:
         m_Texture: {fileID: 2800000, guid: 6b1db26138562c24788b9bc0b4ab2b3e, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -33,3 +37,4 @@ Material:
     m_Floats: []
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - u_main_texture_scale_offset: {r: 1, g: 1, b: 0, a: 0}

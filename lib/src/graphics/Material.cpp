@@ -32,6 +32,8 @@ namespace Viry3D
         }
         
         m_samplers.Resize(shader->GetPassCount());
+
+		this->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, 1, 0, 0));
     }
     
     Material::~Material()

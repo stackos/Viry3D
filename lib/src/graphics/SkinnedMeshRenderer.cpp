@@ -150,9 +150,8 @@ namespace Viry3D
             const auto& bindposes = mesh->GetBindposes();
             int bone_count = bindposes.Size();
 
-			const int bone_max = 70;
             assert(m_bone_paths.Size() == bone_count);
-            assert(m_bone_paths.Size() <= bone_max);
+            assert(m_bone_paths.Size() <= SkinnedMeshRendererUniforms::BONES_VECTOR_MAX_COUNT / 3);
 
             if (m_bones.Empty())
             {
@@ -173,7 +172,7 @@ namespace Viry3D
             auto& driver = Engine::Instance()->GetDriverApi();
             if (!m_bones_uniform_buffer)
             {
-                m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(Vector4) * bone_max * 3, filament::backend::BufferUsage::DYNAMIC);
+                m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(SkinnedMeshRendererUniforms), filament::backend::BufferUsage::DYNAMIC);
             }
 
             void* buffer = Memory::Alloc<void>(bone_vectors.SizeInBytes());

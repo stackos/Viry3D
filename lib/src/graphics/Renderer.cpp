@@ -84,11 +84,16 @@ namespace Viry3D
 		auto& driver = Engine::Instance()->GetDriverApi();
 		if (!m_transform_uniform_buffer)
 		{
-			m_transform_uniform_buffer = driver.createUniformBuffer(sizeof(Matrix4x4), filament::backend::BufferUsage::DYNAMIC);
+			m_transform_uniform_buffer = driver.createUniformBuffer(sizeof(RendererUniforms), filament::backend::BufferUsage::DYNAMIC);
 		}
 
-		void* buffer = Memory::Alloc<void>(sizeof(Matrix4x4));
-		Memory::Copy(buffer, &this->GetTransform()->GetLocalToWorldMatrix(), sizeof(Matrix4x4));
-		driver.loadUniformBuffer(m_transform_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(Matrix4x4), FreeBufferCallback));
+		RendererUniforms renderer_uniforms;
+		renderer_uniforms.model_matrix = this->GetTransform()->GetLocalToWorldMatrix();
+		renderer_uniforms.lightmap_scale_offset = m_lightmap_scale_offset;
+		renderer_uniforms.lightmap_index = m_lightmap_index;
+
+		void* buffer = Memory::Alloc<void>(sizeof(RendererUniforms));
+		Memory::Copy(buffer, &renderer_uniforms, sizeof(RendererUniforms));
+		driver.loadUniformBuffer(m_transform_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(RendererUniforms), FreeBufferCallback));
 	}
 }

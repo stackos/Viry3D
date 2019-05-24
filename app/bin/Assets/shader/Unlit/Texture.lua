@@ -7,10 +7,17 @@ VK_UNIFORM_BINDING(0) uniform PerView
 {
 	mat4 u_view_matrix;
     mat4 u_projection_matrix;
+	vec4 u_camera_pos;
 };
 VK_UNIFORM_BINDING(1) uniform PerRenderer
 {
 	mat4 u_model_matrix;
+	vec4 u_lightmap_scale_offset;
+	int u_lightmap_index;
+};
+VK_UNIFORM_BINDING(5) uniform PerMaterialInstance
+{
+	vec4 u_texture_scale_offset;
 };
 layout(location = 0) in vec4 i_vertex;
 layout(location = 2) in vec2 i_uv;
@@ -49,7 +56,7 @@ void main()
     mat4 model_matrix = u_model_matrix;
 #endif
 	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
-	v_uv = i_uv;
+	v_uv = i_uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
 
 	vk_convert();
 }
@@ -110,6 +117,10 @@ local pass = {
                     name = "u_projection_matrix",
                     size = 64,
                 },
+				{
+                    name = "u_camera_pos",
+                    size = 16,
+                },
 			},
 		},
 		{
@@ -120,6 +131,14 @@ local pass = {
 					name = "u_model_matrix",
 					size = 64,
 				},
+				{
+					name = "u_lightmap_scale_offset",
+					size = 16,
+				},
+				{
+					name = "u_lightmap_index",
+					size = 4,
+				},
 			},
 		},
         {
@@ -129,6 +148,16 @@ local pass = {
                 {
                     name = "u_bones",
                     size = 16 * 210,
+                },
+            },
+        },
+		{
+            name = "PerMaterialInstance",
+            binding = 5,
+            members = {
+                {
+                    name = "u_texture_scale_offset",
+                    size = 16,
                 },
             },
         },
