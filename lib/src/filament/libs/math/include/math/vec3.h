@@ -113,7 +113,7 @@ public:
 
 // ----------------------------------------------------------------------------------------
 
-template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value >::type>
+template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>>
 using vec3 = details::TVec3<T>;
 
 using double3 = vec3<double>;
