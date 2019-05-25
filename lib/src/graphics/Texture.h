@@ -48,7 +48,6 @@ namespace Viry3D
         D16,
         D24X8,
         D32,
-        D16S8,
         D24S8,
         D32S8,
         S8,
@@ -114,6 +113,14 @@ namespace Viry3D
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode,
             bool mipmap);
+		static Ref<Texture> CreateRenderTexture(
+			int width,
+			int height,
+			TextureFormat format,
+			FilterMode filter_mode,
+			SamplerAddressMode wrap_mode);
+		static TextureFormat SelectFormat(const Vector<TextureFormat>& formats, bool render_texture);
+		static TextureFormat SelectDepthFormat();
         virtual ~Texture();
         void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h, int level);
         void UpdateCubemap(const ByteBuffer& pixels, int level, const Vector<int>& face_offsets);

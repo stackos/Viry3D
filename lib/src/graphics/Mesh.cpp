@@ -250,10 +250,15 @@ namespace Viry3D
         auto& driver = Engine::Instance()->GetDriverApi();
         
 		driver.destroyVertexBuffer(m_vb);
+		m_vb.clear();
+
 		driver.destroyIndexBuffer(m_ib);
+		m_ib.clear();
+
 		for (int i = 0; i < m_primitives.Size(); ++i)
 		{
 			driver.destroyRenderPrimitive(m_primitives[i]);
+			m_primitives[i].clear();
 		}
 		m_primitives.Clear();
     }
@@ -308,6 +313,7 @@ namespace Viry3D
         for (int i = 0; i < m_primitives.Size(); ++i)
         {
             driver.destroyRenderPrimitive(m_primitives[i]);
+			m_primitives[i].clear();
         }
         m_primitives.Clear();
         

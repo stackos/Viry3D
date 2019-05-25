@@ -337,19 +337,8 @@ namespace filament
 		{
 			UINT mip_levels = levels;
 			UINT array_size = depth;
-			DXGI_FORMAT dx_format = DXGI_FORMAT_UNKNOWN;
 			UINT bind_flags = 0;
 			UINT misc_flags = 0;
-
-			switch (format)
-			{
-			case TextureFormat::RGBA8:
-				dx_format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				break;
-			default:
-				assert(false);
-				break;
-			}
 
 			if (usage & TextureUsage::COLOR_ATTACHMENT)
 			{
@@ -383,7 +372,7 @@ namespace filament
 			texture_desc.Height = height;
 			texture_desc.MipLevels = mip_levels;
 			texture_desc.ArraySize = array_size;
-			texture_desc.Format = dx_format;
+			texture_desc.Format = context->GetTextureFormat(format);
 			texture_desc.SampleDesc.Count = samples;
 			texture_desc.Usage = D3D11_USAGE_DEFAULT;
 			texture_desc.BindFlags = bind_flags;
@@ -400,7 +389,7 @@ namespace filament
 			if (usage & TextureUsage::SAMPLEABLE)
 			{
 				D3D11_SHADER_RESOURCE_VIEW_DESC1 view_desc = { };
-				view_desc.Format = dx_format;
+				view_desc.Format = context->GetTextureViewFormat(format);
 
 				if (target == backend::SamplerType::SAMPLER_CUBEMAP)
 				{

@@ -63,8 +63,7 @@ namespace Viry3D
 		void SetProjectionMatrixExternal(const Matrix4x4& mat);
 		const Ref<Texture>& GetRenderTargetColor() const { return m_render_target_color; }
 		const Ref<Texture>& GetRenderTargetDepth() const { return m_render_target_depth; }
-		void SetRenderTargetColor(const Ref<Texture>& texture);
-		void SetRenderTargetDepth(const Ref<Texture>& texture);
+		void SetRenderTarget(const Ref<Texture>& color, const Ref<Texture>& depth);
 		int GetTargetWidth() const;
 		int GetTargetHeight() const;
 
@@ -99,5 +98,6 @@ namespace Viry3D
 		Ref<Texture> m_render_target_color;
 		Ref<Texture> m_render_target_depth;
 		filament::backend::UniformBufferHandle m_view_uniform_buffer;
+		filament::backend::RenderTargetHandle m_render_target;
     };
 }

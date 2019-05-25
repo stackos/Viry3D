@@ -153,8 +153,34 @@ namespace Viry3D
 
 		if (m_render_target_color || m_render_target_depth)
 		{
-			// TODO:
-			// set target
+			if (!m_render_target)
+			{
+				filament::backend::TargetBufferFlags target_flags = filament::backend::TargetBufferFlags::NONE;
+				filament::backend::TargetBufferInfo color = { };
+				filament::backend::TargetBufferInfo depth = { };
+				filament::backend::TargetBufferInfo stencil = { };
+
+				if (m_render_target_color)
+				{
+					target_flags |= filament::backend::TargetBufferFlags::COLOR;
+					color.handle = m_render_target_color->GetTexture();
+				}
+				if (m_render_target_depth)
+				{
+					target_flags |= filament::backend::TargetBufferFlags::DEPTH;
+					depth.handle = m_render_target_depth->GetTexture();
+				}
+
+				m_render_target = driver.createRenderTarget(
+					target_flags,
+					this->GetTargetWidth(),
+					this->GetTargetHeight(),
+					1,
+					color,
+					depth,
+					stencil);
+			}
+			target = m_render_target;
 
 			switch (m_clear_flags)
 			{
@@ -313,6 +339,13 @@ namespace Viry3D
 		if (m_view_uniform_buffer)
 		{
 			driver.destroyUniformBuffer(m_view_uniform_buffer);
+			m_view_uniform_buffer.clear();
+		}
+
+		if (m_render_target)
+		{
+			driver.destroyRenderTarget(m_render_target);
+			m_render_target.clear();
 		}
 
 		m_cameras.Remove(this);
@@ -433,16 +466,18 @@ namespace Viry3D
 		m_projection_matrix_external = true;
 	}
 
-	void Camera::SetRenderTargetColor(const Ref<Texture>& texture)
+	void Camera::SetRenderTarget(const Ref<Texture>& color, const Ref<Texture>& depth)
 	{
-		m_render_target_color = texture;
+		m_render_target_color = color;
+		m_render_target_depth = depth;
 		m_projection_matrix_dirty = true;
-	}
 
-	void Camera::SetRenderTargetDepth(const Ref<Texture>& texture)
-	{
-		m_render_target_depth = texture;
-		m_projection_matrix_dirty = true;
+		auto& driver = Engine::Instance()->GetDriverApi();
+		if (m_render_target)
+		{
+			driver.destroyRenderTarget(m_render_target);
+			m_render_target.clear();
+		}
 	}
 
 	int Camera::GetTargetWidth() const

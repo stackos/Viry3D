@@ -47,6 +47,7 @@ namespace Viry3D
                 if (m_unifrom_buffers[i][j].uniform_buffer)
                 {
                     driver.destroyUniformBuffer(m_unifrom_buffers[i][j].uniform_buffer);
+					m_unifrom_buffers[i][j].uniform_buffer.clear();
                 }
             }
         }
@@ -57,6 +58,7 @@ namespace Viry3D
             if (m_samplers[i].sampler_group)
             {
                 driver.destroySamplerGroup(m_samplers[i].sampler_group);
+				m_samplers[i].sampler_group.clear();
             }
         }
         m_samplers.Clear();

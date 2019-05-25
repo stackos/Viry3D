@@ -166,8 +166,10 @@ namespace Viry3D
 			if (pass.pipeline.program)
 			{
 				driver.destroyProgram(pass.pipeline.program);
+				pass.pipeline.program.clear();
 			}
 		}
+		m_passes.Clear();
     }
 
 	static void SetGlobalInt(lua_State* L, const char* key, int value)

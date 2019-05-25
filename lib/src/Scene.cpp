@@ -50,9 +50,23 @@ namespace Viry3D
         material->SetTexture(MaterialProperty::TEXTURE, texture);
 		material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(20, 20, 0, 0));
 
+		auto color = Texture::CreateRenderTexture(
+			1280,
+			720,
+			TextureFormat::R8G8B8A8,
+			FilterMode::Linear,
+			SamplerAddressMode::ClampToEdge);
+		auto depth = Texture::CreateRenderTexture(
+			1280,
+			720,
+			Texture::SelectDepthFormat(),
+			FilterMode::Linear,
+			SamplerAddressMode::ClampToEdge);
+
 		auto camera = GameObject::Create("")->AddComponent<Camera>();
         camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(5, 180, 0));
+		//camera->SetRenderTarget(color, depth);
 
         auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
 		floor->GetTransform()->SetPosition(Vector3(0, -0.01f, 0));

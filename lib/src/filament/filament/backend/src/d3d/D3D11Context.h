@@ -43,6 +43,9 @@ namespace filament
 			~D3D11Context();
 			void SetState(const backend::PipelineState& ps);
 			ID3D11SamplerState* GetSampler(const backend::SamplerParams& s);
+			DXGI_FORMAT GetTextureFormat(TextureFormat format);
+			DXGI_FORMAT GetTextureViewFormat(TextureFormat format);
+			DXGI_FORMAT GetDepthViewFormat(TextureFormat format);
 
 			struct UniformBufferBinding
 			{

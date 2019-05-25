@@ -337,12 +337,22 @@ namespace filament
 
 		bool D3D11Driver::isTextureFormatSupported(TextureFormat format)
 		{
-			return true;
+			UINT support = 0;
+			m_context->device->CheckFormatSupport(m_context->GetTextureFormat(format), &support);
+			if (support & D3D11_FORMAT_SUPPORT_TEXTURE2D)
+			{
+				m_context->device->CheckFormatSupport(m_context->GetTextureViewFormat(format), &support);
+				if (support & D3D11_FORMAT_SUPPORT_SHADER_SAMPLE)
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 
 		bool D3D11Driver::isRenderTargetFormatSupported(TextureFormat format)
 		{
-			return true;
+			return this->isTextureFormatSupported(format);
 		}
 
 		bool D3D11Driver::isFrameTimeSupported()

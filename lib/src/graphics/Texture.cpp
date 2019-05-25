@@ -217,9 +217,21 @@ namespace Viry3D
         {
             case TextureFormat::R8G8B8A8:
                 return filament::backend::TextureFormat::RGBA8;
+			case TextureFormat::D16:
+				return filament::backend::TextureFormat::DEPTH16;
+			case TextureFormat::D24X8:
+				return filament::backend::TextureFormat::DEPTH24;
+			case TextureFormat::D24S8:
+				return filament::backend::TextureFormat::DEPTH24_STENCIL8;
+			case TextureFormat::D32:
+				return filament::backend::TextureFormat::DEPTH32F;
+			case TextureFormat::D32S8:
+				return filament::backend::TextureFormat::DEPTH32F_STENCIL8;
             default:
-                return filament::backend::TextureFormat::RGBA8;
+				assert(false);
+				break;
         }
+		return filament::backend::TextureFormat::RGBA8;
     }
     
     static filament::backend::PixelDataFormat GetPixelDataFormat(TextureFormat format)
@@ -229,8 +241,10 @@ namespace Viry3D
             case TextureFormat::R8G8B8A8:
                 return filament::backend::PixelDataFormat::RGBA;
             default:
-                return filament::backend::PixelDataFormat::RGBA;
+				assert(false);
+				break;
         }
+		return filament::backend::PixelDataFormat::RGBA;
     }
     
     static filament::backend::PixelDataType GetPixelDataType(TextureFormat format)
@@ -240,8 +254,10 @@ namespace Viry3D
             case TextureFormat::R8G8B8A8:
                 return filament::backend::PixelDataType::UBYTE;
             default:
-                return filament::backend::PixelDataType::UBYTE;
+				assert(false);
+				break;
         }
+		return filament::backend::PixelDataType::UBYTE;
     }
     
     Ref<Texture> Texture::CreateTexture2D(
@@ -326,7 +342,103 @@ namespace Viry3D
         
         return texture;
     }
+
+	Ref<Texture> Texture::CreateRenderTexture(
+		int width,
+		int height,
+		TextureFormat format,
+		FilterMode filter_mode,
+		SamplerAddressMode wrap_mode)
+	{
+		Ref<Texture> texture;
+
+		int mipmap_level_count = 1;
+
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		filament::backend::TextureUsage usage = filament::backend::TextureUsage::SAMPLEABLE;
+
+		switch (format)
+		{
+		case TextureFormat::R8:
+		case TextureFormat::R8G8:
+		case TextureFormat::R8G8B8A8:
+		case TextureFormat::R16G16B16A16F:
+			usage |= filament::backend::TextureUsage::COLOR_ATTACHMENT;
+			break;
+		case TextureFormat::D16:
+		case TextureFormat::D24X8:
+		case TextureFormat::D32:
+			usage |= filament::backend::TextureUsage::DEPTH_ATTACHMENT;
+			break;
+		case TextureFormat::D24S8:
+		case TextureFormat::D32S8:
+			usage |= filament::backend::TextureUsage::DEPTH_ATTACHMENT;
+			usage |= filament::backend::TextureUsage::STENCIL_ATTACHMENT;
+			break;
+		case TextureFormat::S8:
+			usage |= filament::backend::TextureUsage::STENCIL_ATTACHMENT;
+			usage &= ~filament::backend::TextureUsage::SAMPLEABLE;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		texture = Ref<Texture>(new Texture());
+		texture->m_width = width;
+		texture->m_height = height;
+		texture->m_mipmap_level_count = mipmap_level_count;
+		texture->m_array_size = 1;
+		texture->m_cubemap = false;
+		texture->m_format = format;
+		texture->m_filter_mode = filter_mode;
+		texture->m_wrap_mode = wrap_mode;
+		texture->m_texture = driver.createTexture(
+			filament::backend::SamplerType::SAMPLER_2D,
+			texture->m_mipmap_level_count,
+			GetTextureFormat(texture->m_format),
+			1,
+			texture->m_width,
+			texture->m_height,
+			1,
+			usage);
+
+		texture->UpdateSampler();
+
+		return texture;
+	}
     
+	TextureFormat Texture::SelectFormat(const Vector<TextureFormat>& formats, bool render_texture)
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+		for (int i = 0; i < formats.Size(); ++i)
+		{
+			if (render_texture)
+			{
+				if (driver.isRenderTargetFormatSupported(GetTextureFormat(formats[i])))
+				{
+					return formats[i];
+				}
+			}
+			else
+			{
+				if (driver.isTextureFormatSupported(GetTextureFormat(formats[i])))
+				{
+					return formats[i];
+				}
+			}
+			
+		}
+
+		return TextureFormat::None;
+	}
+
+	TextureFormat Texture::SelectDepthFormat()
+	{
+		return Texture::SelectFormat({ TextureFormat::D24X8, TextureFormat::D24S8, TextureFormat::D32, TextureFormat::D32S8, TextureFormat::D16 }, true);
+	}
+
     Texture::Texture():
 		m_width(0),
 		m_height(0),
@@ -345,6 +457,7 @@ namespace Viry3D
         auto& driver = Engine::Instance()->GetDriverApi();
         
         driver.destroyTexture(m_texture);
+		m_texture.clear();
     }
     
     void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h, int level)

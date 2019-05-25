@@ -303,5 +303,49 @@ namespace filament
 				return find->second;
 			}
 		}
+
+		DXGI_FORMAT D3D11Context::GetTextureFormat(TextureFormat format)
+		{
+			switch (format)
+			{
+			case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_TYPELESS;
+			case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
+			case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24G8_TYPELESS;
+			case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_TYPELESS;
+			case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32G8X24_TYPELESS;
+			default: assert(false); break;
+			}
+			return DXGI_FORMAT_UNKNOWN;
+		}
+
+		DXGI_FORMAT D3D11Context::GetTextureViewFormat(TextureFormat format)
+		{
+			switch (format)
+			{
+			case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_UNORM;
+			case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
+			case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+			case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_FLOAT;
+			case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+			default: assert(false); break;
+			}
+			return DXGI_FORMAT_UNKNOWN;
+		}
+
+		DXGI_FORMAT D3D11Context::GetDepthViewFormat(TextureFormat format)
+		{
+			switch (format)
+			{
+			case TextureFormat::DEPTH16: return DXGI_FORMAT_D16_UNORM;
+			case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
+			case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_D24_UNORM_S8_UINT;
+			case TextureFormat::DEPTH32F: return DXGI_FORMAT_D32_FLOAT;
+			case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+			default: assert(false); break;
+			}
+			return DXGI_FORMAT_UNKNOWN;
+		}
 	}
 }

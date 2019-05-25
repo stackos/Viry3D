@@ -36,15 +36,18 @@ namespace Viry3D
         if (m_bones_uniform_buffer)
         {
             driver.destroyUniformBuffer(m_bones_uniform_buffer);
+			m_bones_uniform_buffer.clear();
         }
 
 		if (m_vb)
 		{
 			driver.destroyVertexBuffer(m_vb);
+			m_vb.clear();
 		}
 		for (int i = 0; i < m_primitives.Size(); ++i)
 		{
 			driver.destroyRenderPrimitive(m_primitives[i]);
+			m_primitives[i].clear();
 		}
 		m_primitives.Clear();
     }
@@ -59,10 +62,12 @@ namespace Viry3D
 		if (m_vb)
 		{
 			driver.destroyVertexBuffer(m_vb);
+			m_vb.clear();
 		}
 		for (int i = 0; i < m_primitives.Size(); ++i)
 		{
 			driver.destroyRenderPrimitive(m_primitives[i]);
+			m_primitives[i].clear();
 		}
 		m_primitives.Clear();
 	}
@@ -218,6 +223,7 @@ namespace Viry3D
 				if (m_vb)
 				{
 					driver.destroyVertexBuffer(m_vb);
+					m_vb.clear();
 				}
 			}
 			if (!m_vb)
@@ -232,6 +238,7 @@ namespace Viry3D
 				for (int i = 0; i < m_primitives.Size(); ++i)
 				{
 					driver.destroyRenderPrimitive(m_primitives[i]);
+					m_primitives[i].clear();
 				}
 				m_primitives.Clear();
 				m_submeshes.Clear();

@@ -37,6 +37,7 @@ namespace Viry3D
 		if (m_transform_uniform_buffer)
 		{
 			driver.destroyUniformBuffer(m_transform_uniform_buffer);
+			m_transform_uniform_buffer.clear();
 		}
 
         m_renderers.Remove(this);
