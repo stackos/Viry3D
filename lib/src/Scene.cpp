@@ -66,7 +66,7 @@ namespace Viry3D
 		auto camera = GameObject::Create("")->AddComponent<Camera>();
         camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(5, 180, 0));
-		//camera->SetRenderTarget(color, depth);
+		camera->SetRenderTarget(color, depth);
 
         auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
 		floor->GetTransform()->SetPosition(Vector3(0, -0.01f, 0));

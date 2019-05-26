@@ -150,7 +150,7 @@ namespace filament
 
 		void D3D11Driver::createRenderTargetR(
 			Handle<HwRenderTarget> rth,
-			TargetBufferFlags targetBufferFlags,
+			TargetBufferFlags flags,
 			uint32_t width,
 			uint32_t height,
 			uint8_t samples,
@@ -158,17 +158,63 @@ namespace filament
 			TargetBufferInfo depth,
 			TargetBufferInfo stencil)
 		{
-			construct_handle<D3D11RenderTarget>(
+			auto render_target = construct_handle<D3D11RenderTarget>(
 				m_handle_map,
 				rth,
 				m_context,
-				targetBufferFlags,
+				flags,
 				width,
 				height,
 				samples,
 				color,
 				depth,
 				stencil);
+
+			assert(samples == 1);
+
+			if (flags & TargetBufferFlags::COLOR)
+			{
+				auto color_texture = handle_cast<D3D11Texture>(m_handle_map, color.handle);
+
+				D3D11_RENDER_TARGET_VIEW_DESC1 color_desc = { };
+				color_desc.Format = m_context->GetTextureViewFormat(color_texture->format);
+				color_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				color_desc.Texture2D.MipSlice = color.level;
+
+				HRESULT hr = m_context->device->CreateRenderTargetView1(
+					color_texture->texture,
+					&color_desc,
+					&render_target->color_view);
+				assert(SUCCEEDED(hr));
+			}
+			if ((flags & TargetBufferFlags::DEPTH) ||
+				(flags & TargetBufferFlags::STENCIL))
+			{
+				D3D11Texture* texture = nullptr;
+				UINT level = 0;
+
+				if (flags & TargetBufferFlags::DEPTH)
+				{
+					texture = handle_cast<D3D11Texture>(m_handle_map, depth.handle);
+					level = depth.level;
+				}
+				else if (flags & TargetBufferFlags::STENCIL)
+				{
+					texture = handle_cast<D3D11Texture>(m_handle_map, stencil.handle);
+					level = stencil.level;
+				}
+
+				D3D11_DEPTH_STENCIL_VIEW_DESC depth_desc = { };
+				depth_desc.Format = m_context->GetDepthViewFormat(texture->format);
+				depth_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+				depth_desc.Texture2D.MipSlice = level;
+
+				HRESULT hr = m_context->device->CreateDepthStencilView(
+					texture->texture,
+					&depth_desc,
+					&render_target->depth_view);
+				assert(SUCCEEDED(hr));
+			}
 		}
 
 		void D3D11Driver::createFenceR(Handle<HwFence> fh, int dummy)
