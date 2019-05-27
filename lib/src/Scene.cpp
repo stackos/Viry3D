@@ -67,6 +67,7 @@ namespace Viry3D
         camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
 		camera->GetTransform()->SetRotation(Quaternion::Euler(5, 180, 0));
 		camera->SetRenderTarget(color, depth);
+		camera->SetCullingMask(1 << 0);
 
         auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
 		floor->GetTransform()->SetPosition(Vector3(0, -0.01f, 0));
