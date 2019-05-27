@@ -85,6 +85,40 @@ namespace Viry3D
 		auto obj_2 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
 		obj_2->GetTransform()->SetPosition(Vector3(2, 0, -2));
 		skin = obj_2.get();
+
+		auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
+		blit_camera->SetOrthographic(true);
+		blit_camera->SetNearClip(-1);
+		blit_camera->SetFarClip(1);
+		blit_camera->SetDepth(1);
+		blit_camera->SetCullingMask(1 << 1);
+
+		Vector<Mesh::Vertex> vertices(4);
+		vertices[0].vertex = Vector3(-1, 1, 0);
+		vertices[1].vertex = Vector3(-1, -1, 0);
+		vertices[2].vertex = Vector3(1, -1, 0);
+		vertices[3].vertex = Vector3(1, 1, 0);
+		vertices[0].uv = Vector2(0, 0);
+		vertices[1].uv = Vector2(0, 1);
+		vertices[2].uv = Vector2(1, 1);
+		vertices[3].uv = Vector2(1, 0);
+		Vector<unsigned int> indices = {
+			0, 1, 2, 0, 2, 3
+		};
+		auto quad_mesh = RefMake<Mesh>(std::move(vertices), std::move(indices));
+
+		material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+		material->SetTexture(MaterialProperty::TEXTURE, color);
+		if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
+		{
+			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, -1, 0, 1));
+		}
+
+		auto quad = GameObject::Create("")->AddComponent<MeshRenderer>();
+		quad->GetGameObject()->SetLayer(1);
+		quad->GetTransform()->SetScale(Vector3(1280 / 720.0f, 1, 1));
+		quad->SetMesh(quad_mesh);
+		quad->SetMaterial(material);
     }
     
     Scene::~Scene()

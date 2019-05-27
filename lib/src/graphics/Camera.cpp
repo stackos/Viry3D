@@ -208,13 +208,14 @@ namespace Viry3D
 				}
 				break;
 			case CameraClearFlags::ColorAndDepth:
+				params.flags.clear = filament::backend::TargetBufferFlags::NONE;
 				if (m_render_target_color)
 				{
-					params.flags.clear = filament::backend::TargetBufferFlags::COLOR;
+					params.flags.clear |= filament::backend::TargetBufferFlags::COLOR;
 				}
 				if (m_render_target_depth)
 				{
-					params.flags.clear = filament::backend::TargetBufferFlags::DEPTH;
+					params.flags.clear |= filament::backend::TargetBufferFlags::DEPTH;
 				}
 				break;
 			case CameraClearFlags::Nothing:

@@ -599,7 +599,8 @@ bool VulkanDriver::isRenderTargetFormatSupported(TextureFormat format) {
     }
     VkFormatProperties info;
     vkGetPhysicalDeviceFormatProperties(mContext.physicalDevice, vkformat, &info);
-    return (info.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) != 0;
+    return ((info.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) != 0) ||
+		((info.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0);
 }
 
 bool VulkanDriver::isFrameTimeSupported() {
