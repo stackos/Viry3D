@@ -396,6 +396,7 @@ void MetalDriver::updateVertexBuffer(Handle<HwVertexBuffer> vbh, size_t index,
     assert(byteOffset == 0);    // TODO: handle byteOffset for vertex buffers
     auto* vb = handle_cast<MetalVertexBuffer>(mHandleMap, vbh);
     memcpy(vb->buffers[index].contents, data.buffer, data.size);
+    scheduleDestroy(std::move(data));
 }
 
 void MetalDriver::updateIndexBuffer(Handle<HwIndexBuffer> ibh, BufferDescriptor&& data,
@@ -403,6 +404,7 @@ void MetalDriver::updateIndexBuffer(Handle<HwIndexBuffer> ibh, BufferDescriptor&
     assert(byteOffset == 0);    // TODO: handle byteOffset for index buffers
     auto* ib = handle_cast<MetalIndexBuffer>(mHandleMap, ibh);
     memcpy(ib->buffer.contents, data.buffer, data.size);
+    scheduleDestroy(std::move(data));
 }
 
 void MetalDriver::update2DImage(Handle<HwTexture> th, uint32_t level, uint32_t xoffset,
