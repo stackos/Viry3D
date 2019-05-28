@@ -89,6 +89,7 @@ namespace Viry3D
 
 		auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
 		blit_camera->SetOrthographic(true);
+		blit_camera->SetOrthographicSize(1);
 		blit_camera->SetNearClip(-1);
 		blit_camera->SetFarClip(1);
 		blit_camera->SetDepth(1);
