@@ -154,8 +154,23 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
 
 @end
 
+@interface FrameHandler : NSObject
+
+@property (weak, nonatomic) ViewController* vc;
+
+@end
+
+@implementation FrameHandler
+
+- (void)drawFrame {
+    [self.vc drawFrame];
+}
+
+@end
+
 @implementation ViewController {
     CADisplayLink* m_display_link;
+    FrameHandler* m_frame_handler;
     Engine* m_engine;
     UIDeviceOrientation m_orientation;
 }
@@ -171,7 +186,9 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     
     m_engine = Engine::Create((__bridge void*) self.view.layer, window_width, window_height);
     
-    m_display_link = [CADisplayLink displayLinkWithTarget: self selector: @selector(drawFrame)];
+    m_frame_handler = [FrameHandler new];
+    m_frame_handler.vc = self;
+    m_display_link = [CADisplayLink displayLinkWithTarget:m_frame_handler selector:@selector(drawFrame)];
     [m_display_link setFrameInterval: 1];
     [m_display_link addToRunLoop: NSRunLoop.currentRunLoop forMode: NSDefaultRunLoopMode];
     

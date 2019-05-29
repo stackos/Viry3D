@@ -19,4 +19,6 @@
 
 @interface ViewController : UIViewController
 
+- (void)drawFrame;
+
 @end

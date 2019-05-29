@@ -38,13 +38,13 @@ struct MouseEvent
 
 static bool g_mouse_down = false;
 
-@interface TimerHandler : NSObject
+@interface FrameHandler : NSObject
 
 @property (weak, nonatomic) ViewController* vc;
 
 @end
 
-@implementation TimerHandler
+@implementation FrameHandler
 
 - (void)drawFrame {
     [self.vc drawFrame];
@@ -55,7 +55,7 @@ static bool g_mouse_down = false;
 @implementation ViewController {
     Engine* m_engine;
     NSTimer* m_timer;
-    TimerHandler* m_timer_handler;
+    FrameHandler* m_frame_handler;
     int m_target_width;
     int m_target_height;
 }
@@ -85,9 +85,9 @@ static bool g_mouse_down = false;
     
     m_engine = Engine::Create(window, window_width, window_height);
 
-    m_timer_handler = [TimerHandler new];
-    m_timer_handler.vc = self;
-    m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:m_timer_handler selector:@selector(drawFrame) userInfo:nil repeats:YES];
+    m_frame_handler = [FrameHandler new];
+    m_frame_handler.vc = self;
+    m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:m_frame_handler selector:@selector(drawFrame) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];
     
     m_target_width = window_width;
