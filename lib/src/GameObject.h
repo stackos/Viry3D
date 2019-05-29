@@ -42,10 +42,12 @@ namespace Viry3D
 		void Update();
 		
 	private:
-		friend class Transform;
 		GameObject(const String& name);
         void BindComponent(const Ref<Component>& com) const;
 		void OnTransformDirty();
+	
+	private:
+		friend class Transform;
 
 	private:
         Vector<Ref<Component>> m_components;

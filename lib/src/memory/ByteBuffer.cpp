@@ -76,7 +76,7 @@ namespace Viry3D
 			{
 				if (m_bytes != nullptr)
 				{
-					Memory::Free(m_bytes);
+					Memory::Free(m_bytes, m_size);
 				}
 			}
 		}

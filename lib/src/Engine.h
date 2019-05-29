@@ -18,8 +18,10 @@
 #pragma once
 
 #include <stdint.h>
+#include <assert.h>
 #include "string/String.h"
 #include "thread/ThreadPool.h"
+#include "memory/Memory.h"
 
 #define VR_VERSION_NAME "1.0.0"
 
@@ -63,6 +65,9 @@ namespace Viry3D
 	private:
 		Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context);
 		~Engine();
+
+	private:
+		friend class Memory;
 
 	private:
 		static Engine* m_instance;

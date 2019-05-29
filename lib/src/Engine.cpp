@@ -48,7 +48,7 @@ namespace Viry3D
 {
     void FreeBufferCallback(void* buffer, size_t size, void* user)
     {
-        free(buffer);
+		Memory::Free(buffer, (int) size);
     }
     
 	class EnginePrivate
@@ -453,7 +453,7 @@ namespace Viry3D
 
 	Engine* Engine::Create(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context)
 	{
-		Engine* instance = new Engine(native_window, width, height, flags, shared_gl_context);
+		Engine* instance = Memory::New<Engine>(native_window, width, height, flags, shared_gl_context);
 		m_instance = instance;
 
 		if (!UTILS_HAS_THREADING)
@@ -493,8 +493,7 @@ namespace Viry3D
 			if (*engine)
 			{
 				(*engine)->m_private->Shutdown();
-				delete (*engine);
-				*engine = nullptr;
+				Memory::SafeDelete<Engine>(*engine);
 				m_instance = nullptr;
 			}
 		}
@@ -506,14 +505,14 @@ namespace Viry3D
 	}
 
 	Engine::Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
-		m_private(new EnginePrivate(this, native_window, width, height, flags, shared_gl_context))
+		m_private(Memory::New<EnginePrivate>(this, native_window, width, height, flags, shared_gl_context))
 	{
 	
 	}
 	
 	Engine::~Engine()
 	{
-		delete m_private;
+		Memory::SafeDelete<EnginePrivate>(m_private);
 	}
 
 	void Engine::Execute()

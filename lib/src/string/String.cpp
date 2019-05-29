@@ -45,7 +45,7 @@ namespace Viry3D
 
 		result.m_string = buffer;
 
-		Memory::Free(buffer);
+		Memory::Free(buffer, size + 1);
 
 		return result;
 	}

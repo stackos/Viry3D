@@ -641,5 +641,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
     }
 
+#ifndef NDEBUG
+	int alloc_size = Memory::GetAllocSize();
+	int new_size = Memory::GetNewSize();
+	assert(alloc_size == 0);
+	assert(new_size == 0);
+#endif
+
     return 0;
 }
