@@ -18,9 +18,7 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
-@implementation AppDelegate {
-    NSWindow* m_window;
-}
+@implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
     // Insert code here to initialize your application
@@ -32,15 +30,16 @@
     int style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
     NSRect frame = [NSWindow frameRectForContentRect:NSMakeRect(0, 0, window_width, window_height) styleMask:style];
     
-    m_window = [[NSWindow alloc] initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:TRUE];
-    m_window.title = [NSString stringWithUTF8String:name];
-    [m_window center];
-    [m_window makeKeyAndOrderFront:nil];
-    m_window.delegate = self;
+    NSWindow* window = [[NSWindow alloc] initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:TRUE];
+    window.title = [NSString stringWithUTF8String:name];
+    [window center];
+    [window makeKeyAndOrderFront:nil];
+    window.delegate = self;
     
     ViewController* view_controller = [[ViewController alloc] init];
-    view_controller.window = m_window;
-    m_window.contentViewController = view_controller;
+    [view_controller setWindow:window];
+    window.contentViewController = view_controller;
+    [view_controller release];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -51,14 +50,14 @@
     // Insert code here to tear down your application
 }
 
-- (NSSize)windowWillResize:(NSWindow*)sender toSize:(NSSize)frameSize {
+- (NSSize)windowWillResize:(NSWindow*)window toSize:(NSSize)frameSize {
     // resize
-    CGSize size = [m_window contentRectForFrameRect:NSMakeRect(0, 0, frameSize.width, frameSize.height)].size;
-    float scale = m_window.backingScaleFactor;
+    CGSize size = [window contentRectForFrameRect:NSMakeRect(0, 0, frameSize.width, frameSize.height)].size;
+    float scale = window.backingScaleFactor;
     int window_width = size.width * scale;
     int window_height = size.height * scale;
     
-    [(ViewController*) m_window.contentViewController onResize:window_width :window_height];
+    [(ViewController*) window.contentViewController onResize:window_width :window_height];
     return frameSize;
 }
 

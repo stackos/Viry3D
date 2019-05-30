@@ -40,19 +40,26 @@ static bool g_mouse_down = false;
 
 @interface FrameHandler : NSObject
 
-@property (weak, nonatomic) ViewController* vc;
+- (void)setViewController:(ViewController*)vc;
 
 @end
 
-@implementation FrameHandler
+@implementation FrameHandler {
+    ViewController* m_vc;
+}
+
+- (void)setViewController:(ViewController*)vc {
+    m_vc = vc;
+}
 
 - (void)drawFrame {
-    [self.vc drawFrame];
+    [m_vc drawFrame];
 }
 
 @end
 
 @implementation ViewController {
+    NSWindow* m_window;
     Engine* m_engine;
     NSTimer* m_timer;
     FrameHandler* m_frame_handler;
@@ -60,9 +67,13 @@ static bool g_mouse_down = false;
     int m_target_height;
 }
 
+- (void)setWindow:(NSWindow*)window {
+    m_window = window;
+}
+
 - (void)loadView {
-    CGSize size = [self.window contentRectForFrameRect:self.window.contentLayoutRect].size;
-    float scale = self.window.backingScaleFactor;
+    CGSize size = [m_window contentRectForFrameRect:m_window.contentLayoutRect].size;
+    float scale = m_window.backingScaleFactor;
     int window_width = size.width * scale;
     int window_height = size.height * scale;
     
@@ -86,7 +97,7 @@ static bool g_mouse_down = false;
     m_engine = Engine::Create(window, window_width, window_height);
 
     m_frame_handler = [FrameHandler new];
-    m_frame_handler.vc = self;
+    [m_frame_handler setViewController:self];
     m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:m_frame_handler selector:@selector(drawFrame) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];
     
@@ -95,6 +106,10 @@ static bool g_mouse_down = false;
 }
 
 - (void)dealloc {
+    [m_timer invalidate];
+    m_timer = nil;
+    [m_frame_handler release];
+    m_frame_handler = nil;
     Engine::Destroy(&m_engine);
     
 #ifndef NDEBUG
@@ -103,6 +118,8 @@ static bool g_mouse_down = false;
     assert(alloc_size == 0);
     assert(new_size == 0);
 #endif
+    
+    [super dealloc];
 }
 
 - (void)onResize:(int)width :(int)height {
@@ -218,7 +235,7 @@ static bool g_mouse_down = false;
 }
 
 - (void)mouseDown:(NSEvent*)event {
-    float scale = self.window.backingScaleFactor;
+    float scale = m_window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;
     
@@ -230,7 +247,7 @@ static bool g_mouse_down = false;
 }
 
 - (void)mouseUp:(NSEvent*)event {
-    float scale = self.window.backingScaleFactor;
+    float scale = m_window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;
     
@@ -242,7 +259,7 @@ static bool g_mouse_down = false;
 }
 
 - (void)mouseMoved:(NSEvent*)event {
-    float scale = self.window.backingScaleFactor;
+    float scale = m_window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;
     
@@ -254,7 +271,7 @@ static bool g_mouse_down = false;
 }
 
 - (void)mouseDragged:(NSEvent*)event {
-    float scale = self.window.backingScaleFactor;
+    float scale = m_window.backingScaleFactor;
     float x = [event locationInWindow].x * scale;
     float y = [event locationInWindow].y * scale;
     

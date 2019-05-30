@@ -86,7 +86,7 @@
 #   define UTILS_HAS_HYPER_THREADING 0
 #endif
 
-#if defined(__EMSCRIPTEN__) || defined(VR_UWP)
+#if defined(__EMSCRIPTEN__)
 #   define UTILS_HAS_THREADING 0
 #else
 #   define UTILS_HAS_THREADING 1

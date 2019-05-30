@@ -19,8 +19,7 @@
 
 @interface ViewController : NSViewController
 
-@property (weak, nonatomic) NSWindow* window;
-
+- (void)setWindow:(NSWindow*)window;
 - (void)onResize:(int)width :(int)height;
 - (void)drawFrame;
 
