@@ -118,9 +118,9 @@ namespace Viry3D
 		view_uniforms.projection_matrix = this->GetProjectionMatrix();
 		view_uniforms.camera_pos = this->GetTransform()->GetPosition();
 
-		void* buffer = Memory::Alloc<void>(sizeof(ViewUniforms));
+		void* buffer = driver.allocate(sizeof(ViewUniforms));
 		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));
-		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms), FreeBufferCallback));
+		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms)));
 	}
     
     void Camera::PrepareRenderer(Renderer* renderer)

@@ -180,9 +180,9 @@ namespace Viry3D
                 m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(SkinnedMeshRendererUniforms), filament::backend::BufferUsage::DYNAMIC);
             }
 
-            void* buffer = Memory::Alloc<void>(bone_vectors.SizeInBytes());
+			void* buffer = driver.allocate(bone_vectors.SizeInBytes());
             Memory::Copy(buffer, bone_vectors.Bytes(), bone_vectors.SizeInBytes());
-            driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, bone_vectors.SizeInBytes(), FreeBufferCallback));
+            driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, bone_vectors.SizeInBytes()));
         }
 
 		// update blend shapes
@@ -194,7 +194,9 @@ namespace Viry3D
 			const auto& submeshes = mesh->GetSubmeshes();
 			const auto& blend_shapes = mesh->GetBlendShapes();
 
-			Mesh::Vertex* buffer = Memory::Alloc<Mesh::Vertex>(vertices.SizeInBytes());
+			auto& driver = Engine::Instance()->GetDriverApi();
+
+			Mesh::Vertex* buffer = (Mesh::Vertex*) driver.allocate(vertices.SizeInBytes());
 			Memory::Copy(buffer, vertices.Bytes(), vertices.SizeInBytes());
 
 			for (const auto& i : m_blend_shape_weights)
@@ -217,7 +219,6 @@ namespace Viry3D
 				}
 			}
 
-			auto& driver = Engine::Instance()->GetDriverApi();
 			if (m_vb_vertex_count != vertices.Size())
 			{
 				if (m_vb)
@@ -256,7 +257,7 @@ namespace Viry3D
 				m_submeshes = submeshes;
 			}
 
-			driver.updateVertexBuffer(m_vb, 0, filament::backend::BufferDescriptor(buffer, vertices.SizeInBytes(), FreeBufferCallback), 0);
+			driver.updateVertexBuffer(m_vb, 0, filament::backend::BufferDescriptor(buffer, vertices.SizeInBytes()), 0);
 		}
     }
 

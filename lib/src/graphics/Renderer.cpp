@@ -93,8 +93,8 @@ namespace Viry3D
 		renderer_uniforms.lightmap_scale_offset = m_lightmap_scale_offset;
 		renderer_uniforms.lightmap_index = m_lightmap_index;
 
-		void* buffer = Memory::Alloc<void>(sizeof(RendererUniforms));
+		void* buffer = driver.allocate(sizeof(RendererUniforms));
 		Memory::Copy(buffer, &renderer_uniforms, sizeof(RendererUniforms));
-		driver.loadUniformBuffer(m_transform_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(RendererUniforms), FreeBufferCallback));
+		driver.loadUniformBuffer(m_transform_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(RendererUniforms)));
 	}
 }
