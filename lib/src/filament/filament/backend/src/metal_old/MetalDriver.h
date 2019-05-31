@@ -34,6 +34,11 @@ class MetalPlatform;
 
 namespace metal {
 
+class MetalUniformBuffer;
+struct MetalContext;
+struct MetalProgram;
+struct UniformBufferState;
+
 class MetalDriver final : public DriverBase {
     explicit MetalDriver(backend::MetalPlatform* platform) noexcept;
     ~MetalDriver() noexcept override;
@@ -42,6 +47,15 @@ public:
     static Driver* create(backend::MetalPlatform* platform);
 
 private:
+
+    backend::MetalPlatform& mPlatform;
+
+    MetalContext* mContext;
+
+#ifndef NDEBUG
+    void debugCommand(const char* methodName) override;
+#endif
+
     ShaderModel getShaderModel() const noexcept final;
 
     /*
@@ -128,8 +142,11 @@ private:
         handleMap.erase(handle.getId());
     }
 
-private:
-	backend::MetalPlatform& mPlatform;
+    void enumerateSamplerGroups(const MetalProgram* program,
+            const std::function<void(const SamplerGroup::Sampler*, size_t)>& f);
+    void enumerateBoundUniformBuffers(const std::function<void(const UniformBufferState&,
+            MetalUniformBuffer*, uint32_t)>& f);
+
 };
 
 } // namespace metal
