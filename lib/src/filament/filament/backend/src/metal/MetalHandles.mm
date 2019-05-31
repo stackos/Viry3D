@@ -86,6 +86,9 @@ MetalVertexBuffer::MetalVertexBuffer(id<MTLDevice> device, uint8_t bufferCount, 
 }
 
 MetalVertexBuffer::~MetalVertexBuffer() {
+    for (auto buffer : buffers) {
+        [buffer release];
+    }
 }
 
 MetalIndexBuffer::MetalIndexBuffer(id<MTLDevice> device, uint8_t elementSize, uint32_t indexCount)
@@ -95,6 +98,7 @@ MetalIndexBuffer::MetalIndexBuffer(id<MTLDevice> device, uint8_t elementSize, ui
 }
 
 MetalIndexBuffer::~MetalIndexBuffer() {
+    [buffer release];
 }
 
 MetalUniformBuffer::MetalUniformBuffer(MetalContext& context, size_t size) : HwUniformBuffer(),
@@ -154,7 +158,7 @@ id<MTLBuffer> MetalUniformBuffer::getGpuBufferForDraw() {
         bufferPool->releaseBuffer((const MetalBufferPoolEntry*) resource);
     };
     id<MTLCommandBuffer> commandBuffer = context.currentCommandBuffer;
-    if (context.resourceTracker.trackResource((__bridge MetalResourceTracker::CommandBuffer) commandBuffer, bufferPoolEntry, uniformDeleter)) {
+    if (context.resourceTracker.trackResource(commandBuffer, bufferPoolEntry, uniformDeleter)) {
         // We only want to retain the buffer once per command buffer- trackResource will return
         // true if this is the first time tracking this uniform for this command buffer.
         context.bufferPool->retainBuffer(bufferPoolEntry);
@@ -208,10 +212,10 @@ void MetalRenderPrimitive::setBuffers(MetalVertexBuffer* vertexBuffer, MetalInde
 MetalProgram::MetalProgram(id<MTLDevice> device, const Program& program) noexcept
     : HwProgram(program.getName()) {
 
-    using MetalFunctionPtr = id<MTLFunction>;
+    using MetalFunctionPtr = id<MTLFunction>*;
 
     static_assert(Program::SHADER_TYPE_COUNT == 2, "Only vertex and fragment shaders expected.");
-    MetalFunctionPtr shaderFunctions[2];
+    MetalFunctionPtr shaderFunctions[2] = { &vertexFunction, &fragmentFunction };
 
     const auto& sources = program.getShadersSource();
     for (size_t i = 0; i < Program::SHADER_TYPE_COUNT; i++) {
@@ -228,6 +232,7 @@ MetalProgram::MetalProgram(id<MTLDevice> device, const Program& program) noexcep
         id<MTLLibrary> library = [device newLibraryWithSource:objcSource
                                                       options:nil
                                                         error:&error];
+        [objcSource release];
         if (error) {
             auto description =
                     [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
@@ -235,15 +240,17 @@ MetalProgram::MetalProgram(id<MTLDevice> device, const Program& program) noexcep
         }
         ASSERT_POSTCONDITION(library != nil, "Unable to compile Metal shading library.");
 
-        shaderFunctions[i] = [library newFunctionWithName:@"main0"];
+        *shaderFunctions[i] = [library newFunctionWithName:@"main0"];
+
+        [library release];
     }
-    vertexFunction = shaderFunctions[0];
-    fragmentFunction = shaderFunctions[1];
-    
+
     samplerGroupInfo = program.getSamplerGroupInfo();
 }
 
 MetalProgram::~MetalProgram() {
+    [vertexFunction release];
+    [fragmentFunction release];
 }
 
 static MTLPixelFormat decidePixelFormat(id<MTLDevice> device, TextureFormat format) {
@@ -308,6 +315,7 @@ MetalTexture::MetalTexture(MetalContext& context, backend::SamplerType target, u
 }
 
 MetalTexture::~MetalTexture() {
+    [texture release];
     externalImage.set(nullptr);
 }
 
@@ -358,6 +366,9 @@ MetalRenderTarget::MetalRenderTarget(MetalContext* context, uint32_t width, uint
         uint8_t samples, id<MTLTexture> color, id<MTLTexture> depth, uint8_t level)
         : HwRenderTarget(width, height), context(context), samples(samples), level(level) {
     ASSERT_PRECONDITION(color || depth, "Must provide either a color or depth texture.");
+
+    [color retain];
+    [depth retain];
 
     if (color) {
         if (color.textureType == MTLTextureType2DMultisample) {
@@ -422,6 +433,20 @@ id<MTLTexture> MetalRenderTarget::getDepthResolve() {
     return shouldResolveDepth ? depth : nil;
 }
 
+id<MTLTexture> MetalRenderTarget::getBlitColorSource() {
+    if (color) {
+        return color;
+    }
+    return multisampledColor;
+}
+
+id<MTLTexture> MetalRenderTarget::getBlitDepthSource() {
+    if (depth) {
+        return depth;
+    }
+    return multisampledDepth;
+}
+
 MTLLoadAction MetalRenderTarget::getLoadAction(const RenderPassParams& params,
         TargetBufferFlags buffer) {
     const auto clearFlags = (TargetBufferFlags) params.flags.clear;
@@ -453,6 +478,10 @@ MTLStoreAction MetalRenderTarget::getStoreAction(const RenderPassParams& params,
 }
 
 MetalRenderTarget::~MetalRenderTarget() {
+    [color release];
+    [depth release];
+    [multisampledColor release];
+    [multisampledDepth release];
 }
     
 void MetalRenderTarget::createDepth(MTLPixelFormat format, uint32_t width, uint32_t height) {
@@ -510,6 +539,7 @@ MetalFence::MetalFence(MetalContext& context) {
 
 MetalFence::~MetalFence() {
 #if METAL_FENCES_SUPPORTED
+    [event release];
 #endif
 }
 

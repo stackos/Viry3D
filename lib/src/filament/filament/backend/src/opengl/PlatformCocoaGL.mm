@@ -57,9 +57,10 @@ Driver* PlatformCocoaGL::createDriver(void* sharedContext) noexcept {
         0, 0,
     };
 
-    NSOpenGLContext* shareContext = (__bridge NSOpenGLContext*) sharedContext;
+    NSOpenGLContext* shareContext = (NSOpenGLContext*)sharedContext;
     NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
     NSOpenGLContext* nsOpenGLContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:shareContext];
+    [pixelFormat release];
 
     GLint interval = 0;
     [nsOpenGLContext makeCurrentContext];
@@ -73,6 +74,7 @@ Driver* PlatformCocoaGL::createDriver(void* sharedContext) noexcept {
 }
 
 void PlatformCocoaGL::terminate() noexcept {
+    [pImpl->mGLContext release];
     bluegl::unbind();
 }
 
@@ -89,7 +91,7 @@ void PlatformCocoaGL::makeCurrent(Platform::SwapChain* drawSwapChain,
         Platform::SwapChain* readSwapChain) noexcept {
     ASSERT_PRECONDITION_NON_FATAL(drawSwapChain == readSwapChain,
             "ContextManagerCocoa does not support using distinct draw/read swap chains.");
-    NSView* nsView = (__bridge NSView*) drawSwapChain;
+    NSView *nsView = (NSView*) drawSwapChain;
     if (pImpl->mCurrentView != nsView) {
         pImpl->mCurrentView = nsView;
         // Calling setView could change the viewport and/or scissor box state, but this isn't

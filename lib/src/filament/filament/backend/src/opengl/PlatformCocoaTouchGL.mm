@@ -51,7 +51,7 @@ PlatformCocoaTouchGL::~PlatformCocoaTouchGL() noexcept {
 }
 
 Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept {
-    EAGLSharegroup* sharegroup = (__bridge EAGLSharegroup*) sharedGLContext;
+    EAGLSharegroup* sharegroup = (EAGLSharegroup*) sharedGLContext;
 
     EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:sharegroup];
     ASSERT_POSTCONDITION(context, "Unable to create OpenGL ES context.");
@@ -74,7 +74,7 @@ Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept
 }
 
 void PlatformCocoaTouchGL::terminate() noexcept {
-
+    [pImpl->mGLContext release];
 }
 
 Platform::SwapChain* PlatformCocoaTouchGL::createSwapChain(void* nativewindow, uint64_t& flags) noexcept {
@@ -97,7 +97,7 @@ void PlatformCocoaTouchGL::createDefaultRenderTarget(uint32_t& framebuffer, uint
 void PlatformCocoaTouchGL::makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept {
     ASSERT_PRECONDITION_NON_FATAL(drawSwapChain == readSwapChain,
                                   "PlatformCocoaTouchGL does not support using distinct draw/read swap chains.");
-    CAEAGLLayer* glLayer = (__bridge CAEAGLLayer*) drawSwapChain;
+    CAEAGLLayer* glLayer = (CAEAGLLayer*) drawSwapChain;
 
     [EAGLContext setCurrentContext:pImpl->mGLContext];
 

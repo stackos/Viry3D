@@ -52,6 +52,7 @@ MetalDriver::MetalDriver(backend::MetalPlatform* platform) noexcept
         : DriverBase(new ConcreteDispatcher<MetalDriver>()),
         mPlatform(*platform),
         mContext(new MetalContext) {
+    mContext->driverPool = [[NSAutoreleasePool alloc] init];
     mContext->device = MTLCreateSystemDefaultDevice();
     mContext->commandQueue = [mContext->device newCommandQueue];
     mContext->pipelineStateCache.setDevice(mContext->device);
@@ -71,8 +72,10 @@ MetalDriver::MetalDriver(backend::MetalPlatform* platform) noexcept
 }
 
 MetalDriver::~MetalDriver() noexcept {
+    [mContext->device release];
     CFRelease(mContext->textureCache);
     delete mContext->bufferPool;
+    delete mContext->blitter;
     delete mContext;
 }
 
@@ -86,9 +89,11 @@ void MetalDriver::debugCommand(const char *methodName) {
 #endif
 
 void MetalDriver::beginFrame(int64_t monotonic_clock_ns, uint32_t frameId) {
+    mContext->framePool = [[NSAutoreleasePool alloc] init];
+
     id<MTLCommandBuffer> commandBuffer = acquireCommandBuffer(mContext);
     [commandBuffer addCompletedHandler:^(id <MTLCommandBuffer> buffer) {
-        mContext->resourceTracker.clearResources((__bridge MetalResourceTracker::CommandBuffer) buffer);
+        mContext->resourceTracker.clearResources(buffer);
     }];
 }
 
@@ -106,6 +111,7 @@ void MetalDriver::endFrame(uint32_t frameId) {
     }
 
     // Release resources created during frame execution- like commandBuffer and currentDrawable.
+    [mContext->framePool drain];
     mContext->bufferPool->gc();
 
     CVMetalTextureCacheFlush(mContext->textureCache, 0);
@@ -196,7 +202,7 @@ void MetalDriver::createFenceR(Handle<HwFence> fh, int dummy) {
 }
 
 void MetalDriver::createSwapChainR(Handle<HwSwapChain> sch, void* nativeWindow, uint64_t flags) {
-    auto* metalLayer = (__bridge CAMetalLayer*) nativeWindow;
+    auto* metalLayer = (CAMetalLayer*) nativeWindow;
     construct_handle<MetalSwapChain>(mHandleMap, sch, mContext->device, metalLayer);
 }
 
@@ -278,26 +284,49 @@ void MetalDriver::destroyProgram(Handle<HwProgram> ph) {
 }
 
 void MetalDriver::destroySamplerGroup(Handle<HwSamplerGroup> sbh) {
-    if (sbh) {
-        destruct_handle<MetalSamplerGroup>(mHandleMap, sbh);
+    if (!sbh) {
+        return;
     }
+    // Unbind this sampler group from our internal state.
+    auto* metalSampler = handle_cast<MetalSamplerGroup>(mHandleMap, sbh);
+    for (auto& samplerBinding : mContext->samplerBindings) {
+        if (samplerBinding == metalSampler) {
+            samplerBinding = {};
+        }
+    }
+    destruct_handle<MetalSamplerGroup>(mHandleMap, sbh);
 }
 
 void MetalDriver::destroyUniformBuffer(Handle<HwUniformBuffer> ubh) {
-    if (ubh) {
-        destruct_handle<MetalUniformBuffer>(mHandleMap, ubh);
-        for (auto& thisUniform : mContext->uniformState) {
-            if (thisUniform.ubh == ubh) {
-                thisUniform.bound = false;
-            }
+    if (!ubh) {
+        return;
+    }
+    destruct_handle<MetalUniformBuffer>(mHandleMap, ubh);
+    for (auto& thisUniform : mContext->uniformState) {
+        if (thisUniform.ubh == ubh) {
+            thisUniform.bound = false;
         }
     }
 }
 
 void MetalDriver::destroyTexture(Handle<HwTexture> th) {
-    if (th) {
-        destruct_handle<MetalTexture>(mHandleMap, th);
+    if (!th) {
+        return;
     }
+    // Unbind this texture from any sampler groups that currently reference it.
+    for (auto& samplerBinding : mContext->samplerBindings) {
+        if (!samplerBinding) {
+            continue;
+        }
+        const SamplerGroup::Sampler* samplers = samplerBinding->sb->getSamplers();
+        for (size_t i = 0; i < samplerBinding->sb->getSize(); i++) {
+            const SamplerGroup::Sampler* sampler = samplers + i;
+            if (sampler->t == th) {
+                samplerBinding->sb->setSampler(i, {{}, {}});
+            }
+        }
+    }
+    destruct_handle<MetalTexture>(mHandleMap, th);
 }
 
 void MetalDriver::destroyRenderTarget(Handle<HwRenderTarget> rth) {
@@ -324,9 +353,11 @@ void MetalDriver::terminate() {
     [oneOffBuffer waitUntilCompleted];
 
     mContext->bufferPool->reset();
+    [mContext->commandQueue release];
+    [mContext->driverPool drain];
 
     MetalExternalImage::shutdown();
-    MetalBlitter::shutdown();
+    mContext->blitter->shutdown();
 }
 
 ShaderModel MetalDriver::getShaderModel() const noexcept {
@@ -673,7 +704,7 @@ void MetalDriver::blit(TargetBufferFlags buffers,
                         dstRect.left >= 0 && dstRect.bottom >= 0,
             "Source and destination rects must be positive.");
 
-    id<MTLTexture> srcTexture = srcTarget->getColor();
+    id<MTLTexture> srcTexture = srcTarget->getBlitColorSource();
     id<MTLTexture> dstTexture = dstTarget->getColor();
 
     // Metal's texture coordinates have (0, 0) at the top-left of the texture, but Filament's
@@ -691,9 +722,12 @@ void MetalDriver::blit(TargetBufferFlags buffers,
     const uint8_t srcLevel = srcTarget->getColorLevel();
     const uint8_t dstLevel = dstTarget->getColorLevel();
 
-    ASSERT_PRECONDITION(srcTexture.textureType == MTLTextureType2D &&
-                        dstTexture.textureType == MTLTextureType2D,
-                        "Metal does not support blitting to/from non-2D textures.");
+    auto isBlitableTextureType = [](MTLTextureType t) {
+        return t == MTLTextureType2D || t == MTLTextureType2DMultisample;
+    };
+    ASSERT_PRECONDITION(isBlitableTextureType(srcTexture.textureType) &&
+                        isBlitableTextureType(dstTexture.textureType),
+                       "Metal does not support blitting to/from non-2D textures.");
 
     MetalBlitter::BlitArgs args;
     args.filter = filter;
@@ -708,7 +742,7 @@ void MetalDriver::blit(TargetBufferFlags buffers,
     }
 
     if (buffers & TargetBufferFlags::DEPTH) {
-        args.source.depth = srcTarget->getDepth();
+        args.source.depth = srcTarget->getBlitDepthSource();
         args.destination.depth = dstTarget->getDepth();
     }
 
@@ -833,6 +867,14 @@ void MetalDriver::draw(backend::PipelineState ps, Handle<HwRenderPrimitive> rph)
         id <MTLSamplerState> samplerState = mContext->samplerStateCache.getOrCreateState(sampler->s);
         samplersToBind[binding] = samplerState;
     });
+
+    // Assign a default sampler to empty slots, in case Filament hasn't bound all samplers.
+    // Metal requires all samplers referenced in shaders to be bound.
+    for (auto& sampler : samplersToBind) {
+        if (!sampler) {
+            sampler = mContext->samplerStateCache.getOrCreateState({});
+        }
+    }
 
     // Similar to uniforms, we can't tell which stage will use the textures / samplers, so bind
     // to both the vertex and fragment stages.

@@ -158,9 +158,11 @@ public:
 
     id<MTLTexture> getColor();
     id<MTLTexture> getColorResolve();
-    uint8_t getColorLevel() { return level; }
     id<MTLTexture> getDepth();
     id<MTLTexture> getDepthResolve();
+    id<MTLTexture> getBlitColorSource();
+    id<MTLTexture> getBlitDepthSource();
+    uint8_t getColorLevel() { return level; }
     
     void createDepth(MTLPixelFormat format, uint32_t width, uint32_t height);
 

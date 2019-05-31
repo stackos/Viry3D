@@ -89,6 +89,7 @@ void MetalBufferPool::gc() noexcept {
     const uint64_t evictionTime = mCurrentFrame - TIME_BEFORE_EVICTION;
     for (auto pair : stages) {
         if (pair.second->lastAccessed < evictionTime) {
+            [pair.second->buffer release];
             delete pair.second;
         } else {
             mFreeStages.insert(pair);
@@ -101,6 +102,7 @@ void MetalBufferPool::reset() noexcept {
 
     assert(mUsedStages.empty());
     for (auto pair : mFreeStages) {
+        [pair.second->buffer release];
         delete pair.second;
     }
     mFreeStages.clear();
