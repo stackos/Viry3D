@@ -900,12 +900,10 @@ elseif (${Target} MATCHES "UWP")
 
     target_include_directories(Viry3DDep PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/openal/win
-							   ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
                                )
 
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/zlib
-                               ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
                                )
 
     set(UWP_ASSETS
@@ -921,8 +919,6 @@ elseif (${Target} MATCHES "UWP")
         ${VIRY3D_ASSETS}
         ${UWP_ASSETS}
         ${VIRY3D_APP_SRC_DIR}/../project/uwp/Package.appxmanifest
-        ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libEGL.dll
-        ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libGLESv2.dll
         )
     set(UWP_RESOURCE_FILES
         ${UWP_CONTENT}
@@ -951,14 +947,11 @@ elseif (${Target} MATCHES "UWP")
     target_include_directories(Viry3DApp PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}
                                ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_LIB_SRC_DIR}/gles/angle/include
                                ${VIRY3D_APP_SRC_DIR}
                                )
 
     target_link_libraries(Viry3DApp
                           Viry3D Viry3DDep
-                          ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libEGL.lib
-                          ${VIRY3D_LIB_SRC_DIR}/gles/angle/lib/${Arch}/libGLESv2.lib
                           mincore.lib
                           )
 

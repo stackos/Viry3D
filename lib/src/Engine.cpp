@@ -229,7 +229,6 @@ namespace Viry3D
 			++m_frame_id;
 
 			auto& driver = this->GetDriverApi();
-			driver.updateStreams(&driver);
 			driver.makeCurrent(m_swap_chain, m_swap_chain);
 
 			int64_t monotonic_clock_ns(std::chrono::steady_clock::now().time_since_epoch().count());
