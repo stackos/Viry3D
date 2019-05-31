@@ -21,7 +21,7 @@
 
 #include <backend/DriverEnums.h>
 
-#include <tsl/robin_map.h>
+#include <unordered_map>
 #include <utils/Hash.h>
 
 namespace filament {
@@ -98,7 +98,7 @@ private:
 
     using HashFn = utils::hash::MurmurHashFn<BlitFunctionKey>;
     using Function = id<MTLFunction>;
-    tsl::robin_map<BlitFunctionKey, Function, HashFn> mBlitFunctions;
+    std::unordered_map<BlitFunctionKey, Function, HashFn> mBlitFunctions;
 
     id<MTLFunction> mVertexFunction = nil;
 

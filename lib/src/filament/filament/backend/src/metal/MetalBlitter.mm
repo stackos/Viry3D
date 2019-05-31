@@ -289,7 +289,7 @@ void MetalBlitter::blitFastPath(bool& blitColor, bool& blitDepth, const BlitArgs
 
 void MetalBlitter::shutdown() noexcept {
     for (auto it = mBlitFunctions.begin(); it != mBlitFunctions.end(); ++it) {
-        [it.value() release];
+        [it->second release];
     }
     mBlitFunctions.clear();
     [mVertexFunction release];
@@ -376,7 +376,7 @@ id<MTLFunction> MetalBlitter::getBlitVertexFunction() {
 id<MTLFunction> MetalBlitter::getBlitFragmentFunction(BlitFunctionKey key) {
     auto iter = mBlitFunctions.find(key);
     if (iter != mBlitFunctions.end()) {
-        return iter.value();
+        return iter->second;
     }
 
     auto function = compileFragmentFunction(key);

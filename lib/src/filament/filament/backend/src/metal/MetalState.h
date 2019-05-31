@@ -128,7 +128,7 @@ public:
 
     ~StateCache() {
         for (auto it = mStateCache.begin(); it != mStateCache.end(); ++it) {
-            [it.value() release];
+            [it->second release];
         }
     }
 

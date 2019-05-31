@@ -1107,7 +1107,7 @@ elseif (${Target} MATCHES "iOS")
 
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_IOS -DVR_VULKAN=0 -DVR_GLES=1 -DVR_METAL=1 -DVR_USE_METAL=1")
-    add_definitions(-Wall -DIOS -DHAVE_ASSERT_H -fobjc-arc -DFILAMENT_SUPPORTS_METAL)
+    add_definitions(-Wall -DIOS -DHAVE_ASSERT_H -DFILAMENT_SUPPORTS_METAL)
 
     file(GLOB VIRY3D_DEP_SRCS_IOS
          ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/PlatformCocoaTouchGL.mm
