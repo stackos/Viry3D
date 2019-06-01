@@ -15,31 +15,27 @@
 * limitations under the License.
 */
 
-#pragma once
-
-#include "Object.h"
+#include "Skybox.h"
+#include "Resources.h"
 
 namespace Viry3D
 {
-    class GameObject;
-    class Transform;
-    
-    class Component : public Object
+	Skybox::Skybox()
     {
-    public:
-        Component();
-        virtual ~Component();
-        Ref<GameObject> GetGameObject() const { return m_object.lock(); }
-        const Ref<Transform>& GetTransform() const;
+		auto cube = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
+		this->SetMesh(cube);
 
-    protected:
-        virtual void Update() { }
-        virtual void OnTransformDirty() { }
-        
-	private:
-        friend class GameObject;
-        
-    private:
-        WeakRef<GameObject> m_object;
-    };
+		auto material = RefMake<Material>(Shader::Find("Skybox"));
+		this->SetMaterial(material);
+    }
+
+	Skybox::~Skybox()
+    {
+
+    }
+
+	void Skybox::SetTexture(const Ref<Texture>& texture)
+	{
+		this->GetMaterial()->SetTexture(MaterialProperty::TEXTURE, texture);
+	}
 }

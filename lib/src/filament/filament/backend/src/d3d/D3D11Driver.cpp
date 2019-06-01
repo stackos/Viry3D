@@ -890,6 +890,36 @@ namespace filament
 			m_context->context->IASetInputLayout(primitive->input_layout);
 
 			m_context->context->DrawIndexed(primitive->count, primitive->offset, 0);
+
+			// clear shader resources
+			if (program->pixel_shader)
+			{
+				for (size_t i = 0; i < m_context->sampler_group_binding.size(); ++i)
+				{
+					if (m_context->sampler_group_binding[i].sampler_group)
+					{
+						auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, m_context->sampler_group_binding[i].sampler_group);
+
+						for (size_t j = 0; j < sampler_group->sb->getSize(); ++j)
+						{
+							auto& s = sampler_group->sb->getSamplers()[j];
+
+							if (s.t)
+							{
+								auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
+								if (texture->image_view)
+								{
+									ID3D11ShaderResourceView* image_view = nullptr;
+									m_context->context->PSSetShaderResources((UINT) j, 1, &image_view);
+
+									ID3D11SamplerState* sampler = nullptr;
+									m_context->context->PSSetSamplers((UINT) j, 1, &sampler);
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

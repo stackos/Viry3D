@@ -21,6 +21,7 @@
 // test
 #include "graphics/Camera.h"
 #include "graphics/MeshRenderer.h"
+#include "graphics/Skybox.h"
 #include "animation/Animation.h"
 #include "Engine.h"
 #include "Resources.h"
@@ -28,7 +29,7 @@
 namespace Viry3D
 {
 	// test
-	GameObject* skin;
+	GameObject* skin = nullptr;
     // test
 
 	Scene* Scene::m_instance = nullptr;
@@ -45,6 +46,7 @@ namespace Viry3D
 		// test
         auto cylinder = Resources::LoadMesh("Library/unity default resources.Cylinder.mesh");
         auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
+		auto cubemap = Resources::LoadTexture("texture/env/sunny.tex");
         
         auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
         material->SetTexture(MaterialProperty::TEXTURE, texture);
@@ -68,6 +70,9 @@ namespace Viry3D
 		camera->GetTransform()->SetRotation(Quaternion::Euler(5, 180, 0));
 		camera->SetRenderTarget(color, depth);
 		camera->SetCullingMask(1 << 0);
+
+		auto skybox = GameObject::Create("")->AddComponent<Skybox>();
+		skybox->SetTexture(cubemap);
 
         auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
 		floor->GetTransform()->SetPosition(Vector3(0, -0.01f, 0));
@@ -183,7 +188,10 @@ namespace Viry3D
         // test
         static float deg = 0;
         deg += 1.0f;
-		skin->GetTransform()->SetLocalRotation(Quaternion::Euler(0, deg, 0));
+		if (skin)
+		{
+			skin->GetTransform()->SetLocalRotation(Quaternion::Euler(0, deg, 0));
+		}
     }
     
     Ref<GameObject> Scene::GetGameObject(const GameObject* obj)

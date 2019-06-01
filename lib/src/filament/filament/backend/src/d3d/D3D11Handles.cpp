@@ -182,11 +182,13 @@ namespace filament
 				const char* target = nullptr;
 				if (type == Program::Shader::VERTEX)
 				{
-					target = "vs_4_0_level_9_3";
+					//target = "vs_4_0_level_9_3";
+					target = "vs_4_0";
 				}
 				else if (type == Program::Shader::FRAGMENT)
 				{
-					target = "ps_4_0_level_9_3";
+					//target = "ps_4_0_level_9_3";
+					target = "ps_4_0";
 				}
 
 				ID3DBlob* binary = nullptr;
@@ -442,8 +444,8 @@ namespace filament
 			const PixelBufferDescriptor& data,
 			FaceOffsets face_offsets)
 		{
-			D3D11_BOX box = { 0, 0, 0, width, height, 1 };
-			UINT row_pitch = (UINT) getTextureFormatSize(format) * width;
+			D3D11_BOX box = { 0, 0, 0, width >> level, height >> level, 1 };
+			UINT row_pitch = (UINT) getTextureFormatSize(format) * (width >> level);
 			uint8_t* buffer = (uint8_t*) data.buffer;
 
 			for (int i = 0; i < 6; ++i)
