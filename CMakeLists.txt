@@ -42,12 +42,6 @@ file(GLOB VIRY3D_DEP_SRCS
      ${VIRY3D_LIB_SRC_DIR}/crypto/md5/md5.c
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/NoopDriver.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/noop/PlatformNoop.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/gl_headers.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/GLUtils.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLBlitter.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLDriver.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLPlatform.cpp
-	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLProgram.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CircularBuffer.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CommandBufferQueue.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/CommandStream.cpp
@@ -186,7 +180,6 @@ target_include_directories(Viry3DDep PRIVATE
                            ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src
-						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/math/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/include
                            )
@@ -239,6 +232,32 @@ file(GLOB VIRY3D_APP_SRCS
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
 
+# filament opengl
+if ( ${Target} MATCHES "Windows" OR
+     ${Target} MATCHES "Android" OR
+	 ${Target} MATCHES "Mac" OR
+     ${Target} MATCHES "iOS" OR
+	 ${Target} MATCHES "WASM")
+
+    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_OPENGL
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/gl_headers.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/GLUtils.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLBlitter.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLDriver.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLPlatform.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/OpenGLProgram.cpp
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_OPENGL})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_OPENGL})
+
+    target_include_directories(Viry3DDep PRIVATE
+                               ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluegl/include
+                               )
+
+endif ()
+
 # filament vulkan
 if ( ${Target} MATCHES "Windows" OR
      ${Target} MATCHES "Android" )
@@ -266,6 +285,45 @@ if ( ${Target} MATCHES "Windows" OR
                                ${VIRY3D_LIB_SRC_DIR}/filament/libs/bluevk/include
 							   ${VIRY3D_LIB_SRC_DIR}/filament/third_party/vkmemalloc/src
                                )
+
+endif ()
+
+# filament metal
+if ( ${Target} MATCHES "Mac" OR
+     ${Target} MATCHES "iOS" )
+
+    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_METAL
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalBlitter.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalBufferPool.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalContext.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalDriver.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalExternalImage.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalHandles.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalResourceTracker.cpp
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalState.mm
+         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/PlatformMetal.mm
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_METAL})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_METAL})
+
+endif ()
+
+# filament d3d
+if ( ${Target} MATCHES "Windows" OR
+     ${Target} MATCHES "UWP" )
+
+    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_D3D11
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Context.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Driver.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Handles.cpp
+		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/PlatformD3D11.cpp
+         )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_D3D11})
+
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_D3D11})
 
 endif ()
 
@@ -356,45 +414,6 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP")
     source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
 
     target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_SPIRV_CROSS})
-
-endif ()
-
-# filament metal
-if ( ${Target} MATCHES "Mac" OR
-     ${Target} MATCHES "iOS" )
-
-    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_METAL
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalBlitter.mm
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalBufferPool.mm
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalContext.mm
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalDriver.mm
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalExternalImage.mm
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalHandles.mm
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalResourceTracker.cpp
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalState.mm
-         ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/PlatformMetal.mm
-         )
-
-    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_METAL})
-
-    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_METAL})
-
-endif ()
-
-# filament d3d
-if ( ${Target} MATCHES "Windows" OR
-     ${Target} MATCHES "UWP" )
-
-    file(GLOB VIRY3D_DEP_SRCS_FILAMENT_D3D11
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Context.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Driver.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Handles.cpp
-		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/PlatformD3D11.cpp
-         )
-
-    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_FILAMENT_D3D11})
-
-    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_FILAMENT_D3D11})
 
 endif ()
 

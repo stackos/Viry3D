@@ -112,30 +112,3 @@ namespace glext {
 }
 
 #endif
-
-#if defined(VR_UWP)
-
-#define GL_GLEXT_PROTOTYPES 1
-#include <GLES3/gl3.h>
-#include <GLES2/gl2ext.h>
-
-#include <utils/Panic.h>
-
-void glTexStorage2DMultisample (GLenum target, GLsizei samples, GLenum internalformat,
-	GLsizei width, GLsizei height, GLboolean fixedsamplelocations) {
-	PANIC_PRECONDITION("glTexStorage2DMultisample should not be called on iOS.");
-}
-
-namespace glext {
-	void glFramebufferTexture2DMultisampleEXT (GLenum target, GLenum attachment,
-		GLenum textarget, GLuint texture, GLint level, GLsizei samples) {
-		PANIC_PRECONDITION("glFramebufferTexture2DMultisampleEXT should not be called on iOS.");
-	}
-
-	void glRenderbufferStorageMultisampleEXT (GLenum target, GLsizei samples,
-		GLenum internalformat, GLsizei width, GLsizei height) {
-		PANIC_PRECONDITION("glRenderbufferStorageMultisampleEXT should not be called on iOS.");
-	}
-}
-
-#endif
