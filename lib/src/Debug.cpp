@@ -41,12 +41,7 @@ namespace Viry3D
             OutputDebugStringA(str.CString());
         }
     }
-#elif VR_IOS
-    void Debug::LogString(const String& str, bool end_line)
-    {
-        NSLog(@"\n%s", str.CString());
-    }
-#elif VR_MAC
+#elif VR_MAC || VR_IOS
     void Debug::LogString(const String& str, bool end_line)
     {
         NSLog(@"\n%s", str.CString());
