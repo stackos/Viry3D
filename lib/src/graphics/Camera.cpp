@@ -352,6 +352,11 @@ namespace Viry3D
 		m_cameras.Remove(this);
     }
 
+	void Camera::OnTransformDirty()
+	{
+		m_view_matrix_dirty = true;
+	}
+
 	void Camera::SetDepth(int depth)
 	{
 		m_depth = depth;

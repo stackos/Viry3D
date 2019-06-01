@@ -67,6 +67,9 @@ namespace Viry3D
 		int GetTargetWidth() const;
 		int GetTargetHeight() const;
 
+	protected:
+		virtual void OnTransformDirty();
+
 	private:
         void OnResize(int width, int height);
         void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);

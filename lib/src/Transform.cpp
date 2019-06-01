@@ -148,7 +148,19 @@ namespace Viry3D
     
     void Transform::SetPosition(const Vector3& pos)
     {
-        this->SetLocalPosition(this->GetWorldToLocalMatrix().MultiplyPoint3x4(pos));
+		Vector3 local_position;
+
+		auto parent = m_parent.lock();
+		if (parent)
+		{
+			local_position = parent->GetWorldToLocalMatrix().MultiplyPoint3x4(pos);
+		}
+		else
+		{
+			local_position = pos;
+		}
+
+		this->SetLocalPosition(local_position);
     }
 
 	const Quaternion& Transform::GetRotation()
