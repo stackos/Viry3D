@@ -36,9 +36,9 @@ namespace Viry3D
 	// per view uniforms, set by camera
 	struct ViewUniforms
 	{
-		static constexpr char* VIEW_MATRIX = "u_view_matrix";
-		static constexpr char* PROJECTION_MATRIX = "u_projection_matrix";
-		static constexpr char* CAMERA_POSITION = "u_camera_pos";
+		static constexpr const char* VIEW_MATRIX = "u_view_matrix";
+		static constexpr const char* PROJECTION_MATRIX = "u_projection_matrix";
+		static constexpr const char* CAMERA_POSITION = "u_camera_pos";
 
 		Matrix4x4 view_matrix;
 		Matrix4x4 projection_matrix;
@@ -48,9 +48,9 @@ namespace Viry3D
 	// per renderer uniforms, set by renderer
 	struct RendererUniforms
 	{
-		static constexpr char* MODEL_MATRIX = "u_model_matrix";
-		static constexpr char* LIGHTMAP_SCALE_OFFSET = "u_lightmap_scale_offset";
-		static constexpr char* LIGHTMAP_INDEX = "u_lightmap_index";
+		static constexpr const char* MODEL_MATRIX = "u_model_matrix";
+		static constexpr const char* LIGHTMAP_SCALE_OFFSET = "u_lightmap_scale_offset";
+		static constexpr const char* LIGHTMAP_INDEX = "u_lightmap_index";
 
 		Matrix4x4 model_matrix;
 		Vector4 lightmap_scale_offset;
@@ -61,8 +61,8 @@ namespace Viry3D
 	// per renderer bones uniforms, set by skinned mesh renderer
 	struct SkinnedMeshRendererUniforms
 	{
-		static constexpr char* BONES = "u_bones";
-		static constexpr int BONES_VECTOR_MAX_COUNT = 210;
+		static constexpr const char* BONES = "u_bones";
+		static constexpr const int BONES_VECTOR_MAX_COUNT = 210;
 
 		Vector4 bones[BONES_VECTOR_MAX_COUNT];
 	};
@@ -70,13 +70,13 @@ namespace Viry3D
 	// per material uniforms, set by material
     struct MaterialProperty
     {
-		static constexpr char* TEXTURE = "u_texture";
-		static constexpr char* TEXTURE_SCALE_OFFSET = "u_texture_scale_offset";
-		static constexpr char* AMBIENT_COLOR = "u_ambient_color";
-		static constexpr char* LIGHT_POSITION = "u_light_pos";
-		static constexpr char* LIGHT_COLOR = "u_light_color";
-		static constexpr char* LIGHT_INTENSITY = "u_light_intensity";
-		static constexpr char* CLIP_RECT = "u_clip_rect";
+		static constexpr const char* TEXTURE = "u_texture";
+		static constexpr const char* TEXTURE_SCALE_OFFSET = "u_texture_scale_offset";
+		static constexpr const char* AMBIENT_COLOR = "u_ambient_color";
+		static constexpr const char* LIGHT_POSITION = "u_light_pos";
+		static constexpr const char* LIGHT_COLOR = "u_light_color";
+		static constexpr const char* LIGHT_INTENSITY = "u_light_intensity";
+		static constexpr const char* CLIP_RECT = "u_clip_rect";
 
         enum class Type
         {
