@@ -72,6 +72,7 @@ namespace Viry3D
     {
 		static constexpr const char* TEXTURE = "u_texture";
 		static constexpr const char* TEXTURE_SCALE_OFFSET = "u_texture_scale_offset";
+		static constexpr const char* COLOR = "u_color";
 		static constexpr const char* AMBIENT_COLOR = "u_ambient_color";
 		static constexpr const char* LIGHT_POSITION = "u_light_pos";
 		static constexpr const char* LIGHT_COLOR = "u_light_color";

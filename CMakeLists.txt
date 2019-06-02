@@ -207,6 +207,8 @@ file(GLOB VIRY3D_LIB_SRCS
      ${VIRY3D_LIB_SRC_DIR}/thread/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/time/*.h
      ${VIRY3D_LIB_SRC_DIR}/time/*.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/ui/*.h
+     ${VIRY3D_LIB_SRC_DIR}/ui/*.cpp
      )
 
 source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS})

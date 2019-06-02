@@ -23,6 +23,7 @@
 
 namespace Viry3D
 {
+	Ref<Image> Texture::m_shared_white_image;
     Ref<Texture> Texture::m_shared_white_texture;
     Ref<Texture> Texture::m_shared_black_texture;
     Ref<Texture> Texture::m_shared_normal_texture;
@@ -35,12 +36,36 @@ namespace Viry3D
     
     void Texture::Done()
     {
+		m_shared_white_image.reset();
         m_shared_white_texture.reset();
         m_shared_black_texture.reset();
         m_shared_normal_texture.reset();
         m_shared_cubemap.reset();
     }
     
+	const Ref<Image>& Texture::GetSharedWhiteImage()
+	{
+		if (!m_shared_white_image)
+		{
+			ByteBuffer pixels(4 * 9);
+			for (int i = 0; i < 9; ++i)
+			{
+				pixels[i * 4 + 0] = 255;
+				pixels[i * 4 + 1] = 255;
+				pixels[i * 4 + 2] = 255;
+				pixels[i * 4 + 3] = 255;
+			}
+
+			m_shared_white_image = RefMake<Image>();
+			m_shared_white_image->width = 3;
+			m_shared_white_image->height = 3;
+			m_shared_white_image->format = ImageFormat::R8G8B8A8;
+			m_shared_white_image->data = pixels;
+		}
+
+		return m_shared_white_image;
+	}
+
     const Ref<Texture>& Texture::GetSharedWhiteTexture()
     {
         if (!m_shared_white_texture)
@@ -495,6 +520,24 @@ namespace Viry3D
             FreeBufferCallback);
         driver.updateCubeImage(m_texture, level, std::move(data), offsets);
     }
+
+	void Texture::UpdateTexture(const ByteBuffer& pixels, int layer, int level, int x, int y, int w, int h)
+	{
+	
+	}
+
+	void Texture::CopyTexture(
+		const Ref<Texture> src,
+		int src_layer, int src_level,
+		int src_x, int src_y,
+		int src_w, int src_h,
+		int dst_layer, int dst_level,
+		int dst_x, int dst_y,
+		int dst_w, int dst_h,
+		FilterMode blit_filter)
+	{
+		
+	}
     
     void Texture::GenMipmaps()
     {

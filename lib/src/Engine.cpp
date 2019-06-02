@@ -134,6 +134,7 @@ namespace Viry3D
             
             Shader::Init();
             Texture::Init();
+			Mesh::Init();
             AudioManager::Init();
 			Resources::Init();
 		}
@@ -144,6 +145,7 @@ namespace Viry3D
             
 			Resources::Done();
             AudioManager::Done();
+			Mesh::Done();
             Texture::Done();
             Shader::Done();
             

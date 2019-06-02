@@ -62,6 +62,9 @@ namespace Viry3D
         };
 
     public:
+		static void Init();
+		static void Done();
+		static const Ref<Mesh>& GetSharedQuadMesh();
         static Ref<Mesh> LoadFromFile(const String& path);
         Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool uint32_index = false, bool dynamic = false);
         virtual ~Mesh();
@@ -82,6 +85,7 @@ namespace Viry3D
         void SetBlendShapes(Vector<BlendShape>&& blend_shapes) { m_blend_shapes = std::move(blend_shapes); }
         
     private:
+		static Ref<Mesh> m_shared_quad_mesh;
         Vector<Vertex> m_vertices;
         Vector<unsigned int> m_indices;
         int m_buffer_vertex_count;

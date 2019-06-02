@@ -25,6 +25,40 @@
 
 namespace Viry3D
 {
+	Ref<Mesh> Mesh::m_shared_quad_mesh;
+
+	void Mesh::Init()
+	{
+	
+	}
+
+	void Mesh::Done()
+	{
+		m_shared_quad_mesh.reset();
+	}
+
+	const Ref<Mesh>& Mesh::GetSharedQuadMesh()
+	{
+		if (!m_shared_quad_mesh)
+		{
+			Vector<Mesh::Vertex> vertices(4);
+			vertices[0].vertex = Vector3(-1, 1, 0);
+			vertices[1].vertex = Vector3(-1, -1, 0);
+			vertices[2].vertex = Vector3(1, -1, 0);
+			vertices[3].vertex = Vector3(1, 1, 0);
+			vertices[0].uv = Vector2(0, 0);
+			vertices[1].uv = Vector2(0, 1);
+			vertices[2].uv = Vector2(1, 1);
+			vertices[3].uv = Vector2(1, 0);
+			Vector<unsigned int> indices = {
+				0, 1, 2, 0, 2, 3
+			};
+			m_shared_quad_mesh = RefMake<Mesh>(std::move(vertices), std::move(indices));
+		}
+
+		return m_shared_quad_mesh;
+	}
+
     Ref<Mesh> Mesh::LoadFromFile(const String& path)
     {
         Ref<Mesh> mesh;

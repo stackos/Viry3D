@@ -46,23 +46,9 @@ namespace Viry3D
 			material->SetTexture(MaterialProperty::TEXTURE, texture);
 			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(20, 20, 0, 0));
 
-			auto color = Texture::CreateRenderTexture(
-				1280,
-				720,
-				TextureFormat::R8G8B8A8,
-				FilterMode::Linear,
-				SamplerAddressMode::ClampToEdge);
-			auto depth = Texture::CreateRenderTexture(
-				1280,
-				720,
-				Texture::SelectDepthFormat(),
-				FilterMode::Linear,
-				SamplerAddressMode::ClampToEdge);
-
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
 			camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
-			camera->SetRenderTarget(color, depth);
 			camera->SetCullingMask(1 << 0);
 			m_camera = camera.get();
 
@@ -87,6 +73,21 @@ namespace Viry3D
 			obj_2->GetTransform()->SetPosition(Vector3(2, 0, -2));
 			m_skin = obj_2.get();
 
+#if 1
+			auto color = Texture::CreateRenderTexture(
+				1280,
+				720,
+				TextureFormat::R8G8B8A8,
+				FilterMode::Linear,
+				SamplerAddressMode::ClampToEdge);
+			auto depth = Texture::CreateRenderTexture(
+				1280,
+				720,
+				Texture::SelectDepthFormat(),
+				FilterMode::Linear,
+				SamplerAddressMode::ClampToEdge);
+			camera->SetRenderTarget(color, depth);
+
 			auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
 			blit_camera->SetOrthographic(true);
 			blit_camera->SetOrthographicSize(1);
@@ -94,20 +95,6 @@ namespace Viry3D
 			blit_camera->SetFarClip(1);
 			blit_camera->SetDepth(1);
 			blit_camera->SetCullingMask(1 << 1);
-
-			Vector<Mesh::Vertex> vertices(4);
-			vertices[0].vertex = Vector3(-1, 1, 0);
-			vertices[1].vertex = Vector3(-1, -1, 0);
-			vertices[2].vertex = Vector3(1, -1, 0);
-			vertices[3].vertex = Vector3(1, 1, 0);
-			vertices[0].uv = Vector2(0, 0);
-			vertices[1].uv = Vector2(0, 1);
-			vertices[2].uv = Vector2(1, 1);
-			vertices[3].uv = Vector2(1, 0);
-			Vector<unsigned int> indices = {
-				0, 1, 2, 0, 2, 3
-			};
-			auto quad_mesh = RefMake<Mesh>(std::move(vertices), std::move(indices));
 
 			material = RefMake<Material>(Shader::Find("Unlit/Texture"));
 			material->SetTexture(MaterialProperty::TEXTURE, color);
@@ -119,8 +106,9 @@ namespace Viry3D
 			auto quad = GameObject::Create("")->AddComponent<MeshRenderer>();
 			quad->GetGameObject()->SetLayer(1);
 			quad->GetTransform()->SetScale(Vector3(1280 / 720.0f, 1, 1));
-			quad->SetMesh(quad_mesh);
+			quad->SetMesh(Mesh::GetSharedQuadMesh());
 			quad->SetMaterial(material);
+#endif
 		}
 
 		virtual ~App()
