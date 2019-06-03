@@ -136,6 +136,11 @@ namespace Viry3D
 			int dst_x, int dst_y,
 			int dst_w, int dst_h,
 			FilterMode blit_filter);
+		void CopyToMemory(
+			ByteBuffer& pixels,
+			int layer, int level,
+			int x, int y,
+			int w, int h);
         void GenMipmaps();
 		int GetWidth() const { return m_width; }
 		int GetHeight() const { return m_height; }

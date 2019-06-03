@@ -415,17 +415,15 @@ namespace filament
 			SAFE_RELEASE(image_view);
 		}
 
-		void D3D11Texture::Update2DImage(
+		void D3D11Texture::UpdateTexture(
 			D3D11Context* context,
-			uint32_t level,
-			uint32_t x,
-			uint32_t y,
-			uint32_t width,
-			uint32_t height,
+			int layer, int level,
+			int x, int y,
+			int w, int h,
 			const PixelBufferDescriptor& data)
 		{
-			UINT subresource = D3D11CalcSubresource(level, 0, levels);
-			D3D11_BOX box = { x, y, 0, x + width, y + height, 1 };
+			UINT subresource = D3D11CalcSubresource(level, layer, levels);
+			D3D11_BOX box = { (UINT) x, (UINT) y, 0, (UINT) (x + w), (UINT) (y + h), 1 };
 			UINT row_pitch = (UINT) getTextureFormatSize(format) * width;
 
 			context->context->UpdateSubresource1(
@@ -436,32 +434,6 @@ namespace filament
 				row_pitch,
 				0,
 				D3D11_COPY_DISCARD);
-		}
-
-		void D3D11Texture::UpdateCubeImage(
-			D3D11Context* context,
-			uint32_t level,
-			const PixelBufferDescriptor& data,
-			FaceOffsets face_offsets)
-		{
-			D3D11_BOX box = { 0, 0, 0, width >> level, height >> level, 1 };
-			UINT row_pitch = (UINT) getTextureFormatSize(format) * (width >> level);
-			uint8_t* buffer = (uint8_t*) data.buffer;
-
-			for (int i = 0; i < 6; ++i)
-			{
-				UINT subresource = D3D11CalcSubresource(level, i, levels);
-				size_t offset = face_offsets[i];
-
-				context->context->UpdateSubresource1(
-					texture,
-					subresource,
-					&box,
-					&buffer[offset],
-					row_pitch,
-					0,
-					D3D11_COPY_DISCARD);
-			}
 		}
 
 		void D3D11Texture::GenerateMipmaps(D3D11Context* context)

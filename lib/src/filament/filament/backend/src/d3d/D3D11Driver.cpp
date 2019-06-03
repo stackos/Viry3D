@@ -427,23 +427,36 @@ namespace filament
 			this->scheduleDestroy(std::move(data));
 		}
 
+		void D3D11Driver::updateTexture(
+			Handle<HwTexture> th,
+			int layer, int level,
+			int x, int y,
+			int w, int h,
+			backend::PixelBufferDescriptor&& data)
+		{
+			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
+			texture->UpdateTexture(
+				m_context,
+				layer, level,
+				x, y,
+				w, h,
+				data);
+			this->scheduleDestroy(std::move(data));
+		}
+
 		void D3D11Driver::update2DImage(
 			Handle<HwTexture> th,
 			uint32_t level,
-			uint32_t x,
-			uint32_t y,
-			uint32_t width,
-			uint32_t height,
+			uint32_t x, uint32_t y,
+			uint32_t width, uint32_t height,
 			PixelBufferDescriptor&& data)
 		{
 			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
-			texture->Update2DImage(
+			texture->UpdateTexture(
 				m_context,
-				level,
-				x,
-				y,
-				width,
-				height,
+				0, level,
+				x, y,
+				width, height,
 				data);
 			this->scheduleDestroy(std::move(data));
 		}
@@ -455,11 +468,16 @@ namespace filament
 			FaceOffsets face_offsets)
 		{
 			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
-			texture->UpdateCubeImage(
-				m_context,
-				level,
-				data,
-				face_offsets);
+			uint8_t* buffer = (uint8_t*) data.buffer;
+			for (int i = 0; i < 6; ++i)
+			{
+				texture->UpdateTexture(
+					m_context,
+					i, level,
+					0, 0,
+					texture->width >> level, texture->height >> level,
+					PixelBufferDescriptor(&buffer[face_offsets[i]], data.size / 6, data.format, data.type));
+			}
 			this->scheduleDestroy(std::move(data));
 		}
 

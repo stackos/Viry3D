@@ -1858,6 +1858,16 @@ void OpenGLDriver::updateSamplerGroup(Handle<HwSamplerGroup> sbh,
     *sb->sb = std::move(samplerGroup); // NOLINT(performance-move-const-arg)
 }
 
+void OpenGLDriver::updateTexture(
+	Handle<HwTexture> th,
+	int layer, int level,
+	int x, int y,
+	int w, int h,
+	backend::PixelBufferDescriptor&& data)
+{
+	
+}
+
 void OpenGLDriver::update2DImage(Handle<HwTexture> th,
         uint32_t level, uint32_t xoffset, uint32_t yoffset, uint32_t width, uint32_t height,
         PixelBufferDescriptor&& data) {

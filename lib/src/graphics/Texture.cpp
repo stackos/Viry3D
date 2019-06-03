@@ -523,7 +523,7 @@ namespace Viry3D
 
 	void Texture::UpdateTexture(const ByteBuffer& pixels, int layer, int level, int x, int y, int w, int h)
 	{
-	
+		
 	}
 
 	void Texture::CopyTexture(
@@ -535,6 +535,15 @@ namespace Viry3D
 		int dst_x, int dst_y,
 		int dst_w, int dst_h,
 		FilterMode blit_filter)
+	{
+		
+	}
+
+	void Texture::CopyToMemory(
+		ByteBuffer& pixels,
+		int layer, int level,
+		int x, int y,
+		int w, int h)
 	{
 		
 	}

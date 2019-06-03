@@ -95,19 +95,12 @@ namespace filament
 				uint32_t depth,
 				TextureUsage usage);
 			~D3D11Texture();
-			void Update2DImage(
+			void UpdateTexture(
 				D3D11Context* context,
-				uint32_t level,
-				uint32_t x,
-				uint32_t y,
-				uint32_t width,
-				uint32_t height,
+				int layer, int level,
+				int x, int y,
+				int w, int h,
 				const PixelBufferDescriptor& data);
-			void UpdateCubeImage(
-				D3D11Context* context,
-				uint32_t level,
-				const PixelBufferDescriptor& data,
-				FaceOffsets face_offsets);
 			void GenerateMipmaps(D3D11Context* context);
 
 			ID3D11Texture2D1* texture = nullptr;

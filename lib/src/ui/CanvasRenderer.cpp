@@ -344,14 +344,13 @@ namespace Viry3D
             
             for (int i = 0; i < m_atlas_array_size; ++i)
             {
-                m_atlas->CopyToMemory(pixels, i, 0);
-                Image image = {
-                    ATLAS_SIZE,
-                    ATLAS_SIZE,
-                    ImageFormat::R8G8B8A8,
-                    pixels
-                };
-                image.EncodeToPNG(String::Format("%s/atlas%d.png", Application::Instance()->GetSavePath().CString(), i));
+                m_atlas->CopyToMemory(pixels, i, 0, 0, 0, ATLAS_SIZE, ATLAS_SIZE);
+				auto image = RefMake<Image>();
+				image->width = ATLAS_SIZE;
+				image->height = ATLAS_SIZE;
+				image->format = ImageFormat::R8G8B8A8;
+				image->data = pixels;
+                image->EncodeToPNG(String::Format("%s/atlas%d.png", Engine::Instance()->GetSavePath().CString(), i));
             }
         }
 #endif

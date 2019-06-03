@@ -345,6 +345,16 @@ DECL_DRIVER_API_2(updateSamplerGroup,
         backend::SamplerGroupHandle, ubh,
         backend::SamplerGroup&&, samplerGroup)
 
+DECL_DRIVER_API_8(updateTexture,
+        backend::TextureHandle, th,
+		int, layer,
+		int, level,
+		int, x,
+		int, y,
+		int, w,
+		int, h,
+        backend::PixelBufferDescriptor&&, data)
+
 DECL_DRIVER_API_7(update2DImage,
         backend::TextureHandle, th,
         uint32_t, level,

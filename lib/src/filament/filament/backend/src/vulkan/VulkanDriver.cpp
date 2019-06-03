@@ -621,6 +621,16 @@ void VulkanDriver::updateIndexBuffer(Handle<HwIndexBuffer> ibh, BufferDescriptor
     scheduleDestroy(std::move(p));
 }
 
+void VulkanDriver::updateTexture(
+	Handle<HwTexture> th,
+	int layer, int level,
+	int x, int y,
+	int w, int h,
+	backend::PixelBufferDescriptor&& data)
+{
+
+}
+
 void VulkanDriver::update2DImage(Handle<HwTexture> th,
         uint32_t level, uint32_t xoffset, uint32_t yoffset, uint32_t width, uint32_t height,
         PixelBufferDescriptor&& data) {
