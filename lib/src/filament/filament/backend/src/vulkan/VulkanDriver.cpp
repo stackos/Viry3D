@@ -283,13 +283,13 @@ void VulkanDriver::flush(int) {
 }
 
 void VulkanDriver::createSamplerGroupR(Handle<HwSamplerGroup> sbh, size_t count) {
-    construct_handle<VulkanSamplerGroup>(mHandleMap, sbh, mContext, count);
+    construct_handle<VulkanSamplerGroup>(mHandleMap, sbh, mContext, (uint32_t) count);
 }
 
 void VulkanDriver::createUniformBufferR(Handle<HwUniformBuffer> ubh, size_t size,
         BufferUsage usage) {
     auto uniformBuffer = construct_handle<VulkanUniformBuffer>(mHandleMap, ubh, mContext,
-            mStagePool, size, usage);
+            mStagePool, (uint32_t) size, usage);
     mDisposer.createDisposable(uniformBuffer, [this, ubh] () {
         destruct_handle<VulkanUniformBuffer>(mHandleMap, ubh);
     });
@@ -610,14 +610,14 @@ bool VulkanDriver::isFrameTimeSupported() {
 void VulkanDriver::updateVertexBuffer(Handle<HwVertexBuffer> vbh, size_t index,
         BufferDescriptor&& p, uint32_t byteOffset) {
     auto& vb = *handle_cast<VulkanVertexBuffer>(mHandleMap, vbh);
-    vb.buffers[index]->loadFromCpu(p.buffer, byteOffset, p.size);
+    vb.buffers[index]->loadFromCpu(p.buffer, byteOffset, (uint32_t) p.size);
     scheduleDestroy(std::move(p));
 }
 
 void VulkanDriver::updateIndexBuffer(Handle<HwIndexBuffer> ibh, BufferDescriptor&& p,
         uint32_t byteOffset) {
     auto& ib = *handle_cast<VulkanIndexBuffer>(mHandleMap, ibh);
-    ib.buffer->loadFromCpu(p.buffer, byteOffset, p.size);
+    ib.buffer->loadFromCpu(p.buffer, byteOffset, (uint32_t) p.size);
     scheduleDestroy(std::move(p));
 }
 
@@ -628,7 +628,8 @@ void VulkanDriver::updateTexture(
 	int w, int h,
 	backend::PixelBufferDescriptor&& data)
 {
-
+	handle_cast<VulkanTexture>(mHandleMap, th)->updateTexture(data, layer, level, x, y, w, h);
+	scheduleDestroy(std::move(data));
 }
 
 void VulkanDriver::update2DImage(Handle<HwTexture> th,
@@ -994,11 +995,11 @@ void VulkanDriver::blit(TargetBufferFlags buffers,
     auto vkblit = [=](VkCommandBuffer cmdbuffer) {
         VkImage srcImage = srcTarget->getColor().image;
         VulkanTexture::transitionImageLayout(cmdbuffer, srcImage, VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, srcLevel, 1);
+                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, srcLevel, 0, 1);
 
         VkImage dstImage = dstTarget->getColor().image;
         VulkanTexture::transitionImageLayout(cmdbuffer, dstImage, VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dstLevel, 1);
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dstLevel, 0, 1);
 
         // TODO: Issue vkCmdResolveImage for MSAA targets.
 
@@ -1007,7 +1008,7 @@ void VulkanDriver::blit(TargetBufferFlags buffers,
                 filter == SamplerMagFilter::NEAREST ? VK_FILTER_NEAREST : VK_FILTER_LINEAR);
 
         VulkanTexture::transitionImageLayout(cmdbuffer, dstImage, VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, dstLevel, 1);
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, dstLevel, 0, 1);
     };
 
     if (!mContext.currentCommands) {
@@ -1110,7 +1111,7 @@ void VulkanDriver::draw(PipelineState pipelineState, Handle<HwRenderPrimitive> r
             VkSampler vksampler = mSamplerCache.getSampler(samplerParams);
             const auto* texture = handle_const_cast<VulkanTexture>(mHandleMap, boundSampler->t);
             mDisposer.acquire(texture, commands->resources);
-            mBinder.bindSampler(bindingPoint, {
+            mBinder.bindSampler((uint32_t) bindingPoint, {
                 vksampler,
                 texture->imageView,
                 samplerParams.depthStencil ?

@@ -523,7 +523,17 @@ namespace Viry3D
 
 	void Texture::UpdateTexture(const ByteBuffer& pixels, int layer, int level, int x, int y, int w, int h)
 	{
-		
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		void* buffer = Memory::Alloc<void>(pixels.Size());
+		Memory::Copy(buffer, pixels.Bytes(), pixels.Size());
+		auto data = filament::backend::PixelBufferDescriptor(
+			buffer,
+			pixels.Size(),
+			GetPixelDataFormat(m_format),
+			GetPixelDataType(m_format),
+			FreeBufferCallback);
+		driver.updateTexture(m_texture, layer, level, x, y, w, h, std::move(data));
 	}
 
 	void Texture::CopyTexture(

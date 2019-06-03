@@ -436,13 +436,49 @@ VulkanTexture::~VulkanTexture() {
     vkFreeMemory(mContext.device, textureImageMemory, VKALLOC);
 }
 
+void VulkanTexture::updateTexture(
+	const PixelBufferDescriptor& data,
+	int layer, int level,
+	int x, int y,
+	int w, int h)
+{
+	VulkanStage const* stage = mStagePool.acquireStage((uint32_t) data.size);
+	void* mapped;
+	vmaMapMemory(mContext.allocator, stage->memory, &mapped);
+	memcpy(mapped, data.buffer, data.size);
+	vmaUnmapMemory(mContext.allocator, stage->memory);
+	vmaFlushAllocation(mContext.allocator, stage->memory, 0, data.size);
+
+	auto copyToDevice = [this, stage, layer, level, x, y, w, h] (VulkanCommandBuffer& commands) {
+		transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, level, layer, 1);
+		copyBufferToImage(commands.cmdbuffer, stage->buffer, textureImage, layer, level, x, y, w, h, nullptr);
+		transitionImageLayout(commands.cmdbuffer, textureImage,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, level, layer, 1);
+
+		mStagePool.releaseStage(stage, commands);
+	};
+
+	if (mContext.currentCommands)
+	{
+		copyToDevice(*mContext.currentCommands);
+	}
+	else
+	{
+		acquireWorkCommandBuffer(mContext);
+		copyToDevice(mContext.work);
+		flushWorkCommandBuffer(mContext);
+	}
+}
+
 void VulkanTexture::update2DImage(const PixelBufferDescriptor& data, uint32_t width,
         uint32_t height, int miplevel) {
     assert(width <= this->width && height <= this->height);
     const uint32_t srcBytesPerTexel = getBytesPerPixel(format);
     const bool reshape = srcBytesPerTexel == 3 || srcBytesPerTexel == 6;
     const void* cpuData = data.buffer;
-    const uint32_t numSrcBytes = data.size;
+    const uint32_t numSrcBytes = (uint32_t) data.size;
     const uint32_t numDstBytes = reshape ? (4 * numSrcBytes / 3) : numSrcBytes;
 
     // Create and populate the staging buffer.
@@ -469,12 +505,11 @@ void VulkanTexture::update2DImage(const PixelBufferDescriptor& data, uint32_t wi
     // Create a copy-to-device functor.
     auto copyToDevice = [this, stage, width, height, miplevel] (VulkanCommandBuffer& commands) {
         transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, miplevel, 1);
-        copyBufferToImage(commands.cmdbuffer, stage->buffer, textureImage, width, height, nullptr,
-                miplevel);
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, miplevel, 0, 1);
+        copyBufferToImage(commands.cmdbuffer, stage->buffer, textureImage, 0, miplevel, 0, 0, width, height, nullptr);
         transitionImageLayout(commands.cmdbuffer, textureImage,
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, miplevel, 1);
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, miplevel, 0, 1);
 
         mStagePool.releaseStage(stage, commands);
     };
@@ -494,7 +529,7 @@ void VulkanTexture::updateCubeImage(const PixelBufferDescriptor& data,
     assert(this->target == SamplerType::SAMPLER_CUBEMAP);
     const bool reshape = getBytesPerPixel(format) == 3;
     const void* cpuData = data.buffer;
-    const uint32_t numSrcBytes = data.size;
+    const uint32_t numSrcBytes = (uint32_t) data.size;
     const uint32_t numDstBytes = reshape ? (4 * numSrcBytes / 3) : numSrcBytes;
 
     // Create and populate the staging buffer.
@@ -514,12 +549,11 @@ void VulkanTexture::updateCubeImage(const PixelBufferDescriptor& data,
         uint32_t width = std::max(1u, this->width >> miplevel);
         uint32_t height = std::max(1u, this->height >> miplevel);
         transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, miplevel, 6);
-        copyBufferToImage(commands.cmdbuffer, stage->buffer, textureImage, width, height,
-                &faceOffsets, miplevel);
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, miplevel, 0, 6);
+        copyBufferToImage(commands.cmdbuffer, stage->buffer, textureImage, 0, miplevel, 0, 0, width, height, &faceOffsets);
         transitionImageLayout(commands.cmdbuffer, textureImage,
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, miplevel, 6);
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, miplevel, 0, 6);
 
         mStagePool.releaseStage(stage, commands);
     };
@@ -540,11 +574,11 @@ void VulkanTexture::generateMipmaps() {
 
 	auto blit = [this, mipLevelCount, layerCount] (VulkanCommandBuffer& commands) {
 		transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 0, layerCount);
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 0, 0, layerCount);
 
 		for (int i = 1; i < mipLevelCount; ++i) {
 			transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_UNDEFINED,
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, i, layerCount);
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, i, 0, layerCount);
 
 			VkImageBlit region = { };
 			region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -572,14 +606,14 @@ void VulkanTexture::generateMipmaps() {
 
 			if (i == mipLevelCount - 1) {
 				transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, i, layerCount);
+					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, i, 0, layerCount);
 			} else {
 				transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, i, layerCount);
+					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, i, 0, layerCount);
 			}
 			
 			transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, i - 1, layerCount);
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, i - 1, 0, layerCount);
 		}
 	};
 
@@ -594,7 +628,7 @@ void VulkanTexture::generateMipmaps() {
 }
 
 void VulkanTexture::transitionImageLayout(VkCommandBuffer cmd, VkImage image,
-        VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t miplevel, uint32_t layerCount) {
+        VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t baseLevel, uint32_t baseLayer, uint32_t layerCount) {
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.oldLayout = oldLayout;
@@ -603,9 +637,9 @@ void VulkanTexture::transitionImageLayout(VkCommandBuffer cmd, VkImage image,
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    barrier.subresourceRange.baseMipLevel = miplevel;
+    barrier.subresourceRange.baseMipLevel = baseLevel;
     barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.baseArrayLayer = baseLayer;
     barrier.subresourceRange.layerCount = layerCount;
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
@@ -635,31 +669,43 @@ void VulkanTexture::transitionImageLayout(VkCommandBuffer cmd, VkImage image,
             &barrier);
 }
 
-void VulkanTexture::copyBufferToImage(VkCommandBuffer cmd, VkBuffer buffer, VkImage image,
-        uint32_t width, uint32_t height, FaceOffsets const* faceOffsets, uint32_t miplevel) {
-    VkExtent3D extent { width, height, 1 };
-    if (target == SamplerType::SAMPLER_CUBEMAP) {
-        assert(faceOffsets);
-        VkBufferImageCopy regions[6] = {{}};
-        for (size_t face = 0; face < 6; face++) {
+void VulkanTexture::copyBufferToImage(
+	VkCommandBuffer cmd,
+	VkBuffer buffer, VkImage image,
+	int layer, int level,
+	int x, int y,
+	int w, int h,
+	FaceOffsets const* faceOffsets)
+{
+	VkOffset3D offset = { x, y, 0 };
+    VkExtent3D extent = { (uint32_t) w, (uint32_t) h, 1 };
+    if (target == SamplerType::SAMPLER_CUBEMAP && faceOffsets)
+	{
+        VkBufferImageCopy regions[6] = { { } };
+        for (size_t face = 0; face < 6; ++face)
+		{
             auto& region = regions[face];
             region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            region.imageSubresource.baseArrayLayer = face;
+            region.imageSubresource.baseArrayLayer = (uint32_t) face;
             region.imageSubresource.layerCount = 1;
-            region.imageSubresource.mipLevel = miplevel;
+            region.imageSubresource.mipLevel = level;
+			region.imageOffset = offset;
             region.imageExtent = extent;
             region.bufferOffset = faceOffsets->offsets[face];
         }
-        vkCmdCopyBufferToImage(cmd, buffer, image,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 6, regions);
-        return;
+        vkCmdCopyBufferToImage(cmd, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 6, regions);
     }
-    VkBufferImageCopy region = {};
-    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.imageSubresource.mipLevel = miplevel;
-    region.imageSubresource.layerCount = 1;
-    region.imageExtent = extent;
-    vkCmdCopyBufferToImage(cmd, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	else
+	{
+		VkBufferImageCopy region = { };
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.baseArrayLayer = layer;
+		region.imageSubresource.layerCount = 1;
+		region.imageSubresource.mipLevel = level;
+		region.imageOffset = offset;
+		region.imageExtent = extent;
+		vkCmdCopyBufferToImage(cmd, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	}
 }
 
 void VulkanRenderPrimitive::setPrimitiveType(backend::PrimitiveType pt) {

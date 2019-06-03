@@ -116,6 +116,11 @@ struct VulkanTexture : public HwTexture {
             TextureFormat format, uint8_t samples, uint32_t w, uint32_t h, uint32_t depth,
             TextureUsage usage, VulkanStagePool& stagePool);
     ~VulkanTexture();
+	void updateTexture(
+		const PixelBufferDescriptor& data,
+		int layer, int level,
+		int x, int y,
+		int w, int h);
     void update2DImage(const PixelBufferDescriptor& data, uint32_t width, uint32_t height,
             int miplevel);
     void updateCubeImage(const PixelBufferDescriptor& data, const FaceOffsets& faceOffsets,
@@ -125,7 +130,7 @@ struct VulkanTexture : public HwTexture {
     // Issues a barrier that transforms the layout of the image, e.g. from a CPU-writeable
     // layout to a GPU-readable layout.
     static void transitionImageLayout(VkCommandBuffer cmdbuffer, VkImage image,
-            VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t miplevel, uint32_t layers);
+            VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t baseLevel, uint32_t baseLayer, uint32_t layerCount);
 
     VkFormat vkformat;
     VkImageView imageView = VK_NULL_HANDLE;
@@ -135,8 +140,13 @@ private:
 
     // Issues a copy from a VkBuffer to a specified miplevel in a VkImage. The given width and
     // height define a subregion within the miplevel.
-    void copyBufferToImage(VkCommandBuffer cmdbuffer, VkBuffer buffer, VkImage image,
-            uint32_t width, uint32_t height, FaceOffsets const* faceOffsets, uint32_t miplevel);
+    void copyBufferToImage(
+		VkCommandBuffer cmdbuffer,
+		VkBuffer buffer, VkImage image,
+		int layer, int level,
+		int x, int y,
+		int w, int h,
+		FaceOffsets const* faceOffsets);
 
     VulkanContext& mContext;
     VulkanStagePool& mStagePool;
