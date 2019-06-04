@@ -121,6 +121,12 @@ struct Viewport {
     int32_t top() const noexcept { return bottom + height; }
 };
 
+struct Offset3D {
+	int32_t x;
+	int32_t y;
+	int32_t z;
+};
+
 struct RenderPassFlags {
     uint8_t clear;
     TargetBufferFlags discardStart;

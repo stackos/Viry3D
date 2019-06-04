@@ -1914,6 +1914,18 @@ void OpenGLDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
 	scheduleDestroy(std::move(data));
 }
 
+void OpenGLDriver::copyTexture(
+	Handle<HwTexture> th_dst, int dst_layer, int dst_level,
+	const backend::Offset3D& dst_offset,
+	const backend::Offset3D& dst_extent,
+	Handle<HwTexture> th_src, int src_layer, int src_level,
+	const backend::Offset3D& src_offset,
+	const backend::Offset3D& src_extent,
+	backend::SamplerMagFilter blit_filter)
+{
+
+}
+
 void OpenGLDriver::generateMipmaps(Handle<HwTexture> th) {
     DEBUG_MARKER()
 

@@ -370,6 +370,17 @@ DECL_DRIVER_API_4(updateCubeImage,
         backend::PixelBufferDescriptor&&, data,
         backend::FaceOffsets, faceOffsets)
 
+DECL_DRIVER_API_11(copyTexture,
+		backend::TextureHandle, th_dst,
+		int, dst_layer, int, dst_level,
+		const backend::Offset3D&, dst_offset,
+		const backend::Offset3D&, dst_extent,
+		backend::TextureHandle, th_src,
+		int, src_layer, int, src_level,
+		const backend::Offset3D&, src_offset,
+		const backend::Offset3D&, src_extent,
+		backend::SamplerMagFilter, blit_filter);
+
 DECL_DRIVER_API_1(generateMipmaps,
         backend::TextureHandle, th)
 

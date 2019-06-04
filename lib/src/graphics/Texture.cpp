@@ -226,7 +226,7 @@ namespace Viry3D
             wrap_mode,
             gen_mipmap);
         
-        texture->UpdateTexture2D(pixels, 0, 0, width, height, 0);
+        texture->UpdateTexture(pixels, 0, 0, 0, 0, width, height);
         
         if (gen_mipmap)
         {
@@ -485,21 +485,6 @@ namespace Viry3D
 		m_texture.clear();
     }
     
-    void Texture::UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h, int level)
-    {
-        auto& driver = Engine::Instance()->GetDriverApi();
-        
-        void* buffer = Memory::Alloc<void>(pixels.Size());
-        Memory::Copy(buffer, pixels.Bytes(), pixels.Size());
-        auto data = filament::backend::PixelBufferDescriptor(
-            buffer,
-            pixels.Size(),
-            GetPixelDataFormat(m_format),
-            GetPixelDataType(m_format),
-            FreeBufferCallback);
-        driver.update2DImage(m_texture, level, x, y, w, h, std::move(data));
-    }
-    
     void Texture::UpdateCubemap(const ByteBuffer& pixels, int level, const Vector<int>& face_offsets)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
@@ -537,16 +522,25 @@ namespace Viry3D
 	}
 
 	void Texture::CopyTexture(
-		const Ref<Texture> src,
-		int src_layer, int src_level,
-		int src_x, int src_y,
-		int src_w, int src_h,
 		int dst_layer, int dst_level,
 		int dst_x, int dst_y,
 		int dst_w, int dst_h,
+		const Ref<Texture>& src,
+		int src_layer, int src_level,
+		int src_x, int src_y,
+		int src_w, int src_h,
 		FilterMode blit_filter)
 	{
-		
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		driver.copyTexture(
+			m_texture, dst_layer, dst_level,
+			filament::backend::Offset3D({ dst_x, dst_y, 0 }),
+			filament::backend::Offset3D({ dst_w, dst_h, 1 }),
+			src->m_texture, src_layer, src_level,
+			filament::backend::Offset3D({ src_x, src_y, 0 }),
+			filament::backend::Offset3D({ src_w, src_h, 1 }),
+			blit_filter == FilterMode::Linear ? filament::backend::SamplerMagFilter::LINEAR : filament::backend::SamplerMagFilter::NEAREST);
 	}
 
 	void Texture::CopyToMemory(

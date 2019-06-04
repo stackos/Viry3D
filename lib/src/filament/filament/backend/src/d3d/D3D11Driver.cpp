@@ -468,17 +468,41 @@ namespace filament
 			FaceOffsets face_offsets)
 		{
 			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
-			uint8_t* buffer = (uint8_t*) data.buffer;
 			for (int i = 0; i < 6; ++i)
 			{
-				texture->UpdateTexture(
-					m_context,
-					i, level,
-					0, 0,
-					texture->width >> level, texture->height >> level,
-					PixelBufferDescriptor(&buffer[face_offsets[i]], data.size / 6, data.format, data.type));
+				auto buffer = static_cast<uint8_t*>(data.buffer) + face_offsets[i];
+				if (data.type == PixelDataType::COMPRESSED)
+				{
+					texture->UpdateTexture(
+						m_context,
+						i, level,
+						0, 0,
+						texture->width >> level, texture->height >> level,
+						PixelBufferDescriptor(buffer, data.size / 6, data.compressedFormat, data.imageSize, nullptr));
+				}
+				else
+				{
+					texture->UpdateTexture(
+						m_context,
+						i, level,
+						0, 0,
+						texture->width >> level, texture->height >> level,
+						PixelBufferDescriptor(buffer, data.size / 6, data.format, data.type));
+				}
 			}
 			this->scheduleDestroy(std::move(data));
+		}
+
+		void D3D11Driver::copyTexture(
+			Handle<HwTexture> th_dst, int dst_layer, int dst_level,
+			const backend::Offset3D& dst_offset,
+			const backend::Offset3D& dst_extent,
+			Handle<HwTexture> th_src, int src_layer, int src_level,
+			const backend::Offset3D& src_offset,
+			const backend::Offset3D& src_extent,
+			backend::SamplerMagFilter blit_filter)
+		{
+
 		}
 
 		void D3D11Driver::setupExternalImage(void* image)

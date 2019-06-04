@@ -635,8 +635,7 @@ void VulkanDriver::updateTexture(
 void VulkanDriver::update2DImage(Handle<HwTexture> th,
         uint32_t level, uint32_t xoffset, uint32_t yoffset, uint32_t width, uint32_t height,
         PixelBufferDescriptor&& data) {
-    assert(xoffset == 0 && yoffset == 0 && "Offsets not yet supported.");
-    handle_cast<VulkanTexture>(mHandleMap, th)->update2DImage(data, width, height, level);
+    handle_cast<VulkanTexture>(mHandleMap, th)->updateTexture(data, 0, level, xoffset, yoffset, width, height);
     scheduleDestroy(std::move(data));
 }
 
@@ -644,6 +643,18 @@ void VulkanDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
         PixelBufferDescriptor&& data, FaceOffsets faceOffsets) {
     handle_cast<VulkanTexture>(mHandleMap, th)->updateCubeImage(data, faceOffsets, level);
     scheduleDestroy(std::move(data));
+}
+
+void VulkanDriver::copyTexture(
+	Handle<HwTexture> th_dst, int dst_layer, int dst_level,
+	const backend::Offset3D& dst_offset,
+	const backend::Offset3D& dst_extent,
+	Handle<HwTexture> th_src, int src_layer, int src_level,
+	const backend::Offset3D& src_offset,
+	const backend::Offset3D& src_extent,
+	backend::SamplerMagFilter blit_filter)
+{
+
 }
 
 void VulkanDriver::setupExternalImage(void* image) {

@@ -124,17 +124,16 @@ namespace Viry3D
 		static TextureFormat SelectFormat(const Vector<TextureFormat>& formats, bool render_texture);
 		static TextureFormat SelectDepthFormat();
         virtual ~Texture();
-        void UpdateTexture2D(const ByteBuffer& pixels, int x, int y, int w, int h, int level);
-        void UpdateCubemap(const ByteBuffer& pixels, int level, const Vector<int>& face_offsets);
+		void UpdateCubemap(const ByteBuffer& pixels, int level, const Vector<int>& face_offsets);
 		void UpdateTexture(const ByteBuffer& pixels, int layer, int level, int x, int y, int w, int h);
 		void CopyTexture(
-			const Ref<Texture> src,
-			int src_layer, int src_level,
-			int src_x, int src_y,
-			int src_w, int src_h,
 			int dst_layer, int dst_level,
 			int dst_x, int dst_y,
 			int dst_w, int dst_h,
+			const Ref<Texture>& src,
+			int src_layer, int src_level,
+			int src_x, int src_y,
+			int src_w, int src_h,
 			FilterMode blit_filter);
 		void CopyToMemory(
 			ByteBuffer& pixels,

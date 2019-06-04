@@ -121,8 +121,6 @@ struct VulkanTexture : public HwTexture {
 		int layer, int level,
 		int x, int y,
 		int w, int h);
-    void update2DImage(const PixelBufferDescriptor& data, uint32_t width, uint32_t height,
-            int miplevel);
     void updateCubeImage(const PixelBufferDescriptor& data, const FaceOffsets& faceOffsets,
             int miplevel);
 	void generateMipmaps();

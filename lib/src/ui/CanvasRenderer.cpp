@@ -440,12 +440,12 @@ namespace Viry3D
             if (mesh.texture)
             {
                 m_atlas->CopyTexture(
+					node->layer, 0,
+					node->rect.x, node->rect.y,
+					node->rect.w, node->rect.h,
                     mesh.texture,
                     0, 0,
                     0, 0,
-                    node->rect.w, node->rect.h,
-                    node->layer, 0,
-                    node->rect.x, node->rect.y,
                     node->rect.w, node->rect.h,
 					FilterMode::None);
 
