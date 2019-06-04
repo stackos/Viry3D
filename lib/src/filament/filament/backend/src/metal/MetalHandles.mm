@@ -319,47 +319,21 @@ MetalTexture::~MetalTexture() {
     externalImage.set(nullptr);
 }
 
-void MetalTexture::load2DImage(uint32_t level, uint32_t xoffset, uint32_t yoffset, uint32_t width,
-        uint32_t height, PixelBufferDescriptor& data) noexcept {
-    void* buffer = reshaper.reshape(data.buffer, data.size);
-
-    MTLRegion region {
-        .origin = {
-            .x = xoffset,
-            .y = yoffset,
-            .z =  0
-        },
-        .size = {
-            .height = height,
-            .width = width,
-            .depth = 1
-        }
-    };
+void MetalTexture::updateTexture(
+                   int layer, int level,
+                   int x, int y,
+                   int w, int h,
+                   const PixelBufferDescriptor& data)
+{
+    MTLRegion region = MTLRegionMake2D(x, y, w, h);
     NSUInteger bytesPerRow = bytesPerPixel * width;
+    
     [texture replaceRegion:region
                mipmapLevel:level
-                     slice:0
-                 withBytes:buffer
+                     slice:layer
+                 withBytes:data.buffer
                bytesPerRow:bytesPerRow
-             bytesPerImage:0];          // only needed for MTLTextureType3D
-
-    reshaper.freeBuffer(buffer);
-}
-
-void MetalTexture::loadCubeImage(const PixelBufferDescriptor& data, const FaceOffsets& faceOffsets,
-        int miplevel) {
-    NSUInteger faceWidth = width >> miplevel;
-    NSUInteger bytesPerRow = bytesPerPixel * faceWidth;
-    MTLRegion region = MTLRegionMake2D(0, 0, faceWidth, faceWidth);
-    for (NSUInteger slice = 0; slice < 6; slice++) {
-        FaceOffsets::size_type faceOffset = faceOffsets.offsets[slice];
-        [texture replaceRegion:region
-                   mipmapLevel:static_cast<NSUInteger>(miplevel)
-                         slice:slice
-                     withBytes:static_cast<uint8_t*>(data.buffer) + faceOffset
-                   bytesPerRow:bytesPerRow
-                 bytesPerImage:0];
-    }
+             bytesPerImage:0];
 }
 
 MetalRenderTarget::MetalRenderTarget(MetalContext* context, uint32_t width, uint32_t height,

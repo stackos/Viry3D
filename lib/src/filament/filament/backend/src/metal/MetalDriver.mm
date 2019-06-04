@@ -438,17 +438,42 @@ void MetalDriver::updateIndexBuffer(Handle<HwIndexBuffer> ibh, BufferDescriptor&
     scheduleDestroy(std::move(data));
 }
 
-void MetalDriver::update2DImage(Handle<HwTexture> th, uint32_t level, uint32_t xoffset,
-        uint32_t yoffset, uint32_t width, uint32_t height, PixelBufferDescriptor&& data) {
+void MetalDriver::updateTexture(
+    Handle<HwTexture> th,
+    int layer, int level,
+    int x, int y,
+    int w, int h,
+    backend::PixelBufferDescriptor&& data)
+{
     auto tex = handle_cast<MetalTexture>(mHandleMap, th);
-    tex->load2DImage(level, xoffset, yoffset, width, height, data);
+    tex->updateTexture(layer, level, x, y, w, h, data);
+    scheduleDestroy(std::move(data));
+}
+    
+void MetalDriver::update2DImage(Handle<HwTexture> th, uint32_t level, uint32_t xoffset,
+        uint32_t yoffset, uint32_t width, uint32_t height, PixelBufferDescriptor&& data)
+{
+    auto tex = handle_cast<MetalTexture>(mHandleMap, th);
+    tex->updateTexture(0, level, xoffset, yoffset, width, height, data);
     scheduleDestroy(std::move(data));
 }
 
 void MetalDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
-        PixelBufferDescriptor&& data, FaceOffsets faceOffsets) {
+        PixelBufferDescriptor&& data, FaceOffsets faceOffsets)
+{
     auto tex = handle_cast<MetalTexture>(mHandleMap, th);
-    tex->loadCubeImage(data, faceOffsets, level);
+    for (int i = 0; i < 6; ++i)
+    {
+        auto buffer = static_cast<uint8_t*>(data.buffer) + faceOffsets[i];
+        if (data.type == PixelDataType::COMPRESSED)
+        {
+            tex->updateTexture(i, level, 0, 0, tex->width >> level, tex->height >> level, PixelBufferDescriptor(buffer, data.size / 6, data.compressedFormat, data.imageSize, nullptr));
+        }
+        else
+        {
+            tex->updateTexture(i, level, 0, 0, tex->width >> level, tex->height >> level, PixelBufferDescriptor(buffer, data.size / 6, data.format, data.type));
+        }
+    }
     scheduleDestroy(std::move(data));
 }
 
