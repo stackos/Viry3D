@@ -123,6 +123,15 @@ struct VulkanTexture : public HwTexture {
 		int w, int h);
     void updateCubeImage(const PixelBufferDescriptor& data, const FaceOffsets& faceOffsets,
             int miplevel);
+	void copyTexture(
+		int dst_layer, int dst_level,
+		const backend::Offset3D& dst_offset,
+		const backend::Offset3D& dst_extent,
+		VulkanTexture* src,
+		int src_layer, int src_level,
+		const backend::Offset3D& src_offset,
+		const backend::Offset3D& src_extent,
+		backend::SamplerMagFilter blit_filter);
 	void generateMipmaps();
 
     // Issues a barrier that transforms the layout of the image, e.g. from a CPU-writeable

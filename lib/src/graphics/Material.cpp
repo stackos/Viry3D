@@ -373,7 +373,7 @@ namespace Viry3D
         // bind samplers
         if (samplers.sampler_group)
         {
-            driver.bindSamplers((size_t) Shader::BindingPoint::PerMaterialInstance, samplers.sampler_group);
+            driver.bindSamplers((size_t) Shader::BindingPoint::PerMaterialFragment, samplers.sampler_group);
         }
     }
 }

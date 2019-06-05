@@ -101,6 +101,15 @@ namespace filament
 				int x, int y,
 				int w, int h,
 				const PixelBufferDescriptor& data);
+			void CopyTexture(
+				D3D11Context* context,
+				int dst_layer, int dst_level,
+				const backend::Offset3D& dst_offset,
+				const backend::Offset3D& dst_extent,
+				D3D11Texture* src,
+				int src_layer, int src_level,
+				const backend::Offset3D& src_offset,
+				const backend::Offset3D& src_extent);
 			void GenerateMipmaps(D3D11Context* context);
 
 			ID3D11Texture2D1* texture = nullptr;

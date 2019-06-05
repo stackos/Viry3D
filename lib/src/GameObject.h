@@ -30,7 +30,7 @@ namespace Viry3D
 		static Ref<GameObject> Create(const String& name);
 		static void Destroy(Ref<GameObject>& obj);
         virtual ~GameObject();
-        template <class T> Ref<T> AddComponent();
+        template <class T, typename ...ARGS> Ref<T> AddComponent(ARGS... args);
         template <class T> Ref<T> GetComponent() const;
         void RemoveComponent(const Ref<Component>& com);
         const Ref<Transform>& GetTransform() const { return m_transform; }
@@ -59,10 +59,10 @@ namespace Viry3D
         bool m_is_active_in_tree;
     };
     
-    template <class T>
-    Ref<T> GameObject::AddComponent()
+    template <class T, typename ...ARGS>
+    Ref<T> GameObject::AddComponent(ARGS... args)
     {
-        Ref<T> com = RefMake<T>();
+        Ref<T> com = RefMake<T>(args...);
         
         auto is_transform = RefCast<Transform>(com);
         if (m_transform && is_transform)

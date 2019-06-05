@@ -43,15 +43,17 @@ namespace Viry3D
 	public:
 		CanvasRenderer(FilterMode filter_mode);
 		virtual ~CanvasRenderer();
-		virtual void Update();
-        virtual void OnFrameEnd();
-        virtual void OnResize(int width, int height);
 		void AddView(const Ref<View>& view);
 		void RemoveView(const Ref<View>& view);
         void RemoveAllViews();
         const Vector<Ref<View>>& GetViews() const { return m_views; }
 		void MarkCanvasDirty();
 		Ref<Camera> GetCamera() const { return m_camera.lock(); }
+		void SetCamera(const Ref<Camera>& camera) { m_camera = camera; }
+
+	protected:
+		virtual void PrepareRender();
+		virtual void OnResize(int width, int height);
 
 	private:
         void CreateMaterial();

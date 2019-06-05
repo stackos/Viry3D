@@ -45,6 +45,7 @@ namespace Viry3D
 
 	protected:
 		virtual void PrepareRender();
+		virtual void OnResize(int width, int height) { }
 
 	private:
 		friend class Camera;

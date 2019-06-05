@@ -7,7 +7,6 @@ VK_UNIFORM_BINDING(0) uniform PerView
 };
 layout(location = 0) in vec4 i_vertex;
 VK_LAYOUT_LOCATION(0) out vec3 v_uv;
-
 void main()
 {
     mat4 model_matrix = mat4(

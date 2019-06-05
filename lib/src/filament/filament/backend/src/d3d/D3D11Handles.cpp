@@ -424,7 +424,7 @@ namespace filament
 		{
 			UINT subresource = D3D11CalcSubresource(level, layer, levels);
 			D3D11_BOX box = { (UINT) x, (UINT) y, 0, (UINT) (x + w), (UINT) (y + h), 1 };
-			UINT row_pitch = (UINT) getTextureFormatSize(format) * width;
+			UINT row_pitch = (UINT) getTextureFormatSize(format) * w;
 
 			context->context->UpdateSubresource1(
 				texture,
@@ -434,6 +434,42 @@ namespace filament
 				row_pitch,
 				0,
 				D3D11_COPY_DISCARD);
+		}
+
+		void D3D11Texture::CopyTexture(
+			D3D11Context* context,
+			int dst_layer, int dst_level,
+			const backend::Offset3D& dst_offset,
+			const backend::Offset3D& dst_extent,
+			D3D11Texture* src,
+			int src_layer, int src_level,
+			const backend::Offset3D& src_offset,
+			const backend::Offset3D& src_extent)
+		{
+			assert(dst_extent.x == src_extent.x);
+			assert(dst_extent.y == src_extent.y);
+			assert(dst_extent.z == src_extent.z);
+
+			UINT dst_subresource = D3D11CalcSubresource(dst_level, dst_layer, levels);
+			UINT src_subresource = D3D11CalcSubresource(src_level, src_layer, levels);
+			D3D11_BOX box = {
+				(UINT) src_offset.x,
+				(UINT) src_offset.y,
+				(UINT) src_offset.z,
+				(UINT) (src_offset.x + src_extent.x),
+				(UINT) (src_offset.y + src_extent.y),
+				(UINT) (src_offset.z + src_extent.z)
+			};
+
+			context->context->CopySubresourceRegion(
+				texture,
+				dst_subresource,
+				dst_offset.x,
+				dst_offset.y,
+				dst_offset.z,
+				src->texture,
+				src_subresource,
+				&box);
 		}
 
 		void D3D11Texture::GenerateMipmaps(D3D11Context* context)

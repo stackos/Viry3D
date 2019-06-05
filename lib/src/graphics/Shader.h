@@ -33,9 +33,9 @@ namespace Viry3D
 			PerView = 0,
 			PerRenderer = 1,
 			PerRendererBones = 2,
-			Lights = 3,
-			PostProcess = 4,
-			PerMaterialInstance = 5,
+			PerMaterialVertex = 3,
+			PerMaterialFragment = 4,
+			Lights = 5,
 			Count = 6,
 		};
 

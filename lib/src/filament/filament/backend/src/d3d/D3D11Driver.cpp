@@ -502,7 +502,15 @@ namespace filament
 			const backend::Offset3D& src_extent,
 			backend::SamplerMagFilter blit_filter)
 		{
-
+			auto dst = handle_cast<D3D11Texture>(m_handle_map, th_dst);
+			auto src = handle_cast<D3D11Texture>(m_handle_map, th_src);
+			dst->CopyTexture(
+				m_context,
+				dst_layer, dst_level,
+				dst_offset, dst_extent,
+				src,
+				src_layer, src_level,
+				src_offset, src_extent);
 		}
 
 		void D3D11Driver::setupExternalImage(void* image)

@@ -111,8 +111,10 @@ namespace Viry3D
         }
     }
 
-	void CanvasRenderer::Update()
+	void CanvasRenderer::PrepareRender()
 	{
+		MeshRenderer::PrepareRender();
+
         for (int i = 0; i < m_views.Size(); ++i)
         {
             m_views[i]->Update();
@@ -146,13 +148,8 @@ namespace Viry3D
             this->UpdateCanvas();
 		}
 
-        Renderer::Update();
+		this->HandleTouchEvent();
 	}
-
-    void CanvasRenderer::OnFrameEnd()
-    {
-        this->HandleTouchEvent();
-    }
 
     void CanvasRenderer::OnResize(int width, int height)
     {

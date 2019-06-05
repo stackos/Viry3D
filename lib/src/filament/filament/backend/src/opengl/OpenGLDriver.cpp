@@ -292,6 +292,15 @@ void OpenGLDriver::initExtensionsGL(GLint major, GLint minor, ExtentionSet const
 }
 
 void OpenGLDriver::terminate() {
+	if (mSharedDrawFramebuffer) {
+		glDeleteFramebuffers(1, &mSharedDrawFramebuffer);
+		mSharedDrawFramebuffer = 0;
+	}
+	if (mSharedReadFramebuffer) {
+		glDeleteFramebuffers(1, &mSharedReadFramebuffer);
+		mSharedReadFramebuffer = 0;
+	}
+
     for (auto& item : mSamplerMap) {
         unbindSampler(item.second);
         glDeleteSamplers(1, &item.second);
@@ -1085,6 +1094,48 @@ void OpenGLDriver::createTextureR(Handle<HwTexture> th, SamplerType target, uint
     }
 
     CHECK_GL_ERROR(utils::slog.e)
+}
+
+void OpenGLDriver::framebufferTexture(backend::TargetBufferInfo const& binfo,
+	GLenum target, GLenum attachment) noexcept {
+	GLTexture* t = handle_cast<GLTexture*>(binfo.handle);
+
+	assert(t->target != SamplerType::SAMPLER_EXTERNAL);
+
+	GLenum textarget = GL_TEXTURE_2D;
+	switch (t->target) {
+	case SamplerType::SAMPLER_2D:
+		textarget = t->gl.target;  // this could be GL_TEXTURE_2D_MULTISAMPLE or GL_TEXTURE_2D_ARRAY
+								// note: multi-sampled textures can't have mipmaps
+		break;
+	case SamplerType::SAMPLER_CUBEMAP:
+		textarget = getCubemapTarget(binfo.face);
+		// note: cubemaps can't be multi-sampled
+		break;
+	default:
+		break;
+	}
+
+	switch (textarget) {
+	case GL_TEXTURE_2D:
+	case GL_TEXTURE_2D_MULTISAMPLE:
+		glFramebufferTexture2D(target, attachment,
+			textarget, t->gl.id, binfo.level);
+		break;
+	case GL_TEXTURE_2D_ARRAY:
+		// GL_TEXTURE_2D_MULTISAMPLE_ARRAY is not supported in GLES
+		glFramebufferTextureLayer(target, attachment,
+			t->gl.id, binfo.level, binfo.layer);
+		break;
+	default:
+		// we shouldn't be here
+		break;
+	}
+	CHECK_GL_ERROR(utils::slog.e)
+
+	updateTextureLodRange(t, binfo.level);
+
+	CHECK_GL_FRAMEBUFFER_STATUS(utils::slog.e)
 }
 
 void OpenGLDriver::framebufferTexture(backend::TargetBufferInfo const& binfo,
@@ -1923,7 +1974,36 @@ void OpenGLDriver::copyTexture(
 	const backend::Offset3D& src_extent,
 	backend::SamplerMagFilter blit_filter)
 {
+	GLTexture* dst = handle_cast<GLTexture*>(th_dst);
+	GLTexture* src = handle_cast<GLTexture*>(th_src);
 
+	if (mSharedDrawFramebuffer == 0)
+	{
+		glGenFramebuffers(1, &mSharedDrawFramebuffer);
+	}
+	if (mSharedReadFramebuffer == 0)
+	{
+		glGenFramebuffers(1, &mSharedReadFramebuffer);
+	}
+	auto draw_fbo = state.draw_fbo;
+	auto read_fbo = state.read_fbo;
+
+	this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, mSharedDrawFramebuffer);
+	this->framebufferTexture(TargetBufferInfo(th_dst, dst_level, dst_layer), GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+
+	this->bindFramebuffer(GL_READ_FRAMEBUFFER, mSharedReadFramebuffer);
+	this->framebufferTexture(TargetBufferInfo(th_src, src_level, src_layer), GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+
+	glBlitFramebuffer(
+		src_offset.x, src_offset.y,
+		src_offset.x + src_extent.x, src_offset.y + src_extent.y,
+		dst_offset.x, dst_offset.y,
+		dst_offset.x + dst_extent.x, dst_offset.y + dst_extent.y,
+		GL_COLOR_BUFFER_BIT,
+		blit_filter == backend::SamplerMagFilter::LINEAR ? GL_LINEAR : GL_NEAREST);
+
+	bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
+	bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
 }
 
 void OpenGLDriver::generateMipmaps(Handle<HwTexture> th) {

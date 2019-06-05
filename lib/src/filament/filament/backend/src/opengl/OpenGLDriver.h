@@ -288,6 +288,9 @@ private:
 
     /* Misc... */
 
+	void framebufferTexture(backend::TargetBufferInfo const& binfo,
+		GLenum target, GLenum attachment) noexcept;
+
     void framebufferTexture(backend::TargetBufferInfo const& binfo,
             GLRenderTarget const* rt, GLenum attachment) noexcept;
 
@@ -577,6 +580,9 @@ private:
     void updateStream(GLTexture* t, backend::DriverApi* driver) noexcept;
     void updateBuffer(GLenum target, GLBuffer* buffer, backend::BufferDescriptor const& p, uint32_t alignment = 16) noexcept;
     void updateTextureLodRange(GLTexture* texture, int8_t targetLevel) noexcept;
+
+	GLuint mSharedDrawFramebuffer = 0;
+	GLuint mSharedReadFramebuffer = 0;
 };
 
 // ------------------------------------------------------------------------------------------------

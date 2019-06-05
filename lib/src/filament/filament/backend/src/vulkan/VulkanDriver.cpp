@@ -654,7 +654,15 @@ void VulkanDriver::copyTexture(
 	const backend::Offset3D& src_extent,
 	backend::SamplerMagFilter blit_filter)
 {
-
+	VulkanTexture* dst = handle_cast<VulkanTexture>(mHandleMap, th_dst);
+	VulkanTexture* src = handle_cast<VulkanTexture>(mHandleMap, th_src);
+	dst->copyTexture(
+		dst_layer, dst_level,
+		dst_offset, dst_extent,
+		src,
+		src_layer, src_level,
+		src_offset, src_extent,
+		blit_filter);
 }
 
 void VulkanDriver::setupExternalImage(void* image) {

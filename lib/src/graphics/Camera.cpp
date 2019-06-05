@@ -53,6 +53,12 @@ namespace Viry3D
         {
             i->OnResize(width, height);
         }
+
+		auto& renderers = Renderer::GetRenderers();
+		for (auto i : renderers)
+		{
+			i->OnResize(width, height);
+		}
     }
     
     void Camera::OnResize(int width, int height)
@@ -97,12 +103,12 @@ namespace Viry3D
     
     void Camera::Prepare(const List<Renderer*>& renderers)
     {
-		this->UpdateViewUniforms();
-		
         for (auto i : renderers)
         {
             this->PrepareRenderer(i);
         }
+
+		this->UpdateViewUniforms();
     }
 
 	void Camera::UpdateViewUniforms()

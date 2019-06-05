@@ -516,6 +516,71 @@ void VulkanTexture::updateCubeImage(const PixelBufferDescriptor& data,
     }
 }
 
+void VulkanTexture::copyTexture(
+	int dst_layer, int dst_level,
+	const backend::Offset3D& dst_offset,
+	const backend::Offset3D& dst_extent,
+	VulkanTexture* src,
+	int src_layer, int src_level,
+	const backend::Offset3D& src_offset,
+	const backend::Offset3D& src_extent,
+	backend::SamplerMagFilter blit_filter)
+{
+	VulkanCommandBuffer* commands = nullptr;
+
+	if (!mContext.currentCommands)
+	{
+		acquireWorkCommandBuffer(mContext);
+		commands = &mContext.work;
+	}
+	else
+	{
+		commands = mContext.currentCommands;
+	}
+
+	// do blit
+	{
+		transitionImageLayout(commands->cmdbuffer, src->textureImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_level, src_layer, 1);
+		transitionImageLayout(commands->cmdbuffer, this->textureImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_level, dst_layer, 1);
+
+		VkImageBlit region = { };
+		region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.srcSubresource.mipLevel = src_level;
+		region.srcSubresource.baseArrayLayer = src_layer;
+		region.srcSubresource.layerCount = 1;
+		region.srcOffsets[0] = { src_offset.x, src_offset.y, src_offset.z };
+		region.srcOffsets[1] = { src_extent.x, src_extent.y, src_extent.z };
+		region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.dstSubresource.mipLevel = dst_level;
+		region.dstSubresource.baseArrayLayer = dst_layer;
+		region.dstSubresource.layerCount = 1;
+		region.dstOffsets[0] = { dst_offset.x, dst_offset.y, dst_offset.z };
+		region.dstOffsets[1] = { dst_extent.x, dst_extent.y, dst_extent.z };
+
+		vkCmdBlitImage(
+			commands->cmdbuffer,
+			src->textureImage,
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			this->textureImage,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			1,
+			&region,
+			blit_filter == backend::SamplerMagFilter::LINEAR ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
+
+		transitionImageLayout(commands->cmdbuffer, src->textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, src_level, src_layer, 1);
+		transitionImageLayout(commands->cmdbuffer, this->textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, dst_level, dst_layer, 1);
+	}
+
+	if (!mContext.currentCommands)
+	{
+		flushWorkCommandBuffer(mContext);
+	}
+}
+
 void VulkanTexture::generateMipmaps() {
 	int mipLevelCount = (int) floor(log2(float(std::max(this->width, this->height)))) + 1;
 	int layerCount = (target == SamplerType::SAMPLER_CUBEMAP ? 6 : 1);

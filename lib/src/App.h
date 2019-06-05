@@ -22,6 +22,9 @@
 #include "graphics/MeshRenderer.h"
 #include "graphics/Skybox.h"
 #include "animation/Animation.h"
+#include "ui/CanvasRenderer.h"
+#include "ui/Sprite.h"
+#include "ui/Label.h"
 #include "Engine.h"
 #include "Resources.h"
 #include "Input.h"
@@ -49,6 +52,7 @@ namespace Viry3D
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
 			camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
+			camera->SetDepth(0);
 			camera->SetCullingMask(1 << 0);
 			m_camera = camera.get();
 
@@ -73,7 +77,25 @@ namespace Viry3D
 			obj_2->GetTransform()->SetPosition(Vector3(2, 0, -2));
 			m_skin = obj_2.get();
 
-#if 1
+			auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
+			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
+			ui_camera->SetDepth(1);
+			ui_camera->SetCullingMask(1 << 1);
+
+			auto canvas = GameObject::Create("")->AddComponent<CanvasRenderer>(FilterMode::Linear);
+			canvas->GetGameObject()->SetLayer(1);
+			canvas->SetCamera(ui_camera);
+
+			auto sprite = RefMake<Sprite>();
+			sprite->SetTexture(Resources::LoadTexture("texture/logo.jpg.tex"));
+			canvas->AddView(sprite);
+
+			auto label = RefMake<Label>();
+			label->SetText("Label");
+			label->SetColor(Color(1, 0, 0, 1));
+			canvas->AddView(label);
+
+#if 0
 			auto color = Texture::CreateRenderTexture(
 				1280,
 				720,
@@ -93,8 +115,8 @@ namespace Viry3D
 			blit_camera->SetOrthographicSize(1);
 			blit_camera->SetNearClip(-1);
 			blit_camera->SetFarClip(1);
-			blit_camera->SetDepth(1);
-			blit_camera->SetCullingMask(1 << 1);
+			blit_camera->SetDepth(2);
+			blit_camera->SetCullingMask(1 << 2);
 
 			material = RefMake<Material>(Shader::Find("Unlit/Texture"));
 			material->SetTexture(MaterialProperty::TEXTURE, color);
@@ -104,7 +126,7 @@ namespace Viry3D
 			}
 
 			auto quad = GameObject::Create("")->AddComponent<MeshRenderer>();
-			quad->GetGameObject()->SetLayer(1);
+			quad->GetGameObject()->SetLayer(2);
 			quad->GetTransform()->SetScale(Vector3(1280 / 720.0f, 1, 1));
 			quad->SetMesh(Mesh::GetSharedQuadMesh());
 			quad->SetMaterial(material);

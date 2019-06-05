@@ -1,8 +1,4 @@
 local vs = [[
-#ifndef SKIN_ON
-	#define SKIN_ON 0
-#endif
-
 VK_UNIFORM_BINDING(0) uniform PerView
 {
 	mat4 u_view_matrix;
@@ -17,43 +13,16 @@ VK_UNIFORM_BINDING(3) uniform PerMaterialVertex
 	vec4 u_texture_scale_offset;
 };
 layout(location = 0) in vec4 i_vertex;
+layout(location = 1) in vec4 i_color;
 layout(location = 2) in vec2 i_uv;
 VK_LAYOUT_LOCATION(0) out vec2 v_uv;
-
-#if (SKIN_ON == 1)
-	VK_UNIFORM_BINDING(2) uniform PerRendererBones
-	{
-		vec4 u_bones[210];
-	};
-	layout(location = 6) in vec4 i_bone_weights;
-	layout(location = 7) in vec4 i_bone_indices;
-	mat4 skin_mat()
-	{
-		int index_0 = int(i_bone_indices.x);
-		int index_1 = int(i_bone_indices.y);
-		int index_2 = int(i_bone_indices.z);
-		int index_3 = int(i_bone_indices.w);
-		float weights_0 = i_bone_weights.x;
-		float weights_1 = i_bone_weights.y;
-		float weights_2 = i_bone_weights.z;
-		float weights_3 = i_bone_weights.w;
-		mat4 bone_0 = mat4(u_bones[index_0*3], u_bones[index_0*3+1], u_bones[index_0*3+2], vec4(0, 0, 0, 1));
-		mat4 bone_1 = mat4(u_bones[index_1*3], u_bones[index_1*3+1], u_bones[index_1*3+2], vec4(0, 0, 0, 1));
-		mat4 bone_2 = mat4(u_bones[index_2*3], u_bones[index_2*3+1], u_bones[index_2*3+2], vec4(0, 0, 0, 1));
-		mat4 bone_3 = mat4(u_bones[index_3*3], u_bones[index_3*3+1], u_bones[index_3*3+2], vec4(0, 0, 0, 1));
-		return bone_0 * weights_0 + bone_1 * weights_1 + bone_2 * weights_2 + bone_3 * weights_3;
-	}
-#endif
-
+VK_LAYOUT_LOCATION(1) out vec4 v_color;
 void main()
 {
-#if (SKIN_ON == 1)
-    mat4 model_matrix = skin_mat();
-#else
     mat4 model_matrix = u_model_matrix;
-#endif
 	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
 	v_uv = i_uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
+	v_color = i_color;
 
 	vk_convert();
 }
@@ -62,11 +31,16 @@ void main()
 local fs = [[
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
+VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
+{
+	vec4 u_color;
+};
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
+VK_LAYOUT_LOCATION(1) in vec4 v_color;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	o_color = texture(u_texture, v_uv);
+	o_color = texture(u_texture, v_uv) * v_color * u_color;
 }
 ]]
 
@@ -88,13 +62,13 @@ void main()
 ]]
 
 local rs = {
-    Cull = Back,
-    ZTest = LEqual,
-    ZWrite = On,
-    SrcBlendMode = One,
-    DstBlendMode = Zero,
+    Cull = Off,
+    ZTest = Always,
+    ZWrite = Off,
+    SrcBlendMode = SrcAlpha,
+    DstBlendMode = OneMinusSrcAlpha,
 	CWrite = On,
-    Queue = Geometry,
+    Queue = Overlay,
 }
 
 local pass = {
@@ -126,22 +100,22 @@ local pass = {
 				},
 			},
 		},
-        {
-            name = "PerRendererBones",
-            binding = 2,
-            members = {
-                {
-                    name = "u_bones",
-                    size = 16 * 210,
-                },
-            },
-        },
 		{
             name = "PerMaterialVertex",
             binding = 3,
             members = {
                 {
                     name = "u_texture_scale_offset",
+                    size = 16,
+                },
+            },
+        },
+		{
+            name = "PerMaterialFragment",
+            binding = 4,
+            members = {
+                {
+                    name = "u_color",
                     size = 16,
                 },
             },

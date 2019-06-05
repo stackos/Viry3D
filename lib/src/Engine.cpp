@@ -28,6 +28,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "graphics/Camera.h"
+#include "ui/Font.h"
 #include "audio/AudioManager.h"
 #include "time/Time.h"
 #include <thread>
@@ -135,6 +136,7 @@ namespace Viry3D
             Shader::Init();
             Texture::Init();
 			Mesh::Init();
+			Font::Init();
             AudioManager::Init();
 			Resources::Init();
 		}
@@ -145,6 +147,7 @@ namespace Viry3D
             
 			Resources::Done();
             AudioManager::Done();
+			Font::Done();
 			Mesh::Done();
             Texture::Done();
             Shader::Done();
