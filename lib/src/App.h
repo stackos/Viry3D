@@ -25,6 +25,7 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
 #include "ui/Label.h"
+#include "time/Time.h"
 #include "Engine.h"
 #include "Resources.h"
 #include "Input.h"
@@ -38,6 +39,7 @@ namespace Viry3D
 		GameObject* m_skin = nullptr;
 		Vector2 m_last_touch_pos;
 		Vector3 m_camera_rot = Vector3(5, 180, 0);
+		Label* m_fps_label = nullptr;
 
 		App()
 		{
@@ -86,14 +88,13 @@ namespace Viry3D
 			canvas->GetGameObject()->SetLayer(1);
 			canvas->SetCamera(ui_camera);
 
-			auto sprite = RefMake<Sprite>();
-			sprite->SetTexture(Resources::LoadTexture("texture/logo.jpg.tex"));
-			canvas->AddView(sprite);
-
 			auto label = RefMake<Label>();
-			label->SetText("Label");
-			label->SetColor(Color(1, 0, 0, 1));
+			label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+			label->SetPivot(Vector2(0, 0));
+			label->SetColor(Color(0, 0, 0, 1));
+			label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
 			canvas->AddView(label);
+			m_fps_label = label.get();
 
 #if 0
 			auto color = Texture::CreateRenderTexture(
@@ -140,6 +141,11 @@ namespace Viry3D
 
 		virtual void Update()
 		{
+			if (m_fps_label)
+			{
+				m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+			}
+
 			static float deg = 0;
 			deg += 1.0f;
 			if (m_skin)

@@ -682,6 +682,62 @@ void VulkanTexture::transitionImageLayout(VkCommandBuffer cmd, VkImage image,
             &barrier);
 }
 
+void VulkanTexture::transitionImageLayout(
+	VkCommandBuffer cmd,
+	VkImage image,
+	VkPipelineStageFlags src_stage,
+	VkPipelineStageFlags dst_stage,
+	const VkImageSubresourceRange& subresource_range,
+	VkImageLayout old_image_layout,
+	VkImageLayout new_image_layout,
+	VkAccessFlagBits src_access_mask)
+{
+	VkImageMemoryBarrier barrier_info = { };
+	barrier_info.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier_info.pNext = NULL;
+	barrier_info.srcAccessMask = src_access_mask;
+	barrier_info.dstAccessMask = 0;
+	barrier_info.oldLayout = old_image_layout;
+	barrier_info.newLayout = new_image_layout;
+	barrier_info.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier_info.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier_info.image = image;
+	barrier_info.subresourceRange = subresource_range;
+
+	switch (new_image_layout)
+	{
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		barrier_info.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		barrier_info.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		barrier_info.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		barrier_info.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		barrier_info.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+
+	case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+		barrier_info.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		break;
+
+	default:
+		barrier_info.dstAccessMask = 0;
+		break;
+	}
+
+	vkCmdPipelineBarrier(cmd, src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier_info);
+}
+
 void VulkanTexture::copyBufferToImage(
 	VkCommandBuffer cmd,
 	VkBuffer buffer, VkImage image,

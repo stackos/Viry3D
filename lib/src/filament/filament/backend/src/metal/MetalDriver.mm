@@ -443,7 +443,7 @@ void MetalDriver::updateTexture(
     int layer, int level,
     int x, int y,
     int w, int h,
-    backend::PixelBufferDescriptor&& data)
+    PixelBufferDescriptor&& data)
 {
     auto tex = handle_cast<MetalTexture>(mHandleMap, th);
     tex->updateTexture(layer, level, x, y, w, h, data);
@@ -479,12 +479,12 @@ void MetalDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
     
 void MetalDriver::copyTexture(
     Handle<HwTexture> th_dst, int dst_layer, int dst_level,
-    backend::Offset3D dst_offset,
-    backend::Offset3D dst_extent,
+    Offset3D dst_offset,
+    Offset3D dst_extent,
     Handle<HwTexture> th_src, int src_layer, int src_level,
-    backend::Offset3D src_offset,
-    backend::Offset3D src_extent,
-    backend::SamplerMagFilter blit_filter)
+    Offset3D src_offset,
+    Offset3D src_extent,
+    SamplerMagFilter blit_filter)
 {
     assert(src_extent.x == dst_extent.x);
     assert(src_extent.y == dst_extent.y);
@@ -518,8 +518,8 @@ void MetalDriver::copyTextureToMemory(
     int layer, int level,
     Offset3D offset,
     Offset3D extent,
-    backend::PixelBufferDescriptor&& buffer,
-    std::function<void(const backend::PixelBufferDescriptor&)> on_complete)
+    PixelBufferDescriptor&& buffer,
+    std::function<void(const PixelBufferDescriptor&)> on_complete)
 {
     
 }

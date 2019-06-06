@@ -242,6 +242,14 @@ void VulkanDriver::beginFrame(int64_t monotonic_clock_ns, uint32_t frameId) {
         return;
     }
 
+	SwapContext& swap = getSwapContext(mContext);
+	auto& cmdfence = swap.commands.fence;
+	if (cmdfence && cmdfence->submitted) {
+		VkResult result = vkWaitForFences(mContext.device, 1, &cmdfence->fence, VK_FALSE, UINT64_MAX);
+		ASSERT_POSTCONDITION(result == VK_SUCCESS, "vkWaitForFences error.");
+		cmdfence->submitted = false;
+	}
+
     // After each command buffer acquisition, we know that the previous submission of the acquired
     // command buffer has finished, so we can decrement the refcount for each of its referenced
     // resources.
@@ -626,7 +634,7 @@ void VulkanDriver::updateTexture(
 	int layer, int level,
 	int x, int y,
 	int w, int h,
-	backend::PixelBufferDescriptor&& data)
+	PixelBufferDescriptor&& data)
 {
 	handle_cast<VulkanTexture>(mHandleMap, th)->updateTexture(data, layer, level, x, y, w, h);
 	scheduleDestroy(std::move(data));
@@ -647,12 +655,12 @@ void VulkanDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
 
 void VulkanDriver::copyTexture(
 	Handle<HwTexture> th_dst, int dst_layer, int dst_level,
-	const backend::Offset3D dst_offset,
-	const backend::Offset3D dst_extent,
+	Offset3D dst_offset,
+	Offset3D dst_extent,
 	Handle<HwTexture> th_src, int src_layer, int src_level,
-	const backend::Offset3D src_offset,
-	const backend::Offset3D src_extent,
-	backend::SamplerMagFilter blit_filter)
+	Offset3D src_offset,
+	Offset3D src_extent,
+	SamplerMagFilter blit_filter)
 {
 	VulkanTexture* dst = handle_cast<VulkanTexture>(mHandleMap, th_dst);
 	VulkanTexture* src = handle_cast<VulkanTexture>(mHandleMap, th_src);
@@ -668,10 +676,10 @@ void VulkanDriver::copyTexture(
 void VulkanDriver::copyTextureToMemory(
 	Handle<HwTexture> th,
 	int layer, int level,
-	const Offset3D offset,
-	const Offset3D extent,
-	backend::PixelBufferDescriptor&& buffer,
-	std::function<void(const backend::PixelBufferDescriptor&)> on_complete)
+	Offset3D offset,
+	Offset3D extent,
+	PixelBufferDescriptor&& buffer,
+	std::function<void(const PixelBufferDescriptor&)> on_complete)
 {
 
 }
@@ -740,6 +748,19 @@ void VulkanDriver::beginRenderPass(Handle<HwRenderTarget> rth,
     VkImageLayout finalLayout;
     if (!rt->isOffscreen()) {
         finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		if ((params.flags.clear & TargetBufferFlags::COLOR) == 0 &&
+			(params.flags.discardStart & TargetBufferFlags::COLOR) == 0) {
+			VulkanTexture::transitionImageLayout(
+				swapContext.commands.cmdbuffer,
+				color.image,
+				VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+				{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+				VK_ACCESS_MEMORY_READ_BIT);
+		}
     } else if (depthOnly) {
         finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
     } else {

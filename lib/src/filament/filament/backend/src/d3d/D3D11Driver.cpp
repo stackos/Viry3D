@@ -432,7 +432,7 @@ namespace filament
 			int layer, int level,
 			int x, int y,
 			int w, int h,
-			backend::PixelBufferDescriptor&& data)
+			PixelBufferDescriptor&& data)
 		{
 			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
 			texture->UpdateTexture(
@@ -495,12 +495,12 @@ namespace filament
 
 		void D3D11Driver::copyTexture(
 			Handle<HwTexture> th_dst, int dst_layer, int dst_level,
-			const backend::Offset3D dst_offset,
-			const backend::Offset3D dst_extent,
+			Offset3D dst_offset,
+			Offset3D dst_extent,
 			Handle<HwTexture> th_src, int src_layer, int src_level,
-			const backend::Offset3D src_offset,
-			const backend::Offset3D src_extent,
-			backend::SamplerMagFilter blit_filter)
+			Offset3D src_offset,
+			Offset3D src_extent,
+			SamplerMagFilter blit_filter)
 		{
 			auto dst = handle_cast<D3D11Texture>(m_handle_map, th_dst);
 			auto src = handle_cast<D3D11Texture>(m_handle_map, th_src);
@@ -516,10 +516,10 @@ namespace filament
 		void D3D11Driver::copyTextureToMemory(
 			Handle<HwTexture> th,
 			int layer, int level,
-			const Offset3D offset,
-			const Offset3D extent,
-			backend::PixelBufferDescriptor&& data,
-			std::function<void(const backend::PixelBufferDescriptor&)> on_complete)
+			Offset3D offset,
+			Offset3D extent,
+			PixelBufferDescriptor&& data,
+			std::function<void(const PixelBufferDescriptor&)> on_complete)
 		{
 			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
 			texture->CopyTextureToMemory(

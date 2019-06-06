@@ -76,56 +76,93 @@ VkFramebuffer VulkanFboCache::getFramebuffer(FboKey config, uint32_t w, uint32_t
 }
 
 VkRenderPass VulkanFboCache::getRenderPass(RenderPassKey config) noexcept {
-    auto iter = mRenderPassCache.find(config);
-    if (UTILS_LIKELY(iter != mRenderPassCache.end() && iter->second.handle != VK_NULL_HANDLE)) {
-        iter->second.timestamp = mCurrentTime;
-        return iter->second.handle;
-    }
-    const bool hasColor = config.colorFormat != VK_FORMAT_UNDEFINED;
-    const bool hasDepth = config.depthFormat != VK_FORMAT_UNDEFINED;
-    const bool depthOnly = hasDepth && !hasColor;
+	auto iter = mRenderPassCache.find(config);
+	if (UTILS_LIKELY(iter != mRenderPassCache.end() && iter->second.handle != VK_NULL_HANDLE)) {
+		iter->second.timestamp = mCurrentTime;
+		return iter->second.handle;
+	}
+	const bool hasColor = config.colorFormat != VK_FORMAT_UNDEFINED;
+	const bool hasDepth = config.depthFormat != VK_FORMAT_UNDEFINED;
+	const bool depthOnly = hasDepth && !hasColor;
 
-    // The subpass specifies the layout to transition to at the START of the render pass.
-    uint32_t numAttachments = 0;
-    VkAttachmentReference colorAttachmentRef = {};
-    if (hasColor) {
-      colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-      colorAttachmentRef.attachment = numAttachments++;
-    }
-    VkAttachmentReference depthAttachmentRef = {};
-    if (hasDepth) {
-      depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-      depthAttachmentRef.attachment = numAttachments++;
-    }
-	VkSubpassDescription subpass { };
+	// The subpass specifies the layout to transition to at the START of the render pass.
+	uint32_t numAttachments = 0;
+	VkAttachmentReference colorAttachmentRef = {};
+	if (hasColor) {
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		colorAttachmentRef.attachment = numAttachments++;
+	}
+	VkAttachmentReference depthAttachmentRef = {};
+	if (hasDepth) {
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		depthAttachmentRef.attachment = numAttachments++;
+	}
+	VkSubpassDescription subpass{};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = hasColor ? 1u : 0u;
 	subpass.pColorAttachments = hasColor ? &colorAttachmentRef : nullptr;
 	subpass.pDepthStencilAttachment = hasDepth ? &depthAttachmentRef : nullptr;
 
-  // The attachment description specifies the layout to transition to at the END of the render pass.
+	VkAttachmentLoadOp color_load;
+	VkAttachmentLoadOp depth_load;
+	VkImageLayout color_initial_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+	VkImageLayout depth_initial_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+	if (config.flags.clear & TargetBufferFlags::COLOR)
+	{
+		color_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	}
+	else
+	{
+		if (config.flags.discardStart & TargetBufferFlags::COLOR)
+		{
+			color_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		}
+		else
+		{
+			color_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+			color_initial_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		}
+	}
+
+	if (config.flags.clear & TargetBufferFlags::DEPTH)
+	{
+		depth_load = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	}
+	else
+	{
+		if (config.flags.discardStart & TargetBufferFlags::DEPTH)
+		{
+			depth_load = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		}
+		else
+		{
+			depth_load = VK_ATTACHMENT_LOAD_OP_LOAD;
+			depth_initial_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		}
+	}
+
+	// The attachment description specifies the layout to transition to at the END of the render pass.
     VkAttachmentDescription colorAttachment {
 		0,
         config.colorFormat,
         VK_SAMPLE_COUNT_1_BIT,
-        (config.flags.clear & TargetBufferFlags::COLOR) ?
-                VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		color_load,
         VK_ATTACHMENT_STORE_OP_STORE,
         VK_ATTACHMENT_LOAD_OP_DONT_CARE,
         VK_ATTACHMENT_STORE_OP_DONT_CARE,
-		VK_IMAGE_LAYOUT_UNDEFINED,
+		color_initial_layout,
         config.finalLayout
     };
     VkAttachmentDescription depthAttachment {
 		0,
         config.depthFormat,
         VK_SAMPLE_COUNT_1_BIT,
-        (config.flags.clear & TargetBufferFlags::DEPTH) ?
-                VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		depth_load,
         VK_ATTACHMENT_STORE_OP_STORE,
         VK_ATTACHMENT_LOAD_OP_DONT_CARE,
         VK_ATTACHMENT_STORE_OP_DONT_CARE,
-		VK_IMAGE_LAYOUT_UNDEFINED,
+		depth_initial_layout,
         depthOnly ? config.finalLayout :
                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     };

@@ -138,6 +138,15 @@ struct VulkanTexture : public HwTexture {
     // layout to a GPU-readable layout.
     static void transitionImageLayout(VkCommandBuffer cmdbuffer, VkImage image,
             VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t baseLevel, uint32_t baseLayer, uint32_t layerCount);
+	static void transitionImageLayout(
+		VkCommandBuffer cmd,
+		VkImage image,
+		VkPipelineStageFlags src_stage,
+		VkPipelineStageFlags dst_stage,
+		const VkImageSubresourceRange& subresource_range,
+		VkImageLayout old_image_layout,
+		VkImageLayout new_image_layout,
+		VkAccessFlagBits src_access_mask);
 
     VkFormat vkformat;
     VkImageView imageView = VK_NULL_HANDLE;

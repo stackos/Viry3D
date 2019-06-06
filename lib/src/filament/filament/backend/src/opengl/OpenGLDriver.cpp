@@ -1914,7 +1914,7 @@ void OpenGLDriver::updateTexture(
 	int layer, int level,
 	int x, int y,
 	int w, int h,
-	backend::PixelBufferDescriptor&& data)
+	PixelBufferDescriptor&& data)
 {
 	GLTexture* t = handle_cast<GLTexture*>(th);
 	if (data.type == PixelDataType::COMPRESSED)
@@ -1967,12 +1967,12 @@ void OpenGLDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
 
 void OpenGLDriver::copyTexture(
 	Handle<HwTexture> th_dst, int dst_layer, int dst_level,
-    backend::Offset3D dst_offset,
-    backend::Offset3D dst_extent,
+    Offset3D dst_offset,
+    Offset3D dst_extent,
 	Handle<HwTexture> th_src, int src_layer, int src_level,
-    backend::Offset3D src_offset,
-    backend::Offset3D src_extent,
-	backend::SamplerMagFilter blit_filter)
+    Offset3D src_offset,
+    Offset3D src_extent,
+	SamplerMagFilter blit_filter)
 {
 	if (mSharedDrawFramebuffer == 0)
 	{
@@ -2008,8 +2008,8 @@ void OpenGLDriver::copyTextureToMemory(
 	int layer, int level,
     Offset3D offset,
     Offset3D extent,
-	backend::PixelBufferDescriptor&& buffer,
-	std::function<void(const backend::PixelBufferDescriptor&)> on_complete)
+	PixelBufferDescriptor&& buffer,
+	std::function<void(const PixelBufferDescriptor&)> on_complete)
 {
 
 }

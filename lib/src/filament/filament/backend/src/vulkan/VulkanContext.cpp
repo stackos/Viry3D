@@ -448,12 +448,12 @@ void acquireSwapCommandBuffer(VulkanContext& context) {
 
     // Ensure that the previous submission of this command buffer has finished.
     auto& cmdfence = swap.commands.fence;
-    if (cmdfence) {
+    if (cmdfence && cmdfence->submitted) {
         result = vkWaitForFences(context.device, 1, &cmdfence->fence, VK_FALSE, UINT64_MAX);
         ASSERT_POSTCONDITION(result == VK_SUCCESS, "vkWaitForFences error.");
     }
 
-     cmdfence.reset(new VulkanCmdFence(context.device));
+    cmdfence.reset(new VulkanCmdFence(context.device));
 
     // Restart the command buffer.
     VkCommandBuffer cmdbuffer = swap.commands.cmdbuffer;
