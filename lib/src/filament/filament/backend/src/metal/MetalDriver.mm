@@ -479,11 +479,11 @@ void MetalDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
     
 void MetalDriver::copyTexture(
     Handle<HwTexture> th_dst, int dst_layer, int dst_level,
-    const backend::Offset3D& dst_offset,
-    const backend::Offset3D& dst_extent,
+    backend::Offset3D dst_offset,
+    backend::Offset3D dst_extent,
     Handle<HwTexture> th_src, int src_layer, int src_level,
-    const backend::Offset3D& src_offset,
-    const backend::Offset3D& src_extent,
+    backend::Offset3D src_offset,
+    backend::Offset3D src_extent,
     backend::SamplerMagFilter blit_filter)
 {
     assert(src_extent.x == dst_extent.x);
@@ -494,12 +494,34 @@ void MetalDriver::copyTexture(
         auto dst = handle_cast<MetalTexture>(mHandleMap, th_dst);
         auto src = handle_cast<MetalTexture>(mHandleMap, th_src);
         
-        id<MTLCommandBuffer> commandBuffer = [mContext->commandQueue commandBuffer];
+        id<MTLCommandBuffer> commandBuffer = nil;
+        if (mContext->currentCommandBuffer)
+        {
+            commandBuffer = mContext->currentCommandBuffer;
+        }
+        else
+        {
+            commandBuffer = [mContext->commandQueue commandBuffer];
+        }
         id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
         [blitEncoder copyFromTexture:src->texture sourceSlice:src_layer sourceLevel:src_level sourceOrigin:MTLOriginMake(src_offset.x, src_offset.y, src_offset.z) sourceSize:MTLSizeMake(src_extent.x, src_extent.y, src_extent.z) toTexture:dst->texture destinationSlice:dst_layer destinationLevel:dst_level destinationOrigin:MTLOriginMake(dst_offset.x, dst_offset.y, dst_offset.z)];
         [blitEncoder endEncoding];
-        [commandBuffer commit];
+        if (commandBuffer != mContext->currentCommandBuffer)
+        {
+            [commandBuffer commit];
+        }
     }
+}
+    
+void MetalDriver::copyTextureToMemory(
+    Handle<HwTexture> th,
+    int layer, int level,
+    Offset3D offset,
+    Offset3D extent,
+    backend::PixelBufferDescriptor&& buffer,
+    std::function<void(const backend::PixelBufferDescriptor&)> on_complete)
+{
+    
 }
     
 void MetalDriver::generateMipmaps(Handle<HwTexture> th) {

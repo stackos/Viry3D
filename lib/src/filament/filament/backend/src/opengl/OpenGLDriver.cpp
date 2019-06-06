@@ -1967,16 +1967,13 @@ void OpenGLDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
 
 void OpenGLDriver::copyTexture(
 	Handle<HwTexture> th_dst, int dst_layer, int dst_level,
-	const backend::Offset3D dst_offset,
-	const backend::Offset3D dst_extent,
+    backend::Offset3D dst_offset,
+    backend::Offset3D dst_extent,
 	Handle<HwTexture> th_src, int src_layer, int src_level,
-	const backend::Offset3D src_offset,
-	const backend::Offset3D src_extent,
+    backend::Offset3D src_offset,
+    backend::Offset3D src_extent,
 	backend::SamplerMagFilter blit_filter)
 {
-	GLTexture* dst = handle_cast<GLTexture*>(th_dst);
-	GLTexture* src = handle_cast<GLTexture*>(th_src);
-
 	if (mSharedDrawFramebuffer == 0)
 	{
 		glGenFramebuffers(1, &mSharedDrawFramebuffer);
@@ -2009,8 +2006,8 @@ void OpenGLDriver::copyTexture(
 void OpenGLDriver::copyTextureToMemory(
 	Handle<HwTexture> th,
 	int layer, int level,
-	const Offset3D offset,
-	const Offset3D extent,
+    Offset3D offset,
+    Offset3D extent,
 	backend::PixelBufferDescriptor&& buffer,
 	std::function<void(const backend::PixelBufferDescriptor&)> on_complete)
 {
