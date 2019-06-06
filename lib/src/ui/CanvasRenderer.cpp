@@ -68,7 +68,6 @@ namespace Viry3D
     {
         auto material = RefMake<Material>(Shader::Find("UI"));
         material->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
-        material->SetVector(MaterialProperty::CLIP_RECT, Vector4(0, 0, 1, 1));
 
         this->SetMaterial(material);
     }
@@ -312,8 +311,8 @@ namespace Viry3D
                 materials[i] = RefMake<Material>(this->GetMaterial()->GetShader());
                 materials[i]->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
                 materials[i]->SetTexture(MaterialProperty::TEXTURE, m_atlas);
-                materials[i]->SetVector(MaterialProperty::CLIP_RECT, Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].w, clip_rects[i].h));
-            }
+				materials[i]->SetScissorRect(clip_rects[i]);
+			}
             if (materials.Size() > 0)
             {
                 this->SetMaterials(materials);
@@ -324,11 +323,9 @@ namespace Viry3D
             const auto& materials = this->GetMaterials();
             for (int i = 0; i < materials.Size(); ++i)
             {
-                auto clip = materials[i]->GetVector(MaterialProperty::CLIP_RECT);
-                auto new_clip = Vector4(clip_rects[i].x, clip_rects[i].y, clip_rects[i].w, clip_rects[i].h);
-                if (clip == nullptr || *clip != new_clip)
+                if (clip_rects[i] != materials[i]->GetScissorRect())
                 {
-                    materials[i]->SetVector(MaterialProperty::CLIP_RECT, new_clip);
+					materials[i]->SetScissorRect(clip_rects[i]);
                 }
             }
         }

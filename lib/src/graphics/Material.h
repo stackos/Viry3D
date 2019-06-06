@@ -77,7 +77,6 @@ namespace Viry3D
 		static constexpr const char* LIGHT_POSITION = "u_light_pos";
 		static constexpr const char* LIGHT_COLOR = "u_light_color";
 		static constexpr const char* LIGHT_INTENSITY = "u_light_intensity";
-		static constexpr const char* CLIP_RECT = "u_clip_rect";
 
         enum class Type
         {
