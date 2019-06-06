@@ -339,16 +339,15 @@ namespace Viry3D
         {
             ByteBuffer pixels(ATLAS_SIZE * ATLAS_SIZE * 4);
             
-            for (int i = 0; i < m_atlas_array_size; ++i)
-            {
-                m_atlas->CopyToMemory(pixels, i, 0, 0, 0, ATLAS_SIZE, ATLAS_SIZE);
-				auto image = RefMake<Image>();
-				image->width = ATLAS_SIZE;
-				image->height = ATLAS_SIZE;
-				image->format = ImageFormat::R8G8B8A8;
-				image->data = pixels;
-                image->EncodeToPNG(String::Format("%s/atlas%d.png", Engine::Instance()->GetSavePath().CString(), i));
-            }
+			m_atlas->CopyToMemory(pixels, 0, 0, 0, 0, ATLAS_SIZE, ATLAS_SIZE,
+				[](const ByteBuffer& buffer) {
+					auto image = RefMake<Image>();
+					image->width = ATLAS_SIZE;
+					image->height = ATLAS_SIZE;
+					image->format = ImageFormat::R8G8B8A8;
+					image->data = buffer;
+					image->EncodeToPNG(String::Format("%s/atlas.png", Engine::Instance()->GetSavePath().CString()));
+				});
         }
 #endif
     }

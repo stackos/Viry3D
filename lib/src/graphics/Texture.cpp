@@ -547,9 +547,28 @@ namespace Viry3D
 		ByteBuffer& pixels,
 		int layer, int level,
 		int x, int y,
-		int w, int h)
+		int w, int h,
+		std::function<void(const ByteBuffer&)> on_complete)
 	{
-		
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		auto data = filament::backend::PixelBufferDescriptor(
+			pixels.Bytes(),
+			pixels.Size(),
+			GetPixelDataFormat(m_format),
+			GetPixelDataType(m_format));
+		driver.copyTextureToMemory(
+			m_texture,
+			layer, level,
+			filament::backend::Offset3D({ x, y, 0 }),
+			filament::backend::Offset3D({ w, h, 1 }),
+			std::move(data),
+			[=](const filament::backend::PixelBufferDescriptor&) {
+				if (on_complete)
+				{
+					on_complete(pixels);
+				}
+			});
 	}
     
     void Texture::GenMipmaps()

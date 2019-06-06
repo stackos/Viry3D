@@ -19,6 +19,7 @@
 
 #include "Object.h"
 #include "private/backend/DriverApi.h"
+#include <functional>
 
 namespace Viry3D
 {
@@ -139,7 +140,8 @@ namespace Viry3D
 			ByteBuffer& pixels,
 			int layer, int level,
 			int x, int y,
-			int w, int h);
+			int w, int h,
+			std::function<void(const ByteBuffer&)> on_complete);
         void GenMipmaps();
 		int GetWidth() const { return m_width; }
 		int GetHeight() const { return m_height; }

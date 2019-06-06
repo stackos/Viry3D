@@ -472,6 +472,69 @@ namespace filament
 				&box);
 		}
 
+		void D3D11Texture::CopyTextureToMemory(
+			D3D11Context* context,
+			int layer, int level,
+			const Offset3D& offset,
+			const Offset3D& extent,
+			PixelBufferDescriptor& data)
+		{
+			D3D11_TEXTURE2D_DESC1 texture_desc = { };
+			texture_desc.Width = extent.x;
+			texture_desc.Height = extent.y;
+			texture_desc.MipLevels = 1;
+			texture_desc.ArraySize = 1;
+			texture_desc.Format = context->GetTextureFormat(format);
+			texture_desc.SampleDesc.Count = 1;
+			texture_desc.Usage = D3D11_USAGE_STAGING;
+			texture_desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+			ID3D11Texture2D1* staging_texture = nullptr;
+			HRESULT hr = context->device->CreateTexture2D1(
+				&texture_desc,
+				nullptr,
+				&staging_texture);
+			assert(SUCCEEDED(hr));
+
+			// copy
+			UINT dst_subresource = D3D11CalcSubresource(0, 0, 1);
+			UINT src_subresource = D3D11CalcSubresource(level, layer, levels);
+			D3D11_BOX box = {
+				(UINT) offset.x,
+				(UINT) offset.y,
+				(UINT) offset.z,
+				(UINT) (offset.x + extent.x),
+				(UINT) (offset.y + extent.y),
+				(UINT) (offset.z + extent.z)
+			};
+
+			context->context->CopySubresourceRegion(
+				staging_texture,
+				dst_subresource,
+				0, 0, 0,
+				texture,
+				src_subresource,
+				&box);
+
+			// map
+			D3D11_MAPPED_SUBRESOURCE res = { };
+			D3D11_MAP map_type = D3D11_MAP_READ;
+			hr = context->context->Map(
+				staging_texture,
+				dst_subresource,
+				map_type,
+				0,
+				&res);
+			assert(SUCCEEDED(hr));
+
+			uint8_t* p = (uint8_t*) res.pData;
+			memcpy(data.buffer, p, data.size);
+
+			context->context->Unmap(staging_texture, dst_subresource);
+
+			SAFE_RELEASE(staging_texture);
+		}
+
 		void D3D11Texture::GenerateMipmaps(D3D11Context* context)
 		{
 			context->context->GenerateMips(image_view);

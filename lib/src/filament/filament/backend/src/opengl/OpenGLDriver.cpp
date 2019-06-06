@@ -1967,11 +1967,11 @@ void OpenGLDriver::updateCubeImage(Handle<HwTexture> th, uint32_t level,
 
 void OpenGLDriver::copyTexture(
 	Handle<HwTexture> th_dst, int dst_layer, int dst_level,
-	const backend::Offset3D& dst_offset,
-	const backend::Offset3D& dst_extent,
+	const backend::Offset3D dst_offset,
+	const backend::Offset3D dst_extent,
 	Handle<HwTexture> th_src, int src_layer, int src_level,
-	const backend::Offset3D& src_offset,
-	const backend::Offset3D& src_extent,
+	const backend::Offset3D src_offset,
+	const backend::Offset3D src_extent,
 	backend::SamplerMagFilter blit_filter)
 {
 	GLTexture* dst = handle_cast<GLTexture*>(th_dst);
@@ -2004,6 +2004,17 @@ void OpenGLDriver::copyTexture(
 
 	bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
 	bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
+}
+
+void OpenGLDriver::copyTextureToMemory(
+	Handle<HwTexture> th,
+	int layer, int level,
+	const Offset3D offset,
+	const Offset3D extent,
+	backend::PixelBufferDescriptor&& buffer,
+	std::function<void(const backend::PixelBufferDescriptor&)> on_complete)
+{
+
 }
 
 void OpenGLDriver::generateMipmaps(Handle<HwTexture> th) {
