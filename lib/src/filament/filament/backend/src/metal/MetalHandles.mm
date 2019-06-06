@@ -326,7 +326,7 @@ void MetalTexture::updateTexture(
                    const PixelBufferDescriptor& data)
 {
     MTLRegion region = MTLRegionMake2D(x, y, w, h);
-    NSUInteger bytesPerRow = bytesPerPixel * width;
+    NSUInteger bytesPerRow = bytesPerPixel * w;
     
     [texture replaceRegion:region
                mipmapLevel:level
