@@ -486,15 +486,19 @@ void MetalDriver::copyTexture(
     const backend::Offset3D& src_extent,
     backend::SamplerMagFilter blit_filter)
 {
+    assert(src_extent.x == dst_extent.x);
+    assert(src_extent.y == dst_extent.y);
+    assert(src_extent.z == dst_extent.z);
+    
     @autoreleasepool {
         auto dst = handle_cast<MetalTexture>(mHandleMap, th_dst);
         auto src = handle_cast<MetalTexture>(mHandleMap, th_src);
-
-        /*id<MTLCommandBuffer> commandBuffer = [mContext->commandQueue commandBuffer];
+        
+        id<MTLCommandBuffer> commandBuffer = [mContext->commandQueue commandBuffer];
         id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        [blitEncoder copyFromTexture:<#(nonnull id<MTLTexture>)#> sourceSlice:<#(NSUInteger)#> sourceLevel:<#(NSUInteger)#> sourceOrigin:<#(MTLOrigin)#> sourceSize:<#(MTLSize)#> toTexture:<#(nonnull id<MTLTexture>)#> destinationSlice:<#(NSUInteger)#> destinationLevel:<#(NSUInteger)#> destinationOrigin:<#(MTLOrigin)#>:];
+        [blitEncoder copyFromTexture:src->texture sourceSlice:src_layer sourceLevel:src_level sourceOrigin:MTLOriginMake(src_offset.x, src_offset.y, src_offset.z) sourceSize:MTLSizeMake(src_extent.x, src_extent.y, src_extent.z) toTexture:dst->texture destinationSlice:dst_layer destinationLevel:dst_level destinationOrigin:MTLOriginMake(dst_offset.x, dst_offset.y, dst_offset.z)];
         [blitEncoder endEncoding];
-        [commandBuffer commit];*/
+        [commandBuffer commit];
     }
 }
     
