@@ -43,13 +43,13 @@ namespace Viry3D
 
 		App()
 		{
-			auto cylinder = Resources::LoadMesh("Library/unity default resources.Cylinder.mesh");
+			auto cube = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
 			auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
-			auto cubemap = Resources::LoadTexture("texture/env/sunny.tex");
+			auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
 
 			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
 			material->SetTexture(MaterialProperty::TEXTURE, texture);
-			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(20, 20, 0, 0));
+			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(40, 20, 0, 0));
 
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
@@ -59,12 +59,12 @@ namespace Viry3D
 			m_camera = camera.get();
 
 			auto skybox = GameObject::Create("")->AddComponent<Skybox>();
-			skybox->SetTexture(cubemap);
+			skybox->SetTexture(cubemap, 0.0f);
 
 			auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
-			floor->GetTransform()->SetPosition(Vector3(0, -0.01f, 0));
-			floor->GetTransform()->SetScale(Vector3(20, 0.02f, 20));
-			floor->SetMesh(cylinder);
+			floor->GetTransform()->SetPosition(Vector3(0, -5, 0));
+			floor->GetTransform()->SetScale(Vector3(20, 10, 10));
+			floor->SetMesh(cube);
 			floor->SetMaterial(material);
 
 			auto obj_0 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
