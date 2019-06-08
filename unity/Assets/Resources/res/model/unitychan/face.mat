@@ -111,3 +111,4 @@ Material:
     - _OffsetSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _Spec: {r: 0, g: 0, b: 0, a: 1}
     - u_main_texture_scale_offset: {r: 1, g: 1, b: 0, a: 0}
+    - u_texture_scale_offset: {r: 1, g: 1, b: 0, a: 0}

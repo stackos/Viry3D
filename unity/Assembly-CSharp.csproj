@@ -56,7 +56,6 @@
      <Compile Include="Assets\Resources\script\BoneDrawer.cs" />
      <None Include="Assets\Resources\shader\PBR.shader" />
      <None Include="Assets\Resources\shader\Unlit\Texture.shader" />
-     <None Include="Assets\Resources\shader\SkinnedMesh\Diffuse.shader" />
      <None Include="Assets\Resources\shader\PBR.cginc" />
      <None Include="Assets\Resources\shader\Diffuse.shader" />
      <None Include="Assets\Resources\shader\Bone.shader" />
