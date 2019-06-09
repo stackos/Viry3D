@@ -79,7 +79,7 @@ void main()
     vec3 light_dir = normalize(u_light_pos.xyz);
     float nl = max(dot(normal, light_dir), 0.0);
 	vec4 c = texture(u_texture, v_uv);
-    c.rgb = c.rgb * nl * u_light_color.rgb;
+    //c.rgb = c.rgb * nl * u_light_color.rgb;
     o_color = c;
 }
 ]]

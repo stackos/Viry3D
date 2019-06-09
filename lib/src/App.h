@@ -21,6 +21,7 @@
 #include "graphics/Camera.h"
 #include "graphics/MeshRenderer.h"
 #include "graphics/Skybox.h"
+#include "graphics/Light.h"
 #include "animation/Animation.h"
 #include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
@@ -95,7 +96,15 @@ namespace Viry3D
 			label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
 			canvas->AddView(label);
 			m_fps_label = label.get();
-
+            
+            auto sphere = GameObject::Create("")->AddComponent<MeshRenderer>();
+            sphere->SetMaterial(RefMake<Material>(Shader::Find("Diffuse")));
+            sphere->SetMesh(Resources::LoadMesh("Library/unity default resources.Sphere.mesh"));
+            sphere->GetTransform()->SetPosition(Vector3(-1, 1, 0));
+            
+            auto light = GameObject::Create("")->AddComponent<Light>();
+            light->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+            
 #if 0
 			auto color = Texture::CreateRenderTexture(
 				1280,

@@ -33,6 +33,7 @@ namespace Viry3D
         
         m_samplers.Resize(shader->GetPassCount());
 
+        this->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedWhiteTexture());
 		this->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, 1, 0, 0));
     }
     
@@ -252,16 +253,7 @@ namespace Viry3D
                 for (int j = 0; j < sampler_group.samplers.Size(); ++j)
                 {
                     const auto& sampler = sampler_group.samplers[j];
-                    
-                    if (sampler.texture)
-                    {
-                        samplers.setSampler(sampler.binding, sampler.texture->GetTexture(), sampler.texture->GetSampler());
-                    }
-                    else
-                    {
-                        const auto& default_texture = Texture::GetSharedWhiteTexture();
-                        samplers.setSampler(sampler.binding, default_texture->GetTexture(), default_texture->GetSampler());
-                    }
+                    samplers.setSampler(sampler.binding, sampler.texture->GetTexture(), sampler.texture->GetSampler());
                 }
                 driver.updateSamplerGroup(sampler_group.sampler_group, std::move(samplers));
             }
