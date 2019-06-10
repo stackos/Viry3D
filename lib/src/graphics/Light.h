@@ -18,6 +18,9 @@
 #pragma once
 
 #include "Component.h"
+#include "container/List.h"
+#include "Color.h"
+#include "private/backend/DriverApi.h"
 
 namespace Viry3D
 {
@@ -31,10 +34,38 @@ namespace Viry3D
     class Light : public Component
     {
     public:
+		static const List<Light*>& GetLights() { return m_lights; }
+		static const Color& GetAmbientColor() { return m_ambient_color; }
+		static void SetAmbientColor(const Color& color);
 		Light();
         virtual ~Light();
-        
+		LightType GetType() const { return m_type; }
+		void SetType(LightType type);
+		const Color& GetColor() const { return m_color; }
+		void SetColor(const Color& color);
+		float GetIntensity() const { return m_intensity; }
+		void SetIntensity(float intensity);
+		uint32_t GetCullingMask() const { return m_culling_mask; }
+		void SetCullingMask(uint32_t mask);
+		const filament::backend::UniformBufferHandle& GetLightUniformBuffer() const { return m_light_uniform_buffer; }
+
+	protected:
+		virtual void OnTransformDirty();
+
+	private:
+		void Prepare();
+
+	private:
+		friend class Camera;
+
     private:
+		static List<Light*> m_lights;
+		static Color m_ambient_color;
+		bool m_dirty;
         LightType m_type;
+		Color m_color;
+		float m_intensity;
+		uint32_t m_culling_mask;
+		filament::backend::UniformBufferHandle m_light_uniform_buffer;
     };
 }

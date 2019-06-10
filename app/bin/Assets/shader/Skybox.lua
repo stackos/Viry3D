@@ -26,13 +26,13 @@ precision highp float;
 VK_SAMPLER_BINDING(0) uniform samplerCube u_texture;
 VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
-    float u_level;
+    vec4 u_level;
 };
 VK_LAYOUT_LOCATION(0) in vec3 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	o_color = textureLod(u_texture, v_uv, u_level);
+	o_color = textureLod(u_texture, v_uv, u_level.x);
 }
 ]]
 
@@ -92,7 +92,7 @@ local pass = {
             members = {
                 {
                     name = "u_level",
-                    size = 4,
+                    size = 16,
                 },
             },
         },

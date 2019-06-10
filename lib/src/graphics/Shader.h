@@ -35,7 +35,7 @@ namespace Viry3D
 			PerRendererBones = 2,
 			PerMaterialVertex = 3,
 			PerMaterialFragment = 4,
-			Lights = 5,
+			PerLight = 5,
 			Count = 6,
 		};
 

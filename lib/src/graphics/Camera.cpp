@@ -22,6 +22,7 @@
 #include "Renderer.h"
 #include "Material.h"
 #include "SkinnedMeshRenderer.h"
+#include "Light.h"
 
 namespace Viry3D
 {
@@ -134,14 +135,21 @@ namespace Viry3D
 		renderer->PrepareRender();
 
         const auto& materials = renderer->GetMaterials();
+		const auto& lights = Light::GetLights();
+
         for (int i = 0; i < materials.Size(); ++i)
         {
             auto& material = materials[i];
-            if (material)
-            {
+			if (material)
+			{
                 material->Prepare();
             }
         }
+
+		for (auto i : lights)
+		{
+			i->Prepare();
+		}
     }
 
 	void Camera::Draw(const List<Renderer*>& renderers)
@@ -277,7 +285,7 @@ namespace Viry3D
     void Camera::DrawRenderer(Renderer* renderer)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
-        
+		
 		driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRenderer, renderer->GetTransformUniformBuffer());
 
         SkinnedMeshRenderer* skin = dynamic_cast<SkinnedMeshRenderer*>(renderer);
@@ -285,38 +293,58 @@ namespace Viry3D
         {
             driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBonesUniformBuffer());
         }
-        
-        const auto& materials = renderer->GetMaterials();
-        for (int i = 0; i < materials.Size(); ++i)
-        {
-            auto& material = materials[i];
-            if (material)
-            {
-                filament::backend::RenderPrimitiveHandle primitive;
-                
-                auto primitives = renderer->GetPrimitives();
-                if (i < primitives.Size())
-                {
-                    primitive = primitives[i];
-                }
-                else if (primitives.Size() > 0)
-                {
-                    primitive = primitives[0];
-                }
-                
-                if (primitive)
-                {
-                    const auto& shader = material->GetShader();
-                    for (int j = 0; j < shader->GetPassCount(); ++j)
-                    {
-                        material->Apply(this, j);
-                        
-                        const auto& pipeline = shader->GetPass(j).pipeline;
-                        driver.draw(pipeline, primitive);
-                    }
-                }
-            }
-        }
+
+		auto draw = [&]() {
+			const auto& materials = renderer->GetMaterials();
+			for (int i = 0; i < materials.Size(); ++i)
+			{
+				auto& material = materials[i];
+				if (material)
+				{
+					filament::backend::RenderPrimitiveHandle primitive;
+
+					auto primitives = renderer->GetPrimitives();
+					if (i < primitives.Size())
+					{
+						primitive = primitives[i];
+					}
+					else if (primitives.Size() > 0)
+					{
+						primitive = primitives[0];
+					}
+
+					if (primitive)
+					{
+						const auto& shader = material->GetShader();
+						for (int j = 0; j < shader->GetPassCount(); ++j)
+						{
+							material->Apply(this, j);
+
+							const auto& pipeline = shader->GetPass(j).pipeline;
+							driver.draw(pipeline, primitive);
+						}
+					}
+				}
+			}
+		};
+
+		bool lighted = false;
+		const auto& lights = Light::GetLights();
+		for (auto i : lights)
+		{
+			if ((1 << renderer->GetGameObject()->GetLayer()) & i->GetCullingMask())
+			{
+				lighted = true;
+				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLight, i->GetLightUniformBuffer());
+
+				draw();
+			}
+		}
+
+		if (!lighted)
+		{
+			draw();
+		}
     }
 
 	Camera::Camera():

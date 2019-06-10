@@ -26,7 +26,7 @@ namespace Viry3D
 		this->SetMesh(cube);
 
 		auto material = RefMake<Material>(Shader::Find("Skybox"));
-        material->SetFloat("u_level", 0.0f);
+        material->SetVector("u_level", Vector4(0));
 		this->SetMaterial(material);
     }
 
@@ -38,6 +38,6 @@ namespace Viry3D
 	void Skybox::SetTexture(const Ref<Texture>& texture, float level)
 	{
 		this->GetMaterial()->SetTexture(MaterialProperty::TEXTURE, texture);
-        this->GetMaterial()->SetFloat("u_level", level);
+        this->GetMaterial()->SetVector("u_level", Vector4(level));
 	}
 }

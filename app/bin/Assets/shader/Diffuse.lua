@@ -65,10 +65,12 @@ void main()
 local fs = [[
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
-VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
+VK_UNIFORM_BINDING(5) uniform PerLight
 {
+	vec4 u_ambient_color;
     vec4 u_light_pos;
     vec4 u_light_color;
+	float u_light_intensity;
 };
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
 VK_LAYOUT_LOCATION(1) in vec3 v_normal;
@@ -79,7 +81,9 @@ void main()
     vec3 light_dir = normalize(u_light_pos.xyz);
     float nl = max(dot(normal, light_dir), 0.0);
 	vec4 c = texture(u_texture, v_uv);
-    //c.rgb = c.rgb * nl * u_light_color.rgb;
+	vec3 ambient = c.rgb * u_ambient_color.rgb;
+	vec3 diffuse = c.rgb * nl * u_light_color.rgb * u_light_intensity;
+    c.rgb = ambient + diffuse;
     o_color = c;
 }
 ]]
@@ -161,9 +165,13 @@ local pass = {
             },
         },
         {
-            name = "PerMaterialFragment",
-            binding = 4,
+            name = "PerLight",
+            binding = 5,
             members = {
+				{
+                    name = "u_ambient_color",
+                    size = 16,
+                },
                 {
                     name = "u_light_pos",
                     size = 16,
@@ -171,6 +179,10 @@ local pass = {
                 {
                     name = "u_light_color",
                     size = 16,
+                },
+				{
+                    name = "u_light_intensity",
+                    size = 4,
                 },
             },
         },

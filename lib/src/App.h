@@ -102,6 +102,11 @@ namespace Viry3D
             sphere->SetMesh(Resources::LoadMesh("Library/unity default resources.Sphere.mesh"));
             sphere->GetTransform()->SetPosition(Vector3(-1, 1, 0));
             
+			auto sphere2 = GameObject::Create("")->AddComponent<MeshRenderer>();
+			sphere2->SetMaterial(RefMake<Material>(Shader::Find("Diffuse")));
+			sphere2->SetMesh(Resources::LoadMesh("Library/unity default resources.Sphere.mesh"));
+			sphere2->GetTransform()->SetPosition(Vector3(1, 1, 0));
+
             auto light = GameObject::Create("")->AddComponent<Light>();
             light->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
             

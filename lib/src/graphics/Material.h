@@ -67,17 +67,28 @@ namespace Viry3D
 		Vector4 bones[BONES_VECTOR_MAX_COUNT];
 	};
 
+	// per light uniforms, set by light
+	struct LightUniforms
+	{
+		static constexpr const char* AMBIENT_COLOR = "u_ambient_color";
+		static constexpr const char* LIGHT_POSITION = "u_light_pos";
+		static constexpr const char* LIGHT_COLOR = "u_light_color";
+		static constexpr const char* LIGHT_INTENSITY = "u_light_intensity";
+
+		Color ambient_color;
+		Vector4 light_pos;
+		Color light_color;
+		float light_intensity;
+		Vector3 padding; // d3d11 need constant buffer size in multiples of 16
+	};
+
 	// per material uniforms, set by material
     struct MaterialProperty
     {
 		static constexpr const char* TEXTURE = "u_texture";
 		static constexpr const char* TEXTURE_SCALE_OFFSET = "u_texture_scale_offset";
 		static constexpr const char* COLOR = "u_color";
-		static constexpr const char* AMBIENT_COLOR = "u_ambient_color";
-		static constexpr const char* LIGHT_POSITION = "u_light_pos";
-		static constexpr const char* LIGHT_COLOR = "u_light_color";
-		static constexpr const char* LIGHT_INTENSITY = "u_light_intensity";
-
+		
         enum class Type
         {
             Color,
