@@ -285,7 +285,7 @@ namespace filament
 				HRESULT hr = context->context->Map(
 					buffer,
 					0,
-					D3D11_MAP_WRITE_DISCARD,
+					D3D11_MAP_WRITE_NO_OVERWRITE,
 					0,
 					&res);
 				assert(SUCCEEDED(hr));
@@ -602,21 +602,10 @@ namespace filament
 			if (usage == BufferUsage::DYNAMIC)
 			{
 				D3D11_MAPPED_SUBRESOURCE res = { };
-				D3D11_MAP map_type = D3D11_MAP_WRITE;
-				if (offset == 0)
-				{
-					D3D11_BUFFER_DESC buffer_desc = { };
-					buffers[index]->GetDesc(&buffer_desc);
-
-					if (data.size == buffer_desc.ByteWidth)
-					{
-						map_type = D3D11_MAP_WRITE_DISCARD;
-					}
-				}
 				HRESULT hr = context->context->Map(
 					buffers[index],
 					0,
-					map_type,
+					D3D11_MAP_WRITE_NO_OVERWRITE,
 					0,
 					&res);
 				assert(SUCCEEDED(hr));
@@ -681,20 +670,10 @@ namespace filament
 			if (usage == BufferUsage::DYNAMIC)
 			{
 				D3D11_MAPPED_SUBRESOURCE res = { };
-				D3D11_MAP map_type = D3D11_MAP_WRITE;
-				if (offset == 0)
-				{
-					size_t buffer_size = count * (size_t) elementSize;
-
-					if (data.size == buffer_size)
-					{
-						map_type = D3D11_MAP_WRITE_DISCARD;
-					}
-				}
 				HRESULT hr = context->context->Map(
 					buffer,
 					0,
-					map_type,
+					D3D11_MAP_WRITE_NO_OVERWRITE,
 					0,
 					&res);
 				assert(SUCCEEDED(hr));

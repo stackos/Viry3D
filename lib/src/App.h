@@ -48,7 +48,7 @@ namespace Viry3D
 			auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
 			auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
 
-			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+			auto material = RefMake<Material>(Shader::Find("Diffuse"));
 			material->SetTexture(MaterialProperty::TEXTURE, texture);
 			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(40, 20, 0, 0));
 
@@ -108,7 +108,12 @@ namespace Viry3D
 			sphere2->GetTransform()->SetPosition(Vector3(1, 1, 0));
 
             auto light = GameObject::Create("")->AddComponent<Light>();
-            light->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+            light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
+			light->SetColor(Color(1, 0, 0, 1));
+
+			auto light2 = GameObject::Create("")->AddComponent<Light>();
+			light2->GetTransform()->SetRotation(Quaternion::Euler(120, 90, 0));
+			light2->SetColor(Color(0, 1, 0, 1));
             
 #if 0
 			auto color = Texture::CreateRenderTexture(
