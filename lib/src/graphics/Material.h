@@ -147,6 +147,7 @@ namespace Viry3D
         Material(const Ref<Shader>& shader);
         virtual ~Material();
         const Ref<Shader>& GetShader() const { return m_shader; }
+		const Ref<Shader>& GetLightAddShader();
         int GetQueue() const;
         void SetQueue(int queue);
         const Matrix4x4* GetMatrix(const String& name) const;
@@ -162,6 +163,8 @@ namespace Viry3D
         void SetMatrixArray(const String& name, const Vector<Matrix4x4>& array);
         const Rect& GetScissorRect() const { return m_scissor_rect; }
         void SetScissorRect(const Rect& rect);
+		void EnableKeyword(const String& keyword);
+		void DisableKeyword(const String& keyword);
         void Prepare();
         void Apply(const Camera* camera, int pass);
         
@@ -206,6 +209,7 @@ namespace Viry3D
         
     private:
         Ref<Shader> m_shader;
+		Ref<Shader> m_light_add_shader;
         Ref<int> m_queue;
         Map<String, MaterialProperty> m_properties;
         Rect m_scissor_rect;

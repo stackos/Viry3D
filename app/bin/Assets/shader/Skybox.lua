@@ -32,7 +32,9 @@ VK_LAYOUT_LOCATION(0) in vec3 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	o_color = textureLod(u_texture, v_uv, u_level.x);
+	vec4 c = textureLod(u_texture, v_uv, u_level.x);
+	c.a = 1.0;
+	o_color = c;
 }
 ]]
 

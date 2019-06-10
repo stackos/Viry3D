@@ -294,7 +294,7 @@ namespace Viry3D
             driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBonesUniformBuffer());
         }
 
-		auto draw = [&]() {
+		auto draw = [&](bool light_add = false) {
 			const auto& materials = renderer->GetMaterials();
 			for (int i = 0; i < materials.Size(); ++i)
 			{
@@ -315,9 +315,16 @@ namespace Viry3D
 
 					if (primitive)
 					{
-						const auto& shader = material->GetShader();
+						const auto& shader = light_add ? material->GetLightAddShader() : material->GetShader();
+						
 						for (int j = 0; j < shader->GetPassCount(); ++j)
 						{
+							bool has_light = shader->GetPass(j).light_mode == Shader::LightMode::Forward;
+							if (!has_light && light_add)
+							{
+								continue;
+							}
+
 							material->Apply(this, j);
 
 							const auto& pipeline = shader->GetPass(j).pipeline;
@@ -329,15 +336,18 @@ namespace Viry3D
 		};
 
 		bool lighted = false;
+		bool light_add = false;
 		const auto& lights = Light::GetLights();
 		for (auto i : lights)
 		{
 			if ((1 << renderer->GetGameObject()->GetLayer()) & i->GetCullingMask())
 			{
-				lighted = true;
 				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLight, i->GetLightUniformBuffer());
 
-				draw();
+				draw(light_add);
+
+				lighted = true;
+				light_add = true;
 			}
 		}
 

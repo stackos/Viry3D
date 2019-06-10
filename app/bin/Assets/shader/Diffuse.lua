@@ -63,6 +63,10 @@ void main()
 ]]
 
 local fs = [[
+#ifndef LIGHT_ADD_ON
+	#define LIGHT_ADD_ON 0
+#endif
+
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
 VK_UNIFORM_BINDING(5) uniform PerLight
@@ -81,9 +85,14 @@ void main()
     vec3 light_dir = normalize(u_light_pos.xyz);
     float nl = max(dot(normal, light_dir), 0.0);
 	vec4 c = texture(u_texture, v_uv);
-	vec3 ambient = c.rgb * u_ambient_color.rgb;
 	vec3 diffuse = c.rgb * nl * u_light_color.rgb * u_light_intensity;
-    c.rgb = ambient + diffuse;
+#if (LIGHT_ADD_ON == 1)
+	c.rgb = diffuse;
+#else
+	vec3 ambient = c.rgb * u_ambient_color.rgb;
+	c.rgb = ambient + diffuse;
+#endif
+	c.a = 1.0;
     o_color = c;
 }
 ]]
@@ -103,6 +112,8 @@ void main()
 		On | Off
 	Queue
 		Background | Geometry | AlphaTest | Transparent | Overlay
+	LightMode
+		None | Forward
 ]]
 
 local rs = {
@@ -113,6 +124,7 @@ local rs = {
     DstBlendMode = Zero,
 	CWrite = On,
     Queue = Geometry,
+	LightMode = Forward,
 }
 
 local pass = {

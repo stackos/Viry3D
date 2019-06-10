@@ -65,6 +65,23 @@ namespace Viry3D
         m_samplers.Clear();
     }
     
+	const Ref<Shader>& Material::GetLightAddShader()
+	{
+		if (!m_light_add_shader)
+		{
+			auto& keywords = m_shader->GetKeywords();
+			Vector<String> new_keywords;
+			for (auto& i : keywords)
+			{
+				new_keywords.Add(i);
+			}
+			new_keywords.Add("LIGHT_ADD_ON");
+			m_light_add_shader = Shader::Find(m_shader->GetName(), new_keywords, true);
+		}
+
+		return m_light_add_shader;
+	}
+
     int Material::GetQueue() const
     {
         if (m_queue)
@@ -194,6 +211,36 @@ namespace Viry3D
         m_scissor_rect = rect;
     }
     
+	void Material::EnableKeyword(const String& keyword)
+	{
+		auto& keywords = m_shader->GetKeywords();
+		if (!keywords.Contains(keyword))
+		{
+			Vector<String> new_keywords;
+			for (auto& i : keywords)
+			{
+				new_keywords.Add(i);
+			}
+			new_keywords.Add(keyword);
+			m_shader = Shader::Find(m_shader->GetName(), new_keywords);
+		}
+	}
+
+	void Material::DisableKeyword(const String& keyword)
+	{
+		auto& keywords = m_shader->GetKeywords();
+		if (keywords.Contains(keyword))
+		{
+			Vector<String> new_keywords;
+			for (auto& i : keywords)
+			{
+				new_keywords.Add(i);
+			}
+			new_keywords.Remove(keyword);
+			m_shader = Shader::Find(m_shader->GetName(), new_keywords);
+		}
+	}
+
     void Material::Prepare()
     {
         for (auto& i : m_properties)

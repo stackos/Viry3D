@@ -105,7 +105,7 @@ namespace Viry3D
 #endif
     }
 
-	Ref<Shader> Shader::Find(const String& name, const Vector<String>& keywords)
+	Ref<Shader> Shader::Find(const String& name, const Vector<String>& keywords, bool light_add)
 	{
 		Ref<Shader> shader;
 
@@ -134,7 +134,7 @@ namespace Viry3D
 			{
 				String lua_src = File::ReadAllText(path);
 
-				shader = RefMake<Shader>(name);
+				shader = Ref<Shader>(new Shader(name, light_add));
 				shader->Load(lua_src, keyword_list);
 				shader->Compile();
 
@@ -149,7 +149,8 @@ namespace Viry3D
 		return shader;
 	}
     
-    Shader::Shader(const String& name):
+    Shader::Shader(const String& name, bool light_add):
+		m_light_add(light_add),
 		m_queue(0)
     {
         this->SetName(name);
@@ -251,6 +252,9 @@ namespace Viry3D
 		SetGlobalInt(L, "Transparent", (int) Queue::Transparent);
 		SetGlobalInt(L, "Overlay", (int) Queue::Overlay);
 
+		SetGlobalInt(L, "None", (int) LightMode::None);
+		SetGlobalInt(L, "Forward", (int) LightMode::Forward);
+
 		String dir = Engine::Instance()->GetDataPath() + "/shader/" + this->GetName();
 		dir = dir.Substring(0, dir.LastIndexOf("/"));
 		AddLuaPath(L, dir + "/?.lua");
@@ -310,6 +314,17 @@ namespace Viry3D
 						if (m_queue < pass.queue)
 						{
 							m_queue = pass.queue;
+						}
+
+						GetTableInt(L, "LightMode", pass.light_mode);
+
+						if (pass.light_mode == LightMode::Forward && m_light_add)
+						{
+							pass.pipeline.rasterState.depthWrite = false;
+							pass.pipeline.rasterState.blendFunctionSrcRGB = src_blend;
+							pass.pipeline.rasterState.blendFunctionSrcAlpha = src_blend;
+							pass.pipeline.rasterState.blendFunctionDstRGB = filament::backend::BlendFunction::ONE;
+							pass.pipeline.rasterState.blendFunctionDstAlpha = filament::backend::BlendFunction::ONE;
 						}
 					}
 					lua_pop(L, 1);
