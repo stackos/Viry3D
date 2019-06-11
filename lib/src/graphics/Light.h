@@ -45,6 +45,10 @@ namespace Viry3D
 		void SetColor(const Color& color);
 		float GetIntensity() const { return m_intensity; }
 		void SetIntensity(float intensity);
+		float GetRange() const { return m_range; }
+		void SetRange(float range);
+		float GetSpotAngle() const { return m_spot_angle; }
+		void SetSpotAngle(float angle);
 		uint32_t GetCullingMask() const { return m_culling_mask; }
 		void SetCullingMask(uint32_t mask);
 		const filament::backend::UniformBufferHandle& GetLightUniformBuffer() const { return m_light_uniform_buffer; }
@@ -65,6 +69,8 @@ namespace Viry3D
         LightType m_type;
 		Color m_color;
 		float m_intensity;
+		float m_range;
+		float m_spot_angle;
 		uint32_t m_culling_mask;
 		filament::backend::UniformBufferHandle m_light_uniform_buffer;
     };

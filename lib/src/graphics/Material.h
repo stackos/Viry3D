@@ -38,7 +38,7 @@ namespace Viry3D
 	{
 		static constexpr const char* VIEW_MATRIX = "u_view_matrix";
 		static constexpr const char* PROJECTION_MATRIX = "u_projection_matrix";
-		static constexpr const char* CAMERA_POSITION = "u_camera_pos";
+		static constexpr const char* CAMERA_POS = "u_camera_pos";
 
 		Matrix4x4 view_matrix;
 		Matrix4x4 projection_matrix;
@@ -71,15 +71,16 @@ namespace Viry3D
 	struct LightUniforms
 	{
 		static constexpr const char* AMBIENT_COLOR = "u_ambient_color";
-		static constexpr const char* LIGHT_POSITION = "u_light_pos";
+		static constexpr const char* LIGHT_POS = "u_light_pos";
 		static constexpr const char* LIGHT_COLOR = "u_light_color";
-		static constexpr const char* LIGHT_INTENSITY = "u_light_intensity";
+		static constexpr const char* LIGHT_ATTEN = "u_light_atten";
+		static constexpr const char* SPOT_LIGHT_DIR = "u_spot_light_dir";
 
 		Color ambient_color;
 		Vector4 light_pos;
-		Color light_color;
-		float light_intensity;
-		Vector3 padding; // d3d11 need constant buffer size in multiples of 16
+		Color light_color; // light type in a
+		Vector4 light_atten;
+		Vector4 spot_light_dir;
 	};
 
 	// per material uniforms, set by material

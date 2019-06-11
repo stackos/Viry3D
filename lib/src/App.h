@@ -112,9 +112,17 @@ namespace Viry3D
 			light->SetColor(Color(1, 0, 0, 1));
 
 			auto light2 = GameObject::Create("")->AddComponent<Light>();
-			light2->GetTransform()->SetRotation(Quaternion::Euler(120, 90, 0));
+			light2->GetTransform()->SetPosition(Vector3(1, 3, 0));
+			light2->GetTransform()->SetRotation(Quaternion::Euler(90, 0, 0));
+			light2->SetType(LightType::Spot);
+			light2->SetRange(10.0f);
 			light2->SetColor(Color(0, 1, 0, 1));
-            
+
+			auto light3 = GameObject::Create("")->AddComponent<Light>();
+			light3->GetTransform()->SetPosition(Vector3(-1, 2, 0));
+			light3->SetType(LightType::Point);
+			light3->SetRange(4.0f);
+			light3->SetColor(Color(0, 0, 1, 1));
 #if 0
 			auto color = Texture::CreateRenderTexture(
 				1280,

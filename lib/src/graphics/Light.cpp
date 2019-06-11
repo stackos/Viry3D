@@ -39,6 +39,8 @@ namespace Viry3D
         m_type(LightType::Directional),
 		m_color(1, 1, 1, 1),
 		m_intensity(1.0f),
+		m_range(1.0f),
+		m_spot_angle(30.0f),
 		m_culling_mask(0xffffffff)
     {
 		m_lights.AddLast(this);
@@ -80,6 +82,18 @@ namespace Viry3D
 		m_dirty = true;
 	}
 
+	void Light::SetRange(float range)
+	{
+		m_range = range;
+		m_dirty = true;
+	}
+
+	void Light::SetSpotAngle(float angle)
+	{
+		m_spot_angle = angle;
+		m_dirty = true;
+	}
+
 	void Light::SetCullingMask(uint32_t mask)
 	{
 		m_culling_mask = mask;
@@ -103,14 +117,27 @@ namespace Viry3D
 		light_uniforms.ambient_color = this->GetAmbientColor();
 		if (this->GetType() == LightType::Directional)
 		{
-			light_uniforms.light_pos = -(this->GetTransform()->GetForward());
+			light_uniforms.light_pos = -this->GetTransform()->GetForward();
+			light_uniforms.light_pos.w = 0.0f;
 		}
 		else
 		{
 			light_uniforms.light_pos = this->GetTransform()->GetPosition();
+			light_uniforms.light_pos.w = 1.0f;
 		}
-		light_uniforms.light_color = this->GetColor();
-		light_uniforms.light_intensity = this->GetIntensity();
+		light_uniforms.light_color = this->GetColor() * this->GetIntensity();
+		light_uniforms.light_color.a = (float) this->GetType();
+		light_uniforms.light_atten = Vector4(0, 0, 0, 0);
+		if (this->GetType() == LightType::Spot || this->GetType() == LightType::Point)
+		{
+			light_uniforms.light_atten.z = 1.0f / (this->GetRange() * this->GetRange());
+		}
+		if (this->GetType() == LightType::Spot)
+		{
+			light_uniforms.light_atten.x = cos(this->GetSpotAngle() / 2 * Mathf::Deg2Rad);
+			light_uniforms.light_atten.y = 1.0f / (light_uniforms.light_atten.x - cos(this->GetSpotAngle() / 4 * Mathf::Deg2Rad));
+			light_uniforms.spot_light_dir = -this->GetTransform()->GetForward();
+		}
 
 		void* buffer = driver.allocate(sizeof(LightUniforms));
 		Memory::Copy(buffer, &light_uniforms, sizeof(LightUniforms));
