@@ -19,6 +19,7 @@
 #include "Engine.h"
 #include "Material.h"
 #include "GameObject.h"
+#include "Renderer.h"
 
 namespace Viry3D
 {
@@ -34,6 +35,53 @@ namespace Viry3D
 		}
 	}
 
+	void Light::RenderShadowMaps()
+	{
+		for (auto i : m_lights)
+		{
+			if (i->IsShadowEnable())
+			{
+				List<Renderer*> renderers;
+				i->CullRenderers(Renderer::GetRenderers(), renderers);
+			}
+		}
+	}
+
+	void Light::CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result)
+	{
+		for (auto i : renderers)
+		{
+			int layer = i->GetGameObject()->GetLayer();
+			if (i->IsCastShadow() && ((1 << layer) & m_culling_mask))
+			{
+				result.AddLast(i);
+			}
+		}
+		result.Sort([](Renderer* a, Renderer* b) {
+			const auto& materials_a = a->GetMaterials();
+			int queue_a = 0;
+			for (int i = 0; i < materials_a.Size(); ++i)
+			{
+				int queue = materials_a[i]->GetQueue();
+				if (queue_a < queue)
+				{
+					queue_a = queue;
+				}
+			}
+			const auto& materials_b = b->GetMaterials();
+			int queue_b = 0;
+			for (int i = 0; i < materials_b.Size(); ++i)
+			{
+				int queue = materials_b[i]->GetQueue();
+				if (queue_b < queue)
+				{
+					queue_b = queue;
+				}
+			}
+			return queue_a < queue_b;
+		});
+	}
+
     Light::Light():
 		m_dirty(true),
         m_type(LightType::Directional),
@@ -41,6 +89,7 @@ namespace Viry3D
 		m_intensity(1.0f),
 		m_range(1.0f),
 		m_spot_angle(30.0f),
+		m_shadow_enable(false),
 		m_culling_mask(0xffffffff)
     {
 		m_lights.AddLast(this);
@@ -92,6 +141,11 @@ namespace Viry3D
 	{
 		m_spot_angle = angle;
 		m_dirty = true;
+	}
+
+	void Light::EnableShadow(bool enable)
+	{
+		m_shadow_enable = enable;
 	}
 
 	void Light::SetCullingMask(uint32_t mask)

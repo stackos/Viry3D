@@ -24,6 +24,8 @@ namespace Viry3D
     List<Renderer*> Renderer::m_renderers;
     
     Renderer::Renderer():
+		m_cast_shadow(false),
+		m_recieve_shadow(false),
         m_lightmap_scale_offset(1, 1, 0, 0),
         m_lightmap_index(-1)
     {
@@ -64,7 +66,17 @@ namespace Viry3D
     {
         m_materials = materials;
     }
+
+	void Renderer::EnableCastShadow(bool enable)
+	{
+		m_cast_shadow = enable;
+	}
     
+	void Renderer::EnableRecieveShadow(bool enable)
+	{
+		m_recieve_shadow = enable;
+	}
+
     void Renderer::SetLightmapIndex(int index)
     {
         m_lightmap_index = index;

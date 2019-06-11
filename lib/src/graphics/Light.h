@@ -30,6 +30,8 @@ namespace Viry3D
         Spot,
         Point,
     };
+
+	class Renderer;
     
     class Light : public Component
     {
@@ -37,6 +39,7 @@ namespace Viry3D
 		static const List<Light*>& GetLights() { return m_lights; }
 		static const Color& GetAmbientColor() { return m_ambient_color; }
 		static void SetAmbientColor(const Color& color);
+		static void RenderShadowMaps();
 		Light();
         virtual ~Light();
 		LightType GetType() const { return m_type; }
@@ -49,6 +52,8 @@ namespace Viry3D
 		void SetRange(float range);
 		float GetSpotAngle() const { return m_spot_angle; }
 		void SetSpotAngle(float angle);
+		bool IsShadowEnable() const { return m_shadow_enable; }
+		void EnableShadow(bool enable);
 		uint32_t GetCullingMask() const { return m_culling_mask; }
 		void SetCullingMask(uint32_t mask);
 		const filament::backend::UniformBufferHandle& GetLightUniformBuffer() const { return m_light_uniform_buffer; }
@@ -57,6 +62,7 @@ namespace Viry3D
 		virtual void OnTransformDirty();
 
 	private:
+		void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);
 		void Prepare();
 
 	private:
@@ -71,6 +77,7 @@ namespace Viry3D
 		float m_intensity;
 		float m_range;
 		float m_spot_angle;
+		bool m_shadow_enable;
 		uint32_t m_culling_mask;
 		filament::backend::UniformBufferHandle m_light_uniform_buffer;
     };

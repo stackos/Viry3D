@@ -97,32 +97,24 @@ namespace Viry3D
 			canvas->AddView(label);
 			m_fps_label = label.get();
             
-            auto sphere = GameObject::Create("")->AddComponent<MeshRenderer>();
-            sphere->SetMaterial(RefMake<Material>(Shader::Find("Diffuse")));
-            sphere->SetMesh(Resources::LoadMesh("Library/unity default resources.Sphere.mesh"));
-            sphere->GetTransform()->SetPosition(Vector3(-1, 1, 0));
-            
-			auto sphere2 = GameObject::Create("")->AddComponent<MeshRenderer>();
-			sphere2->SetMaterial(RefMake<Material>(Shader::Find("Diffuse")));
-			sphere2->SetMesh(Resources::LoadMesh("Library/unity default resources.Sphere.mesh"));
-			sphere2->GetTransform()->SetPosition(Vector3(1, 1, 0));
-
-            auto light = GameObject::Create("")->AddComponent<Light>();
-            light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
-			light->SetColor(Color(1, 0, 0, 1));
+			auto light = GameObject::Create("")->AddComponent<Light>();
+			light->GetTransform()->SetPosition(Vector3(2.2f, 3, 0));
+			light->GetTransform()->SetRotation(Quaternion::Euler(120, 90, 0));
+			light->SetColor(Color(1, 1, 1, 1) * 0.7f);
+			light->SetType(LightType::Spot);
+			light->SetSpotAngle(40);
+			light->SetRange(10.0f);
+			light->EnableShadow(true);
 
 			auto light2 = GameObject::Create("")->AddComponent<Light>();
-			light2->GetTransform()->SetPosition(Vector3(1, 3, 0));
-			light2->GetTransform()->SetRotation(Quaternion::Euler(90, 0, 0));
+			light2->GetTransform()->SetPosition(Vector3(-2.2f, 3, 0));
+			light2->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
+			light2->SetColor(Color(1, 1, 1, 1) * 0.7f);
 			light2->SetType(LightType::Spot);
+			light2->SetSpotAngle(40);
 			light2->SetRange(10.0f);
-			light2->SetColor(Color(0, 1, 0, 1));
+			light2->EnableShadow(true);
 
-			auto light3 = GameObject::Create("")->AddComponent<Light>();
-			light3->GetTransform()->SetPosition(Vector3(-1, 2, 0));
-			light3->SetType(LightType::Point);
-			light3->SetRange(4.0f);
-			light3->SetColor(Color(0, 0, 1, 1));
 #if 0
 			auto color = Texture::CreateRenderTexture(
 				1280,
