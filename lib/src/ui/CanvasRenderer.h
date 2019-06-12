@@ -52,7 +52,7 @@ namespace Viry3D
 		void SetCamera(const Ref<Camera>& camera) { m_camera = camera; }
 
 	protected:
-		virtual void PrepareRender();
+		virtual void Prepare();
 		virtual void OnResize(int width, int height);
 
 	private:

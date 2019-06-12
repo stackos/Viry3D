@@ -20,6 +20,7 @@
 #include "Component.h"
 #include "container/List.h"
 #include "Color.h"
+#include "math/Matrix4x4.h"
 #include "private/backend/DriverApi.h"
 
 namespace Viry3D
@@ -32,6 +33,7 @@ namespace Viry3D
     };
 
 	class Renderer;
+	class Texture;
     
     class Light : public Component
     {
@@ -54,6 +56,9 @@ namespace Viry3D
 		void SetSpotAngle(float angle);
 		bool IsShadowEnable() const { return m_shadow_enable; }
 		void EnableShadow(bool enable);
+		void SetNearClip(float clip);
+		void SetFarClip(float clip);
+		void SetOrthographicSize(float size);
 		uint32_t GetCullingMask() const { return m_culling_mask; }
 		void SetCullingMask(uint32_t mask);
 		const filament::backend::UniformBufferHandle& GetLightUniformBuffer() const { return m_light_uniform_buffer; }
@@ -62,7 +67,12 @@ namespace Viry3D
 		virtual void OnTransformDirty();
 
 	private:
+		const Matrix4x4& GetViewMatrix();
+		const Matrix4x4& GetProjectionMatrix();
 		void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);
+		void UpdateViewUniforms();
+		void Draw(const List<Renderer*>& renderers);
+		void DrawRenderer(Renderer* renderer);
 		void Prepare();
 
 	private:
@@ -78,7 +88,18 @@ namespace Viry3D
 		float m_range;
 		float m_spot_angle;
 		bool m_shadow_enable;
+		int m_shadow_texture_size;
+		Ref<Texture> m_shadow_texture;
+		float m_near_clip;
+		float m_far_clip;
+		float m_orthographic_size;
+		Matrix4x4 m_view_matrix;
+		bool m_view_matrix_dirty;
+		Matrix4x4 m_projection_matrix;
+		bool m_projection_matrix_dirty;
 		uint32_t m_culling_mask;
+		filament::backend::UniformBufferHandle m_view_uniform_buffer;
 		filament::backend::UniformBufferHandle m_light_uniform_buffer;
+		filament::backend::RenderTargetHandle m_render_target;
     };
 }

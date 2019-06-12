@@ -38,7 +38,7 @@ namespace Viry3D
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
         
 	protected:
-		virtual void PrepareRender();
+		virtual void Prepare();
 
     private:
         void FindBones();

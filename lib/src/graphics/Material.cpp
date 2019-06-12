@@ -384,19 +384,17 @@ namespace Viry3D
         }
     }
     
-    void Material::Apply(const Camera* camera, int pass)
+    void Material::Apply(int target_width, int target_height, int pass)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
         
-        // set scissor
-        int target_width = camera->GetTargetWidth();
-        int target_height = camera->GetTargetHeight();
-        int32_t scissor_left = (int32_t) (m_scissor_rect.x * target_width);
-        int32_t scissor_bottom = (int32_t) ((1.0f - (m_scissor_rect.y + m_scissor_rect.h)) * target_height);
-        uint32_t scissor_width = (uint32_t) (m_scissor_rect.w * target_width);
-        uint32_t scissor_height = (uint32_t) (m_scissor_rect.h * target_height);
-        driver.setViewportScissor(scissor_left, scissor_bottom, scissor_width, scissor_height);
-        
+		// set scissor
+		int32_t scissor_left = (int32_t) (m_scissor_rect.x * target_width);
+		int32_t scissor_bottom = (int32_t) ((1.0f - (m_scissor_rect.y + m_scissor_rect.h)) * target_height);
+		uint32_t scissor_width = (uint32_t) (m_scissor_rect.w * target_width);
+		uint32_t scissor_height = (uint32_t) (m_scissor_rect.h * target_height);
+		driver.setViewportScissor(scissor_left, scissor_bottom, scissor_width, scissor_height);
+
         const auto& unifrom_buffers = m_unifrom_buffers[pass];
         const auto& samplers = m_samplers[pass];
         

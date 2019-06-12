@@ -29,6 +29,7 @@
 #include "graphics/Texture.h"
 #include "graphics/Camera.h"
 #include "graphics/Light.h"
+#include "graphics/Renderer.h"
 #include "ui/Font.h"
 #include "audio/AudioManager.h"
 #include "time/Time.h"
@@ -243,6 +244,7 @@ namespace Viry3D
 
 		void Render()
 		{
+			Renderer::PrepareAll();
 			Light::RenderShadowMaps();
 			Camera::RenderAll();
 			this->Flush();

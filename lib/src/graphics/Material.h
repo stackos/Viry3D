@@ -167,7 +167,7 @@ namespace Viry3D
 		void EnableKeyword(const String& keyword);
 		void DisableKeyword(const String& keyword);
         void Prepare();
-        void Apply(const Camera* camera, int pass);
+        void Apply(int target_width, int target_height, int pass);
         
     private:
         template <class T>

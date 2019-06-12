@@ -110,9 +110,9 @@ namespace Viry3D
         }
     }
 
-	void CanvasRenderer::PrepareRender()
+	void CanvasRenderer::Prepare()
 	{
-		MeshRenderer::PrepareRender();
+		MeshRenderer::Prepare();
 
         for (int i = 0; i < m_views.Size(); ++i)
         {

@@ -73,9 +73,7 @@ namespace Viry3D
 	private:
         void OnResize(int width, int height);
         void CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result);
-        void Prepare(const List<Renderer*>& renderers);
 		void UpdateViewUniforms();
-        void PrepareRenderer(Renderer* renderer);
 		void Draw(const List<Renderer*>& renderers);
         void DrawRenderer(Renderer* renderer);
 

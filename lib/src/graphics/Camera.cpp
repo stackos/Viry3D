@@ -31,6 +31,12 @@ namespace Viry3D
 
 	void Camera::RenderAll()
 	{
+		const auto& lights = Light::GetLights();
+		for (auto i : lights)
+		{
+			i->Prepare();
+		}
+
 		if (m_cameras_order_dirty)
 		{
 			m_cameras_order_dirty = false;
@@ -43,7 +49,7 @@ namespace Viry3D
 		{
             List<Renderer*> renderers;
             i->CullRenderers(Renderer::GetRenderers(), renderers);
-            i->Prepare(renderers);
+			i->UpdateViewUniforms();
 			i->Draw(renderers);
 		}
 	}
@@ -101,16 +107,6 @@ namespace Viry3D
             return queue_a < queue_b;
         });
     }
-    
-    void Camera::Prepare(const List<Renderer*>& renderers)
-    {
-        for (auto i : renderers)
-        {
-            this->PrepareRenderer(i);
-        }
-
-		this->UpdateViewUniforms();
-    }
 
 	void Camera::UpdateViewUniforms()
 	{
@@ -129,28 +125,6 @@ namespace Viry3D
 		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));
 		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms)));
 	}
-    
-    void Camera::PrepareRenderer(Renderer* renderer)
-    {
-		renderer->PrepareRender();
-
-        const auto& materials = renderer->GetMaterials();
-		const auto& lights = Light::GetLights();
-
-        for (int i = 0; i < materials.Size(); ++i)
-        {
-            auto& material = materials[i];
-			if (material)
-			{
-                material->Prepare();
-            }
-        }
-
-		for (auto i : lights)
-		{
-			i->Prepare();
-		}
-    }
 
 	void Camera::Draw(const List<Renderer*>& renderers)
 	{
@@ -187,8 +161,8 @@ namespace Viry3D
 
 				m_render_target = driver.createRenderTarget(
 					target_flags,
-					this->GetTargetWidth(),
-					this->GetTargetHeight(),
+					target_width,
+					target_height,
 					1,
 					color,
 					depth,
@@ -325,7 +299,7 @@ namespace Viry3D
 								continue;
 							}
 
-							material->Apply(this, j);
+							material->Apply(this->GetTargetWidth(), this->GetTargetHeight(), j);
 
 							const auto& pipeline = shader->GetPass(j).pipeline;
 							driver.draw(pipeline, primitive);

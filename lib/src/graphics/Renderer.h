@@ -30,6 +30,7 @@ namespace Viry3D
     {
     public:
         static const List<Renderer*>& GetRenderers() { return m_renderers; }
+		static void PrepareAll();
         Renderer();
         virtual ~Renderer();
         Ref<Material> GetMaterial() const;
@@ -48,7 +49,7 @@ namespace Viry3D
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
 
 	protected:
-		virtual void PrepareRender();
+		virtual void Prepare();
 		virtual void OnResize(int width, int height) { }
 
 	private:

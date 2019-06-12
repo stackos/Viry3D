@@ -142,9 +142,9 @@ namespace Viry3D
         }
     }
 
-    void SkinnedMeshRenderer::PrepareRender()
+    void SkinnedMeshRenderer::Prepare()
     {
-		MeshRenderer::PrepareRender();
+		MeshRenderer::Prepare();
 
         const auto& materials = this->GetMaterials();
         const auto& mesh = this->GetMesh();

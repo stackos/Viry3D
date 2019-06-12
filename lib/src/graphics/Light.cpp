@@ -20,6 +20,8 @@
 #include "Material.h"
 #include "GameObject.h"
 #include "Renderer.h"
+#include "SkinnedMeshRenderer.h"
+#include "Texture.h"
 
 namespace Viry3D
 {
@@ -39,10 +41,13 @@ namespace Viry3D
 	{
 		for (auto i : m_lights)
 		{
-			if (i->IsShadowEnable())
+			if ((i->GetType() == LightType::Directional || i->GetType() == LightType::Spot) &&
+				i->IsShadowEnable())
 			{
 				List<Renderer*> renderers;
 				i->CullRenderers(Renderer::GetRenderers(), renderers);
+				i->UpdateViewUniforms();
+				i->Draw(renderers);
 			}
 		}
 	}
@@ -82,6 +87,142 @@ namespace Viry3D
 		});
 	}
 
+	void Light::UpdateViewUniforms()
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+		if (!m_view_uniform_buffer)
+		{
+			m_view_uniform_buffer = driver.createUniformBuffer(sizeof(ViewUniforms), filament::backend::BufferUsage::DYNAMIC);
+		}
+
+		ViewUniforms view_uniforms;
+		view_uniforms.view_matrix = this->GetViewMatrix();
+		view_uniforms.projection_matrix = this->GetProjectionMatrix();
+		view_uniforms.camera_pos = this->GetTransform()->GetPosition();
+
+		void* buffer = driver.allocate(sizeof(ViewUniforms));
+		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));
+		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms)));
+	}
+
+	void Light::Draw(const List<Renderer*>& renderers)
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		int target_width = m_shadow_texture_size;
+		int target_height = m_shadow_texture_size;
+
+		filament::backend::RenderTargetHandle target;
+		filament::backend::RenderPassParams params;
+		params.flags.clear = filament::backend::TargetBufferFlags::NONE;
+		params.flags.discardStart = filament::backend::TargetBufferFlags::NONE;
+		params.flags.discardEnd = filament::backend::TargetBufferFlags::NONE;
+
+		if (!m_shadow_texture || m_shadow_texture->GetWidth() != m_shadow_texture_size)
+		{
+			m_shadow_texture = Texture::CreateRenderTexture(
+				m_shadow_texture_size,
+				m_shadow_texture_size,
+				Texture::SelectDepthFormat(),
+				FilterMode::Linear,
+				SamplerAddressMode::ClampToEdge);
+
+			if (m_render_target)
+			{
+				driver.destroyRenderTarget(m_render_target);
+				m_render_target.clear();
+			}
+		}
+
+		if (!m_render_target)
+		{
+			filament::backend::TargetBufferFlags target_flags = filament::backend::TargetBufferFlags::NONE;
+			filament::backend::TargetBufferInfo color = { };
+			filament::backend::TargetBufferInfo depth = { };
+			filament::backend::TargetBufferInfo stencil = { };
+
+			target_flags |= filament::backend::TargetBufferFlags::DEPTH;
+			depth.handle = m_shadow_texture->GetTexture();
+
+			m_render_target = driver.createRenderTarget(
+				target_flags,
+				target_width,
+				target_height,
+				1,
+				color,
+				depth,
+				stencil);
+		}
+		target = m_render_target;
+
+		params.flags.clear = filament::backend::TargetBufferFlags::DEPTH;
+		params.flags.discardStart |= filament::backend::TargetBufferFlags::COLOR;
+
+		params.viewport.left = 0;
+		params.viewport.bottom = 0;
+		params.viewport.width = (uint32_t) target_width;
+		params.viewport.height = (uint32_t) target_height;
+
+		driver.beginRenderPass(target, params);
+
+		driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerView, m_view_uniform_buffer);
+
+		for (auto i : renderers)
+		{
+			this->DrawRenderer(i);
+		}
+
+		driver.endRenderPass();
+
+		driver.flush();
+	}
+
+	void Light::DrawRenderer(Renderer* renderer)
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRenderer, renderer->GetTransformUniformBuffer());
+
+		SkinnedMeshRenderer* skin = dynamic_cast<SkinnedMeshRenderer*>(renderer);
+		if (skin && skin->GetBonesUniformBuffer())
+		{
+			driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBonesUniformBuffer());
+		}
+
+		const auto& materials = renderer->GetMaterials();
+		for (int i = 0; i < materials.Size(); ++i)
+		{
+			auto& material = materials[i];
+			if (material)
+			{
+				filament::backend::RenderPrimitiveHandle primitive;
+
+				auto primitives = renderer->GetPrimitives();
+				if (i < primitives.Size())
+				{
+					primitive = primitives[i];
+				}
+				else
+				{
+					break;
+				}
+
+				if (primitive)
+				{
+					/*const auto& shader = material->GetShader();
+
+					for (int j = 0; j < shader->GetPassCount(); ++j)
+					{
+						material->Apply(m_shadow_texture_size, m_shadow_texture_size, j);
+
+						const auto& pipeline = shader->GetPass(j).pipeline;
+						driver.draw(pipeline, primitive);
+					}*/
+				}
+			}
+		}
+	}
+
     Light::Light():
 		m_dirty(true),
         m_type(LightType::Directional),
@@ -90,6 +231,12 @@ namespace Viry3D
 		m_range(1.0f),
 		m_spot_angle(30.0f),
 		m_shadow_enable(false),
+		m_shadow_texture_size(1024),
+		m_near_clip(0.3f),
+		m_far_clip(1000),
+		m_orthographic_size(1),
+		m_view_matrix_dirty(true),
+		m_projection_matrix_dirty(true),
 		m_culling_mask(0xffffffff)
     {
 		m_lights.AddLast(this);
@@ -99,10 +246,22 @@ namespace Viry3D
     {
 		auto& driver = Engine::Instance()->GetDriverApi();
 
+		if (m_view_uniform_buffer)
+		{
+			driver.destroyUniformBuffer(m_view_uniform_buffer);
+			m_view_uniform_buffer.clear();
+		}
+
 		if (m_light_uniform_buffer)
 		{
 			driver.destroyUniformBuffer(m_light_uniform_buffer);
 			m_light_uniform_buffer.clear();
+		}
+
+		if (m_render_target)
+		{
+			driver.destroyRenderTarget(m_render_target);
+			m_render_target.clear();
 		}
 
 		m_lights.Remove(this);
@@ -111,12 +270,14 @@ namespace Viry3D
 	void Light::OnTransformDirty()
 	{
 		m_dirty = true;
+		m_view_matrix_dirty = true;
 	}
 
 	void Light::SetType(LightType type)
 	{
 		m_type = type;
 		m_dirty = true;
+		m_projection_matrix_dirty = true;
 	}
 
 	void Light::SetColor(const Color& color)
@@ -141,11 +302,69 @@ namespace Viry3D
 	{
 		m_spot_angle = angle;
 		m_dirty = true;
+		m_projection_matrix_dirty = true;
 	}
 
 	void Light::EnableShadow(bool enable)
 	{
 		m_shadow_enable = enable;
+	}
+
+	void Light::SetNearClip(float clip)
+	{
+		m_near_clip = clip;
+		m_projection_matrix_dirty = true;
+	}
+
+	void Light::SetFarClip(float clip)
+	{
+		m_far_clip = clip;
+		m_projection_matrix_dirty = true;
+	}
+
+	void Light::SetOrthographicSize(float size)
+	{
+		m_orthographic_size = size;
+		m_projection_matrix_dirty = true;
+	}
+
+	const Matrix4x4& Light::GetViewMatrix()
+	{
+		if (m_view_matrix_dirty)
+		{
+			m_view_matrix_dirty = false;
+
+			m_view_matrix = Matrix4x4::LookTo(this->GetTransform()->GetPosition(), this->GetTransform()->GetForward(), this->GetTransform()->GetUp());
+		}
+
+		return m_view_matrix;
+	}
+
+	const Matrix4x4& Light::GetProjectionMatrix()
+	{
+		if (m_projection_matrix_dirty)
+		{
+			m_projection_matrix_dirty = false;
+
+			float view_width = (float) m_shadow_texture_size;
+			float view_height = (float) m_shadow_texture_size;
+
+			if (this->GetType() == LightType::Directional)
+			{
+				float ortho_size = m_orthographic_size;
+				float top = ortho_size;
+				float bottom = -ortho_size;
+				float plane_h = ortho_size * 2;
+				float plane_w = plane_h * view_width / view_height;
+				m_projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_near_clip, m_far_clip);
+			}
+			else
+			{
+				m_projection_matrix = Matrix4x4::Perspective(m_spot_angle, view_width / view_height, m_near_clip, m_far_clip);
+			}
+		}
+
+		return m_projection_matrix;
 	}
 
 	void Light::SetCullingMask(uint32_t mask)

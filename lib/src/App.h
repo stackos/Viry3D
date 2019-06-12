@@ -70,6 +70,11 @@ namespace Viry3D
 
 			auto obj_0 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
 			obj_0->GetTransform()->SetPosition(Vector3(0, 0, 0));
+			auto renderers = obj_0->GetComponentsInChildren<Renderer>();
+			for (int i = 0; i < renderers.Size(); ++i)
+			{
+				renderers[i]->EnableCastShadow(true);
+			}
 			auto anim = obj_0->GetComponent<Animation>();
 			anim->Play(0);
 
