@@ -202,8 +202,10 @@ namespace Viry3D
 						if (shader->GetPass(j).queue <= (int) Shader::Queue::AlphaTest &&
 							shader->GetPass(j).pipeline.rasterState.depthWrite)
 						{
+							material->Bind(j);
+
 							Ref<Shader> shadow_shader;
-							if (skin)
+							if (skin && skin->GetBonePaths().Size() > 0)
 							{
 								shadow_shader = Shader::Find("ShadowMap", { "SKIN_ON" });
 							}

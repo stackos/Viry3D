@@ -54,6 +54,7 @@ void main()
 
 local fs = [[
 precision highp float;
+VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
 void main()
 {
 }
@@ -125,6 +126,12 @@ local pass = {
                 },
             },
         },
+	},
+	samplers = {
+		{
+			name = "u_texture",
+			binding = 0,
+		},
 	},
 }
 

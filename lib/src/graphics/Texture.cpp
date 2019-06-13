@@ -322,7 +322,7 @@ namespace Viry3D
             1,
             filament::backend::TextureUsage::DEFAULT);
 
-        texture->UpdateSampler();
+        texture->UpdateSampler(false);
 
         return texture;
     }
@@ -363,7 +363,7 @@ namespace Viry3D
             1,
             filament::backend::TextureUsage::DEFAULT);
         
-        texture->UpdateSampler();
+        texture->UpdateSampler(false);
         
         return texture;
     }
@@ -382,6 +382,7 @@ namespace Viry3D
 		auto& driver = Engine::Instance()->GetDriverApi();
 
 		filament::backend::TextureUsage usage = filament::backend::TextureUsage::SAMPLEABLE;
+		bool depth = false;
 
 		switch (format)
 		{
@@ -395,11 +396,13 @@ namespace Viry3D
 		case TextureFormat::D24X8:
 		case TextureFormat::D32:
 			usage |= filament::backend::TextureUsage::DEPTH_ATTACHMENT;
+			depth = true;
 			break;
 		case TextureFormat::D24S8:
 		case TextureFormat::D32S8:
 			usage |= filament::backend::TextureUsage::DEPTH_ATTACHMENT;
 			usage |= filament::backend::TextureUsage::STENCIL_ATTACHMENT;
+			depth = true;
 			break;
 		case TextureFormat::S8:
 			usage |= filament::backend::TextureUsage::STENCIL_ATTACHMENT;
@@ -429,7 +432,7 @@ namespace Viry3D
 			1,
 			usage);
 
-		texture->UpdateSampler();
+		texture->UpdateSampler(depth);
 
 		return texture;
 	}
@@ -581,7 +584,7 @@ namespace Viry3D
         }
     }
     
-    void Texture::UpdateSampler()
+    void Texture::UpdateSampler(bool depth)
     {
         switch (m_filter_mode)
         {
@@ -633,5 +636,7 @@ namespace Viry3D
                 m_sampler.wrapR = filament::backend::SamplerWrapMode::MIRRORED_REPEAT;
                 break;
         }
+
+		m_sampler.depthStencil = depth;
     }
 }

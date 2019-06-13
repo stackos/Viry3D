@@ -155,7 +155,7 @@ namespace Viry3D
 
     private:
         Texture();
-        void UpdateSampler();
+        void UpdateSampler(bool depth);
         
 	private:
 		static Ref<Image> m_shared_white_image;
