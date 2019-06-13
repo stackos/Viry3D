@@ -35,8 +35,10 @@ namespace Viry3D
 			PerRendererBones = 2,
 			PerMaterialVertex = 3,
 			PerMaterialFragment = 4,
-			PerLight = 5,
-			Count = 6,
+			PerLightVertex = 5,
+			PerLightFragment = 6,
+
+			Count = filament::backend::CONFIG_UNIFORM_BINDING_COUNT,
 		};
 
 		enum class AttributeLocation
@@ -89,6 +91,13 @@ namespace Viry3D
 			int binding;
 		};
 
+		struct SamplerGroup
+		{
+			String name;
+			int binding;
+			Vector<Sampler> samplers;
+		};
+
 		struct Pass
 		{
 			String vs;
@@ -96,7 +105,7 @@ namespace Viry3D
 			int queue = (int) Queue::Geometry;
 			LightMode light_mode = LightMode::None;
 			Vector<Uniform> uniforms;
-			Vector<Sampler> samplers;
+			Vector<SamplerGroup> samplers;
 			filament::backend::PipelineState pipeline;
 		};
 

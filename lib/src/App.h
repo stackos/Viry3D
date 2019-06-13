@@ -67,6 +67,7 @@ namespace Viry3D
 			floor->GetTransform()->SetScale(Vector3(20, 10, 10));
 			floor->SetMesh(cube);
 			floor->SetMaterial(material);
+			floor->EnableRecieveShadow(true);
 
 			auto obj_0 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
 			obj_0->GetTransform()->SetPosition(Vector3(0, 0, 0));

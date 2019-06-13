@@ -2,6 +2,9 @@ local vs = [[
 #ifndef SKIN_ON
 	#define SKIN_ON 0
 #endif
+#ifndef RECIEVE_SHADOW_ON
+	#define RECIEVE_SHADOW_ON 0
+#endif
 
 VK_UNIFORM_BINDING(0) uniform PerView
 {
@@ -48,6 +51,15 @@ VK_LAYOUT_LOCATION(2) out vec3 v_normal;
 	}
 #endif
 
+#if (RECIEVE_SHADOW_ON == 1)
+	VK_LAYOUT_LOCATION(3) out vec4 v_pos_light_proj;
+	VK_UNIFORM_BINDING(5) uniform PerLightVertex
+	{
+		mat4 u_light_view_matrix;
+		mat4 u_light_projection_matrix;
+	};
+#endif
+
 void main()
 {
 #if (SKIN_ON == 1)
@@ -55,11 +67,16 @@ void main()
 #else
     mat4 model_matrix = u_model_matrix;
 #endif
+
 	vec4 world_pos = i_vertex * model_matrix;
 	gl_Position = world_pos * u_view_matrix * u_projection_matrix;
 	v_pos = world_pos.xyz;
 	v_uv = i_uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
     v_normal = (vec4(i_normal, 0.0) * model_matrix).xyz;
+
+#if (RECIEVE_SHADOW_ON == 1)
+	v_pos_light_proj = i_vertex * model_matrix * u_light_view_matrix * u_light_projection_matrix;
+#endif
 
 	vk_convert();
 }
@@ -69,20 +86,30 @@ local fs = [[
 #ifndef LIGHT_ADD_ON
 	#define LIGHT_ADD_ON 0
 #endif
+#ifndef RECIEVE_SHADOW_ON
+	#define RECIEVE_SHADOW_ON 0
+#endif
 
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
-VK_UNIFORM_BINDING(5) uniform PerLight
+VK_UNIFORM_BINDING(6) uniform PerLightFragment
 {
 	vec4 u_ambient_color;
     vec4 u_light_pos;
     vec4 u_light_color;
 	vec4 u_light_atten;
 	vec4 u_spot_light_dir;
+	vec4 u_shadow_params;
 };
 VK_LAYOUT_LOCATION(0) in vec3 v_pos;
 VK_LAYOUT_LOCATION(1) in vec2 v_uv;
 VK_LAYOUT_LOCATION(2) in vec3 v_normal;
+
+#if (RECIEVE_SHADOW_ON == 1)
+	VK_SAMPLER_BINDING(1) uniform highp sampler2D u_shadow_texture;
+	VK_LAYOUT_LOCATION(3) in vec4 v_pos_light_proj;
+#endif
+
 layout(location = 0) out vec4 o_color;
 void main()
 {
@@ -91,6 +118,7 @@ void main()
 	vec3 light_dir = normalize(to_light);
     float nl = max(dot(normal, light_dir), 0.0);
 	vec4 c = texture(u_texture, v_uv);
+
 	float sqr_len = dot(to_light, to_light);
 	float atten = 1.0 - sqr_len * u_light_atten.z;
 	int light_type = int(u_light_color.a);
@@ -106,13 +134,22 @@ void main()
 			atten = 0.0;
 		}
 	}
-	vec3 diffuse = c.rgb * nl * u_light_color.rgb * atten;
+
+	float shadow = 1.0;
+
+#if (RECIEVE_SHADOW_ON == 1)
+	
+#endif
+
+	vec3 diffuse = c.rgb * nl * u_light_color.rgb * atten * shadow;
+
 #if (LIGHT_ADD_ON == 1)
 	c.rgb = diffuse;
 #else
 	vec3 ambient = c.rgb * u_ambient_color.rgb;
 	c.rgb = ambient + diffuse;
 #endif
+
 	c.a = 1.0;
     o_color = c;
 }
@@ -197,9 +234,23 @@ local pass = {
                 },
             },
         },
-        {
-            name = "PerLight",
+		{
+            name = "PerLightVertex",
             binding = 5,
+            members = {
+				{
+					name = "u_light_view_matrix",
+					size = 64,
+				},
+                {
+                    name = "u_light_projection_matrix",
+                    size = 64,
+                },
+			},
+        },
+        {
+            name = "PerLightFragment",
+            binding = 6,
             members = {
 				{
                     name = "u_ambient_color",
@@ -221,13 +272,33 @@ local pass = {
                     name = "u_spot_light_dir",
                     size = 16,
                 },
+				{
+                    name = "u_shadow_params",
+                    size = 16,
+                },
             },
         },
 	},
 	samplers = {
 		{
-			name = "u_texture",
-			binding = 0,
+			name = "PerMaterialFragment",
+			binding = 4,
+			samplers = {
+				{
+					name = "u_texture",
+					binding = 0,
+				},
+			},
+		},
+		{
+			name = "PerLightFragment",
+			binding = 6,
+			samplers = {
+				{
+					name = "u_shadow_texture",
+					binding = 1,
+				},
+			},
 		},
 	},
 }

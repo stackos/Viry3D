@@ -68,19 +68,21 @@ namespace Viry3D
 	};
 
 	// per light uniforms, set by light
-	struct LightUniforms
+	struct LightFragmentUniforms
 	{
 		static constexpr const char* AMBIENT_COLOR = "u_ambient_color";
 		static constexpr const char* LIGHT_POS = "u_light_pos";
 		static constexpr const char* LIGHT_COLOR = "u_light_color";
 		static constexpr const char* LIGHT_ATTEN = "u_light_atten";
 		static constexpr const char* SPOT_LIGHT_DIR = "u_spot_light_dir";
+		static constexpr const char* SHADOW_PARAMS = "u_shadow_params";
 
 		Color ambient_color;
 		Vector4 light_pos;
 		Color light_color; // light type in a
 		Vector4 light_atten;
 		Vector4 spot_light_dir;
+		Vector4 shadow_params; // strength, z_bias, slope_bias, filter_radius
 	};
 
 	// per material uniforms, set by material

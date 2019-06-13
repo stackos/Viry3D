@@ -300,7 +300,7 @@ namespace Viry3D
                 for (int j = 0; j < sampler_group.samplers.Size(); ++j)
                 {
                     const auto& sampler = sampler_group.samplers[j];
-                    samplers.setSampler(sampler.binding, sampler.texture->GetTexture(), sampler.texture->GetSampler());
+					samplers.setSampler(sampler.binding, sampler.texture->GetTexture(), sampler.texture->GetSampler());
                 }
                 driver.updateSamplerGroup(sampler_group.sampler_group, std::move(samplers));
             }
@@ -363,23 +363,33 @@ namespace Viry3D
             
             for (int j = 0; j < pass.samplers.Size(); ++j)
             {
-                const auto& sampler = pass.samplers[j];
+                const auto& group = pass.samplers[j];
                 
-                if (name == sampler.name)
-                {
-                    auto& sampler_group = m_samplers[i];
-                    
-                    if (!sampler_group.sampler_group)
-                    {
-                        sampler_group.sampler_group = driver.createSamplerGroup(pass.samplers.Size());
-                        sampler_group.samplers.Resize(pass.samplers.Size());
-                    }
-                    
-                    sampler_group.samplers[j].binding = sampler.binding;
-                    sampler_group.samplers[j].texture = texture;
-                    
-                    sampler_group.dirty = true;
-                }
+				if (group.binding == (int) Shader::BindingPoint::PerMaterialFragment)
+				{
+					for (int k = 0; k < group.samplers.Size(); ++k)
+					{
+						const auto& sampler = group.samplers[k];
+
+						if (name == sampler.name)
+						{
+							auto& sampler_group = m_samplers[i];
+
+							if (!sampler_group.sampler_group)
+							{
+								sampler_group.sampler_group = driver.createSamplerGroup(group.samplers.Size());
+								sampler_group.samplers.Resize(group.samplers.Size());
+							}
+
+							sampler_group.samplers[k].binding = sampler.binding;
+							sampler_group.samplers[k].texture = texture;
+
+							sampler_group.dirty = true;
+						}
+					}
+
+					break;
+				}
             }
         }
     }

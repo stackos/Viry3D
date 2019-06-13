@@ -63,6 +63,7 @@ namespace Viry3D
 		void SetOrthographicSize(float size);
 		uint32_t GetCullingMask() const { return m_culling_mask; }
 		void SetCullingMask(uint32_t mask);
+		const filament::backend::UniformBufferHandle& GetViewUniformBuffer() const { return m_view_uniform_buffer; }
 		const filament::backend::UniformBufferHandle& GetLightUniformBuffer() const { return m_light_uniform_buffer; }
 
 	protected:

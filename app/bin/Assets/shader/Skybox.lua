@@ -101,8 +101,14 @@ local pass = {
 	},
 	samplers = {
 		{
-			name = "u_texture",
-			binding = 0,
+			name = "PerMaterialFragment",
+			binding = 4,
+			samplers = {
+				{
+					name = "u_texture",
+					binding = 0,
+				},
+			},
 		},
 	},
 }

@@ -407,10 +407,10 @@ namespace Viry3D
 		auto& driver = Engine::Instance()->GetDriverApi();
 		if (!m_light_uniform_buffer)
 		{
-			m_light_uniform_buffer = driver.createUniformBuffer(sizeof(LightUniforms), filament::backend::BufferUsage::DYNAMIC);
+			m_light_uniform_buffer = driver.createUniformBuffer(sizeof(LightFragmentUniforms), filament::backend::BufferUsage::DYNAMIC);
 		}
 
-		LightUniforms light_uniforms;
+		LightFragmentUniforms light_uniforms;
 		light_uniforms.ambient_color = this->GetAmbientColor();
 		if (this->GetType() == LightType::Directional)
 		{
@@ -435,9 +435,10 @@ namespace Viry3D
 			light_uniforms.light_atten.y = 1.0f / (light_uniforms.light_atten.x - cos(this->GetSpotAngle() / 4 * Mathf::Deg2Rad));
 			light_uniforms.spot_light_dir = -this->GetTransform()->GetForward();
 		}
+		light_uniforms.shadow_params = Vector4(1.0f, 0.0001f, 0.0001f, 1.0f / m_shadow_texture_size * 3);
 
-		void* buffer = driver.allocate(sizeof(LightUniforms));
-		Memory::Copy(buffer, &light_uniforms, sizeof(LightUniforms));
-		driver.loadUniformBuffer(m_light_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(LightUniforms)));
+		void* buffer = driver.allocate(sizeof(LightFragmentUniforms));
+		Memory::Copy(buffer, &light_uniforms, sizeof(LightFragmentUniforms));
+		driver.loadUniformBuffer(m_light_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(LightFragmentUniforms)));
 	}
 }

@@ -289,6 +289,11 @@ namespace Viry3D
 
 					if (primitive)
 					{
+						if (renderer->IsRecieveShadow())
+						{
+							material->EnableKeyword("RECIEVE_SHADOW_ON");
+						}
+
 						const auto& shader = light_add ? material->GetLightAddShader() : material->GetShader();
 						
 						material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
@@ -318,7 +323,11 @@ namespace Viry3D
 		{
 			if ((1 << renderer->GetGameObject()->GetLayer()) & i->GetCullingMask())
 			{
-				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLight, i->GetLightUniformBuffer());
+				if (i->IsShadowEnable() && i->GetViewUniformBuffer())
+				{
+					driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightVertex, i->GetViewUniformBuffer());
+				}
+				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightFragment, i->GetLightUniformBuffer());
 
 				draw(light_add);
 
