@@ -291,6 +291,8 @@ namespace Viry3D
 					{
 						const auto& shader = light_add ? material->GetLightAddShader() : material->GetShader();
 						
+						material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
+
 						for (int j = 0; j < shader->GetPassCount(); ++j)
 						{
 							bool has_light = shader->GetPass(j).light_mode == Shader::LightMode::Forward;
@@ -299,7 +301,7 @@ namespace Viry3D
 								continue;
 							}
 
-							material->Apply(this->GetTargetWidth(), this->GetTargetHeight(), j);
+							material->Bind(j);
 
 							const auto& pipeline = shader->GetPass(j).pipeline;
 							driver.draw(pipeline, primitive);

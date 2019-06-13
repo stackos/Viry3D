@@ -605,7 +605,10 @@ namespace Viry3D
 				sampler.binding = pass.samplers[i].binding;
 				samplers.Add(sampler);
 			}
-			pb.setSamplerGroup((size_t) Shader::BindingPoint::PerMaterialFragment, &samplers[0], samplers.Size());
+			if (samplers.Size() > 0)
+			{
+				pb.setSamplerGroup((size_t) Shader::BindingPoint::PerMaterialFragment, &samplers[0], samplers.Size());
+			}
 
 			pass.pipeline.program = driver.createProgram(std::move(pb));
 		}

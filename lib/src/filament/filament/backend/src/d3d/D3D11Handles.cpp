@@ -246,6 +246,7 @@ namespace filament
 			SAFE_RELEASE(pixel_binary);
 			SAFE_RELEASE(vertex_shader);
 			SAFE_RELEASE(pixel_shader);
+			SAFE_RELEASE(input_layout);
 		}
 
 		D3D11UniformBuffer::D3D11UniformBuffer(D3D11Context* context, size_t size, BufferUsage usage):
@@ -704,7 +705,7 @@ namespace filament
 
 		D3D11RenderPrimitive::~D3D11RenderPrimitive()
 		{
-			SAFE_RELEASE(input_layout);
+			
 		}
 
 		void D3D11RenderPrimitive::SetBuffer(

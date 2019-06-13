@@ -57,7 +57,7 @@ namespace Viry3D
 		for (auto i : renderers)
 		{
 			int layer = i->GetGameObject()->GetLayer();
-			if (i->IsCastShadow() && ((1 << layer) & m_culling_mask))
+			if (((1 << layer) & m_culling_mask) && i->IsCastShadow())
 			{
 				result.AddLast(i);
 			}
@@ -117,22 +117,6 @@ namespace Viry3D
 		params.flags.clear = filament::backend::TargetBufferFlags::NONE;
 		params.flags.discardStart = filament::backend::TargetBufferFlags::NONE;
 		params.flags.discardEnd = filament::backend::TargetBufferFlags::NONE;
-
-		if (!m_shadow_texture || m_shadow_texture->GetWidth() != m_shadow_texture_size)
-		{
-			m_shadow_texture = Texture::CreateRenderTexture(
-				m_shadow_texture_size,
-				m_shadow_texture_size,
-				Texture::SelectDepthFormat(),
-				FilterMode::Linear,
-				SamplerAddressMode::ClampToEdge);
-
-			if (m_render_target)
-			{
-				driver.destroyRenderTarget(m_render_target);
-				m_render_target.clear();
-			}
-		}
 
 		if (!m_render_target)
 		{
@@ -209,15 +193,29 @@ namespace Viry3D
 
 				if (primitive)
 				{
-					/*const auto& shader = material->GetShader();
+					const auto& shader = material->GetShader();
+
+					material->SetScissor(m_shadow_texture_size, m_shadow_texture_size);
 
 					for (int j = 0; j < shader->GetPassCount(); ++j)
 					{
-						material->Apply(m_shadow_texture_size, m_shadow_texture_size, j);
+						if (shader->GetPass(j).queue <= (int) Shader::Queue::AlphaTest &&
+							shader->GetPass(j).pipeline.rasterState.depthWrite)
+						{
+							Ref<Shader> shadow_shader;
+							if (skin)
+							{
+								shadow_shader = Shader::Find("ShadowMap", { "SKIN_ON" });
+							}
+							else
+							{
+								shadow_shader = Shader::Find("ShadowMap");
+							}
 
-						const auto& pipeline = shader->GetPass(j).pipeline;
-						driver.draw(pipeline, primitive);
-					}*/
+							const auto& pipeline = shadow_shader->GetPass(0).pipeline;
+							driver.draw(pipeline, primitive);
+						}
+					}
 				}
 			}
 		}
@@ -231,7 +229,7 @@ namespace Viry3D
 		m_range(1.0f),
 		m_spot_angle(30.0f),
 		m_shadow_enable(false),
-		m_shadow_texture_size(1024),
+		m_shadow_texture_size(0),
 		m_near_clip(0.3f),
 		m_far_clip(1000),
 		m_orthographic_size(1),
@@ -240,6 +238,8 @@ namespace Viry3D
 		m_culling_mask(0xffffffff)
     {
 		m_lights.AddLast(this);
+
+		this->SetShadowTextureSize(1024);
     }
 
 	Light::~Light()
@@ -308,6 +308,28 @@ namespace Viry3D
 	void Light::EnableShadow(bool enable)
 	{
 		m_shadow_enable = enable;
+	}
+
+	void Light::SetShadowTextureSize(int size)
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		if (m_shadow_texture_size != size)
+		{
+			m_shadow_texture_size = size;
+			m_shadow_texture = Texture::CreateRenderTexture(
+				m_shadow_texture_size,
+				m_shadow_texture_size,
+				Texture::SelectDepthFormat(),
+				FilterMode::Linear,
+				SamplerAddressMode::ClampToEdge);
+
+			if (m_render_target)
+			{
+				driver.destroyRenderTarget(m_render_target);
+				m_render_target.clear();
+			}
+		}
 	}
 
 	void Light::SetNearClip(float clip)

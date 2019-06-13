@@ -120,22 +120,9 @@ namespace Viry3D
 			light2->SetRange(10.0f);
 			light2->EnableShadow(true);
 
-#if 0
-			auto color = Texture::CreateRenderTexture(
-				1280,
-				720,
-				TextureFormat::R8G8B8A8,
-				FilterMode::Linear,
-				SamplerAddressMode::ClampToEdge);
-			auto depth = Texture::CreateRenderTexture(
-				1280,
-				720,
-				Texture::SelectDepthFormat(),
-				FilterMode::Linear,
-				SamplerAddressMode::ClampToEdge);
-			camera->SetRenderTarget(color, depth);
-
+#if 1
 			auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
+			blit_camera->SetClearFlags(CameraClearFlags::Nothing);
 			blit_camera->SetOrthographic(true);
 			blit_camera->SetOrthographicSize(1);
 			blit_camera->SetNearClip(-1);
@@ -144,7 +131,7 @@ namespace Viry3D
 			blit_camera->SetCullingMask(1 << 2);
 
 			material = RefMake<Material>(Shader::Find("Unlit/Texture"));
-			material->SetTexture(MaterialProperty::TEXTURE, color);
+			material->SetTexture(MaterialProperty::TEXTURE, light->GetShadowTexture());
 			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
 			{
 				material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, -1, 0, 1));
@@ -152,7 +139,7 @@ namespace Viry3D
 
 			auto quad = GameObject::Create("")->AddComponent<MeshRenderer>();
 			quad->GetGameObject()->SetLayer(2);
-			quad->GetTransform()->SetScale(Vector3(1280 / 720.0f, 1, 1));
+			quad->GetTransform()->SetScale(Vector3(1, 1, 1));
 			quad->SetMesh(Mesh::GetSharedQuadMesh());
 			quad->SetMaterial(material);
 #endif

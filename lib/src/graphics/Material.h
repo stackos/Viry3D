@@ -167,7 +167,8 @@ namespace Viry3D
 		void EnableKeyword(const String& keyword);
 		void DisableKeyword(const String& keyword);
         void Prepare();
-        void Apply(int target_width, int target_height, int pass);
+        void SetScissor(int target_width, int target_height);
+		void Bind(int pass);
         
     private:
         template <class T>

@@ -618,7 +618,14 @@ namespace filament
 				target_height = render_target->height;
 			}
 
-			m_context->context->OMSetRenderTargets(1, &color, depth);
+			if (color)
+			{
+				m_context->context->OMSetRenderTargets(1, &color, depth);
+			}
+			else
+			{
+				m_context->context->OMSetRenderTargets(0, nullptr, depth);
+			}
 
 			// set viewport
 			D3D11_VIEWPORT viewport = CD3D11_VIEWPORT(
@@ -661,6 +668,19 @@ namespace filament
 		{
 			m_context->current_render_target = nullptr;
 			m_context->current_render_pass_flags = { };
+
+			for (size_t i = 0; i < m_context->uniform_buffer_bindings.size(); ++i)
+			{
+				m_context->uniform_buffer_bindings[i] = { };
+			}
+
+			for (size_t i = 0; i < m_context->sampler_group_binding.size(); ++i)
+			{
+				m_context->sampler_group_binding[i].sampler_group = SamplerGroupHandle();
+			}
+
+			ID3D11ShaderResourceView* null_views[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { };
+			m_context->context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, null_views);
 		}
 
 		void D3D11Driver::discardSubRenderTargetBuffers(
@@ -827,6 +847,10 @@ namespace filament
 					{
 						m_context->context->VSSetConstantBuffers1((UINT) i, 1, &m_context->uniform_buffer_bindings[i].buffer, nullptr, nullptr);
 					}
+					else
+					{
+						m_context->context->VSSetConstantBuffers1((UINT) i, 0, nullptr, nullptr, nullptr);
+					}
 				}
 			}
 			
@@ -839,6 +863,10 @@ namespace filament
 					if (m_context->uniform_buffer_bindings[i].buffer)
 					{
 						m_context->context->PSSetConstantBuffers1((UINT) i, 1, &m_context->uniform_buffer_bindings[i].buffer, nullptr, nullptr);
+					}
+					else
+					{
+						m_context->context->PSSetConstantBuffers1((UINT) i, 0, nullptr, nullptr, nullptr);
 					}
 				}
 
@@ -921,7 +949,7 @@ namespace filament
 			}
 			m_context->context->IASetPrimitiveTopology(primitive_type);
 
-			if (primitive->input_layout == nullptr)
+			if (program->input_layout == nullptr)
 			{
 				auto get_format = [](ElementType type) {
 					switch (type)
@@ -955,42 +983,12 @@ namespace filament
 					(UINT) input_descs.size(),
 					program->vertex_binary->GetBufferPointer(),
 					program->vertex_binary->GetBufferSize(),
-					&primitive->input_layout);
+					&program->input_layout);
 				assert(SUCCEEDED(hr));
 			}
-			m_context->context->IASetInputLayout(primitive->input_layout);
+			m_context->context->IASetInputLayout(program->input_layout);
 
 			m_context->context->DrawIndexed(primitive->count, primitive->offset, 0);
-
-			// clear shader resources
-			if (program->pixel_shader)
-			{
-				for (size_t i = 0; i < m_context->sampler_group_binding.size(); ++i)
-				{
-					if (m_context->sampler_group_binding[i].sampler_group)
-					{
-						auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, m_context->sampler_group_binding[i].sampler_group);
-
-						for (size_t j = 0; j < sampler_group->sb->getSize(); ++j)
-						{
-							auto& s = sampler_group->sb->getSamplers()[j];
-
-							if (s.t)
-							{
-								auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
-								if (texture->image_view)
-								{
-									ID3D11ShaderResourceView* image_view = nullptr;
-									m_context->context->PSSetShaderResources((UINT) j, 1, &image_view);
-
-									ID3D11SamplerState* sampler = nullptr;
-									m_context->context->PSSetSamplers((UINT) j, 1, &sampler);
-								}
-							}
-						}
-					}
-				}
-			}
 		}
 	}
 }

@@ -56,6 +56,8 @@ namespace Viry3D
 		void SetSpotAngle(float angle);
 		bool IsShadowEnable() const { return m_shadow_enable; }
 		void EnableShadow(bool enable);
+		void SetShadowTextureSize(int size);
+		const Ref<Texture>& GetShadowTexture() const { return m_shadow_texture; }
 		void SetNearClip(float clip);
 		void SetFarClip(float clip);
 		void SetOrthographicSize(float size);

@@ -62,6 +62,7 @@ namespace filament
 			ID3DBlob* pixel_binary = nullptr;
 			ID3D11VertexShader* vertex_shader = nullptr;
 			ID3D11PixelShader* pixel_shader = nullptr;
+			ID3D11InputLayout* input_layout = nullptr;
 		};
 
 		struct D3D11UniformBuffer : public HwUniformBuffer
@@ -179,7 +180,6 @@ namespace filament
 
 			VertexBufferHandle vertex_buffer;
 			IndexBufferHandle index_buffer;
-			ID3D11InputLayout* input_layout = nullptr;
 			uint32_t enabled_attributes = 0;
 		};
 	}
