@@ -232,6 +232,9 @@ namespace Viry3D
 		m_spot_angle(30.0f),
 		m_shadow_enable(false),
 		m_shadow_texture_size(0),
+		m_shadow_strength(1.0f),
+		m_shadow_z_bias(0.0001f),
+		m_shadow_slope_bias(0.0001f),
 		m_near_clip(0.3f),
 		m_far_clip(1000),
 		m_orthographic_size(1),
@@ -258,6 +261,12 @@ namespace Viry3D
 		{
 			driver.destroyUniformBuffer(m_light_uniform_buffer);
 			m_light_uniform_buffer.clear();
+		}
+
+		if (m_sampler_group)
+		{
+			driver.destroySamplerGroup(m_sampler_group);
+			m_sampler_group.clear();
 		}
 
 		if (m_render_target)
@@ -326,12 +335,39 @@ namespace Viry3D
 				FilterMode::Linear,
 				SamplerAddressMode::ClampToEdge);
 
+			if (!m_sampler_group)
+			{
+				m_sampler_group = driver.createSamplerGroup(1);
+			}
+
+			filament::backend::SamplerGroup samplers(1);
+			samplers.setSampler(0, m_shadow_texture->GetTexture(), m_shadow_texture->GetSampler());
+			driver.updateSamplerGroup(m_sampler_group, std::move(samplers));
+
 			if (m_render_target)
 			{
 				driver.destroyRenderTarget(m_render_target);
 				m_render_target.clear();
 			}
 		}
+	}
+
+	void Light::SetShadowStrength(float strength)
+	{
+		m_shadow_strength = strength;
+		m_dirty = true;
+	}
+
+	void Light::SetShadowZBias(float bias)
+	{
+		m_shadow_z_bias = bias;
+		m_dirty = true;
+	}
+
+	void Light::SetShadowSlopeBias(float bias)
+	{
+		m_shadow_slope_bias = bias;
+		m_dirty = true;
 	}
 
 	void Light::SetNearClip(float clip)
@@ -435,7 +471,7 @@ namespace Viry3D
 			light_uniforms.light_atten.y = 1.0f / (light_uniforms.light_atten.x - cos(this->GetSpotAngle() / 4 * Mathf::Deg2Rad));
 			light_uniforms.spot_light_dir = -this->GetTransform()->GetForward();
 		}
-		light_uniforms.shadow_params = Vector4(1.0f, 0.0001f, 0.0001f, 1.0f / m_shadow_texture_size * 3);
+		light_uniforms.shadow_params = Vector4(m_shadow_strength, m_shadow_z_bias, m_shadow_slope_bias, 1.0f / m_shadow_texture_size * 3);
 
 		void* buffer = driver.allocate(sizeof(LightFragmentUniforms));
 		Memory::Copy(buffer, &light_uniforms, sizeof(LightFragmentUniforms));

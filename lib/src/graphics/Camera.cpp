@@ -323,9 +323,17 @@ namespace Viry3D
 		{
 			if ((1 << renderer->GetGameObject()->GetLayer()) & i->GetCullingMask())
 			{
-				if (i->IsShadowEnable() && i->GetViewUniformBuffer())
+				if (i->IsShadowEnable())
 				{
-					driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightVertex, i->GetViewUniformBuffer());
+					if (i->GetViewUniformBuffer())
+					{
+						driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightVertex, i->GetViewUniformBuffer());
+					}
+					
+					if (i->GetSamplerGroup())
+					{
+						driver.bindSamplers((size_t) Shader::BindingPoint::PerLightFragment, i->GetSamplerGroup());
+					}
 				}
 				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightFragment, i->GetLightUniformBuffer());
 

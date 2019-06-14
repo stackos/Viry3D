@@ -121,7 +121,7 @@ namespace Viry3D
 			light2->SetRange(10.0f);
 			light2->EnableShadow(true);
 
-#if 1
+#if 0
 			auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
 			blit_camera->SetClearFlags(CameraClearFlags::Nothing);
 			blit_camera->SetOrthographic(true);

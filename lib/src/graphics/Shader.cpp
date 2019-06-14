@@ -467,12 +467,17 @@ namespace Viry3D
 				vk_convert = "void vk_convert() { }\n";
 			}
 		}
-		else
+		else if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
 		{
-			define = "#define VK_LAYOUT_LOCATION(i)\n"
+			define = "#define VR_GLES 1\n"
+				"#define VK_LAYOUT_LOCATION(i)\n"
 				"#define VK_UNIFORM_BINDING(i) layout(std140)\n"
 				"#define VK_SAMPLER_BINDING(i)\n";
 			vk_convert = "void vk_convert() { }\n";
+		}
+		else
+		{
+			assert(false);
 		}
 
 		for (const auto& i : m_keywords)

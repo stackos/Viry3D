@@ -58,6 +58,9 @@ namespace Viry3D
 		void EnableShadow(bool enable);
 		void SetShadowTextureSize(int size);
 		const Ref<Texture>& GetShadowTexture() const { return m_shadow_texture; }
+		void SetShadowStrength(float strength);
+		void SetShadowZBias(float bias);
+		void SetShadowSlopeBias(float bias);
 		void SetNearClip(float clip);
 		void SetFarClip(float clip);
 		void SetOrthographicSize(float size);
@@ -65,6 +68,7 @@ namespace Viry3D
 		void SetCullingMask(uint32_t mask);
 		const filament::backend::UniformBufferHandle& GetViewUniformBuffer() const { return m_view_uniform_buffer; }
 		const filament::backend::UniformBufferHandle& GetLightUniformBuffer() const { return m_light_uniform_buffer; }
+		const filament::backend::SamplerGroupHandle& GetSamplerGroup() const { return m_sampler_group; }
 
 	protected:
 		virtual void OnTransformDirty();
@@ -93,6 +97,9 @@ namespace Viry3D
 		bool m_shadow_enable;
 		int m_shadow_texture_size;
 		Ref<Texture> m_shadow_texture;
+		float m_shadow_strength;
+		float m_shadow_z_bias;
+		float m_shadow_slope_bias;
 		float m_near_clip;
 		float m_far_clip;
 		float m_orthographic_size;
@@ -103,6 +110,7 @@ namespace Viry3D
 		uint32_t m_culling_mask;
 		filament::backend::UniformBufferHandle m_view_uniform_buffer;
 		filament::backend::UniformBufferHandle m_light_uniform_buffer;
+		filament::backend::SamplerGroupHandle m_sampler_group;
 		filament::backend::RenderTargetHandle m_render_target;
     };
 }

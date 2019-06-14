@@ -870,25 +870,26 @@ namespace filament
 					}
 				}
 
-				for (size_t i = 0; i < m_context->sampler_group_binding.size(); ++i)
+				const auto& samplers = program->info.getSamplerGroupInfo();
+				for (size_t i = 0; i < samplers.size(); ++i)
 				{
 					if (m_context->sampler_group_binding[i].sampler_group)
 					{
 						auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, m_context->sampler_group_binding[i].sampler_group);
 
-						for (size_t j = 0; j < sampler_group->sb->getSize(); ++j)
+						for (int j = 0; j < samplers[i].size(); ++j)
 						{
 							auto& s = sampler_group->sb->getSamplers()[j];
-
+							
 							if (s.t)
 							{
 								auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
 								if (texture->image_view)
 								{
-									m_context->context->PSSetShaderResources((UINT) j, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
-									
+									m_context->context->PSSetShaderResources((UINT) samplers[i][j].binding, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
+
 									ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
-									m_context->context->PSSetSamplers((UINT) j, 1, &sampler);
+									m_context->context->PSSetSamplers((UINT) samplers[i][j].binding, 1, &sampler);
 								}
 							}
 						}

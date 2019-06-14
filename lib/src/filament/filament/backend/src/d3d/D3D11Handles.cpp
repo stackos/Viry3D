@@ -238,6 +238,8 @@ namespace filament
 
 				SAFE_RELEASE(error);
 			}
+
+			info = std::move(program);
 		}
 
 		D3D11Program::~D3D11Program()

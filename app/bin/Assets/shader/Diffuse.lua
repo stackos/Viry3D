@@ -89,6 +89,9 @@ local fs = [[
 #ifndef RECIEVE_SHADOW_ON
 	#define RECIEVE_SHADOW_ON 0
 #endif
+#ifndef VR_GLES
+	#define VR_GLES 0
+#endif
 
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
@@ -108,6 +111,99 @@ VK_LAYOUT_LOCATION(2) in vec3 v_normal;
 #if (RECIEVE_SHADOW_ON == 1)
 	VK_SAMPLER_BINDING(1) uniform highp sampler2D u_shadow_texture;
 	VK_LAYOUT_LOCATION(3) in vec4 v_pos_light_proj;
+	const vec2 Poisson25[25] = vec2[](
+		vec2(-0.978698, -0.0884121),
+		vec2(-0.841121, 0.521165),
+		vec2(-0.71746, -0.50322),
+		vec2(-0.702933, 0.903134),
+		vec2(-0.663198, 0.15482),
+		vec2(-0.495102, -0.232887),
+		vec2(-0.364238, -0.961791),
+		vec2(-0.345866, -0.564379),
+		vec2(-0.325663, 0.64037),
+		vec2(-0.182714, 0.321329),
+		vec2(-0.142613, -0.0227363),
+		vec2(-0.0564287, -0.36729),
+		vec2(-0.0185858, 0.918882),
+		vec2(0.0381787, -0.728996),
+		vec2(0.16599, 0.093112),
+		vec2(0.253639, 0.719535),
+		vec2(0.369549, -0.655019),
+		vec2(0.423627, 0.429975),
+		vec2(0.530747, -0.364971),
+		vec2(0.566027, -0.940489),
+		vec2(0.639332, 0.0284127),
+		vec2(0.652089, 0.669668),
+		vec2(0.773797, 0.345012),
+		vec2(0.968871, 0.840449),
+		vec2(0.991882, -0.657338)
+	);
+	float texture_shadow(vec2 uv)
+	{
+		if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
+		{
+			return 1.0;
+		}
+		else
+		{
+			return texture(u_shadow_texture, uv).r;
+		}
+	}
+	float poisson_filter(float z, vec2 uv, float shadow_z_bias, vec2 filter_radius)
+	{
+		float shadow = 0.0;
+		for (int i = 0; i < 25; ++i)
+		{
+			vec2 offset = Poisson25[i] * filter_radius;
+			float shadow_depth = texture_shadow(uv + offset);
+			if (z - shadow_z_bias > shadow_depth)
+			{
+				shadow += 1.0;
+			}
+		}
+		return shadow / 25.0;
+	}
+	float pcf_filter(float z, vec2 uv, float shadow_z_bias, vec2 filter_radius)
+	{
+		float shadow = 0.0;
+		for (int i = -1; i <= 1; ++i)
+		{
+			for (int j = -1; j <= 1; ++j)
+			{
+				vec2 offset = vec2(i, j) * filter_radius;
+				float shadow_depth = texture_shadow(uv + offset);
+				if (z - shadow_z_bias > shadow_depth)
+				{
+					shadow += 1.0;
+				}
+			}
+		}
+		return shadow / 9.0;
+	}
+	float linear_filter(float z, vec2 uv, float shadow_z_bias, vec2 filter_radius)
+	{
+		float shadow_depth = texture_shadow(uv);
+		if (z - shadow_z_bias > shadow_depth)
+		{
+			return 1.0;
+		}
+		else
+		{
+			return 0.0;
+		}
+	}
+	float sample_shadow(vec4 pos_light_proj, float nl)
+	{
+		pos_light_proj = pos_light_proj / pos_light_proj.w;
+		vec2 uv = pos_light_proj.xy * 0.5 + 0.5;
+#if (VR_GLES == 0)
+		uv.y = 1.0 - uv.y;
+#endif
+		float z = pos_light_proj.z * 0.5 + 0.5;
+		vec2 filter_radius = vec2(u_shadow_params.w);
+		float shadow_z_bias = u_shadow_params.y + u_shadow_params.z * tan(acos(nl));
+		return poisson_filter(z, uv, shadow_z_bias, filter_radius) * u_shadow_params.x;
+	}
 #endif
 
 layout(location = 0) out vec4 o_color;
@@ -135,13 +231,12 @@ void main()
 		}
 	}
 
-	float shadow = 1.0;
+	vec3 diffuse = c.rgb * nl * u_light_color.rgb * atten;
 
 #if (RECIEVE_SHADOW_ON == 1)
-	
+	float shadow = sample_shadow(v_pos_light_proj, nl);
+    diffuse = diffuse * (1.0 - shadow);
 #endif
-
-	vec3 diffuse = c.rgb * nl * u_light_color.rgb * atten * shadow;
 
 #if (LIGHT_ADD_ON == 1)
 	c.rgb = diffuse;
