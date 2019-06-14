@@ -37,7 +37,6 @@ namespace Viry3D
 	{
 	public:
 		Camera* m_camera = nullptr;
-		GameObject* m_skin = nullptr;
 		Vector2 m_last_touch_pos;
 		Vector3 m_camera_rot = Vector3(5, 180, 0);
 		Label* m_fps_label = nullptr;
@@ -69,22 +68,15 @@ namespace Viry3D
 			floor->SetMaterial(material);
 			floor->EnableRecieveShadow(true);
 
-			auto obj_0 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
-			obj_0->GetTransform()->SetPosition(Vector3(0, 0, 0));
-			auto renderers = obj_0->GetComponentsInChildren<Renderer>();
+			auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
+			obj->GetTransform()->SetPosition(Vector3(0, 0, 0));
+			auto renderers = obj->GetComponentsInChildren<Renderer>();
 			for (int i = 0; i < renderers.Size(); ++i)
 			{
 				renderers[i]->EnableCastShadow(true);
 			}
-			auto anim = obj_0->GetComponent<Animation>();
+			auto anim = obj->GetComponent<Animation>();
 			anim->Play(0);
-
-			auto obj_1 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
-			obj_1->GetTransform()->SetPosition(Vector3(-2, 0, -2));
-
-			auto obj_2 = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
-			obj_2->GetTransform()->SetPosition(Vector3(2, 0, -2));
-			m_skin = obj_2.get();
 
 			auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
 			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
@@ -104,23 +96,25 @@ namespace Viry3D
 			m_fps_label = label.get();
             
 			auto light = GameObject::Create("")->AddComponent<Light>();
-			light->GetTransform()->SetPosition(Vector3(2.2f, 3, 0));
-			light->GetTransform()->SetRotation(Quaternion::Euler(120, 90, 0));
+			light->GetTransform()->SetPosition(Vector3(2.0f, 8.0f, 0));
+			light->GetTransform()->SetRotation(Quaternion::Euler(110, 90, 0));
 			light->SetColor(Color(1, 1, 1, 1) * 0.7f);
 			light->SetType(LightType::Spot);
-			light->SetSpotAngle(40);
-			light->SetRange(10.0f);
+			light->SetSpotAngle(30);
+			light->SetRange(20);
 			light->EnableShadow(true);
+            light->SetFarClip(20);
 
 			auto light2 = GameObject::Create("")->AddComponent<Light>();
-			light2->GetTransform()->SetPosition(Vector3(-2.2f, 3, 0));
-			light2->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
+			light2->GetTransform()->SetPosition(Vector3(-2.0f, 8.0f, 0));
+			light2->GetTransform()->SetRotation(Quaternion::Euler(70, 90, 0));
 			light2->SetColor(Color(1, 1, 1, 1) * 0.7f);
 			light2->SetType(LightType::Spot);
-			light2->SetSpotAngle(40);
-			light2->SetRange(10.0f);
+			light2->SetSpotAngle(30);
+			light2->SetRange(20);
 			light2->EnableShadow(true);
-
+            light2->SetFarClip(20);
+            
 #if 0
 			auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
 			blit_camera->SetClearFlags(CameraClearFlags::Nothing);
@@ -156,13 +150,6 @@ namespace Viry3D
 			if (m_fps_label)
 			{
 				m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
-			}
-
-			static float deg = 0;
-			deg += 1.0f;
-			if (m_skin)
-			{
-				m_skin->GetTransform()->SetRotation(Quaternion::Euler(0, deg, 0));
 			}
 
 			// camera control
