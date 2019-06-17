@@ -25,15 +25,12 @@ ENDCG
 			"LightMode"="ForwardBase"
 		}
 
-        LOD 450
-
 		Pass
 		{
 			Cull Back
 			ZTest LEqual
 CGPROGRAM
 #pragma multi_compile_fwdbase
-#pragma target 3.0
 #pragma vertex vert
 #pragma fragment frag
 #define ENABLE_CAST_SHADOWS
@@ -41,72 +38,6 @@ CGPROGRAM
 #include "CharaSkin.cg"
 ENDCG
 		}
-
-		Pass
-		{
-			Cull Front
-			ZTest Less
-CGPROGRAM
-#pragma target 3.0
-#pragma vertex vert
-#pragma fragment frag
-#include "CharaOutline.cg"
-ENDCG
-		}
-
 	}
-
-	SubShader
-	{
-		Tags
-		{
-			"RenderType"="Opaque"
-			"Queue"="Geometry"
-			"LightMode"="ForwardBase"
-		}
-
-        LOD 250
-
-		Pass
-		{
-			Cull Back
-			ZTest LEqual
-CGPROGRAM
-#pragma multi_compile_fwdbase
-#pragma target 3.0
-#pragma vertex vert
-#pragma fragment frag
-#define ENABLE_CAST_SHADOWS
-#define ENABLE_RIMLIGHT
-#include "CharaSkin.cg"
-ENDCG
-		}
-
-	}
-
-	SubShader
-	{
-		Tags
-		{
-			"RenderType"="Opaque"
-			"Queue"="Geometry"
-		}
-
-        LOD 200
-
-		Pass
-		{
-			Cull Back
-			ZTest LEqual
-CGPROGRAM
-#pragma vertex vert
-#pragma fragment frag
-#include "Unlit.cg"
-ENDCG
-		}
-
-	}
-
-	FallBack "Diffuse"
 }
 
