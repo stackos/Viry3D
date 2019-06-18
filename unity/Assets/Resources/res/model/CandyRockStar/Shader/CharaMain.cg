@@ -5,7 +5,7 @@
 // Includes falloff shadow and highlight, specular, reflection, and normal mapping
 
 // Material parameters
-float4 _Color;
+float4 u_color;
 float4 _ShadowColor;
 float4 _LightColor0;
 float _SpecularPower;
@@ -134,8 +134,8 @@ float4 frag( v2f i ) : SV_Target
 
 	combinedColor = lerp( combinedColor, reflectColor, reflectionMaskColor.a );
 #endif
-	combinedColor *= _Color.rgb * _LightColor0.rgb;
-	float opacity = diffSamplerColor.a * _Color.a * _LightColor0.a;
+	combinedColor *= u_color.rgb * _LightColor0.rgb;
+	float opacity = diffSamplerColor.a * u_color.a * _LightColor0.a;
 
 	// Rimlight
 #ifdef ENABLE_RIMLIGHT
