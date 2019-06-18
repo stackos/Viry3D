@@ -8,10 +8,9 @@
 float4 _Color;
 float4 _ShadowColor;
 float4 _LightColor0;
-float4 _MainTex_ST;
 
 // Textures
-sampler2D _MainTex;
+sampler2D u_texture;
 sampler2D _FalloffSampler;
 sampler2D _RimLightSampler;
 
@@ -39,7 +38,7 @@ v2f vert( appdata_base v )
 {
 	v2f o;
 	o.pos = UnityObjectToClipPos( v.vertex );
-	o.uv = TRANSFORM_TEX( v.texcoord.xy, _MainTex );
+	o.uv = v.texcoord.xy;
 	o.normal = normalize( mul( unity_ObjectToWorld, float4_t( v.normal, 0 ) ).xyz );
 
 	// Eye direction vector
@@ -54,7 +53,7 @@ v2f vert( appdata_base v )
 // Fragment shader
 float4 frag( v2f i ) : SV_Target
 {
-	float4_t diffSamplerColor = tex2D( _MainTex, i.uv );
+	float4_t diffSamplerColor = tex2D( u_texture, i.uv );
 
 	// Falloff. Convert the angle between the normal and the camera direction into a lookup for the gradient
 	float_t normalDotEye = dot( i.normal, i.eyeDir );

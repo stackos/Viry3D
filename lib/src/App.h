@@ -68,8 +68,8 @@ namespace Viry3D
 			floor->SetMaterial(material);
 			floor->EnableRecieveShadow(true);
 
-			auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
-			//auto obj = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
+			// auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
+			auto obj = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
 			obj->GetTransform()->SetPosition(Vector3(0, 0, 0));
 			auto renderers = obj->GetComponentsInChildren<Renderer>();
 			for (int i = 0; i < renderers.Size(); ++i)

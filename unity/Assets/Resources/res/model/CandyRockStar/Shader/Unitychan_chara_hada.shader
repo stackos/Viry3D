@@ -6,9 +6,11 @@ Shader "UnityChan/Skin"
 		_ShadowColor ("Shadow Color", Color) = (0.8, 0.8, 1, 1)
 		_EdgeThickness ("Outline Thickness", Float) = 1
 				
-		_MainTex ("Diffuse", 2D) = "white" {}
 		_FalloffSampler ("Falloff Control", 2D) = "white" {}
 		_RimLightSampler ("RimLight Control", 2D) = "white" {}
+
+		[NoScaleOffset] u_texture ("Texture", 2D) = "white" { }
+		u_texture_scale_offset ("TextureScaleOffset", Vector) = (1, 1, 0, 0)
 	}
 
 CGINCLUDE

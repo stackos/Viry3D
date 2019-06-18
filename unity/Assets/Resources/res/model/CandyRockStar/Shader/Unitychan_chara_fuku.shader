@@ -7,12 +7,14 @@ Shader "UnityChan/Clothing"
 		_SpecularPower ("Specular Power", Float) = 20
 		_EdgeThickness ("Outline Thickness", Float) = 1
 		
-		_MainTex ("Diffuse", 2D) = "white" {}
 		_FalloffSampler ("Falloff Control", 2D) = "white" {}
 		_RimLightSampler ("RimLight Control", 2D) = "white" {}
 		_SpecularReflectionSampler ("Specular / Reflection Mask", 2D) = "white" {}
 		_EnvMapSampler ("Environment Map", 2D) = "" {} 
 		_NormalMapSampler ("Normal Map", 2D) = "" {} 
+
+		[NoScaleOffset] u_texture ("Texture", 2D) = "white" { }
+		u_texture_scale_offset ("TextureScaleOffset", Vector) = (1, 1, 0, 0)
 	}
 
 CGINCLUDE

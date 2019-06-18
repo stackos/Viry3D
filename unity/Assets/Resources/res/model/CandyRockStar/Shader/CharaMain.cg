@@ -9,10 +9,9 @@ float4 _Color;
 float4 _ShadowColor;
 float4 _LightColor0;
 float _SpecularPower;
-float4 _MainTex_ST;
 
 // Textures
-sampler2D _MainTex;
+sampler2D u_texture;
 sampler2D _FalloffSampler;
 sampler2D _RimLightSampler;
 sampler2D _SpecularReflectionSampler;
@@ -48,7 +47,7 @@ v2f vert( appdata_tan v )
 {
 	v2f o;
 	o.pos = UnityObjectToClipPos( v.vertex );
-	o.uv.xy = TRANSFORM_TEX( v.texcoord.xy, _MainTex );
+	o.uv.xy = v.texcoord.xy;
 	o.normal = normalize( mul( unity_ObjectToWorld, float4_t( v.normal, 0 ) ).xyz );
 
 	// Eye direction vector
@@ -100,7 +99,7 @@ inline float3_t GetNormalFromMap( v2f input )
 // Fragment shader
 float4 frag( v2f i ) : SV_Target
 {
-	float4_t diffSamplerColor = tex2D( _MainTex, i.uv.xy );
+	float4_t diffSamplerColor = tex2D( u_texture, i.uv.xy );
 
 #ifdef ENABLE_NORMAL_MAP
 	float3_t normalVec = GetNormalFromMap( i );
