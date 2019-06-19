@@ -2,9 +2,7 @@ Shader "UnityChan/Skin"
 {
 	Properties
 	{
-		_ShadowColor ("Shadow Color", Color) = (0.8, 0.8, 1, 1)
-		_EdgeThickness ("Outline Thickness", Float) = 1
-				
+		_ShadowColor ("Shadow Color", Color) = (0.8, 0.8, 1, 1)	
 		_FalloffSampler ("Falloff Control", 2D) = "white" {}
 		_RimLightSampler ("RimLight Control", 2D) = "white" {}
 

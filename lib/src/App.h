@@ -52,7 +52,7 @@ namespace Viry3D
 			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(40, 20, 0, 0));
 
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
-			camera->GetTransform()->SetPosition(Vector3(0, 1, 3));
+			camera->GetTransform()->SetPosition(Vector3(0, 1, 2.3f));
 			camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
 			camera->SetDepth(0);
 			camera->SetCullingMask(1 << 0);
@@ -100,24 +100,12 @@ namespace Viry3D
 			m_fps_label = label.get();
             
 			auto light = GameObject::Create("")->AddComponent<Light>();
-			light->GetTransform()->SetPosition(Vector3(2.0f, 8.0f, 0));
-			light->GetTransform()->SetRotation(Quaternion::Euler(110, 90, 0));
-			light->SetColor(Color(1, 1, 1, 1) * 0.7f);
+			light->GetTransform()->SetPosition(Vector3(-1.332f, 3, 0));
+			light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
 			light->SetType(LightType::Spot);
-			light->SetSpotAngle(30);
-			light->SetRange(20);
+			light->SetRange(10);
+			light->SetSpotAngle(45);
 			light->EnableShadow(true);
-            light->SetFarClip(20);
-
-			auto light2 = GameObject::Create("")->AddComponent<Light>();
-			light2->GetTransform()->SetPosition(Vector3(-2.0f, 8.0f, 0));
-			light2->GetTransform()->SetRotation(Quaternion::Euler(70, 90, 0));
-			light2->SetColor(Color(1, 1, 1, 1) * 0.7f);
-			light2->SetType(LightType::Spot);
-			light2->SetSpotAngle(30);
-			light2->SetRange(20);
-			light2->EnableShadow(true);
-            light2->SetFarClip(20);
             
 #if 0
 			auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
@@ -196,6 +184,18 @@ namespace Viry3D
 			{
 				Vector3 right = m_camera->GetTransform()->GetRight();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() + right * 0.1f;
+				m_camera->GetTransform()->SetPosition(pos);
+			}
+			if (Input::GetKey(KeyCode::Q))
+			{
+				Vector3 up = m_camera->GetTransform()->GetUp();
+				Vector3 pos = m_camera->GetTransform()->GetPosition() + up * 0.1f;
+				m_camera->GetTransform()->SetPosition(pos);
+			}
+			if (Input::GetKey(KeyCode::E))
+			{
+				Vector3 up = m_camera->GetTransform()->GetUp();
+				Vector3 pos = m_camera->GetTransform()->GetPosition() - up * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
 			}
 		}

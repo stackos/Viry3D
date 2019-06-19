@@ -264,6 +264,7 @@ namespace Viry3D
 			String error = lua_tostring(L, -1);
 			lua_pop(L, 1);
 			Log("do lua error: %s\n", error.CString());
+			assert(false);
 		}
 
 		if (lua_istable(L, -1))

@@ -90,7 +90,7 @@ void main()
 ]]
 
 local rs = {
-    Cull = Back,
+    Cull = Off,
     ZTest = LEqual,
     ZWrite = On,
     SrcBlendMode = One,
