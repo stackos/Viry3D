@@ -119,10 +119,14 @@ float4 frag( v2f i ) : SV_Target
 	// Use the eye vector as the light vector
 #ifdef ENABLE_SPECULAR
 	float4_t reflectionMaskColor = tex2D( _SpecularReflectionSampler, i.uv.xy );
-	float_t specularDot = dot( normalVec, i.eyeDir.xyz );
-	float4_t lighting = lit( normalDotEye, specularDot, _SpecularPower );
+	float4_t lighting = lit( normalDotEye, normalDotEye, _SpecularPower );
 	float3_t specularColor = saturate( lighting.z ) * reflectionMaskColor.rgb * diffSamplerColor.rgb;
 	combinedColor += specularColor;
+
+	float4_t c;
+	c.rgb = combinedColor;
+	c.a = 1.0;
+	return c;
 #endif
 
 	// Reflection
