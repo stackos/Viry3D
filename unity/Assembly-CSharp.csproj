@@ -67,6 +67,7 @@
     <Compile Include="Assets\Resources\res\model\CandyRockStar\Scripts\SpringCollider.cs" />
     <Compile Include="Assets\Resources\res\model\CandyRockStar\Scripts\SpringManager.cs" />
     <Compile Include="Assets\Resources\script\BoneDrawer.cs" />
+    <Compile Include="Assets\Resources\script\BoneMapper.cs" />
     <None Include="Assets\Resources\res\model\CandyRockStar\Shader\Unitychan_chara_fuku.shader" />
     <None Include="Assets\Resources\res\model\CandyRockStar\Effects\Spray\Materials\Emmisive Surface.shader" />
     <None Include="Assets\Resources\shader\PBR.shader" />

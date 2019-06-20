@@ -1,0 +1,3039 @@
+{
+  "name": "Character1_Hips",
+  "localPosition": {
+    "x": 1.19209282E-08,
+    "y": 0.868581831,
+    "z": 0.0118268775
+  },
+  "localRotation": {
+    "x": 0.500887334,
+    "y": -0.499111116,
+    "z": -0.499111116,
+    "w": 0.500887334
+  },
+  "localScale": {
+    "x": 0.999999,
+    "y": 0.999999,
+    "z": 1.0
+  },
+  "childCount": 7,
+  "children": [
+    {
+      "name": "Character1_LeftUpLeg",
+      "localPosition": {
+        "x": 0.06031919,
+        "y": 0.00207883376,
+        "z": 0.07298302
+      },
+      "localRotation": {
+        "x": 0.0111253308,
+        "y": 0.99979645,
+        "z": 0.000237722823,
+        "w": -0.0168297123
+      },
+      "localScale": {
+        "x": 1.000001,
+        "y": 1.000001,
+        "z": 1.0
+      },
+      "childCount": 1,
+      "children": [
+        {
+          "name": "Character1_LeftLeg",
+          "localPosition": {
+            "x": -0.351801753,
+            "y": -0.007870984,
+            "z": 0.0051452443
+          },
+          "localRotation": {
+            "x": -7.50202935E-06,
+            "y": 1.01346188E-06,
+            "z": 0.016741246,
+            "w": 0.999859869
+          },
+          "localScale": {
+            "x": 0.999999,
+            "y": 0.999999,
+            "z": 0.999999
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "Character1_LeftFoot",
+              "localPosition": {
+                "x": -0.3786668,
+                "y": 0.003830462,
+                "z": -0.00377764041
+              },
+              "localRotation": {
+                "x": 8.974946E-06,
+                "y": 4.36235541E-06,
+                "z": -0.2645121,
+                "w": 0.9643824
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 1,
+              "children": [
+                {
+                  "name": "Character1_LeftToeBase",
+                  "localPosition": {
+                    "x": -0.08429447,
+                    "y": 0.0477110557,
+                    "z": -0.00392163964
+                  },
+                  "localRotation": {
+                    "x": -0.0235651787,
+                    "y": 0.0147975907,
+                    "z": -0.5186877,
+                    "w": 0.854510844
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.000001
+                  },
+                  "childCount": 0,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Character1_RightUpLeg",
+      "localPosition": {
+        "x": 0.06083582,
+        "y": 0.002078786,
+        "z": -0.07255262
+      },
+      "localRotation": {
+        "x": 0.0110939005,
+        "y": 0.9999369,
+        "z": 9.20911E-06,
+        "w": 0.00177454157
+      },
+      "localScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "childCount": 1,
+      "children": [
+        {
+          "name": "Character1_RightLeg",
+          "localPosition": {
+            "x": -0.351368666,
+            "y": -0.007798252,
+            "z": -0.0182328261
+          },
+          "localRotation": {
+            "x": -2.19486683E-05,
+            "y": -2.03073142E-07,
+            "z": 0.0169594567,
+            "w": 0.9998562
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "Character1_RightFoot",
+              "localPosition": {
+                "x": -0.378545642,
+                "y": 0.00382685266,
+                "z": -0.0103135547
+              },
+              "localRotation": {
+                "x": 1.03840466E-05,
+                "y": 1.66938628E-06,
+                "z": -0.26464802,
+                "w": 0.9643451
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 1,
+              "children": [
+                {
+                  "name": "Character1_RightToeBase",
+                  "localPosition": {
+                    "x": -0.08439145,
+                    "y": 0.04765777,
+                    "z": 0.002024484
+                  },
+                  "localRotation": {
+                    "x": -8.363213E-13,
+                    "y": -1.37828681E-12,
+                    "z": -0.5189174,
+                    "w": 0.8548244
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 0.999999
+                  },
+                  "childCount": 0,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Character1_Spine",
+      "localPosition": {
+        "x": -0.0227133539,
+        "y": 0.008181498,
+        "z": -8.069926E-05
+      },
+      "localRotation": {
+        "x": 7.596261E-05,
+        "y": -0.00177459524,
+        "z": -0.0427663662,
+        "w": 0.9990835
+      },
+      "localScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "childCount": 3,
+      "children": [
+        {
+          "name": "Character1_Spine1",
+          "localPosition": {
+            "x": -0.091343604,
+            "y": 0.0017551505,
+            "z": -6.94948143E-09
+          },
+          "localRotation": {
+            "x": -2.4318002E-12,
+            "y": 1.841635E-10,
+            "z": 0.0491717048,
+            "w": 0.9987903
+          },
+          "localScale": {
+            "x": 1.000001,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 2,
+          "children": [
+            {
+              "name": "Character1_Spine2",
+              "localPosition": {
+                "x": -0.0876667649,
+                "y": -0.00030447176,
+                "z": -1.862541E-08
+              },
+              "localRotation": {
+                "x": -0.00722858962,
+                "y": -0.00163186307,
+                "z": 0.150848016,
+                "w": 0.9885292
+              },
+              "localScale": {
+                "x": 0.9999991,
+                "y": 0.99999994,
+                "z": 1.0
+              },
+              "childCount": 3,
+              "children": [
+                {
+                  "name": "Character1_LeftShoulder",
+                  "localPosition": {
+                    "x": -0.12236692,
+                    "y": -0.00139497744,
+                    "z": 0.04222681
+                  },
+                  "localRotation": {
+                    "x": 0.116248138,
+                    "y": 0.6994765,
+                    "z": -0.106042825,
+                    "w": 0.697118342
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.000001,
+                    "z": 1.000001
+                  },
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "name": "Character1_LeftArm",
+                      "localPosition": {
+                        "x": -0.0554369874,
+                        "y": -4.76837272E-08,
+                        "z": 9.00227235E-07
+                      },
+                      "localRotation": {
+                        "x": 1.45489636E-07,
+                        "y": 0.00263836933,
+                        "z": -0.000695577764,
+                        "w": 0.9999963
+                      },
+                      "localScale": {
+                        "x": 0.999999,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "Character1_LeftForeArm",
+                          "localPosition": {
+                            "x": -0.233777672,
+                            "y": 8.450014E-06,
+                            "z": 6.24527138E-06
+                          },
+                          "localRotation": {
+                            "x": -0.000118134347,
+                            "y": 0.00102976209,
+                            "z": -0.0004078024,
+                            "w": 0.9999994
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 5,
+                          "children": [
+                            {
+                              "name": "Character1_LeftHand",
+                              "localPosition": {
+                                "x": -0.162482053,
+                                "y": -3.00129983E-07,
+                                "z": 1.3174035E-07
+                              },
+                              "localRotation": {
+                                "x": -0.108595721,
+                                "y": -0.0218668319,
+                                "z": -0.00135644479,
+                                "w": 0.993844569
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 0.999999,
+                                "z": 1.0
+                              },
+                              "childCount": 5,
+                              "children": [
+                                {
+                                  "name": "Character1_LeftHandIndex1",
+                                  "localPosition": {
+                                    "x": -0.0807495639,
+                                    "y": 0.0257134363,
+                                    "z": -0.00142827909
+                                  },
+                                  "localRotation": {
+                                    "x": 0.104281448,
+                                    "y": 0.0408360176,
+                                    "z": 0.0008412407,
+                                    "w": 0.9937088
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.000001,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_LeftHandIndex2",
+                                      "localPosition": {
+                                        "x": -0.02426037,
+                                        "y": 0.002507064,
+                                        "z": -0.00118659728
+                                      },
+                                      "localRotation": {
+                                        "x": 0.00235678139,
+                                        "y": -0.0105999326,
+                                        "z": -0.00620913459,
+                                        "w": 0.999921858
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 0.999999,
+                                        "z": 0.999999
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_LeftHandIndex3",
+                                          "localPosition": {
+                                            "x": -0.0160968676,
+                                            "y": 0.0001182165,
+                                            "z": -0.0004583156
+                                          },
+                                          "localRotation": {
+                                            "x": 0.00274918531,
+                                            "y": -0.0618289635,
+                                            "z": 0.00460938131,
+                                            "w": 0.9980723
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_LeftHandIndex4",
+                                              "localPosition": {
+                                                "x": -0.021249868,
+                                                "y": 0.00100699114,
+                                                "z": 0.00163697638
+                                              },
+                                              "localRotation": {
+                                                "x": -0.7153496,
+                                                "y": -0.0240954254,
+                                                "z": 0.0239049122,
+                                                "w": 0.6979419
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 1.0,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_LeftHandMiddle1",
+                                  "localPosition": {
+                                    "x": -0.08069621,
+                                    "y": 0.00582166063,
+                                    "z": -0.006021248
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0545863472,
+                                    "y": -0.0457377061,
+                                    "z": 0.0333356932,
+                                    "w": 0.9969038
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.000001,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_LeftHandMiddle2",
+                                      "localPosition": {
+                                        "x": -0.0250631738,
+                                        "y": 0.0014819866,
+                                        "z": 0.00379354088
+                                      },
+                                      "localRotation": {
+                                        "x": -0.0335773379,
+                                        "y": 0.06963724,
+                                        "z": -0.0140931709,
+                                        "w": 0.996907532
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 0.999999
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_LeftHandMiddle3",
+                                          "localPosition": {
+                                            "x": -0.0194311384,
+                                            "y": -6.7838E-05,
+                                            "z": 0.000161703429
+                                          },
+                                          "localRotation": {
+                                            "x": -0.0225671958,
+                                            "y": -0.03875867,
+                                            "z": 0.0190351121,
+                                            "w": 0.998812437
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 0.999999,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_LeftHandMiddle4",
+                                              "localPosition": {
+                                                "x": -0.0220139232,
+                                                "y": 0.000911025738,
+                                                "z": 0.000117273717
+                                              },
+                                              "localRotation": {
+                                                "x": -0.7059504,
+                                                "y": 0.0339926928,
+                                                "z": 0.0064747734,
+                                                "w": 0.707415462
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 1.0,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_LeftHandPinky1",
+                                  "localPosition": {
+                                    "x": -0.06575306,
+                                    "y": -0.0278356858,
+                                    "z": -0.0022836132
+                                  },
+                                  "localRotation": {
+                                    "x": -0.114454657,
+                                    "y": 0.009083492,
+                                    "z": 0.02325579,
+                                    "w": 0.9931147
+                                  },
+                                  "localScale": {
+                                    "x": 0.99999994,
+                                    "y": 1.000001,
+                                    "z": 0.9999991
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_LeftHandPinky2",
+                                      "localPosition": {
+                                        "x": -0.0180968344,
+                                        "y": 0.0001327893,
+                                        "z": -1.4451387E-05
+                                      },
+                                      "localRotation": {
+                                        "x": 0.0189549644,
+                                        "y": -0.0168456063,
+                                        "z": 0.0227711387,
+                                        "w": 0.999419034
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 0.999999046,
+                                        "z": 0.99999994
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_LeftHandPinky3",
+                                          "localPosition": {
+                                            "x": -0.0139108151,
+                                            "y": 2.7575702E-06,
+                                            "z": 0.000247777643
+                                          },
+                                          "localRotation": {
+                                            "x": -0.010046687,
+                                            "y": -0.01149699,
+                                            "z": -0.00127872382,
+                                            "w": 0.999882638
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_LeftHandPinky4",
+                                              "localPosition": {
+                                                "x": -0.019209547,
+                                                "y": -0.000299241336,
+                                                "z": -2.33776591E-05
+                                              },
+                                              "localRotation": {
+                                                "x": -0.0478357673,
+                                                "y": -0.00384245533,
+                                                "z": 0.00305436179,
+                                                "w": 0.9988432
+                                              },
+                                              "localScale": {
+                                                "x": 1.000001,
+                                                "y": 1.000001,
+                                                "z": 1.00000107
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_LeftHandRing1",
+                                  "localPosition": {
+                                    "x": -0.076792784,
+                                    "y": -0.0126262484,
+                                    "z": -0.006246116
+                                  },
+                                  "localRotation": {
+                                    "x": -0.0797173157,
+                                    "y": -0.0107492888,
+                                    "z": 0.005957005,
+                                    "w": 0.9967418
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.000001,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_LeftHandRing2",
+                                      "localPosition": {
+                                        "x": -0.0236827172,
+                                        "y": -0.0007540447,
+                                        "z": 0.00109831826
+                                      },
+                                      "localRotation": {
+                                        "x": 0.0232099,
+                                        "y": 0.0578056723,
+                                        "z": 0.00290086376,
+                                        "w": 0.9980538
+                                      },
+                                      "localScale": {
+                                        "x": 0.99999994,
+                                        "y": 0.999999,
+                                        "z": 0.999999046
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_LeftHandRing3",
+                                          "localPosition": {
+                                            "x": -0.0159075279,
+                                            "y": 0.000166595462,
+                                            "z": -0.0008609466
+                                          },
+                                          "localRotation": {
+                                            "x": -0.0279761665,
+                                            "y": -0.02038864,
+                                            "z": -0.004220724,
+                                            "w": 0.999391735
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_LeftHandRing4",
+                                              "localPosition": {
+                                                "x": -0.0252267234,
+                                                "y": -0.000115628733,
+                                                "z": -0.00238416344
+                                              },
+                                              "localRotation": {
+                                                "x": 0.00333166728,
+                                                "y": -0.016953703,
+                                                "z": -0.002620442,
+                                                "w": 0.999847353
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 1.0,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_LeftHandThumb1",
+                                  "localPosition": {
+                                    "x": -0.0247607771,
+                                    "y": 0.018266378,
+                                    "z": 0.0142360469
+                                  },
+                                  "localRotation": {
+                                    "x": 0.7620997,
+                                    "y": -0.271692961,
+                                    "z": -0.293790251,
+                                    "w": 0.5089934
+                                  },
+                                  "localScale": {
+                                    "x": 0.9999998,
+                                    "y": 1.00000036,
+                                    "z": 1.00000083
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_LeftHandThumb2",
+                                      "localPosition": {
+                                        "x": -0.03214549,
+                                        "y": 0.00198592385,
+                                        "z": 0.0015229641
+                                      },
+                                      "localRotation": {
+                                        "x": -0.00189687335,
+                                        "y": 0.0298209488,
+                                        "z": -0.0579466932,
+                                        "w": 0.9978724
+                                      },
+                                      "localScale": {
+                                        "x": 0.99999994,
+                                        "y": 1.00000012,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_LeftHandThumb3",
+                                          "localPosition": {
+                                            "x": -0.0175661482,
+                                            "y": -0.00100338319,
+                                            "z": 8.473743E-05
+                                          },
+                                          "localRotation": {
+                                            "x": 0.0004788416,
+                                            "y": 0.0148132639,
+                                            "z": 0.0371517055,
+                                            "w": 0.999199748
+                                          },
+                                          "localScale": {
+                                            "x": 1.00000012,
+                                            "y": 0.99999994,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_LeftHandThumb4",
+                                              "localPosition": {
+                                                "x": -0.0263043717,
+                                                "y": -0.00114385062,
+                                                "z": -0.0005708798
+                                              },
+                                              "localRotation": {
+                                                "x": -0.0255753025,
+                                                "y": -0.0106417462,
+                                                "z": 0.0261506382,
+                                                "w": 0.999274135
+                                              },
+                                              "localScale": {
+                                                "x": 1.00000107,
+                                                "y": 0.99999994,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_L_Sode_A00",
+                              "localPosition": {
+                                "x": -0.0470452234,
+                                "y": 0.036010325,
+                                "z": 0.00102944265
+                              },
+                              "localRotation": {
+                                "x": -0.06448094,
+                                "y": -0.0874810442,
+                                "z": -0.08295049,
+                                "w": 0.9906102
+                              },
+                              "localScale": {
+                                "x": 1.0000006,
+                                "y": 1.0000006,
+                                "z": 1.00000048
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_L_Sode_A01",
+                                  "localPosition": {
+                                    "x": -0.148251429,
+                                    "y": -0.010895066,
+                                    "z": 0.0183422025
+                                  },
+                                  "localRotation": {
+                                    "x": -0.73015964,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 0.6832766
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_L_Sode_B00",
+                              "localPosition": {
+                                "x": -0.0442510433,
+                                "y": 0.000252786762,
+                                "z": -0.0377306156
+                              },
+                              "localRotation": {
+                                "x": -0.706095457,
+                                "y": -0.03620419,
+                                "z": -0.03544311,
+                                "w": 0.7063018
+                              },
+                              "localScale": {
+                                "x": 1.0000006,
+                                "y": 1.0000006,
+                                "z": 1.00000048
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_L_Sode_B01",
+                                  "localPosition": {
+                                    "x": -0.150872916,
+                                    "y": 6.7716E-17,
+                                    "z": 6.93889349E-19
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 1.0
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_L_Sode_C00",
+                              "localPosition": {
+                                "x": -0.041389998,
+                                "y": -0.0489102341,
+                                "z": 0.0127888843
+                              },
+                              "localRotation": {
+                                "x": 0.990509748,
+                                "y": 0.135557666,
+                                "z": -0.0224678162,
+                                "w": -0.0031346574
+                              },
+                              "localScale": {
+                                "x": 1.00000107,
+                                "y": 1.00000048,
+                                "z": 1.00000107
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_L_Sode_C01",
+                                  "localPosition": {
+                                    "x": -0.1628788,
+                                    "y": -2.09545425E-09,
+                                    "z": 1.60006741E-09
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 1.0
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_L_Sode_D00",
+                              "localPosition": {
+                                "x": -0.04395507,
+                                "y": 0.00271870545,
+                                "z": 0.0389880352
+                              },
+                              "localRotation": {
+                                "x": 0.6148564,
+                                "y": 0.110446326,
+                                "z": -0.0137650995,
+                                "w": 0.7807456
+                              },
+                              "localScale": {
+                                "x": 1.0000006,
+                                "y": 1.0000006,
+                                "z": 1.00000048
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_L_Sode_D01",
+                                  "localPosition": {
+                                    "x": -0.14457126,
+                                    "y": -0.0008165151,
+                                    "z": -0.007399066
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 1.0
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Character1_Neck",
+                  "localPosition": {
+                    "x": -0.156851485,
+                    "y": 0.008298497,
+                    "z": 0.000286696682
+                  },
+                  "localRotation": {
+                    "x": 0.007177555,
+                    "y": 0.00183496531,
+                    "z": -0.179328814,
+                    "w": 0.9837613
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.000001,
+                    "z": 1.0
+                  },
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "name": "Character1_Head",
+                      "localPosition": {
+                        "x": -0.07808333,
+                        "y": -0.00553454226,
+                        "z": -1.51960233E-09
+                      },
+                      "localRotation": {
+                        "x": 0.02143449,
+                        "y": -0.005929963,
+                        "z": 0.09083755,
+                        "w": 0.9956174
+                      },
+                      "localScale": {
+                        "x": 0.99999994,
+                        "y": 0.999999046,
+                        "z": 0.999999
+                      },
+                      "childCount": 8,
+                      "children": [
+                        {
+                          "name": "J_L_HairFront_00",
+                          "localPosition": {
+                            "x": -0.118353106,
+                            "y": 0.110627212,
+                            "z": -0.0006468265
+                          },
+                          "localRotation": {
+                            "x": -0.04601018,
+                            "y": 0.9977064,
+                            "z": 0.0389004461,
+                            "w": -0.03085172
+                          },
+                          "localScale": {
+                            "x": 1.0000006,
+                            "y": 1.00000036,
+                            "z": 1.0000006
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_L_HairFront_01",
+                              "localPosition": {
+                                "x": -0.08693589,
+                                "y": -0.000555933162,
+                                "z": -0.002243447
+                              },
+                              "localRotation": {
+                                "x": 0.0557606369,
+                                "y": 0.115110829,
+                                "z": 0.06385369,
+                                "w": 0.989728749
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 0,
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "name": "J_L_HairSide_00",
+                          "localPosition": {
+                            "x": -0.09528863,
+                            "y": 0.0842037946,
+                            "z": 0.08411823
+                          },
+                          "localRotation": {
+                            "x": 0.156548917,
+                            "y": 0.9750131,
+                            "z": -0.0173816234,
+                            "w": 0.15665175
+                          },
+                          "localScale": {
+                            "x": 1.0000006,
+                            "y": 1.00000048,
+                            "z": 1.0000006
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_L_HairSide_01",
+                              "localPosition": {
+                                "x": -0.07190698,
+                                "y": -3.593991E-18,
+                                "z": -4.76968355E-17
+                              },
+                              "localRotation": {
+                                "x": 0.008649987,
+                                "y": 0.0469475277,
+                                "z": -0.00622864533,
+                                "w": 0.9988405
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_L_HairSide_02",
+                                  "localPosition": {
+                                    "x": -0.07073235,
+                                    "y": 5.47808467E-17,
+                                    "z": -8.082631E-17
+                                  },
+                                  "localRotation": {
+                                    "x": -0.518709,
+                                    "y": 0.07131501,
+                                    "z": -0.141533583,
+                                    "w": 0.840133
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "J_L_HairTail_00",
+                          "localPosition": {
+                            "x": -0.03154395,
+                            "y": -0.06754832,
+                            "z": 0.06546028
+                          },
+                          "localRotation": {
+                            "x": -0.0931137,
+                            "y": 0.0170670543,
+                            "z": 0.978768349,
+                            "w": 0.1817996
+                          },
+                          "localScale": {
+                            "x": 1.000001,
+                            "y": 1.00000072,
+                            "z": 1.00000048
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_L_HairTail_01",
+                              "localPosition": {
+                                "x": -0.115976848,
+                                "y": 9.76996256E-17,
+                                "z": 1.7208457E-17
+                              },
+                              "localRotation": {
+                                "x": -0.000123995022,
+                                "y": 0.000525380659,
+                                "z": 0.00273948,
+                                "w": 0.9999961
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_L_HairTail_02",
+                                  "localPosition": {
+                                    "x": -0.136557892,
+                                    "y": -2.184919E-15,
+                                    "z": 3.2862602E-16
+                                  },
+                                  "localRotation": {
+                                    "x": -0.00431292458,
+                                    "y": 0.02031516,
+                                    "z": 0.0198145341,
+                                    "w": 0.999587953
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "J_L_HairTail_03",
+                                      "localPosition": {
+                                        "x": -0.132292569,
+                                        "y": 3.77475832E-17,
+                                        "z": -1.08801852E-16
+                                      },
+                                      "localRotation": {
+                                        "x": 0.0056376243,
+                                        "y": -0.03380472,
+                                        "z": 0.02410864,
+                                        "w": 0.9991217
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "J_L_HairTail_04",
+                                          "localPosition": {
+                                            "x": -0.137525871,
+                                            "y": -4.66293656E-17,
+                                            "z": -6.106227E-17
+                                          },
+                                          "localRotation": {
+                                            "x": 0.008016311,
+                                            "y": -0.09734142,
+                                            "z": 0.0586414039,
+                                            "w": 0.9934896
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "J_L_HairTail_05",
+                                              "localPosition": {
+                                                "x": -0.1459784,
+                                                "y": -4.66293656E-17,
+                                                "z": -2.45289889E-17
+                                              },
+                                              "localRotation": {
+                                                "x": -0.000131465844,
+                                                "y": -0.0136708887,
+                                                "z": 0.0328170434,
+                                                "w": 0.9993679
+                                              },
+                                              "localScale": {
+                                                "x": 1.00000072,
+                                                "y": 1.00000024,
+                                                "z": 1.00000072
+                                              },
+                                              "childCount": 1,
+                                              "children": [
+                                                {
+                                                  "name": "J_L_HairTail_06",
+                                                  "localPosition": {
+                                                    "x": -0.15477863,
+                                                    "y": 6.883383E-17,
+                                                    "z": 1.22124532E-17
+                                                  },
+                                                  "localRotation": {
+                                                    "x": 0.0,
+                                                    "y": 0.0,
+                                                    "z": 0.0,
+                                                    "w": 1.0
+                                                  },
+                                                  "localScale": {
+                                                    "x": 1.0,
+                                                    "y": 1.0,
+                                                    "z": 1.0
+                                                  },
+                                                  "childCount": 0,
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "J_L_HeadRibbon_00",
+                          "localPosition": {
+                            "x": -0.179707631,
+                            "y": 0.08956378,
+                            "z": 0.0414120331
+                          },
+                          "localRotation": {
+                            "x": 0.08809389,
+                            "y": 0.23000443,
+                            "z": 0.294656336,
+                            "w": 0.923317432
+                          },
+                          "localScale": {
+                            "x": 1.00000048,
+                            "y": 1.00000072,
+                            "z": 1.00000048
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_L_HeadRibbon_01",
+                              "localPosition": {
+                                "x": -0.08505328,
+                                "y": -1.67643676E-16,
+                                "z": 1.19904078E-16
+                              },
+                              "localRotation": {
+                                "x": 0.55629915,
+                                "y": 0.414716184,
+                                "z": 0.117963254,
+                                "w": 0.71037066
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_L_HeadRibbon_02",
+                                  "localPosition": {
+                                    "x": -0.141729787,
+                                    "y": -4.44089183E-17,
+                                    "z": 2.88657976E-16
+                                  },
+                                  "localRotation": {
+                                    "x": 0.858846,
+                                    "y": 0.1550803,
+                                    "z": -0.007265332,
+                                    "w": -0.4881402
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "J_R_HairFront_00",
+                          "localPosition": {
+                            "x": -0.118646674,
+                            "y": 0.109952554,
+                            "z": -0.007276585
+                          },
+                          "localRotation": {
+                            "x": -0.113700978,
+                            "y": 0.978127539,
+                            "z": -0.160298422,
+                            "w": -0.0681406
+                          },
+                          "localScale": {
+                            "x": 1.00000036,
+                            "y": 1.0000006,
+                            "z": 1.0000006
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_R_HairFront_01",
+                              "localPosition": {
+                                "x": -0.0628382862,
+                                "y": -4.745255E-05,
+                                "z": -0.00148961856
+                              },
+                              "localRotation": {
+                                "x": -0.0511573553,
+                                "y": -0.01140533,
+                                "z": 0.009748385,
+                                "w": 0.9985779
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 0,
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "name": "J_R_HairSide_00",
+                          "localPosition": {
+                            "x": -0.09799041,
+                            "y": 0.07704446,
+                            "z": -0.0877954
+                          },
+                          "localRotation": {
+                            "x": 0.1631833,
+                            "y": 0.972312748,
+                            "z": -0.0256576911,
+                            "w": -0.165290222
+                          },
+                          "localScale": {
+                            "x": 1.0000006,
+                            "y": 1.00000048,
+                            "z": 1.0000006
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_R_HairSide_01",
+                              "localPosition": {
+                                "x": -0.07190759,
+                                "y": 1.55431224E-17,
+                                "z": 2.86070919E-17
+                              },
+                              "localRotation": {
+                                "x": -0.008649557,
+                                "y": -0.0469462,
+                                "z": -0.00623059925,
+                                "w": 0.9988406
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_R_HairSide_02",
+                                  "localPosition": {
+                                    "x": -0.07073497,
+                                    "y": 3.330669E-17,
+                                    "z": -1.12132524E-16
+                                  },
+                                  "localRotation": {
+                                    "x": -0.389522761,
+                                    "y": 0.5901459,
+                                    "z": -0.512844443,
+                                    "w": -0.486816734
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "J_R_HairTail_00",
+                          "localPosition": {
+                            "x": -0.0334916748,
+                            "y": -0.07271498,
+                            "z": -0.058596842
+                          },
+                          "localRotation": {
+                            "x": 0.1008327,
+                            "y": 0.0265253428,
+                            "z": 0.9770472,
+                            "w": 0.185763091
+                          },
+                          "localScale": {
+                            "x": 1.00000083,
+                            "y": 1.00000072,
+                            "z": 1.00000048
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_R_HairTail_01",
+                              "localPosition": {
+                                "x": -0.115975142,
+                                "y": 6.217249E-17,
+                                "z": -2.55351284E-17
+                              },
+                              "localRotation": {
+                                "x": 0.000122158744,
+                                "y": -0.000517640845,
+                                "z": 0.0027444,
+                                "w": 0.9999961
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_R_HairTail_02",
+                                  "localPosition": {
+                                    "x": -0.136561513,
+                                    "y": 1.110223E-16,
+                                    "z": -5.55111479E-18
+                                  },
+                                  "localRotation": {
+                                    "x": 0.004313685,
+                                    "y": -0.0203189235,
+                                    "z": 0.0198094845,
+                                    "w": 0.999588
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "J_R_HairTail_03",
+                                      "localPosition": {
+                                        "x": -0.132288486,
+                                        "y": -1.13242746E-16,
+                                        "z": -1.12687635E-16
+                                      },
+                                      "localRotation": {
+                                        "x": -0.00563738961,
+                                        "y": 0.03380287,
+                                        "z": 0.0241097175,
+                                        "w": 0.9991218
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "J_R_HairTail_04",
+                                          "localPosition": {
+                                            "x": -0.137525842,
+                                            "y": 1.19904078E-16,
+                                            "z": -3.10862448E-17
+                                          },
+                                          "localRotation": {
+                                            "x": -0.008016839,
+                                            "y": 0.09734642,
+                                            "z": 0.0586412549,
+                                            "w": 0.993489146
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "J_R_HairTail_05",
+                                              "localPosition": {
+                                                "x": -0.145978883,
+                                                "y": 2.16493482E-17,
+                                                "z": 2.71310741E-17
+                                              },
+                                              "localRotation": {
+                                                "x": 0.000131441382,
+                                                "y": 0.0136701223,
+                                                "z": 0.032817103,
+                                                "w": 0.9993679
+                                              },
+                                              "localScale": {
+                                                "x": 1.00000072,
+                                                "y": 1.00000024,
+                                                "z": 1.00000072
+                                              },
+                                              "childCount": 1,
+                                              "children": [
+                                                {
+                                                  "name": "J_R_HairTail_06",
+                                                  "localPosition": {
+                                                    "x": -0.154778227,
+                                                    "y": 7.54951665E-17,
+                                                    "z": -6.383782E-18
+                                                  },
+                                                  "localRotation": {
+                                                    "x": 0.0,
+                                                    "y": 0.0,
+                                                    "z": 0.0,
+                                                    "w": 1.0
+                                                  },
+                                                  "localScale": {
+                                                    "x": 1.0,
+                                                    "y": 1.0,
+                                                    "z": 1.0
+                                                  },
+                                                  "childCount": 0,
+                                                  "children": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "J_R_HeadRibbon_00",
+                          "localPosition": {
+                            "x": -0.18103224,
+                            "y": 0.08604571,
+                            "z": -0.04305515
+                          },
+                          "localRotation": {
+                            "x": -0.121783391,
+                            "y": -0.203007385,
+                            "z": 0.305303723,
+                            "w": 0.922359169
+                          },
+                          "localScale": {
+                            "x": 1.00000048,
+                            "y": 1.00000072,
+                            "z": 1.00000048
+                          },
+                          "childCount": 1,
+                          "children": [
+                            {
+                              "name": "J_R_HeadRibbon_01",
+                              "localPosition": {
+                                "x": -0.08505593,
+                                "y": -1.08801852E-16,
+                                "z": -1.24344979E-16
+                              },
+                              "localRotation": {
+                                "x": -0.556291342,
+                                "y": -0.414719075,
+                                "z": 0.117978923,
+                                "w": 0.710372448
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_R_HeadRibbon_02",
+                                  "localPosition": {
+                                    "x": -0.141728848,
+                                    "y": -9.76996256E-17,
+                                    "z": -6.72797344E-17
+                                  },
+                                  "localRotation": {
+                                    "x": 0.224375024,
+                                    "y": 0.670564,
+                                    "z": -0.5067233,
+                                    "w": -0.493184924
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Character1_RightShoulder",
+                  "localPosition": {
+                    "x": -0.122454986,
+                    "y": -0.000149760788,
+                    "z": -0.04199366
+                  },
+                  "localRotation": {
+                    "x": -0.106040291,
+                    "y": -0.697103,
+                    "z": -0.11625047,
+                    "w": 0.699491739
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.000001,
+                    "z": 1.0
+                  },
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "name": "Character1_RightArm",
+                      "localPosition": {
+                        "x": -0.05543744,
+                        "y": -4.76837236E-08,
+                        "z": -9.960575E-07
+                      },
+                      "localRotation": {
+                        "x": -4.15916332E-08,
+                        "y": -0.002638377,
+                        "z": -0.000695546332,
+                        "w": 0.9999963
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "Character1_RightForeArm",
+                          "localPosition": {
+                            "x": -0.233779252,
+                            "y": 8.644976E-06,
+                            "z": -7.23287667E-06
+                          },
+                          "localRotation": {
+                            "x": 0.000123908423,
+                            "y": -0.001035805,
+                            "z": -0.000420778262,
+                            "w": 0.9999994
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 5,
+                          "children": [
+                            {
+                              "name": "Character1_RightHand",
+                              "localPosition": {
+                                "x": -0.162480444,
+                                "y": -3.36073867E-07,
+                                "z": 1.83962823E-06
+                              },
+                              "localRotation": {
+                                "x": 0.0016610258,
+                                "y": -0.08512203,
+                                "z": 0.0005071686,
+                                "w": 0.996369064
+                              },
+                              "localScale": {
+                                "x": 1.0,
+                                "y": 0.999999,
+                                "z": 0.99999994
+                              },
+                              "childCount": 5,
+                              "children": [
+                                {
+                                  "name": "Character1_RightHandIndex1",
+                                  "localPosition": {
+                                    "x": -0.0774589,
+                                    "y": 0.0247735735,
+                                    "z": 0.0238773562
+                                  },
+                                  "localRotation": {
+                                    "x": 0.995905459,
+                                    "y": -0.0193403866,
+                                    "z": -0.0416079834,
+                                    "w": -0.0778913349
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_RightHandIndex2",
+                                      "localPosition": {
+                                        "x": -0.0242330618,
+                                        "y": -0.00223004143,
+                                        "z": -0.00200852053
+                                      },
+                                      "localRotation": {
+                                        "x": -0.0283407271,
+                                        "y": 0.03413596,
+                                        "z": 0.00117795519,
+                                        "w": 0.9990146
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_RightHandIndex3",
+                                          "localPosition": {
+                                            "x": -0.0158862453,
+                                            "y": 1.17688921E-06,
+                                            "z": -0.002641985
+                                          },
+                                          "localRotation": {
+                                            "x": -0.0385661349,
+                                            "y": -0.0144198555,
+                                            "z": -0.00689440174,
+                                            "w": 0.9991282
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.000001,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_RightHandIndex4",
+                                              "localPosition": {
+                                                "x": -0.0210748389,
+                                                "y": -0.0007041224,
+                                                "z": -0.00325401779
+                                              },
+                                              "localRotation": {
+                                                "x": 0.06180407,
+                                                "y": -0.113891616,
+                                                "z": -0.000783748168,
+                                                "w": 0.9915686
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 0.999999046,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_RightHandMiddle1",
+                                  "localPosition": {
+                                    "x": -0.07734083,
+                                    "y": 0.00436004344,
+                                    "z": 0.0241108313
+                                  },
+                                  "localRotation": {
+                                    "x": 0.992217958,
+                                    "y": 0.012764141,
+                                    "z": -0.0972952843,
+                                    "w": -0.0766447559
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.000001,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_RightHandMiddle2",
+                                      "localPosition": {
+                                        "x": -0.0253549665,
+                                        "y": -0.0006798076,
+                                        "z": 0.00116948935
+                                      },
+                                      "localRotation": {
+                                        "x": -0.0168437734,
+                                        "y": 0.0388018675,
+                                        "z": -0.0114875333,
+                                        "w": 0.999038935
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 0.999999,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_RightHandMiddle3",
+                                          "localPosition": {
+                                            "x": -0.01941591,
+                                            "y": -0.0004166489,
+                                            "z": -0.0007046597
+                                          },
+                                          "localRotation": {
+                                            "x": 0.004265949,
+                                            "y": 0.057133615,
+                                            "z": 0.0009956249,
+                                            "w": 0.998356938
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_RightHandMiddle4",
+                                              "localPosition": {
+                                                "x": -0.0214375686,
+                                                "y": -0.000471136154,
+                                                "z": -0.005066543
+                                              },
+                                              "localRotation": {
+                                                "x": 0.024370959,
+                                                "y": -0.06598195,
+                                                "z": -0.008131703,
+                                                "w": 0.99749
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 1.0,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_RightHandPinky1",
+                                  "localPosition": {
+                                    "x": -0.0650188848,
+                                    "y": -0.02772165,
+                                    "z": 0.010366288
+                                  },
+                                  "localRotation": {
+                                    "x": 0.968863249,
+                                    "y": -0.00202117814,
+                                    "z": -0.0916506052,
+                                    "w": -0.230000362
+                                  },
+                                  "localScale": {
+                                    "x": 1.00000012,
+                                    "y": 1.00000083,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_RightHandPinky2",
+                                      "localPosition": {
+                                        "x": -0.01809766,
+                                        "y": -0.000144271136,
+                                        "z": -5.279455E-05
+                                      },
+                                      "localRotation": {
+                                        "x": 0.02440644,
+                                        "y": -0.04052189,
+                                        "z": -0.013085926,
+                                        "w": 0.998794854
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_RightHandPinky3",
+                                          "localPosition": {
+                                            "x": -0.013885607,
+                                            "y": 0.000266962335,
+                                            "z": 0.000828123244
+                                          },
+                                          "localRotation": {
+                                            "x": 0.0176323038,
+                                            "y": 0.01427064,
+                                            "z": -0.0005729663,
+                                            "w": 0.999742568
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.0,
+                                            "z": 1.000001
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_RightHandPinky4",
+                                              "localPosition": {
+                                                "x": -0.01920308,
+                                                "y": 0.000518658,
+                                                "z": -0.0002499842
+                                              },
+                                              "localRotation": {
+                                                "x": -0.0142084649,
+                                                "y": -0.008251852,
+                                                "z": -0.0177087486,
+                                                "w": 0.9997082
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 0.99999994,
+                                                "z": 0.999999
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_RightHandRing1",
+                                  "localPosition": {
+                                    "x": -0.07430388,
+                                    "y": -0.0137107642,
+                                    "z": 0.0196560267
+                                  },
+                                  "localRotation": {
+                                    "x": 0.975585461,
+                                    "y": -0.0202842932,
+                                    "z": -0.01705632,
+                                    "w": -0.218015566
+                                  },
+                                  "localScale": {
+                                    "x": 1.00000012,
+                                    "y": 1.000001,
+                                    "z": 0.99999994
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_RightHandRing2",
+                                      "localPosition": {
+                                        "x": -0.0234580673,
+                                        "y": -7.923894E-06,
+                                        "z": -0.00350789982
+                                      },
+                                      "localRotation": {
+                                        "x": -0.0215693284,
+                                        "y": -0.07812969,
+                                        "z": -0.015850164,
+                                        "w": 0.9965838
+                                      },
+                                      "localScale": {
+                                        "x": 0.99999994,
+                                        "y": 1.0,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_RightHandRing3",
+                                          "localPosition": {
+                                            "x": -0.0158936251,
+                                            "y": -0.0010325379,
+                                            "z": 0.0003781292
+                                          },
+                                          "localRotation": {
+                                            "x": -0.009581579,
+                                            "y": 0.0356558859,
+                                            "z": 0.0271144379,
+                                            "w": 0.9989503
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 0.999999046,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_RightHandRing4",
+                                              "localPosition": {
+                                                "x": -0.02512624,
+                                                "y": -3.48307076E-05,
+                                                "z": -0.0032739304
+                                              },
+                                              "localRotation": {
+                                                "x": 0.0125920614,
+                                                "y": -0.04324939,
+                                                "z": -0.00322444947,
+                                                "w": 0.9989798
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 1.0,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Character1_RightHandThumb1",
+                                  "localPosition": {
+                                    "x": -0.02633863,
+                                    "y": 0.0208612047,
+                                    "z": -0.00452688942
+                                  },
+                                  "localRotation": {
+                                    "x": 0.463485569,
+                                    "y": -0.1626613,
+                                    "z": -0.335175753,
+                                    "w": 0.8039775
+                                  },
+                                  "localScale": {
+                                    "x": 1.00000036,
+                                    "y": 1.0,
+                                    "z": 1.0000006
+                                  },
+                                  "childCount": 1,
+                                  "children": [
+                                    {
+                                      "name": "Character1_RightHandThumb2",
+                                      "localPosition": {
+                                        "x": -0.0320295244,
+                                        "y": 0.00112796715,
+                                        "z": 0.0006024248
+                                      },
+                                      "localRotation": {
+                                        "x": 0.03296852,
+                                        "y": 0.0110797463,
+                                        "z": 0.000129657987,
+                                        "w": 0.999395
+                                      },
+                                      "localScale": {
+                                        "x": 1.0,
+                                        "y": 0.999999,
+                                        "z": 1.0
+                                      },
+                                      "childCount": 1,
+                                      "children": [
+                                        {
+                                          "name": "Character1_RightHandThumb3",
+                                          "localPosition": {
+                                            "x": -0.017586289,
+                                            "y": 0.0005113255,
+                                            "z": 0.000152198321
+                                          },
+                                          "localRotation": {
+                                            "x": -0.009559584,
+                                            "y": 0.0117786033,
+                                            "z": -0.01404188,
+                                            "w": 0.9997863
+                                          },
+                                          "localScale": {
+                                            "x": 1.0,
+                                            "y": 1.000001,
+                                            "z": 1.0
+                                          },
+                                          "childCount": 1,
+                                          "children": [
+                                            {
+                                              "name": "Character1_RightHandThumb4",
+                                              "localPosition": {
+                                                "x": -0.0262879822,
+                                                "y": 0.00158763642,
+                                                "z": -3.035349E-05
+                                              },
+                                              "localRotation": {
+                                                "x": 0.09698064,
+                                                "y": -0.0165148657,
+                                                "z": -0.06892792,
+                                                "w": 0.9927593
+                                              },
+                                              "localScale": {
+                                                "x": 1.0,
+                                                "y": 0.999999,
+                                                "z": 1.0
+                                              },
+                                              "childCount": 0,
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_R_Sode_A00",
+                              "localPosition": {
+                                "x": -0.04704347,
+                                "y": 0.0360110663,
+                                "z": -0.001029658
+                              },
+                              "localRotation": {
+                                "x": 0.00677837571,
+                                "y": 0.00294147385,
+                                "z": -0.093876645,
+                                "w": 0.9955564
+                              },
+                              "localScale": {
+                                "x": 0.9999999,
+                                "y": 1.0000006,
+                                "z": 1.00000036
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_R_Sode_A01",
+                                  "localPosition": {
+                                    "x": -0.149007544,
+                                    "y": -0.0133324377,
+                                    "z": 0.007244749
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 1.0
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_R_Sode_B00",
+                              "localPosition": {
+                                "x": -0.044249896,
+                                "y": 0.000253442966,
+                                "z": 0.03772974
+                              },
+                              "localRotation": {
+                                "x": 0.704921663,
+                                "y": 0.0544714481,
+                                "z": -0.05372531,
+                                "w": 0.70514673
+                              },
+                              "localScale": {
+                                "x": 0.9999999,
+                                "y": 1.0000006,
+                                "z": 1.00000036
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_R_Sode_B01",
+                                  "localPosition": {
+                                    "x": -0.150670618,
+                                    "y": -0.00781177031,
+                                    "z": 1.284108E-09
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 1.0
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_R_Sode_C00",
+                              "localPosition": {
+                                "x": -0.0413878635,
+                                "y": -0.0489117056,
+                                "z": -0.0127870291
+                              },
+                              "localRotation": {
+                                "x": 0.9905085,
+                                "y": 0.13556996,
+                                "z": 0.0224484317,
+                                "w": 0.003137485
+                              },
+                              "localScale": {
+                                "x": 0.9999999,
+                                "y": 1.0000006,
+                                "z": 1.00000083
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_R_Sode_C01",
+                                  "localPosition": {
+                                    "x": -0.162878856,
+                                    "y": 2.79592651E-08,
+                                    "z": 3.748803E-09
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 1.0
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "name": "J_R_Sode_D00",
+                              "localPosition": {
+                                "x": -0.043953944,
+                                "y": 0.00270832144,
+                                "z": -0.0389821976
+                              },
+                              "localRotation": {
+                                "x": -0.7060321,
+                                "y": -0.0847084448,
+                                "z": -0.0379655249,
+                                "w": 0.70206964
+                              },
+                              "localScale": {
+                                "x": 0.9999999,
+                                "y": 1.00000119,
+                                "z": 1.00000024
+                              },
+                              "childCount": 1,
+                              "children": [
+                                {
+                                  "name": "J_R_Sode_D01",
+                                  "localPosition": {
+                                    "x": -0.144763365,
+                                    "y": 1.16322756E-08,
+                                    "z": -6.06250561E-09
+                                  },
+                                  "localRotation": {
+                                    "x": 0.0,
+                                    "y": 0.0,
+                                    "z": 0.0,
+                                    "w": 1.0
+                                  },
+                                  "localScale": {
+                                    "x": 1.0,
+                                    "y": 1.0,
+                                    "z": 1.0
+                                  },
+                                  "childCount": 0,
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "J_Mune_root_00",
+              "localPosition": {
+                "x": -0.08766683,
+                "y": -0.0003044751,
+                "z": 1.784587E-08
+              },
+              "localRotation": {
+                "x": -0.4967838,
+                "y": 0.503195643,
+                "z": 0.496783584,
+                "w": 0.5031958
+              },
+              "localScale": {
+                "x": 1.00000036,
+                "y": 1.0000006,
+                "z": 1.00000048
+              },
+              "childCount": 3,
+              "children": [
+                {
+                  "name": "J_L_Mune_00",
+                  "localPosition": {
+                    "x": -0.029250145,
+                    "y": 0.0268476866,
+                    "z": 0.0006188383
+                  },
+                  "localRotation": {
+                    "x": -0.0515884981,
+                    "y": 0.5376023,
+                    "z": -0.03311316,
+                    "w": 0.840967238
+                  },
+                  "localScale": {
+                    "x": 0.99999994,
+                    "y": 1.0,
+                    "z": 0.99999994
+                  },
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "name": "J_L_Mune_01",
+                      "localPosition": {
+                        "x": -0.185683921,
+                        "y": 0.007427308,
+                        "z": -2.62149687E-18
+                      },
+                      "localRotation": {
+                        "x": 0.0174838435,
+                        "y": 0.9998472,
+                        "z": 7.449441E-09,
+                        "w": 1.30264785E-10
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "J_L_Mune_02",
+                          "localPosition": {
+                            "x": -0.163014352,
+                            "y": 9.76996256E-17,
+                            "z": -4.07336821E-18
+                          },
+                          "localRotation": {
+                            "x": 0.0565429255,
+                            "y": 0.7048425,
+                            "z": -0.0565429255,
+                            "w": 0.7048425
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "J_Mune_root_01",
+                  "localPosition": {
+                    "x": -3.62123352E-11,
+                    "y": 0.0374364,
+                    "z": 0.0395602956
+                  },
+                  "localRotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                  },
+                  "localScale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "childCount": 0,
+                  "children": []
+                },
+                {
+                  "name": "J_R_Mune_00",
+                  "localPosition": {
+                    "x": 0.0292500611,
+                    "y": 0.02684879,
+                    "z": 0.0006188783
+                  },
+                  "localRotation": {
+                    "x": 0.840967238,
+                    "y": 0.03311328,
+                    "z": 0.5376023,
+                    "w": 0.05158868
+                  },
+                  "localScale": {
+                    "x": 0.99999994,
+                    "y": 1.0,
+                    "z": 0.99999994
+                  },
+                  "childCount": 1,
+                  "children": [
+                    {
+                      "name": "J_R_Mune_01",
+                      "localPosition": {
+                        "x": 0.18568334,
+                        "y": -0.007424814,
+                        "z": 4.73035726E-07
+                      },
+                      "localRotation": {
+                        "x": 0.0174838435,
+                        "y": 0.9998472,
+                        "z": -6.01524E-17,
+                        "w": -6.22935558E-17
+                      },
+                      "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "childCount": 1,
+                      "children": [
+                        {
+                          "name": "J_R_Mune_02",
+                          "localPosition": {
+                            "x": 0.1630146,
+                            "y": 3.48688673E-06,
+                            "z": 9.529151E-08
+                          },
+                          "localRotation": {
+                            "x": 0.0565429032,
+                            "y": 0.7048425,
+                            "z": -0.0565429032,
+                            "w": 0.7048425
+                          },
+                          "localScale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                          },
+                          "childCount": 0,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "J_L_SusoSide_00",
+          "localPosition": {
+            "x": -0.05543403,
+            "y": 0.00173068431,
+            "z": 0.0986537337
+          },
+          "localRotation": {
+            "x": -0.0937465355,
+            "y": 0.6978551,
+            "z": 0.707469,
+            "w": 0.06080676
+          },
+          "localScale": {
+            "x": 1.00000036,
+            "y": 1.0000006,
+            "z": 1.00000048
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_L_SusoSide_01",
+              "localPosition": {
+                "x": -0.09931355,
+                "y": 0.009804863,
+                "z": 0.00156923488
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "J_R_SusoSide_00",
+          "localPosition": {
+            "x": -0.0554337,
+            "y": 0.00173072889,
+            "z": -0.09865367
+          },
+          "localRotation": {
+            "x": 0.697855055,
+            "y": 0.09374712,
+            "z": -0.0608073473,
+            "w": 0.7074689
+          },
+          "localScale": {
+            "x": 1.00000036,
+            "y": 1.0000006,
+            "z": 1.00000048
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_R_SusoSide_01",
+              "localPosition": {
+                "x": 0.09931313,
+                "y": -0.009805115,
+                "z": -0.00156925467
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "J_L_Skirt_00",
+      "localPosition": {
+        "x": -0.0688782856,
+        "y": 0.07501759,
+        "z": 0.0568566658
+      },
+      "localRotation": {
+        "x": 0.0221194979,
+        "y": 0.9987083,
+        "z": 0.00101289817,
+        "w": 0.0457329452
+      },
+      "localScale": {
+        "x": 1.0000006,
+        "y": 1.0000006,
+        "z": 1.00000036
+      },
+      "childCount": 2,
+      "children": [
+        {
+          "name": "J_L_Skirt_01",
+          "localPosition": {
+            "x": -0.141910419,
+            "y": -5.14815872E-17,
+            "z": -6.520502E-17
+          },
+          "localRotation": {
+            "x": 0.00222163368,
+            "y": 0.0339482836,
+            "z": 0.021045804,
+            "w": 0.9991995
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_L_Skirt_02",
+              "localPosition": {
+                "x": -0.102915838,
+                "y": 7.566685E-18,
+                "z": -7.47122235E-17
+              },
+              "localRotation": {
+                "x": 0.000859455846,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.999999642
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "J_L_SusoFront_00",
+          "localPosition": {
+            "x": 1.86666926E-09,
+            "y": -3.01727638E-08,
+            "z": -2.82290386E-10
+          },
+          "localRotation": {
+            "x": 0.000108156069,
+            "y": -0.0073533887,
+            "z": -0.05896039,
+            "w": 0.998233259
+          },
+          "localScale": {
+            "x": 0.999999464,
+            "y": 0.999999464,
+            "z": 0.999999642
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_L_SusoFront_01",
+              "localPosition": {
+                "x": -0.12343654,
+                "y": 2.40472472E-17,
+                "z": -4.297936E-18
+              },
+              "localRotation": {
+                "x": -0.5071907,
+                "y": -0.4927043,
+                "z": -0.454019,
+                "w": 0.5420948
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "J_L_SkirtBack_00",
+      "localPosition": {
+        "x": -0.0723506138,
+        "y": -0.0412710942,
+        "z": 0.05315229
+      },
+      "localRotation": {
+        "x": -0.0548462234,
+        "y": 0.00618536165,
+        "z": 0.9913003,
+        "w": 0.119487777
+      },
+      "localScale": {
+        "x": 1.0000006,
+        "y": 1.0000006,
+        "z": 1.00000036
+      },
+      "childCount": 2,
+      "children": [
+        {
+          "name": "J_L_SkirtBack_01",
+          "localPosition": {
+            "x": -0.149930328,
+            "y": 5.49367E-17,
+            "z": 7.480034E-17
+          },
+          "localRotation": {
+            "x": -0.005350928,
+            "y": -0.0625069961,
+            "z": 0.121605895,
+            "w": 0.9905939
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_L_SkirtBack_02",
+              "localPosition": {
+                "x": -0.183334112,
+                "y": 4.013332E-17,
+                "z": -2.53643354E-17
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "J_L_SusoBack_00",
+          "localPosition": {
+            "x": 1.38050659E-32,
+            "y": 3.5527136E-17,
+            "z": 3.315681E-32
+          },
+          "localRotation": {
+            "x": 0.0033062587,
+            "y": 0.0447749645,
+            "z": -0.0216140375,
+            "w": 0.9987578
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_L_SusoBack_01",
+              "localPosition": {
+                "x": -0.102069087,
+                "y": -2.450161E-18,
+                "z": -3.95708878E-17
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "J_R_Skirt_00",
+      "localPosition": {
+        "x": -0.0684722,
+        "y": 0.07501754,
+        "z": -0.0573444627
+      },
+      "localRotation": {
+        "x": 0.02212266,
+        "y": 0.9988644,
+        "z": -0.0009343224,
+        "w": -0.0421857648
+      },
+      "localScale": {
+        "x": 1.0000006,
+        "y": 1.0000006,
+        "z": 1.00000036
+      },
+      "childCount": 2,
+      "children": [
+        {
+          "name": "J_R_Skirt_01",
+          "localPosition": {
+            "x": -0.14191027,
+            "y": 3.75084023E-17,
+            "z": 3.25306842E-17
+          },
+          "localRotation": {
+            "x": -0.002221635,
+            "y": -0.0339482166,
+            "z": 0.0210465677,
+            "w": 0.9991995
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_R_Skirt_02",
+              "localPosition": {
+                "x": -0.1029153,
+                "y": 1.935459E-17,
+                "z": 3.68866073E-17
+              },
+              "localRotation": {
+                "x": -1.98116382E-07,
+                "y": 0.0008595022,
+                "z": 0.999999642,
+                "w": 4.702604E-07
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "J_R_SusoFront_00",
+          "localPosition": {
+            "x": -1.42108544E-16,
+            "y": -3.5527136E-17,
+            "z": -1.7763568E-17
+          },
+          "localRotation": {
+            "x": -0.000108155284,
+            "y": 0.0073531894,
+            "z": -0.058960136,
+            "w": 0.998233259
+          },
+          "localScale": {
+            "x": 0.999999464,
+            "y": 0.999999464,
+            "z": 0.999999642
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_R_SusoFront_01",
+              "localPosition": {
+                "x": -0.123436436,
+                "y": 1.2161711E-16,
+                "z": -2.5274234E-17
+              },
+              "localRotation": {
+                "x": -0.433752656,
+                "y": -0.5621338,
+                "z": -0.484886378,
+                "w": 0.510636449
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "J_R_SkirtBack_00",
+      "localPosition": {
+        "x": -0.0719712749,
+        "y": -0.0412711166,
+        "z": -0.05366487
+      },
+      "localRotation": {
+        "x": 0.00660972251,
+        "y": 0.0513251647,
+        "z": -0.119465038,
+        "w": 0.9914889
+      },
+      "localScale": {
+        "x": 1.0000006,
+        "y": 1.0000006,
+        "z": 1.00000036
+      },
+      "childCount": 2,
+      "children": [
+        {
+          "name": "J_R_SkirtBack_01",
+          "localPosition": {
+            "x": 0.149930373,
+            "y": -2.250124E-09,
+            "z": -1.00453281E-08
+          },
+          "localRotation": {
+            "x": 0.005350928,
+            "y": -0.061189618,
+            "z": 0.122274071,
+            "w": 0.9905939
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_R_SkirtBack_02",
+              "localPosition": {
+                "x": 0.183333844,
+                "y": 3.325184E-08,
+                "z": 5.255228E-08
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "J_R_SusoBack_00",
+          "localPosition": {
+            "x": 0.0,
+            "y": -7.105427E-17,
+            "z": 1.7763568E-17
+          },
+          "localRotation": {
+            "x": 0.003306259,
+            "y": 0.0447749831,
+            "z": -0.02161404,
+            "w": 0.9987578
+          },
+          "localScale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "name": "J_R_SusoBack_01",
+              "localPosition": {
+                "x": 0.102068879,
+                "y": -1.66403957E-08,
+                "z": -6.6199064E-08
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "childCount": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
