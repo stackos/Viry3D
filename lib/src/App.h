@@ -30,6 +30,7 @@
 #include "Engine.h"
 #include "Resources.h"
 #include "Input.h"
+#include "BoneDrawer.h"
 
 namespace Viry3D
 {
@@ -54,6 +55,7 @@ namespace Viry3D
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 1, 2.3f));
 			camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
+			camera->SetNearClip(0.03f);
 			camera->SetDepth(0);
 			camera->SetCullingMask(1 << 0);
 			m_camera = camera.get();
@@ -69,14 +71,20 @@ namespace Viry3D
 			floor->EnableRecieveShadow(true);
 
 			// auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
-			auto obj = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
-			obj->GetTransform()->SetPosition(Vector3(0, 0, 0));
-			auto renderers = obj->GetComponentsInChildren<Renderer>();
+			auto model = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
+			model->GetTransform()->SetPosition(Vector3(0, 0, 0));
+			auto renderers = model->GetComponentsInChildren<Renderer>();
 			for (int i = 0; i < renderers.Size(); ++i)
 			{
 				renderers[i]->EnableCastShadow(true);
 			}
-			auto anim = obj->GetComponent<Animation>();
+			
+			auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_SAK01.go");
+			clip->GetTransform()->SetPosition(Vector3(1, 0, 0));
+			auto bone_drawer = clip->AddComponent<BoneDrawer>();
+			bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
+			bone_drawer->Init();
+			auto anim = clip->GetComponent<Animation>();
 			if (anim)
 			{
 				anim->Play(0);
