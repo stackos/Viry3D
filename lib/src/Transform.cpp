@@ -56,14 +56,14 @@ namespace Viry3D
                     break;
                 }
             }
+			m_parent.reset();
         }
         
         if (parent)
         {
             parent->m_children.Add(this->GetGameObject()->GetTransform());
+			m_parent = parent;
         }
-        
-        m_parent = parent;
         
         this->SetPosition(position);
         this->SetRotation(rotation);
@@ -222,7 +222,7 @@ namespace Viry3D
             if (parent)
             {
                 m_local_to_world = parent->GetLocalToWorldMatrix() * Matrix4x4::TRS(m_local_position, m_local_rotation, m_local_scale);
-                m_position = m_local_to_world.MultiplyPoint3x4(m_local_position);
+                m_position = parent->GetLocalToWorldMatrix().MultiplyPoint3x4(m_local_position);
                 m_rotation = parent->GetRotation() * m_local_rotation;
                 const auto& parent_scale = parent->GetScale();
                 m_scale = Vector3(parent_scale.x * m_local_scale.x, parent_scale.y * m_local_scale.y, parent_scale.z * m_local_scale.z);
