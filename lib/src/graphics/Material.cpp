@@ -35,6 +35,7 @@ namespace Viry3D
 
         this->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedWhiteTexture());
 		this->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, 1, 0, 0));
+		this->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
     }
     
     Material::~Material()

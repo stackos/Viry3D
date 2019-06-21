@@ -62,11 +62,15 @@ void main()
 local fs = [[
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
+VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
+{
+	vec4 u_color;
+};
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	vec4 c = texture(u_texture, v_uv);
+	vec4 c = texture(u_texture, v_uv) * u_color;
 	c.a = 1.0;
 	o_color = c;
 }
@@ -144,6 +148,16 @@ local pass = {
             members = {
                 {
                     name = "u_texture_scale_offset",
+                    size = 16,
+                },
+            },
+        },
+		{
+            name = "PerMaterialFragment",
+            binding = 4,
+            members = {
+                {
+                    name = "u_color",
                     size = 16,
                 },
             },
