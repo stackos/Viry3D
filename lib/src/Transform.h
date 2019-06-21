@@ -55,6 +55,7 @@ namespace Viry3D
 
 	private:
 		void MarkDirty();
+		void UpdateMatrix();
 
 	private:
 		WeakRef<Transform> m_parent;
