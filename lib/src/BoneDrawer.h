@@ -87,15 +87,18 @@ namespace Viry3D
 		{
 			Vector<Mesh::Vertex> vertices;
 			Vector<unsigned int> indices;
-
-			vertices.Add({ Vector3(0, 0, 0) });
-			vertices.Add({ Vector3(0, 1, 0) });
+            Mesh::Vertex v;
+            v.vertex = Vector3(0, 0, 0);
+			vertices.Add(v);
+            v.vertex = Vector3(0, 1, 0);
+			vertices.Add(v);
 
 			for (int i = 0; i < 360; ++i)
 			{
 				float x = 0.5f * cos(Mathf::Deg2Rad * i);
 				float z = 0.5f * sin(Mathf::Deg2Rad * i);
-				vertices.Add({ Vector3(x, 0, z) });
+                v.vertex = Vector3(x, 0, z);
+				vertices.Add(v);
 
 				if (i == 359)
 				{
