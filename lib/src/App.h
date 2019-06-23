@@ -70,7 +70,7 @@ namespace Viry3D
 			floor->SetMaterial(material);
 			floor->EnableRecieveShadow(true);
 
-			// auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
+            //auto obj = Resources::LoadGameObject("Resources/res/animations/unitychan/unitychan.go");
 			auto model = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
 			model->GetTransform()->SetPosition(Vector3(0, 0, 0));
 			auto renderers = model->GetComponentsInChildren<Renderer>();
@@ -89,7 +89,7 @@ namespace Viry3D
 			{
 				anim->Play(0);
 			}
-
+            
 			auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
 			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
 			ui_camera->SetDepth(1);
