@@ -31,6 +31,7 @@
 #include "Resources.h"
 #include "Input.h"
 #include "BoneDrawer.h"
+#include "BoneMapper.h"
 
 namespace Viry3D
 {
@@ -63,6 +64,14 @@ namespace Viry3D
 			auto skybox = GameObject::Create("")->AddComponent<Skybox>();
 			skybox->SetTexture(cubemap, 0.0f);
 
+			auto light = GameObject::Create("")->AddComponent<Light>();
+			light->GetTransform()->SetPosition(Vector3(-1.332f, 3, 0));
+			light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
+			light->SetType(LightType::Spot);
+			light->SetRange(10);
+			light->SetSpotAngle(45);
+			light->EnableShadow(true);
+
 			auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
 			floor->GetTransform()->SetPosition(Vector3(0, -5, 0));
 			floor->GetTransform()->SetScale(Vector3(20, 10, 10));
@@ -81,15 +90,24 @@ namespace Viry3D
 			
 			auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_SAK01.go");
 			clip->GetTransform()->SetPosition(Vector3(1, 0, 0));
-			auto bone_drawer = clip->AddComponent<BoneDrawer>();
-			bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
-			bone_drawer->Init();
 			auto anim = clip->GetComponent<Animation>();
 			if (anim)
 			{
 				anim->Play(0);
 			}
-            
+
+			auto bone_mapper = clip->AddComponent<BoneMapper>();
+			bone_mapper->root_src = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
+			bone_mapper->root_dst = model->GetTransform()->Find("Character1_Reference/Character1_Hips");
+			bone_mapper->src_base_pose_path = "Resources/res/model/CandyRockStar/t-pose-src.json";
+			bone_mapper->dst_base_pose_path = "Resources/res/model/CandyRockStar/t-pose-dst.json";
+			bone_mapper->bone_map_path = "Resources/res/model/CandyRockStar/bone-map.json";
+			bone_mapper->Init();
+
+			auto bone_drawer = clip->AddComponent<BoneDrawer>();
+			bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
+			bone_drawer->Init();
+
 			auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
 			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
 			ui_camera->SetDepth(1);
@@ -106,14 +124,6 @@ namespace Viry3D
 			label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
 			canvas->AddView(label);
 			m_fps_label = label.get();
-            
-			auto light = GameObject::Create("")->AddComponent<Light>();
-			light->GetTransform()->SetPosition(Vector3(-1.332f, 3, 0));
-			light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
-			light->SetType(LightType::Spot);
-			light->SetRange(10);
-			light->SetSpotAngle(45);
-			light->EnableShadow(true);
             
 #if 0
 			auto blit_camera = GameObject::Create("")->AddComponent<Camera>();

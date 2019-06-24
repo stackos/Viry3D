@@ -24,21 +24,7 @@ public class BoneMapper : MonoBehaviour
         public Vector3 sca;
 
         public BoneState parent;
-        public Vector3 posWorld;
-        public Quaternion rotWorld;
-        public Vector3 scaWorld;
-
-        public Vector3 PosWorld()
-        {
-            if (parent == null)
-            {
-                return pos;
-            }
-            else
-            {
-                return parent.PosWorld() + pos;
-            }
-        }
+        public Quaternion rot_world;
 
         public Quaternion RotWorld()
         {
@@ -49,19 +35,6 @@ public class BoneMapper : MonoBehaviour
             else
             {
                 return parent.RotWorld() * rot;
-            }
-        }
-
-        public Vector3 ScaWorld()
-        {
-            if (parent == null)
-            {
-                return sca;
-            }
-            else
-            {
-                Vector3 s = parent.ScaWorld();
-                return new Vector3(s.x * sca.x, s.y * sca.y, s.z * sca.z);
             }
         }
     }
@@ -189,9 +162,7 @@ public class BoneMapper : MonoBehaviour
             JObject sca = (JObject) bone["localScale"];
             state.sca = new Vector3((float) sca["x"], (float) sca["y"], (float) sca["z"]);
             state.parent = parent;
-            state.posWorld = state.PosWorld();
-            state.rotWorld = state.RotWorld();
-            state.scaWorld = state.ScaWorld();
+            state.rot_world = state.RotWorld();
 
             states.Add(name, state);
 
@@ -241,9 +212,9 @@ public class BoneMapper : MonoBehaviour
                         else
                         {
                             Vector3 euler = rot.eulerAngles;
-                            Vector3 right = Quaternion.Inverse(dst_base_state.rotWorld) * new Vector3(1, 0, 0);
-                            Vector3 up = Quaternion.Inverse(dst_base_state.rotWorld) * new Vector3(0, 1, 0);
-                            Vector3 forward = Quaternion.Inverse(dst_base_state.rotWorld) * new Vector3(0, 0, 1);
+                            Vector3 right = Quaternion.Inverse(dst_base_state.rot_world) * new Vector3(1, 0, 0);
+                            Vector3 up = Quaternion.Inverse(dst_base_state.rot_world) * new Vector3(0, 1, 0);
+                            Vector3 forward = Quaternion.Inverse(dst_base_state.rot_world) * new Vector3(0, 0, 1);
                             dst_bone.localRotation = dst_base_state.rot
                                 * Quaternion.AngleAxis(euler.y, up)
                                 * Quaternion.AngleAxis(euler.x, right)
