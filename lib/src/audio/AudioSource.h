@@ -39,6 +39,7 @@ namespace Viry3D
 
         AudioSource();
         virtual ~AudioSource();
+        virtual void Update();
         const Ref<AudioClip>& GetClip() const { return m_clip; }
         void SetClip(const Ref<AudioClip>& clip);
         void SetLoop(bool loop);
@@ -48,7 +49,6 @@ namespace Viry3D
         State GetState() const;
 
     protected:
-        virtual void Update();
         virtual void OnTransformDirty();
 
     private:

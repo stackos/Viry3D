@@ -322,7 +322,10 @@ namespace Viry3D
         AudioClipPrivate* clip = (AudioClipPrivate*) data;
         
         int bytes = (int) (header->bitrate / header->samplerate / pcm->channels);
-        assert(bytes == 1 || bytes == 2);
+        if (bytes != 1 && bytes != 2)
+        {
+            bytes = 2;
+        }
 
         const int max_sample = 1152;
         int size = max_sample * bytes * pcm->channels;
@@ -506,7 +509,7 @@ namespace Viry3D
 #endif
 
     AudioClip::AudioClip():
-        m_private(new AudioClipPrivate()),
+    m_private(Memory::New<AudioClipPrivate>()),
         m_channel(0),
         m_sample_rate(0),
         m_byte_rate(0),

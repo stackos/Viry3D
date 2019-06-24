@@ -63,7 +63,7 @@ namespace Viry3D
     };
 
     AudioListener::AudioListener():
-        m_private(new AudioListenerPrivate())
+        m_private(Memory::New<AudioListenerPrivate>())
     {
     
     }

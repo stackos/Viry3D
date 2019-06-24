@@ -139,16 +139,15 @@ namespace Viry3D
             Texture::Init();
 			Mesh::Init();
 			Font::Init();
-            AudioManager::Init();
 			Resources::Init();
+            AudioManager::Init();
 		}
 
 		void Shutdown()
 		{
-            m_scene.reset();
-            
-			Resources::Done();
             AudioManager::Done();
+            m_scene.reset();
+			Resources::Done();
 			Font::Done();
 			Mesh::Done();
             Texture::Done();

@@ -32,6 +32,10 @@
 #include "Input.h"
 #include "BoneDrawer.h"
 #include "BoneMapper.h"
+#include "audio/AudioManager.h"
+#include "audio/AudioClip.h"
+#include "audio/AudioSource.h"
+#include "audio/AudioListener.h"
 
 namespace Viry3D
 {
@@ -42,7 +46,10 @@ namespace Viry3D
 		Vector2 m_last_touch_pos;
 		Vector3 m_camera_rot = Vector3(5, 180, 0);
 		Label* m_fps_label = nullptr;
-
+#if !VR_WASM
+        Ref<AudioSource> m_audio_source_bgm;
+#endif
+        
 		App()
 		{
 			auto cube = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
@@ -107,7 +114,22 @@ namespace Viry3D
 			auto bone_drawer = clip->AddComponent<BoneDrawer>();
 			bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
 			bone_drawer->Init();
+            
+            auto listener = AudioManager::GetListener();
+            listener->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));
+            listener->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));
 
+#if !VR_WASM
+            auto audio_path = "Resources/res/model/CandyRockStar/Unite In The Sky (full).mp3";
+            auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
+            m_audio_source_bgm = RefMake<AudioSource>();
+            m_audio_source_bgm->SetClip(audio_clip);
+            m_audio_source_bgm->SetLoop(true);
+            m_audio_source_bgm->Play();
+#else
+            AudioManager::PlayAudio(audio_path, true);
+#endif
+            
 			auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
 			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
 			ui_camera->SetDepth(1);
@@ -152,11 +174,19 @@ namespace Viry3D
 
 		virtual ~App()
 		{
-			
+#if VR_WASM
+            AudioManager::StopAudio();
+#else
+            m_audio_source_bgm.reset();
+#endif
 		}
 
 		virtual void Update()
 		{
+#if !VR_WASM
+            m_audio_source_bgm->Update();
+#endif
+            
 			if (m_fps_label)
 			{
 				m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));

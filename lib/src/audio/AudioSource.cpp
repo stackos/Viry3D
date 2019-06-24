@@ -178,7 +178,7 @@ namespace Viry3D
     };
 
     AudioSource::AudioSource():
-        m_private(new AudioSourcePrivate())
+        m_private(Memory::New<AudioSourcePrivate>())
     {
     
     }

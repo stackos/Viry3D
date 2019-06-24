@@ -26,14 +26,11 @@ namespace Viry3D
     class AudioListener : public Component
     {
     public:
+        AudioListener();
         virtual ~AudioListener();
 
     protected:
         virtual void OnTransformDirty();
-
-    private:
-        friend class AudioManager;
-        AudioListener();
 
     private:
         AudioListenerPrivate* m_private;

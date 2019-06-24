@@ -19,6 +19,7 @@
 #include "AudioListener.h"
 #include "memory/Memory.h"
 #include "Debug.h"
+#include "GameObject.h"
 
 #if VR_MAC || VR_IOS
 #include <OpenAL/OpenAL.h>
@@ -47,7 +48,7 @@ namespace Viry3D
 {
     static ALCdevice* g_device = nullptr;
     static ALCcontext* g_context = nullptr;
-    static AudioListener* g_listener = nullptr;
+    static Ref<AudioListener> g_listener;
 
     void AudioManager::Init()
     {
@@ -91,7 +92,7 @@ namespace Viry3D
 
     void AudioManager::Done()
     {
-        Memory::SafeDelete(g_listener);
+        g_listener.reset();
 
         alcMakeContextCurrent(nullptr);
         if (g_context)
@@ -106,11 +107,11 @@ namespace Viry3D
         }
     }
 
-    AudioListener* AudioManager::GetListener()
+    const Ref<AudioListener>& AudioManager::GetListener()
     {
-        if (g_listener == nullptr)
+        if (!g_listener)
         {
-            g_listener = new AudioListener();
+            g_listener = GameObject::Create("")->AddComponent<AudioListener>();
         }
         return g_listener;
     }
