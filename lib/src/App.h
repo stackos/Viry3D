@@ -47,7 +47,7 @@ namespace Viry3D
 		Vector3 m_camera_rot = Vector3(5, 180, 0);
 		Label* m_fps_label = nullptr;
 #if !VR_WASM
-        Ref<AudioSource> m_audio_source_bgm;
+		AudioSource* m_audio_source_bgm;
 #endif
         
 		App()
@@ -122,7 +122,7 @@ namespace Viry3D
 #if !VR_WASM
             auto audio_path = "Resources/res/model/CandyRockStar/Unite In The Sky (full).mp3";
             auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
-            m_audio_source_bgm = RefMake<AudioSource>();
+            m_audio_source_bgm = GameObject::Create("")->AddComponent<AudioSource>().get();
             m_audio_source_bgm->SetClip(audio_clip);
             m_audio_source_bgm->SetLoop(true);
             m_audio_source_bgm->Play();
@@ -176,17 +176,11 @@ namespace Viry3D
 		{
 #if VR_WASM
             AudioManager::StopAudio();
-#else
-            m_audio_source_bgm.reset();
 #endif
 		}
 
 		virtual void Update()
 		{
-#if !VR_WASM
-            m_audio_source_bgm->Update();
-#endif
-            
 			if (m_fps_label)
 			{
 				m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
