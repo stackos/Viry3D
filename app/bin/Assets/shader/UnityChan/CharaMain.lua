@@ -95,8 +95,7 @@ VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
 	vec4 u_color;
 	vec4 _ShadowColor;
-	float _SpecularPower;
-	vec3 padding;
+	vec4 _SpecularPower;
 };
 VK_UNIFORM_BINDING(6) uniform PerLightFragment
 {
@@ -156,7 +155,7 @@ void main()
 	combined *= (1.0 + falloff_c.rgb * falloff_c.a);
 
 	vec4 reflection_mask = texture(_SpecularReflectionSampler, v_uv);
-	vec4 spec = lit(nv, nv, _SpecularPower);
+	vec4 spec = lit(nv, nv, _SpecularPower.x);
 	vec3 spec_c = clamp(spec.z, 0.0, 1.0) * reflection_mask.rgb * c.rgb;
 	combined += spec_c;
 

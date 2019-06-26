@@ -99,11 +99,7 @@ local pass = {
                 },
 				{
                     name = "_SpecularPower",
-                    size = 4,
-                },
-				{
-                    name = "padding",
-                    size = 12,
+                    size = 16,
                 },
             },
         },

@@ -122,7 +122,7 @@ namespace Viry3D
 		RendererUniforms renderer_uniforms;
 		renderer_uniforms.model_matrix = this->GetTransform()->GetLocalToWorldMatrix();
 		renderer_uniforms.lightmap_scale_offset = m_lightmap_scale_offset;
-		renderer_uniforms.lightmap_index = m_lightmap_index;
+		renderer_uniforms.lightmap_index = Vector4((float) m_lightmap_index);
 
 		void* buffer = driver.allocate(sizeof(RendererUniforms));
 		Memory::Copy(buffer, &renderer_uniforms, sizeof(RendererUniforms));

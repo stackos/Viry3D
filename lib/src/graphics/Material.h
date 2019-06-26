@@ -54,8 +54,7 @@ namespace Viry3D
 
 		Matrix4x4 model_matrix;
 		Vector4 lightmap_scale_offset;
-		int lightmap_index;
-		Vector3 padding; // d3d11 need constant buffer size in multiples of 16
+		Vector4 lightmap_index; // in x
 	};
 
 	// per renderer bones uniforms, set by skinned mesh renderer
