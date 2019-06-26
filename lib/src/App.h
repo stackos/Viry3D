@@ -36,6 +36,7 @@
 #include "audio/AudioClip.h"
 #include "audio/AudioSource.h"
 #include "audio/AudioListener.h"
+#include "physics/SpringCollider.h"
 
 namespace Viry3D
 {
@@ -114,6 +115,34 @@ namespace Viry3D
 			auto bone_drawer = clip->AddComponent<BoneDrawer>();
 			bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
 			bone_drawer->Init();
+            
+            struct ColliderConfig
+            {
+                String path;
+                float radius;
+            };
+            Vector<ColliderConfig> colliders = {
+                { "Character1_Reference/Character1_Hips", 0.12f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_LeftShoulder/Character1_LeftArm", 0.12f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_LeftShoulder/Character1_LeftArm/Character1_LeftForeArm", 0.1f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_LeftShoulder/Character1_LeftArm/Character1_LeftForeArm/Character1_LeftHand", 0.05f },
+                { "Character1_Reference/Character1_Hips/Character1_LeftUpLeg/Character1_LeftLeg", 0.15f },
+                { "Character1_Reference/Character1_Hips/Character1_LeftUpLeg", 0.08f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_RightShoulder/Character1_RightArm", 0.12f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_RightShoulder/Character1_RightArm/Character1_RightForeArm", 0.1f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_RightShoulder/Character1_RightArm/Character1_RightForeArm/Character1_RightHand", 0.05f },
+                { "Character1_Reference/Character1_Hips/Character1_RightUpLeg/Character1_RightLeg", 0.15f },
+                { "Character1_Reference/Character1_Hips/Character1_RightUpLeg", 0.08f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1", 0.15f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2", 0.15f },
+                { "Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_Neck/Character1_Head/Locator_Head_Above", 0.12f },
+                { "Character1_Reference/Character1_Hips/Character1_LeftUpLeg/Locator_LeftUpLeg_Middle", 0.07f },
+                { "Character1_Reference/Character1_Hips/Character1_RightUpLeg/Locator_RightUpLeg_Middle", 0.07f },
+            };
+            for (int i = 0; i < colliders.Size(); ++i)
+            {
+                model->GetTransform()->Find(colliders[i].path)->GetGameObject()->AddComponent<SpringCollider>()->radius = colliders[i].radius;
+            }
             
             auto listener = AudioManager::GetListener();
             listener->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));

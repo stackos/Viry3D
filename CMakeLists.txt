@@ -201,6 +201,7 @@ file(GLOB VIRY3D_LIB_SRCS
      ${VIRY3D_LIB_SRC_DIR}/math/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/memory/*.h
      ${VIRY3D_LIB_SRC_DIR}/memory/*.cpp
+     ${VIRY3D_LIB_SRC_DIR}/physics/*.h
      ${VIRY3D_LIB_SRC_DIR}/string/*.h
      ${VIRY3D_LIB_SRC_DIR}/string/*.cpp
      ${VIRY3D_LIB_SRC_DIR}/thread/*.h
