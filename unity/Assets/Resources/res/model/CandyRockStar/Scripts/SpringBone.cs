@@ -1,4 +1,4 @@
-﻿//
+//
 //SpringBone.cs for unity-chan!
 //
 //Original Script is here:
@@ -41,7 +41,6 @@ namespace UnityChan
 		private Vector3 currTipPos;
 		private Vector3 prevTipPos;
 		//Kobayashi
-		private Transform org;
 		//Kobayashi:Reference for "SpringManager" component with unitychan 
 		private SpringManager managerRef;
 
@@ -77,10 +76,8 @@ namespace UnityChan
 
 		public void UpdateSpring ()
 		{
-			//Kobayashi
-			org = trs;
 			//回転をリセット
-			trs.localRotation = Quaternion.identity * localRotation;
+			trs.localRotation = localRotation;
 
 			float sqrDt = Time.deltaTime * Time.deltaTime;
 
@@ -121,7 +118,7 @@ namespace UnityChan
 			//trs.rotation = aimRotation * trs.rotation;
 			//Kobayahsi:Lerp with mixWeight
 			Quaternion secondaryRotation = aimRotation * trs.rotation;
-			trs.rotation = Quaternion.Lerp (org.rotation, secondaryRotation, managerRef.dynamicRatio);
+			trs.rotation = Quaternion.Lerp (trs.rotation, secondaryRotation, managerRef.dynamicRatio);
 		}
 
 		private void OnDrawGizmos ()

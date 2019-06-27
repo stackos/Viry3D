@@ -154,6 +154,17 @@ namespace Viry3D
 		*this = *this * v;
 		return *this;
 	}
+    
+    Vector3 Vector3::operator /(float v) const
+    {
+        return Vector3(x / v, y / v, z / v);
+    }
+    
+    Vector3 Vector3::operator /=(float v)
+    {
+        *this = *this / v;
+        return *this;
+    }
 
 	bool Vector3::operator !=(const Vector3& v) const
 	{

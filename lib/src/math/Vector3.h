@@ -44,6 +44,8 @@ namespace Viry3D
 		Vector3 operator *(const Vector3& v) const;
 		Vector3 operator *(float v) const;
 		Vector3 operator *=(float v);
+        Vector3 operator /(float v) const;
+        Vector3 operator /=(float v);
 		bool operator !=(const Vector3& v) const;
 		bool operator ==(const Vector3& v) const;
 		float Dot(const Vector3& v) const;
