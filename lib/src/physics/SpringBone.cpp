@@ -84,11 +84,12 @@ namespace Viry3D
         
         for (int i = 0; i < colliders.Size(); ++i)
         {
-            if ((curr_tip_pos - colliders[i]->GetTransform()->GetPosition()).Magnitude() <= (radius + colliders[i]->radius))
+            auto collider = colliders[i].lock();
+            if ((curr_tip_pos - collider->GetTransform()->GetPosition()).Magnitude() <= (radius + collider->radius))
             {
-                Vector3 normal = Vector3::Normalize(curr_tip_pos - colliders[i]->GetTransform()->GetPosition());
-                curr_tip_pos = colliders[i]->GetTransform()->GetPosition() + (normal * (radius + colliders[i]->radius));
-                curr_tip_pos = Vector3::Normalize((curr_tip_pos - colliders[i]->GetTransform()->GetPosition()) * spring_length) + colliders[i]->GetTransform()->GetPosition();
+                Vector3 normal = Vector3::Normalize(curr_tip_pos - collider->GetTransform()->GetPosition());
+                curr_tip_pos = collider->GetTransform()->GetPosition() + (normal * (radius + collider->radius));
+                curr_tip_pos = Vector3::Normalize((curr_tip_pos - collider->GetTransform()->GetPosition()) * spring_length) + collider->GetTransform()->GetPosition();
             }
         }
         
