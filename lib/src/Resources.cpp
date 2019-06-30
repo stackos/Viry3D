@@ -28,6 +28,9 @@
 #include "graphics/Texture.h"
 #include "animation/Animation.h"
 #include "json/json.h"
+#include "physics/SpringBone.h"
+#include "physics/SpringCollider.h"
+#include "physics/SpringManager.h"
 
 namespace Viry3D
 {
@@ -301,6 +304,20 @@ namespace Viry3D
         renderer->SetBonePaths(bones);
     }
 
+    static void ReadAnimationCurve(MemoryStream& ms, AnimationCurve* curve)
+    {
+        int key_count = ms.Read<int>();
+        for (int k = 0; k < key_count; ++k)
+        {
+            float time = ms.Read<float>();
+            float value = ms.Read<float>();
+            float in_tangent = ms.Read<float>();
+            float out_tangent = ms.Read<float>();
+            
+            curve->AddKey(time, value, in_tangent, out_tangent);
+        }
+    }
+    
 	static Ref<AnimationClip> ReadAnimationClip(const String& path)
 	{
 		if (g_cache.Contains(path))
@@ -333,7 +350,6 @@ namespace Viry3D
 				String curve_path = ReadString(ms);
 				AnimationCurvePropertyType property_type = (AnimationCurvePropertyType) ms.Read<int>();
 				String property_name = ReadString(ms);
-				int key_count = ms.Read<int>();
 
 				AnimationCurveWrapper* curve = nullptr;
 				for (int k = 0; k < clip->curves.Size(); ++k)
@@ -359,16 +375,7 @@ namespace Viry3D
 				curve->properties.Add(property);
 
 				AnimationCurve* anim_curve = &curve->properties[curve->properties.Size() - 1].curve;
-
-				for (int k = 0; k < key_count; ++k)
-				{
-					float time = ms.Read<float>();
-					float value = ms.Read<float>();
-					float in_tangent = ms.Read<float>();
-					float out_tangent = ms.Read<float>();
-
-					anim_curve->AddKey(time, value, in_tangent, out_tangent);
-				}
+                ReadAnimationCurve(ms, anim_curve);
 			}
 		}
 
@@ -393,6 +400,36 @@ namespace Viry3D
         }
 
         animation->SetClips(clips);
+    }
+    
+    static void ReadSpringBone(MemoryStream& ms, const Ref<SpringBone>& bone)
+    {
+        auto child_name = ReadString(ms);
+        bone->radius = ms.Read<float>();
+        bone->stiffness_force = ms.Read<float>();
+        bone->drag_force = ms.Read<float>();
+        bone->threshold = ms.Read<float>();
+        bone->bone_axis = ms.Read<Vector3>();
+        bone->spring_force = ms.Read<Vector3>();
+        int collider_count = ms.Read<int>();
+        for (int i = 0; i < collider_count; ++i)
+        {
+            auto collider_path = ReadString(ms);
+        }
+    }
+    
+    static void ReadSpringManager(MemoryStream& ms, const Ref<SpringManager>& manager)
+    {
+        manager->dynamic_ratio = ms.Read<float>();
+        manager->stiffness_force = ms.Read<float>();
+        ReadAnimationCurve(ms, &manager->stiffness_curve);
+        manager->drag_force = ms.Read<float>();
+        ReadAnimationCurve(ms, &manager->drag_curve);
+        int bone_count = ms.Read<int>();
+        for (int i = 0; i < bone_count; ++i)
+        {
+            auto bone_path = ReadString(ms);
+        }
     }
 
     static Ref<GameObject> ReadGameObject(MemoryStream& ms, const Ref<GameObject>& parent)
@@ -444,6 +481,21 @@ namespace Viry3D
             {
 				auto com = obj->AddComponent<Animation>();
                 ReadAnimation(ms, com);
+            }
+            else if (com_name == "SpringBone")
+            {
+                auto com = obj->AddComponent<SpringBone>();
+                ReadSpringBone(ms, com);
+            }
+            else if (com_name == "SpringCollider")
+            {
+                auto com = obj->AddComponent<SpringBone>();
+                com->radius = ms.Read<float>();
+            }
+            else if (com_name == "SpringManager")
+            {
+                auto com = obj->AddComponent<SpringManager>();
+                ReadSpringManager(ms, com);
             }
         }
 

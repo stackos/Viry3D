@@ -1177,6 +1177,7 @@ public class GameObjectExporter
         WriteVector3(bone.springForce);
 
         int collider_count = bone.colliders.Length;
+        bw.Write(collider_count);
         for (int i = 0; i < collider_count; ++i)
         {
             var collider = bone.colliders[i];
@@ -1212,13 +1213,13 @@ public class GameObjectExporter
         WriteAnimationCurve(manager.dragCurve);
 
         int bone_count = manager.springBones.Length;
+        bw.Write(bone_count);
         for (int i = 0; i < bone_count; ++i)
         {
             var bone = manager.springBones[i];
             if (bone)
             {
                 string path = GetRelativePath(manager.transform, bone.transform);
-                Debug.Log(path);
                 WriteString(path);
             }
             else

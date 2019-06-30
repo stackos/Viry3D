@@ -18,6 +18,8 @@
 #pragma once
 
 #include "Component.h"
+#include "SpringBone.h"
+#include "animation/AnimationCurve.h"
 
 namespace Viry3D
 {
@@ -25,5 +27,10 @@ namespace Viry3D
 	{
 	public:
         float dynamic_ratio = 1.0f;
+        float stiffness_force = 0.01f;
+        AnimationCurve stiffness_curve;
+        float drag_force = 0.4f;
+        AnimationCurve drag_curve;
+        Vector<Ref<SpringBone>> spring_bones;
 	};
 }
