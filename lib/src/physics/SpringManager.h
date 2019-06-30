@@ -19,6 +19,7 @@
 
 #include "Component.h"
 #include "SpringBone.h"
+#include "GameObject.h"
 #include "animation/AnimationCurve.h"
 
 namespace Viry3D
@@ -31,6 +32,32 @@ namespace Viry3D
         AnimationCurve stiffness_curve;
         float drag_force = 0.4f;
         AnimationCurve drag_curve;
+        Vector<String> bone_paths;
         Vector<Ref<SpringBone>> spring_bones;
+        
+        void Init()
+        {
+            spring_bones.Resize(bone_paths.Size());
+            for (int i = 0; i < bone_paths.Size(); ++i)
+            {
+                if (bone_paths[i].Size() > 0)
+                {
+                    auto bone = this->GetTransform()->Find(bone_paths[i])->GetGameObject()->GetComponent<SpringBone>();
+                    bone->Init();
+                    spring_bones[i] = bone;
+                }
+            }
+        }
+        
+        virtual void LateUpdate()
+        {
+            for (int i = 0; i < spring_bones.Size(); ++i)
+            {
+                if (dynamic_ratio > spring_bones[i]->threshold)
+                {
+                    spring_bones[i]->UpdateSpring();
+                }
+            }
+        }
 	};
 }

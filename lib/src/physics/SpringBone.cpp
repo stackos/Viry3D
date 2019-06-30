@@ -35,9 +35,17 @@ namespace Viry3D
     
     void SpringBone::Init()
     {
-        if (child.expired())
+        child = this->GetTransform()->Find(child_name);
+        assert(!child.expired());
+        
+        colliders.Resize(collider_paths.Size());
+        for (int i = 0; i < collider_paths.Size(); ++i)
         {
-            return;
+            if (collider_paths[i].Size() > 0)
+            {
+                colliders[i] = this->GetTransform()->Find(collider_paths[i])->GetGameObject()->GetComponent<SpringCollider>();
+                assert(!colliders[i].expired());
+            }
         }
         
         Ref<Transform> trs = this->GetTransform();
@@ -72,6 +80,10 @@ namespace Viry3D
         trs->SetLocalRotation(local_rotation);
         
         float sqr_dt = Time::GetDeltaTime() * Time::GetDeltaTime();
+        if (Mathf::FloatEqual(sqr_dt, 0.0f))
+        {
+            return;
+        }
         
         Vector3 force = trs->GetRotation() * (bone_axis * stiffness_force) / sqr_dt;
         force += (prev_tip_pos - curr_tip_pos) * drag_force / sqr_dt;
@@ -79,8 +91,8 @@ namespace Viry3D
         
         Vector3 temp = curr_tip_pos;
         
-        curr_tip_pos = (curr_tip_pos - prev_tip_pos) + curr_tip_pos + (force * sqr_dt);
-        curr_tip_pos = Vector3::Normalize((curr_tip_pos - trs->GetPosition()) * spring_length) + trs->GetPosition();
+        curr_tip_pos = (curr_tip_pos - prev_tip_pos) + curr_tip_pos + force * sqr_dt;
+        curr_tip_pos = Vector3::Normalize(curr_tip_pos - trs->GetPosition()) * spring_length + trs->GetPosition();
         
         for (int i = 0; i < colliders.Size(); ++i)
         {
@@ -88,8 +100,8 @@ namespace Viry3D
             if ((curr_tip_pos - collider->GetTransform()->GetPosition()).Magnitude() <= (radius + collider->radius))
             {
                 Vector3 normal = Vector3::Normalize(curr_tip_pos - collider->GetTransform()->GetPosition());
-                curr_tip_pos = collider->GetTransform()->GetPosition() + (normal * (radius + collider->radius));
-                curr_tip_pos = Vector3::Normalize((curr_tip_pos - collider->GetTransform()->GetPosition()) * spring_length) + collider->GetTransform()->GetPosition();
+                curr_tip_pos = collider->GetTransform()->GetPosition() + normal * (radius + collider->radius);
+                curr_tip_pos = Vector3::Normalize(curr_tip_pos - trs->GetPosition()) * spring_length + trs->GetPosition();
             }
         }
         

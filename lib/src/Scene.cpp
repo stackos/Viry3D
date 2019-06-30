@@ -91,6 +91,15 @@ namespace Viry3D
 			m_objects.Remove(obj->GetId());
 		}
 		m_removed_objects.Clear();
+        
+        for (auto& i : m_objects)
+        {
+            auto& obj = i.second;
+            if (obj->IsActiveInTree())
+            {
+                obj->LateUpdate();
+            }
+        }
     }
     
     Ref<GameObject> Scene::GetGameObject(const GameObject* obj)

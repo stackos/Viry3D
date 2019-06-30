@@ -38,6 +38,7 @@
 #include "audio/AudioListener.h"
 #include "physics/SpringBone.h"
 #include "physics/SpringCollider.h"
+#include "physics/SpringManager.h"
 
 namespace Viry3D
 {
@@ -63,7 +64,7 @@ namespace Viry3D
 			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(40, 20, 0, 0));
 
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
-			camera->GetTransform()->SetPosition(Vector3(0, 1, 2.3f));
+			camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
 			camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
 			camera->SetNearClip(0.03f);
 			camera->SetDepth(0);
@@ -95,6 +96,8 @@ namespace Viry3D
 			{
 				renderers[i]->EnableCastShadow(true);
 			}
+            
+            model->GetComponent<SpringManager>()->Init();
 			
 			auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_SAK01.go");
 			clip->GetTransform()->SetPosition(Vector3(1, 0, 0));

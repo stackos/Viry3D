@@ -41,7 +41,8 @@ namespace Viry3D
 		void SetActive(bool active);
 		bool IsActiveInTree() const { return m_is_active_in_tree; }
 		void Update();
-		
+		void LateUpdate();
+        
 	private:
 		GameObject(const String& name);
         void BindComponent(const Ref<Component>& com) const;

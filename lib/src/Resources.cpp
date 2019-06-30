@@ -404,7 +404,7 @@ namespace Viry3D
     
     static void ReadSpringBone(MemoryStream& ms, const Ref<SpringBone>& bone)
     {
-        auto child_name = ReadString(ms);
+        bone->child_name = ReadString(ms);
         bone->radius = ms.Read<float>();
         bone->stiffness_force = ms.Read<float>();
         bone->drag_force = ms.Read<float>();
@@ -412,9 +412,10 @@ namespace Viry3D
         bone->bone_axis = ms.Read<Vector3>();
         bone->spring_force = ms.Read<Vector3>();
         int collider_count = ms.Read<int>();
+        bone->collider_paths.Resize(collider_count);
         for (int i = 0; i < collider_count; ++i)
         {
-            auto collider_path = ReadString(ms);
+            bone->collider_paths[i] = ReadString(ms);
         }
     }
     
@@ -426,9 +427,10 @@ namespace Viry3D
         manager->drag_force = ms.Read<float>();
         ReadAnimationCurve(ms, &manager->drag_curve);
         int bone_count = ms.Read<int>();
+        manager->bone_paths.Resize(bone_count);
         for (int i = 0; i < bone_count; ++i)
         {
-            auto bone_path = ReadString(ms);
+            manager->bone_paths[i] = ReadString(ms);
         }
     }
 
@@ -489,7 +491,7 @@ namespace Viry3D
             }
             else if (com_name == "SpringCollider")
             {
-                auto com = obj->AddComponent<SpringBone>();
+                auto com = obj->AddComponent<SpringCollider>();
                 com->radius = ms.Read<float>();
             }
             else if (com_name == "SpringManager")

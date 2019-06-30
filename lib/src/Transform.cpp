@@ -85,16 +85,25 @@ namespace Viry3D
 		{
 			bool find_child = false;
 
-			for (int j = 0; j < p->GetChildCount(); ++j)
-			{
-				if (p->GetChild(j)->GetName() == layers[i])
-				{
-					find_child = true;
-					find = p->GetChild(j);
-					p = find.get();
-					break;
-				}
-			}
+            if (layers[i] == "..")
+            {
+                find_child = true;
+                find = p->GetParent();
+                p = find.get();
+            }
+			else
+            {
+                for (int j = 0; j < p->GetChildCount(); ++j)
+                {
+                    if (layers[i] == p->GetChild(j)->GetName())
+                    {
+                        find_child = true;
+                        find = p->GetChild(j);
+                        p = find.get();
+                        break;
+                    }
+                }
+            }
 
 			if (!find_child)
 			{

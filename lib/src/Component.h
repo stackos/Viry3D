@@ -34,6 +34,7 @@ namespace Viry3D
 
     protected:
         virtual void Update() { }
+        virtual void LateUpdate() { }
         virtual void OnTransformDirty() { }
         
 	private:

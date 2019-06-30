@@ -39,12 +39,14 @@ namespace Viry3D
         static Ref<SpringManager> GetParentSpringManager(const Ref<Transform>& t);
         
 	public:
+        String child_name;
         WeakRef<Transform> child;
         Vector3 bone_axis = Vector3(-1.0f, 0.0f, 0.0f);
         float radius = 0.05f;
         float stiffness_force = 0.01f;
         float drag_force = 0.4f;
         Vector3 spring_force = Vector3(0.0f, -0.0001f, 0.0f);
+        Vector<String> collider_paths;
         Vector<WeakRef<SpringCollider>> colliders;
         float threshold = 0.01f;
         float spring_length = 0;

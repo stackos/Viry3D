@@ -124,4 +124,13 @@ namespace Viry3D
         }
         m_removed_components.Clear();
 	}
+    
+    void GameObject::LateUpdate()
+    {
+        for (int i = 0; i < m_components.Size(); ++i)
+        {
+            auto& com = m_components[i];
+            com->LateUpdate();
+        }
+    }
 }
