@@ -253,6 +253,21 @@ public class GameObjectExporter
                 com_writers.Add(WriteAnimation);
                 write_coms.Add(coms[i]);
             }
+            else if (coms[i] is SpringBone)
+            {
+                com_writers.Add(WriteSpringBone);
+                write_coms.Add(coms[i]);
+            }
+            else if (coms[i] is SpringCollider)
+            {
+                com_writers.Add(WriteSpringCollider);
+                write_coms.Add(coms[i]);
+            }
+            else if (coms[i] is SpringManager)
+            {
+                com_writers.Add(WriteSpringManager);
+                write_coms.Add(coms[i]);
+            }
         }
 
         bw.Write(write_coms.Count);
@@ -616,8 +631,6 @@ public class GameObjectExporter
         for (int j = 0; j < bindings.Length; ++j)
         {
             var bind = bindings[j];
-            var curve = AnimationUtility.GetEditorCurve(clip, bind);
-            var keys = curve.keys;
             CurvePropertyType property_type = CurvePropertyType.Unknown;
 
             switch (bind.propertyName)
@@ -671,16 +684,8 @@ public class GameObjectExporter
             bw.Write((int) property_type);
             WriteString(bind.propertyName);
 
-            bw.Write(keys.Length);
-            for (int k = 0; k < keys.Length; ++k)
-            {
-                var key = keys[k];
-
-                bw.Write(key.time);
-                bw.Write(key.value);
-                bw.Write(key.inTangent);
-                bw.Write(key.outTangent);
-            }
+            var curve = AnimationUtility.GetEditorCurve(clip, bind);
+            WriteAnimationCurve(curve);
         }
 
         string file_path = out_dir + "/" + asset_path;
@@ -689,6 +694,21 @@ public class GameObjectExporter
         File.WriteAllBytes(file_path, ms.ToArray());
 
         bw = bw_save;
+    }
+
+    static void WriteAnimationCurve(AnimationCurve curve)
+    {
+        var keys = curve.keys;
+        bw.Write(keys.Length);
+        for (int k = 0; k < keys.Length; ++k)
+        {
+            var key = keys[k];
+
+            bw.Write(key.time);
+            bw.Write(key.value);
+            bw.Write(key.inTangent);
+            bw.Write(key.outTangent);
+        }
     }
 
     static void WriteMesh(Mesh mesh)
@@ -1133,5 +1153,163 @@ public class GameObjectExporter
         }
 
         File.WriteAllText(file_path, jtexture.ToString());
+    }
+
+    static void WriteSpringBone(Component com)
+    {
+        WriteString("SpringBone");
+
+        SpringBone bone = com as SpringBone;
+        if (bone.child)
+        {
+            WriteString(bone.child.name);
+        }
+        else
+        {
+            WriteString("");
+        }
+
+        bw.Write(bone.radius);
+        bw.Write(bone.stiffnessForce);
+        bw.Write(bone.dragForce);
+        bw.Write(bone.threshold);
+        WriteVector3(bone.boneAxis);
+        WriteVector3(bone.springForce);
+
+        int collider_count = bone.colliders.Length;
+        for (int i = 0; i < collider_count; ++i)
+        {
+            var collider = bone.colliders[i];
+            if (collider)
+            {
+                string path = GetRelativePath(bone.transform, collider.transform);
+                WriteString(path);
+            }
+            else
+            {
+                WriteString("");
+            }
+        }
+    }
+
+    static void WriteSpringCollider(Component com)
+    {
+        WriteString("SpringCollider");
+
+        SpringCollider collider = com as SpringCollider;
+        bw.Write(collider.radius);
+    }
+
+    static void WriteSpringManager(Component com)
+    {
+        WriteString("SpringManager");
+
+        SpringManager manager = com as SpringManager;
+        bw.Write(manager.dynamicRatio);
+        bw.Write(manager.stiffnessForce);
+        WriteAnimationCurve(manager.stiffnessCurve);
+        bw.Write(manager.dragForce);
+        WriteAnimationCurve(manager.dragCurve);
+
+        int bone_count = manager.springBones.Length;
+        for (int i = 0; i < bone_count; ++i)
+        {
+            var bone = manager.springBones[i];
+            if (bone)
+            {
+                string path = GetRelativePath(manager.transform, bone.transform);
+                Debug.Log(path);
+                WriteString(path);
+            }
+            else
+            {
+                WriteString("");
+            }
+        }
+    }
+
+    static string GetRelativePath(Transform a, Transform b)
+    {
+        if (a.transform.root != b.transform.root)
+        {
+            return "";
+        }
+
+        string up = "";
+        Transform t = a;
+        while (t)
+        {
+            if (IsChildOf(b, t))
+            {
+                break;
+            }
+
+            if (t.parent)
+            {
+                if (string.IsNullOrEmpty(up))
+                {
+                    up += "..";
+                }
+                else
+                {
+                    up += "/..";
+                }
+
+                t = t.parent;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        string down = "";
+        Transform root = t;
+        t = b;
+        while (t)
+        {
+            if (t == root)
+            {
+                break;
+            }
+
+            if (string.IsNullOrEmpty(down))
+            {
+                down = t.name;
+            }
+            else
+            {
+                down = t.name + "/" + down;
+            }
+
+            t = t.parent;
+        }
+
+        string path;
+        if (string.IsNullOrEmpty(up) || string.IsNullOrEmpty(down))
+        {
+            path = up + down;
+        }
+        else
+        {
+            path = up + "/" + down;
+        }
+
+        return path;
+    }
+
+    static bool IsChildOf(Transform a, Transform b)
+    {
+        if (a.IsChildOf(b))
+        {
+            return true;        
+        }
+
+        if (a.parent)
+        {
+            IsChildOf(a.parent, b);
+        }
+
+        return false;
     }
 }
