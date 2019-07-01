@@ -219,7 +219,7 @@ namespace Viry3D
 
         if (m_clip && m_clip->IsStream())
         {
-            m_clip->SetStreamLoop(true);
+            m_clip->SetStreamLoop(loop);
         }
         else
         {

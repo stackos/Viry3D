@@ -99,7 +99,7 @@ namespace Viry3D
             
             model->GetComponent<SpringManager>()->Init();
 			
-			auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_SAK01.go");
+			auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_NOT01.go");
 			clip->GetTransform()->SetPosition(Vector3(1, 0, 0));
 			auto anim = clip->GetComponent<Animation>();
 			if (anim)
@@ -128,10 +128,10 @@ namespace Viry3D
             auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
             m_audio_source_bgm = GameObject::Create("")->AddComponent<AudioSource>().get();
             m_audio_source_bgm->SetClip(audio_clip);
-            m_audio_source_bgm->SetLoop(true);
+            m_audio_source_bgm->SetLoop(false);
             m_audio_source_bgm->Play();
 #else
-            AudioManager::PlayAudio(audio_path, true);
+            AudioManager::PlayAudio(audio_path, false);
 #endif
             
 			auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
