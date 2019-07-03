@@ -55,13 +55,7 @@ namespace Viry3D
         
 		App()
 		{
-			auto cube = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
-			auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
 			auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
-
-			auto material = RefMake<Material>(Shader::Find("Diffuse"));
-			material->SetTexture(MaterialProperty::TEXTURE, texture);
-			material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(40, 20, 0, 0));
 
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
@@ -81,13 +75,8 @@ namespace Viry3D
 			light->SetRange(10);
 			light->SetSpotAngle(45);
 			light->EnableShadow(true);
-
-			auto floor = GameObject::Create("")->AddComponent<MeshRenderer>();
-			floor->GetTransform()->SetPosition(Vector3(0, -5, 0));
-			floor->GetTransform()->SetScale(Vector3(20, 10, 10));
-			floor->SetMesh(cube);
-			floor->SetMaterial(material);
-			floor->EnableRecieveShadow(true);
+            
+            auto visualizer = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Visualizer/Visualizer.go");
 
 			auto model = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
 			model->GetTransform()->SetPosition(Vector3(0, 0, 0));
@@ -118,7 +107,7 @@ namespace Viry3D
 			auto bone_drawer = clip->AddComponent<BoneDrawer>();
 			bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
 			bone_drawer->Init();
-            
+
             auto listener = AudioManager::GetListener();
             listener->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));
             listener->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));

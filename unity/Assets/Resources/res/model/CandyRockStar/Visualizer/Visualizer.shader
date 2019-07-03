@@ -1,4 +1,4 @@
-﻿Shader "Custom/Visualizer"
+﻿Shader "UnityChan/Visualizer"
 {
 	Properties
 	{
@@ -186,6 +186,8 @@
 			o.Emission += refcolor * _ReflectionStrength * fade_by_depth * (1.0-grid*0.9);
 
 			//o.Emission = abs(refpos.yyy)*0.25;
+            
+            //o.Emission = float4(trails, 0, 0, 0);
 		}
 		ENDCG
 	}
