@@ -39,10 +39,12 @@ namespace Viry3D
 		static constexpr const char* VIEW_MATRIX = "u_view_matrix";
 		static constexpr const char* PROJECTION_MATRIX = "u_projection_matrix";
 		static constexpr const char* CAMERA_POS = "u_camera_pos";
+		static constexpr const char* TIME = "u_time";
 
 		Matrix4x4 view_matrix;
 		Matrix4x4 projection_matrix;
 		Vector4 camera_pos;
+		Vector4 time;
 	};
 
 	// per renderer uniforms, set by renderer

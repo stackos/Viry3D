@@ -3,18 +3,13 @@
 	Properties
 	{
 		_ReflectionTex ("Base (RGB)", 2D) = "white" {}
-		_Spectra ("Spectra", Vector) = (0, 0, 0, 0)
+		_ReflectionStrength ("ReflectionStrength", Vector) = (0.2, 0, 0, 0)
 
+		_Spectra ("Spectra", Vector) = (0, 0, 0, 0)
 		_Center ("Center", Vector) = (0.0, 0.0, 0.0)
-		_RingSrtide ("Stride", Float) = 0.2
-		_RingThicknessMin ("ThicknessMin", Float) = 0.1
-		_RingThicknessMax ("ThicknessMax", Float) = 0.5
-		_RingEmission ("RingEmission", Float) = 10.0
-		_RingSpeedMin ("RingSpeedMin", Float) = 0.2
-		_RingSpeedMax ("RingSpeedMin", Float) = 0.5
-		_GridColor ("GridColor", Vector) = (0.2, 0.3, 0.5)
-		_GridEmission ("GridEmission", Float) = 8.0
-		_ReflectionStrength ("ReflectionStrength", Float) = 0.2
+		_RingParams ("RingParams", Vector) = (0.2, 0.1, 0.5, 10.0)
+		_RingSpeed ("RingSpeed", Vector) = (0.2, 0.5, 0, 0)
+		_GridColor ("GridColor", Vector) = (0.2, 0.3, 0.5, 8.0)
 	}
 	SubShader
 	{
@@ -30,15 +25,11 @@
 		float4x4 _ViewProjectInverse;
 		float4 _Spectra;
 		float3 _Center;
-		float _RingSrtide;
-		float _RingThicknessMin;
-		float _RingThicknessMax;
-		float _RingEmission;
-		float _RingSpeedMin;
-		float _RingSpeedMax;
-		float4 _GridColor;
-		float _GridEmission;
-		float _ReflectionStrength;
+
+		float4 _RingParams; // Srtide ThicknessMin ThicknessMax Emission
+		float4 _RingSpeed; // Min Max
+		float4 _GridColor; // Color Emission
+		float4 _ReflectionStrength;
 
 		struct Input {
 			float2 uv_MainTex;
@@ -62,9 +53,9 @@
 			float pi = 3.14159;
 			float2 wpos = pos.xz;
 
-			float stride = _RingSrtide;
+			float stride = _RingParams.x;
 			float strine_half = stride * 0.5;
-			float thickness = 1.0 - (_RingThicknessMin + length(_Spectra)*(_RingThicknessMax-_RingThicknessMin));
+			float thickness = 1.0 - (_RingParams.y + length(_Spectra)*(_RingParams.z-_RingParams.y));
 			float distance = abs(length(wpos) - _Time.y*0.1);
 			float fra = _gl_mod(distance, stride);
 			float cycle = floor((distance)/stride);
@@ -73,7 +64,7 @@
 			c = max(c * (1.0/(strine_half*thickness)), 0.0);
 
 			float rs = iq_rand(cycle*cycle);
-			float r = iq_rand(cycle) + _Time.y*(_RingSpeedMin+(_RingSpeedMax-_RingSpeedMin)*rs);
+			float r = iq_rand(cycle) + _Time.y*(_RingSpeed.x+(_RingSpeed.y-_RingSpeed.x)*rs);
 
 			float angle = atan2(wpos.y, wpos.x) / pi *0.5 + 0.5; // 0.0-1.0
 			float a = 1.0-_gl_mod(angle + r, 1.0);
@@ -116,10 +107,10 @@
 			float radius = 0.22 * scale;
 
 			float2 p1 = _gl_mod(p.xz, grid) - grid*0.5;
-			float c1 = Hex(p1, radius);
+			float c1 = Hex(p1, float2(radius, radius));
 
 			float2 p2 = _gl_mod(p.xz+grid*0.5, grid) - grid*0.5;
-			float c2 = Hex(p2, radius);
+			float c2 = Hex(p2, float2(radius, radius));
 			return min(c1, c2);
 		}
 		float3 GuessNormal(float3 p)
@@ -133,22 +124,19 @@
 
 		void surf (Input IN, inout SurfaceOutput o)
 		{
-			float2 coord = (IN.screenPos.xy / IN.screenPos.w);
-
 			float3 center = IN.worldPos - _Center;
 			float trails = Rings(center);
 			float grid_d = HexGrid(center);
 			float grid = grid_d > 0.0 ? 1.0 : 0.0;
 			float3 n = GuessNormal(center);
 			n = mul(UNITY_MATRIX_VP, float4(n,0.0)).xyz;
-			float circle = Circle(center);
 
 			o.Albedo = 0.0;
 			o.Alpha = 1.0;
 			o.Emission = 0.0;
-			o.Emission += trails * (0.5 + _Spectra * _RingEmission);
+			o.Emission += trails * (0.5 + _Spectra * _RingParams.w);
 			//o.Albedo += _GridColor * grid * 0.1;
-			o.Emission += _GridColor * (grid * circle) * _GridEmission;
+			o.Emission += _GridColor * (grid * Circle(center)) * _GridColor.w;
 
 			const float blur_radius = 0.005;
 			float2 blur_coords[9] = {
@@ -163,6 +151,7 @@
 				float2(-0.36307729185097637, -0.7307245945773899)*blur_radius
 			};
 			float depth = 1.0;
+			float2 coord = (IN.screenPos.xy / IN.screenPos.w);
 			depth = tex2D(_ReflectionDepthTex, coord).r;
 			for(int i=1; i<9; ++i) {
 				depth = min(depth, tex2D(_ReflectionDepthTex, coord+blur_coords[i]).r);
@@ -183,7 +172,7 @@
 				//refcolor += tex2D(_ReflectionTex, coord+blur_coords[i]).rgb * 0.1111;
 			}
 
-			o.Emission += refcolor * _ReflectionStrength * fade_by_depth * (1.0-grid*0.9);
+			o.Emission += refcolor * _ReflectionStrength.x * fade_by_depth * (1.0-grid*0.9);
 
 			//o.Emission = abs(refpos.yyy)*0.25;
             

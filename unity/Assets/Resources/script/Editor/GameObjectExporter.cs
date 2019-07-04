@@ -930,7 +930,7 @@ public class GameObjectExporter
                     WriteVector4(new Vector4(scale.x, scale.y, offset.x, offset.y));
 
                     var texture = material.GetTexture(property_name);
-                    if (texture != null)
+                    if (texture != null && !(texture is RenderTexture))
                     {
                         WriteTexture(texture);
                     }

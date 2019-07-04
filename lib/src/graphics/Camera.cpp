@@ -23,6 +23,7 @@
 #include "Material.h"
 #include "SkinnedMeshRenderer.h"
 #include "Light.h"
+#include "time/Time.h"
 
 namespace Viry3D
 {
@@ -120,6 +121,8 @@ namespace Viry3D
 		view_uniforms.view_matrix = this->GetViewMatrix();
 		view_uniforms.projection_matrix = this->GetProjectionMatrix();
 		view_uniforms.camera_pos = this->GetTransform()->GetPosition();
+		float t = Time::GetTime();
+		view_uniforms.time = Vector4(t / 20, t, t * 2, t * 3);
 
 		void* buffer = driver.allocate(sizeof(ViewUniforms));
 		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));

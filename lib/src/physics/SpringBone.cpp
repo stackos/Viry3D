@@ -20,6 +20,7 @@
 #include "SpringCollider.h"
 #include "SpringManager.h"
 #include "time/Time.h"
+#include <assert.h>
 
 namespace Viry3D
 {
