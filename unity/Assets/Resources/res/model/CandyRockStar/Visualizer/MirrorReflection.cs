@@ -26,7 +26,7 @@ public class MirrorReflection : MonoBehaviour
 		if (!enabled || !GetComponent<Renderer>() || !GetComponent<Renderer>().sharedMaterial || !GetComponent<Renderer>().enabled)
 			return;
 
-		Camera cam = Camera.current;
+		Camera cam = Camera.main;
 		if (!cam)
 			return;
 
@@ -58,22 +58,22 @@ public class MirrorReflection : MonoBehaviour
 		CalculateReflectionMatrix(ref reflection, reflectionPlane);
 		Vector3 oldpos = cam.transform.position;
 		Vector3 newpos = reflection.MultiplyPoint(oldpos);
-		reflectionCamera.worldToCameraMatrix = cam.worldToCameraMatrix * reflection;
+        reflectionCamera.worldToCameraMatrix = cam.worldToCameraMatrix * reflection;
+        reflectionCamera.transform.forward = reflection.MultiplyVector(cam.transform.forward);
 
-		// Setup oblique projection matrix so that near plane is our reflection
-		// plane. This way we clip everything below/above it for free.
-		Vector4 clipPlane = CameraSpacePlane(reflectionCamera, pos, normal, 1.0f);
+        // Setup oblique projection matrix so that near plane is our reflection
+        // plane. This way we clip everything below/above it for free.
+        Vector4 clipPlane = CameraSpacePlane(reflectionCamera, pos, normal, 1.0f);
 		Matrix4x4 projection = cam.projectionMatrix;
 		CalculateObliqueMatrix(ref projection, clipPlane);
 		reflectionCamera.projectionMatrix = projection;
 
 		reflectionCamera.cullingMask = ~(1 << 4) & m_ReflectLayers.value; // never render water layer
 		reflectionCamera.targetTexture = m_ReflectionTexture;
-        //GL.SetRevertBackfacing(true);
         GL.invertCulling = true;
         reflectionCamera.transform.position = newpos;
 		Vector3 euler = cam.transform.eulerAngles;
-		reflectionCamera.transform.eulerAngles = new Vector3(0, euler.y, euler.z);
+		//reflectionCamera.transform.eulerAngles = new Vector3(0, euler.y, euler.z);
 		reflectionCamera.depthTextureMode = DepthTextureMode.Depth;
 		reflectionCamera.Render();
 
@@ -85,8 +85,7 @@ public class MirrorReflection : MonoBehaviour
 		// Graphics.Blit(m_ReflectionTexture, m_ReflectionDepthTexture, m_matCopyDepth);
 
 
-		reflectionCamera.transform.position = oldpos;
-        //GL.SetRevertBackfacing(false);
+		//reflectionCamera.transform.position = oldpos;
         GL.invertCulling = false;
         Material[] materials = GetComponent<Renderer>().sharedMaterials;
 		foreach (Material mat in materials)
@@ -203,8 +202,8 @@ public class MirrorReflection : MonoBehaviour
 			reflectionCamera.enabled = false;
 			reflectionCamera.transform.position = transform.position;
 			reflectionCamera.transform.rotation = transform.rotation;
-			reflectionCamera.gameObject.AddComponent<FlareLayer>();
-			go.hideFlags = HideFlags.HideAndDontSave;
+			//reflectionCamera.gameObject.AddComponent<FlareLayer>();
+			//go.hideFlags = HideFlags.HideAndDontSave;
 			m_ReflectionCameras[currentCamera] = reflectionCamera;
 		}
 	}

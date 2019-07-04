@@ -55,90 +55,9 @@ namespace Viry3D
         
 		App()
 		{
-			auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
-
-			auto camera = GameObject::Create("")->AddComponent<Camera>();
-			camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
-			camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
-			camera->SetNearClip(0.03f);
-			camera->SetDepth(0);
-			camera->SetCullingMask(1 << 0);
-			m_camera = camera.get();
-
-			auto skybox = GameObject::Create("")->AddComponent<Skybox>();
-			skybox->SetTexture(cubemap, 0.0f);
-
-			auto light = GameObject::Create("")->AddComponent<Light>();
-			light->GetTransform()->SetPosition(Vector3(-1.332f, 3, 0));
-			light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
-			light->SetType(LightType::Spot);
-			light->SetRange(10);
-			light->SetSpotAngle(45);
-			light->EnableShadow(true);
-            
-            auto visualizer = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Visualizer/Visualizer.go");
-
-			auto model = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
-			model->GetTransform()->SetPosition(Vector3(0, 0, 0));
-			auto renderers = model->GetComponentsInChildren<Renderer>();
-			for (int i = 0; i < renderers.Size(); ++i)
-			{
-				renderers[i]->EnableCastShadow(true);
-			}
-            
-            model->GetComponent<SpringManager>()->Init();
-			
-			auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_NOT01.go");
-			clip->GetTransform()->SetPosition(Vector3(1, 0, 0));
-			auto anim = clip->GetComponent<Animation>();
-			if (anim)
-			{
-				anim->Play(0);
-			}
-
-			auto bone_mapper = clip->AddComponent<BoneMapper>();
-			bone_mapper->root_src = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
-			bone_mapper->root_dst = model->GetTransform()->Find("Character1_Reference/Character1_Hips");
-			bone_mapper->src_base_pose_path = "Resources/res/model/CandyRockStar/t-pose-src.json";
-			bone_mapper->dst_base_pose_path = "Resources/res/model/CandyRockStar/t-pose-dst.json";
-			bone_mapper->bone_map_path = "Resources/res/model/CandyRockStar/bone-map.json";
-			bone_mapper->Init();
-
-			auto bone_drawer = clip->AddComponent<BoneDrawer>();
-			bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
-			bone_drawer->Init();
-
-            auto listener = AudioManager::GetListener();
-            listener->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));
-            listener->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));
-
-#if !VR_WASM
-            auto audio_path = "Resources/res/model/CandyRockStar/Unite In The Sky (full).mp3";
-            auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
-            m_audio_source_bgm = GameObject::Create("")->AddComponent<AudioSource>().get();
-            m_audio_source_bgm->SetClip(audio_clip);
-            m_audio_source_bgm->SetLoop(false);
-            m_audio_source_bgm->Play();
-#else
-            AudioManager::PlayAudio(audio_path, false);
-#endif
-            
-			auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
-			ui_camera->SetClearFlags(CameraClearFlags::Nothing);
-			ui_camera->SetDepth(1);
-			ui_camera->SetCullingMask(1 << 1);
-
-			auto canvas = GameObject::Create("")->AddComponent<CanvasRenderer>(FilterMode::Linear);
-			canvas->GetGameObject()->SetLayer(1);
-			canvas->SetCamera(ui_camera);
-
-			auto label = RefMake<Label>();
-			label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
-			label->SetPivot(Vector2(0, 0));
-			label->SetColor(Color(0, 0, 0, 1));
-			label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
-			canvas->AddView(label);
-			m_fps_label = label.get();
+            this->InitScene();
+            this->InitAudio();
+            this->InitUI();
             
 #if 0
 			auto blit_camera = GameObject::Create("")->AddComponent<Camera>();
@@ -164,6 +83,110 @@ namespace Viry3D
 			quad->SetMaterial(material);
 #endif
 		}
+        
+        void InitScene()
+        {
+            auto camera = GameObject::Create("")->AddComponent<Camera>();
+            camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
+            camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
+            camera->SetNearClip(0.03f);
+            camera->SetDepth(0);
+            camera->SetCullingMask((1 << 0) | (1 << 4));
+            m_camera = camera.get();
+            
+            auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
+            auto skybox = GameObject::Create("")->AddComponent<Skybox>();
+            skybox->SetTexture(cubemap, 0.0f);
+            
+            auto light = GameObject::Create("")->AddComponent<Light>();
+            light->GetTransform()->SetPosition(Vector3(-1.332f, 3, 0));
+            light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
+            light->SetType(LightType::Spot);
+            light->SetRange(10);
+            light->SetSpotAngle(45);
+            light->EnableShadow(true);
+            
+            auto visualizer = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Visualizer/Visualizer.go");
+            
+            auto model = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
+            model->GetTransform()->SetPosition(Vector3(0, 0, 0));
+            auto renderers = model->GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < renderers.Size(); ++i)
+            {
+                renderers[i]->EnableCastShadow(true);
+            }
+            
+            model->GetComponent<SpringManager>()->Init();
+            
+            this->InitBoneMapper(model);
+            this->InitReflection();
+        }
+        
+        void InitBoneMapper(const Ref<GameObject>& model)
+        {
+            auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_NOT01.go");
+            clip->GetTransform()->SetPosition(Vector3(1, 0, 0));
+            auto anim = clip->GetComponent<Animation>();
+            if (anim)
+            {
+                anim->Play(0);
+            }
+            
+            auto bone_mapper = clip->AddComponent<BoneMapper>();
+            bone_mapper->root_src = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
+            bone_mapper->root_dst = model->GetTransform()->Find("Character1_Reference/Character1_Hips");
+            bone_mapper->src_base_pose_path = "Resources/res/model/CandyRockStar/t-pose-src.json";
+            bone_mapper->dst_base_pose_path = "Resources/res/model/CandyRockStar/t-pose-dst.json";
+            bone_mapper->bone_map_path = "Resources/res/model/CandyRockStar/bone-map.json";
+            bone_mapper->Init();
+            
+            auto bone_drawer = clip->AddComponent<BoneDrawer>();
+            bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
+            bone_drawer->Init();
+        }
+        
+        void InitReflection()
+        {
+            
+        }
+        
+        void InitAudio()
+        {
+            auto listener = AudioManager::GetListener();
+            listener->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));
+            listener->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));
+            
+#if !VR_WASM
+            auto audio_path = "Resources/res/model/CandyRockStar/Unite In The Sky (full).mp3";
+            auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
+            m_audio_source_bgm = GameObject::Create("")->AddComponent<AudioSource>().get();
+            m_audio_source_bgm->SetClip(audio_clip);
+            m_audio_source_bgm->SetLoop(false);
+            m_audio_source_bgm->Play();
+#else
+            AudioManager::PlayAudio(audio_path, false);
+#endif
+        }
+        
+        void InitUI()
+        {
+            auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
+            ui_camera->SetClearFlags(CameraClearFlags::Nothing);
+            ui_camera->SetDepth(1);
+            ui_camera->SetCullingMask(1 << 1);
+            
+            auto canvas = GameObject::Create("")->AddComponent<CanvasRenderer>(FilterMode::Linear);
+            canvas->GetGameObject()->SetLayer(1);
+            canvas->SetCamera(ui_camera);
+            
+            auto label = RefMake<Label>();
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0));
+            label->SetColor(Color(0, 0, 0, 1));
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            canvas->AddView(label);
+            m_fps_label = label.get();
+        }
 
 		virtual ~App()
 		{
