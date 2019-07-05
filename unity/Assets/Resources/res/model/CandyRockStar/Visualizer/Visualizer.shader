@@ -122,6 +122,11 @@
 				HexGrid(p+float3(0.0,0.0,  d))-HexGrid(p+float3(0.0,0.0, -d)) ));
 		}
 
+		float2 flip_uv_y(float2 uv)
+		{
+			return float2(uv.x, 1.0 - uv.y);
+		}
+
 		void surf (Input IN, inout SurfaceOutput o)
 		{
 			float3 center = IN.worldPos - _Center;
@@ -152,9 +157,9 @@
 			};
 			float depth = 1.0;
 			float2 coord = (IN.screenPos.xy / IN.screenPos.w);
-			depth = tex2D(_ReflectionDepthTex, coord).r;
+			depth = tex2D(_ReflectionDepthTex, flip_uv_y(coord)).r;
 			for(int i=1; i<9; ++i) {
-				depth = min(depth, tex2D(_ReflectionDepthTex, coord+blur_coords[i]).r);
+				depth = min(depth, tex2D(_ReflectionDepthTex, flip_uv_y(coord+blur_coords[i])).r);
 			}
 
 			float4 H = float4((coord.x) * 2 - 1, (coord.y) * 2 - 1, depth, 1.0);
@@ -168,7 +173,7 @@
 			float g = saturate((grid_d+0.02)*50.0);
 			coord += n.xz * (g>0.0 && g<1.0 ? 1.0 : 0.0) * 0.02;
 			for(int i=0; i<9; ++i) {
-				refcolor += tex2D(_ReflectionTex, coord+blur_coords[i]*((1.0-fade_by_depth)*0.75+0.25)).rgb * 0.1111;
+				refcolor += tex2D(_ReflectionTex, flip_uv_y(coord+blur_coords[i]*((1.0-fade_by_depth)*0.75+0.25))).rgb * 0.1111;
 				//refcolor += tex2D(_ReflectionTex, coord+blur_coords[i]).rgb * 0.1111;
 			}
 

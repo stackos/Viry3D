@@ -58,7 +58,8 @@ public class MirrorReflection : MonoBehaviour
 		CalculateReflectionMatrix(ref reflection, reflectionPlane);
 		Vector3 oldpos = cam.transform.position;
 		Vector3 newpos = reflection.MultiplyPoint(oldpos);
-        reflectionCamera.worldToCameraMatrix = cam.worldToCameraMatrix * reflection;
+        //reflectionCamera.worldToCameraMatrix = cam.worldToCameraMatrix * reflection;
+        reflectionCamera.transform.position = newpos;
         reflectionCamera.transform.forward = reflection.MultiplyVector(cam.transform.forward);
 
         // Setup oblique projection matrix so that near plane is our reflection
@@ -70,8 +71,7 @@ public class MirrorReflection : MonoBehaviour
 
 		reflectionCamera.cullingMask = ~(1 << 4) & m_ReflectLayers.value; // never render water layer
 		reflectionCamera.targetTexture = m_ReflectionTexture;
-        GL.invertCulling = true;
-        reflectionCamera.transform.position = newpos;
+        //GL.invertCulling = true;
 		Vector3 euler = cam.transform.eulerAngles;
 		//reflectionCamera.transform.eulerAngles = new Vector3(0, euler.y, euler.z);
 		reflectionCamera.depthTextureMode = DepthTextureMode.Depth;
@@ -86,7 +86,7 @@ public class MirrorReflection : MonoBehaviour
 
 
 		//reflectionCamera.transform.position = oldpos;
-        GL.invertCulling = false;
+        //GL.invertCulling = false;
         Material[] materials = GetComponent<Renderer>().sharedMaterials;
 		foreach (Material mat in materials)
 		{
