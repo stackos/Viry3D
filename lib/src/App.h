@@ -46,6 +46,7 @@ namespace Viry3D
 	{
 	public:
 		Camera* m_camera = nullptr;
+        Camera* m_reflection_camera = nullptr;
 		Vector2 m_last_touch_pos;
 		Vector3 m_camera_rot = Vector3(5, 180, 0);
 		Label* m_fps_label = nullptr;
@@ -66,7 +67,7 @@ namespace Viry3D
 			blit_camera->SetOrthographicSize(1);
 			blit_camera->SetNearClip(-1);
 			blit_camera->SetFarClip(1);
-			blit_camera->SetDepth(2);
+			blit_camera->SetDepth(3);
 			blit_camera->SetCullingMask(1 << 2);
 
 			material = RefMake<Material>(Shader::Find("Unlit/Texture"));
@@ -90,7 +91,7 @@ namespace Viry3D
             camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
             camera->SetNearClip(0.03f);
-            camera->SetDepth(0);
+            camera->SetDepth(1);
             camera->SetCullingMask((1 << 0) | (1 << 4));
             m_camera = camera.get();
             
@@ -147,7 +148,13 @@ namespace Viry3D
         
         void InitReflection()
         {
-            
+            auto camera = GameObject::Create("")->AddComponent<Camera>();
+            camera->GetTransform()->SetPosition(Vector3(0, -1, 3.5f));
+            camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
+            camera->SetNearClip(0.03f);
+            camera->SetDepth(0);
+            camera->SetCullingMask(1 << 0);
+            m_reflection_camera = camera.get();
         }
         
         void InitAudio()
@@ -172,7 +179,7 @@ namespace Viry3D
         {
             auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
             ui_camera->SetClearFlags(CameraClearFlags::Nothing);
-            ui_camera->SetDepth(1);
+            ui_camera->SetDepth(2);
             ui_camera->SetCullingMask(1 << 1);
             
             auto canvas = GameObject::Create("")->AddComponent<CanvasRenderer>(FilterMode::Linear);
@@ -218,6 +225,7 @@ namespace Viry3D
 					m_camera_rot.y += delta.x * 0.1f;
 					m_camera_rot.x += -delta.y * 0.1f;
 					m_camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
+                    m_reflection_camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
 				}
 			}
 			if (Input::GetKey(KeyCode::W))
