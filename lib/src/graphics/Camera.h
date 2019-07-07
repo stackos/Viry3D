@@ -49,6 +49,8 @@ namespace Viry3D
 		void SetViewportRect(const Rect& rect);
 		float GetFieldOfView() const { return m_field_of_view; }
 		void SetFieldOfView(float fov);
+        float GetAspect() const;
+        void SetAspect(float aspect);
 		float GetNearClip() const { return m_near_clip; }
 		void SetNearClip(float clip);
 		float GetFarClip() const { return m_far_clip; }
@@ -86,6 +88,7 @@ namespace Viry3D
 		Color m_clear_color;
 		Rect m_viewport_rect;
 		float m_field_of_view;
+        float m_aspect;
 		float m_near_clip;
 		float m_far_clip;
 		bool m_orthographic;

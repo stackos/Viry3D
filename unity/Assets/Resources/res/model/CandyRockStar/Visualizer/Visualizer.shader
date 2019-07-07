@@ -176,8 +176,7 @@
 				refcolor += tex2D(_ReflectionTex, flip_uv_y(coord+blur_coords[i]*((1.0-fade_by_depth)*0.75+0.25))).rgb * 0.1111;
 				//refcolor += tex2D(_ReflectionTex, coord+blur_coords[i]).rgb * 0.1111;
 			}
-
-			o.Emission += refcolor * _ReflectionStrength.x * fade_by_depth * (1.0-grid*0.9);
+			o.Emission = refcolor;//refpos;//fade_by_depth;//refcolor * _ReflectionStrength.x * fade_by_depth * (1.0-grid*0.9);
 
 			//o.Emission = abs(refpos.yyy)*0.25;
             

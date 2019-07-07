@@ -47,6 +47,7 @@ namespace Viry3D
 	public:
 		Camera* m_camera = nullptr;
         Camera* m_reflection_camera = nullptr;
+        Material* m_reflection_material = nullptr;
 		Vector2 m_last_touch_pos;
 		Vector3 m_camera_rot = Vector3(5, 180, 0);
 		Label* m_fps_label = nullptr;
@@ -70,8 +71,8 @@ namespace Viry3D
 			blit_camera->SetDepth(3);
 			blit_camera->SetCullingMask(1 << 2);
 
-			material = RefMake<Material>(Shader::Find("Unlit/Texture"));
-			material->SetTexture(MaterialProperty::TEXTURE, light->GetShadowTexture());
+			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+			material->SetTexture(MaterialProperty::TEXTURE, m_reflection_camera->GetRenderTargetColor());
 			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
 			{
 				material->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, -1, 0, 1));
@@ -87,6 +88,8 @@ namespace Viry3D
         
         void InitScene()
         {
+            this->InitReflection();
+            
             auto camera = GameObject::Create("")->AddComponent<Camera>();
             camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
@@ -108,6 +111,13 @@ namespace Viry3D
             light->EnableShadow(true);
             
             auto visualizer = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Visualizer/Visualizer.go");
+            auto material = visualizer->GetComponent<MeshRenderer>()->GetMaterial();
+            material->SetTexture("u_reflection_texture", m_reflection_camera->GetRenderTargetColor());
+            material->SetTexture("u_reflection_depth_texture", m_reflection_camera->GetRenderTargetDepth());
+            auto vp = camera->GetProjectionMatrix() * camera->GetViewMatrix();
+            auto vp_inverse = vp.Inverse();
+            material->SetMatrix("_ViewProjectInverse", vp_inverse);
+            m_reflection_material = material.get();
             
             auto model = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
             model->GetTransform()->SetPosition(Vector3(0, 0, 0));
@@ -120,7 +130,6 @@ namespace Viry3D
             model->GetComponent<SpringManager>()->Init();
             
             this->InitBoneMapper(model);
-            this->InitReflection();
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)
@@ -148,12 +157,27 @@ namespace Viry3D
         
         void InitReflection()
         {
+            const int texture_size = 1024;
+            auto color_texture = Texture::CreateRenderTexture(
+                texture_size,
+                texture_size,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge);
+            auto depth_texture = Texture::CreateRenderTexture(
+                texture_size,
+                texture_size,
+                Texture::SelectDepthFormat(),
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge);
+            
             auto camera = GameObject::Create("")->AddComponent<Camera>();
             camera->GetTransform()->SetPosition(Vector3(0, -1, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
             camera->SetNearClip(0.03f);
             camera->SetDepth(0);
             camera->SetCullingMask(1 << 0);
+            camera->SetRenderTarget(color_texture, depth_texture);
             m_reflection_camera = camera.get();
         }
         
@@ -204,6 +228,8 @@ namespace Viry3D
 
 		virtual void Update()
 		{
+            m_reflection_camera->SetAspect(m_camera->GetAspect());
+            
 			if (m_fps_label)
 			{
 				m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
@@ -226,6 +252,10 @@ namespace Viry3D
 					m_camera_rot.x += -delta.y * 0.1f;
 					m_camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
                     m_reflection_camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
+                    
+                    auto vp = m_camera->GetProjectionMatrix() * m_camera->GetViewMatrix();
+                    auto vp_inverse = vp.Inverse();
+                    m_reflection_material->SetMatrix("_ViewProjectInverse", vp_inverse);
 				}
 			}
 			if (Input::GetKey(KeyCode::W))

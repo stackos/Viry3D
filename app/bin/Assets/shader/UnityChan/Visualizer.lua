@@ -34,13 +34,17 @@ void main()
 
 local fs = [[
 precision highp float;
+VK_SAMPLER_BINDING(0) uniform sampler2D u_reflection_texture;
+VK_SAMPLER_BINDING(1) uniform highp sampler2D u_reflection_depth_texture;
 VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
+    mat4 _ViewProjectInverse;
 	vec4 _Spectra;
 	vec4 _Center;
 	vec4 _RingParams;
 	vec4 _RingSpeed;
 	vec4 _GridColor;
+    vec4 _ReflectionStrength;
 };
 
 VK_LAYOUT_LOCATION(0) in vec4 v_pos_proj;
@@ -117,10 +121,14 @@ float circle(vec3 pos)
 	return c;
 }
 
+vec2 flip_uv_y(vec2 uv)
+{
+    //return vec2(uv.x, 1.0 - uv.y);
+    return uv;
+}
+
 void main()
 {
-    vec2 coord = v_pos_proj.xy / v_pos_proj.w * 0.5 + 0.5;
-
     vec3 center = v_pos_world.xyz - _Center.xyz;
     float trails = rings(center);
 	float grid_d = hex_grid(center);
@@ -133,7 +141,42 @@ void main()
 	c += _GridColor * (grid * circle(center)) * _GridColor.w;
 
 	// reflection
+    const float blur_radius = 0.005;
+    vec2 blur_coords[9] = {
+        vec2(0.000, 0.000),
+        vec2(0.1080925165271518, -0.9546740999616308) * blur_radius,
+        vec2(-0.4753686437884934, -0.8417212473681748) * blur_radius,
+        vec2(0.7242715177221273, -0.6574584801064549) * blur_radius,
+        vec2(-0.023355087558461607, 0.7964400038854089) * blur_radius,
+        vec2(-0.8308210026544296, -0.7015103725420933) * blur_radius,
+        vec2(0.3243705688309195, 0.2577797517167695) * blur_radius,
+        vec2(0.31851240326305463, -0.2220789454739755) * blur_radius,
+        vec2(-0.36307729185097637, -0.7307245945773899) * blur_radius
+    };
+    float depth = 1.0;
+    vec2 coord = v_pos_proj.xy / v_pos_proj.w * 0.5 + 0.5;
+    depth = texture(u_reflection_depth_texture, flip_uv_y(coord)).r;
+    for (int i = 1; i < 9; ++i)
+    {
+        depth = min(depth, texture(u_reflection_depth_texture, flip_uv_y(coord + blur_coords[i])).r);
+    }
 
+    vec4 H = vec4(coord.x * 2.0 - 1.0, coord.y * 2.0 - 1.0, depth, 1.0);
+    vec4 D = H * _ViewProjectInverse;
+    vec3 refpos = D.xyz / D.w;
+
+    float fade_by_depth = 1.0;
+    fade_by_depth = max(1.0 - abs(refpos.y) * 0.3, 0.0);
+    vec3 refcolor = vec3(0.0);
+
+    float g = clamp((grid_d + 0.02) * 50.0, 0.0, 1.0);
+    coord += n.xz * (g > 0.0 && g < 1.0 ? 1.0 : 0.0) * 0.02;
+    for (int i = 0; i < 9; ++i)
+    {
+        refcolor += texture(u_reflection_texture, flip_uv_y(coord + blur_coords[i] * ((1.0 - fade_by_depth) * 0.75 + 0.25))).rgb * 0.1111;
+    }
+
+c.rgb = refcolor;//vec3(depth, 0.0, 0.0);//refpos;//vec3(fade_by_depth);//refcolor * _ReflectionStrength.x * fade_by_depth * (1.0 - grid * 0.9);
 
 	o_color = c;
 }
@@ -208,6 +251,10 @@ local pass = {
             binding = 4,
             members = {
                 {
+                    name = "_ViewProjectInverse",
+                    size = 64,
+                },
+                {
                     name = "_Spectra",
                     size = 16,
                 },
@@ -227,11 +274,28 @@ local pass = {
                     name = "_GridColor",
                     size = 16,
                 },
+                {
+                    name = "_ReflectionStrength",
+                    size = 16,
+                },
             },
         },
 	},
 	samplers = {
-		
+        {
+            name = "PerMaterialFragment",
+            binding = 4,
+            samplers = {
+                {
+                    name = "u_reflection_texture",
+                    binding = 0,
+                },
+                {
+                    name = "u_reflection_depth_texture",
+                    binding = 1,
+                },
+            },
+        },
 	},
 }
 

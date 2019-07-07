@@ -26,14 +26,14 @@ public class Visualizer : MonoBehaviour
 			mat.SetVector("_Spectra", spectrum);
 		}
 
-		Camera cam = Camera.current;
+		Camera cam = Camera.main;
 		if (cam != null) {
 			Matrix4x4 view = cam.worldToCameraMatrix;
 			Matrix4x4 proj = cam.projectionMatrix;
-			proj[2, 0] = proj[2, 0] * 0.5f + proj[3, 0] * 0.5f;
-			proj[2, 1] = proj[2, 1] * 0.5f + proj[3, 1] * 0.5f;
-			proj[2, 2] = proj[2, 2] * 0.5f + proj[3, 2] * 0.5f;
-			proj[2, 3] = proj[2, 3] * 0.5f + proj[3, 3] * 0.5f;
+			//proj[2, 0] = proj[2, 0] * 0.5f + proj[3, 0] * 0.5f;
+			//proj[2, 1] = proj[2, 1] * 0.5f + proj[3, 1] * 0.5f;
+			//proj[2, 2] = proj[2, 2] * 0.5f + proj[3, 2] * 0.5f;
+			//proj[2, 3] = proj[2, 3] * 0.5f + proj[3, 3] * 0.5f;
 			Matrix4x4 viewprojinv = (proj * view).inverse;
 			mat.SetMatrix("_ViewProjectInverse", viewprojinv);
 		}

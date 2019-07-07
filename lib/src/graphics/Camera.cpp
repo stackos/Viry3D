@@ -360,6 +360,7 @@ namespace Viry3D
 		m_clear_color(0, 0, 0, 1),
 		m_viewport_rect(0, 0, 1, 1),
 		m_field_of_view(45),
+        m_aspect(-1),
 		m_near_clip(0.3f),
 		m_far_clip(1000),
 		m_orthographic(false),
@@ -428,6 +429,24 @@ namespace Viry3D
 		m_field_of_view = fov;
 		m_projection_matrix_dirty = true;
 	}
+    
+    float Camera::GetAspect() const
+    {
+        if (m_aspect > 0)
+        {
+            return m_aspect;
+        }
+        else
+        {
+            return this->GetTargetWidth() / (float) this->GetTargetHeight();
+        }
+    }
+    
+    void Camera::SetAspect(float aspect)
+    {
+        m_aspect = aspect;
+        m_projection_matrix_dirty = true;
+    }
 
 	void Camera::SetNearClip(float clip)
 	{
@@ -478,6 +497,11 @@ namespace Viry3D
 			{
 				float view_width = this->GetTargetWidth() * m_viewport_rect.w;
 				float view_height = this->GetTargetHeight() * m_viewport_rect.h;
+                float aspect = m_aspect;
+                if (aspect <= 0)
+                {
+                    aspect = view_width / view_height;
+                }
 
 				if (m_orthographic)
 				{
@@ -485,12 +509,12 @@ namespace Viry3D
 					float top = ortho_size;
 					float bottom = -ortho_size;
 					float plane_h = ortho_size * 2;
-					float plane_w = plane_h * view_width / view_height;
+					float plane_w = plane_h * aspect;
 					m_projection_matrix = Matrix4x4::Ortho(-plane_w / 2, plane_w / 2, bottom, top, m_near_clip, m_far_clip);
 				}
 				else
 				{
-					m_projection_matrix = Matrix4x4::Perspective(m_field_of_view, view_width / view_height, m_near_clip, m_far_clip);
+					m_projection_matrix = Matrix4x4::Perspective(m_field_of_view, aspect, m_near_clip, m_far_clip);
 				}
 			}
 		}
