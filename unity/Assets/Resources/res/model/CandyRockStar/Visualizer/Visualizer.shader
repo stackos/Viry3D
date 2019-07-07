@@ -163,7 +163,7 @@
 			}
 
 			float4 H = float4((coord.x) * 2 - 1, (coord.y) * 2 - 1, depth, 1.0);
-			float4 D = mul(_ViewProjectInverse, H);
+			float4 D = H;//mul(_ViewProjectInverse, H);
 			float3 refpos = D.xyz / D.w;
 
 			float fade_by_depth = 1.0;
@@ -174,13 +174,8 @@
 			coord += n.xz * (g>0.0 && g<1.0 ? 1.0 : 0.0) * 0.02;
 			for(int i=0; i<9; ++i) {
 				refcolor += tex2D(_ReflectionTex, flip_uv_y(coord+blur_coords[i]*((1.0-fade_by_depth)*0.75+0.25))).rgb * 0.1111;
-				//refcolor += tex2D(_ReflectionTex, coord+blur_coords[i]).rgb * 0.1111;
 			}
-			o.Emission = refcolor;//refpos;//fade_by_depth;//refcolor * _ReflectionStrength.x * fade_by_depth * (1.0-grid*0.9);
-
-			//o.Emission = abs(refpos.yyy)*0.25;
-            
-            //o.Emission = float4(trails, 0, 0, 0);
+			o.Emission += refcolor * _ReflectionStrength.x * fade_by_depth * (1.0-grid*0.9);
 		}
 		ENDCG
 	}

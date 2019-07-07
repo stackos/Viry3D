@@ -38,7 +38,6 @@ VK_SAMPLER_BINDING(0) uniform sampler2D u_reflection_texture;
 VK_SAMPLER_BINDING(1) uniform highp sampler2D u_reflection_depth_texture;
 VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
-    mat4 _ViewProjectInverse;
 	vec4 _Spectra;
 	vec4 _Center;
 	vec4 _RingParams;
@@ -161,12 +160,10 @@ void main()
         depth = min(depth, texture(u_reflection_depth_texture, flip_uv_y(coord + blur_coords[i])).r);
     }
 
-    vec4 H = vec4(coord.x * 2.0 - 1.0, coord.y * 2.0 - 1.0, depth, 1.0);
-    vec4 D = H * _ViewProjectInverse;
-    vec3 refpos = D.xyz / D.w;
+    float refpos = coord.y * 2.0 - 1.0;
 
     float fade_by_depth = 1.0;
-    fade_by_depth = max(1.0 - abs(refpos.y) * 0.3, 0.0);
+    fade_by_depth = max(1.0 - abs(refpos) * 0.3, 0.0);
     vec3 refcolor = vec3(0.0);
 
     float g = clamp((grid_d + 0.02) * 50.0, 0.0, 1.0);
@@ -176,7 +173,7 @@ void main()
         refcolor += texture(u_reflection_texture, flip_uv_y(coord + blur_coords[i] * ((1.0 - fade_by_depth) * 0.75 + 0.25))).rgb * 0.1111;
     }
 
-c.rgb = refcolor;//vec3(depth, 0.0, 0.0);//refpos;//vec3(fade_by_depth);//refcolor * _ReflectionStrength.x * fade_by_depth * (1.0 - grid * 0.9);
+    c.rgb += refcolor * _ReflectionStrength.x * fade_by_depth * (1.0 - grid * 0.9);
 
 	o_color = c;
 }
@@ -250,10 +247,6 @@ local pass = {
             name = "PerMaterialFragment",
             binding = 4,
             members = {
-                {
-                    name = "_ViewProjectInverse",
-                    size = 64,
-                },
                 {
                     name = "_Spectra",
                     size = 16,

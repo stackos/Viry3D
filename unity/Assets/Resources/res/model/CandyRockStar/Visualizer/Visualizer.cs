@@ -35,7 +35,7 @@ public class Visualizer : MonoBehaviour
 			//proj[2, 2] = proj[2, 2] * 0.5f + proj[3, 2] * 0.5f;
 			//proj[2, 3] = proj[2, 3] * 0.5f + proj[3, 3] * 0.5f;
 			Matrix4x4 viewprojinv = (proj * view).inverse;
-			mat.SetMatrix("_ViewProjectInverse", viewprojinv);
+			//mat.SetMatrix("_ViewProjectInverse", viewprojinv);
 		}
 	}
 }
