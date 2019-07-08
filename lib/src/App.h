@@ -224,12 +224,37 @@ namespace Viry3D
 #endif
 		}
 
+        static float sgn(float a)
+        {
+            if (a > 0.0f) return 1.0f;
+            if (a < 0.0f) return -1.0f;
+            return 0.0f;
+        }
+        
+        static void CalculateObliqueMatrix(Matrix4x4& projection, const Vector4& clip_plane)
+        {
+            Vector4 q = projection.Inverse() * Vector4(sgn(clip_plane.x), sgn(clip_plane.y), 1.0f, 1.0f);
+            Vector4 c = clip_plane * (2.0f / (Vector4::Dot(clip_plane, q)));
+            projection.m20 = c.x - projection.m30;
+            projection.m21 = c.y - projection.m31;
+            projection.m22 = c.z - projection.m32;
+            projection.m23 = c.w - projection.m33;
+        }
+        
 		virtual void Update()
 		{
             auto vp = m_camera->GetProjectionMatrix() * m_camera->GetViewMatrix();
             auto vp_inverse = vp.Inverse();
             m_reflection_material->SetMatrix("_ViewProjectInverse", vp_inverse);
             m_reflection_camera->SetAspect(m_camera->GetAspect());
+            
+            // oblique projection
+            auto clip_plane_pos = m_reflection_camera->GetViewMatrix().MultiplyPoint(Vector3(0, 0, 0));
+            auto clip_plane_normal = m_reflection_camera->GetViewMatrix().MultiplyDirection(Vector3(0, 1, 0));
+            auto clip_plane = Vector4(clip_plane_normal.x, clip_plane_normal.y, clip_plane_normal.z, -Vector3::Dot(clip_plane_pos, clip_plane_normal));
+            auto oblique_projection = m_camera->GetProjectionMatrix();
+            CalculateObliqueMatrix(oblique_projection, clip_plane);
+            m_reflection_camera->SetProjectionMatrixExternal(oblique_projection);
             
 			if (m_fps_label)
 			{

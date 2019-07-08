@@ -34,6 +34,7 @@ namespace Viry3D
 		static Vector3 Min(const Vector3& a, const Vector3& b);
 		static Vector3 Lerp(const Vector3& from, const Vector3& to, float t, bool clamp_01 = true);
 		static float Angle(const Vector3& from, const Vector3& to);
+        static float Dot(const Vector3& a, const Vector3& b);
 
 		explicit Vector3(float x = 0, float y = 0, float z = 0);
 		Vector3(const Vector2& v2);
@@ -51,6 +52,7 @@ namespace Viry3D
 		float Dot(const Vector3& v) const;
 		String ToString() const;
 		void Normalize();
+        Vector3 Normalized() const;
 		float Magnitude() const;
 		float SqrMagnitude() const;
 
