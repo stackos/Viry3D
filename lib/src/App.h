@@ -95,7 +95,7 @@ namespace Viry3D
             camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
             camera->SetNearClip(0.03f);
             camera->SetDepth(1);
-            camera->SetCullingMask((1 << 0) | (1 << 4));
+            camera->SetCullingMask((1 << 0) | (1 << 4) | (1 << 8));
             m_camera = camera.get();
             
             auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
@@ -128,6 +128,7 @@ namespace Viry3D
             model->GetComponent<SpringManager>()->Init();
             
             this->InitBoneMapper(model);
+            this->InitBackScreen();
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)
@@ -174,9 +175,16 @@ namespace Viry3D
             camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
             camera->SetNearClip(0.03f);
             camera->SetDepth(0);
-            camera->SetCullingMask(1 << 0);
+            camera->SetCullingMask((1 << 0) | (1 << 8));
             camera->SetRenderTarget(color_texture, depth_texture);
             m_reflection_camera = camera.get();
+        }
+        
+        void InitBackScreen()
+        {
+            auto back_screen = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Stage/Back Screen/Back Screen.go");
+            auto material = back_screen->GetComponent<MeshRenderer>()->GetMaterial();
+            //material->SetTexture(MaterialProperty::TEXTURE, );
         }
         
         void InitAudio()

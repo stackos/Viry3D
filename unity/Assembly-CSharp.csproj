@@ -70,6 +70,7 @@
      <None Include="Assets\Resources\shader\Unlit\Texture.shader" />
      <None Include="Assets\Resources\res\model\CandyRockStar\Visualizer\Visualizer.shader" />
      <None Include="Assets\Resources\res\model\CandyRockStar\Shader\Unitychan_chara_akarami_blend.shader" />
+     <None Include="Assets\Resources\res\model\CandyRockStar\Stage\Back Screen\Back Screen.shader" />
      <None Include="Assets\Resources\shader\PBR.cginc" />
      <None Include="Assets\Resources\res\model\CandyRockStar\Shader\Unitychan_chara_eyelash_blend.shader" />
      <None Include="Assets\Resources\shader\Diffuse.shader" />
