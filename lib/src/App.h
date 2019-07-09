@@ -243,19 +243,6 @@ namespace Viry3D
         
 		virtual void Update()
 		{
-            auto vp = m_camera->GetProjectionMatrix() * m_camera->GetViewMatrix();
-            auto vp_inverse = vp.Inverse();
-            m_reflection_material->SetMatrix("_ViewProjectInverse", vp_inverse);
-            m_reflection_camera->SetAspect(m_camera->GetAspect());
-            
-            // oblique projection
-            auto clip_plane_pos = m_reflection_camera->GetViewMatrix().MultiplyPoint(Vector3(0, 0, 0));
-            auto clip_plane_normal = m_reflection_camera->GetViewMatrix().MultiplyDirection(Vector3(0, 1, 0));
-            auto clip_plane = Vector4(clip_plane_normal.x, clip_plane_normal.y, clip_plane_normal.z, -Vector3::Dot(clip_plane_pos, clip_plane_normal));
-            auto oblique_projection = m_camera->GetProjectionMatrix();
-            CalculateObliqueMatrix(oblique_projection, clip_plane);
-            m_reflection_camera->SetProjectionMatrixExternal(oblique_projection);
-            
 			if (m_fps_label)
 			{
 				m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
@@ -285,37 +272,58 @@ namespace Viry3D
 				Vector3 forward = m_camera->GetTransform()->GetForward();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() + forward * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
+				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
 			}
 			if (Input::GetKey(KeyCode::S))
 			{
 				Vector3 forward = m_camera->GetTransform()->GetForward();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() - forward * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
+				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
 			}
 			if (Input::GetKey(KeyCode::A))
 			{
 				Vector3 right = m_camera->GetTransform()->GetRight();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() - right * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
+				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
 			}
 			if (Input::GetKey(KeyCode::D))
 			{
 				Vector3 right = m_camera->GetTransform()->GetRight();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() + right * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
+				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
 			}
 			if (Input::GetKey(KeyCode::Q))
 			{
 				Vector3 up = m_camera->GetTransform()->GetUp();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() + up * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
+				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
 			}
 			if (Input::GetKey(KeyCode::E))
 			{
 				Vector3 up = m_camera->GetTransform()->GetUp();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() - up * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
+				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
 			}
+
+			auto vp = m_camera->GetProjectionMatrix() * m_camera->GetViewMatrix();
+			auto vp_inverse = vp.Inverse();
+			m_reflection_material->SetMatrix("_ViewProjectInverse", vp_inverse);
+			m_reflection_camera->SetAspect(m_camera->GetAspect());
+
+			/*
+			// oblique projection
+			auto clip_plane_pos = m_reflection_camera->GetViewMatrix().MultiplyPoint(Vector3(0, 0, 0));
+			auto clip_plane_normal = m_reflection_camera->GetViewMatrix().MultiplyDirection(Vector3(0, 1, 0));
+			auto clip_plane = Vector4(clip_plane_normal.x, clip_plane_normal.y, clip_plane_normal.z, -Vector3::Dot(clip_plane_pos, clip_plane_normal));
+			auto oblique_projection = m_camera->GetProjectionMatrix();
+			CalculateObliqueMatrix(oblique_projection, clip_plane);
+			m_reflection_camera->SetProjectionMatrixExternal(oblique_projection);
+			*/
 		}
 	};
 }

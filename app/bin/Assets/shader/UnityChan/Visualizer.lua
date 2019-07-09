@@ -33,6 +33,10 @@ void main()
 ]]
 
 local fs = [[
+#ifndef VR_GLES
+#define VR_GLES 0
+#endif
+
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_reflection_texture;
 VK_SAMPLER_BINDING(1) uniform highp sampler2D u_reflection_depth_texture;
@@ -122,9 +126,25 @@ float circle(vec3 pos)
 
 vec2 flip_uv_y(vec2 uv)
 {
-    //return vec2(uv.x, 1.0 - uv.y);
-    return uv;
+#if (VR_GLES == 1)
+    return vec2(uv.x, 1.0 - uv.y);
+#else
+	return uv;
+#endif
 }
+
+const float blur_radius = 0.005;
+const vec2 blur_coords[9] = vec2[](
+    vec2(0.000, 0.000),
+    vec2(0.1080925165271518, -0.9546740999616308) * blur_radius,
+    vec2(-0.4753686437884934, -0.8417212473681748) * blur_radius,
+    vec2(0.7242715177221273, -0.6574584801064549) * blur_radius,
+    vec2(-0.023355087558461607, 0.7964400038854089) * blur_radius,
+    vec2(-0.8308210026544296, -0.7015103725420933) * blur_radius,
+    vec2(0.3243705688309195, 0.2577797517167695) * blur_radius,
+    vec2(0.31851240326305463, -0.2220789454739755) * blur_radius,
+    vec2(-0.36307729185097637, -0.7307245945773899) * blur_radius
+);
 
 void main()
 {
@@ -140,18 +160,6 @@ void main()
 	c += _GridColor * (grid * circle(center)) * _GridColor.w;
 
 	// reflection
-    const float blur_radius = 0.005;
-    vec2 blur_coords[9] = {
-        vec2(0.000, 0.000),
-        vec2(0.1080925165271518, -0.9546740999616308) * blur_radius,
-        vec2(-0.4753686437884934, -0.8417212473681748) * blur_radius,
-        vec2(0.7242715177221273, -0.6574584801064549) * blur_radius,
-        vec2(-0.023355087558461607, 0.7964400038854089) * blur_radius,
-        vec2(-0.8308210026544296, -0.7015103725420933) * blur_radius,
-        vec2(0.3243705688309195, 0.2577797517167695) * blur_radius,
-        vec2(0.31851240326305463, -0.2220789454739755) * blur_radius,
-        vec2(-0.36307729185097637, -0.7307245945773899) * blur_radius
-    };
     float depth = 1.0;
     vec2 coord = v_pos_proj.xy / v_pos_proj.w * 0.5 + 0.5;
     depth = texture(u_reflection_depth_texture, flip_uv_y(coord)).r;
