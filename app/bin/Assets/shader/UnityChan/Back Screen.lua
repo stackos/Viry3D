@@ -49,7 +49,7 @@ void main()
     float time = v_time.y * 3.14 * _Params.w;
     float flicker = mix(1.0, sin(time) * 0.5, _Params.z);
 
-	o_color = c * (amp * flicker);
+    o_color = c * (amp * flicker);
 }
 ]]
 

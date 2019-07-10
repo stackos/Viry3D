@@ -81,7 +81,7 @@ float rings(vec3 pos)
 	c = max(c * (1.0 / (strine_half * thickness)), 0.0);
 	float rs = iq_rand(cycle * cycle);
 	float r = iq_rand(cycle) + v_time.y * (_RingSpeed.x + (_RingSpeed.y - _RingSpeed.x) * rs);
-	float angle = atan(wpos.y / wpos.x) / pi * 0.5 + 0.5;
+	float angle = atan(wpos.y, wpos.x) / pi * 0.5 + 0.5;
 	float a = 1.0 - _gl_mod(angle + r, 1.0);
 	a = max(a - 0.7, 0.0) * c;
     return a;

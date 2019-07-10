@@ -47,6 +47,7 @@ namespace Viry3D
 	public:
 		Camera* m_camera = nullptr;
         Camera* m_reflection_camera = nullptr;
+        Camera* m_back_screen_camera = nullptr;
         Material* m_reflection_material = nullptr;
 		Vector2 m_last_touch_pos;
 		Vector3 m_camera_rot = Vector3(5, 180, 0);
@@ -68,7 +69,7 @@ namespace Viry3D
 			blit_camera->SetOrthographicSize(1);
 			blit_camera->SetNearClip(-1);
 			blit_camera->SetFarClip(1);
-			blit_camera->SetDepth(3);
+			blit_camera->SetDepth(4);
 			blit_camera->SetCullingMask(1 << 2);
 
 			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
@@ -88,13 +89,14 @@ namespace Viry3D
         
         void InitScene()
         {
+            this->InitBackScreen();
             this->InitReflection();
             
             auto camera = GameObject::Create("")->AddComponent<Camera>();
             camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
             camera->SetNearClip(0.03f);
-            camera->SetDepth(1);
+            camera->SetDepth(2);
             camera->SetCullingMask((1 << 0) | (1 << 4) | (1 << 8));
             m_camera = camera.get();
             
@@ -128,7 +130,6 @@ namespace Viry3D
             model->GetComponent<SpringManager>()->Init();
             
             this->InitBoneMapper(model);
-            this->InitBackScreen();
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)
@@ -154,7 +155,7 @@ namespace Viry3D
             bone_drawer->Init();
         }
         
-        void InitReflection()
+        void InitBackScreen()
         {
             const int texture_size = 1024;
             auto color_texture = Texture::CreateRenderTexture(
@@ -171,20 +172,38 @@ namespace Viry3D
                 SamplerAddressMode::ClampToEdge);
             
             auto camera = GameObject::Create("")->AddComponent<Camera>();
+            camera->GetTransform()->SetPosition(Vector3(0, 1, 1));
+            camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(0, 180, 0)));
+            camera->SetNearClip(0.03f);
+            camera->SetDepth(0);
+            camera->SetCullingMask((1 << 0));
+            camera->SetRenderTarget(color_texture, depth_texture);
+            camera->SetAspect(336.0f / 300.0f);
+            m_back_screen_camera = camera.get();
+            
+            auto back_screen = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Stage/Back Screen/Back Screen.go");
+            auto material = back_screen->GetComponent<MeshRenderer>()->GetMaterial();
+            material->SetTexture(MaterialProperty::TEXTURE, color_texture);
+        }
+        
+        void InitReflection()
+        {
+            const int texture_size = 1024;
+            auto color_texture = Texture::CreateRenderTexture(
+                texture_size,
+                texture_size,
+                TextureFormat::R8G8B8A8,
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge);
+            
+            auto camera = GameObject::Create("")->AddComponent<Camera>();
             camera->GetTransform()->SetPosition(Vector3(0, -1, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
             camera->SetNearClip(0.03f);
-            camera->SetDepth(0);
+            camera->SetDepth(1);
             camera->SetCullingMask((1 << 0) | (1 << 8));
-            camera->SetRenderTarget(color_texture, depth_texture);
+            camera->SetRenderTarget(color_texture, m_back_screen_camera->GetRenderTargetDepth());
             m_reflection_camera = camera.get();
-        }
-        
-        void InitBackScreen()
-        {
-            auto back_screen = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Stage/Back Screen/Back Screen.go");
-            auto material = back_screen->GetComponent<MeshRenderer>()->GetMaterial();
-            //material->SetTexture(MaterialProperty::TEXTURE, );
         }
         
         void InitAudio()
@@ -209,7 +228,7 @@ namespace Viry3D
         {
             auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
             ui_camera->SetClearFlags(CameraClearFlags::Nothing);
-            ui_camera->SetDepth(2);
+            ui_camera->SetDepth(3);
             ui_camera->SetCullingMask(1 << 1);
             
             auto canvas = GameObject::Create("")->AddComponent<CanvasRenderer>(FilterMode::Linear);
