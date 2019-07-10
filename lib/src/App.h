@@ -272,7 +272,10 @@ namespace Viry3D
 					m_camera_rot.y += delta.x * 0.1f;
 					m_camera_rot.x += -delta.y * 0.1f;
 					m_camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
-                    m_reflection_camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
+					if (m_reflection_camera)
+					{
+						m_reflection_camera->GetTransform()->SetRotation(Quaternion::Euler(Vector3(-m_camera_rot.x, m_camera_rot.y, 0)));
+					}
 				}
 			}
 			if (Input::GetKey(KeyCode::W))
@@ -280,48 +283,72 @@ namespace Viry3D
 				Vector3 forward = m_camera->GetTransform()->GetForward();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() + forward * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
-				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				if (m_reflection_camera)
+				{
+					m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				}
 			}
 			if (Input::GetKey(KeyCode::S))
 			{
 				Vector3 forward = m_camera->GetTransform()->GetForward();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() - forward * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
-				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				if (m_reflection_camera)
+				{
+					m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				}
 			}
 			if (Input::GetKey(KeyCode::A))
 			{
 				Vector3 right = m_camera->GetTransform()->GetRight();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() - right * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
-				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				if (m_reflection_camera)
+				{
+					m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				}
 			}
 			if (Input::GetKey(KeyCode::D))
 			{
 				Vector3 right = m_camera->GetTransform()->GetRight();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() + right * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
-				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				if (m_reflection_camera)
+				{
+					m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				}
 			}
 			if (Input::GetKey(KeyCode::Q))
 			{
 				Vector3 up = m_camera->GetTransform()->GetUp();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() + up * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
-				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				if (m_reflection_camera)
+				{
+					m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				}
 			}
 			if (Input::GetKey(KeyCode::E))
 			{
 				Vector3 up = m_camera->GetTransform()->GetUp();
 				Vector3 pos = m_camera->GetTransform()->GetPosition() - up * 0.1f;
 				m_camera->GetTransform()->SetPosition(pos);
-				m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				if (m_reflection_camera)
+				{
+					m_reflection_camera->GetTransform()->SetPosition(Vector3(pos.x, -pos.y, pos.z));
+				}
 			}
 
-			auto vp = m_camera->GetProjectionMatrix() * m_camera->GetViewMatrix();
-			auto vp_inverse = vp.Inverse();
-			m_reflection_material->SetMatrix("_ViewProjectInverse", vp_inverse);
-			m_reflection_camera->SetAspect(m_camera->GetAspect());
+			if (m_reflection_material)
+			{
+				auto vp = m_camera->GetProjectionMatrix() * m_camera->GetViewMatrix();
+				auto vp_inverse = vp.Inverse();
+				m_reflection_material->SetMatrix("_ViewProjectInverse", vp_inverse);
+			}
+			if (m_reflection_camera)
+			{
+				m_reflection_camera->SetAspect(m_camera->GetAspect());
+			}
 
 			/*
 			// oblique projection

@@ -38,7 +38,7 @@ static constexpr VkAllocationCallbacks* VKALLOC = nullptr;
 // There are several approaches we could take to deal with too many descriptors:
 // - Create another pool after hitting the limit of the first pool.
 // - Allow up to 3 uniform descriptors to bind simultaneously instead of just 1.
-static constexpr uint32_t MAX_NUM_DESCRIPTORS = 1000;
+static constexpr uint32_t MAX_NUM_DESCRIPTORS = 2000;
 
 static const VulkanBinder::RasterState createDefaultRasterState();
 
@@ -103,7 +103,7 @@ bool VulkanBinder::getOrCreateDescriptors(VkDescriptorSet descriptors[2],
     }
 
     // If we reach this point, we need to create and stash a brand new descriptor set.
-    ASSERT_POSTCONDITION(mDescriptorSets.size() < MAX_NUM_DESCRIPTORS, "Too many descriptors.");
+    ASSERT_POSTCONDITION(mDescriptorSets.size() * 2 < MAX_NUM_DESCRIPTORS, "Too many descriptors.");
 
     // Allocate descriptor (does not need explicit destruction)
     VkDescriptorSetAllocateInfo allocInfo = {};
