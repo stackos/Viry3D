@@ -232,6 +232,7 @@ target_include_directories(Viry3D PRIVATE
                            )
 
 file(GLOB VIRY3D_APP_SRCS
+     ${VIRY3D_APP_SRC_DIR}/*.cpp
      )
 
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
@@ -837,12 +838,6 @@ if (${Target} MATCHES "Windows")
                    ${VIRY3D_APP_SRC_DIR}/../project/win/Main.cpp
                    )
 
-    target_include_directories(Viry3DApp PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
-                               )
-
     target_link_libraries(Viry3DApp
                           Viry3D Viry3DDep
                           opengl32.lib
@@ -967,12 +962,6 @@ elseif (${Target} MATCHES "UWP")
                    ${UWP_RESOURCE_FILES}
                    )
 
-    target_include_directories(Viry3DApp PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
-                               )
-
     target_link_libraries(Viry3DApp
                           Viry3D Viry3DDep
                           mincore.lib
@@ -1023,12 +1012,6 @@ elseif (${Target} MATCHES "Android")
                 ${VIRY3D_APP_SRCS}
                 ${CMAKE_SOURCE_DIR}/app/project/android/app/src/main/jni/jni.cpp
                 )
-
-    target_include_directories(Viry3DApp PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
-                               )
 
     target_link_libraries(Viry3DApp
                           Viry3D Viry3DDep
@@ -1085,9 +1068,6 @@ elseif (${Target} MATCHES "Mac")
                    )
 
     target_include_directories(Viry3DApp PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                )
 
@@ -1169,9 +1149,6 @@ elseif (${Target} MATCHES "iOS")
                    )
 
     target_include_directories(Viry3DApp PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                )
 
@@ -1216,14 +1193,17 @@ elseif (${Target} MATCHES "WASM")
                 ${VIRY3D_APP_SRC_DIR}/../project/web/Main.cpp
                 )
 
-    target_include_directories(Viry3DApp PRIVATE
-                               ${VIRY3D_LIB_SRC_DIR}
-                               ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
-                               ${VIRY3D_APP_SRC_DIR}
-                               )
-
     target_link_libraries(Viry3DApp
                           Viry3D Viry3DDep
                           )
 
 endif ()
+
+target_include_directories(Viry3DApp PRIVATE
+                           ${VIRY3D_LIB_SRC_DIR}
+                           ${VIRY3D_LIB_SRC_DIR}/jsoncpp/include
+                           ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/include
+                           ${VIRY3D_LIB_SRC_DIR}/filament/libs/math/include
+                           ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/include
+                           ${VIRY3D_APP_SRC_DIR}
+                           )
