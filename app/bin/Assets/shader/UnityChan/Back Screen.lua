@@ -27,6 +27,10 @@ void main()
 ]]
 
 local fs = [[
+#ifndef VR_GLES
+#define VR_GLES 0
+#endif
+
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
 VK_SAMPLER_BINDING(1) uniform sampler2D _StripeTex;
@@ -39,7 +43,11 @@ VK_LAYOUT_LOCATION(1) in vec4 v_time;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-    vec2 uv0 = v_uv;
+#if (VR_GLES == 1)
+    vec2 uv0 = vec2(v_uv.x, 1.0 - v_uv.y);
+#else
+	vec2 uv0 = v_uv;
+#endif
     vec2 uv1 = v_uv * vec2(4.0, 4.0);
 
     vec4 c = texture(u_texture, uv0);
