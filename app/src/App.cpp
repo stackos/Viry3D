@@ -37,6 +37,7 @@
 #include "physics/SpringBone.h"
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
+#include "CameraSwitcher.h"
 
 namespace Viry3D
 {
@@ -135,6 +136,15 @@ namespace Viry3D
             model->GetComponent<SpringManager>()->Init();
             
             this->InitBoneMapper(model);
+            
+            auto switcher = m_back_screen_camera->GetGameObject()->AddComponent<CameraSwitcher>();
+            switcher->target = model->GetTransform()->Find("Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_Neck/Character1_Head");
+            switcher->points.Add(Vector3(2.348034f, 0.609365f, 1.529749));
+            switcher->points.Add(Vector3(-2.389755f, 0.609365f, 1.529749));
+            switcher->interval = 10;
+            switcher->stability = 1;
+            switcher->fov_curve = AnimationCurve::Linear(1, 4.962269f, 10, 4.962269f);
+            switcher->Init();
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)

@@ -30,6 +30,7 @@ namespace Viry3D
 		static Vector3 Normalize(const Vector3& value);
 		static float Magnitude(const Vector3& v);
 		static float SqrMagnitude(const Vector3& v);
+        static float Distance(const Vector3& a, const Vector3& b);
 		static Vector3 Max(const Vector3& a, const Vector3& b);
 		static Vector3 Min(const Vector3& a, const Vector3& b);
 		static Vector3 Lerp(const Vector3& from, const Vector3& to, float t, bool clamp_01 = true);

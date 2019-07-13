@@ -232,6 +232,7 @@ target_include_directories(Viry3D PRIVATE
                            )
 
 file(GLOB VIRY3D_APP_SRCS
+     ${VIRY3D_APP_SRC_DIR}/*.h
      ${VIRY3D_APP_SRC_DIR}/*.cpp
      )
 

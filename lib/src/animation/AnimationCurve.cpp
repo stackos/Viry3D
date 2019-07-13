@@ -43,6 +43,17 @@ namespace Viry3D
         return value;
     }
 
+    AnimationCurve AnimationCurve::Linear(float time_start, float value_start, float time_end, float value_end)
+    {
+        AnimationCurve curve;
+        
+        float tangent = (value_end - value_start) / (time_end - time_start);
+        curve.AddKey(time_start, value_start, tangent, tangent);
+        curve.AddKey(time_end, value_end, tangent, tangent);
+        
+        return curve;
+    }
+    
     void AnimationCurve::AddKey(float time, float value, float in_tangent, float out_tangent)
     {
         m_keys.Add(Key({ time, value, in_tangent, out_tangent }));

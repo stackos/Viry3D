@@ -220,4 +220,9 @@ namespace Viry3D
 	{
 		return v.SqrMagnitude();
 	}
+    
+    float Vector3::Distance(const Vector3& a, const Vector3& b)
+    {
+        return (a - b).Magnitude();
+    }
 }

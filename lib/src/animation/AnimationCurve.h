@@ -33,6 +33,7 @@ namespace Viry3D
         };
 
     public:
+        static AnimationCurve Linear(float time_start, float value_start, float time_end, float value_end);
         void AddKey(float time, float value, float in_tangent, float out_tangent);
         float Evaluate(float time) const;
 
