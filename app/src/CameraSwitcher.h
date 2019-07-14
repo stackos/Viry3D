@@ -72,10 +72,6 @@ namespace Viry3D
             
             auto forward = (follow_point - this->GetTransform()->GetPosition()).Normalized();
             this->GetTransform()->SetRotation(Quaternion::LookRotation(forward, Vector3(0, 1, 0)));
-            auto forward2 = this->GetTransform()->GetForward();
-            auto dot = forward.Dot(forward2);
-            
-            dot = dot;
         }
         
         Vector3 ChooseAnotherPoint(const Vector3& current)
