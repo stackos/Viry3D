@@ -207,7 +207,7 @@ namespace Viry3D
 							Quaternion rot = Quaternion::Inverse(src_base_state->rot) * src_bone->GetLocalRotation();
 							dst_bone->SetLocalRotation(dst_base_state->rot * rot);
 
-							float scale = root_dst->GetLocalPosition().y / root_src->GetLocalPosition().y;
+							float scale = dst_base_state->pos.y / src_base_state->pos.y;
 							Vector3 pos = src_bone->GetLocalPosition() - src_base_state->pos;
 							dst_bone->SetLocalPosition(dst_base_state->pos + pos * scale);
 						}
