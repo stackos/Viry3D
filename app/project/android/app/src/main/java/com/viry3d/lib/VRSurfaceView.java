@@ -158,65 +158,69 @@ public class VRSurfaceView extends SurfaceView {
     }
 
     public boolean onKeyDown(int keyCode, final KeyEvent event) {
-        Log.e(TAG, "onKeyDown");
+        final int code = event.getKeyCode();
+
         this.queueEvent(new Runnable() {
             @Override
             public void run() {
                 if (mEngineCreated) {
-                    jni.engineKeyDown(event.getKeyCode());
+                    jni.engineKeyDown(code);
                 }
             }
         });
+
         return super.onKeyDown(keyCode, event);
     }
 
     public boolean onKeyUp(int keyCode, final KeyEvent event) {
-        Log.e(TAG, "onKeyUp");
+        final int code = event.getKeyCode();
+
         this.queueEvent(new Runnable() {
             @Override
             public void run() {
                 if (mEngineCreated) {
-                    jni.engineKeyUp(event.getKeyCode());
+                    jni.engineKeyUp(code);
                 }
             }
         });
+
         return super.onKeyUp(keyCode, event);
     }
 
-    public boolean onTouchEvent(final MotionEvent event) {
-        Log.e(TAG, "onTouchEvent");
-        this.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                int action = event.getAction();
-                int count = event.getPointerCount();
-                int index = (action & 0xff00) >> 8;
-                int id = event.getPointerId(index);
-                long time = event.getEventTime();
-                int act = action & 0xff;
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        int count = event.getPointerCount();
+        int index = (action & 0xff00) >> 8;
+        int id = event.getPointerId(index);
+        long time = event.getEventTime();
+        int act = action & 0xff;
 
-                try {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    DataOutputStream dos = new DataOutputStream(baos);
+        try {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
 
-                    dos.writeInt(act);
-                    dos.writeInt(index);
-                    dos.writeInt(id);
-                    dos.writeInt(count);
-                    dos.writeLong(time);
-                    for (int i = 0; i < count; i++) {
-                        dos.writeFloat(event.getX(i));
-                        dos.writeFloat(event.getY(i));
-                    }
+            dos.writeInt(act);
+            dos.writeInt(index);
+            dos.writeInt(id);
+            dos.writeInt(count);
+            dos.writeLong(time);
+            for (int i = 0; i < count; i++) {
+                dos.writeFloat(event.getX(i));
+                dos.writeFloat(event.getY(i));
+            }
 
+            this.queueEvent(new Runnable() {
+                @Override
+                public void run() {
                     if (mEngineCreated) {
                         jni.engineTouch(baos.toByteArray());
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            }
-        });
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return super.onTouchEvent(event);
     }
 }

@@ -38,6 +38,7 @@
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
 #include "CameraSwitcher.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
