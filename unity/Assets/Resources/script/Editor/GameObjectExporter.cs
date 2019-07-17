@@ -986,7 +986,8 @@ public class GameObjectExporter
 
             if (tex2d.format == TextureFormat.RGB24 ||
                 tex2d.format == TextureFormat.RGBA32 ||
-                tex2d.format == TextureFormat.ARGB32)
+                tex2d.format == TextureFormat.ARGB32 ||
+                tex2d.format == TextureFormat.Alpha8)
             {
                 jtexture["type"] = "Texture2D";
                 jtexture["mipmap"] = tex2d.mipmapCount;
