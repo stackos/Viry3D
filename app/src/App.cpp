@@ -151,7 +151,7 @@ namespace Viry3D
         void InitBoneMapper(const Ref<GameObject>& model)
         {
             auto clip = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Animations/Anim_NOT01.go");
-            clip->GetTransform()->SetPosition(Vector3(1, 0, 0));
+            clip->GetTransform()->SetPosition(Vector3(0, 0, 0));
             auto anim = clip->GetComponent<Animation>();
             if (anim)
             {
@@ -166,9 +166,11 @@ namespace Viry3D
             bone_mapper->bone_map_path = "Resources/res/model/CandyRockStar/bone-map.json";
             bone_mapper->Init();
             
+            /*
             auto bone_drawer = clip->AddComponent<BoneDrawer>();
             bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
             bone_drawer->Init();
+            */
         }
         
         void InitBackScreen()
