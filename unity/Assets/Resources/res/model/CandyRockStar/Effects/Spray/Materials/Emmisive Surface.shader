@@ -1,4 +1,4 @@
-﻿Shader "Custom/Untextured Emmisive Surface"
+﻿Shader "UnityChan/Untextured Emmisive Surface"
 {
     Properties
     {

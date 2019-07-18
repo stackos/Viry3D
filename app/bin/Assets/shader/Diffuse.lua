@@ -95,6 +95,10 @@ local fs = [[
 
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
+VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
+{
+    vec4 u_color;
+};
 VK_UNIFORM_BINDING(6) uniform PerLightFragment
 {
 	vec4 u_ambient_color;
@@ -213,7 +217,7 @@ void main()
 	vec3 to_light = u_light_pos.xyz - v_pos * u_light_pos.w;
 	vec3 light_dir = normalize(to_light);
     float nl = max(dot(normal, light_dir), 0.0);
-	vec4 c = texture(u_texture, v_uv);
+	vec4 c = texture(u_texture, v_uv) * u_color;
 
 	float sqr_len = dot(to_light, to_light);
 	float atten = 1.0 - sqr_len * u_light_atten.z;
@@ -325,6 +329,16 @@ local pass = {
             members = {
                 {
                     name = "u_texture_scale_offset",
+                    size = 16,
+                },
+            },
+        },
+        {
+            name = "PerMaterialFragment",
+            binding = 4,
+            members = {
+                {
+                    name = "u_color",
                     size = 16,
                 },
             },

@@ -1,4 +1,4 @@
-﻿Shader "Custom/Scrolling Ticker"
+﻿Shader "UnityChan/Scrolling Ticker"
 {
     Properties
     {

@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 38853499}
   - component: {fileID: 38853501}
   - component: {fileID: 38853500}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Dome
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -881,7 +881,7 @@ GameObject:
   - component: {fileID: 136226504}
   - component: {fileID: 136226503}
   - component: {fileID: 136226502}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Rings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -968,7 +968,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 151976827}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Stage Objects Group
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1437,7 +1437,7 @@ GameObject:
   - component: {fileID: 228471863}
   - component: {fileID: 228471865}
   - component: {fileID: 228471864}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Hall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6870,7 +6870,7 @@ GameObject:
   - component: {fileID: 416674012}
   - component: {fileID: 416674011}
   - component: {fileID: 416674010}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Spotlights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6966,7 +6966,7 @@ GameObject:
   - component: {fileID: 416791149}
   - component: {fileID: 416791151}
   - component: {fileID: 416791150}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Front Lights Beam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7195,7 +7195,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 448084916}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Trees
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7562,7 +7562,7 @@ GameObject:
   - component: {fileID: 485212565}
   - component: {fileID: 485212564}
   - component: {fileID: 485212563}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Scroll Sign 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8955,7 +8955,7 @@ GameObject:
   - component: {fileID: 768690958}
   - component: {fileID: 768690960}
   - component: {fileID: 768690959}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Steps
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9030,7 +9030,7 @@ GameObject:
   m_Component:
   - component: {fileID: 780241386}
   - component: {fileID: 780241387}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Unity Fence
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9924,7 +9924,7 @@ GameObject:
   - component: {fileID: 932464898}
   - component: {fileID: 932464900}
   - component: {fileID: 932464899}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Scaffold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10059,7 +10059,7 @@ GameObject:
   - component: {fileID: 945365905}
   - component: {fileID: 945365907}
   - component: {fileID: 945365906}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10407,7 +10407,7 @@ GameObject:
   - component: {fileID: 991815260}
   - component: {fileID: 991815262}
   - component: {fileID: 991815261}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: tree_leaf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10484,7 +10484,7 @@ GameObject:
   - component: {fileID: 994405595}
   - component: {fileID: 994405594}
   - component: {fileID: 994405593}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Scroll Sign 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10767,7 +10767,7 @@ GameObject:
   - component: {fileID: 1037133440}
   - component: {fileID: 1037133442}
   - component: {fileID: 1037133441}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Unity Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11703,7 +11703,7 @@ GameObject:
   - component: {fileID: 1172100856}
   - component: {fileID: 1172100858}
   - component: {fileID: 1172100857}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: glowSign01Pole
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12105,7 +12105,7 @@ GameObject:
   - component: {fileID: 1209471073}
   - component: {fileID: 1209471072}
   - component: {fileID: 1209471071}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Front Lights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12457,7 +12457,7 @@ GameObject:
   - component: {fileID: 1245831605}
   - component: {fileID: 1245831604}
   - component: {fileID: 1245831603}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Ribbon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17346,7 +17346,7 @@ GameObject:
   - component: {fileID: 1353346478}
   - component: {fileID: 1353346480}
   - component: {fileID: 1353346479}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: glowSign01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22572,7 +22572,7 @@ GameObject:
   - component: {fileID: 1517424638}
   - component: {fileID: 1517424637}
   - component: {fileID: 1517424636}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Pillars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29847,7 +29847,7 @@ GameObject:
   - component: {fileID: 2032816083}
   - component: {fileID: 2032816085}
   - component: {fileID: 2032816084}
-  m_Layer: 20
+  m_Layer: 0
   m_Name: Speakers
   m_TagString: Untagged
   m_Icon: {fileID: 0}

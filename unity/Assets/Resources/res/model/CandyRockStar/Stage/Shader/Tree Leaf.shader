@@ -1,4 +1,4 @@
-﻿Shader "Custom/Tree Leaf"
+﻿Shader "UnityChan/Tree Leaf"
 {
     Properties
     {
