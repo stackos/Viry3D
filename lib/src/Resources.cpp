@@ -240,18 +240,16 @@ namespace Viry3D
         (void) receive_shadow;
         
         int material_count = ms.Read<int>();
+		Vector<Ref<Material>> materials(material_count);
         for (int i = 0; i < material_count; ++i)
         {
             String material_path = ReadString(ms);
             if (material_path.Size() > 0)
             {
-                Ref<Material> material = ReadMaterial(material_path);
-                if (material)
-                {
-                    renderer->SetMaterial(material);
-                }
+				materials[i] = ReadMaterial(material_path);
             }
         }
+		renderer->SetMaterials(materials);
 
         if (lightmap_index >= 0)
         {

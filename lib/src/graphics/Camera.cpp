@@ -92,21 +92,27 @@ namespace Viry3D
             int queue_a = 0;
             for (int i = 0; i < materials_a.Size(); ++i)
             {
-                int queue = materials_a[i]->GetQueue();
-                if (queue_a < queue)
-                {
-                    queue_a = queue;
-                }
+				if (materials_a[i])
+				{
+					int queue = materials_a[i]->GetQueue();
+					if (queue_a < queue)
+					{
+						queue_a = queue;
+					}
+				}
             }
             const auto& materials_b = b->GetMaterials();
             int queue_b = 0;
             for (int i = 0; i < materials_b.Size(); ++i)
             {
-                int queue = materials_b[i]->GetQueue();
-                if (queue_b < queue)
-                {
-                    queue_b = queue;
-                }
+				if (materials_b[i])
+				{
+					int queue = materials_b[i]->GetQueue();
+					if (queue_b < queue)
+					{
+						queue_b = queue;
+					}
+				}
             }
             return queue_a < queue_b;
         });

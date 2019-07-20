@@ -103,6 +103,7 @@ namespace Viry3D
             camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
             camera->SetNearClip(0.03f);
+			camera->SetFarClip(100);
             camera->SetDepth(2);
             camera->SetCullingMask((1 << 0) | (1 << 4) | (1 << 8));
             m_camera = camera.get();
