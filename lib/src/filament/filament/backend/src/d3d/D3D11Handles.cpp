@@ -288,7 +288,7 @@ namespace filament
 				HRESULT hr = context->context->Map(
 					buffer,
 					0,
-					D3D11_MAP_WRITE_NO_OVERWRITE,
+					D3D11_MAP_WRITE_DISCARD,
 					0,
 					&res);
 				assert(SUCCEEDED(hr));
@@ -608,7 +608,7 @@ namespace filament
 				HRESULT hr = context->context->Map(
 					buffers[index],
 					0,
-					D3D11_MAP_WRITE_NO_OVERWRITE,
+					D3D11_MAP_WRITE_DISCARD,
 					0,
 					&res);
 				assert(SUCCEEDED(hr));
@@ -676,7 +676,7 @@ namespace filament
 				HRESULT hr = context->context->Map(
 					buffer,
 					0,
-					D3D11_MAP_WRITE_NO_OVERWRITE,
+					D3D11_MAP_WRITE_DISCARD,
 					0,
 					&res);
 				assert(SUCCEEDED(hr));
