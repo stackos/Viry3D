@@ -96,8 +96,8 @@ namespace Viry3D
         
         void InitScene()
         {
-            this->InitBackScreen();
-            this->InitReflection();
+            //this->InitBackScreen();
+            //this->InitReflection();
             
             auto camera = GameObject::Create("")->AddComponent<Camera>();
             camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
@@ -107,18 +107,17 @@ namespace Viry3D
             camera->SetCullingMask((1 << 0) | (1 << 4) | (1 << 8));
             m_camera = camera.get();
             
-            auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
+			auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
             auto skybox = GameObject::Create("")->AddComponent<Skybox>();
             skybox->SetTexture(cubemap, 0.0f);
             
             auto light = GameObject::Create("")->AddComponent<Light>();
-            light->GetTransform()->SetPosition(Vector3(-1.332f, 3, 0));
             light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
-            light->SetType(LightType::Spot);
-            light->SetRange(10);
-            light->SetSpotAngle(45);
-            light->EnableShadow(true);
+            light->SetType(LightType::Directional);
+
+			auto stage = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Stage/Stage Objects Group.go");
             
+			/*
             auto visualizer = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Visualizer/Visualizer.go");
             auto material = visualizer->GetComponent<MeshRenderer>()->GetMaterial();
             material->SetTexture("u_reflection_texture", m_reflection_camera->GetRenderTargetColor());
@@ -127,13 +126,6 @@ namespace Viry3D
             m_reflection_material = material.get();
             
             auto model = Resources::LoadGameObject("Resources/res/model/CandyRockStar/CandyRockStar.go");
-            model->GetTransform()->SetPosition(Vector3(0, 0, 0));
-            auto renderers = model->GetComponentsInChildren<Renderer>();
-            for (int i = 0; i < renderers.Size(); ++i)
-            {
-                renderers[i]->EnableCastShadow(true);
-            }
-            
             model->GetComponent<SpringManager>()->Init();
             
             this->InitBoneMapper(model);
@@ -146,6 +138,7 @@ namespace Viry3D
             switcher->stability = 1;
             switcher->fov_curve = AnimationCurve::Linear(1, 4.962269f, 10, 4.962269f);
             switcher->Init();
+			*/
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)

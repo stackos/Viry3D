@@ -163,10 +163,6 @@ namespace Viry3D
                 material = RefMake<Material>(shader);
                 material->SetName(material_name);
             }
-			else
-			{
-				assert(shader);
-			}
             
             int property_count = ms.Read<int>();
             for (int i = 0; i < property_count; ++i)

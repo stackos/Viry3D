@@ -41,7 +41,8 @@ namespace Viry3D
 	{
 		for (auto i : m_lights)
 		{
-			if ((i->GetType() == LightType::Directional || i->GetType() == LightType::Spot) &&
+			if (i->GetGameObject()->IsActiveInTree() &&
+				(i->GetType() == LightType::Directional || i->GetType() == LightType::Spot) &&
 				i->IsShadowEnable())
 			{
 				List<Renderer*> renderers;
@@ -57,7 +58,7 @@ namespace Viry3D
 		for (auto i : renderers)
 		{
 			int layer = i->GetGameObject()->GetLayer();
-			if (((1 << layer) & m_culling_mask) && i->IsCastShadow())
+			if (i->GetGameObject()->IsActiveInTree() && ((1 << layer) & m_culling_mask) != 0 && i->IsCastShadow())
 			{
 				result.AddLast(i);
 			}

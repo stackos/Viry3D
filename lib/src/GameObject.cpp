@@ -93,6 +93,23 @@ namespace Viry3D
 	void GameObject::SetActive(bool active)
 	{
 		m_is_active_self = active;
+
+		auto parent = this->GetTransform()->GetParent();
+		if (parent)
+		{
+			m_is_active_in_tree = parent->GetGameObject()->IsActiveInTree() && m_is_active_self;
+		}
+		else
+		{
+			m_is_active_in_tree = m_is_active_self;
+		}
+
+		int child_count = this->GetTransform()->GetChildCount();
+		for (int i = 0; i < child_count; ++i)
+		{
+			auto& child = this->GetTransform()->GetChild(i);
+			child->GetGameObject()->SetActive(child->GetGameObject()->IsActiveSelf());
+		}
 	}
 
 	void GameObject::Update()

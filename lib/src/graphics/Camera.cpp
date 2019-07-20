@@ -48,10 +48,13 @@ namespace Viry3D
 
 		for (auto i : m_cameras)
 		{
-            List<Renderer*> renderers;
-            i->CullRenderers(Renderer::GetRenderers(), renderers);
-			i->UpdateViewUniforms();
-			i->Draw(renderers);
+			if (i->GetGameObject()->IsActiveInTree())
+			{
+				List<Renderer*> renderers;
+				i->CullRenderers(Renderer::GetRenderers(), renderers);
+				i->UpdateViewUniforms();
+				i->Draw(renderers);
+			}
 		}
 	}
     
@@ -79,7 +82,7 @@ namespace Viry3D
         for (auto i : renderers)
         {
             int layer = i->GetGameObject()->GetLayer();
-            if ((1 << layer) & m_culling_mask)
+            if (i->GetGameObject()->IsActiveInTree() && ((1 << layer) & m_culling_mask) != 0)
             {
                 result.AddLast(i);
             }

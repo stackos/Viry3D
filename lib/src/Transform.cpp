@@ -68,6 +68,8 @@ namespace Viry3D
         this->SetPosition(position);
         this->SetRotation(rotation);
         this->SetScale(scale);
+
+		this->GetGameObject()->SetActive(this->GetGameObject()->IsActiveSelf());
 	}
 
 	Ref<Transform> Transform::Find(const String& path) const
