@@ -986,8 +986,7 @@ void MetalDriver::enumerateSamplerGroups(
         }
         const auto* metalSamplerGroup = mContext->samplerBindings[samplerGroupIdx];
         if (!metalSamplerGroup) {
-            utils::slog.w << "Program has non-empty samplerGroup (index " << samplerGroupIdx <<
-                    ") but has not bound any samplers." << utils::io::endl;
+            //utils::slog.w << "Program has non-empty samplerGroup (index " << samplerGroupIdx << ") but has not bound any samplers." << utils::io::endl;
             continue;
         }
         SamplerGroup* sb = metalSamplerGroup->sb.get();
