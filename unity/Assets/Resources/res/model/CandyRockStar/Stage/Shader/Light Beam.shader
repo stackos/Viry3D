@@ -49,7 +49,7 @@ Shader "UnityChan/Light Beam"
         float4 wp = mul(unity_ObjectToWorld, v.vertex);
         o.uv1 = wp.xy * _NoiseScale.xy + _NoiseSpeed.xy * _Time.y;
         o.uv2 = wp.xy * _NoiseScale.zw + _NoiseSpeed.zw * _Time.y;
-		o.world_position = v.vertex;
+		o.world_position = wp;
 		o.normal = normalize(mul(unity_ObjectToWorld, float4(v.normal.xyz,0.0)));
 
         return o;
