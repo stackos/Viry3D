@@ -3,15 +3,20 @@ VK_UNIFORM_BINDING(0) uniform PerView
 {
 	mat4 u_view_matrix;
     mat4 u_projection_matrix;
+	vec4 u_camera_pos;
+	vec4 u_time;
 };
 VK_UNIFORM_BINDING(1) uniform PerRenderer
 {
 	mat4 u_model_matrix;
 };
 layout(location = 0) in vec4 i_vertex;
+layout(location = 2) in vec2 i_uv;
 layout(location = 4) in vec3 i_normal;
 VK_LAYOUT_LOCATION(0) out vec3 v_pos;
+VK_LAYOUT_LOCATION(1) out vec2 v_uv;
 VK_LAYOUT_LOCATION(2) out vec3 v_normal;
+VK_LAYOUT_LOCATION(3) out vec4 v_time;
 
 void main()
 {
@@ -20,7 +25,9 @@ void main()
 	vec4 world_pos = i_vertex * model_matrix;
 	gl_Position = world_pos * u_view_matrix * u_projection_matrix;
 	v_pos = world_pos.xyz;
+	v_uv = i_uv;
     v_normal = (vec4(i_normal, 0.0) * model_matrix).xyz;
+	v_time = u_time;
 
 	vk_convert();
 }
@@ -32,11 +39,13 @@ local fs = [[
 #endif
 
 precision highp float;
+VK_SAMPLER_BINDING(0) uniform sampler2D _MainTex;
 VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
-    vec4 _Color;
-    vec4 _Emission;
     vec4 _Amplitude;
+    vec4 _WaveScale;
+	vec4 _WaveSpeed;
+	vec4 _WaveExp;
 };
 VK_UNIFORM_BINDING(6) uniform PerLightFragment
 {
@@ -47,7 +56,9 @@ VK_UNIFORM_BINDING(6) uniform PerLightFragment
 	vec4 u_spot_light_dir;
 };
 VK_LAYOUT_LOCATION(0) in vec3 v_pos;
+VK_LAYOUT_LOCATION(1) in vec2 v_uv;
 VK_LAYOUT_LOCATION(2) in vec3 v_normal;
+VK_LAYOUT_LOCATION(3) in vec4 v_time;
 
 layout(location = 0) out vec4 o_color;
 void main()
@@ -56,7 +67,7 @@ void main()
 	vec3 to_light = u_light_pos.xyz - v_pos * u_light_pos.w;
 	vec3 light_dir = normalize(to_light);
     float nl = max(dot(normal, light_dir), 0.0);
-	vec4 c = _Color;
+	vec4 c = texture(_MainTex, v_uv);
 
 	float sqr_len = dot(to_light, to_light);
 	float atten = 1.0 - sqr_len * u_light_atten.z;
@@ -79,7 +90,9 @@ void main()
 #if (LIGHT_ADD_ON == 1)
 	c.rgb = diffuse;
 #else
-	vec3 emission = _Emission.rgb * _Amplitude.x;
+	float t = _WaveScale.x * v_pos.y + _WaveSpeed.x * v_time.y;
+    float amp = pow((1.0 + sin(t)) * 0.5, _WaveExp.x) * _Amplitude.x;
+	vec3 emission = c.rgb * amp;
 
 	vec3 ambient = c.rgb * u_ambient_color.rgb;
 	c.rgb = ambient + diffuse + emission;
@@ -137,6 +150,14 @@ local pass = {
                     name = "u_projection_matrix",
                     size = 64,
                 },
+				{
+                    name = "u_camera_pos",
+                    size = 16,
+                },
+				{
+                    name = "u_time",
+                    size = 16,
+                },
 			},
 		},
 		{
@@ -154,15 +175,19 @@ local pass = {
             binding = 4,
             members = {
                 {
-                    name = "_Color",
-                    size = 16,
-                },
-                {
-                    name = "_Emission",
-                    size = 16,
-                },
-                {
                     name = "_Amplitude",
+                    size = 16,
+                },
+                {
+                    name = "_WaveScale",
+                    size = 16,
+                },
+                {
+                    name = "_WaveSpeed",
+                    size = 16,
+                },
+				{
+                    name = "_WaveExp",
                     size = 16,
                 },
             },
@@ -195,6 +220,16 @@ local pass = {
         },
 	},
 	samplers = {
+		{
+			name = "PerMaterialFragment",
+			binding = 4,
+			samplers = {
+				{
+					name = "_MainTex",
+					binding = 0,
+				},
+			},
+		},
 	},
 }
 
