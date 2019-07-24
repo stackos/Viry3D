@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Custom/Unlit Alpha Cutout"
+Shader "UnityChan/Unlit Alpha Cutout"
 {
     Properties
     {
