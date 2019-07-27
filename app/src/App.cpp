@@ -96,8 +96,8 @@ namespace Viry3D
         
         void InitScene()
         {
-            //this->InitBackScreen();
-            //this->InitReflection();
+            this->InitBackScreen();
+            this->InitReflection();
             
             auto camera = GameObject::Create("")->AddComponent<Camera>();
             camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
@@ -118,7 +118,6 @@ namespace Viry3D
 
 			auto stage = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Stage/Stage Objects Group.go");
             
-			/*
             auto visualizer = Resources::LoadGameObject("Resources/res/model/CandyRockStar/Visualizer/Visualizer.go");
             auto material = visualizer->GetComponent<MeshRenderer>()->GetMaterial();
             material->SetTexture("u_reflection_texture", m_reflection_camera->GetRenderTargetColor());
@@ -139,7 +138,6 @@ namespace Viry3D
             switcher->stability = 1;
             switcher->fov_curve = AnimationCurve::Linear(1, 4.962269f, 10, 4.962269f);
             switcher->Init();
-			*/
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)
@@ -250,7 +248,7 @@ namespace Viry3D
             auto label = RefMake<Label>();
             label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetPivot(Vector2(0, 0));
-            label->SetColor(Color(0, 0, 0, 1));
+            label->SetColor(Color(1, 1, 1, 1));
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             canvas->AddView(label);
             m_fps_label = label.get();
