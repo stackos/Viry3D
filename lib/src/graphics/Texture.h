@@ -23,63 +23,63 @@
 
 namespace Viry3D
 {
-    class ByteBuffer;
+	class ByteBuffer;
 	class Image;
 
-    enum class CubemapFace
-    {
-        Unknown = -1,
-        
-        PositiveX,
-        NegativeX,
-        PositiveY,
-        NegativeY,
-        PositiveZ,
-        NegativeZ,
-        
-        Count
-    };
-    
-    enum class TextureFormat
-    {
-        None,
-        R8,
-        R8G8,
-        R8G8B8A8,
-        R16G16B16A16F,
-        D16,
-        D24X8,
-        D32,
-        D24S8,
-        D32S8,
-        S8,
-        BC1_RGB,
-        BC1_RGBA,
-        BC2,
-        BC3,
-        ETC2_R8G8B8,
-        ETC2_R8G8B8A1,
-        ETC2_R8G8B8A8,
-        ASTC_4x4,
-    };
-    
-    enum class FilterMode
-    {
-        None = -1,
-        Nearest,
-        Linear,
-        Trilinear,
-    };
-    
-    enum class SamplerAddressMode
-    {
-        None = -1,
-        Repeat,
-        ClampToEdge,
-        Mirror,
-        MirrorOnce,
-    };
-    
+	enum class CubemapFace
+	{
+		Unknown = -1,
+
+		PositiveX,
+		NegativeX,
+		PositiveY,
+		NegativeY,
+		PositiveZ,
+		NegativeZ,
+
+		Count
+	};
+
+	enum class TextureFormat
+	{
+		None,
+		R8,
+		R8G8,
+		R8G8B8A8,
+		R16G16B16A16F,
+		D16,
+		D24X8,
+		D32,
+		D24S8,
+		D32S8,
+		S8,
+		BC1_RGB,
+		BC1_RGBA,
+		BC2,
+		BC3,
+		ETC2_R8G8B8,
+		ETC2_R8G8B8A1,
+		ETC2_R8G8B8A8,
+		ASTC_4x4,
+	};
+
+	enum class FilterMode
+	{
+		None = -1,
+		Nearest,
+		Linear,
+		Trilinear,
+	};
+
+	enum class SamplerAddressMode
+	{
+		None = -1,
+		Repeat,
+		ClampToEdge,
+		Mirror,
+		MirrorOnce,
+	};
+
     class Texture : public Object
     {
     public:
@@ -145,6 +145,7 @@ namespace Viry3D
         void GenMipmaps();
 		int GetWidth() const { return m_width; }
 		int GetHeight() const { return m_height; }
+		TextureFormat GetFormat() const { return m_format; }
         int GetMipmapLevelCount() const { return m_mipmap_level_count; }
         int GetArraySize() const { return m_array_size; }
         bool IsCubemap() const { return m_cubemap; }

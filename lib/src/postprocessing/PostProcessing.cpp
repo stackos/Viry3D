@@ -16,11 +16,22 @@
 */
 
 #include "PostProcessing.h"
+#include "graphics/Camera.h"
 
 namespace Viry3D
 {
-	void PostProcessing::OnRenderImage(const Ref<Texture>& src, const Ref<Texture>& dst)
+	PostProcessing::PostProcessing()
 	{
-		
+	
+	}
+
+	PostProcessing::~PostProcessing()
+	{
+	
+	}
+
+	void PostProcessing::OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst)
+	{
+		Camera::Blit(src, dst);
 	}
 }

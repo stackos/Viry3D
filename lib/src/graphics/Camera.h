@@ -29,12 +29,18 @@ namespace Viry3D
 {
 	class Texture;
     class Renderer;
+	class RenderTarget;
+	class Material;
+	class Mesh;
 
     class Camera : public Component
     {
     public:
+		static void Init();
+		static void Done();
 		static void RenderAll();
         static void OnResizeAll(int width, int height);
+		static void Blit(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst, const Ref<Material>& mat = Ref<Material>(), int pass = -1);
 		Camera();
         virtual ~Camera();
 		int GetDepth() const { return m_depth; }
@@ -78,10 +84,14 @@ namespace Viry3D
 		void UpdateViewUniforms();
 		void Draw(const List<Renderer*>& renderers);
         void DrawRenderer(Renderer* renderer);
+		bool HasPostProcessing();
+		void PostProcessing();
 
 	private:
 		static List<Camera*> m_cameras;
 		static bool m_cameras_order_dirty;
+		static Ref<Mesh> m_quad_mesh;
+		static Ref<Material> m_blit_material;
 		int m_depth;
         uint32_t m_culling_mask;
 		CameraClearFlags m_clear_flags;
@@ -101,6 +111,7 @@ namespace Viry3D
 		bool m_projection_matrix_external;
 		Ref<Texture> m_render_target_color;
 		Ref<Texture> m_render_target_depth;
+		Ref<RenderTarget> m_post_processing_target;
 		filament::backend::UniformBufferHandle m_view_uniform_buffer;
 		filament::backend::RenderTargetHandle m_render_target;
     };

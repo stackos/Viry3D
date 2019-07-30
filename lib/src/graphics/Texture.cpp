@@ -436,7 +436,7 @@ namespace Viry3D
 
 		return texture;
 	}
-    
+
 	TextureFormat Texture::SelectFormat(const Vector<TextureFormat>& formats, bool render_texture)
 	{
 		auto& driver = Engine::Instance()->GetDriverApi();

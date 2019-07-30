@@ -27,6 +27,7 @@
 #include "Resources.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
+#include "graphics/RenderTarget.h"
 #include "graphics/Camera.h"
 #include "graphics/Light.h"
 #include "graphics/Renderer.h"
@@ -137,6 +138,8 @@ namespace Viry3D
             
             Shader::Init();
             Texture::Init();
+			RenderTarget::Init();
+			Camera::Init();
 			Mesh::Init();
 			Font::Init();
 			Resources::Init();
@@ -150,6 +153,8 @@ namespace Viry3D
 			Resources::Done();
 			Font::Done();
 			Mesh::Done();
+			Camera::Done();
+			RenderTarget::Done();
             Texture::Done();
             Shader::Done();
             

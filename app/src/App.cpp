@@ -28,6 +28,8 @@
 #include "Engine.h"
 #include "Resources.h"
 #include "Input.h"
+#include "Debug.h"
+#include "postprocessing/PostProcessing.h"
 #include "BoneDrawer.h"
 #include "BoneMapper.h"
 #include "audio/AudioManager.h"
@@ -38,7 +40,6 @@
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
 #include "CameraSwitcher.h"
-#include "Debug.h"
 
 namespace Viry3D
 {
@@ -138,6 +139,8 @@ namespace Viry3D
             switcher->stability = 1;
             switcher->fov_curve = AnimationCurve::Linear(1, 4.962269f, 10, 4.962269f);
             switcher->Init();
+
+			camera->GetGameObject()->AddComponent<PostProcessing>();
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)

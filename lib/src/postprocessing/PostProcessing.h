@@ -21,11 +21,13 @@
 
 namespace Viry3D
 {
-	class Texture;
+	class RenderTarget;
 
 	class PostProcessing : public Component
 	{
 	public:
-		virtual void OnRenderImage(const Ref<Texture>& src, const Ref<Texture>& dst);
+		PostProcessing();
+		virtual ~PostProcessing();
+		virtual void OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst);
 	};
 }

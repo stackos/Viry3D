@@ -18,17 +18,32 @@
 #include "Camera.h"
 #include "GameObject.h"
 #include "Texture.h"
+#include "RenderTarget.h"
 #include "Engine.h"
 #include "Renderer.h"
 #include "Material.h"
 #include "SkinnedMeshRenderer.h"
 #include "Light.h"
 #include "time/Time.h"
+#include "postprocessing/PostProcessing.h"
 
 namespace Viry3D
 {
 	List<Camera*> Camera::m_cameras;
 	bool Camera::m_cameras_order_dirty = false;
+	Ref<Mesh> Camera::m_quad_mesh;
+	Ref<Material> Camera::m_blit_material;
+
+	void Camera::Init()
+	{
+	
+	}
+
+	void Camera::Done()
+	{
+		m_quad_mesh.reset();
+		m_blit_material.reset();
+	}
 
 	void Camera::RenderAll()
 	{
@@ -54,6 +69,7 @@ namespace Viry3D
 				i->CullRenderers(Renderer::GetRenderers(), renderers);
 				i->UpdateViewUniforms();
 				i->Draw(renderers);
+				i->PostProcessing();
 			}
 		}
 	}
@@ -76,7 +92,7 @@ namespace Viry3D
     {
         m_projection_matrix_dirty = true;
     }
-    
+
     void Camera::CullRenderers(const List<Renderer*>& renderers, List<Renderer*>& result)
     {
         for (auto i : renderers)
@@ -144,6 +160,7 @@ namespace Viry3D
 
 		int target_width = this->GetTargetWidth();
 		int target_height = this->GetTargetHeight();
+		bool has_post_processing = this->HasPostProcessing();
 
 		filament::backend::RenderTargetHandle target;
 		filament::backend::RenderPassParams params;
@@ -180,7 +197,38 @@ namespace Viry3D
 					depth,
 					stencil);
 			}
-			target = m_render_target;
+
+			if (has_post_processing)
+			{
+				filament::backend::TargetBufferFlags target_flags = filament::backend::TargetBufferFlags::NONE;
+				TextureFormat color_format = TextureFormat::None;
+				TextureFormat depth_format = TextureFormat::None;
+
+				if (m_render_target_color)
+				{
+					target_flags |= filament::backend::TargetBufferFlags::COLOR;
+					color_format = m_render_target_color->GetFormat();
+				}
+				if (m_render_target_depth)
+				{
+					target_flags |= filament::backend::TargetBufferFlags::DEPTH;
+					depth_format = m_render_target_depth->GetFormat();
+				}
+
+				m_post_processing_target = RenderTarget::GetTemporaryRenderTarget(
+					target_width,
+					target_height,
+					color_format,
+					depth_format,
+					FilterMode::Nearest,
+					SamplerAddressMode::ClampToEdge,
+					target_flags);
+				target = m_post_processing_target->target;
+			}
+			else
+			{
+				target = m_render_target;
+			}
 
 			switch (m_clear_flags)
 			{
@@ -225,7 +273,22 @@ namespace Viry3D
 		}
 		else
 		{
-			target = *(filament::backend::RenderTargetHandle*) Engine::Instance()->GetDefaultRenderTarget();
+			if (has_post_processing)
+			{
+				m_post_processing_target = RenderTarget::GetTemporaryRenderTarget(
+					target_width,
+					target_height,
+					TextureFormat::R8G8B8A8,
+					Texture::SelectDepthFormat(),
+					FilterMode::Nearest,
+					SamplerAddressMode::ClampToEdge,
+					filament::backend::TargetBufferFlags::COLOR_AND_DEPTH);
+				target = m_post_processing_target->target;
+			}
+			else
+			{
+				target = *(filament::backend::RenderTargetHandle*) Engine::Instance()->GetDefaultRenderTarget();
+			}
 
 			switch (m_clear_flags)
 			{
@@ -267,7 +330,7 @@ namespace Viry3D
 
 		driver.flush();
 	}
-    
+
     void Camera::DrawRenderer(Renderer* renderer)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
@@ -361,6 +424,176 @@ namespace Viry3D
 			draw();
 		}
     }
+
+	bool Camera::HasPostProcessing()
+	{
+		Vector<Ref<Viry3D::PostProcessing>> coms = this->GetGameObject()->GetComponents<Viry3D::PostProcessing>();
+		return coms.Size() > 0;
+	}
+
+	void Camera::PostProcessing()
+	{
+		Vector<Ref<Viry3D::PostProcessing>> coms = this->GetGameObject()->GetComponents<Viry3D::PostProcessing>();
+		if (coms.Size() == 0)
+		{
+			return;
+		}
+
+		int target_width = this->GetTargetWidth();
+		int target_height = this->GetTargetHeight();
+
+		Ref<RenderTarget> post_processing_target_2;
+		if (coms.Size() > 1)
+		{
+			post_processing_target_2 = RenderTarget::GetTemporaryRenderTarget(
+				target_width,
+				target_height,
+				TextureFormat::R8G8B8A8,
+				TextureFormat::None,
+				FilterMode::Nearest,
+				SamplerAddressMode::ClampToEdge,
+				filament::backend::TargetBufferFlags::COLOR);
+		}
+
+		Ref<RenderTarget> src = m_post_processing_target;
+		Ref<RenderTarget> dst = post_processing_target_2;
+
+		for (int i = 0; i < coms.Size(); ++i)
+		{
+			if (i == coms.Size() - 1)
+			{
+				dst = RefMake<RenderTarget>();
+				dst->key.width = target_width;
+				dst->key.height = target_height;
+				dst->key.filter_mode = FilterMode::Nearest;
+				dst->key.wrap_mode = SamplerAddressMode::ClampToEdge;
+
+				if (m_render_target_color || m_render_target_depth)
+				{
+					filament::backend::TargetBufferFlags target_flags = filament::backend::TargetBufferFlags::NONE;
+					TextureFormat color_format = TextureFormat::None;
+					TextureFormat depth_format = TextureFormat::None;
+
+					if (m_render_target_color)
+					{
+						target_flags |= filament::backend::TargetBufferFlags::COLOR;
+						color_format = m_render_target_color->GetFormat();
+					}
+					if (m_render_target_depth)
+					{
+						target_flags |= filament::backend::TargetBufferFlags::DEPTH;
+						depth_format = m_render_target_depth->GetFormat();
+					}
+
+					dst->key.color_format = color_format;
+					dst->key.depth_format = depth_format;
+					dst->key.flags = target_flags;
+
+					dst->target = m_render_target;
+				}
+				else
+				{
+					dst->key.color_format = TextureFormat::R8G8B8A8;
+					dst->key.depth_format = Texture::SelectDepthFormat();
+					dst->key.flags = filament::backend::TargetBufferFlags::COLOR_AND_DEPTH;
+
+					dst->target = *(filament::backend::RenderTargetHandle*) Engine::Instance()->GetDefaultRenderTarget();
+				}
+			}
+
+			coms[i]->OnRenderImage(src, dst);
+
+			// swap
+			if (i < coms.Size() - 1)
+			{
+				Ref<RenderTarget> temp = src;
+				src = dst;
+				dst = temp;
+			}
+		}
+
+		if (post_processing_target_2)
+		{
+			RenderTarget::ReleaseTemporaryRenderTarget(post_processing_target_2);
+			post_processing_target_2.reset();
+		}
+
+		RenderTarget::ReleaseTemporaryRenderTarget(m_post_processing_target);
+		m_post_processing_target.reset();
+	}
+
+	void Camera::Blit(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst, const Ref<Material>& mat, int pass)
+	{
+		auto& driver = Engine::Instance()->GetDriverApi();
+
+		int target_width = dst->key.width;
+		int target_height = dst->key.height;
+
+		filament::backend::RenderPassParams params;
+		params.flags.clear = filament::backend::TargetBufferFlags::COLOR;
+		params.viewport.left = 0;
+		params.viewport.bottom = 0;
+		params.viewport.width = (uint32_t) target_width;
+		params.viewport.height = (uint32_t) target_height;
+		params.clearColor = filament::math::float4(0, 0, 0, 0);
+
+		// draw quad
+		filament::backend::RenderPrimitiveHandle primitive;
+		if (!m_quad_mesh)
+		{
+			Vector<Mesh::Vertex> vertices(4);
+			vertices[0].vertex = Vector3(-1, 1, 0);
+			vertices[1].vertex = Vector3(-1, -1, 0);
+			vertices[2].vertex = Vector3(1, -1, 0);
+			vertices[3].vertex = Vector3(1, 1, 0);
+			vertices[0].uv = Vector2(0, 0);
+			vertices[1].uv = Vector2(0, 1);
+			vertices[2].uv = Vector2(1, 1);
+			vertices[3].uv = Vector2(1, 0);
+
+			Vector<unsigned int> indices = {
+				0, 1, 2, 0, 2, 3
+			};
+
+			m_quad_mesh = RefMake<Mesh>(std::move(vertices), std::move(indices));
+		}
+		primitive = m_quad_mesh->GetPrimitives()[0];
+
+		Ref<Material> material = mat;
+		if (!material)
+		{
+
+		}
+
+		driver.beginRenderPass(dst->target, params);
+
+		if (primitive && material)
+		{
+			const auto& shader = material->GetShader();
+
+			material->SetScissor(target_width, target_height);
+
+			int pass_begin = 0;
+			int pass_end = shader->GetPassCount();
+			if (pass >= 0 && pass < shader->GetPassCount())
+			{
+				pass_begin = pass;
+				pass_end = pass + 1;
+			}
+
+			for (int i = pass_begin; i < pass_end; ++i)
+			{
+				material->Bind(i);
+
+				const auto& pipeline = shader->GetPass(i).pipeline;
+				driver.draw(pipeline, primitive);
+			}
+		}
+
+		driver.endRenderPass();
+
+		driver.flush();
+	}
 
 	Camera::Camera():
 		m_depth(0),
