@@ -524,13 +524,11 @@ namespace Viry3D
 
 	void Camera::Blit(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst, const Ref<Material>& mat, int pass)
 	{
-		auto& driver = Engine::Instance()->GetDriverApi();
-
 		int target_width = dst->key.width;
 		int target_height = dst->key.height;
 
 		filament::backend::RenderPassParams params;
-		params.flags.clear = filament::backend::TargetBufferFlags::COLOR;
+		params.flags.clear = dst->key.flags;
 		params.viewport.left = 0;
 		params.viewport.bottom = 0;
 		params.viewport.width = (uint32_t) target_width;
@@ -546,10 +544,21 @@ namespace Viry3D
 			vertices[1].vertex = Vector3(-1, -1, 0);
 			vertices[2].vertex = Vector3(1, -1, 0);
 			vertices[3].vertex = Vector3(1, 1, 0);
-			vertices[0].uv = Vector2(0, 0);
-			vertices[1].uv = Vector2(0, 1);
-			vertices[2].uv = Vector2(1, 1);
-			vertices[3].uv = Vector2(1, 0);
+			
+			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
+			{
+				vertices[0].uv = Vector2(0, 1);
+				vertices[1].uv = Vector2(0, 0);
+				vertices[2].uv = Vector2(1, 0);
+				vertices[3].uv = Vector2(1, 1);
+			}
+			else
+			{
+				vertices[0].uv = Vector2(0, 0);
+				vertices[1].uv = Vector2(0, 1);
+				vertices[2].uv = Vector2(1, 1);
+				vertices[3].uv = Vector2(1, 0);
+			}
 
 			Vector<unsigned int> indices = {
 				0, 1, 2, 0, 2, 3
@@ -562,15 +571,22 @@ namespace Viry3D
 		Ref<Material> material = mat;
 		if (!material)
 		{
-
+			if (!m_blit_material)
+			{
+				m_blit_material = RefMake<Material>(Shader::Find("Blit"));
+			}
+			material = m_blit_material;
 		}
-
-		driver.beginRenderPass(dst->target, params);
 
 		if (primitive && material)
 		{
-			const auto& shader = material->GetShader();
+			material->SetTexture(MaterialProperty::TEXTURE, src->color);
+			material->Prepare();
 
+			auto& driver = Engine::Instance()->GetDriverApi();
+			driver.beginRenderPass(dst->target, params);
+
+			const auto& shader = material->GetShader();
 			material->SetScissor(target_width, target_height);
 
 			int pass_begin = 0;
@@ -588,11 +604,10 @@ namespace Viry3D
 				const auto& pipeline = shader->GetPass(i).pipeline;
 				driver.draw(pipeline, primitive);
 			}
+
+			driver.endRenderPass();
+			driver.flush();
 		}
-
-		driver.endRenderPass();
-
-		driver.flush();
 	}
 
 	Camera::Camera():
