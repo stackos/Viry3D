@@ -201,11 +201,12 @@ namespace Viry3D
 
 		float scale_y = 1 / tan(Mathf::Deg2Rad * fov / 2);
 		float scale_x = scale_y / aspect;
+		float n_f = 1 / (near - far);
 
 		m.m00 = scale_x;
 		m.m11 = scale_y;
-		m.m22 = (near + far) / (near - far);
-		m.m23 = 2 * near * far / (near - far);
+		m.m22 = (near + far) * n_f;
+		m.m23 = 2 * near * far * n_f;
 		m.m32 = -1.0f;
 		m.m33 = 0;
 
@@ -224,15 +225,8 @@ namespace Viry3D
 		m.m03 = -(right + left) * r_l;
 		m.m11 = 2 * t_b;
 		m.m13 = -(top + bottom) * t_b;
-#if 1
-		//cvv -1~1
 		m.m22 = 2 * n_f;
 		m.m23 = (near + far) * n_f;
-#else
-		//cvv 0~1
-		m.m22 = n_f;
-		m.m23 = near * n_f;
-#endif
 
 		return m;
 	}

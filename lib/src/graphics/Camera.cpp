@@ -30,6 +30,7 @@
 namespace Viry3D
 {
 	List<Camera*> Camera::m_cameras;
+	Camera* Camera::m_current_camera = nullptr;
 	bool Camera::m_cameras_order_dirty = false;
 	Ref<Mesh> Camera::m_quad_mesh;
 	Ref<Material> Camera::m_blit_material;
@@ -65,11 +66,15 @@ namespace Viry3D
 		{
 			if (i->GetGameObject()->IsActiveInTree())
 			{
+				m_current_camera = i;
+
 				List<Renderer*> renderers;
 				i->CullRenderers(Renderer::GetRenderers(), renderers);
 				i->UpdateViewUniforms();
 				i->Draw(renderers);
 				i->PostProcessing();
+
+				m_current_camera = nullptr;
 			}
 		}
 	}
@@ -149,6 +154,18 @@ namespace Viry3D
 		float t = Time::GetTime();
 		view_uniforms.time = Vector4(t / 20, t, t * 2, t * 3);
 
+		// map depth range -1 ~ 1 to 0 ~ 1 for d3d
+		if (Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
+		{
+			Matrix4x4 depth_map_01 = {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0.5f, 0.5f,
+				0, 0, 0, 1,
+			};
+			view_uniforms.projection_matrix = depth_map_01 * this->GetProjectionMatrix();
+		}
+
 		void* buffer = driver.allocate(sizeof(ViewUniforms));
 		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));
 		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms)));
@@ -200,6 +217,8 @@ namespace Viry3D
 
 			if (has_post_processing)
 			{
+				assert(m_render_target_color);
+
 				filament::backend::TargetBufferFlags target_flags = filament::backend::TargetBufferFlags::NONE;
 				TextureFormat color_format = TextureFormat::None;
 				TextureFormat depth_format = TextureFormat::None;
@@ -442,8 +461,20 @@ namespace Viry3D
 		int target_width = this->GetTargetWidth();
 		int target_height = this->GetTargetHeight();
 
+		Ref<RenderTarget> post_processing_target_1;
 		Ref<RenderTarget> post_processing_target_2;
 		if (coms.Size() > 1)
+		{
+			post_processing_target_1 = RenderTarget::GetTemporaryRenderTarget(
+				target_width,
+				target_height,
+				TextureFormat::R8G8B8A8,
+				TextureFormat::None,
+				FilterMode::Nearest,
+				SamplerAddressMode::ClampToEdge,
+				filament::backend::TargetBufferFlags::COLOR);
+		}
+		if (coms.Size() > 2)
 		{
 			post_processing_target_2 = RenderTarget::GetTemporaryRenderTarget(
 				target_width,
@@ -456,7 +487,7 @@ namespace Viry3D
 		}
 
 		Ref<RenderTarget> src = m_post_processing_target;
-		Ref<RenderTarget> dst = post_processing_target_2;
+		Ref<RenderTarget> dst = post_processing_target_1;
 
 		for (int i = 0; i < coms.Size(); ++i)
 		{
@@ -501,7 +532,9 @@ namespace Viry3D
 				}
 			}
 
+			coms[i]->SetCameraDepthTexture(m_post_processing_target->depth);
 			coms[i]->OnRenderImage(src, dst);
+			coms[i]->SetCameraDepthTexture(Ref<Texture>());
 
 			// swap
 			if (i < coms.Size() - 1)
@@ -509,9 +542,19 @@ namespace Viry3D
 				Ref<RenderTarget> temp = src;
 				src = dst;
 				dst = temp;
+
+				if (i == 0 && coms.Size() > 2)
+				{
+					dst = post_processing_target_2;
+				}
 			}
 		}
 
+		if (post_processing_target_1)
+		{
+			RenderTarget::ReleaseTemporaryRenderTarget(post_processing_target_1);
+			post_processing_target_1.reset();
+		}
 		if (post_processing_target_2)
 		{
 			RenderTarget::ReleaseTemporaryRenderTarget(post_processing_target_2);
@@ -528,7 +571,13 @@ namespace Viry3D
 		int target_height = dst->key.height;
 
 		filament::backend::RenderPassParams params;
-		params.flags.clear = dst->key.flags;
+		params.flags.clear = filament::backend::TargetBufferFlags::COLOR;
+		if (dst->target == m_current_camera->m_render_target ||
+			dst->target == *(filament::backend::RenderTargetHandle*) Engine::Instance()->GetDefaultRenderTarget())
+		{
+			params.flags.clear = dst->key.flags;
+		}
+
 		params.viewport.left = 0;
 		params.viewport.bottom = 0;
 		params.viewport.width = (uint32_t) target_width;
@@ -576,11 +625,12 @@ namespace Viry3D
 				m_blit_material = RefMake<Material>(Shader::Find("Blit"));
 			}
 			material = m_blit_material;
+
+			material->SetTexture(MaterialProperty::TEXTURE, src->color);
 		}
 
 		if (primitive && material)
 		{
-			material->SetTexture(MaterialProperty::TEXTURE, src->color);
 			material->Prepare();
 
 			auto& driver = Engine::Instance()->GetDriverApi();

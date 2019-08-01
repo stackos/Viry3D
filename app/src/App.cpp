@@ -29,7 +29,7 @@
 #include "Resources.h"
 #include "Input.h"
 #include "Debug.h"
-#include "postprocessing/Grayscale.h"
+#include "postprocessing/ShowDepth.h"
 #include "BoneDrawer.h"
 #include "BoneMapper.h"
 #include "audio/AudioManager.h"
@@ -140,7 +140,16 @@ namespace Viry3D
             switcher->fov_curve = AnimationCurve::Linear(1, 4.962269f, 10, 4.962269f);
             switcher->Init();
 
-			camera->GetGameObject()->AddComponent<Grayscale>();
+			// test post processing
+			camera->GetGameObject()->AddComponent<PostProcessing>();
+			camera->GetGameObject()->AddComponent<ShowDepth>();
+			camera->GetGameObject()->AddComponent<PostProcessing>();
+			camera->GetGameObject()->AddComponent<ShowDepth>();
+			camera->GetGameObject()->AddComponent<PostProcessing>();
+			camera->GetGameObject()->AddComponent<ShowDepth>();
+			camera->GetGameObject()->AddComponent<PostProcessing>();
+			camera->GetGameObject()->AddComponent<ShowDepth>();
+			camera->GetGameObject()->AddComponent<PostProcessing>();
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)

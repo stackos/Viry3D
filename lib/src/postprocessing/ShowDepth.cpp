@@ -15,26 +15,35 @@
 * limitations under the License.
 */
 
-#include "Grayscale.h"
+#include "ShowDepth.h"
+#include "GameObject.h"
 #include "graphics/Camera.h"
 #include "graphics/Material.h"
 #include "graphics/RenderTarget.h"
 
 namespace Viry3D
 {
-	Grayscale::Grayscale()
+	ShowDepth::ShowDepth()
 	{
-		m_material = RefMake<Material>(Shader::Find("PostProcessing/Grayscale"));
+		m_material = RefMake<Material>(Shader::Find("PostProcessing/ShowDepth"));
 	}
 
-	Grayscale::~Grayscale()
+	ShowDepth::~ShowDepth()
 	{
 		m_material.reset();
 	}
 
-	void Grayscale::OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst)
+	void ShowDepth::OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst)
 	{
-		m_material->SetTexture(MaterialProperty::TEXTURE, src->color);
+		m_material->SetTexture(MaterialProperty::TEXTURE, this->GetCameraDepthTexture());
+
+		auto camera = this->GetGameObject()->GetComponent<Camera>();
+		float near_clip = camera->GetNearClip();
+		float far_clip = camera->GetFarClip();
+		float zc0 = (1.0f - far_clip / near_clip) / 2.0f;
+		float zc1 = (1.0f + far_clip / near_clip) / 2.0f;
+		m_material->SetVector("_ZBufferParams", Vector4(zc0, zc1, zc0 / far_clip, zc1 / far_clip));
+
 		Camera::Blit(src, dst, m_material);
 	}
 }

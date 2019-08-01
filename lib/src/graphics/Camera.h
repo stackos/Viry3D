@@ -89,6 +89,7 @@ namespace Viry3D
 
 	private:
 		static List<Camera*> m_cameras;
+		static Camera* m_current_camera;
 		static bool m_cameras_order_dirty;
 		static Ref<Mesh> m_quad_mesh;
 		static Ref<Material> m_blit_material;

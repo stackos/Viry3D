@@ -15,26 +15,22 @@
 * limitations under the License.
 */
 
-#include "Grayscale.h"
-#include "graphics/Camera.h"
-#include "graphics/Material.h"
-#include "graphics/RenderTarget.h"
+#pragma once
+
+#include "PostProcessing.h"
 
 namespace Viry3D
 {
-	Grayscale::Grayscale()
-	{
-		m_material = RefMake<Material>(Shader::Find("PostProcessing/Grayscale"));
-	}
+	class Material;
 
-	Grayscale::~Grayscale()
+	class ShowDepth : public PostProcessing
 	{
-		m_material.reset();
-	}
+	public:
+		ShowDepth();
+		virtual ~ShowDepth();
+		virtual void OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst);
 
-	void Grayscale::OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst)
-	{
-		m_material->SetTexture(MaterialProperty::TEXTURE, src->color);
-		Camera::Blit(src, dst, m_material);
-	}
+	private:
+		Ref<Material> m_material;
+	};
 }

@@ -22,6 +22,7 @@
 namespace Viry3D
 {
 	class RenderTarget;
+	class Texture;
 
 	class PostProcessing : public Component
 	{
@@ -29,5 +30,13 @@ namespace Viry3D
 		PostProcessing();
 		virtual ~PostProcessing();
 		virtual void OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst);
+
+	protected:
+		friend class Camera;
+		const void SetCameraDepthTexture(const Ref<Texture>& texture) { m_camera_depth_texture = texture; }
+		const Ref<Texture>& GetCameraDepthTexture() const { return m_camera_depth_texture; }
+
+	private:
+		Ref<Texture> m_camera_depth_texture;
 	};
 }
