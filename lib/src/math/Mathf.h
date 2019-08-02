@@ -51,6 +51,8 @@ namespace Viry3D
 		static bool FloatEqual(float a, float b) { return fabs(a - b) < Epsilon; }
 		static float Round(float f);//ËÄÉáÎåÈë
 		static int RoundToInt(float f);
+		static float Floor(float f) { return floor(f); }
+		static int FloorToInt(float f) { return (int) floor(f); }
 		static float Sign(float f) { return f < 0 ? -1.0f : 1.0f; }
 		template<class T>
 		static void Swap(T& a, T& b) { T temp = a; a = b; b = temp; }

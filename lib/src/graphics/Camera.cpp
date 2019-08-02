@@ -239,7 +239,7 @@ namespace Viry3D
 					target_height,
 					color_format,
 					depth_format,
-					FilterMode::Nearest,
+					FilterMode::Linear,
 					SamplerAddressMode::ClampToEdge,
 					target_flags);
 				target = m_post_processing_target->target;
@@ -299,7 +299,7 @@ namespace Viry3D
 					target_height,
 					TextureFormat::R8G8B8A8,
 					Texture::SelectDepthFormat(),
-					FilterMode::Nearest,
+					FilterMode::Linear,
 					SamplerAddressMode::ClampToEdge,
 					filament::backend::TargetBufferFlags::COLOR_AND_DEPTH);
 				target = m_post_processing_target->target;
@@ -470,7 +470,7 @@ namespace Viry3D
 				target_height,
 				TextureFormat::R8G8B8A8,
 				TextureFormat::None,
-				FilterMode::Nearest,
+				FilterMode::Linear,
 				SamplerAddressMode::ClampToEdge,
 				filament::backend::TargetBufferFlags::COLOR);
 		}
@@ -481,7 +481,7 @@ namespace Viry3D
 				target_height,
 				TextureFormat::R8G8B8A8,
 				TextureFormat::None,
-				FilterMode::Nearest,
+				FilterMode::Linear,
 				SamplerAddressMode::ClampToEdge,
 				filament::backend::TargetBufferFlags::COLOR);
 		}
