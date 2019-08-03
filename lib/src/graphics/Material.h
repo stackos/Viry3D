@@ -169,7 +169,7 @@ namespace Viry3D
         void SetScissorRect(const Rect& rect);
 		void EnableKeyword(const String& keyword);
 		void DisableKeyword(const String& keyword);
-        void Prepare();
+        void Prepare(int pass = -1);
         void SetScissor(int target_width, int target_height);
 		void Bind(int pass);
         

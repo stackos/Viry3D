@@ -242,7 +242,7 @@ namespace Viry3D
 		}
 	}
 
-    void Material::Prepare()
+    void Material::Prepare(int pass)
     {
         for (auto& i : m_properties)
         {
@@ -274,6 +274,11 @@ namespace Viry3D
         {
             auto& unifrom_buffers = m_unifrom_buffers[i];
             
+            if (pass >= 0 && pass != i)
+            {
+                continue;
+            }
+            
             for (int j = 0; j < unifrom_buffers.Size(); ++j)
             {
                 auto& unifrom_buffer = unifrom_buffers[j];
@@ -292,6 +297,11 @@ namespace Viry3D
         for (int i = 0; i < m_samplers.Size(); ++i)
         {
             auto& sampler_group = m_samplers[i];
+            
+            if (pass >= 0 && pass != i)
+            {
+                continue;
+            }
             
             if (sampler_group.dirty)
             {

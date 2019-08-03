@@ -19,6 +19,7 @@ VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 	vec4 u_texel_size;
 	vec4 _Params;
 	vec4 _Threshold;
+    vec4 _SampleScale;
 };
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
@@ -49,7 +50,9 @@ vec4 DownsampleBox13Tap(vec2 uv, vec2 texel_size)
 
     return o;
 }
+]]
 
+local fs_prefilter = fs_base .. [[
 #define EPSILON 1.0e-4
 
 vec4 QuadraticThreshold(vec4 color, float threshold, vec3 curve)
@@ -73,9 +76,7 @@ vec4 Prefilter(vec4 color)
     color = QuadraticThreshold(color, _Threshold.x, _Threshold.yzw);
     return color;
 }
-]]
 
-local fs_prefilter = fs_base .. [[
 void main()
 {
 	vec4 c = DownsampleBox13Tap(v_uv, u_texel_size.xy);
@@ -89,6 +90,41 @@ void main()
 {
 	vec4 c = DownsampleBox13Tap(v_uv, u_texel_size.xy);
 	o_color = c;
+}
+]]
+
+local fs_upsample = fs_base .. [[
+VK_SAMPLER_BINDING(1) uniform sampler2D _BloomTex;
+
+vec4 UpsampleTent(vec2 uv, vec2 texel_size, float sample_scale)
+{
+    vec4 d = texel_size.xyxy * vec4(1.0, 1.0, -1.0, 0.0) * sample_scale;
+
+    vec4 s = texture(u_texture, uv - d.xy);
+    s += texture(u_texture, uv - d.wy) * 2.0;
+    s += texture(u_texture, uv - d.zy);
+
+    s += texture(u_texture, uv + d.zw) * 2.0;
+    s += texture(u_texture, uv       ) * 4.0;
+    s += texture(u_texture, uv + d.xw) * 2.0;
+
+    s += texture(u_texture, uv + d.zy);
+    s += texture(u_texture, uv + d.wy) * 2.0;
+    s += texture(u_texture, uv + d.xy);
+
+    return s * (1.0 / 16.0);
+}
+
+vec4 Combine(vec4 bloom, vec2 uv)
+{
+    vec4 color = texture(_BloomTex, uv);
+    return bloom + color;
+}
+
+void main()
+{
+    vec4 bloom = UpsampleTent(v_uv, u_texel_size.xy, _SampleScale.x);
+    o_color = Combine(bloom, v_uv);
 }
 ]]
 
@@ -136,6 +172,10 @@ local uniforms_base = {
                 name = "_Threshold",
                 size = 16,
             },
+            {
+                name = "_SampleScale",
+                size = 16,
+            },
         },
     },
 }
@@ -151,6 +191,23 @@ local samplers_base = {
 			},
 		},
 	},
+}
+
+local samplers_upsample = {
+    {
+        name = "PerMaterialFragment",
+        binding = 4,
+        samplers = {
+            {
+                name = "u_texture",
+                binding = 0,
+            },
+            {
+                name = "_BloomTex",
+                binding = 1,
+            },
+        },
+    },
 }
 
 local pass_prefilter = {
@@ -169,8 +226,17 @@ local pass_downsample = {
 	samplers = samplers_base,
 }
 
+local pass_upsample = {
+    vs = vs,
+    fs = fs_upsample,
+    rs = rs,
+    uniforms = uniforms_base,
+    samplers = samplers_upsample,
+}
+
 -- return pass array
 return {
     pass_prefilter,
 	pass_downsample,
+    pass_upsample,
 }

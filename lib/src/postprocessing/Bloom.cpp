@@ -63,7 +63,8 @@ namespace Viry3D
 		int logs_i = Mathf::FloorToInt(logs); 
 		int iterations = Mathf::Clamp(logs_i, 1, MAX_PYRAMID_SIZE);
 		float sample_scale = 0.5f + logs - logs_i;
-
+        m_material->SetFloat("_SampleScale", sample_scale);
+        
 		// prefiltering parameters
 		float lthresh = m_threshold;
 		float knee = lthresh * m_soft_knee + 1e-5f;
@@ -103,21 +104,19 @@ namespace Viry3D
 			th = Mathf::Max(th / 2, 1);
 		}
 
-		Camera::Blit(levels[iterations - 1].down, dst);
-		/*
 		// upsample
 		auto last_up = levels[iterations - 1].down;
 		for (int i = iterations - 2; i >= 0; i--)
 		{
 			m_material->SetTexture(MaterialProperty::TEXTURE, last_up->color);
-			m_material->SetTexture("_BloomTex", levels[i].down->color);
+            m_material->SetVector("u_texel_size", Vector4(1.0f / last_up->color->GetWidth(), 1.0f / last_up->color->GetHeight(), 0, 0));
+            m_material->SetTexture("_BloomTex", levels[i].down->color);
 			Camera::Blit(last_up, levels[i].up, m_material, (int) Pass::UpsampleTent);
 
 			last_up = levels[i].up;
 		}
 
 		Camera::Blit(levels[0].up, dst);
-		*/
 
 		// cleanup
 		for (int i = 0; i < iterations; i++)

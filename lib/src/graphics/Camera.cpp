@@ -631,7 +631,7 @@ namespace Viry3D
 
 		if (primitive && material)
 		{
-			material->Prepare();
+			material->Prepare(pass);
 
 			auto& driver = Engine::Instance()->GetDriverApi();
 			driver.beginRenderPass(dst->target, params);
