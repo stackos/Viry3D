@@ -20,6 +20,8 @@ VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 	vec4 _Params;
 	vec4 _Threshold;
     vec4 _SampleScale;
+    vec4 _Bloom_Settings;
+    vec4 _Bloom_Color;
 };
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
@@ -49,6 +51,25 @@ vec4 DownsampleBox13Tap(vec2 uv, vec2 texel_size)
     o += (G + H + M + L) * div.y;
 
     return o;
+}
+
+vec4 UpsampleTent(sampler2D tex, vec2 uv, vec2 texel_size, float sample_scale)
+{
+    vec4 d = texel_size.xyxy * vec4(1.0, 1.0, -1.0, 0.0) * sample_scale;
+
+    vec4 s = texture(tex, uv - d.xy);
+    s += texture(tex, uv - d.wy) * 2.0;
+    s += texture(tex, uv - d.zy);
+
+    s += texture(tex, uv + d.zw) * 2.0;
+    s += texture(tex, uv       ) * 4.0;
+    s += texture(tex, uv + d.xw) * 2.0;
+
+    s += texture(tex, uv + d.zy);
+    s += texture(tex, uv + d.wy) * 2.0;
+    s += texture(tex, uv + d.xy);
+
+    return s * (1.0 / 16.0);
 }
 ]]
 
@@ -96,25 +117,6 @@ void main()
 local fs_upsample = fs_base .. [[
 VK_SAMPLER_BINDING(1) uniform sampler2D _BloomTex;
 
-vec4 UpsampleTent(vec2 uv, vec2 texel_size, float sample_scale)
-{
-    vec4 d = texel_size.xyxy * vec4(1.0, 1.0, -1.0, 0.0) * sample_scale;
-
-    vec4 s = texture(u_texture, uv - d.xy);
-    s += texture(u_texture, uv - d.wy) * 2.0;
-    s += texture(u_texture, uv - d.zy);
-
-    s += texture(u_texture, uv + d.zw) * 2.0;
-    s += texture(u_texture, uv       ) * 4.0;
-    s += texture(u_texture, uv + d.xw) * 2.0;
-
-    s += texture(u_texture, uv + d.zy);
-    s += texture(u_texture, uv + d.wy) * 2.0;
-    s += texture(u_texture, uv + d.xy);
-
-    return s * (1.0 / 16.0);
-}
-
 vec4 Combine(vec4 bloom, vec2 uv)
 {
     vec4 color = texture(_BloomTex, uv);
@@ -123,8 +125,23 @@ vec4 Combine(vec4 bloom, vec2 uv)
 
 void main()
 {
-    vec4 bloom = UpsampleTent(v_uv, u_texel_size.xy, _SampleScale.x);
+    vec4 bloom = UpsampleTent(u_texture, v_uv, u_texel_size.xy, _SampleScale.x);
     o_color = Combine(bloom, v_uv);
+}
+]]
+
+local fs_uber = fs_base .. [[
+VK_SAMPLER_BINDING(1) uniform sampler2D _BloomTex;
+
+void main()
+{
+    vec4 color = texture(u_texture, v_uv);
+    vec4 bloom = UpsampleTent(_BloomTex, v_uv, u_texel_size.xy, _Bloom_Settings.x);
+
+    bloom *= _Bloom_Settings.y;
+    color += bloom * _Bloom_Color;
+
+    o_color = color;
 }
 ]]
 
@@ -174,6 +191,14 @@ local uniforms_base = {
             },
             {
                 name = "_SampleScale",
+                size = 16,
+            },
+            {
+                name = "_Bloom_Settings",
+                size = 16,
+            },
+            {
+                name = "_Bloom_Color",
                 size = 16,
             },
         },
@@ -234,9 +259,18 @@ local pass_upsample = {
     samplers = samplers_upsample,
 }
 
+local pass_uber = {
+    vs = vs,
+    fs = fs_uber,
+    rs = rs,
+    uniforms = uniforms_base,
+    samplers = samplers_upsample,
+}
+
 -- return pass array
 return {
     pass_prefilter,
 	pass_downsample,
     pass_upsample,
+    pass_uber,
 }
