@@ -40,4 +40,9 @@ namespace Viry3D
 		this->GetMaterial()->SetTexture(MaterialProperty::TEXTURE, texture);
         this->GetMaterial()->SetVector("u_level", Vector4(level));
 	}
+    
+    void Skybox::SetColor(const Color& color)
+    {
+        this->GetMaterial()->SetColor(MaterialProperty::COLOR, color);
+    }
 }

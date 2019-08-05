@@ -86,7 +86,7 @@ vec4 QuadraticThreshold(vec4 color, float threshold, vec3 curve)
     rq = curve.z * rq * rq;
 
     // Combine and apply the brightness response curve.
-    color *= max(rq, br - threshold) / max(br, EPSILON);
+    color.rgb *= max(rq, br - threshold) / max(br, EPSILON) * color.a;
 
     return color;
 }

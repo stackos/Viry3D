@@ -297,14 +297,22 @@ namespace Viry3D
 						GetTableInt(L, "ZWrite", depth_write);
 						pass.pipeline.rasterState.depthWrite = depth_write;
 
-						filament::backend::BlendFunction src_blend = filament::backend::BlendFunction::ONE;
-						filament::backend::BlendFunction dst_blend = filament::backend::BlendFunction::ZERO;
-						GetTableInt(L, "SrcBlendMode", src_blend);
-						GetTableInt(L, "DstBlendMode", dst_blend);
-						pass.pipeline.rasterState.blendFunctionSrcRGB = src_blend;
-						pass.pipeline.rasterState.blendFunctionSrcAlpha = src_blend;
-						pass.pipeline.rasterState.blendFunctionDstRGB = dst_blend;
-						pass.pipeline.rasterState.blendFunctionDstAlpha = dst_blend;
+						filament::backend::BlendFunction src_color_blend = filament::backend::BlendFunction::ONE;
+						filament::backend::BlendFunction dst_color_blend = filament::backend::BlendFunction::ZERO;
+                        filament::backend::BlendFunction src_alpha_blend = filament::backend::BlendFunction::ONE;
+                        filament::backend::BlendFunction dst_alpha_blend = filament::backend::BlendFunction::ZERO;
+						GetTableInt(L, "SrcBlendMode", src_color_blend);
+						GetTableInt(L, "DstBlendMode", dst_color_blend);
+                        GetTableInt(L, "SrcBlendMode", src_alpha_blend);
+                        GetTableInt(L, "DstBlendMode", dst_alpha_blend);
+                        GetTableInt(L, "SrcColorBlendMode", src_color_blend);
+                        GetTableInt(L, "DstColorBlendMode", dst_color_blend);
+                        GetTableInt(L, "SrcAlphaBlendMode", src_alpha_blend);
+                        GetTableInt(L, "DstAlphaBlendMode", dst_alpha_blend);
+						pass.pipeline.rasterState.blendFunctionSrcRGB = src_color_blend;
+						pass.pipeline.rasterState.blendFunctionSrcAlpha = src_alpha_blend;
+						pass.pipeline.rasterState.blendFunctionDstRGB = dst_color_blend;
+						pass.pipeline.rasterState.blendFunctionDstAlpha = dst_alpha_blend;
 
 						bool color_write = true;
 						GetTableInt(L, "CWrite", color_write);
@@ -322,8 +330,8 @@ namespace Viry3D
 						if (pass.light_mode == LightMode::Forward && m_light_add)
 						{
 							pass.pipeline.rasterState.depthWrite = false;
-							pass.pipeline.rasterState.blendFunctionSrcRGB = src_blend;
-							pass.pipeline.rasterState.blendFunctionSrcAlpha = src_blend;
+							pass.pipeline.rasterState.blendFunctionSrcRGB = src_color_blend;
+							pass.pipeline.rasterState.blendFunctionSrcAlpha = src_alpha_blend;
 							pass.pipeline.rasterState.blendFunctionDstRGB = filament::backend::BlendFunction::ONE;
 							pass.pipeline.rasterState.blendFunctionDstAlpha = filament::backend::BlendFunction::ONE;
 						}

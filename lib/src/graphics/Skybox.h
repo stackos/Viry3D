@@ -27,5 +27,6 @@ namespace Viry3D
 		Skybox();
         virtual ~Skybox();
 		void SetTexture(const Ref<Texture>& texture, float level);
+        void SetColor(const Color& color);
     };
 }

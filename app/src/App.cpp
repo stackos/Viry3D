@@ -112,6 +112,7 @@ namespace Viry3D
 			auto cubemap = Resources::LoadTexture("texture/env/prefilter.tex");
             auto skybox = GameObject::Create("")->AddComponent<Skybox>();
             skybox->SetTexture(cubemap, 0.0f);
+            skybox->SetColor(Color(1.0f, 1.0f, 1.0f, 0.0f));
             
             auto light = GameObject::Create("")->AddComponent<Light>();
             light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
@@ -141,10 +142,10 @@ namespace Viry3D
             switcher->Init();
 
 			auto bloom = camera->GetGameObject()->AddComponent<Bloom>();
-			bloom->SetIntensity(21.7f);
+			bloom->SetIntensity(20.0f);
 			bloom->SetThreshold(0.9f);
-			bloom->SetSoftKnee(0.154f);
-			bloom->SetDiffusion(3.93f);
+			bloom->SetSoftKnee(0.5f);
+			bloom->SetDiffusion(4.0f);
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)

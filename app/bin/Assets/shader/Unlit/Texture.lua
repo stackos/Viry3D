@@ -71,7 +71,7 @@ layout(location = 0) out vec4 o_color;
 void main()
 {
 	vec4 c = texture(u_texture, v_uv) * u_color;
-	c.a = 1.0;
+	c.a = 0.0;
 	o_color = c;
 }
 ]]

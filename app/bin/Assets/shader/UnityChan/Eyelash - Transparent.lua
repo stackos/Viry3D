@@ -13,6 +13,10 @@ local fs = CharaSkin.fs
 	    On | Off
     SrcBlendMode
 	DstBlendMode
+    SrcColorBlendMode
+    DstColorBlendMode
+    SrcAlphaBlendMode
+    DstAlphaBlendMode
 	    One | Zero | SrcColor | SrcAlpha | DstColor | DstAlpha
 		| OneMinusSrcColor | OneMinusSrcAlpha | OneMinusDstColor | OneMinusDstAlpha
 	CWrite
@@ -25,8 +29,10 @@ local rs = {
     Cull = Back,
     ZTest = LEqual,
     ZWrite = On,
-    SrcBlendMode = SrcAlpha,
-    DstBlendMode = OneMinusSrcAlpha,
+    SrcColorBlendMode = SrcAlpha,
+    DstColorBlendMode = OneMinusSrcAlpha,
+    SrcAlphaBlendMode = Zero,
+    DstAlphaBlendMode = One,
 	CWrite = On,
     Queue = Geometry + 2,
 	LightMode = Forward,

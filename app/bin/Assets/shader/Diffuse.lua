@@ -249,7 +249,7 @@ void main()
 	c.rgb = ambient + diffuse;
 #endif
 
-	c.a = 1.0;
+	c.a = 0.0;
     o_color = c;
 }
 ]]

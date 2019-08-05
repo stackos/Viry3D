@@ -27,13 +27,13 @@ VK_SAMPLER_BINDING(0) uniform samplerCube u_texture;
 VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
     vec4 u_level;
+    vec4 u_color;
 };
 VK_LAYOUT_LOCATION(0) in vec3 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	vec4 c = textureLod(u_texture, v_uv, u_level.x);
-	c.a = 1.0;
+	vec4 c = textureLod(u_texture, v_uv, u_level.x) * u_color;
 	o_color = c;
 }
 ]]
@@ -94,6 +94,10 @@ local pass = {
             members = {
                 {
                     name = "u_level",
+                    size = 16,
+                },
+                {
+                    name = "u_color",
                     size = 16,
                 },
             },

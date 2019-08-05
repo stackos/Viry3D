@@ -175,7 +175,7 @@ Transform:
   m_Children:
   - {fileID: 510195711}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2931862
 MonoBehaviour:
@@ -505,7 +505,7 @@ Transform:
   m_Children:
   - {fileID: 1958466669}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &121695854
 MonoBehaviour:
@@ -702,7 +702,7 @@ Transform:
   m_LocalScale: {x: 1.0000005, y: 1.0000007, z: 1.0000012}
   m_Children: []
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 21
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!137 &133044340
 SkinnedMeshRenderer:
@@ -1501,7 +1501,7 @@ Transform:
   m_Children:
   - {fileID: 1036587235}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &291228574
 MonoBehaviour:
@@ -6447,7 +6447,7 @@ Transform:
   m_Children:
   - {fileID: 1389443200}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &376976181
 MonoBehaviour:
@@ -7360,7 +7360,7 @@ Transform:
   m_Children:
   - {fileID: 1185713800}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &543280089
 MonoBehaviour:
@@ -8568,7 +8568,7 @@ Transform:
   m_Children:
   - {fileID: 237870913}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 15
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &800051003
 MonoBehaviour:
@@ -9341,7 +9341,7 @@ Transform:
   m_Children:
   - {fileID: 154469071}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 16
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &923057682
 MonoBehaviour:
@@ -9945,7 +9945,7 @@ Transform:
   m_Children:
   - {fileID: 2021803041}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1053638644
 MonoBehaviour:
@@ -10323,7 +10323,7 @@ Transform:
   m_Children:
   - {fileID: 201204691}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 19
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1089088472
 MonoBehaviour:
@@ -10633,6 +10633,7 @@ Transform:
   - {fileID: 166004582}
   - {fileID: 731868200}
   - {fileID: 1764752073}
+  - {fileID: 133044339}
   - {fileID: 543280088}
   - {fileID: 2931861}
   - {fileID: 1225614211}
@@ -10648,7 +10649,6 @@ Transform:
   - {fileID: 1671977423}
   - {fileID: 1089088471}
   - {fileID: 1232339690}
-  - {fileID: 133044339}
   - {fileID: 2046303992}
   m_Father: {fileID: 754301123}
   m_RootOrder: 0
@@ -11156,7 +11156,7 @@ Transform:
   m_Children:
   - {fileID: 600080543}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1225614212
 MonoBehaviour:
@@ -11299,7 +11299,7 @@ Transform:
   m_Children:
   - {fileID: 1883415985}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 20
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1232339691
 MonoBehaviour:
@@ -21187,7 +21187,7 @@ Transform:
   m_Children:
   - {fileID: 585719340}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1473381526
 MonoBehaviour:
@@ -26679,7 +26679,7 @@ Transform:
   m_Children:
   - {fileID: 860406147}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 18
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1671977424
 MonoBehaviour:
@@ -27359,7 +27359,7 @@ Transform:
   m_Children:
   - {fileID: 591980544}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 17
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1855217903
 MonoBehaviour:
@@ -28550,7 +28550,7 @@ Transform:
   m_Children:
   - {fileID: 817448049}
   m_Father: {fileID: 1164727580}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2046567494
 MonoBehaviour:
