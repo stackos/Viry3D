@@ -117,11 +117,9 @@ namespace Viry3D
 			last_up = levels[i].up;
 		}
 
-		Camera::Blit(levels[0].up, dst);
-        
         // uber
         m_material->SetTexture(MaterialProperty::TEXTURE, src->color);
-        m_material->SetVector("_Bloom_Settings", Vector4(sample_scale, m_intensity, 0, iterations));
+        m_material->SetVector("_Bloom_Settings", Vector4(sample_scale, m_intensity, 0, (float) iterations));
         m_material->SetColor("_Bloom_Color", m_color);
         m_material->SetTexture("_BloomTex", last_up->color);
         m_material->SetVector("u_texel_size", Vector4(1.0f / last_up->color->GetWidth(), 1.0f / last_up->color->GetHeight(), 0, 0));
