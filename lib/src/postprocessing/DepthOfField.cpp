@@ -68,15 +68,6 @@ namespace Viry3D
 		m_material->SetFloat("_RcpAspect", 1.0f / aspect);
 
 		// coc calculation pass
-		auto coc_tex = RenderTarget::GetTemporaryRenderTarget(
-			src->key.width,
-			src->key.height,
-			coc_format,
-			TextureFormat::None,
-			FilterMode::Linear,
-			SamplerAddressMode::ClampToEdge,
-			filament::backend::TargetBufferFlags::COLOR);
-
 		m_material->SetTexture(MaterialProperty::TEXTURE, this->GetCameraDepthTexture());
 
 		auto camera = this->GetGameObject()->GetComponent<Camera>();
@@ -86,11 +77,34 @@ namespace Viry3D
 		float zc1 = (1.0f + far_clip / near_clip) / 2.0f;
 		m_material->SetVector("_ZBufferParams", Vector4(zc0, zc1, zc0 / far_clip, zc1 / far_clip));
 
+		auto coc_tex = RenderTarget::GetTemporaryRenderTarget(
+			src->key.width,
+			src->key.height,
+			coc_format,
+			TextureFormat::None,
+			FilterMode::Linear,
+			SamplerAddressMode::ClampToEdge,
+			filament::backend::TargetBufferFlags::COLOR);
 		Camera::Blit(Ref<RenderTarget>(), coc_tex, m_material, (int) Pass::CoCCalculation);
 
-		m_material->SetTexture(MaterialProperty::TEXTURE, coc_tex->color);
-		Camera::Blit(coc_tex, dst);
+		// downsampling and prefiltering pass
+		auto dof_tex = RenderTarget::GetTemporaryRenderTarget(
+			src->key.width / 2,
+			src->key.height / 2,
+			color_format,
+			TextureFormat::None,
+			FilterMode::Linear,
+			SamplerAddressMode::ClampToEdge,
+			filament::backend::TargetBufferFlags::COLOR);
+		m_material->SetTexture("_CoCTex", coc_tex->color);
+		m_material->SetVector("u_texel_size", Vector4(1.0f / src->color->GetWidth(), 1.0f / src->color->GetHeight(), 0, 0));
+		m_material->SetTexture(MaterialProperty::TEXTURE, src->color);
+		Camera::Blit(src, dof_tex, m_material, (int) Pass::DownsampleAndPrefilter);
 
+		m_material->SetTexture(MaterialProperty::TEXTURE, dof_tex->color);
+		Camera::Blit(dof_tex, dst);
+
+		RenderTarget::ReleaseTemporaryRenderTarget(dof_tex);
 		RenderTarget::ReleaseTemporaryRenderTarget(coc_tex);
 	}
 }
