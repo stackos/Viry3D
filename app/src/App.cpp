@@ -30,6 +30,7 @@
 #include "Input.h"
 #include "Debug.h"
 #include "postprocessing/Bloom.h"
+#include "postprocessing/DepthOfField.h"
 #include "BoneDrawer.h"
 #include "BoneMapper.h"
 #include "audio/AudioManager.h"
@@ -141,11 +142,15 @@ namespace Viry3D
             switcher->fov_curve = AnimationCurve::Linear(1, 4.962269f, 10, 4.962269f);
             switcher->Init();
 
+			/*
 			auto bloom = camera->GetGameObject()->AddComponent<Bloom>();
 			bloom->SetIntensity(20.0f);
 			bloom->SetThreshold(0.9f);
 			bloom->SetSoftKnee(0.5f);
 			bloom->SetDiffusion(4.0f);
+			*/
+
+			auto dof = camera->GetGameObject()->AddComponent<DepthOfField>();
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)

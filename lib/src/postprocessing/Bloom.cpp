@@ -34,8 +34,6 @@ namespace Viry3D
 
 	void Bloom::OnRenderImage(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst)
 	{
-		const int MAX_PYRAMID_SIZE = 16;
-
 		enum Pass
 		{
 			Prefilter13,
@@ -50,13 +48,15 @@ namespace Viry3D
 			Ref<RenderTarget> up;
 		};
 
+		const int MAX_PYRAMID_SIZE = 16;
+
 		float ratio = Mathf::Clamp(m_anamorphic_ratio, -1.0f, 1.0f);
 		float rw = ratio < 0 ? -ratio : 0;
 		float rh = ratio > 0 ?  ratio : 0;
 
 		// half res
-		int tw = Mathf::FloorToInt(dst->key.width / (2 - rw));
-		int th = Mathf::FloorToInt(dst->key.height / (2 - rh));
+		int tw = Mathf::FloorToInt(src->key.width / (2 - rw));
+		int th = Mathf::FloorToInt(src->key.height / (2 - rh));
 
 		// determine the iteration count
 		int s = Mathf::Max(tw, th);
