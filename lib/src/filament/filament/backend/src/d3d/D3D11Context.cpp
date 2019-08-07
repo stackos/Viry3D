@@ -79,7 +79,7 @@ namespace filament
 				&feature_level,				// 返回所创建设备的功能级别。
 				&context_0					// 返回设备的即时上下文。
 			);
-			
+
 			if (FAILED(hr))
 			{
 				hr = D3D11CreateDevice(
@@ -100,7 +100,7 @@ namespace filament
 
 			device_0->QueryInterface(__uuidof(ID3D11Device3), (void**) &device);
 			context_0->QueryInterface(__uuidof(ID3D11DeviceContext3), (void**) &context);
-			
+
 			SAFE_RELEASE(device_0);
 			SAFE_RELEASE(context_0);
 		}
@@ -138,18 +138,18 @@ namespace filament
 
 				switch (ps.rasterState.culling)
 				{
-				case CullingMode::NONE:
-					raster_desc.CullMode = D3D11_CULL_NONE;
-					break;
-				case CullingMode::FRONT:
-					raster_desc.CullMode = D3D11_CULL_FRONT;
-					break;
-				case CullingMode::BACK:
-					raster_desc.CullMode = D3D11_CULL_BACK;
-					break;
-				default:
-					assert(false);
-					break;
+					case CullingMode::NONE:
+						raster_desc.CullMode = D3D11_CULL_NONE;
+						break;
+					case CullingMode::FRONT:
+						raster_desc.CullMode = D3D11_CULL_FRONT;
+						break;
+					case CullingMode::BACK:
+						raster_desc.CullMode = D3D11_CULL_BACK;
+						break;
+					default:
+						assert(false);
+						break;
 				}
 
 				ID3D11RasterizerState* raster = nullptr;
@@ -159,30 +159,30 @@ namespace filament
 				auto get_blend_func = [](BlendFunction func) {
 					switch (func)
 					{
-					case BlendFunction::ZERO: return D3D11_BLEND_ZERO;
-					case BlendFunction::ONE: return D3D11_BLEND_ONE;
-					case BlendFunction::SRC_COLOR: return D3D11_BLEND_SRC_COLOR;
-					case BlendFunction::ONE_MINUS_SRC_COLOR: return D3D11_BLEND_INV_SRC_COLOR;
-					case BlendFunction::DST_COLOR: return D3D11_BLEND_DEST_COLOR;
-					case BlendFunction::ONE_MINUS_DST_COLOR: return D3D11_BLEND_INV_DEST_COLOR;
-					case BlendFunction::SRC_ALPHA: return D3D11_BLEND_SRC_ALPHA;
-					case BlendFunction::ONE_MINUS_SRC_ALPHA: return D3D11_BLEND_INV_SRC_ALPHA;
-					case BlendFunction::DST_ALPHA: return D3D11_BLEND_DEST_ALPHA;
-					case BlendFunction::ONE_MINUS_DST_ALPHA: return D3D11_BLEND_INV_DEST_ALPHA;
-					case BlendFunction::SRC_ALPHA_SATURATE: return D3D11_BLEND_SRC_ALPHA_SAT;
-					default: assert(false);
+						case BlendFunction::ZERO: return D3D11_BLEND_ZERO;
+						case BlendFunction::ONE: return D3D11_BLEND_ONE;
+						case BlendFunction::SRC_COLOR: return D3D11_BLEND_SRC_COLOR;
+						case BlendFunction::ONE_MINUS_SRC_COLOR: return D3D11_BLEND_INV_SRC_COLOR;
+						case BlendFunction::DST_COLOR: return D3D11_BLEND_DEST_COLOR;
+						case BlendFunction::ONE_MINUS_DST_COLOR: return D3D11_BLEND_INV_DEST_COLOR;
+						case BlendFunction::SRC_ALPHA: return D3D11_BLEND_SRC_ALPHA;
+						case BlendFunction::ONE_MINUS_SRC_ALPHA: return D3D11_BLEND_INV_SRC_ALPHA;
+						case BlendFunction::DST_ALPHA: return D3D11_BLEND_DEST_ALPHA;
+						case BlendFunction::ONE_MINUS_DST_ALPHA: return D3D11_BLEND_INV_DEST_ALPHA;
+						case BlendFunction::SRC_ALPHA_SATURATE: return D3D11_BLEND_SRC_ALPHA_SAT;
+						default: assert(false);
 					}
 					return D3D11_BLEND_ZERO;
 				};
 				auto get_blend_op = [](BlendEquation op) {
 					switch (op)
 					{
-					case BlendEquation::ADD: return D3D11_BLEND_OP_ADD;
-					case BlendEquation::SUBTRACT: return D3D11_BLEND_OP_SUBTRACT;
-					case BlendEquation::REVERSE_SUBTRACT: return D3D11_BLEND_OP_REV_SUBTRACT;
-					case BlendEquation::MIN: return D3D11_BLEND_OP_MIN;
-					case BlendEquation::MAX: return D3D11_BLEND_OP_MAX;
-					default: assert(false);
+						case BlendEquation::ADD: return D3D11_BLEND_OP_ADD;
+						case BlendEquation::SUBTRACT: return D3D11_BLEND_OP_SUBTRACT;
+						case BlendEquation::REVERSE_SUBTRACT: return D3D11_BLEND_OP_REV_SUBTRACT;
+						case BlendEquation::MIN: return D3D11_BLEND_OP_MIN;
+						case BlendEquation::MAX: return D3D11_BLEND_OP_MAX;
+						default: assert(false);
 					}
 					return D3D11_BLEND_OP_ADD;
 				};
@@ -209,15 +209,15 @@ namespace filament
 				auto get_depth_func = [](SamplerCompareFunc func) {
 					switch (func)
 					{
-					case SamplerCompareFunc::LE: return D3D11_COMPARISON_LESS_EQUAL;
-					case SamplerCompareFunc::GE: return D3D11_COMPARISON_GREATER_EQUAL;
-					case SamplerCompareFunc::L: return D3D11_COMPARISON_LESS;
-					case SamplerCompareFunc::G: return D3D11_COMPARISON_GREATER;
-					case SamplerCompareFunc::E: return D3D11_COMPARISON_EQUAL;
-					case SamplerCompareFunc::NE: return D3D11_COMPARISON_NOT_EQUAL;
-					case SamplerCompareFunc::A: return D3D11_COMPARISON_ALWAYS;
-					case SamplerCompareFunc::N: return D3D11_COMPARISON_NEVER;
-					default: assert(false);
+						case SamplerCompareFunc::LE: return D3D11_COMPARISON_LESS_EQUAL;
+						case SamplerCompareFunc::GE: return D3D11_COMPARISON_GREATER_EQUAL;
+						case SamplerCompareFunc::L: return D3D11_COMPARISON_LESS;
+						case SamplerCompareFunc::G: return D3D11_COMPARISON_GREATER;
+						case SamplerCompareFunc::E: return D3D11_COMPARISON_EQUAL;
+						case SamplerCompareFunc::NE: return D3D11_COMPARISON_NOT_EQUAL;
+						case SamplerCompareFunc::A: return D3D11_COMPARISON_ALWAYS;
+						case SamplerCompareFunc::N: return D3D11_COMPARISON_NEVER;
+						default: assert(false);
 					}
 					return D3D11_COMPARISON_LESS_EQUAL;
 				};
@@ -258,37 +258,37 @@ namespace filament
 
 				switch (s.filterMag)
 				{
-				case SamplerMagFilter::NEAREST:
-					sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-					break;
-				case SamplerMagFilter::LINEAR:
-					sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-					break;
-				default:
-					assert(false);
-					break;
+					case SamplerMagFilter::NEAREST:
+						sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+						break;
+					case SamplerMagFilter::LINEAR:
+						sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+						break;
+					default:
+						assert(false);
+						break;
 				}
 
 				switch (s.wrapS)
 				{
-				case SamplerWrapMode::CLAMP_TO_EDGE:
-					sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-					sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-					sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-					break;
-				case SamplerWrapMode::REPEAT:
-					sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-					sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-					sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-					break;
-				case SamplerWrapMode::MIRRORED_REPEAT:
-					sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-					sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-					sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
-					break;
-				default:
-					assert(false);
-					break;
+					case SamplerWrapMode::CLAMP_TO_EDGE:
+						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+						break;
+					case SamplerWrapMode::REPEAT:
+						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+						break;
+					case SamplerWrapMode::MIRRORED_REPEAT:
+						sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+						sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+						sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+						break;
+					default:
+						assert(false);
+						break;
 				}
 
 				ID3D11SamplerState* sampler = nullptr;
@@ -308,13 +308,14 @@ namespace filament
 		{
 			switch (format)
 			{
-			case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
-			case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_TYPELESS;
-			case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
-			case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24G8_TYPELESS;
-			case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_TYPELESS;
-			case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32G8X24_TYPELESS;
-			default: assert(false); break;
+				case TextureFormat::R8: return DXGI_FORMAT_R8_UNORM;
+				case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
+				case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_TYPELESS;
+				case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
+				case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24G8_TYPELESS;
+				case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_TYPELESS;
+				case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32G8X24_TYPELESS;
+				default: assert(false); break;
 			}
 			return DXGI_FORMAT_UNKNOWN;
 		}
@@ -323,13 +324,14 @@ namespace filament
 		{
 			switch (format)
 			{
-			case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
-			case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_UNORM;
-			case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
-			case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-			case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_FLOAT;
-			case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-			default: assert(false); break;
+				case TextureFormat::R8: return DXGI_FORMAT_R8_UNORM;
+				case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
+				case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_UNORM;
+				case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
+				case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+				case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_FLOAT;
+				case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+				default: assert(false); break;
 			}
 			return DXGI_FORMAT_UNKNOWN;
 		}
@@ -338,12 +340,12 @@ namespace filament
 		{
 			switch (format)
 			{
-			case TextureFormat::DEPTH16: return DXGI_FORMAT_D16_UNORM;
-			case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
-			case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_D24_UNORM_S8_UINT;
-			case TextureFormat::DEPTH32F: return DXGI_FORMAT_D32_FLOAT;
-			case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-			default: assert(false); break;
+				case TextureFormat::DEPTH16: return DXGI_FORMAT_D16_UNORM;
+				case TextureFormat::DEPTH24: return DXGI_FORMAT_UNKNOWN;
+				case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_D24_UNORM_S8_UINT;
+				case TextureFormat::DEPTH32F: return DXGI_FORMAT_D32_FLOAT;
+				case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+				default: assert(false); break;
 			}
 			return DXGI_FORMAT_UNKNOWN;
 		}
