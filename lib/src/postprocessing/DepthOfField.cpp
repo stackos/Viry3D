@@ -41,8 +41,8 @@ namespace Viry3D
 			DownsampleAndPrefilter,
 			BokehSmallKernel,
 			BokehMediumKernel,
-			BokehLargeKernel,
-			BokehVeryLargeKernel,
+			//BokehLargeKernel,
+			//BokehVeryLargeKernel,
 			PostFilter,
 			Combine,
 		};
@@ -53,19 +53,21 @@ namespace Viry3D
 		TextureFormat coc_format = TextureFormat::R8;
 
 		// material setup
-		float scaled_film_height = FILM_HEIGHT * (src->key.width / 1080.0f);
+		float scaled_film_height = FILM_HEIGHT * (src->key.height / 1080.0f);
 		float f = m_focal_length / 1000.0f;
 		float s1 = Mathf::Max(m_focus_distance, f);
 		float aspect = src->key.width / (float) src->key.height;
 		float coeff = f * f / (m_aperture * (s1 - f) * scaled_film_height * 2.0f);
 		float radius_in_pixels = (float) m_kernel_size * 4 + 6;
 		float max_coc = Mathf::Min(0.05f, radius_in_pixels / src->key.height);
+		float rcp_max_coc = 1.0f / max_coc;
+		float rcp_aspect = 1.0f / aspect;
 
 		m_material->SetFloat("_Distance", s1);
 		m_material->SetFloat("_LensCoeff", coeff);
 		m_material->SetFloat("_MaxCoC", max_coc);
-		m_material->SetFloat("_RcpMaxCoC", 1.0f / max_coc);
-		m_material->SetFloat("_RcpAspect", 1.0f / aspect);
+		m_material->SetFloat("_RcpMaxCoC", rcp_max_coc);
+		m_material->SetFloat("_RcpAspect", rcp_aspect);
 
 		// coc calculation pass
 		m_material->SetTexture(MaterialProperty::TEXTURE, this->GetCameraDepthTexture());
@@ -101,9 +103,32 @@ namespace Viry3D
 		m_material->SetTexture(MaterialProperty::TEXTURE, src->color);
 		Camera::Blit(src, dof_tex, m_material, (int) Pass::DownsampleAndPrefilter);
 
+		// bokeh simulation pass
+		auto dof_temp = RenderTarget::GetTemporaryRenderTarget(
+			src->key.width / 2,
+			src->key.height / 2,
+			color_format,
+			TextureFormat::None,
+			FilterMode::Linear,
+			SamplerAddressMode::ClampToEdge,
+			filament::backend::TargetBufferFlags::COLOR);
+		m_material->SetVector("u_texel_size", Vector4(1.0f / dof_tex->color->GetWidth(), 1.0f / dof_tex->color->GetHeight(), 0, 0));
 		m_material->SetTexture(MaterialProperty::TEXTURE, dof_tex->color);
-		Camera::Blit(dof_tex, dst);
+		Camera::Blit(dof_tex, dof_temp, m_material, (int) Pass::BokehSmallKernel + (int) m_kernel_size);
 
+		// postfilter pass
+		m_material->SetVector("u_texel_size", Vector4(1.0f / dof_temp->color->GetWidth(), 1.0f / dof_temp->color->GetHeight(), 0, 0));
+		m_material->SetTexture(MaterialProperty::TEXTURE, dof_temp->color);
+		Camera::Blit(dof_temp, dof_tex, m_material, (int) Pass::PostFilter);
+
+		// combine pass
+		m_material->SetTexture("_CoCTex", coc_tex->color);
+		m_material->SetTexture("_DofTex", dof_tex->color);
+		m_material->SetVector("u_texel_size", Vector4(1.0f / src->color->GetWidth(), 1.0f / src->color->GetHeight(), 0, 0));
+		m_material->SetTexture(MaterialProperty::TEXTURE, src->color);
+		Camera::Blit(src, dst, m_material, (int) Pass::Combine);
+
+		RenderTarget::ReleaseTemporaryRenderTarget(dof_temp);
 		RenderTarget::ReleaseTemporaryRenderTarget(dof_tex);
 		RenderTarget::ReleaseTemporaryRenderTarget(coc_tex);
 	}

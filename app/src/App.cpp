@@ -102,7 +102,7 @@ namespace Viry3D
             this->InitReflection();
             
             auto camera = GameObject::Create("")->AddComponent<Camera>();
-            camera->GetTransform()->SetPosition(Vector3(0, 1, 3.5f));
+            camera->GetTransform()->SetPosition(Vector3(0, 1.0f, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
             camera->SetNearClip(0.03f);
 			camera->SetFarClip(100);
@@ -151,6 +151,9 @@ namespace Viry3D
 			*/
 
 			auto dof = camera->GetGameObject()->AddComponent<DepthOfField>();
+			dof->SetFocusDistance(10.0f);
+			dof->SetAperture(0.1f);
+			dof->SetFocalLength(300);
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)
@@ -160,7 +163,7 @@ namespace Viry3D
             auto anim = clip->GetComponent<Animation>();
             if (anim)
             {
-                anim->Play(0);
+                //anim->Play(0);
             }
             
             auto bone_mapper = clip->AddComponent<BoneMapper>();
