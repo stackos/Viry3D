@@ -142,18 +142,18 @@ namespace Viry3D
             switcher->fov_curve = AnimationCurve::Linear(1, 4.962269f, 10, 4.962269f);
             switcher->Init();
 
-			/*
 			auto bloom = camera->GetGameObject()->AddComponent<Bloom>();
 			bloom->SetIntensity(20.0f);
 			bloom->SetThreshold(0.9f);
 			bloom->SetSoftKnee(0.5f);
 			bloom->SetDiffusion(4.0f);
-			*/
 
+			/*
 			auto dof = camera->GetGameObject()->AddComponent<DepthOfField>();
 			dof->SetFocusDistance(10.0f);
 			dof->SetAperture(0.1f);
 			dof->SetFocalLength(300);
+			*/
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)
@@ -163,7 +163,7 @@ namespace Viry3D
             auto anim = clip->GetComponent<Animation>();
             if (anim)
             {
-                //anim->Play(0);
+                anim->Play(0);
             }
             
             auto bone_mapper = clip->AddComponent<BoneMapper>();
@@ -388,7 +388,6 @@ namespace Viry3D
                 m_reflection_camera->SetAspect(m_camera->GetAspect());
             }
             
-            /*
             // oblique projection
             auto clip_plane_pos = m_reflection_camera->GetViewMatrix().MultiplyPoint(Vector3(0, 0, 0));
             auto clip_plane_normal = m_reflection_camera->GetViewMatrix().MultiplyDirection(Vector3(0, 1, 0));
@@ -396,7 +395,6 @@ namespace Viry3D
             auto oblique_projection = m_camera->GetProjectionMatrix();
             CalculateObliqueMatrix(oblique_projection, clip_plane);
             m_reflection_camera->SetProjectionMatrixExternal(oblique_projection);
-            */
         }
     };
     
