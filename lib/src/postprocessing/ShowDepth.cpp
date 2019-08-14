@@ -40,8 +40,8 @@ namespace Viry3D
 		auto camera = this->GetGameObject()->GetComponent<Camera>();
 		float near_clip = camera->GetNearClip();
 		float far_clip = camera->GetFarClip();
-		float zc0 = (1.0f - far_clip / near_clip) / 2.0f;
-		float zc1 = (1.0f + far_clip / near_clip) / 2.0f;
+		float zc0 = 1.0f - far_clip / near_clip;
+		float zc1 = far_clip / near_clip;
 		m_material->SetVector("_ZBufferParams", Vector4(zc0, zc1, zc0 / far_clip, zc1 / far_clip));
 
 		Camera::Blit(src, dst, m_material);

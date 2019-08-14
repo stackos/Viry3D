@@ -53,11 +53,10 @@ namespace Viry3D
 		TextureFormat coc_format = TextureFormat::R8;
 
 		// material setup
-		float scaled_film_height = FILM_HEIGHT * (src->key.height / 1080.0f);
 		float f = m_focal_length / 1000.0f;
 		float s1 = Mathf::Max(m_focus_distance, f);
 		float aspect = src->key.width / (float) src->key.height;
-		float coeff = f * f / (m_aperture * (s1 - f) * scaled_film_height * 2.0f);
+		float coeff = f * f / (m_aperture * (s1 - f) * FILM_HEIGHT * 2.0f);
 		float radius_in_pixels = (float) m_kernel_size * 4 + 6;
 		float max_coc = Mathf::Min(0.05f, radius_in_pixels / src->key.height);
 		float rcp_max_coc = 1.0f / max_coc;
@@ -75,8 +74,8 @@ namespace Viry3D
 		auto camera = this->GetGameObject()->GetComponent<Camera>();
 		float near_clip = camera->GetNearClip();
 		float far_clip = camera->GetFarClip();
-		float zc0 = (1.0f - far_clip / near_clip) / 2.0f;
-		float zc1 = (1.0f + far_clip / near_clip) / 2.0f;
+		float zc0 = 1.0f - far_clip / near_clip;
+		float zc1 = far_clip / near_clip;
 		m_material->SetVector("_ZBufferParams", Vector4(zc0, zc1, zc0 / far_clip, zc1 / far_clip));
 
 		auto coc_tex = RenderTarget::GetTemporaryRenderTarget(
