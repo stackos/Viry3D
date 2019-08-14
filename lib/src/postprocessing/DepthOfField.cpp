@@ -41,8 +41,8 @@ namespace Viry3D
 			DownsampleAndPrefilter,
 			BokehSmallKernel,
 			BokehMediumKernel,
-			//BokehLargeKernel,
-			//BokehVeryLargeKernel,
+			BokehLargeKernel,
+			BokehVeryLargeKernel,
 			PostFilter,
 			Combine,
 		};
