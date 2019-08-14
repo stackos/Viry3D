@@ -48,7 +48,7 @@ float LinearEyeDepth(float z)
 void main()
 {
 	float depth = LinearEyeDepth(texture(u_texture, v_uv).r);
-    float coc = (depth - _Distance.x) * _LensCoeff.x / max(depth, 1e-4);
+    float coc = (depth - _Distance.x) * _LensCoeff.x / max(depth, 1e-5);
 	o_color = vec4(clamp(coc * 0.5 * _RcpMaxCoC.x + 0.5, 0.0, 1.0));
 }
 ]]

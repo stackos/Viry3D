@@ -148,12 +148,10 @@ namespace Viry3D
 			bloom->SetSoftKnee(0.5f);
 			bloom->SetDiffusion(4.0f);
 
-			/*
 			auto dof = camera->GetGameObject()->AddComponent<DepthOfField>();
-			dof->SetFocusDistance(10.0f);
-			dof->SetAperture(0.1f);
-			dof->SetFocalLength(300);
-			*/
+			dof->SetFocusDistance(3.5f);
+			dof->SetAperture(1.7f);
+			dof->SetFocalLength(55);
         }
         
         void InitBoneMapper(const Ref<GameObject>& model)
@@ -174,11 +172,9 @@ namespace Viry3D
             bone_mapper->bone_map_path = "Resources/res/model/CandyRockStar/bone-map.json";
             bone_mapper->Init();
             
-            /*
-            auto bone_drawer = clip->AddComponent<BoneDrawer>();
-            bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
-            bone_drawer->Init();
-            */
+            //auto bone_drawer = clip->AddComponent<BoneDrawer>();
+            //bone_drawer->root = clip->GetTransform()->Find("Character1_Reference/Character1_Hips");
+            //bone_drawer->Init();
         }
         
         void InitBackScreen()
@@ -398,7 +394,7 @@ namespace Viry3D
             m_reflection_camera->SetProjectionMatrixExternal(oblique_projection);
         }
     };
-    
+
     App::App()
     {
         m_implement = RefMake<AppImplement>();
