@@ -239,13 +239,14 @@ namespace Viry3D
             listener->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));
             
 #if !VR_WASM
-            auto audio_path = "Resources/res/model/CandyRockStar/Unite In The Sky (full).mp3";
+			auto audio_path = "Resources/res/model/CandyRockStar/Unite In The Sky (full).mp3";
             auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
             m_audio_source_bgm = GameObject::Create("")->AddComponent<AudioSource>().get();
             m_audio_source_bgm->SetClip(audio_clip);
             m_audio_source_bgm->SetLoop(false);
             m_audio_source_bgm->Play();
 #else
+			auto audio_path = "audio/Unite In The Sky (full).mp3";
             AudioManager::PlayAudio(audio_path, false);
 #endif
         }
