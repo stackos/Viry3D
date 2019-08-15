@@ -444,7 +444,7 @@ namespace Viry3D
 		texture->m_array_size = 1;
 		texture->m_cubemap = false;
 		texture->m_format = format;
-		texture->m_filter_mode = filter_mode;
+		texture->m_filter_mode = depth ? FilterMode::Nearest : filter_mode;
 		texture->m_wrap_mode = wrap_mode;
 		texture->m_texture = driver.createTexture(
 			filament::backend::SamplerType::SAMPLER_2D,
