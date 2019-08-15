@@ -12,6 +12,10 @@ VK_UNIFORM_BINDING(1) uniform PerRenderer
 {
 	mat4 u_model_matrix;
 };
+VK_UNIFORM_BINDING(3) uniform PerMaterialVertex
+{
+	vec4 u_texture_scale_offset;
+};
 layout(location = 0) in vec4 i_vertex;
 layout(location = 2) in vec2 i_uv;
 VK_LAYOUT_LOCATION(0) out vec2 v_uv;
@@ -49,7 +53,7 @@ void main()
     mat4 model_matrix = u_model_matrix;
 #endif
 	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
-	v_uv = i_uv;
+	v_uv = i_uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
 
 	vk_convert();
 }
@@ -58,11 +62,17 @@ void main()
 local fs = [[
 precision highp float;
 VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
+VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
+{
+	vec4 u_color;
+};
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	o_color = texture(u_texture, v_uv);
+	vec4 c = texture(u_texture, v_uv) * u_color;
+	c.a = 0.0;
+	o_color = c;
 }
 ]]
 
@@ -132,11 +142,37 @@ local pass = {
                 },
             },
         },
+		{
+            name = "PerMaterialVertex",
+            binding = 3,
+            members = {
+                {
+                    name = "u_texture_scale_offset",
+                    size = 16,
+                },
+            },
+        },
+		{
+            name = "PerMaterialFragment",
+            binding = 4,
+            members = {
+                {
+                    name = "u_color",
+                    size = 16,
+                },
+            },
+        },
 	},
 	samplers = {
 		{
-			name = "u_texture",
-			binding = 0,
+			name = "PerMaterialFragment",
+			binding = 4,
+			samplers = {
+				{
+					name = "u_texture",
+					binding = 0,
+				},
+			},
 		},
 	},
 }

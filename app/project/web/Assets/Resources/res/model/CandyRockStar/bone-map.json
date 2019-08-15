@@ -1,0 +1,102 @@
+{
+  "Hips": {
+    "src": "Character1_Hips",
+    "dst": "Character1_Hips"
+  },
+  "Spine": {
+    "src": "Character1_Spine",
+    "dst": "Character1_Spine"
+  },
+  "Chest": {
+    "src": "Character1_Spine1",
+    "dst": "Character1_Spine1"
+  },
+  "UpperChest": {
+    "src": "Character1_Spine2",
+    "dst": "Character1_Spine2"
+  },
+  "Neck": {
+    "src": "Character1_Neck",
+    "dst": "Character1_Neck"
+  },
+  "Head": {
+    "src": "Character1_Head",
+    "dst": "Character1_Head"
+  },
+  "LeftEye": {
+    "src": "",
+    "dst": ""
+  },
+  "RightEye": {
+    "src": "",
+    "dst": ""
+  },
+  "Jaw": {
+    "src": "",
+    "dst": ""
+  },
+  "LeftShoulder": {
+    "src": "Character1_LeftShoulder",
+    "dst": "Character1_LeftShoulder"
+  },
+  "LeftUpperArm": {
+    "src": "Character1_LeftArm",
+    "dst": "Character1_LeftArm"
+  },
+  "LeftLowerArm": {
+    "src": "Character1_LeftForeArm",
+    "dst": "Character1_LeftForeArm"
+  },
+  "LeftHand": {
+    "src": "Character1_LeftHand",
+    "dst": "Character1_LeftHand"
+  },
+  "RightShoulder": {
+    "src": "Character1_RightShoulder",
+    "dst": "Character1_RightShoulder"
+  },
+  "RightUpperArm": {
+    "src": "Character1_RightArm",
+    "dst": "Character1_RightArm"
+  },
+  "RightLowerArm": {
+    "src": "Character1_RightForeArm",
+    "dst": "Character1_RightForeArm"
+  },
+  "RightHand": {
+    "src": "Character1_RightHand",
+    "dst": "Character1_RightHand"
+  },
+  "LeftUpperLeg": {
+    "src": "Character1_LeftUpLeg",
+    "dst": "Character1_LeftUpLeg"
+  },
+  "LeftLowerLeg": {
+    "src": "Character1_LeftLeg",
+    "dst": "Character1_LeftLeg"
+  },
+  "LeftFoot": {
+    "src": "Character1_LeftFoot",
+    "dst": "Character1_LeftFoot"
+  },
+  "LeftToes": {
+    "src": "Character1_LeftToeBase",
+    "dst": "Character1_LeftToeBase"
+  },
+  "RightUpperLeg": {
+    "src": "Character1_RightUpLeg",
+    "dst": "Character1_RightUpLeg"
+  },
+  "RightLowerLeg": {
+    "src": "Character1_RightLeg",
+    "dst": "Character1_RightLeg"
+  },
+  "RightFoot": {
+    "src": "Character1_RightFoot",
+    "dst": "Character1_RightFoot"
+  },
+  "RightToes": {
+    "src": "Character1_RightToeBase",
+    "dst": "Character1_RightToeBase"
+  }
+}
