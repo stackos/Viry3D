@@ -22,6 +22,7 @@
 #include "graphics/Texture.h"
 #include "graphics/Mesh.h"
 #include "container/Map.h"
+#include <functional>
 
 namespace Viry3D
 {
@@ -33,6 +34,9 @@ namespace Viry3D
         static Ref<GameObject> LoadGameObject(const String& path);
 		static Ref<Mesh> LoadMesh(const String& path);
         static Ref<Texture> LoadTexture(const String& path);
-        static Ref<Texture> LoadLightmap(const String& path);
+
+		static void LoadFileAsync(const String& path, std::function<void(const ByteBuffer&)> complete);
+		static void LoadGameObjectAsync(const String& path, std::function<void(const Ref<GameObject>&)> complete);
+		static void LoadTextureAsync(const String& path, std::function<void(const Ref<Texture>&)> complete);
     };
 }

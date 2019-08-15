@@ -82,10 +82,14 @@ namespace Viry3D
                 if (texture_type == "Texture2D")
                 {
                     int mipmap_count = root["mipmap"].asInt();
-                    String png_path = root["path"].asCString();
+                    String png_path = Engine::Instance()->GetDataPath() + "/" + root["path"].asCString();
+					if (File::Exist(png_path))
+					{
+						ByteBuffer image_buffer = File::ReadAllBytes(png_path);
 
-                    texture = Texture::LoadTexture2DFromFile(Engine::Instance()->GetDataPath() + "/" + png_path, filter_mode, wrap_mode, mipmap_count > 1);
-                    texture->SetName(texture_name);
+						texture = Texture::LoadTexture2DFromMemory(image_buffer, filter_mode, wrap_mode, mipmap_count > 1);
+						texture->SetName(texture_name);
+					}
                 }
                 else if (texture_type == "Cubemap")
                 {
@@ -104,17 +108,21 @@ namespace Viry3D
 
                         for (int j = 0; j < 6; ++j)
                         {
-                            String face_path = faces[j].asCString();
-
-                            Ref<Image> image = Image::LoadFromFile(Engine::Instance()->GetDataPath() + "/" + face_path);
-							if (image)
+                            String face_path = Engine::Instance()->GetDataPath() + "/" + faces[j].asCString();
+							if (File::Exist(face_path))
 							{
-								if (buffer.Size() == 0)
+								ByteBuffer image_buffer = File::ReadAllBytes(face_path);
+								
+								Ref<Image> image = Image::LoadFromMemory(image_buffer);
+								if (image)
 								{
-									buffer = ByteBuffer(image->data.Size() * 6);
+									if (buffer.Size() == 0)
+									{
+										buffer = ByteBuffer(image->data.Size() * 6);
+									}
+									Memory::Copy(&buffer[j * image->data.Size()], image->data.Bytes(), image->data.Size());
+									offsets[j] = j * image->data.Size();
 								}
-								Memory::Copy(&buffer[j * image->data.Size()], image->data.Bytes(), image->data.Size());
-								offsets[j] = j * image->data.Size();
 							}
                         }
 
@@ -537,89 +545,48 @@ namespace Viry3D
         return texture;
     }
 
-    Ref<Texture> Resources::LoadLightmap(const String& path)
-    {
-		if (g_cache.Contains(path))
+	void Resources::LoadFileAsync(const String& path, std::function<void(const ByteBuffer&)> complete)
+	{
+		String full_path = Engine::Instance()->GetDataPath() + "/" + path;
+		if (File::Exist(full_path))
 		{
-			return RefCast<Texture>(g_cache[path]);
+			struct ByteBufferWrapper : public Object
+			{
+				ByteBuffer buffer;
+			};
+
+			Thread::Task task;
+			task.job = [=]() {
+				auto wrapper = RefMake<ByteBufferWrapper>();
+				wrapper->buffer = File::ReadAllBytes(full_path);
+				return wrapper;
+			};
+			task.complete = [=](const Ref<Object>& obj) {
+				auto wrapper = RefCast<ByteBufferWrapper>(obj);
+				if (complete)
+				{
+					complete(wrapper->buffer);
+				}
+			};
+
+			Engine::Instance()->GetThreadPool()->AddTask(task);
 		}
+		else
+		{
+			if (complete)
+			{
+				complete(ByteBuffer());
+			}
+		}
+	}
 
-        Ref<Texture> lightmap;
-        
-        String full_path = Engine::Instance()->GetDataPath() + "/" + path;
-        if (File::Exist(full_path))
-        {
-            MemoryStream ms(File::ReadAllBytes(full_path));
+	void Resources::LoadGameObjectAsync(const String& path, std::function<void(const Ref<GameObject>&)> complete)
+	{
+		
+	}
 
-            Vector<Ref<Texture>> textures;
-            int texture_size = 0;
+	void Resources::LoadTextureAsync(const String& path, std::function<void(const Ref<Texture>&)> complete)
+	{
 
-            int lightmap_count = ms.Read<int>();
-            for (int i = 0; i < lightmap_count; ++i)
-            {
-                String texture_path = ReadString(ms);
-                assert(texture_path.Size() > 0);
-
-                auto texture = ReadTexture(texture_path);
-                assert(texture);
-
-                if (texture->GetWidth() > texture_size)
-                {
-                    texture_size = texture->GetWidth();
-                }
-
-                textures.Add(texture);
-            }
-
-            if (lightmap_count > 0)
-            {
-				/*
-                Vector<ByteBuffer> pixels(lightmap_count);
-                for (int i = 0; i < lightmap_count; ++i)
-                {
-                    pixels[i] = ByteBuffer(texture_size * texture_size * 4);
-                    
-                    if (textures[i]->GetWidth() < texture_size)
-                    {
-                        // resize texture same to the max one
-                        auto temp = Texture::CreateTexture2DFromMemory(
-                            pixels[i],
-                            texture_size, texture_size,
-                            TextureFormat::R8G8B8A8,
-                            FilterMode::Linear,
-                            SamplerAddressMode::ClampToEdge,
-                            false);
-                        temp->CopyTexture(
-                            textures[i],
-                            0, 0,
-                            0, 0,
-                            textures[i]->GetWidth(), textures[i]->GetHeight(),
-                            0, 0,
-                            0, 0,
-                            texture_size, texture_size);
-                        temp->CopyToMemory(pixels[i], 0, 0);
-                    }
-                    else
-                    {
-                        textures[i]->CopyToMemory(pixels[i], 0, 0);
-                    }
-                }
-
-                lightmap = Texture::CreateTexture2DArrayFromMemory(
-                    pixels,
-                    texture_size, texture_size,
-                    lightmap_count,
-                    TextureFormat::R8G8B8A8,
-                    FilterMode::Linear,
-                    SamplerAddressMode::ClampToEdge,
-                    false,
-                    false);
-				*/
-            }
-        }
-
-		g_cache.Add(path, lightmap);
-
-        return lightmap;
-    }
+	}
 }

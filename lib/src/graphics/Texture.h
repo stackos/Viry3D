@@ -95,6 +95,11 @@ namespace Viry3D
             FilterMode filter_mode,
             SamplerAddressMode wrap_mode,
             bool gen_mipmap);
+		static Ref<Texture> LoadTexture2DFromMemory(
+			const ByteBuffer& image_buffer,
+			FilterMode filter_mode,
+			SamplerAddressMode wrap_mode,
+			bool gen_mipmap);
         static Ref<Texture> CreateTexture2DFromMemory(
             const ByteBuffer& pixels,
             int width,

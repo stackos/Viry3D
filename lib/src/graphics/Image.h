@@ -33,6 +33,7 @@ namespace Viry3D
 	{
 	public:
         static Ref<Image> LoadFromFile(const String& path);
+		static Ref<Image> LoadFromMemory(const ByteBuffer& buffer);
 		static Ref<Image> LoadJPEG(const ByteBuffer& jpeg);
 		static Ref<Image> LoadPNG(const ByteBuffer& png);
 		void EncodeToPNG(const String& file);

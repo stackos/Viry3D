@@ -41,36 +41,9 @@ namespace Viry3D
         
         if (File::Exist(path))
         {
-            if (path.EndsWith(".png"))
-            {
-                ByteBuffer png = File::ReadAllBytes(path);
-                image = Image::LoadPNG(png);
-            }
-            else if (path.EndsWith(".jpg"))
-            {
-                ByteBuffer jpg = File::ReadAllBytes(path);
-                image = Image::LoadJPEG(jpg);
-            }
-            else
-            {
-                assert(!"image file format not support");
-            }
-            
-            // vulkan not support R8G8B8, convert to R8G8B8A8 always
-            if (image->format == ImageFormat::R8G8B8)
-            {
-                int pixel_count = image->data.Size() / 3;
-                ByteBuffer rgba(pixel_count * 4);
-                for (int i = 0; i < pixel_count; ++i)
-                {
-                    rgba[i * 4 + 0] = image->data[i * 3 + 0];
-                    rgba[i * 4 + 1] = image->data[i * 3 + 1];
-                    rgba[i * 4 + 2] = image->data[i * 3 + 2];
-                    rgba[i * 4 + 3] = 255;
-                }
-                image->data = rgba;
-                image->format = ImageFormat::R8G8B8A8;
-            }
+			ByteBuffer buffer = File::ReadAllBytes(path);
+
+			image = Image::LoadFromMemory(buffer);
         }
         else
         {
@@ -79,6 +52,45 @@ namespace Viry3D
         
         return image;
     }
+
+	Ref<Image> Image::LoadFromMemory(const ByteBuffer& buffer)
+	{
+		Ref<Image> image;
+
+		const unsigned char JPG_HEAD[] = { 0xff, 0xd8, 0xff };
+		const unsigned char PNG_HEAD[] = { 0x89, 0x50, 0x4e, 0x47 };
+
+		if (Memory::Compare(buffer.Bytes(), JPG_HEAD, 3) == 0)
+		{
+			image = Image::LoadJPEG(buffer);
+		}
+		else if (Memory::Compare(buffer.Bytes(), PNG_HEAD, 4) == 0)
+		{
+			image = Image::LoadPNG(buffer);
+		}
+		else
+		{
+			assert(!"image file format not support");
+		}
+
+		// vulkan not support R8G8B8, convert to R8G8B8A8 always
+		if (image->format == ImageFormat::R8G8B8)
+		{
+			int pixel_count = image->data.Size() / 3;
+			ByteBuffer rgba(pixel_count * 4);
+			for (int i = 0; i < pixel_count; ++i)
+			{
+				rgba[i * 4 + 0] = image->data[i * 3 + 0];
+				rgba[i * 4 + 1] = image->data[i * 3 + 1];
+				rgba[i * 4 + 2] = image->data[i * 3 + 2];
+				rgba[i * 4 + 3] = 255;
+			}
+			image->data = rgba;
+			image->format = ImageFormat::R8G8B8A8;
+		}
+
+		return image;
+	}
     
     Ref<Image> Image::LoadJPEG(const ByteBuffer& jpeg)
     {

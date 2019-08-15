@@ -20,6 +20,7 @@
 #include "Engine.h"
 #include "math/Mathf.h"
 #include "memory/Memory.h"
+#include "io/File.h"
 
 namespace Viry3D
 {
@@ -175,22 +176,43 @@ namespace Viry3D
 	{
 		Ref<Texture> texture;
 
-		auto image = Image::LoadFromFile(path);
+		if (File::Exist(path))
+		{
+			ByteBuffer image_buffer = File::ReadAllBytes(path);
+			texture = Texture::LoadTexture2DFromMemory(
+				image_buffer,
+				filter_mode,
+				wrap_mode,
+				gen_mipmap);
+		}
+
+		return texture;
+	}
+
+	Ref<Texture> Texture::LoadTexture2DFromMemory(
+		const ByteBuffer& image_buffer,
+		FilterMode filter_mode,
+		SamplerAddressMode wrap_mode,
+		bool gen_mipmap)
+	{
+		Ref<Texture> texture;
+
+		auto image = Image::LoadFromMemory(image_buffer);
 		if (image)
 		{
 			TextureFormat format;
 
 			switch (image->format)
 			{
-				case ImageFormat::R8:
-					format = TextureFormat::R8;
-					break;
-				case ImageFormat::R8G8B8A8:
-					format = TextureFormat::R8G8B8A8;
-					break;
-				default:
-					format = TextureFormat::None;
-					break;
+			case ImageFormat::R8:
+				format = TextureFormat::R8;
+				break;
+			case ImageFormat::R8G8B8A8:
+				format = TextureFormat::R8G8B8A8;
+				break;
+			default:
+				format = TextureFormat::None;
+				break;
 			}
 
 			if (format != TextureFormat::None)
