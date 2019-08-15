@@ -54,14 +54,12 @@ namespace Viry3D
         Vector2 m_last_touch_pos;
         Vector3 m_camera_rot = Vector3(5, 180, 0);
         Label* m_fps_label = nullptr;
-#if !VR_WASM
-        AudioSource* m_audio_source_bgm;
-#endif
+        float m_start_time = -1;
+        bool m_audio_init = false;
         
         AppImplement()
         {
             this->InitScene();
-            this->InitAudio();
             this->InitUI();
             
 #if 0
@@ -237,10 +235,10 @@ namespace Viry3D
 #if !VR_WASM
 			auto audio_path = "Resources/res/model/CandyRockStar/Unite In The Sky (full).mp3";
             auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
-            m_audio_source_bgm = GameObject::Create("")->AddComponent<AudioSource>().get();
-            m_audio_source_bgm->SetClip(audio_clip);
-            m_audio_source_bgm->SetLoop(false);
-            m_audio_source_bgm->Play();
+            auto audio_source = GameObject::Create("")->AddComponent<AudioSource>().get();
+            audio_source->SetClip(audio_clip);
+            audio_source->SetLoop(false);
+            audio_source->Play();
 #else
 			auto audio_path = "audio/Unite In The Sky (full).mp3";
             AudioManager::PlayAudio(audio_path, false);
@@ -286,6 +284,19 @@ namespace Viry3D
         
         void Update()
         {
+            if (m_start_time < 0)
+            {
+                m_start_time = Time::GetTime();
+            }
+            if (!m_audio_init)
+            {
+                if (Time::GetTime() - m_start_time > 2.1f)
+                {
+                    m_audio_init = true;
+                    this->InitAudio();
+                }
+            }
+            
             if (m_fps_label)
             {
                 m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
