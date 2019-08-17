@@ -36,6 +36,7 @@ namespace Viry3D
         static Ref<Texture> LoadTexture(const String& path);
 
 		static void LoadFileAsync(const String& path, std::function<void(const ByteBuffer&)> complete);
+        static void LoadFilesAsync(const Vector<String>& paths, std::function<void(const Vector<ByteBuffer>&)> complete);
 		static void LoadGameObjectAsync(const String& path, std::function<void(const Ref<GameObject>&)> complete);
 		static void LoadTextureAsync(const String& path, std::function<void(const Ref<Texture>&)> complete);
     };

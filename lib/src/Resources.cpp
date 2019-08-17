@@ -51,6 +51,70 @@ namespace Viry3D
         int size = ms.Read<int>();
         return ms.ReadString(size);
     }
+    
+    struct TextureInfo
+    {
+        String name;
+        int width = 0;
+        int height = 0;
+        SamplerAddressMode wrap_mode = SamplerAddressMode::None;
+        FilterMode filter_mode = FilterMode::None;
+        String texture_type;
+        int mipmap_count = 0;
+        String png_path;
+        Vector<Vector<String>> cube_faces;
+    };
+    
+    static TextureInfo ParseTextureInfo(const String& json)
+    {
+        TextureInfo info;
+        
+        auto reader = Ref<Json::CharReader>(Json::CharReaderBuilder().newCharReader());
+        Json::Value root;
+        const char* begin = json.CString();
+        const char* end = begin + json.Size();
+        if (reader->parse(begin, end, &root, nullptr))
+        {
+            info.name = root["name"].asCString();
+            info.width = root["width"].asInt();
+            info.height = root["height"].asInt();
+            info.wrap_mode = (SamplerAddressMode) root["wrap_mode"].asInt();
+            info.filter_mode = (FilterMode) root["filter_mode"].asInt();
+            info.texture_type = root["type"].asCString();
+            
+            if (info.texture_type == "Texture2D")
+            {
+                info.mipmap_count = root["mipmap"].asInt();
+                info.png_path = root["path"].asCString();
+            }
+            else if (info.texture_type == "Cubemap")
+            {
+                assert(info.width == info.height);
+                
+                info.mipmap_count = root["mipmap"].asInt();
+                Json::Value levels = root["levels"];
+                
+                info.cube_faces.Resize(info.mipmap_count);
+                
+                for (int i = 0; i < info.mipmap_count; ++i)
+                {
+                    Json::Value faces = levels[i];
+
+                    info.cube_faces[i].Resize(6);
+                    for (int j = 0; j < 6; ++j)
+                    {
+                        info.cube_faces[i][j] = faces[j].asCString();
+                    }
+                }
+            }
+            else
+            {
+                assert(false);
+            }
+        }
+        
+        return info;
+    }
 
     static Ref<Texture> ReadTexture(const String& path)
     {
@@ -65,71 +129,51 @@ namespace Viry3D
         if (File::Exist(full_path))
         {
             String json = File::ReadAllText(full_path);
-
-            auto reader = Ref<Json::CharReader>(Json::CharReaderBuilder().newCharReader());
-            Json::Value root;
-            const char* begin = json.CString();
-            const char* end = begin + json.Size();
-            if (reader->parse(begin, end, &root, nullptr))
+            TextureInfo info = ParseTextureInfo(json);
+            
+            if (info.texture_type == "Texture2D")
             {
-                String texture_name = root["name"].asCString();
-                int width = root["width"].asInt();
-                int height = root["height"].asInt();
-                SamplerAddressMode wrap_mode = (SamplerAddressMode) root["wrap_mode"].asInt();
-                FilterMode filter_mode = (FilterMode) root["filter_mode"].asInt();
-                String texture_type = root["type"].asCString();
-
-                if (texture_type == "Texture2D")
+                String png_path = Engine::Instance()->GetDataPath() + "/" + info.png_path;
+                if (File::Exist(png_path))
                 {
-                    int mipmap_count = root["mipmap"].asInt();
-                    String png_path = Engine::Instance()->GetDataPath() + "/" + root["path"].asCString();
-					if (File::Exist(png_path))
-					{
-						ByteBuffer image_buffer = File::ReadAllBytes(png_path);
+                    ByteBuffer image_buffer = File::ReadAllBytes(png_path);
 
-						texture = Texture::LoadTexture2DFromMemory(image_buffer, filter_mode, wrap_mode, mipmap_count > 1);
-						texture->SetName(texture_name);
-					}
+                    texture = Texture::LoadTexture2DFromMemory(image_buffer, info.filter_mode, info.wrap_mode, info.mipmap_count > 1);
+                    texture->SetName(info.name);
                 }
-                else if (texture_type == "Cubemap")
+            }
+            else if (info.texture_type == "Cubemap")
+            {
+                texture = Texture::CreateCubemap(info.width, TextureFormat::R8G8B8A8, info.filter_mode, info.wrap_mode, info.mipmap_count > 1);
+
+                for (int i = 0; i < info.mipmap_count; ++i)
                 {
-                    int mipmap_count = root["mipmap"].asInt();
-                    Json::Value levels = root["levels"];
+                    ByteBuffer buffer;
+                    Vector<int> offsets(6);
 
-                    assert(width == height);
-                    
-                    texture = Texture::CreateCubemap(width, TextureFormat::R8G8B8A8, filter_mode, wrap_mode, mipmap_count > 1);
-
-                    for (int i = 0; i < mipmap_count; ++i)
+                    for (int j = 0; j < 6; ++j)
                     {
-                        Json::Value faces = levels[i];
-						ByteBuffer buffer;
-						Vector<int> offsets(6);
-
-                        for (int j = 0; j < 6; ++j)
+                        String face_path = Engine::Instance()->GetDataPath() + "/" + info.cube_faces[i][j];
+                        if (File::Exist(face_path))
                         {
-                            String face_path = Engine::Instance()->GetDataPath() + "/" + faces[j].asCString();
-							if (File::Exist(face_path))
-							{
-								ByteBuffer image_buffer = File::ReadAllBytes(face_path);
-								
-								Ref<Image> image = Image::LoadFromMemory(image_buffer);
-								if (image)
-								{
-									if (buffer.Size() == 0)
-									{
-										buffer = ByteBuffer(image->data.Size() * 6);
-									}
-									Memory::Copy(&buffer[j * image->data.Size()], image->data.Bytes(), image->data.Size());
-									offsets[j] = j * image->data.Size();
-								}
-							}
+                            ByteBuffer image_buffer = File::ReadAllBytes(face_path);
+                            
+                            Ref<Image> image = Image::LoadFromMemory(image_buffer);
+                            if (image)
+                            {
+                                if (buffer.Size() == 0)
+                                {
+                                    buffer = ByteBuffer(image->data.Size() * 6);
+                                }
+                                Memory::Copy(&buffer[j * image->data.Size()], image->data.Bytes(), image->data.Size());
+                                offsets[j] = j * image->data.Size();
+                            }
                         }
+                    }
 
-						if (buffer.Size() > 0)
-						{
-							texture->UpdateCubemap(buffer, i, offsets);
-						}
+                    if (buffer.Size() > 0)
+                    {
+                        texture->UpdateCubemap(buffer, i, offsets);
                     }
                 }
             }
@@ -138,6 +182,116 @@ namespace Viry3D
 		g_cache.Add(path, texture);
 
         return texture;
+    }
+    
+    static void ReadTextureAsync(const String& path, std::function<void(const Ref<Texture>&)> complete)
+    {
+        if (g_cache.Contains(path))
+        {
+            if (complete)
+            {
+                complete(RefCast<Texture>(g_cache[path]));
+            }
+            return;
+        }
+        
+        auto on_success = [=](const Ref<Texture>& texture) {
+            g_cache.Add(path, texture);
+            
+            if (complete)
+            {
+                complete(texture);
+            }
+        };
+        
+        auto on_failed = [=]() {
+            if (complete)
+            {
+                complete(Ref<Texture>());
+            }
+        };
+        
+        auto on_load_json = [=](const ByteBuffer& json_buffer) {
+            String json = String(json_buffer);
+            TextureInfo info = ParseTextureInfo(json);
+            
+            if (info.texture_type == "Texture2D")
+            {
+                String png_path = Engine::Instance()->GetDataPath() + "/" + info.png_path;
+                Resources::LoadFileAsync(png_path, [=](const ByteBuffer& image_buffer) {
+                    if (image_buffer.Size() > 0)
+                    {
+                        auto texture = Texture::LoadTexture2DFromMemory(image_buffer, info.filter_mode, info.wrap_mode, info.mipmap_count > 1);
+                        texture->SetName(info.name);
+                        
+                        on_success(texture);
+                    }
+                    else
+                    {
+                        on_failed();
+                    }
+                });
+            }
+            else if (info.texture_type == "Cubemap")
+            {
+                Vector<String> image_paths;
+                for (int i = 0; i < info.cube_faces.Size(); ++i)
+                {
+                    for (int j = 0; j < info.cube_faces[i].Size(); ++j)
+                    {
+                        image_paths.Add(info.cube_faces[i][j]);
+                    }
+                }
+                
+                Resources::LoadFilesAsync(image_paths, [=](const Vector<ByteBuffer>& image_buffers) {
+                    for (int i = 0; i < image_buffers.Size(); ++i)
+                    {
+                        if (image_buffers.Size() == 0)
+                        {
+                            on_failed();
+                            return;
+                        }
+                    }
+                    
+                    auto texture = Texture::CreateCubemap(info.width, TextureFormat::R8G8B8A8, info.filter_mode, info.wrap_mode, info.mipmap_count > 1);
+                    
+                    for (int i = 0; i < info.mipmap_count; ++i)
+                    {
+                        ByteBuffer buffer;
+                        Vector<int> offsets(6);
+                        
+                        for (int j = 0; j < 6; ++j)
+                        {
+                            const auto& image_buffer = image_buffers[i * 6 + j];
+
+                            Ref<Image> image = Image::LoadFromMemory(image_buffer);
+                            if (image)
+                            {
+                                if (buffer.Size() == 0)
+                                {
+                                    buffer = ByteBuffer(image->data.Size() * 6);
+                                }
+                                Memory::Copy(&buffer[j * image->data.Size()], image->data.Bytes(), image->data.Size());
+                                offsets[j] = j * image->data.Size();
+                            }
+                        }
+                        
+                        if (buffer.Size() > 0)
+                        {
+                            texture->UpdateCubemap(buffer, i, offsets);
+                        }
+                    }
+                    
+                    on_success(texture);
+                });
+            }
+            else
+            {
+                on_failed();
+            }
+        };
+        
+        Resources::LoadFileAsync(path, on_load_json);
     }
 
     static Ref<Material> ReadMaterial(const String& path)
@@ -547,42 +701,47 @@ namespace Viry3D
 
 	void Resources::LoadFileAsync(const String& path, std::function<void(const ByteBuffer&)> complete)
 	{
-		String full_path = Engine::Instance()->GetDataPath() + "/" + path;
-		if (File::Exist(full_path))
-		{
-			Thread::Task task;
-			task.job = [=]() {
-				auto ptr = new ByteBuffer();
-				*ptr = File::ReadAllBytes(full_path);
-				return ptr;
-			};
-			task.complete = [=](void* result) {
-				auto ptr = (ByteBuffer*) result;
-				if (complete)
-				{
-					complete(*ptr);
-				}
-                delete ptr;
-			};
-
-			Engine::Instance()->GetThreadPool()->AddTask(task);
-		}
-		else
-		{
-			if (complete)
-			{
-				complete(ByteBuffer());
-			}
-		}
+        Vector<String> paths(1);
+        paths[0] = path;
+        
+        Resources::LoadFilesAsync(paths, [=](const Vector<ByteBuffer>& buffers) {
+            if (complete)
+            {
+                complete(buffers[0]);
+            }
+        });
 	}
+    
+    void Resources::LoadFilesAsync(const Vector<String>& paths, std::function<void(const Vector<ByteBuffer>&)> complete)
+    {
+        Thread::Task task;
+        task.job = [=]() {
+            auto ptr = new Vector<ByteBuffer>(paths.Size());
+            for (int i = 0; i < paths.Size(); ++i)
+            {
+                (*ptr)[i] = File::ReadAllBytes(Engine::Instance()->GetDataPath() + "/" + paths[i]);
+            }
+            return ptr;
+        };
+        task.complete = [=](void* result) {
+            auto ptr = (Vector<ByteBuffer>*) result;
+            if (complete)
+            {
+                complete(*ptr);
+            }
+            delete ptr;
+        };
+        
+        Engine::Instance()->GetThreadPool()->AddTask(task);
+    }
 
 	void Resources::LoadGameObjectAsync(const String& path, std::function<void(const Ref<GameObject>&)> complete)
 	{
-		
+        
 	}
 
 	void Resources::LoadTextureAsync(const String& path, std::function<void(const Ref<Texture>&)> complete)
 	{
-
+        ReadTextureAsync(path, complete);
 	}
 }
