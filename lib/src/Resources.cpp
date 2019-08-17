@@ -550,23 +550,19 @@ namespace Viry3D
 		String full_path = Engine::Instance()->GetDataPath() + "/" + path;
 		if (File::Exist(full_path))
 		{
-			struct ByteBufferWrapper : public Object
-			{
-				ByteBuffer buffer;
-			};
-
 			Thread::Task task;
 			task.job = [=]() {
-				auto wrapper = RefMake<ByteBufferWrapper>();
-				wrapper->buffer = File::ReadAllBytes(full_path);
-				return wrapper;
+				auto ptr = new ByteBuffer();
+				*ptr = File::ReadAllBytes(full_path);
+				return ptr;
 			};
-			task.complete = [=](const Ref<Object>& obj) {
-				auto wrapper = RefCast<ByteBufferWrapper>(obj);
+			task.complete = [=](void* result) {
+				auto ptr = (ByteBuffer*) result;
 				if (complete)
 				{
-					complete(wrapper->buffer);
+					complete(*ptr);
 				}
+                delete ptr;
 			};
 
 			Engine::Instance()->GetThreadPool()->AddTask(task);

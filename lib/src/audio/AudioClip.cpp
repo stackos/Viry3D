@@ -191,7 +191,7 @@ namespace Viry3D
                     m_decoder_exited = true;
                     m_mutex.unlock();
 
-                    return Ref<Object>();
+                    return nullptr;
                 };
                 Engine::Instance()->GetThreadPool()->AddTask(task);
             }

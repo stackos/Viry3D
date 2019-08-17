@@ -19,7 +19,6 @@
 
 #include "container/Vector.h"
 #include "container/List.h"
-#include "memory/Ref.h"
 #include "Action.h"
 #include <thread>
 #include <mutex>
@@ -36,8 +35,8 @@ namespace Viry3D
 	public:
 		struct Task
 		{
-            typedef std::function<Ref<Object>()> Job;
-            typedef std::function<void(const Ref<Object>&)> CompleteCallback;
+            typedef std::function<void*()> Job;
+            typedef std::function<void(void*)> CompleteCallback;
 
 			Job job;
             CompleteCallback complete;

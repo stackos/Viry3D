@@ -100,12 +100,12 @@ namespace Viry3D
 
             if (task.job)
             {
-                Ref<Object> res = task.job();
+                void* result = task.job();
 
                 if (task.complete)
                 {
                     Engine::Instance()->PostAction([=]() {
-                        task.complete(res);
+                        task.complete(result);
                     });
                 }
             }
