@@ -445,6 +445,12 @@ void MetalDriver::updateTexture(
     int w, int h,
     PixelBufferDescriptor&& data)
 {
+    @autoreleasepool {
+        id<MTLCommandBuffer> commandBuffer = [mContext->commandQueue commandBuffer];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+    }
+    
     auto tex = handle_cast<MetalTexture>(mHandleMap, th);
     tex->updateTexture(layer, level, x, y, w, h, data);
     scheduleDestroy(std::move(data));
@@ -494,22 +500,12 @@ void MetalDriver::copyTexture(
         auto dst = handle_cast<MetalTexture>(mHandleMap, th_dst);
         auto src = handle_cast<MetalTexture>(mHandleMap, th_src);
         
-        id<MTLCommandBuffer> commandBuffer = nil;
-        if (mContext->currentCommandBuffer)
-        {
-            commandBuffer = mContext->currentCommandBuffer;
-        }
-        else
-        {
-            commandBuffer = [mContext->commandQueue commandBuffer];
-        }
+        id<MTLCommandBuffer> commandBuffer = [mContext->commandQueue commandBuffer];
         id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
         [blitEncoder copyFromTexture:src->texture sourceSlice:src_layer sourceLevel:src_level sourceOrigin:MTLOriginMake(src_offset.x, src_offset.y, src_offset.z) sourceSize:MTLSizeMake(src_extent.x, src_extent.y, src_extent.z) toTexture:dst->texture destinationSlice:dst_layer destinationLevel:dst_level destinationOrigin:MTLOriginMake(dst_offset.x, dst_offset.y, dst_offset.z)];
         [blitEncoder endEncoding];
-        if (commandBuffer != mContext->currentCommandBuffer)
-        {
-            [commandBuffer commit];
-        }
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
     }
 }
     

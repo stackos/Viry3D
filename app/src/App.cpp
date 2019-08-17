@@ -116,7 +116,7 @@ namespace Viry3D
             Resources::LoadTextureAsync("texture/env/prefilter.tex", [=](const Ref<Texture>& cubemap) {
                 skybox->SetTexture(cubemap, 0.0f);
             });
-            */
+            //*/
             
             auto light = GameObject::Create("")->AddComponent<Light>();
             light->GetTransform()->SetRotation(Quaternion::Euler(60, 90, 0));
