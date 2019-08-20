@@ -17,7 +17,7 @@
 #ifndef TNT_FILAMENT_DRIVER_GL_HEADERS_H
 #define TNT_FILAMENT_DRIVER_GL_HEADERS_H
 
-#if defined(ANDROID) || defined(USE_EXTERNAL_GLES3) || defined(__EMSCRIPTEN__)
+#if defined(ANDROID) || defined(USE_EXTERNAL_GLES3)
 
 #ifdef USE_GLES2
 	#include <GLES2/gl2.h>
@@ -52,6 +52,16 @@
     }
 
     using namespace glext;
+
+#elif defined(__EMSCRIPTEN__)
+
+#ifdef USE_GLES2
+    #include <GLES2/gl2.h>
+    #include <GLES2/gl2ext.h>
+#else
+    #include <GLES3/gl31.h>
+    #include <GLES3/gl2ext.h>
+#endif
 
 #elif defined(IOS)
 
