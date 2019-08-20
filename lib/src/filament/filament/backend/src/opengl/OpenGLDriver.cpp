@@ -30,6 +30,7 @@
 #include <utils/Systrace.h>
 
 #include <set>
+#include <algorithm>
 
 // change to true to display all GL extensions in the console on start-up
 #define DEBUG_PRINT_EXTENSIONS false
@@ -983,10 +984,76 @@ void OpenGLDriver::createUniformBufferR(
 UTILS_NOINLINE
 void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
         uint32_t width, uint32_t height, uint32_t depth) noexcept {
+	bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
+	activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
 
-    bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
-    activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
+#ifdef USE_GLES2
+	assert(depth == 1);
 
+	int w = width;
+	int h = height;
+	GLenum format = 0;
+	GLenum type = 0;
+
+	switch (t->gl.internalFormat)
+	{
+#ifdef SIMULATE_GLES2
+		case GL_R8:
+			format = GL_RED;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case GL_RGBA8:
+			format = GL_RGBA;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case GL_DEPTH24_STENCIL8:
+			format = GL_DEPTH_STENCIL;
+			type = GL_UNSIGNED_INT_24_8;
+			break;
+#else
+		case GL_LUMINANCE:
+			format = GL_LUMINANCE;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case GL_RGBA:
+			format = GL_RGBA;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case GL_DEPTH_STENCIL:
+			format = GL_DEPTH_STENCIL;
+			type = GL_UNSIGNED_INT_24_8_EXT;
+			break;
+#endif
+		default:
+			assert(false);
+			break;
+	}
+
+	for (int i = 0; i < t->levels; ++i)
+	{
+		switch (t->gl.target)
+		{
+			case GL_TEXTURE_2D:
+				glTexImage2D(t->gl.target, i, t->gl.internalFormat,
+					w, h, 0, format, type, nullptr);
+				break;
+			case GL_TEXTURE_CUBE_MAP:
+				for (int j = 0; j < 6; ++j)
+				{
+					GLenum target = getCubemapTarget(TextureCubemapFace(j));
+					glTexImage2D(target, i, t->gl.internalFormat,
+						w, h, 0, format, type, nullptr);
+				}
+				break;
+			default:
+				assert(false);
+				break;
+		}
+
+		w = std::max(1, (w / 2));
+		h = std::max(1, (h / 2));
+	}
+#else
     switch (t->gl.target) {
         case GL_TEXTURE_2D:
         case GL_TEXTURE_CUBE_MAP:
@@ -1017,11 +1084,12 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
         default: // cannot happen
             break;
     }
+#endif
 
-    // textureStorage can be used to reallocate the texture at a new size
-    t->width = width;
-    t->height = height;
-    t->depth = depth;
+	// textureStorage can be used to reallocate the texture at a new size
+	t->width = width;
+	t->height = height;
+	t->depth = depth;
 }
 
 void OpenGLDriver::createTextureR(Handle<HwTexture> th, SamplerType target, uint8_t levels,
@@ -1708,7 +1776,6 @@ bool OpenGLDriver::isRenderTargetFormatSupported(TextureFormat format) {
         case TextureFormat::R8:
         case TextureFormat::R8UI:
         case TextureFormat::R8I:
-        case TextureFormat::STENCIL8:
         case TextureFormat::R16UI:
         case TextureFormat::R16I:
         case TextureFormat::RG8:
@@ -1717,9 +1784,7 @@ bool OpenGLDriver::isRenderTargetFormatSupported(TextureFormat format) {
         case TextureFormat::RGB565:
         case TextureFormat::RGB5_A1:
         case TextureFormat::RGBA4:
-        case TextureFormat::DEPTH16:
         case TextureFormat::RGB8:
-        case TextureFormat::DEPTH24:
         case TextureFormat::R32UI:
         case TextureFormat::R32I:
         case TextureFormat::RG16UI:
@@ -1729,13 +1794,20 @@ bool OpenGLDriver::isRenderTargetFormatSupported(TextureFormat format) {
         case TextureFormat::RGB10_A2:
         case TextureFormat::RGBA8UI:
         case TextureFormat::RGBA8I:
-        case TextureFormat::DEPTH32F:
-        case TextureFormat::DEPTH24_STENCIL8:
-        case TextureFormat::DEPTH32F_STENCIL8:
         case TextureFormat::RG32UI:
         case TextureFormat::RG32I:
         case TextureFormat::RGBA16UI:
         case TextureFormat::RGBA16I:
+			return true;
+
+#ifndef USE_GLES2
+		case TextureFormat::STENCIL8:
+		case TextureFormat::DEPTH24:
+		case TextureFormat::DEPTH32F_STENCIL8:
+#endif
+		case TextureFormat::DEPTH16:
+		case TextureFormat::DEPTH32F:
+		case TextureFormat::DEPTH24_STENCIL8:
             return true;
 
         // Three-component SRGB is a color-renderable texture format in core OpenGL on desktop.

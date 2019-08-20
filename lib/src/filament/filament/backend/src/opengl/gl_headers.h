@@ -84,6 +84,13 @@
 
 #include "NullGLES.h"
 
+#ifdef USE_GLES2
+
+#define GLES31_HEADERS false
+#define GL41_HEADERS false
+
+#else
+
 #if (!defined(GL_ES_VERSION_3_1) && !defined(GL_VERSION_4_1))
 #error "Minimum header version must be OpenGL ES 3.1 or OpenGL 4.1"
 #endif
@@ -98,6 +105,8 @@
 #define GL41_HEADERS true
 #else
 #define GL41_HEADERS false
+#endif
+
 #endif
 
 #endif // TNT_FILAMENT_DRIVER_GL_HEADERS_H

@@ -272,12 +272,30 @@ constexpr inline GLenum getType(backend::PixelDataType type) noexcept {
 constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) noexcept {
     using TextureFormat = backend::TextureFormat;
     switch (format) {
-        // 8-bits per element
-        case TextureFormat::R8:                return GL_R8;
-        case TextureFormat::R8_SNORM:          return GL_R8_SNORM;
-        case TextureFormat::R8UI:              return GL_R8UI;
-        case TextureFormat::R8I:               return GL_R8I;
-        case TextureFormat::STENCIL8:          return GL_STENCIL_INDEX8;
+#ifdef USE_GLES2
+#ifdef SIMULATE_GLES2
+		case TextureFormat::R8:                return GL_R8;
+		case TextureFormat::RGBA8:             return GL_RGBA8;
+		case TextureFormat::DEPTH24_STENCIL8:  return GL_DEPTH24_STENCIL8;
+#else
+		case TextureFormat::R8:                return GL_LUMINANCE;
+		case TextureFormat::RGBA8:             return GL_RGBA;
+		case TextureFormat::DEPTH24_STENCIL8:  return GL_DEPTH_STENCIL;
+#endif
+#else
+		// 8-bits per element
+		case TextureFormat::R8:                return GL_R8;
+		case TextureFormat::R8_SNORM:          return GL_R8_SNORM;
+		case TextureFormat::R8UI:              return GL_R8UI;
+		case TextureFormat::R8I:               return GL_R8I;
+
+		// depth
+		case TextureFormat::STENCIL8:          return GL_STENCIL_INDEX8;
+		case TextureFormat::DEPTH24:           return GL_DEPTH_COMPONENT24;
+		case TextureFormat::DEPTH32F_STENCIL8: return GL_DEPTH32F_STENCIL8;
+		case TextureFormat::DEPTH16:           return GL_DEPTH_COMPONENT16;
+		case TextureFormat::DEPTH32F:          return GL_DEPTH_COMPONENT32F;
+		case TextureFormat::DEPTH24_STENCIL8:  return GL_DEPTH24_STENCIL8;
 
         // 16-bits per element
         case TextureFormat::R16F:              return GL_R16F;
@@ -290,7 +308,6 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
         case TextureFormat::RGB565:            return GL_RGB565;
         case TextureFormat::RGB5_A1:           return GL_RGB5_A1;
         case TextureFormat::RGBA4:             return GL_RGBA4;
-        case TextureFormat::DEPTH16:           return GL_DEPTH_COMPONENT16;
 
         // 24-bits per element
         case TextureFormat::RGB8:              return GL_RGB8;
@@ -298,7 +315,6 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
         case TextureFormat::RGB8_SNORM:        return GL_RGB8_SNORM;
         case TextureFormat::RGB8UI:            return GL_RGB8UI;
         case TextureFormat::RGB8I:             return GL_RGB8I;
-        case TextureFormat::DEPTH24:           return GL_DEPTH_COMPONENT24;
 
         // 32-bits per element
         case TextureFormat::R32F:              return GL_R32F;
@@ -309,15 +325,12 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
         case TextureFormat::RG16I:             return GL_RG16I;
         case TextureFormat::R11F_G11F_B10F:    return GL_R11F_G11F_B10F;
         case TextureFormat::RGB9_E5:           return GL_RGB9_E5;
-        case TextureFormat::RGBA8:             return GL_RGBA8;
+		case TextureFormat::RGBA8:             return GL_RGBA8;
         case TextureFormat::SRGB8_A8:          return GL_SRGB8_ALPHA8;
         case TextureFormat::RGBA8_SNORM:       return GL_RGBA8_SNORM;
         case TextureFormat::RGB10_A2:          return GL_RGB10_A2;
         case TextureFormat::RGBA8UI:           return GL_RGBA8UI;
         case TextureFormat::RGBA8I:            return GL_RGBA8I;
-        case TextureFormat::DEPTH32F:          return GL_DEPTH_COMPONENT32F;
-        case TextureFormat::DEPTH24_STENCIL8:  return GL_DEPTH24_STENCIL8;
-        case TextureFormat::DEPTH32F_STENCIL8: return GL_DEPTH32F_STENCIL8;
 
         // 48-bits per element
         case TextureFormat::RGB16F:            return GL_RGB16F;
@@ -444,6 +457,8 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
             // this should not happen
             return 0;
 #endif
+#endif
+
         case TextureFormat::UNUSED:
             return 0;
     }
