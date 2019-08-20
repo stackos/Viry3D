@@ -660,12 +660,12 @@ namespace Viry3D
                     k = 0;
                     for (j = i12; j != i11; j = (j + 1) % (poly1->GetNumPoints()))
                     {
-                        newpoly[k] = poly1->GetPoint(j);
+                        newpoly[(int) k] = poly1->GetPoint(j);
                         k++;
                     }
                     for (j = i22; j != i21; j = (j + 1) % (poly2->GetNumPoints()))
                     {
-                        newpoly[k] = poly2->GetPoint(j);
+                        newpoly[(int) k] = poly2->GetPoint(j);
                         k++;
                     }
 
@@ -886,17 +886,17 @@ namespace Viry3D
                 i2 = 0;
                 for (i = 0; i <= polypointindex; i++)
                 {
-                    newpoly[i2] = polyiter->GetPoint(i);
+                    newpoly[(int) i2] = polyiter->GetPoint(i);
                     i2++;
                 }
                 for (i = 0; i <= holeiter->GetNumPoints(); i++)
                 {
-                    newpoly[i2] = holeiter->GetPoint((i + holepointindex) % holeiter->GetNumPoints());
+                    newpoly[(int) i2] = holeiter->GetPoint((i + holepointindex) % holeiter->GetNumPoints());
                     i2++;
                 }
                 for (i = polypointindex; i < polyiter->GetNumPoints(); i++)
                 {
-                    newpoly[i2] = polyiter->GetPoint(i);
+                    newpoly[(int) i2] = polyiter->GetPoint(i);
                     i2++;
                 }
 

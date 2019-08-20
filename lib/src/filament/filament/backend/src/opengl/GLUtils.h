@@ -193,8 +193,11 @@ constexpr inline GLenum getBlendEquationMode(backend::BlendEquation mode) noexce
         case BlendEquation::ADD:               return GL_FUNC_ADD;
         case BlendEquation::SUBTRACT:          return GL_FUNC_SUBTRACT;
         case BlendEquation::REVERSE_SUBTRACT:  return GL_FUNC_REVERSE_SUBTRACT;
+#ifndef USE_GLES2
         case BlendEquation::MIN:               return GL_MIN;
         case BlendEquation::MAX:               return GL_MAX;
+#endif
+        default:                               return 0;
     }
 }
 

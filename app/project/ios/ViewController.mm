@@ -195,7 +195,7 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     m_frame_handler = [FrameHandler new];
     [m_frame_handler setViewController:self];
     m_display_link = [CADisplayLink displayLinkWithTarget:m_frame_handler selector:@selector(drawFrame)];
-    [m_display_link setFrameInterval: 1];
+    m_display_link.preferredFramesPerSecond = 0;
     [m_display_link addToRunLoop: NSRunLoop.currentRunLoop forMode: NSDefaultRunLoopMode];
     
     m_orientation = [UIDevice currentDevice].orientation;
@@ -207,6 +207,8 @@ static void TouchUpdate(NSSet* touches, UIView* view) {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     Engine::Destroy(&m_engine);
+    
+    [super dealloc];
 }
 
 - (void)drawFrame {

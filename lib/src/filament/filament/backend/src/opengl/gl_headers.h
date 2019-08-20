@@ -17,10 +17,6 @@
 #ifndef TNT_FILAMENT_DRIVER_GL_HEADERS_H
 #define TNT_FILAMENT_DRIVER_GL_HEADERS_H
 
-#ifdef USE_GLES2
-#undef USE_GLES2
-#endif
-
 #if defined(ANDROID) || defined(USE_EXTERNAL_GLES3) || defined(__EMSCRIPTEN__)
 
 #ifdef USE_GLES2
@@ -61,6 +57,10 @@
 
     #define GLES_SILENCE_DEPRECATION
 
+#ifdef USE_GLES2
+    #include <OpenGLES/ES2/gl.h>
+    #include <OpenGLES/ES2/glext.h>
+#else
     #include <OpenGLES/ES3/gl.h>
     #include <OpenGLES/ES3/glext.h>
 
@@ -72,15 +72,16 @@
     #define GL_TEXTURE_2D_MULTISAMPLE         0x9100
 
     void glTexStorage2DMultisample (GLenum target, GLsizei samples, GLenum internalformat,
-            GLsizei width, GLsizei height, GLboolean fixedsamplelocations);
+                                    GLsizei width, GLsizei height, GLboolean fixedsamplelocations);
 
     namespace glext {
         void glFramebufferTexture2DMultisampleEXT (GLenum target, GLenum attachment,
-                GLenum textarget, GLuint texture, GLint level, GLsizei samples);
-
+                                                   GLenum textarget, GLuint texture, GLint level, GLsizei samples);
+        
         void glRenderbufferStorageMultisampleEXT (GLenum target, GLsizei samples,
-                GLenum internalformat, GLsizei width, GLsizei height);
+                                                  GLenum internalformat, GLsizei width, GLsizei height);
     }
+#endif
 
 #else
 

@@ -590,9 +590,11 @@ private:
 constexpr size_t OpenGLDriver::getIndexForTextureTarget(GLuint target) noexcept {
     switch (target) {
         case GL_TEXTURE_2D:             return 0;
+#ifndef USE_GLES2
         case GL_TEXTURE_2D_ARRAY:       return 1;
-        case GL_TEXTURE_CUBE_MAP:       return 2;
         case GL_TEXTURE_2D_MULTISAMPLE: return 3;
+#endif
+        case GL_TEXTURE_CUBE_MAP:       return 2;
         case GL_TEXTURE_EXTERNAL_OES:   return 4;
         default:                        return 0;
     }

@@ -195,7 +195,6 @@ void OpenGLBlitter::State::save() noexcept {
 }
 
 void OpenGLBlitter::State::restore() noexcept {
-    GLuint tmu = 0;
     glColorMask(
             (GLboolean)writeMask[0],
             (GLboolean)writeMask[1],
@@ -220,6 +219,7 @@ void OpenGLBlitter::State::restore() noexcept {
 
     glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(texture));
 #ifndef USE_GLES2
+    GLuint tmu = 0;
     glBindSampler(tmu, static_cast<GLuint>(sampler));
 #endif
     glActiveTexture(static_cast<GLenum>(activeTexture));
