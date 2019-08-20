@@ -42,7 +42,7 @@ namespace Viry3D
 #if VR_VULKAN || VR_D3D
     static void GlslToSpirv(const String& glsl, ShaderCompiler::ShaderType shader_type, Vector<unsigned int>& spirv)
     {
-#if VR_WINDOWS || VR_ANDROID || VR_UWP
+#if VR_WINDOWS || VR_UWP || VR_ANDROID
         String error;
         bool success = GlslToSpv(shader_type, glsl.CString(), spirv, error);
         if (!success)

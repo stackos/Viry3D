@@ -82,6 +82,7 @@ Driver* OpenGLDriver::create(
     assert(platform);
     OpenGLPlatform* const ec = platform;
 
+#ifndef USE_GLES2
     { // here we check we're on a supported version of GL before initializing the driver
         GLint major = 0, minor = 0;
         glGetIntegerv(GL_MAJOR_VERSION, &major);
@@ -109,6 +110,7 @@ Driver* OpenGLDriver::create(
             }
         }
     }
+#endif
 
     OpenGLDriver* const driver = new OpenGLDriver(ec);
     return driver;
@@ -156,6 +158,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         << "OS version: " << mPlatform.getOSVersion() << io::endl;
 #endif
 
+#ifndef USE_GLES2
     // OpenGL (ES) version
     GLint major = 0, minor = 0;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
@@ -169,6 +172,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         << "GL_MAX_RENDERBUFFER_SIZE = " << gets.max_renderbuffer_size << io::endl
         << "GL_MAX_UNIFORM_BLOCK_SIZE = " << gets.max_uniform_block_size << io::endl
         << "GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = " << gets.uniform_buffer_offset_alignment << io::endl;
+#endif
 #endif
 
     if (strstr(renderer, "Adreno")) {
@@ -190,7 +194,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         bugs.disable_invalidate_framebuffer = true;
     }
 
-
+#ifndef USE_GLES2
     // Figure out if we have the extension we need
     GLint n;
     glGetIntegerv(GL_NUM_EXTENSIONS, &n);
@@ -220,6 +224,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         features.multisample_texture = true;
     };
     mShaderModel = shaderModel;
+#endif
 
     /*
      * Set our default state
@@ -302,11 +307,14 @@ void OpenGLDriver::terminate() {
 		mSharedReadFramebuffer = 0;
 	}
 
+#ifndef USE_GLES2
     for (auto& item : mSamplerMap) {
         unbindSampler(item.second);
         glDeleteSamplers(1, &item.second);
     }
     mSamplerMap.clear();
+#endif
+
     if (mOpenGLBlitter) {
         mOpenGLBlitter->terminate();
     }
@@ -1019,9 +1027,9 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
 			format = GL_RGBA;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case GL_DEPTH_STENCIL:
-			format = GL_DEPTH_STENCIL;
-			type = GL_UNSIGNED_INT_24_8_EXT;
+		case GL_DEPTH_STENCIL_OES:
+			format = GL_DEPTH_STENCIL_OES;
+			type = GL_UNSIGNED_INT_24_8_OES;
 			break;
 #endif
 		default:

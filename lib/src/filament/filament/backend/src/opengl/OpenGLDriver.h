@@ -610,8 +610,10 @@ constexpr size_t OpenGLDriver::getIndexForCap(GLenum cap) noexcept {
         case GL_SAMPLE_ALPHA_TO_COVERAGE:       index =  6; break;
         case GL_SAMPLE_COVERAGE:                index =  7; break;
         case GL_POLYGON_OFFSET_FILL:            index =  8; break;
+#ifndef USE_GLES2
         case GL_PRIMITIVE_RESTART_FIXED_INDEX:  index =  9; break;
         case GL_RASTERIZER_DISCARD:             index = 10; break;
+#endif
 #ifdef GL_ARB_seamless_cube_map
         case GL_TEXTURE_CUBE_MAP_SEAMLESS:      index = 11; break;
 #endif
@@ -624,16 +626,20 @@ constexpr size_t OpenGLDriver::getIndexForCap(GLenum cap) noexcept {
 constexpr size_t OpenGLDriver::getIndexForBufferTarget(GLenum target) noexcept {
     size_t index = 0;
     switch (target) {
-        // The indexed buffers MUST be first in this list
+		case GL_ARRAY_BUFFER:					index = 2; break;
+
+#ifndef USE_GLES2
+		// The indexed buffers MUST be first in this list
         case GL_UNIFORM_BUFFER:             index = 0; break;
         case GL_TRANSFORM_FEEDBACK_BUFFER:  index = 1; break;
+		case GL_COPY_READ_BUFFER:           index = 3; break;
+		case GL_COPY_WRITE_BUFFER:          index = 4; break;
+		case GL_PIXEL_PACK_BUFFER:          index = 6; break;
+		case GL_PIXEL_UNPACK_BUFFER:        index = 7; break;
+#endif
 
-        case GL_ARRAY_BUFFER:               index = 2; break;
-        case GL_COPY_READ_BUFFER:           index = 3; break;
-        case GL_COPY_WRITE_BUFFER:          index = 4; break;
         case GL_ELEMENT_ARRAY_BUFFER:       index = 5; break;
-        case GL_PIXEL_PACK_BUFFER:          index = 6; break;
-        case GL_PIXEL_UNPACK_BUFFER:        index = 7; break;
+        
         default: index = 8; break; // should never happen
     }
     assert(index < sizeof(state.buffers.genericBinding)/sizeof(state.buffers.genericBinding[0])); // NOLINT(misc-redundant-expression)
@@ -650,7 +656,9 @@ void OpenGLDriver::activeTexture(GLuint unit) noexcept {
 void OpenGLDriver::bindSampler(GLuint unit, GLuint sampler) noexcept {
     assert(unit < MAX_TEXTURE_UNIT_COUNT);
     update_state(state.textures.units[unit].sampler, sampler, [&]() {
+#ifndef USE_GLES2
         glBindSampler(unit, sampler);
+#endif
     });
 }
 

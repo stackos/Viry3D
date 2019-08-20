@@ -1180,7 +1180,7 @@ elseif (${Target} MATCHES "iOS")
 elseif (${Target} MATCHES "WASM")
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_WASM -DVR_VULKAN=0 -DVR_GLES=1")
+        "${CMAKE_CXX_FLAGS} -std=c++14 -DVR_WASM -DVR_VULKAN=0 -DVR_GLES=1 -DUSE_GLES2=1")
     add_definitions(-Wall -s WASM=1 -O3)
 
 	target_sources(Viry3DDep PRIVATE

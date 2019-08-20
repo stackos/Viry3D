@@ -17,10 +17,19 @@
 #ifndef TNT_FILAMENT_DRIVER_GL_HEADERS_H
 #define TNT_FILAMENT_DRIVER_GL_HEADERS_H
 
+#ifdef USE_GLES2
+#undef USE_GLES2
+#endif
+
 #if defined(ANDROID) || defined(USE_EXTERNAL_GLES3) || defined(__EMSCRIPTEN__)
 
-    #include <GLES3/gl31.h>
-    #include <GLES2/gl2ext.h>
+#ifdef USE_GLES2
+	#include <GLES2/gl2.h>
+	#include <GLES2/gl2ext.h>
+#else
+	#include <GLES3/gl31.h>
+	#include <GLES3/gl2ext.h>
+#endif
 
     /* The Android NDK doesn't exposes extensions, fake it with eglGetProcAddress */
     namespace glext {
@@ -74,7 +83,9 @@
     }
 
 #else
+
     #include <bluegl/BlueGL.h>
+
 #endif
 
 // This is just to simplify the implementation (i.e. so we don't have to have #ifdefs everywhere)
