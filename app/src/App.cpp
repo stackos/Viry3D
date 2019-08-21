@@ -408,6 +408,8 @@ namespace Viry3D
 	class AppImplement
 	{
 	public:
+        Label* m_fps_label = nullptr;
+        
 		AppImplement()
 		{
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
@@ -419,11 +421,37 @@ namespace Viry3D
 			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
 			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
 			renderer->SetMaterial(material);
+            
+            this->InitUI();
 		}
+        
+        void InitUI()
+        {
+            auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
+            ui_camera->SetClearFlags(CameraClearFlags::Nothing);
+            ui_camera->SetDepth(3);
+            ui_camera->SetCullingMask(1 << 1);
+            
+            auto canvas = GameObject::Create("")->AddComponent<CanvasRenderer>(FilterMode::Linear);
+            canvas->GetGameObject()->SetLayer(1);
+            canvas->SetCamera(ui_camera);
+            
+            auto label = RefMake<Label>();
+            label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            label->SetPivot(Vector2(0, 0));
+            label->SetOffset(Vector2i(0, 200));
+            label->SetColor(Color(1, 1, 1, 1));
+            label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
+            canvas->AddView(label);
+            m_fps_label = label.get();
+        }
 
 		void Update()
 		{
-			
+            if (m_fps_label)
+            {
+                m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+            }
 		}
 	};
 

@@ -390,7 +390,11 @@ private:
     GLsizei getAttachments(std::array<GLenum, 3>& attachments,
             GLRenderTarget const* rt, uint8_t buffers) const noexcept;
 
+#ifdef USE_GLES2
+    static constexpr const size_t MAX_TEXTURE_UNIT_COUNT = 8;
+#else
     static constexpr const size_t MAX_TEXTURE_UNIT_COUNT = 16;   // All mobile GPUs as of 2016
+#endif
     static constexpr const size_t MAX_BUFFER_BINDINGS = 32;
 
     GLRenderPrimitive mDefaultVAO;

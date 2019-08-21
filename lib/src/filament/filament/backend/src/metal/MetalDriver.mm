@@ -729,7 +729,27 @@ void MetalDriver::bindUniformBufferRange(size_t index, Handle<HwUniformBuffer> u
         .offset = offset
     };
 }
+    
+#ifdef USE_GLES2
+void MetalDriver::setUniformVector(
+                                    backend::ProgramHandle ph,
+                                    std::string name,
+                                    size_t count,
+                                    backend::BufferDescriptor&& data)
+{
 
+}
+
+void MetalDriver::setUniformMatrix(
+                                    backend::ProgramHandle ph,
+                                    std::string name,
+                                    size_t count,
+                                    backend::BufferDescriptor&& data)
+{
+
+}
+#endif
+    
 void MetalDriver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh) {
     auto sb = handle_cast<MetalSamplerGroup>(mHandleMap, sbh);
     mContext->samplerBindings[index] = sb;

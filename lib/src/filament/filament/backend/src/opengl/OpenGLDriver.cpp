@@ -174,7 +174,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         << "GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = " << gets.uniform_buffer_offset_alignment << io::endl;
 #endif
 #endif
-
+              
     if (strstr(renderer, "Adreno")) {
         bugs.clears_hurt_performance = true;
     } else if (strstr(renderer, "Mali")) {
@@ -1016,12 +1016,12 @@ void OpenGLDriver::createUniformBufferR(
 UTILS_NOINLINE
 void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
         uint32_t width, uint32_t height, uint32_t depth) noexcept {
-	bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
-	activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
-
+    bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
+    activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
+    
 #ifdef USE_GLES2
 	assert(depth == 1);
-
+    
 	int w = width;
 	int h = height;
 	GLenum format = 0;
@@ -1066,15 +1066,15 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
 		switch (t->gl.target)
 		{
 			case GL_TEXTURE_2D:
-				glTexImage2D(t->gl.target, i, t->gl.internalFormat,
-					w, h, 0, format, type, nullptr);
+				glTexImage2D(t->gl.target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
+                CHECK_GL_ERROR(utils::slog.e)
 				break;
 			case GL_TEXTURE_CUBE_MAP:
 				for (int j = 0; j < 6; ++j)
 				{
 					GLenum target = getCubemapTarget(TextureCubemapFace(j));
-					glTexImage2D(target, i, t->gl.internalFormat,
-						w, h, 0, format, type, nullptr);
+					glTexImage2D(target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
+                    CHECK_GL_ERROR(utils::slog.e)
 				}
 				break;
 			default:
@@ -1132,7 +1132,8 @@ void OpenGLDriver::createTextureR(Handle<HwTexture> th, SamplerType target, uint
     GLTexture* t = construct<GLTexture>(th, target, levels, samples, w, h, depth, format, usage);
     if (UTILS_LIKELY(usage & TextureUsage::SAMPLEABLE)) {
         glGenTextures(1, &t->gl.id);
-
+        CHECK_GL_ERROR(utils::slog.e)
+        
         // below we're using the a = foo(b = C) pattern, this is on purpose, to make sure
         // we don't forget to update targetIndex, and that we do it with the correct value.
         // We DO NOT update targetIndex at function exit to take advantage of the fact that
@@ -2138,7 +2139,7 @@ void OpenGLDriver::copyTexture(
 		dst_extent.y == src_extent.y)
 	{
 		// copy
-
+        
 	}
 	else
 	{

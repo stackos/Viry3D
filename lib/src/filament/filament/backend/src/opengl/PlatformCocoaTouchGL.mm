@@ -16,9 +16,8 @@
 
 #include "PlatformCocoaTouchGL.h"
 
+#include "gl_headers.h"
 #include <OpenGLES/EAGL.h>
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
 
 #include <UIKit/UIKit.h>
 
@@ -53,7 +52,11 @@ PlatformCocoaTouchGL::~PlatformCocoaTouchGL() noexcept {
 Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept {
     EAGLSharegroup* sharegroup = (EAGLSharegroup*) sharedGLContext;
 
+#ifdef USE_GLES2
+    EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:sharegroup];
+#else
     EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:sharegroup];
+#endif
     ASSERT_POSTCONDITION(context, "Unable to create OpenGL ES context.");
 
     [EAGLContext setCurrentContext:context];
@@ -117,7 +120,11 @@ void PlatformCocoaTouchGL::makeCurrent(SwapChain* drawSwapChain, SwapChain* read
         glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
 
         glBindRenderbuffer(GL_RENDERBUFFER, pImpl->mDefaultDepthbuffer);
+#ifdef USE_GLES2
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, width, height);
+#else
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+#endif
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, pImpl->mDefaultDepthbuffer);
         
         // Test the framebuffer for completeness.

@@ -50,7 +50,7 @@ Driver* PlatformCocoaGL::createDriver(void* sharedContext) noexcept {
     NSOpenGLPixelFormatAttribute pixelFormatAttributes[] = {
         NSOpenGLPFAColorSize, 24,
         NSOpenGLPFADepthSize, 24,
-        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion4_1Core,
         NSOpenGLPFADoubleBuffer, (NSOpenGLPixelFormatAttribute) true,
         NSOpenGLPFAAccelerated,  (NSOpenGLPixelFormatAttribute) true,
         NSOpenGLPFANoRecovery,   (NSOpenGLPixelFormatAttribute) true,
