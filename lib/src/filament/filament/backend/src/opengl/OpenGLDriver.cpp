@@ -2051,6 +2051,22 @@ void OpenGLDriver::updateSamplerGroup(Handle<HwSamplerGroup> sbh,
 
     GLSamplerGroup* sb = handle_cast<GLSamplerGroup *>(sbh);
     *sb->sb = std::move(samplerGroup); // NOLINT(performance-move-const-arg)
+
+#ifdef USE_GLES2
+	for (size_t i = 0; i < sb->sb->getSize(); ++i)
+	{
+		const SamplerGroup::Sampler& sampler = sb->sb->getSamplers()[i];
+		GLTexture* texture = handle_cast<GLTexture*>(sampler.t);
+		
+		GLenum target = texture->gl.target;
+		glBindTexture(target, texture->gl.id);
+
+		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, getTextureFilter(sampler.s.filterMin));
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, getTextureFilter(sampler.s.filterMag));
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, getWrapMode(sampler.s.wrapS));
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, getWrapMode(sampler.s.wrapT));
+	}
+#endif
 }
 
 void OpenGLDriver::updateTexture(

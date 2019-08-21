@@ -130,6 +130,14 @@ namespace Viry3D
 		else
 		{
 			String path = Engine::Instance()->GetDataPath() + "/shader/" + name + ".lua";
+
+#ifdef USE_GLES2
+			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
+			{
+				path = Engine::Instance()->GetDataPath() + "/shader/" + name + ".100.lua";
+			}
+#endif
+
 			if (File::Exist(path))
 			{
 				String lua_src = File::ReadAllText(path);

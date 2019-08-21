@@ -413,19 +413,11 @@ namespace Viry3D
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
 
-			auto mesh = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
+			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+			material->SetTexture(MaterialProperty::TEXTURE, Resources::LoadTexture("texture/logo.jpg.tex"));
 
-			String shader = "Unlit/Texture";
-#ifdef USE_GLES2
-			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
-			{
-				shader = "Unlit/Texture.100";
-			}
-#endif
-			auto material = RefMake<Material>(Shader::Find(shader));
-			
 			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-			renderer->SetMesh(mesh);
+			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
 			renderer->SetMaterial(material);
 		}
 

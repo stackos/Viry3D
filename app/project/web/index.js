@@ -184,14 +184,18 @@ function Main() {
     Engine.Done = Module.cwrap("DoneEngine", null, ["string"]);
     Engine.Update = Module.cwrap("UpdateEngine", null, ["string"]);
 
+	let use_gles2 = true;
     let glesv3 = false;
     const canvas = Module.canvas;
-    let context = GL.createContext(canvas, {
-        majorVersion: 2,
-        minorVersion: 0,
-        antialias: false,
-        alpha: false
-    });
+    let context = 0;
+	if (!use_gles2) {
+		context = GL.createContext(canvas, {
+			majorVersion: 2,
+			minorVersion: 0,
+			antialias: false,
+			alpha: false
+		});
+	}
     if (context === 0) {
         context = GL.createContext(canvas, {
             majorVersion: 1,
