@@ -2134,35 +2134,45 @@ void OpenGLDriver::copyTexture(
     Offset3D src_extent,
 	SamplerMagFilter blit_filter)
 {
+	if (dst_extent.x == src_extent.x &&
+		dst_extent.y == src_extent.y)
+	{
+		// copy
+
+	}
+	else
+	{
+		// blit
 #ifndef USE_GLES2
-	if (mSharedDrawFramebuffer == 0)
-	{
-		glGenFramebuffers(1, &mSharedDrawFramebuffer);
-	}
-	if (mSharedReadFramebuffer == 0)
-	{
-		glGenFramebuffers(1, &mSharedReadFramebuffer);
-	}
-	auto draw_fbo = state.draw_fbo;
-	auto read_fbo = state.read_fbo;
+		if (mSharedDrawFramebuffer == 0)
+		{
+			glGenFramebuffers(1, &mSharedDrawFramebuffer);
+		}
+		if (mSharedReadFramebuffer == 0)
+		{
+			glGenFramebuffers(1, &mSharedReadFramebuffer);
+		}
+		auto draw_fbo = state.draw_fbo;
+		auto read_fbo = state.read_fbo;
 
-	this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, mSharedDrawFramebuffer);
-	this->framebufferTexture(TargetBufferInfo(th_dst, dst_level, dst_layer), GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+		this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, mSharedDrawFramebuffer);
+		this->framebufferTexture(TargetBufferInfo(th_dst, dst_level, dst_layer), GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
 
-	this->bindFramebuffer(GL_READ_FRAMEBUFFER, mSharedReadFramebuffer);
-	this->framebufferTexture(TargetBufferInfo(th_src, src_level, src_layer), GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+		this->bindFramebuffer(GL_READ_FRAMEBUFFER, mSharedReadFramebuffer);
+		this->framebufferTexture(TargetBufferInfo(th_src, src_level, src_layer), GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
 
-	glBlitFramebuffer(
-		src_offset.x, src_offset.y,
-		src_offset.x + src_extent.x, src_offset.y + src_extent.y,
-		dst_offset.x, dst_offset.y,
-		dst_offset.x + dst_extent.x, dst_offset.y + dst_extent.y,
-		GL_COLOR_BUFFER_BIT,
-		blit_filter == backend::SamplerMagFilter::LINEAR ? GL_LINEAR : GL_NEAREST);
+		glBlitFramebuffer(
+			src_offset.x, src_offset.y,
+			src_offset.x + src_extent.x, src_offset.y + src_extent.y,
+			dst_offset.x, dst_offset.y,
+			dst_offset.x + dst_extent.x, dst_offset.y + dst_extent.y,
+			GL_COLOR_BUFFER_BIT,
+			blit_filter == backend::SamplerMagFilter::LINEAR ? GL_LINEAR : GL_NEAREST);
 
-	bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
-	bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
+		bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
+		bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
 #endif
+	}
 }
 
 void OpenGLDriver::copyTextureToMemory(
