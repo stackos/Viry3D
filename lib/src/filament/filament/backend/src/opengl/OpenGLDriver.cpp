@@ -261,6 +261,11 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         mOpenGLBlitter->init();
         state.program.use = 0;
     }
+
+#if defined(USE_GLES2) && defined(SIMULATE_GLES2)
+	glGenVertexArrays(1, &mSharedVAO);
+	glBindVertexArray(mSharedVAO);
+#endif
 }
 
 OpenGLDriver::~OpenGLDriver() noexcept {
@@ -306,6 +311,11 @@ void OpenGLDriver::terminate() {
 		glDeleteFramebuffers(1, &mSharedReadFramebuffer);
 		mSharedReadFramebuffer = 0;
 	}
+
+#if defined(USE_GLES2) && defined(SIMULATE_GLES2)
+	glDeleteVertexArrays(1, &mSharedVAO);
+	mSharedVAO = 0;
+#endif
 
 #ifndef USE_GLES2
     for (auto& item : mSamplerMap) {
@@ -2376,8 +2386,10 @@ void OpenGLDriver::setExternalImage(Handle<HwTexture> th, void* image) {
         bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
         activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
 
+#ifndef USE_GLES2
 #ifdef GL_OES_EGL_image
         glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, static_cast<GLeglImageOES>(image));
+#endif
 #endif
     }
 }
@@ -2665,21 +2677,24 @@ void OpenGLDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
 
         rp->gl.indicesType = ib->elementSize == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
         rp->maxVertexCount = eb->vertexCount;
+
+#ifdef USE_GLES2
+		rp->gl.vbh = vbh;
+		rp->gl.ibh = ibh;
+		rp->gl.enabledAttributes = enabledAttributes;
+#else
         for (size_t i = 0, n = eb->attributes.size(); i < n; i++) {
             if (enabledAttributes & (1U << i)) {
                 uint8_t bi = eb->attributes[i].buffer;
                 assert(bi != 0xFF);
                 bindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[bi]);
-#ifndef USE_GLES2
                 if (UTILS_UNLIKELY(eb->attributes[i].flags & Attribute::FLAG_INTEGER_TARGET)) {
                     glVertexAttribIPointer(GLuint(i),
                             getComponentCount(eb->attributes[i].type),
                             getComponentType(eb->attributes[i].type),
                             eb->attributes[i].stride,
                             (void*) uintptr_t(eb->attributes[i].offset));
-                } else
-#endif
-                {
+                } else {
                     glVertexAttribPointer(GLuint(i),
                             getComponentCount(eb->attributes[i].type),
                             getComponentType(eb->attributes[i].type),
@@ -2693,11 +2708,70 @@ void OpenGLDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
                 disableVertexAttribArray(GLuint(i));
             }
         }
+#endif
+
         // this records the index buffer into the currently bound VAO
         bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
-
         CHECK_GL_ERROR(utils::slog.e)
     }
+}
+
+static const char* ATTRIBUTE_NAMES[] = {
+	"i_vertex",
+	"i_color",
+	"i_uv",
+	"i_uv2",
+	"i_normal",
+	"i_tangent",
+	"i_bone_weights",
+	"i_bone_indices"
+};
+
+void OpenGLDriver::bindVertexAttribs(const GLRenderPrimitive* rp, OpenGLProgram* p) noexcept
+{
+	if (rp)
+	{
+		GLVertexBuffer const* const eb = handle_cast<const GLVertexBuffer*>(rp->gl.vbh);
+		GLIndexBuffer const* const ib = handle_cast<const GLIndexBuffer*>(rp->gl.ibh);
+
+		for (size_t i = 0, n = eb->attributes.size(); i < n; i++)
+		{
+			GLint loc = glGetAttribLocation(p->gl.program, ATTRIBUTE_NAMES[i]);
+
+			if (rp->gl.enabledAttributes & (1U << i))
+			{
+				if (loc >= 0)
+				{
+					uint8_t bi = eb->attributes[i].buffer;
+					assert(bi != 0xFF);
+					glBindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[bi]);
+					CHECK_GL_ERROR(utils::slog.e)
+
+					glVertexAttribPointer(loc,
+						getComponentCount(eb->attributes[i].type),
+						getComponentType(eb->attributes[i].type),
+						getNormalization(eb->attributes[i].flags & Attribute::FLAG_NORMALIZED),
+						eb->attributes[i].stride,
+						(void*) (size_t) eb->attributes[i].offset);
+					CHECK_GL_ERROR(utils::slog.e)
+
+					glEnableVertexAttribArray(loc);
+					CHECK_GL_ERROR(utils::slog.e)
+				}
+			}
+			else
+			{
+				if (loc >= 0)
+				{
+					glDisableVertexAttribArray(loc);
+					CHECK_GL_ERROR(utils::slog.e)
+				}
+			}
+		}
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+		CHECK_GL_ERROR(utils::slog.e)
+	}
 }
 
 void OpenGLDriver::setRenderPrimitiveRange(Handle<HwRenderPrimitive> rph,
@@ -2947,6 +3021,42 @@ void OpenGLDriver::bindUniformBufferRange(size_t index, Handle<HwUniformBuffer> 
     CHECK_GL_ERROR(utils::slog.e)
 }
 
+#ifdef USE_GLES2
+
+void OpenGLDriver::setUniformVector(
+	backend::ProgramHandle ph,
+	std::string name,
+	size_t count,
+	backend::BufferDescriptor&& data)
+{
+	OpenGLProgram* p = handle_cast<OpenGLProgram*>(ph);
+	this->useProgram(p);
+
+	GLint loc = glGetUniformLocation(p->gl.program, name.c_str());
+	glUniform4fv(loc, (GLsizei) count, (float*) data.buffer);
+	CHECK_GL_ERROR(utils::slog.e)
+
+	scheduleDestroy(std::move(data));
+}
+
+void OpenGLDriver::setUniformMatrix(
+	backend::ProgramHandle ph,
+	std::string name,
+	size_t count,
+	backend::BufferDescriptor&& data)
+{
+	OpenGLProgram* p = handle_cast<OpenGLProgram*>(ph);
+	this->useProgram(p);
+	
+	GLint loc = glGetUniformLocation(p->gl.program, name.c_str());
+	glUniformMatrix4fv(loc, (GLsizei) count, GL_FALSE, (float*) data.buffer);
+	CHECK_GL_ERROR(utils::slog.e)
+
+	scheduleDestroy(std::move(data));
+}
+
+#endif
+
 void OpenGLDriver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh) {
     DEBUG_MARKER()
 
@@ -2986,26 +3096,32 @@ GLuint OpenGLDriver::getSamplerSlow(SamplerParams params) const noexcept {
 }
 
 void OpenGLDriver::insertEventMarker(char const* string, size_t len) {
+#ifndef USE_GLES2
 #ifdef GL_EXT_debug_marker
     if (ext.EXT_debug_marker) {
         glInsertEventMarkerEXT(GLsizei(len ? len : strlen(string)), string);
     }
 #endif
+#endif
 }
 
 void OpenGLDriver::pushGroupMarker(char const* string,  size_t len) {
+#ifndef USE_GLES2
 #ifdef GL_EXT_debug_marker
     if (ext.EXT_debug_marker) {
         glPushGroupMarkerEXT(GLsizei(len ? len : strlen(string)), string);
     }
 #endif
+#endif
 }
 
 void OpenGLDriver::popGroupMarker(int) {
+#ifndef USE_GLES2
 #ifdef GL_EXT_debug_marker
     if (ext.EXT_debug_marker) {
         glPopGroupMarkerEXT();
     }
+#endif
 #endif
 }
 
@@ -3281,19 +3397,24 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
     DEBUG_MARKER()
 
     OpenGLProgram* p = handle_cast<OpenGLProgram*>(state.program);
-    useProgram(p);
+	this->useProgram(p);
 
-    const GLRenderPrimitive* rp = handle_cast<const GLRenderPrimitive *>(rph);
-    bindVertexArray(rp);
-
-    setRasterState(state.rasterState);
-
-    polygonOffset(state.polygonOffset.slope, state.polygonOffset.constant);
-
-    enable(GL_SCISSOR_TEST);
+    const GLRenderPrimitive* rp = handle_cast<const GLRenderPrimitive*>(rph);
 
 #ifdef USE_GLES2
-    glDrawElements(GLenum(rp->type), rp->count, rp->gl.indicesType, reinterpret_cast<const void*>(rp->offset));
+	this->bindVertexAttribs(rp, p);
+#else
+	this->bindVertexArray(rp);
+#endif
+
+	this->setRasterState(state.rasterState);
+
+	this->polygonOffset(state.polygonOffset.slope, state.polygonOffset.constant);
+
+	this->enable(GL_SCISSOR_TEST);
+
+#ifdef USE_GLES2
+    glDrawElements(GLenum(rp->type), rp->count, rp->gl.indicesType, (const void*) (size_t) rp->offset);
 #else
     glDrawRangeElements(GLenum(rp->type), rp->minIndex, rp->maxIndex, rp->count,
             rp->gl.indicesType, reinterpret_cast<const void*>(rp->offset));

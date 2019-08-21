@@ -163,15 +163,15 @@ namespace Viry3D
                 this->FindBones();
             }
 
-            Vector<Vector4> bone_vectors(bone_count * 3);
+			m_bone_vectors.Resize(bone_count * 3);
 
             for (int i = 0; i < bone_count; ++i)
             {
                 Matrix4x4 mat = m_bones[i].lock()->GetLocalToWorldMatrix() * bindposes[i];
 
-                bone_vectors[i * 3 + 0] = mat.GetRow(0);
-                bone_vectors[i * 3 + 1] = mat.GetRow(1);
-                bone_vectors[i * 3 + 2] = mat.GetRow(2);
+				m_bone_vectors[i * 3 + 0] = mat.GetRow(0);
+				m_bone_vectors[i * 3 + 1] = mat.GetRow(1);
+				m_bone_vectors[i * 3 + 2] = mat.GetRow(2);
             }
 
             auto& driver = Engine::Instance()->GetDriverApi();
@@ -180,9 +180,9 @@ namespace Viry3D
                 m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(SkinnedMeshRendererUniforms), filament::backend::BufferUsage::DYNAMIC);
             }
 
-			void* buffer = driver.allocate(bone_vectors.SizeInBytes());
-            Memory::Copy(buffer, bone_vectors.Bytes(), bone_vectors.SizeInBytes());
-            driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, bone_vectors.SizeInBytes()));
+			void* buffer = driver.allocate(m_bone_vectors.SizeInBytes());
+            Memory::Copy(buffer, m_bone_vectors.Bytes(), m_bone_vectors.SizeInBytes());
+            driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, m_bone_vectors.SizeInBytes()));
         }
 
 		// update blend shapes

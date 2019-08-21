@@ -20,6 +20,7 @@
 #include "Component.h"
 #include "CameraClearFlags.h"
 #include "Color.h"
+#include "Material.h"
 #include "math/Rect.h"
 #include "math/Matrix4x4.h"
 #include "container/List.h"
@@ -30,7 +31,6 @@ namespace Viry3D
 	class Texture;
     class Renderer;
 	class RenderTarget;
-	class Material;
 	class Mesh;
 
     class Camera : public Component
@@ -113,6 +113,7 @@ namespace Viry3D
 		Ref<Texture> m_render_target_color;
 		Ref<Texture> m_render_target_depth;
 		Ref<RenderTarget> m_post_processing_target;
+		ViewUniforms m_view_uniforms;
 		filament::backend::UniformBufferHandle m_view_uniform_buffer;
 		filament::backend::RenderTargetHandle m_render_target;
     };

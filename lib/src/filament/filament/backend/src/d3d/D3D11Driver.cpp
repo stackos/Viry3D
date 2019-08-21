@@ -773,6 +773,24 @@ namespace filament
 			m_context->uniform_buffer_bindings[index].size = size;
 		}
 
+		void D3D11Driver::setUniformVector(
+			backend::ProgramHandle ph,
+			std::string name,
+			size_t count,
+			backend::BufferDescriptor&& data)
+		{
+
+		}
+
+		void D3D11Driver::setUniformMatrix(
+			backend::ProgramHandle ph,
+			std::string name,
+			size_t count,
+			backend::BufferDescriptor&& data)
+		{
+
+		}
+
 		void D3D11Driver::bindSamplers(size_t index, Handle<HwSamplerGroup> sgh)
 		{
 			auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, sgh);

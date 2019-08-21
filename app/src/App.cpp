@@ -44,7 +44,7 @@
 
 namespace Viry3D
 {
-    class AppImplement
+    class AppImplement2
     {
     public:
         Camera* m_camera = nullptr;
@@ -57,7 +57,7 @@ namespace Viry3D
         float m_start_time = -1;
         bool m_audio_init = false;
         
-        AppImplement()
+        AppImplement2()
         {
             this->InitScene();
             this->InitUI();
@@ -87,7 +87,7 @@ namespace Viry3D
 #endif
         }
         
-        ~AppImplement()
+        ~AppImplement2()
         {
 #if VR_WASM
             AudioManager::StopAudio();
@@ -404,6 +404,36 @@ namespace Viry3D
             m_reflection_camera->SetProjectionMatrixExternal(oblique_projection);
         }
     };
+
+	class AppImplement
+	{
+	public:
+		AppImplement()
+		{
+			auto camera = GameObject::Create("")->AddComponent<Camera>();
+			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
+
+			auto mesh = Resources::LoadMesh("Library/unity default resources.Cube.mesh");
+
+			String shader = "Unlit/Texture";
+#ifdef USE_GLES2
+			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
+			{
+				shader = "Unlit/Texture.100";
+			}
+#endif
+			auto material = RefMake<Material>(Shader::Find(shader));
+			
+			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+			renderer->SetMesh(mesh);
+			renderer->SetMaterial(material);
+		}
+
+		void Update()
+		{
+			
+		}
+	};
 
     App::App()
     {

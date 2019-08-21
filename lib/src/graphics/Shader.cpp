@@ -450,6 +450,13 @@ namespace Viry3D
 			version = "#version 310 es\n";
 		}
 #endif
+
+#ifdef USE_GLES2
+		if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
+		{
+			version = "";
+		}
+#endif
 		
 		String define;
 		String vk_convert;

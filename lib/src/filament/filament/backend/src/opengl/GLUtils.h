@@ -71,6 +71,8 @@ constexpr inline GLuint getComponentCount(backend::ElementType type) noexcept {
         case ElementType::SHORT4:
         case ElementType::USHORT4:
             return 4;
+		default:
+			return 0;
     }
 }
 
@@ -99,6 +101,8 @@ constexpr inline GLenum getBufferUsage(backend::BufferUsage usage) noexcept {
         case backend::BufferUsage::DYNAMIC:
         case backend::BufferUsage::STREAM:
             return GL_DYNAMIC_DRAW;
+		default:
+			return 0;
     }
 }
 
@@ -215,6 +219,7 @@ constexpr inline GLenum getBlendFunctionMode(backend::BlendFunction mode) noexce
         case BlendFunction::DST_ALPHA:             return GL_DST_ALPHA;
         case BlendFunction::ONE_MINUS_DST_ALPHA:   return GL_ONE_MINUS_DST_ALPHA;
         case BlendFunction::SRC_ALPHA_SATURATE:    return GL_SRC_ALPHA_SATURATE;
+		default:								   return 0;
     }
 }
 
@@ -238,6 +243,7 @@ constexpr inline GLenum getTextureCompareFunc(backend::SamplerCompareFunc func) 
         case SamplerCompareFunc::NE:    return GL_NOTEQUAL;
         case SamplerCompareFunc::A:     return GL_ALWAYS;
         case SamplerCompareFunc::N:     return GL_NEVER;
+		default:						return 0;
     }
 }
 

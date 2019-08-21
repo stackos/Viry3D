@@ -34,6 +34,7 @@ namespace Viry3D
         void SetBonesRoot(const Ref<Transform>& node) { m_bones_root = node; }
         float GetBlendShapeWeight(const String& name);
         void SetBlendShapeWeight(const String& name, float weight);
+		const Vector<Vector4>& GetBoneVectors() const { return m_bone_vectors; };
         const filament::backend::UniformBufferHandle& GetBonesUniformBuffer() const { return m_bones_uniform_buffer; }
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
         
@@ -56,6 +57,7 @@ namespace Viry3D
         Vector<WeakRef<Transform>> m_bones;
 		Map<String, BlendShapeWeight> m_blend_shape_weights;
 		bool m_blend_shape_dirty;
+		Vector<Vector4> m_bone_vectors;
         filament::backend::UniformBufferHandle m_bones_uniform_buffer;
 		filament::backend::VertexBufferHandle m_vb;
 		Vector<filament::backend::RenderPrimitiveHandle> m_primitives;

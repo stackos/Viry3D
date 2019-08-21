@@ -97,6 +97,9 @@ public:
             GLenum indicesType = GL_UNSIGNED_INT;
             GLuint elementArray = 0;
             utils::bitset32 vertexAttribArray;
+			backend::Handle<backend::HwVertexBuffer> vbh;
+			backend::Handle<backend::HwIndexBuffer> ibh;
+			uint32_t enabledAttributes;
         } gl;
     };
 
@@ -205,7 +208,6 @@ private:
     UTILS_ALWAYS_INLINE inline void methodName##R(RetType, paramsDecl);
 
 #include "private/backend/DriverAPI.inc"
-
 
     // Memory management...
 
@@ -346,6 +348,7 @@ private:
     inline void bindFramebuffer(GLenum target, GLuint buffer) noexcept;
 
     inline void bindVertexArray(GLRenderPrimitive const* vao) noexcept;
+	inline void bindVertexAttribs(const GLRenderPrimitive* rp, OpenGLProgram* p) noexcept;
     inline void enableVertexAttribArray(GLuint index) noexcept;
     inline void disableVertexAttribArray(GLuint index) noexcept;
     inline void enable(GLenum cap) noexcept;
@@ -583,6 +586,7 @@ private:
 
 	GLuint mSharedDrawFramebuffer = 0;
 	GLuint mSharedReadFramebuffer = 0;
+	GLuint mSharedVAO = 0;
 };
 
 // ------------------------------------------------------------------------------------------------

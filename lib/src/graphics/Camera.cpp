@@ -147,12 +147,11 @@ namespace Viry3D
 			m_view_uniform_buffer = driver.createUniformBuffer(sizeof(ViewUniforms), filament::backend::BufferUsage::DYNAMIC);
 		}
 
-		ViewUniforms view_uniforms;
-		view_uniforms.view_matrix = this->GetViewMatrix();
-		view_uniforms.projection_matrix = this->GetProjectionMatrix();
-		view_uniforms.camera_pos = this->GetTransform()->GetPosition();
+		m_view_uniforms.view_matrix = this->GetViewMatrix();
+		m_view_uniforms.projection_matrix = this->GetProjectionMatrix();
+		m_view_uniforms.camera_pos = this->GetTransform()->GetPosition();
 		float t = Time::GetTime();
-		view_uniforms.time = Vector4(t / 20, t, t * 2, t * 3);
+		m_view_uniforms.time = Vector4(t / 20, t, t * 2, t * 3);
 
 		// map depth range -1 ~ 1 to 0 ~ 1 for d3d
 		if (Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
@@ -163,11 +162,11 @@ namespace Viry3D
 				0, 0, 0.5f, 0.5f,
 				0, 0, 0, 1,
 			};
-			view_uniforms.projection_matrix = depth_map_01 * this->GetProjectionMatrix();
+			m_view_uniforms.projection_matrix = depth_map_01 * this->GetProjectionMatrix();
 		}
 
 		void* buffer = driver.allocate(sizeof(ViewUniforms));
-		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));
+		Memory::Copy(buffer, &m_view_uniforms, sizeof(ViewUniforms));
 		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms)));
 	}
 
@@ -369,6 +368,19 @@ namespace Viry3D
 				auto& material = materials[i];
 				if (material)
 				{
+#ifdef USE_GLES2
+					material->SetMatrix(ViewUniforms::VIEW_MATRIX, m_view_uniforms.view_matrix);
+					material->SetMatrix(ViewUniforms::PROJECTION_MATRIX, m_view_uniforms.projection_matrix);
+					material->SetVector(ViewUniforms::CAMERA_POS, m_view_uniforms.camera_pos);
+					material->SetVector(ViewUniforms::TIME, m_view_uniforms.time);
+					material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
+
+					if (skin && skin->GetBonesUniformBuffer())
+					{
+						material->SetVectorArray(SkinnedMeshRendererUniforms::BONES, skin->GetBoneVectors());
+					}
+#endif
+
 					filament::backend::RenderPrimitiveHandle primitive;
 
 					auto primitives = renderer->GetPrimitives();
