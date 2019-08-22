@@ -500,7 +500,7 @@ private:
     backend::RasterState mRasterState;
 
     GLfloat mMaxAnisotropy = 0.0f;
-    backend::ShaderModel mShaderModel;
+    backend::ShaderModel mShaderModel = backend::ShaderModel::UNKNOWN;
 
     // state required to represent the current render pass
     backend::Handle<backend::HwRenderTarget> mRenderPassTarget;

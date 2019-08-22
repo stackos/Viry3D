@@ -194,7 +194,10 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         bugs.disable_invalidate_framebuffer = true;
     }
 
-#ifndef USE_GLES2
+#ifdef USE_GLES2
+    const char* exts = (const char*) glGetString(GL_EXTENSIONS);
+    slog.d << exts << io::endl;
+#else
     // Figure out if we have the extension we need
     GLint n;
     glGetIntegerv(GL_NUM_EXTENSIONS, &n);
@@ -976,8 +979,8 @@ void OpenGLDriver::createIndexBufferR(
 void OpenGLDriver::createRenderPrimitiveR(Handle<HwRenderPrimitive> rph, int) {
     DEBUG_MARKER()
     
-#ifndef USE_GLES2
     GLRenderPrimitive* rp = construct<GLRenderPrimitive>(rph);
+#ifndef USE_GLES2
     glGenVertexArrays(1, &rp->gl.vao);
 #endif
     CHECK_GL_ERROR(utils::slog.e)
@@ -1002,8 +1005,9 @@ void OpenGLDriver::createUniformBufferR(
         BufferUsage usage) {
     DEBUG_MARKER()
 
-#ifndef USE_GLES2
     GLUniformBuffer* ub = construct<GLUniformBuffer>(ubh, (uint32_t) size, usage);
+    
+#ifndef USE_GLES2
     glGenBuffers(1, &ub->gl.ubo.id);
     bindBuffer(GL_UNIFORM_BUFFER, ub->gl.ubo.id);
     glBufferData(GL_UNIFORM_BUFFER, size, nullptr, getBufferUsage(usage));
@@ -1618,15 +1622,15 @@ void OpenGLDriver::destroyRenderPrimitive(Handle<HwRenderPrimitive> rph) {
     DEBUG_MARKER()
 
     if (rph) {
-#ifndef USE_GLES2
         GLRenderPrimitive const* rp = handle_cast<const GLRenderPrimitive*>(rph);
+#ifndef USE_GLES2
         glDeleteVertexArrays(1, &rp->gl.vao);
         // binding of a bound VAO is reset to 0
         if (state.vao.p == rp) {
             bindVertexArray(nullptr);
         }
-        destruct(rph, rp);
 #endif
+        destruct(rph, rp);
     }
 }
 
@@ -1652,8 +1656,9 @@ void OpenGLDriver::destroyUniformBuffer(Handle<HwUniformBuffer> ubh) {
     DEBUG_MARKER()
 
     if (ubh) {
-#ifndef USE_GLES2
         GLUniformBuffer* ub = handle_cast<GLUniformBuffer*>(ubh);
+        
+#ifndef USE_GLES2
         glDeleteBuffers(1, &ub->gl.ubo.id);
         // bindings of bound buffers are reset to 0
         const size_t targetIndex = getIndexForBufferTarget(GL_UNIFORM_BUFFER);
@@ -1670,8 +1675,9 @@ void OpenGLDriver::destroyUniformBuffer(Handle<HwUniformBuffer> ubh) {
         if (state.buffers.genericBinding[targetIndex] == ub->gl.ubo.id) {
             state.buffers.genericBinding[targetIndex] = 0;
         }
-        destruct(ubh, ub);
 #endif
+        
+        destruct(ubh, ub);
     }
 }
 
@@ -1968,15 +1974,16 @@ void OpenGLDriver::updateIndexBuffer(
 void OpenGLDriver::loadUniformBuffer(Handle<HwUniformBuffer> ubh, BufferDescriptor&& p) {
     DEBUG_MARKER()
 
+#ifndef USE_GLES2
     GLUniformBuffer* ub = handle_cast<GLUniformBuffer *>(ubh);
     assert(ub);
 
     if (p.size > 0) {
-#ifndef USE_GLES2
         updateBuffer(GL_UNIFORM_BUFFER, &ub->gl.ubo, p,
                 (uint32_t)gets.uniform_buffer_offset_alignment);
-#endif
     }
+#endif
+    
     scheduleDestroy(std::move(p));
 }
 
