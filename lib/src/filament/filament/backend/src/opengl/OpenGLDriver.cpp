@@ -2139,7 +2139,41 @@ void OpenGLDriver::copyTexture(
 		dst_extent.y == src_extent.y)
 	{
 		// copy
-        
+		if (mSharedReadFramebuffer == 0)
+		{
+			glGenFramebuffers(1, &mSharedReadFramebuffer);
+		}
+		auto read_fbo = state.read_fbo;
+
+		this->bindFramebuffer(GL_FRAMEBUFFER, mSharedReadFramebuffer);
+		this->framebufferTexture(TargetBufferInfo(th_src, src_level, src_layer), GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+
+		GLTexture* t = handle_cast<GLTexture*>(th_dst);
+		bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
+		activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
+
+		GLenum target = 0;
+		switch (t->gl.target)
+		{
+			case GL_TEXTURE_2D:
+				target = GL_TEXTURE_2D;
+				break;
+			case GL_TEXTURE_CUBE_MAP:
+				target = getCubemapTarget(TextureCubemapFace(dst_layer));
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+		glCopyTexSubImage2D(
+			target, dst_level,
+			dst_offset.x, dst_offset.y,
+			src_offset.x, src_offset.y,
+			dst_extent.x, dst_extent.y);
+		CHECK_GL_ERROR(utils::slog.e)
+
+		this->bindFramebuffer(GL_FRAMEBUFFER, read_fbo);
 	}
 	else
 	{
@@ -2170,8 +2204,8 @@ void OpenGLDriver::copyTexture(
 			GL_COLOR_BUFFER_BIT,
 			blit_filter == backend::SamplerMagFilter::LINEAR ? GL_LINEAR : GL_NEAREST);
 
-		bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
-		bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
+		this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
+		this->bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
 #endif
 	}
 }
@@ -3422,9 +3456,11 @@ void OpenGLDriver::updateTextureLodRange(GLTexture* texture, int8_t targetLevel)
 
 void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
     DEBUG_MARKER()
+	CHECK_GL_ERROR(utils::slog.e)
 
     OpenGLProgram* p = handle_cast<OpenGLProgram*>(state.program);
 	this->useProgram(p);
+	CHECK_GL_ERROR(utils::slog.e)
 
     const GLRenderPrimitive* rp = handle_cast<const GLRenderPrimitive*>(rph);
 
@@ -3433,12 +3469,16 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
 #else
 	this->bindVertexArray(rp);
 #endif
+	CHECK_GL_ERROR(utils::slog.e)
 
 	this->setRasterState(state.rasterState);
+	CHECK_GL_ERROR(utils::slog.e)
 
 	this->polygonOffset(state.polygonOffset.slope, state.polygonOffset.constant);
+	CHECK_GL_ERROR(utils::slog.e)
 
 	this->enable(GL_SCISSOR_TEST);
+	CHECK_GL_ERROR(utils::slog.e)
 
 #ifdef USE_GLES2
     glDrawElements(GLenum(rp->type), rp->count, rp->gl.indicesType, (const void*) (size_t) rp->offset);
@@ -3446,7 +3486,6 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
     glDrawRangeElements(GLenum(rp->type), rp->minIndex, rp->maxIndex, rp->count,
             rp->gl.indicesType, reinterpret_cast<const void*>(rp->offset));
 #endif
-    
     CHECK_GL_ERROR(utils::slog.e)
 }
 

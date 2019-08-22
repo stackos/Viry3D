@@ -444,6 +444,13 @@ namespace Viry3D
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             canvas->AddView(label);
             m_fps_label = label.get();
+
+			auto sprite = RefMake<Sprite>();
+			sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
+			sprite->SetPivot(Vector2(0, 0.5f));
+			sprite->SetOffset(Vector2i(0, 0));
+			sprite->SetTexture(Resources::LoadTexture("texture/logo.jpg.tex"));
+			canvas->AddView(sprite);
         }
 
 		void Update()

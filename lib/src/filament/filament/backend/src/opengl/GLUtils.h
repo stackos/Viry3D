@@ -168,6 +168,8 @@ constexpr inline GLenum getWrapMode(backend::SamplerWrapMode mode) noexcept {
             return GL_CLAMP_TO_EDGE;
         case SamplerWrapMode::MIRRORED_REPEAT:
             return GL_MIRRORED_REPEAT;
+		default:
+			return 0;
     }
 }
 
@@ -181,8 +183,9 @@ constexpr inline GLenum getTextureFilter(backend::SamplerMinFilter filter) noexc
         case SamplerMinFilter::LINEAR_MIPMAP_NEAREST:
         case SamplerMinFilter::NEAREST_MIPMAP_LINEAR:
         case SamplerMinFilter::LINEAR_MIPMAP_LINEAR:
-            return GL_NEAREST_MIPMAP_NEAREST
-                   - GLenum(SamplerMinFilter::NEAREST_MIPMAP_NEAREST) + GLenum(filter);
+            return GL_NEAREST_MIPMAP_NEAREST - GLenum(SamplerMinFilter::NEAREST_MIPMAP_NEAREST) + GLenum(filter);
+		default:
+			return 0;
     }
 }
 

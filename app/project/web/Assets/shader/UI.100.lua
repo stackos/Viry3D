@@ -5,16 +5,18 @@ uniform mat4 u_model_matrix;
 uniform vec4 u_texture_scale_offset;
 
 attribute vec4 i_vertex;
+attribute vec4 i_color;
 attribute vec2 i_uv;
 
 varying vec2 v_uv;
+varying vec4 v_color;
 
 void main()
 {
     mat4 model_matrix = u_model_matrix;
-
 	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
 	v_uv = i_uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
+	v_color = i_color;
 
 	vk_convert();
 }
@@ -22,16 +24,16 @@ void main()
 
 local fs = [[
 precision highp float;
+
 uniform sampler2D u_texture;
 uniform vec4 u_color;
 
 varying vec2 v_uv;
+varying vec4 v_color;
 
 void main()
 {
-	vec4 c = texture2D(u_texture, v_uv) * u_color;
-	c.a = 0.0;
-	gl_FragColor = c;
+	gl_FragColor = texture2D(u_texture, v_uv) * v_color * u_color;
 }
 ]]
 
@@ -53,13 +55,13 @@ void main()
 ]]
 
 local rs = {
-    Cull = Back,
-    ZTest = LEqual,
-    ZWrite = On,
-    SrcBlendMode = One,
-    DstBlendMode = Zero,
+    Cull = Off,
+    ZTest = Always,
+    ZWrite = Off,
+    SrcBlendMode = SrcAlpha,
+    DstBlendMode = OneMinusSrcAlpha,
 	CWrite = On,
-    Queue = Geometry,
+    Queue = Overlay,
 }
 
 local pass = {
