@@ -195,8 +195,10 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
     }
 
 #ifdef USE_GLES2
+#ifndef SIMULATE_GLES2
     const char* exts = (const char*) glGetString(GL_EXTENSIONS);
     slog.d << exts << io::endl;
+#endif
 #else
     // Figure out if we have the extension we need
     GLint n;
@@ -465,6 +467,7 @@ void OpenGLDriver::unbindSampler(GLuint sampler) noexcept {
 void OpenGLDriver::bindBuffer(GLenum target, GLuint buffer) noexcept {
     size_t targetIndex = getIndexForBufferTarget(target);
     if (target == GL_ELEMENT_ARRAY_BUFFER) {
+#ifndef USE_GLES2
         // GL_ELEMENT_ARRAY_BUFFER is a special case, where the currently bound VAO remembers
         // the index buffer, unless there are no VAO bound (see: bindVertexArray)
         assert(state.vao.p);
@@ -476,6 +479,7 @@ void OpenGLDriver::bindBuffer(GLenum target, GLuint buffer) noexcept {
             }
             glBindBuffer(target, buffer);
         }
+#endif
     } else {
         update_state(state.buffers.genericBinding[targetIndex], buffer, [&]() {
             glBindBuffer(target, buffer);
@@ -530,9 +534,9 @@ void OpenGLDriver::bindFramebuffer(GLenum target, GLuint buffer) noexcept {
 }
 
 void OpenGLDriver::bindVertexArray(GLRenderPrimitive const* p) noexcept {
+#ifndef USE_GLES2
     GLRenderPrimitive* vao = p ? const_cast<GLRenderPrimitive *>(p) : &mDefaultVAO;
     update_state(state.vao.p, vao, [&]() {
-#ifndef USE_GLES2
         glBindVertexArray(vao->gl.vao);
         // update GL_ELEMENT_ARRAY_BUFFER, which is updated by glBindVertexArray
         size_t targetIndex = getIndexForBufferTarget(GL_ELEMENT_ARRAY_BUFFER);
@@ -542,8 +546,8 @@ void OpenGLDriver::bindVertexArray(GLRenderPrimitive const* p) noexcept {
             // glBindBuffer().
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->gl.elementArray);
         }
-#endif
     });
+#endif
 }
 
 void OpenGLDriver::bindTexture(GLuint unit, GLTexture const* t) noexcept {
@@ -952,7 +956,12 @@ void OpenGLDriver::createVertexBufferR(
                 size = std::max(size, end);
             }
         }
+
+#ifdef USE_GLES2
+		glBindBuffer(GL_ARRAY_BUFFER, vb->gl.buffers[i]);
+#else
         bindBuffer(GL_ARRAY_BUFFER, vb->gl.buffers[i]);
+#endif
         glBufferData(GL_ARRAY_BUFFER, size, nullptr, getBufferUsage(usage));
     }
 
@@ -970,8 +979,14 @@ void OpenGLDriver::createIndexBufferR(
     GLIndexBuffer* ib = construct<GLIndexBuffer>(ibh, elementSize, indexCount);
     glGenBuffers(1, &ib->gl.buffer);
     GLsizeiptr size = elementSize * indexCount;
-    bindVertexArray(nullptr);
+
+#ifdef USE_GLES2
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+#else
+	bindVertexArray(nullptr);
     bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+#endif
+
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, getBufferUsage(usage));
     CHECK_GL_ERROR(utils::slog.e)
 }
@@ -1484,13 +1499,6 @@ void OpenGLDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
         } else {
             framebufferRenderbuffer(rt->gl.color.texture, rt, GL_COLOR_ATTACHMENT0);
         }
-#ifndef NDEBUG
-        // clear the color buffer we just allocated to yellow
-        setClearColor(1, 1, 0, 1);
-        bindFramebuffer(GL_FRAMEBUFFER, rt->gl.fbo);
-        disable(GL_SCISSOR_TEST);
-        glClear(GL_COLOR_BUFFER_BIT);
-#endif
     }
 
     // handle special cases first (where depth/stencil are packed)
@@ -1589,6 +1597,8 @@ void OpenGLDriver::destroyVertexBuffer(Handle<HwVertexBuffer> vbh) {
         GLVertexBuffer const* eb = handle_cast<const GLVertexBuffer*>(vbh);
         GLsizei n = GLsizei(eb->bufferCount);
         glDeleteBuffers(n, eb->gl.buffers.data());
+
+#ifndef USE_GLES2
         // bindings of bound buffers are reset to 0
         const size_t targetIndex = getIndexForBufferTarget(GL_ARRAY_BUFFER);
         auto& target = state.buffers.genericBinding[targetIndex];
@@ -1598,6 +1608,8 @@ void OpenGLDriver::destroyVertexBuffer(Handle<HwVertexBuffer> vbh) {
                 target = 0;
             }
         }
+#endif
+
         destruct(vbh, eb);
     }
 }
@@ -1607,13 +1619,18 @@ void OpenGLDriver::destroyIndexBuffer(Handle<HwIndexBuffer> ibh) {
 
     if (ibh) {
         GLIndexBuffer const* ib = handle_cast<const GLIndexBuffer*>(ibh);
+
         glDeleteBuffers(1, &ib->gl.buffer);
+
+#ifndef USE_GLES2
         // bindings of bound buffers are reset to 0
         const size_t targetIndex = getIndexForBufferTarget(GL_ELEMENT_ARRAY_BUFFER);
         auto& target = state.buffers.genericBinding[targetIndex];
         if (target == ib->gl.buffer) {
             target = 0;
         }
+#endif
+
         destruct(ibh, ib);
     }
 }
@@ -1947,7 +1964,11 @@ void OpenGLDriver::updateVertexBuffer(Handle<HwVertexBuffer> vbh,
 
     GLVertexBuffer* eb = handle_cast<GLVertexBuffer *>(vbh);
 
+#ifdef USE_GLES2
+	glBindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[index]);
+#else
     bindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[index]);
+#endif
     glBufferSubData(GL_ARRAY_BUFFER, byteOffset, p.size, p.buffer);
 
     scheduleDestroy(std::move(p));
@@ -1962,8 +1983,13 @@ void OpenGLDriver::updateIndexBuffer(
     GLIndexBuffer* ib = handle_cast<GLIndexBuffer *>(ibh);
     assert(ib->elementSize == 2 || ib->elementSize == 4);
 
-    bindVertexArray(nullptr);
-    bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+#ifdef USE_GLES2
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+#else
+	bindVertexArray(nullptr);
+	bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+#endif
+
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, byteOffset, p.size, p.buffer);
 
     scheduleDestroy(std::move(p));
@@ -1992,7 +2018,12 @@ void OpenGLDriver::updateBuffer(GLenum target,
     assert(buffer->capacity >= p.size);
     assert(buffer->id);
 
+#ifdef USE_GLES2
+	glBindBuffer(target, buffer->id);
+#else
     bindBuffer(target, buffer->id);
+#endif
+
     if (buffer->usage == BufferUsage::STREAM) {
 
         buffer->size = (uint32_t)p.size;
@@ -2613,14 +2644,6 @@ void OpenGLDriver::beginRenderPass(Handle<HwRenderTarget> rth,
                     clearStencil, params.clearStencil);
         }
     }
-
-#ifndef NDEBUG
-    // clear the discarded (but not the cleared ones) buffers in debug builds
-    setClearColor(1, 0, 0, 1);
-    bindFramebuffer(GL_FRAMEBUFFER, rt->gl.fbo);
-    disable(GL_SCISSOR_TEST);
-    glClear(getAttachmentBitfield(discardFlags & ~TargetBufferFlags(clearFlags)));
-#endif
 }
 
 void OpenGLDriver::endRenderPass(int) {
@@ -2645,14 +2668,6 @@ void OpenGLDriver::endRenderPass(int) {
         }
        CHECK_GL_ERROR(utils::slog.e)
     }
-#endif
-
-#ifndef NDEBUG
-    // clear the discarded buffers in debug builds
-    setClearColor(0, 1, 0, 1);
-    bindFramebuffer(GL_FRAMEBUFFER, rt->gl.fbo);
-    disable(GL_SCISSOR_TEST);
-    glClear(getAttachmentBitfield(discardFlags));
 #endif
 
     mRenderPassTarget.clear();
@@ -2740,9 +2755,6 @@ void OpenGLDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
 
         assert(ib->elementSize == 2 || ib->elementSize == 4);
 
-        bindVertexArray(rp);
-        CHECK_GL_ERROR(utils::slog.e)
-
         rp->gl.indicesType = ib->elementSize == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
         rp->maxVertexCount = eb->vertexCount;
 
@@ -2751,6 +2763,9 @@ void OpenGLDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
 		rp->gl.ibh = ibh;
 		rp->gl.enabledAttributes = enabledAttributes;
 #else
+		bindVertexArray(rp);
+		CHECK_GL_ERROR(utils::slog.e)
+
         for (size_t i = 0, n = eb->attributes.size(); i < n; i++) {
             if (enabledAttributes & (1U << i)) {
                 uint8_t bi = eb->attributes[i].buffer;
@@ -2776,11 +2791,11 @@ void OpenGLDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
                 disableVertexAttribArray(GLuint(i));
             }
         }
-#endif
 
-        // this records the index buffer into the currently bound VAO
-        bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
-        CHECK_GL_ERROR(utils::slog.e)
+		// this records the index buffer into the currently bound VAO
+		bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+		CHECK_GL_ERROR(utils::slog.e)
+#endif
     }
 }
 
@@ -2802,6 +2817,9 @@ void OpenGLDriver::bindVertexAttribs(const GLRenderPrimitive* rp, OpenGLProgram*
 		GLVertexBuffer const* const eb = handle_cast<const GLVertexBuffer*>(rp->gl.vbh);
 		GLIndexBuffer const* const ib = handle_cast<const GLIndexBuffer*>(rp->gl.ibh);
 
+		std::array<bool, MAX_VERTEX_ATTRIBUTE_COUNT> enabledAttributes;
+		enabledAttributes.fill(false);
+
 		for (size_t i = 0, n = eb->attributes.size(); i < n; i++)
 		{
 			GLint loc = glGetAttribLocation(p->gl.program, ATTRIBUTE_NAMES[i]);
@@ -2812,6 +2830,7 @@ void OpenGLDriver::bindVertexAttribs(const GLRenderPrimitive* rp, OpenGLProgram*
 				{
 					uint8_t bi = eb->attributes[i].buffer;
 					assert(bi != 0xFF);
+					
 					glBindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[bi]);
 					CHECK_GL_ERROR(utils::slog.e)
 
@@ -2825,15 +2844,18 @@ void OpenGLDriver::bindVertexAttribs(const GLRenderPrimitive* rp, OpenGLProgram*
 
 					glEnableVertexAttribArray(loc);
 					CHECK_GL_ERROR(utils::slog.e)
+
+					enabledAttributes[loc] = true;
 				}
 			}
-			else
+		}
+
+		for (size_t i = 0; i < enabledAttributes.size(); ++i)
+		{
+			if (!enabledAttributes[i])
 			{
-				if (loc >= 0)
-				{
-					glDisableVertexAttribArray(loc);
-					CHECK_GL_ERROR(utils::slog.e)
-				}
+				glDisableVertexAttribArray((GLuint) i);
+				CHECK_GL_ERROR(utils::slog.e)
 			}
 		}
 
@@ -3493,6 +3515,7 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
     glDrawRangeElements(GLenum(rp->type), rp->minIndex, rp->maxIndex, rp->count,
             rp->gl.indicesType, reinterpret_cast<const void*>(rp->offset));
 #endif
+
     CHECK_GL_ERROR(utils::slog.e)
 }
 

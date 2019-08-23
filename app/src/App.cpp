@@ -414,11 +414,13 @@ namespace Viry3D
 		{
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
+			camera->SetCullingMask(1 << 0);
 
 			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
 			material->SetTexture(MaterialProperty::TEXTURE, Resources::LoadTexture("texture/logo.jpg.tex"));
 
 			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+			renderer->GetGameObject()->SetLayer(0);
 			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
 			renderer->SetMaterial(material);
             

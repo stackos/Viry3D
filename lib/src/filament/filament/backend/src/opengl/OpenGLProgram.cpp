@@ -32,7 +32,6 @@ using namespace backend;
 
 OpenGLProgram::OpenGLProgram(OpenGLDriver* gl, const Program& programBuilder) noexcept
         :  HwProgram(programBuilder.getName()), mIsValid(false) {
-
     using Shader = Program::Shader;
 
     const auto& shadersSource = programBuilder.getShadersSource();
