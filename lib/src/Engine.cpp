@@ -248,6 +248,7 @@ namespace Viry3D
 
 		void Render()
 		{
+			Time::SetDrawCall(0);
 			Renderer::PrepareAll();
 			Light::RenderShadowMaps();
 			Camera::RenderAll();

@@ -459,7 +459,7 @@ namespace Viry3D
 		{
             if (m_fps_label)
             {
-                m_fps_label->SetText(String::Format("FPS:%d", Time::GetFPS()));
+                m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
             }
 		}
 	};

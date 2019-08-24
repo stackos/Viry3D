@@ -50,6 +50,8 @@ namespace Viry3D
 		//	local date
 		static Date GetDate();
 		static int GetFPS() { return m_fps; }
+		static void SetDrawCall(int count) { m_draw_call = count; }
+		static int GetDrawCall() { return m_draw_call; }
 		static void Update();
 
 	private:
@@ -60,5 +62,6 @@ namespace Viry3D
 		static int m_frame_count;
 		static int m_frame_record;
 		static int m_fps;
+		static int m_draw_call;
 	};
 }

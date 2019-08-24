@@ -416,6 +416,7 @@ namespace Viry3D
 
 							const auto& pipeline = shader->GetPass(j).pipeline;
 							driver.draw(pipeline, primitive);
+							Time::SetDrawCall(Time::GetDrawCall() + 1);
 						}
 					}
 				}
@@ -665,6 +666,7 @@ namespace Viry3D
 
 				const auto& pipeline = shader->GetPass(i).pipeline;
 				driver.draw(pipeline, primitive);
+				Time::SetDrawCall(Time::GetDrawCall() + 1);
 			}
 
 			driver.endRenderPass();

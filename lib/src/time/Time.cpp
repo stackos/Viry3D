@@ -34,6 +34,7 @@ namespace Viry3D
 	int Time::m_frame_record;
 	float Time::m_time = 0;
 	int Time::m_fps;
+	int Time::m_draw_call = 0;
 
 	Date Time::GetDate()
 	{

@@ -22,6 +22,7 @@
 #include "Renderer.h"
 #include "SkinnedMeshRenderer.h"
 #include "Texture.h"
+#include "time/Time.h"
 
 namespace Viry3D
 {
@@ -217,6 +218,7 @@ namespace Viry3D
 
 							const auto& pipeline = shadow_shader->GetPass(0).pipeline;
 							driver.draw(pipeline, primitive);
+							Time::SetDrawCall(Time::GetDrawCall() + 1);
 						}
 					}
 				}
