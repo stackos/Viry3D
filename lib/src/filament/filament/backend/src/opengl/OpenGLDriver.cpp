@@ -466,8 +466,8 @@ void OpenGLDriver::unbindSampler(GLuint sampler) noexcept {
 
 void OpenGLDriver::bindBuffer(GLenum target, GLuint buffer) noexcept {
     size_t targetIndex = getIndexForBufferTarget(target);
-    if (target == GL_ELEMENT_ARRAY_BUFFER) {
 #ifndef USE_GLES2
+    if (target == GL_ELEMENT_ARRAY_BUFFER) {
         // GL_ELEMENT_ARRAY_BUFFER is a special case, where the currently bound VAO remembers
         // the index buffer, unless there are no VAO bound (see: bindVertexArray)
         assert(state.vao.p);
@@ -479,8 +479,9 @@ void OpenGLDriver::bindBuffer(GLenum target, GLuint buffer) noexcept {
             }
             glBindBuffer(target, buffer);
         }
+    } else
 #endif
-    } else {
+    {
         update_state(state.buffers.genericBinding[targetIndex], buffer, [&]() {
             glBindBuffer(target, buffer);
         });
@@ -957,11 +958,7 @@ void OpenGLDriver::createVertexBufferR(
             }
         }
 
-#ifdef USE_GLES2
-		glBindBuffer(GL_ARRAY_BUFFER, vb->gl.buffers[i]);
-#else
         bindBuffer(GL_ARRAY_BUFFER, vb->gl.buffers[i]);
-#endif
         glBufferData(GL_ARRAY_BUFFER, size, nullptr, getBufferUsage(usage));
     }
 
@@ -980,13 +977,8 @@ void OpenGLDriver::createIndexBufferR(
     glGenBuffers(1, &ib->gl.buffer);
     GLsizeiptr size = elementSize * indexCount;
 
-#ifdef USE_GLES2
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
-#else
 	bindVertexArray(nullptr);
     bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
-#endif
-
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, getBufferUsage(usage));
     CHECK_GL_ERROR(utils::slog.e)
 }
@@ -1598,7 +1590,6 @@ void OpenGLDriver::destroyVertexBuffer(Handle<HwVertexBuffer> vbh) {
         GLsizei n = GLsizei(eb->bufferCount);
         glDeleteBuffers(n, eb->gl.buffers.data());
 
-#ifndef USE_GLES2
         // bindings of bound buffers are reset to 0
         const size_t targetIndex = getIndexForBufferTarget(GL_ARRAY_BUFFER);
         auto& target = state.buffers.genericBinding[targetIndex];
@@ -1608,7 +1599,6 @@ void OpenGLDriver::destroyVertexBuffer(Handle<HwVertexBuffer> vbh) {
                 target = 0;
             }
         }
-#endif
 
         destruct(vbh, eb);
     }
@@ -1622,14 +1612,12 @@ void OpenGLDriver::destroyIndexBuffer(Handle<HwIndexBuffer> ibh) {
 
         glDeleteBuffers(1, &ib->gl.buffer);
 
-#ifndef USE_GLES2
         // bindings of bound buffers are reset to 0
         const size_t targetIndex = getIndexForBufferTarget(GL_ELEMENT_ARRAY_BUFFER);
         auto& target = state.buffers.genericBinding[targetIndex];
         if (target == ib->gl.buffer) {
             target = 0;
         }
-#endif
 
         destruct(ibh, ib);
     }
@@ -1964,11 +1952,7 @@ void OpenGLDriver::updateVertexBuffer(Handle<HwVertexBuffer> vbh,
 
     GLVertexBuffer* eb = handle_cast<GLVertexBuffer *>(vbh);
 
-#ifdef USE_GLES2
-	glBindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[index]);
-#else
     bindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[index]);
-#endif
     glBufferSubData(GL_ARRAY_BUFFER, byteOffset, p.size, p.buffer);
 
     scheduleDestroy(std::move(p));
@@ -1983,12 +1967,8 @@ void OpenGLDriver::updateIndexBuffer(
     GLIndexBuffer* ib = handle_cast<GLIndexBuffer *>(ibh);
     assert(ib->elementSize == 2 || ib->elementSize == 4);
 
-#ifdef USE_GLES2
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
-#else
 	bindVertexArray(nullptr);
 	bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
-#endif
 
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, byteOffset, p.size, p.buffer);
 
@@ -2018,11 +1998,7 @@ void OpenGLDriver::updateBuffer(GLenum target,
     assert(buffer->capacity >= p.size);
     assert(buffer->id);
 
-#ifdef USE_GLES2
-	glBindBuffer(target, buffer->id);
-#else
     bindBuffer(target, buffer->id);
-#endif
 
     if (buffer->usage == BufferUsage::STREAM) {
 
@@ -2831,7 +2807,7 @@ void OpenGLDriver::bindVertexAttribs(const GLRenderPrimitive* rp, OpenGLProgram*
 					uint8_t bi = eb->attributes[i].buffer;
 					assert(bi != 0xFF);
 					
-					glBindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[bi]);
+					bindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[bi]);
 					CHECK_GL_ERROR(utils::slog.e)
 
 					glVertexAttribPointer(loc,
@@ -2859,7 +2835,7 @@ void OpenGLDriver::bindVertexAttribs(const GLRenderPrimitive* rp, OpenGLProgram*
 			}
 		}
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+		bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
 		CHECK_GL_ERROR(utils::slog.e)
 	}
 }
