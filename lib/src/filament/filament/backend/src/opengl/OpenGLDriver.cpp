@@ -2610,10 +2610,10 @@ void OpenGLDriver::beginRenderPass(Handle<HwRenderTarget> rth,
 
     GLRenderTarget* rt = handle_cast<GLRenderTarget*>(rth);
     
-#ifndef USE_GLES2
     if (UTILS_UNLIKELY(state.draw_fbo != rt->gl.fbo)) {
         bindFramebuffer(GL_FRAMEBUFFER, rt->gl.fbo);
 
+#ifndef USE_GLES2
         // glInvalidateFramebuffer appeared on GLES 3.0 and GL4.3, for simplicity we just
         // ignore it on GL (rather than having to do a runtime check).
         if (GLES31_HEADERS) {
@@ -2626,8 +2626,8 @@ void OpenGLDriver::beginRenderPass(Handle<HwRenderTarget> rth,
                 CHECK_GL_ERROR(utils::slog.e)
             }
         }
-    }
 #endif
+    }
     
     if (rt->gl.fbo_read) {
         // we have a multi-sample RenderTarget with non multi-sample attachments (i.e. this is the
