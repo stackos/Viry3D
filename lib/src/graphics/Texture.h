@@ -57,6 +57,7 @@ namespace Viry3D
 		BC1_RGBA,
 		BC2,
 		BC3,
+		ETC1_R8G8B8,
 		ETC2_R8G8B8,
 		ETC2_R8G8B8A1,
 		ETC2_R8G8B8A8,
@@ -90,6 +91,10 @@ namespace Viry3D
         static const Ref<Texture>& GetSharedBlackTexture();
         static const Ref<Texture>& GetSharedNormalTexture();
         static const Ref<Texture>& GetSharedCubemap();
+		static Ref<Texture> LoadFromKTXFile(
+			const String& path,
+			FilterMode filter_mode,
+			SamplerAddressMode wrap_mode);
         static Ref<Texture> LoadTexture2DFromFile(
             const String& path,
             FilterMode filter_mode,
@@ -179,5 +184,6 @@ namespace Viry3D
         SamplerAddressMode m_wrap_mode;
         filament::backend::TextureHandle m_texture;
         filament::backend::SamplerParams m_sampler;
+		String m_file_path;
     };
 }

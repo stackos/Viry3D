@@ -735,11 +735,6 @@ namespace Viry3D
         Engine::Instance()->GetThreadPool()->AddTask(task);
     }
 
-	void Resources::LoadGameObjectAsync(const String& path, std::function<void(const Ref<GameObject>&)> complete)
-	{
-        
-	}
-
 	void Resources::LoadTextureAsync(const String& path, std::function<void(const Ref<Texture>&)> complete)
 	{
         ReadTextureAsync(path, complete);

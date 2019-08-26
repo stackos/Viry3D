@@ -195,7 +195,15 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
     }
 
 #ifdef USE_GLES2
-#ifndef SIMULATE_GLES2
+#ifdef SIMULATE_GLES2
+	GLint n;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+	for (GLint i = 0; i < n; i++)
+	{
+		const char* ext = (const char*) glGetStringi(GL_EXTENSIONS, (GLuint) i);
+		slog.d << ext << io::endl;
+	}
+#else
     const char* exts = (const char*) glGetString(GL_EXTENSIONS);
     slog.d << exts << io::endl;
 #endif
@@ -1037,6 +1045,7 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
 	int h = height;
 	GLenum format = 0;
 	GLenum type = 0;
+	bool compressed = false;
 
 	switch (t->gl.internalFormat)
 	{
@@ -1067,35 +1076,47 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
 			type = GL_UNSIGNED_INT_24_8_OES;
 			break;
 #endif
+#if defined(GL_EXT_texture_compression_s3tc)
+		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+			compressed = true;
+			break;
+#endif
 		default:
 			assert(false);
 			break;
 	}
 
-	for (int i = 0; i < t->levels; ++i)
+	if (!compressed)
 	{
-		switch (t->gl.target)
+		for (int i = 0; i < t->levels; ++i)
 		{
-			case GL_TEXTURE_2D:
-				glTexImage2D(t->gl.target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
-                CHECK_GL_ERROR(utils::slog.e)
-				break;
-			case GL_TEXTURE_CUBE_MAP:
-				for (int j = 0; j < 6; ++j)
-				{
-					GLenum target = getCubemapTarget(TextureCubemapFace(j));
-					glTexImage2D(target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
-                    CHECK_GL_ERROR(utils::slog.e)
-				}
-				break;
-			default:
-				assert(false);
-				break;
-		}
+			switch (t->gl.target)
+			{
+				case GL_TEXTURE_2D:
+					glTexImage2D(t->gl.target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
+					CHECK_GL_ERROR(utils::slog.e)
+						break;
+				case GL_TEXTURE_CUBE_MAP:
+					for (int j = 0; j < 6; ++j)
+					{
+						GLenum target = getCubemapTarget(TextureCubemapFace(j));
+						glTexImage2D(target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
+						CHECK_GL_ERROR(utils::slog.e)
+					}
+					break;
+				default:
+					assert(false);
+					break;
+			}
 
-		w = std::max(1, (w / 2));
-		h = std::max(1, (h / 2));
+			w = std::max(1, (w / 2));
+			h = std::max(1, (h / 2));
+		}
 	}
+	
 #else
     switch (t->gl.target) {
         case GL_TEXTURE_2D:
@@ -2071,10 +2092,11 @@ void OpenGLDriver::updateSamplerGroup(Handle<HwSamplerGroup> sbh,
 	for (size_t i = 0; i < sb->sb->getSize(); ++i)
 	{
 		const SamplerGroup::Sampler& sampler = sb->sb->getSamplers()[i];
-		GLTexture* texture = handle_cast<GLTexture*>(sampler.t);
+		GLTexture* t = handle_cast<GLTexture*>(sampler.t);
 		
-		GLenum target = texture->gl.target;
-		glBindTexture(target, texture->gl.id);
+		GLenum target = t->gl.target;
+		bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
+		activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
 
 		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, getTextureFilter(sampler.s.filterMin));
 		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, getTextureFilter(sampler.s.filterMag));
@@ -2394,9 +2416,17 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
             switch (t->gl.target)
 			{
                 case GL_TEXTURE_2D:
-                    glCompressedTexSubImage2D(t->gl.target, GLint(level),
-                            GLint(x), GLint(y),
-                            w, h, t->gl.internalFormat, imageSize, p.buffer);
+					if (x == 0 && w == t->width && y == 0 && h == t->height)
+					{
+						glCompressedTexImage2D(t->gl.target, GLint(level),
+							t->gl.internalFormat, w, h, 0, imageSize, p.buffer);
+					}
+					else
+					{
+						glCompressedTexSubImage2D(t->gl.target, GLint(level),
+							GLint(x), GLint(y),
+							w, h, t->gl.internalFormat, imageSize, p.buffer);
+					}
                     break;
                     
 #ifndef USE_GLES2

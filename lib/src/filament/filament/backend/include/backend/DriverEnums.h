@@ -291,6 +291,8 @@ enum class PixelDataType : uint8_t {
 };
 
 enum class CompressedPixelDataType : uint16_t {
+	ETC1_RGB8,
+
     // Mandatory in GLES 3.0 and GL 4.3
     EAC_R11, EAC_R11_SIGNED, EAC_RG11, EAC_RG11_SIGNED,
     ETC2_RGB8, ETC2_SRGB8,
@@ -482,6 +484,9 @@ enum class TextureFormat : uint16_t {
     SRGB8_ALPHA8_ASTC_10x10,
     SRGB8_ALPHA8_ASTC_12x10,
     SRGB8_ALPHA8_ASTC_12x12,
+
+	// ETC1 format are available with a GLES extension
+	ETC1_RGB8,
 };
 
 size_t getTextureFormatSize(TextureFormat format) noexcept;

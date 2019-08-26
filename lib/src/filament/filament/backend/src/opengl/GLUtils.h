@@ -409,20 +409,6 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
             return 0;
 #endif
 
-#if defined(GL_EXT_texture_compression_s3tc)
-        case TextureFormat::DXT1_RGB:          return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-        case TextureFormat::DXT1_RGBA:         return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-        case TextureFormat::DXT3_RGBA:         return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-        case TextureFormat::DXT5_RGBA:         return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-#else
-        case TextureFormat::DXT1_RGB:
-        case TextureFormat::DXT1_RGBA:
-        case TextureFormat::DXT3_RGBA:
-        case TextureFormat::DXT5_RGBA:
-            // this should not happen
-            return 0;
-#endif
-
 #if defined(GL_KHR_texture_compression_astc_hdr)
         case TextureFormat::RGBA_ASTC_4x4:     return GL_COMPRESSED_RGBA_ASTC_4x4_KHR;
         case TextureFormat::RGBA_ASTC_5x4:     return GL_COMPRESSED_RGBA_ASTC_5x4_KHR;
@@ -484,6 +470,27 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
             // this should not happen
             return 0;
 #endif
+#endif
+
+#if defined(GL_OES_compressed_ETC1_RGB8_texture)
+		case TextureFormat::ETC1_RGB8:         return GL_ETC1_RGB8_OES;
+#else
+		case TextureFormat::ETC1_RGB8:
+			return 0;
+#endif
+
+#if defined(GL_EXT_texture_compression_s3tc)
+		case TextureFormat::DXT1_RGB:          return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+		case TextureFormat::DXT1_RGBA:         return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		case TextureFormat::DXT3_RGBA:         return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+		case TextureFormat::DXT5_RGBA:         return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+#else
+		case TextureFormat::DXT1_RGB:
+		case TextureFormat::DXT1_RGBA:
+		case TextureFormat::DXT3_RGBA:
+		case TextureFormat::DXT5_RGBA:
+			// this should not happen
+			return 0;
 #endif
 
         case TextureFormat::UNUSED:

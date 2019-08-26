@@ -416,8 +416,13 @@ namespace Viry3D
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
 			camera->SetCullingMask(1 << 0);
 
+			auto texture = Texture::LoadFromKTXFile(
+				Engine::Instance()->GetDataPath() + "/texture/ktx/logo_JPG_BC1_RGB.KTX",
+				FilterMode::Linear,
+				SamplerAddressMode::ClampToEdge);
+
 			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
-			material->SetTexture(MaterialProperty::TEXTURE, Resources::LoadTexture("texture/logo.jpg.tex"));
+			material->SetTexture(MaterialProperty::TEXTURE, texture);
 
 			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
 			renderer->GetGameObject()->SetLayer(0);

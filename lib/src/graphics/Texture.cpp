@@ -20,7 +20,9 @@
 #include "Engine.h"
 #include "math/Mathf.h"
 #include "memory/Memory.h"
+#include "io/MemoryStream.h"
 #include "io/File.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
@@ -168,6 +170,331 @@ namespace Viry3D
 		return m_shared_cubemap;
 	}
 
+#define COMPRESSED_RGB_S3TC_DXT1 0x83F0
+#define COMPRESSED_RGBA_S3TC_DXT1 0x83F1
+#define COMPRESSED_RGBA_S3TC_DXT3 0x83F2
+#define COMPRESSED_RGBA_S3TC_DXT5 0x83F3
+
+#define COMPRESSED_RGB8_ETC1 0x8D64
+
+#define COMPRESSED_RGB8_ETC2 0x9274
+#define COMPRESSED_SRGB8_ETC2 0x9275
+#define COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 0x9276
+#define COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 0x9277
+#define COMPRESSED_RGBA8_ETC2_EAC 0x9278
+#define COMPRESSED_SRGB8_ALPHA8_ETC2_EAC 0x9279
+
+#define COMPRESSED_RGBA_ASTC_4x4 0x93B0
+#define COMPRESSED_RGBA_ASTC_5x4 0x93B1
+#define COMPRESSED_RGBA_ASTC_5x5 0x93B2
+#define COMPRESSED_RGBA_ASTC_6x5 0x93B3
+#define COMPRESSED_RGBA_ASTC_6x6 0x93B4
+#define COMPRESSED_RGBA_ASTC_8x5 0x93B5
+#define COMPRESSED_RGBA_ASTC_8x6 0x93B6
+#define COMPRESSED_RGBA_ASTC_8x8 0x93B7
+#define COMPRESSED_RGBA_ASTC_10x5 0x93B8
+#define COMPRESSED_RGBA_ASTC_10x6 0x93B9
+#define COMPRESSED_RGBA_ASTC_10x8 0x93BA
+#define COMPRESSED_RGBA_ASTC_10x10 0x93BB
+#define COMPRESSED_RGBA_ASTC_12x10 0x93BC
+#define COMPRESSED_RGBA_ASTC_12x12 0x93BD
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_4x4 0x93D0
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_5x4 0x93D1
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_5x5 0x93D2
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_6x5 0x93D3
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_6x6 0x93D4
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_8x5 0x93D5
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_8x6 0x93D6
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_8x8 0x93D7
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_10x5 0x93D8
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_10x6 0x93D9
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_10x8 0x93DA
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_10x10 0x93DB
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_12x10 0x93DC
+#define COMPRESSED_SRGB8_ALPHA8_ASTC_12x12 0x93DD
+
+	struct KTXHeader
+	{
+		byte identifier[12];
+		uint32_t endianness;
+		uint32_t type;
+		uint32_t type_size;
+		uint32_t format;
+		uint32_t internal_format;
+		uint32_t base_internal_format;
+		uint32_t pixel_width;
+		uint32_t pixel_height;
+		uint32_t pixel_depth;
+		uint32_t array_size;
+		uint32_t face_count;
+		uint32_t level_count;
+		uint32_t key_value_data_size;
+	};
+
+	Ref<Texture> Texture::LoadFromKTXFile(
+		const String& path,
+		FilterMode filter_mode,
+		SamplerAddressMode wrap_mode)
+	{
+		Ref<Texture> texture;
+
+		if (File::Exist(path))
+		{
+			MemoryStream ms(File::ReadAllBytes(path));
+
+			KTXHeader header;
+
+			const int identifier_size = 12;
+			byte IDENTIFIER[identifier_size] = {
+				0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
+			};
+			ms.Read(header.identifier, identifier_size);
+			if (Memory::Compare(header.identifier, IDENTIFIER, identifier_size) != 0)
+			{
+				return texture;
+			}
+
+			bool endian_convert = false;
+			header.endianness = ms.Read<uint32_t>();
+			const uint32_t ENDIAN = 0x04030201;
+			if (header.endianness != ENDIAN)
+			{
+				endian_convert = true;
+
+				if (header.endianness != 0x01020304)
+				{
+					return texture;
+				}
+			}
+
+#define READ_ENDIAN(v, t) \
+            { v = ms.Read<t>(); if (endian_convert) { int left = 0; int right = sizeof(t) - 1; while (left < right) { byte* p = (byte*) &v; std::swap(p[left++], p[right--]); } } }
+
+			READ_ENDIAN(header.type, uint32_t);
+			READ_ENDIAN(header.type_size, uint32_t);
+			READ_ENDIAN(header.format, uint32_t);
+			if (header.type != 0 || header.type_size != 1 || header.format != 0)
+			{
+				Log("support compressed ktx only");
+				return texture;
+			}
+
+			READ_ENDIAN(header.internal_format, uint32_t);
+			READ_ENDIAN(header.base_internal_format, uint32_t);
+			READ_ENDIAN(header.pixel_width, uint32_t);
+			READ_ENDIAN(header.pixel_height, uint32_t);
+			READ_ENDIAN(header.pixel_depth, uint32_t);
+			READ_ENDIAN(header.array_size, uint32_t);
+			READ_ENDIAN(header.face_count, uint32_t);
+			READ_ENDIAN(header.level_count, uint32_t);
+			READ_ENDIAN(header.key_value_data_size, uint32_t);
+
+			TextureFormat texture_format = TextureFormat::None;
+			int block_size_x = 4;
+			int block_size_y = 4;
+			int block_bit_size = 0;
+			switch (header.internal_format)
+			{
+				case COMPRESSED_RGB_S3TC_DXT1:
+					texture_format = TextureFormat::BC1_RGB;
+					block_bit_size = 64;
+					break;
+				case COMPRESSED_RGBA_S3TC_DXT1:
+					texture_format = TextureFormat::BC1_RGBA;
+					block_bit_size = 64;
+					break;
+				case COMPRESSED_RGBA_S3TC_DXT3:
+					texture_format = TextureFormat::BC2;
+					block_bit_size = 128;
+					break;
+				case COMPRESSED_RGBA_S3TC_DXT5:
+					texture_format = TextureFormat::BC3;
+					block_bit_size = 128;
+					break;
+				case COMPRESSED_RGB8_ETC1:
+					texture_format = TextureFormat::ETC1_R8G8B8;
+					block_bit_size = 64;
+					break;
+				case COMPRESSED_RGB8_ETC2:
+					texture_format = TextureFormat::ETC2_R8G8B8;
+					block_bit_size = 64;
+					break;
+				case COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+					texture_format = TextureFormat::ETC2_R8G8B8A1;
+					block_bit_size = 64;
+					break;
+				case COMPRESSED_RGBA8_ETC2_EAC:
+					texture_format = TextureFormat::ETC2_R8G8B8A8;
+					block_bit_size = 128;
+					break;
+				case COMPRESSED_RGBA_ASTC_4x4:
+					texture_format = TextureFormat::ASTC_4x4;
+					block_bit_size = 128;
+					break;
+				default:
+					Log("compress format not support");
+					return texture;
+			}
+
+			uint32_t kv_size_read = 0;
+			while (kv_size_read < header.key_value_data_size)
+			{
+				uint32_t byte_size = 0;
+				READ_ENDIAN(byte_size, uint32_t);
+				ByteBuffer buffer(byte_size);
+				ms.Read(buffer.Bytes(), buffer.Size());
+				int padding = 3 - ((byte_size + 3) % 4);
+				if (padding > 0)
+				{
+					ms.Read(nullptr, padding);
+				}
+
+				kv_size_read += sizeof(byte_size) + byte_size + padding;
+			}
+
+			if (header.pixel_depth > 1)
+			{
+				Log("3d texture not support");
+				return texture;
+			}
+
+			if (header.level_count == 0)
+			{
+				header.level_count = 1;
+			}
+			if (header.array_size == 0)
+			{
+				header.array_size = 1;
+			}
+			if (header.pixel_depth == 0)
+			{
+				header.pixel_depth = 1;
+			}
+			if (header.pixel_height == 0)
+			{
+				header.pixel_height = 1;
+			}
+
+			bool texture_2d = false;
+			bool cubemap = false;
+
+			if (header.array_size == 1)
+			{
+				if (header.face_count == 1)
+				{
+					texture_2d = true;
+				}
+				else if (header.face_count == 6)
+				{
+					cubemap = true;
+				}
+				else
+				{
+					Log("invalid face count: %d", header.face_count);
+					return texture;
+				}
+			}
+			else
+			{
+				Log("texture array not support");
+				return texture;
+			}
+
+			Vector<Vector<ByteBuffer>> levels;
+
+			for (uint32_t i = 0; i < header.level_count; ++i)
+			{
+				uint32_t image_size = 0;
+				READ_ENDIAN(image_size, uint32_t);
+
+				uint32_t level_width = Mathf::Max(header.pixel_width >> i, 1u);
+				uint32_t level_height = Mathf::Max(header.pixel_height >> i, 1u);
+				int block_count_x = Mathf::Max(level_width / block_size_x, 1u);
+				int block_count_y = Mathf::Max(level_height / block_size_y, 1u);
+
+				Vector<ByteBuffer> level;
+
+				for (uint32_t j = 0; j < header.array_size; ++j)
+				{
+					for (uint32_t k = 0; k < header.face_count; ++k)
+					{
+						int face_buffer_size = block_bit_size * block_count_x * block_count_y * header.pixel_depth / 8;
+						ByteBuffer face(face_buffer_size);
+						ms.Read(face.Bytes(), face.Size());
+
+						int cube_padding = 3 - ((face_buffer_size + 3) % 4);
+						if (cube_padding > 0)
+						{
+							ms.Read(nullptr, cube_padding);
+						}
+
+						level.Add(face);
+					}
+				}
+
+				levels.Add(level);
+			}
+
+			if (texture_2d)
+			{
+				texture = Texture::CreateTexture2D(
+					header.pixel_width,
+					header.pixel_height,
+					texture_format,
+					filter_mode,
+					wrap_mode,
+					header.level_count > 1);
+
+				for (uint32_t i = 0; i < header.level_count; ++i)
+				{
+					uint32_t level_width = Mathf::Max(header.pixel_width >> i, 1u);
+					uint32_t level_height = Mathf::Max(header.pixel_height >> i, 1u);
+
+					texture->UpdateTexture(levels[i][0], 0, i, 0, 0, level_width, level_height);
+				}
+
+				texture->m_file_path = path;
+			}
+			else if (cubemap)
+			{
+				texture = Texture::CreateCubemap(
+					header.pixel_width,
+					texture_format,
+					filter_mode,
+					wrap_mode,
+					header.level_count > 1);
+
+				for (uint32_t i = 0; i < header.level_count; ++i)
+				{
+					ByteBuffer buffer;
+					Vector<int> offsets(6);
+
+					for (int j = 0; j < 6; ++j)
+					{
+						const auto& face = levels[i][j];
+						if (buffer.Size() == 0)
+						{
+							buffer = ByteBuffer(face.Size() * 6);
+						}
+						Memory::Copy(&buffer[j * face.Size()], face.Bytes(), face.Size());
+						offsets[j] = j * face.Size();
+					}
+
+					if (buffer.Size() > 0)
+					{
+						texture->UpdateCubemap(buffer, i, offsets);
+					}
+				}
+
+				texture->m_file_path = path;
+			}
+
+#undef READ_ENDIAN
+		}
+
+		return texture;
+	}
+
 	Ref<Texture> Texture::LoadTexture2DFromFile(
 		const String& path,
 		FilterMode filter_mode,
@@ -184,6 +511,8 @@ namespace Viry3D
 				filter_mode,
 				wrap_mode,
 				gen_mipmap);
+
+			texture->m_file_path = path;
 		}
 
 		return texture;
@@ -276,11 +605,39 @@ namespace Viry3D
 				return filament::backend::TextureFormat::DEPTH32F;
 			case TextureFormat::D32S8:
 				return filament::backend::TextureFormat::DEPTH32F_STENCIL8;
+
+			case TextureFormat::BC1_RGB:
+				return filament::backend::TextureFormat::DXT1_RGB;
+			case TextureFormat::BC1_RGBA:
+				return filament::backend::TextureFormat::DXT1_RGBA;
+			case TextureFormat::BC2:
+				return filament::backend::TextureFormat::DXT3_RGBA;
+			case TextureFormat::BC3:
+				return filament::backend::TextureFormat::DXT5_RGBA;
 			default:
 				assert(false);
 				break;
 		}
 		return filament::backend::TextureFormat::RGBA8;
+	}
+
+	static bool IsCompressedFormat(TextureFormat format)
+	{
+		switch (format)
+		{
+			case TextureFormat::BC1_RGB:
+			case TextureFormat::BC1_RGBA:
+			case TextureFormat::BC2:
+			case TextureFormat::BC3:
+			case TextureFormat::ETC1_R8G8B8:
+			case TextureFormat::ETC2_R8G8B8:
+			case TextureFormat::ETC2_R8G8B8A1:
+			case TextureFormat::ETC2_R8G8B8A8:
+			case TextureFormat::ASTC_4x4:
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	static filament::backend::PixelDataFormat GetPixelDataFormat(TextureFormat format)
@@ -307,6 +664,31 @@ namespace Viry3D
 				break;
 		}
 		return filament::backend::PixelDataType::UBYTE;
+	}
+
+	static filament::backend::CompressedPixelDataType GetCompressedPixelDataType(TextureFormat format)
+	{
+		switch (format)
+		{
+			case TextureFormat::BC1_RGB:
+				return filament::backend::CompressedPixelDataType::DXT1_RGB;
+			case TextureFormat::BC1_RGBA:
+				return filament::backend::CompressedPixelDataType::DXT1_RGBA;
+			case TextureFormat::BC2:
+				return filament::backend::CompressedPixelDataType::DXT3_RGBA;
+			case TextureFormat::BC3:
+				return filament::backend::CompressedPixelDataType::DXT5_RGBA;
+			case TextureFormat::ETC1_R8G8B8:
+				return filament::backend::CompressedPixelDataType::ETC1_RGB8;
+			case TextureFormat::ETC2_R8G8B8:
+				return filament::backend::CompressedPixelDataType::ETC2_RGB8;
+			case TextureFormat::ETC2_R8G8B8A1:
+				return filament::backend::CompressedPixelDataType::ETC2_RGB8_A1;
+			case TextureFormat::ETC2_R8G8B8A8:
+				return filament::backend::CompressedPixelDataType::ETC2_EAC_RGBA8;
+			default:
+				return filament::backend::CompressedPixelDataType::ETC1_RGB8;
+		}
 	}
 
 	Ref<Texture> Texture::CreateTexture2D(
@@ -539,13 +921,26 @@ namespace Viry3D
 
 		void* buffer = Memory::Alloc<void>(pixels.Size());
 		Memory::Copy(buffer, pixels.Bytes(), pixels.Size());
-		auto data = filament::backend::PixelBufferDescriptor(
-			buffer,
-			pixels.Size(),
-			GetPixelDataFormat(m_format),
-			GetPixelDataType(m_format),
-			FreeBufferCallback);
-		driver.updateTexture(m_texture, layer, level, x, y, w, h, std::move(data));
+		if (IsCompressedFormat(m_format))
+		{
+			auto data = filament::backend::PixelBufferDescriptor(
+				buffer,
+				pixels.Size(),
+				GetCompressedPixelDataType(m_format),
+				pixels.Size(),
+				FreeBufferCallback);
+			driver.updateTexture(m_texture, layer, level, x, y, w, h, std::move(data));
+		}
+		else
+		{
+			auto data = filament::backend::PixelBufferDescriptor(
+				buffer,
+				pixels.Size(),
+				GetPixelDataFormat(m_format),
+				GetPixelDataType(m_format),
+				FreeBufferCallback);
+			driver.updateTexture(m_texture, layer, level, x, y, w, h, std::move(data));
+		}
 	}
 
 	void Texture::CopyTexture(
