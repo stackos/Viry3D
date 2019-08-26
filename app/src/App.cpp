@@ -416,7 +416,6 @@ namespace Viry3D
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
 			camera->SetCullingMask(1 << 0);
 
-            /*
 			auto texture = Texture::LoadFromKTXFile(
 #if VR_IOS
                 Engine::Instance()->GetDataPath() + "/texture/ktx/checkflag_PVRTC_RGB_4V1.KTX",
@@ -425,10 +424,9 @@ namespace Viry3D
 #endif
 				FilterMode::Linear,
 				SamplerAddressMode::ClampToEdge);
-*/
             
 			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
-			material->SetTexture(MaterialProperty::TEXTURE, Resources::LoadTexture("texture/logo.jpg.tex"));
+			material->SetTexture(MaterialProperty::TEXTURE, texture);
 
 			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
 			renderer->GetGameObject()->SetLayer(0);
