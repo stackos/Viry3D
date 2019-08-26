@@ -33,7 +33,7 @@
 #include <algorithm>
 
 // change to true to display all GL extensions in the console on start-up
-#define DEBUG_PRINT_EXTENSIONS false
+#define DEBUG_PRINT_EXTENSIONS true
 
 // To emulate EXT_multisampled_render_to_texture properly we need to be able to copy from
 // a non-ms texture to an ms attachment. This is only allowed with OpenGL (not GLES), which
@@ -1076,6 +1076,18 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
 			type = GL_UNSIGNED_INT_24_8_OES;
 			break;
 #endif
+            
+#if defined(GL_OES_compressed_ETC1_RGB8_texture)
+        case GL_ETC1_RGB8_OES:
+            compressed = true;
+            break;
+#endif
+#if defined(GL_IMG_texture_compression_pvrtc)
+        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+        case GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG:
+            compressed = true;
+            break;
+#endif
 #if defined(GL_EXT_texture_compression_s3tc)
 		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
 		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
@@ -1098,7 +1110,7 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
 				case GL_TEXTURE_2D:
 					glTexImage2D(t->gl.target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
 					CHECK_GL_ERROR(utils::slog.e)
-						break;
+                    break;
 				case GL_TEXTURE_CUBE_MAP:
 					for (int j = 0; j < 6; ++j)
 					{
@@ -2416,24 +2428,27 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
             switch (t->gl.target)
 			{
                 case GL_TEXTURE_2D:
+#ifdef USE_GLES2
 					if (x == 0 && w == t->width && y == 0 && h == t->height)
 					{
 						glCompressedTexImage2D(t->gl.target, GLint(level),
-							t->gl.internalFormat, w, h, 0, imageSize, p.buffer);
+                            t->gl.internalFormat, w, h, 0, imageSize, p.buffer);
 					}
 					else
+#endif
 					{
 						glCompressedTexSubImage2D(t->gl.target, GLint(level),
 							GLint(x), GLint(y),
 							w, h, t->gl.internalFormat, imageSize, p.buffer);
 					}
+                    CHECK_GL_ERROR(utils::slog.e)
                     break;
                     
 #ifndef USE_GLES2
                 case GL_TEXTURE_2D_ARRAY:
                     glCompressedTexSubImage3D(t->gl.target, GLint(level),
-                            GLint(x), GLint(y), GLint(layer),
-                            w, h, 1, t->gl.internalFormat, imageSize, p.buffer);
+                        GLint(x), GLint(y), GLint(layer),
+                        w, h, 1, t->gl.internalFormat, imageSize, p.buffer);
                     break;
 #endif
                     
@@ -2445,9 +2460,20 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
         case SamplerType::SAMPLER_CUBEMAP:
 		{
             GLenum target = getCubemapTarget(TextureCubemapFace(layer));
-            glCompressedTexSubImage2D(target, GLint(level), 0, 0,
+#ifdef USE_GLES2
+            if (x == 0 && w == t->width && y == 0 && h == t->height)
+            {
+                glCompressedTexImage2D(target, GLint(level),
+                    t->gl.internalFormat, t->width >> level, t->height >> level, 0, imageSize, p.buffer);
+            }
+            else
+#endif
+            {
+                glCompressedTexSubImage2D(target, GLint(level), 0, 0,
                     t->width >> level, t->height >> level, t->gl.internalFormat,
                     imageSize, p.buffer);
+            }
+            CHECK_GL_ERROR(utils::slog.e)
             break;
         }
     }

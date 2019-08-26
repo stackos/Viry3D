@@ -478,6 +478,15 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
 		case TextureFormat::ETC1_RGB8:
 			return 0;
 #endif
+            
+#if defined(GL_IMG_texture_compression_pvrtc)
+        case TextureFormat::PVRTC_RGB8_4V1:    return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+        case TextureFormat::PVRTC_RGBA8_4V1:   return GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+#else
+        case TextureFormat::PVRTC_RGB8_4V1:
+        case TextureFormat::PVRTC_RGBA8_4V1:
+            return 0;
+#endif
 
 #if defined(GL_EXT_texture_compression_s3tc)
 		case TextureFormat::DXT1_RGB:          return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;

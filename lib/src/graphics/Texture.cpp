@@ -170,12 +170,15 @@ namespace Viry3D
 		return m_shared_cubemap;
 	}
 
+#define COMPRESSED_RGB8_ETC1 0x8D64
+    
+#define COMPRESSED_RGB8_PVRTC_4V1 0x8C00
+#define COMPRESSED_RGBA8_PVRTC_4V1 0x8C02
+    
 #define COMPRESSED_RGB_S3TC_DXT1 0x83F0
 #define COMPRESSED_RGBA_S3TC_DXT1 0x83F1
 #define COMPRESSED_RGBA_S3TC_DXT3 0x83F2
 #define COMPRESSED_RGBA_S3TC_DXT5 0x83F3
-
-#define COMPRESSED_RGB8_ETC1 0x8D64
 
 #define COMPRESSED_RGB8_ETC2 0x9274
 #define COMPRESSED_SRGB8_ETC2 0x9275
@@ -295,6 +298,18 @@ namespace Viry3D
 			int block_bit_size = 0;
 			switch (header.internal_format)
 			{
+                case COMPRESSED_RGB8_ETC1:
+                    texture_format = TextureFormat::ETC1_R8G8B8;
+                    block_bit_size = 64;
+                    break;
+                case COMPRESSED_RGB8_PVRTC_4V1:
+                    texture_format = TextureFormat::PVRTC_R8G8B8_4V1;
+                    block_bit_size = 64;
+                    break;
+                case COMPRESSED_RGBA8_PVRTC_4V1:
+                    texture_format = TextureFormat::PVRTC_R8G8B8A8_4V1;
+                    block_bit_size = 64;
+                    break;
 				case COMPRESSED_RGB_S3TC_DXT1:
 					texture_format = TextureFormat::BC1_RGB;
 					block_bit_size = 64;
@@ -310,10 +325,6 @@ namespace Viry3D
 				case COMPRESSED_RGBA_S3TC_DXT5:
 					texture_format = TextureFormat::BC3;
 					block_bit_size = 128;
-					break;
-				case COMPRESSED_RGB8_ETC1:
-					texture_format = TextureFormat::ETC1_R8G8B8;
-					block_bit_size = 64;
 					break;
 				case COMPRESSED_RGB8_ETC2:
 					texture_format = TextureFormat::ETC2_R8G8B8;
@@ -606,6 +617,12 @@ namespace Viry3D
 			case TextureFormat::D32S8:
 				return filament::backend::TextureFormat::DEPTH32F_STENCIL8;
 
+            case TextureFormat::ETC1_R8G8B8:
+                return filament::backend::TextureFormat::ETC1_RGB8;
+            case TextureFormat::PVRTC_R8G8B8_4V1:
+                return filament::backend::TextureFormat::PVRTC_RGB8_4V1;
+            case TextureFormat::PVRTC_R8G8B8A8_4V1:
+                return filament::backend::TextureFormat::PVRTC_RGBA8_4V1;
 			case TextureFormat::BC1_RGB:
 				return filament::backend::TextureFormat::DXT1_RGB;
 			case TextureFormat::BC1_RGBA:
@@ -614,6 +631,14 @@ namespace Viry3D
 				return filament::backend::TextureFormat::DXT3_RGBA;
 			case TextureFormat::BC3:
 				return filament::backend::TextureFormat::DXT5_RGBA;
+            case TextureFormat::ETC2_R8G8B8:
+                return filament::backend::TextureFormat::ETC2_RGB8;
+            case TextureFormat::ETC2_R8G8B8A1:
+                return filament::backend::TextureFormat::ETC2_RGB8_A1;
+            case TextureFormat::ETC2_R8G8B8A8:
+                return filament::backend::TextureFormat::ETC2_EAC_RGBA8;
+            case TextureFormat::ASTC_4x4:
+                return filament::backend::TextureFormat::RGBA_ASTC_4x4;
 			default:
 				assert(false);
 				break;
@@ -625,11 +650,13 @@ namespace Viry3D
 	{
 		switch (format)
 		{
+            case TextureFormat::ETC1_R8G8B8:
+            case TextureFormat::PVRTC_R8G8B8_4V1:
+            case TextureFormat::PVRTC_R8G8B8A8_4V1:
 			case TextureFormat::BC1_RGB:
 			case TextureFormat::BC1_RGBA:
 			case TextureFormat::BC2:
 			case TextureFormat::BC3:
-			case TextureFormat::ETC1_R8G8B8:
 			case TextureFormat::ETC2_R8G8B8:
 			case TextureFormat::ETC2_R8G8B8A1:
 			case TextureFormat::ETC2_R8G8B8A8:
@@ -670,6 +697,12 @@ namespace Viry3D
 	{
 		switch (format)
 		{
+            case TextureFormat::ETC1_R8G8B8:
+                return filament::backend::CompressedPixelDataType::ETC1_RGB8;
+            case TextureFormat::PVRTC_R8G8B8_4V1:
+                return filament::backend::CompressedPixelDataType::PVRTC_RGB8_4V1;
+            case TextureFormat::PVRTC_R8G8B8A8_4V1:
+                return filament::backend::CompressedPixelDataType::PVRTC_RGBA8_4V1;
 			case TextureFormat::BC1_RGB:
 				return filament::backend::CompressedPixelDataType::DXT1_RGB;
 			case TextureFormat::BC1_RGBA:
@@ -678,14 +711,14 @@ namespace Viry3D
 				return filament::backend::CompressedPixelDataType::DXT3_RGBA;
 			case TextureFormat::BC3:
 				return filament::backend::CompressedPixelDataType::DXT5_RGBA;
-			case TextureFormat::ETC1_R8G8B8:
-				return filament::backend::CompressedPixelDataType::ETC1_RGB8;
 			case TextureFormat::ETC2_R8G8B8:
 				return filament::backend::CompressedPixelDataType::ETC2_RGB8;
 			case TextureFormat::ETC2_R8G8B8A1:
 				return filament::backend::CompressedPixelDataType::ETC2_RGB8_A1;
 			case TextureFormat::ETC2_R8G8B8A8:
 				return filament::backend::CompressedPixelDataType::ETC2_EAC_RGBA8;
+            case TextureFormat::ASTC_4x4:
+                return filament::backend::CompressedPixelDataType::RGBA_ASTC_4x4;
 			default:
 				return filament::backend::CompressedPixelDataType::ETC1_RGB8;
 		}
@@ -906,13 +939,26 @@ namespace Viry3D
 
 		void* buffer = Memory::Alloc<void>(pixels.Size());
 		Memory::Copy(buffer, pixels.Bytes(), pixels.Size());
-		auto data = filament::backend::PixelBufferDescriptor(
-			buffer,
-			pixels.Size(),
-			GetPixelDataFormat(m_format),
-			GetPixelDataType(m_format),
-			FreeBufferCallback);
-		driver.updateCubeImage(m_texture, level, std::move(data), offsets);
+        if (IsCompressedFormat(m_format))
+        {
+            auto data = filament::backend::PixelBufferDescriptor(
+                buffer,
+                pixels.Size(),
+                GetCompressedPixelDataType(m_format),
+                pixels.Size(),
+                FreeBufferCallback);
+            driver.updateCubeImage(m_texture, level, std::move(data), offsets);
+        }
+        else
+        {
+            auto data = filament::backend::PixelBufferDescriptor(
+                buffer,
+                pixels.Size(),
+                GetPixelDataFormat(m_format),
+                GetPixelDataType(m_format),
+                FreeBufferCallback);
+            driver.updateCubeImage(m_texture, level, std::move(data), offsets);
+        }
 	}
 
 	void Texture::UpdateTexture(const ByteBuffer& pixels, int layer, int level, int x, int y, int w, int h)
