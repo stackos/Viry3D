@@ -32,10 +32,26 @@
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
 
+#if VR_WASM
+#include <emscripten.h>
+
+EMSCRIPTEN_KEEPALIVE
+void OnLoadFileFromUrlAsync(int request_id, const char* url, uint8_t* data, int data_size)
+{
+    Viry3D::Resources::OnLoadFileFromUrlAsync(request_id, url, data, data_size);
+}
+
+EM_JS(void, LoadFileFromUrlAsync, (int request_id, const char* url), {
+    
+});
+#endif
+
 namespace Viry3D
 {
 	static Map<String, Ref<Object>> g_cache;
-
+    int Resources::m_request_id = 0;
+    Map<int, std::function<void(const ByteBuffer&)>> Resources::m_load_callbacks;
+    
 	void Resources::Init()
 	{
 	
@@ -43,6 +59,7 @@ namespace Viry3D
 
 	void Resources::Done()
 	{
+        m_load_callbacks.Clear();
 		g_cache.Clear();
 	}
 
@@ -739,4 +756,37 @@ namespace Viry3D
 	{
         ReadTextureAsync(path, complete);
 	}
+    
+    void Resources::LoadFileFromUrlAsync(const String& url, std::function<void(const ByteBuffer&)> complete)
+    {
+#if VR_WASM
+        int request_id = ++m_request_id;
+        m_load_callbacks[request_id] = complete;
+        ::LoadFileFromUrlAsync(request_id, url.CString());
+#else
+        Resources::LoadFileAsync(url, complete);
+#endif
+    }
+    
+    void Resources::OnLoadFileFromUrlAsync(int request_id, const char* url, uint8_t* data, int data_size)
+    {
+        if (m_load_callbacks.Contains(request_id))
+        {
+            auto complete = m_load_callbacks[request_id];
+            
+            if (complete)
+            {
+                if (data != nullptr && data_size > 0)
+                {
+                    complete(ByteBuffer(data, data_size));
+                }
+                else
+                {
+                    complete(ByteBuffer());
+                }
+            }
+            
+            m_load_callbacks.Remove(request_id);
+        }
+    }
 }

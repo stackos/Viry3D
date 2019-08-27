@@ -38,5 +38,12 @@ namespace Viry3D
 		static void LoadFileAsync(const String& path, std::function<void(const ByteBuffer&)> complete);
         static void LoadFilesAsync(const Vector<String>& paths, std::function<void(const Vector<ByteBuffer>&)> complete);
 		static void LoadTextureAsync(const String& path, std::function<void(const Ref<Texture>&)> complete);
+        
+        static void LoadFileFromUrlAsync(const String& url, std::function<void(const ByteBuffer&)> complete);
+        static void OnLoadFileFromUrlAsync(int request_id, const char* url, uint8_t* data, int data_size);
+        
+    private:
+        static int m_request_id;
+        static Map<int, std::function<void(const ByteBuffer&)>> m_load_callbacks;
     };
 }
