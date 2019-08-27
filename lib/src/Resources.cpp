@@ -36,9 +36,9 @@
 #include <emscripten.h>
 
 EMSCRIPTEN_KEEPALIVE
-void OnLoadFileFromUrlAsync(int request_id, const char* url, uint8_t* data, int data_size)
+void OnLoadFileFromUrlComplete(int request_id, const char* url, uint8_t* data, int data_size)
 {
-    Viry3D::Resources::OnLoadFileFromUrlAsync(request_id, url, data, data_size);
+    Viry3D::Resources::OnLoadFileFromUrlComplete(request_id, url, data, data_size);
 }
 
 EM_JS(void, LoadFileFromUrlAsync, (int request_id, const char* url), {
@@ -768,7 +768,7 @@ namespace Viry3D
 #endif
     }
     
-    void Resources::OnLoadFileFromUrlAsync(int request_id, const char* url, uint8_t* data, int data_size)
+    void Resources::OnLoadFileFromUrlComplete(int request_id, const char* url, uint8_t* data, int data_size)
     {
         if (m_load_callbacks.Contains(request_id))
         {
