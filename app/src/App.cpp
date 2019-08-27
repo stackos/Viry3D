@@ -419,6 +419,8 @@ namespace Viry3D
 			auto texture = Texture::LoadFromKTXFile(
 #if VR_IOS
                 Engine::Instance()->GetDataPath() + "/texture/ktx/checkflag_PVRTC_RGB_4V1.KTX",
+#elif VR_ANDROID
+				Engine::Instance()->GetDataPath() + "/texture/ktx/logo_JPG_ETC_RGB.KTX",
 #else
 				Engine::Instance()->GetDataPath() + "/texture/ktx/logo_JPG_BC1_RGB.KTX",
 #endif

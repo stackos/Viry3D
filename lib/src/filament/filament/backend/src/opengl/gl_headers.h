@@ -24,7 +24,7 @@
 	#include <GLES2/gl2ext.h>
 #else
 	#include <GLES3/gl31.h>
-	#include <GLES3/gl2ext.h>
+	#include <GLES2/gl2ext.h>
 #endif
 
     /* The Android NDK doesn't exposes extensions, fake it with eglGetProcAddress */
@@ -60,7 +60,7 @@
     #include <GLES2/gl2ext.h>
 #else
     #include <GLES3/gl31.h>
-    #include <GLES3/gl2ext.h>
+    #include <GLES2/gl2ext.h>
 #endif
 
 #elif defined(IOS)

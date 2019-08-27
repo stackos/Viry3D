@@ -9,7 +9,6 @@
 *.mp4
 *.pri
 local.properties
-*.exe
 viry3d.lib
 build
 .vs

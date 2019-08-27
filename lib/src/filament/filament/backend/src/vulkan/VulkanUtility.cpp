@@ -239,6 +239,7 @@ VkCompareOp getCompareOp(SamplerCompareFunc func) {
         case Compare::NE: return VK_COMPARE_OP_NOT_EQUAL;
         case Compare::A:  return VK_COMPARE_OP_ALWAYS;
         case Compare::N:  return VK_COMPARE_OP_NEVER;
+		default:		  return VK_COMPARE_OP_NEVER;
     }
 }
 
@@ -256,6 +257,7 @@ VkBlendFactor getBlendFactor(BlendFunction mode) {
         case BlendFunction::DST_ALPHA:             return VK_BLEND_FACTOR_DST_ALPHA;
         case BlendFunction::ONE_MINUS_DST_ALPHA:   return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
         case BlendFunction::SRC_ALPHA_SATURATE:    return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+		default:								   return VK_BLEND_FACTOR_ZERO;
     }
 }
 
@@ -266,6 +268,7 @@ VkCullModeFlags getCullMode(CullingMode mode) {
         case CullingMode::FRONT:          return VK_CULL_MODE_FRONT_BIT;
         case CullingMode::BACK:           return VK_CULL_MODE_BACK_BIT;
         case CullingMode::FRONT_AND_BACK: return VK_CULL_MODE_FRONT_AND_BACK;
+		default:						  return 0;
     }
 }
 

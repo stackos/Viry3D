@@ -95,7 +95,7 @@ namespace Viry3D
 #elif VR_UWP
 			m_backend(backend::Backend::D3D11),
 #elif VR_ANDROID
-			m_backend(backend::Backend::VULKAN),
+			m_backend(backend::Backend::OPENGL),
 #elif VR_USE_METAL
             m_backend(backend::Backend::METAL),
 #else

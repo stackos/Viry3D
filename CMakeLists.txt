@@ -985,7 +985,7 @@ elseif (${Target} MATCHES "Android")
                           ${SHADERC_SRC}/libs/${ANDROID_STL}/${ANDROID_ABI}/libshaderc.a)
 
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -std=c++14 -fexceptions -frtti -DVR_ANDROID -DVR_VULKAN=1 -DVR_GLES=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
+        "${CMAKE_CXX_FLAGS} -std=c++14 -fexceptions -frtti -DVR_ANDROID -DVR_VULKAN=1 -DVR_GLES=1 -DUSE_GLES2=1 -DVK_USE_PLATFORM_ANDROID_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
     add_definitions(-Wall -DIOAPI_NO_64 -DHAVE_GCC_DESTRUCTOR)
 
     target_sources(Viry3DDep PRIVATE

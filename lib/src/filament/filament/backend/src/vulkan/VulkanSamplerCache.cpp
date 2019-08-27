@@ -29,6 +29,8 @@ constexpr inline VkSamplerAddressMode getWrapMode(SamplerWrapMode mode) noexcept
             return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         case SamplerWrapMode::MIRRORED_REPEAT:
             return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+		default:
+			return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     }
 }
 
@@ -46,6 +48,8 @@ constexpr inline VkFilter getFilter(SamplerMinFilter filter) noexcept {
             return VK_FILTER_NEAREST;
         case SamplerMinFilter::LINEAR_MIPMAP_LINEAR:
             return VK_FILTER_LINEAR;
+		default:
+			return VK_FILTER_NEAREST;
     }
 }
 
@@ -55,6 +59,8 @@ constexpr inline VkFilter getFilter(SamplerMagFilter filter) noexcept {
             return VK_FILTER_NEAREST;
         case SamplerMagFilter::LINEAR:
             return VK_FILTER_LINEAR;
+		default:
+			return VK_FILTER_NEAREST;
     }
 }
 
@@ -72,6 +78,8 @@ constexpr inline VkSamplerMipmapMode getMipmapMode(SamplerMinFilter filter) noex
             return VK_SAMPLER_MIPMAP_MODE_LINEAR;
         case SamplerMinFilter::LINEAR_MIPMAP_LINEAR:
             return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		default:
+			return VK_SAMPLER_MIPMAP_MODE_NEAREST;
     }
 }
 
@@ -88,6 +96,8 @@ constexpr inline float getMaxLod(SamplerMinFilter filter) noexcept {
         case SamplerMinFilter::LINEAR_MIPMAP_LINEAR:
             // Assuming our maximum texture size is 4k, we'll never need more than 12 miplevels.
             return 12.0f;
+		default:
+			return 0.25f;
     }
 }
 
