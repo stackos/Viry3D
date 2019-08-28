@@ -42,7 +42,7 @@ void OnLoadFileFromUrlComplete(int request_id, const char* url, uint8_t* data, i
 }
 
 EM_JS(void, LoadFileFromUrlAsync, (int request_id, const char* url), {
-    
+    LoadFileFromUrlAsync(request_id, UTF8ToString(url));
 });
 #endif
 
