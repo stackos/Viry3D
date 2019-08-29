@@ -35,8 +35,15 @@
 #if VR_WASM
 #include <emscripten.h>
 
-EMSCRIPTEN_KEEPALIVE
-void OnLoadFileFromUrlComplete(int request_id, const char* url, uint8_t* data, int data_size)
+extern "C" uint8_t* EMSCRIPTEN_KEEPALIVE MemoryAlloc(int size) {
+	return Memory::Alloc<uint8_t>(size);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE MemoryFree(uint8_t* p) {
+	Memory::Free(p);
+}
+
+extern "C" void EMSCRIPTEN_KEEPALIVE OnLoadFileFromUrlComplete(int request_id, const char* url, uint8_t* data, int data_size)
 {
     Viry3D::Resources::OnLoadFileFromUrlComplete(request_id, url, data, data_size);
 }
@@ -54,7 +61,7 @@ namespace Viry3D
     
 	void Resources::Init()
 	{
-	
+
 	}
 
 	void Resources::Done()
@@ -760,8 +767,8 @@ namespace Viry3D
     void Resources::LoadFileFromUrlAsync(const String& url, std::function<void(const ByteBuffer&)> complete)
     {
 #if VR_WASM
-        int request_id = ++m_request_id;
-        m_load_callbacks[request_id] = complete;
+		int request_id = ++m_request_id;
+		m_load_callbacks.Add(request_id, complete);
         ::LoadFileFromUrlAsync(request_id, url.CString());
 #else
         Resources::LoadFileAsync(url, complete);

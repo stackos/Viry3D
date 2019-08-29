@@ -20,6 +20,7 @@
 #include "graphics/MeshRenderer.h"
 #include "graphics/Skybox.h"
 #include "graphics/Light.h"
+#include "graphics/Image.h"
 #include "animation/Animation.h"
 #include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
@@ -436,6 +437,12 @@ namespace Viry3D
 			renderer->SetMaterial(material);
             
             this->InitUI();
+
+			Resources::LoadFileFromUrlAsync("texture/logo.jpg", [](const ByteBuffer& buffer) {
+				Log("buffer size %d", buffer.Size());
+				auto image = Image::LoadFromMemory(buffer);
+				Log("image width:%d height:%d", image->width, image->height);
+			});
 		}
         
         void InitUI()

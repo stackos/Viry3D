@@ -20,6 +20,9 @@ const Engine = {
     Init: null,
     Done: null,
     Update: null,
+	MemoryAlloc: null,
+	MemoryFree: null,
+	OnLoadFileFromUrlComplete: null,
     events: new Array(),
     down: false,
     audio: null,
@@ -136,6 +139,27 @@ function StopAudio(msg) {
         Engine.audio.currentTime = 0;
     }
 }
+
+function LoadFileFromUrlAsync(request_id, url) {
+	console.log("LoadFileFromUrlAsync :" + request_id + " :" + url);
+
+	const req = new XMLHttpRequest();
+	req.open("GET", url, true);
+	req.responseType = "arraybuffer";
+
+	req.onload = function (event) {
+	  const buffer = req.response;
+	  if (buffer) {
+		const bytes = new Uint8Array(buffer);
+		const p = Engine.MemoryAlloc(bytes.length);
+		Module.HEAP8.set(bytes, p);
+		Engine.OnLoadFileFromUrlComplete(request_id, url, p, bytes.length);
+		Engine.MemoryFree(p);
+	  }
+	};
+
+	req.send(null);
+}
 //
 
 function InitLoading() {
@@ -183,6 +207,9 @@ function Main() {
     Engine.Init = Module.cwrap("InitEngine", null, ["string"]);
     Engine.Done = Module.cwrap("DoneEngine", null, ["string"]);
     Engine.Update = Module.cwrap("UpdateEngine", null, ["string"]);
+	Engine.MemoryAlloc = Module.cwrap("MemoryAlloc", "number", ["number"]);
+	Engine.MemoryFree = Module.cwrap("MemoryFree", null, ["number"]);
+	Engine.OnLoadFileFromUrlComplete = Module.cwrap("OnLoadFileFromUrlComplete", null, ["number", "string", "number", "number"]);
 
 	let use_gles2 = true;
     let glesv3 = false;
