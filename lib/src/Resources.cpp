@@ -36,11 +36,11 @@
 #include <emscripten.h>
 
 extern "C" uint8_t* EMSCRIPTEN_KEEPALIVE MemoryAlloc(int size) {
-	return Memory::Alloc<uint8_t>(size);
+	return Viry3D::Memory::Alloc<uint8_t>(size);
 }
 
 extern "C" void EMSCRIPTEN_KEEPALIVE MemoryFree(uint8_t* p) {
-	Memory::Free(p);
+	Viry3D::Memory::Free(p);
 }
 
 extern "C" void EMSCRIPTEN_KEEPALIVE OnLoadFileFromUrlComplete(int request_id, const char* url, uint8_t* data, int data_size)
