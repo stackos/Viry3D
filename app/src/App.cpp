@@ -437,12 +437,6 @@ namespace Viry3D
 			renderer->SetMaterial(material);
             
             this->InitUI();
-
-			Resources::LoadFileFromUrlAsync("texture/logo.jpg", [](const ByteBuffer& buffer) {
-				Log("buffer size %d", buffer.Size());
-				auto image = Image::LoadFromMemory(buffer);
-				Log("image width:%d height:%d", image->width, image->height);
-			});
 		}
         
         void InitUI()
@@ -469,8 +463,14 @@ namespace Viry3D
 			sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
 			sprite->SetPivot(Vector2(0, 0.5f));
 			sprite->SetOffset(Vector2i(0, 0));
-			sprite->SetTexture(Resources::LoadTexture("texture/logo.jpg.tex"));
 			canvas->AddView(sprite);
+
+			Resources::LoadFileFromUrlAsync("texture/logo.jpg", [=](const ByteBuffer& buffer) {
+				Log("buffer size %d", buffer.Size());
+				auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+				Log("image width:%d height:%d", texture->GetWidth(), texture->GetHeight());
+				sprite->SetTexture(texture);
+			});
         }
 
 		void Update()
