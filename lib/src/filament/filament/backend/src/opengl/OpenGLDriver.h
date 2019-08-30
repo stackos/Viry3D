@@ -591,6 +591,7 @@ private:
 	GLuint mSharedDrawFramebuffer = 0;
 	GLuint mSharedReadFramebuffer = 0;
 	GLuint mSharedVAO = 0;
+    int mContextVersion = 20;
 };
 
 // ------------------------------------------------------------------------------------------------
