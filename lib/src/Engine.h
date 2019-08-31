@@ -32,6 +32,7 @@ namespace filament
 		class CommandStream;
 		using DriverApi = CommandStream;
 		enum class Backend : uint8_t;
+        enum class ShaderModel : uint8_t;
 	}
 }
 
@@ -48,6 +49,7 @@ namespace Viry3D
 		void Execute();
 		filament::backend::DriverApi& GetDriverApi();
 		const filament::backend::Backend& GetBackend() const;
+        filament::backend::ShaderModel GetShaderModel() const;
 		void* GetDefaultRenderTarget();
 		const String& GetDataPath();
 		const String& GetSavePath();

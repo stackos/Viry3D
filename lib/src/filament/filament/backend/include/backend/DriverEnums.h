@@ -166,14 +166,15 @@ enum class FenceStatus : int8_t {
 
 static constexpr uint64_t FENCE_WAIT_FOR_EVER = uint64_t(-1);
 
-static constexpr size_t SHADER_MODEL_COUNT = 3;
+static constexpr size_t SHADER_MODEL_COUNT = 4;
 enum class ShaderModel : uint8_t {
     // For testing
     UNKNOWN    = 0,
     // Mobile
-    GL_ES_30   = 1,
+    GL_ES_20   = 1,
+    GL_ES_30   = 2,
     // Desktop
-    GL_CORE_41 = 2,
+    GL_CORE_41 = 3,
 };
 
 enum class PrimitiveType : uint8_t {

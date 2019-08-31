@@ -22,9 +22,11 @@
 
 namespace filament {
 
+class OpenGLDriver;
+    
 class OpenGLBlitter {
 public:
-    explicit OpenGLBlitter() noexcept {}
+    explicit OpenGLBlitter(OpenGLDriver* driver) noexcept { mDriver = driver; }
 
     void init() noexcept;
     void terminate() noexcept;
@@ -34,34 +36,32 @@ public:
     class State {
         bool mHasState = false;
         GLint activeTexture, texture, framebuffer, array, vertexAttrib, program;
-#ifndef USE_GLES2
         GLint sampler;
-#endif
         GLboolean stencilTest, scissorTest, cullFace;
         GLint viewport[4], writeMask[4];
-        void save() noexcept;
-        void restore() noexcept;
+        void save(OpenGLDriver* driver) noexcept;
+        void restore(OpenGLDriver* driver) noexcept;
     public:
-        void setup() noexcept {
+        void init(OpenGLDriver* driver) noexcept {
             if (UTILS_UNLIKELY(!mHasState)) {
-                save();
+                save(driver);
             }
         }
-        ~State() noexcept {
+        void terminate(OpenGLDriver* driver) noexcept {
             if (UTILS_UNLIKELY(mHasState)) {
-                restore();
+                restore(driver);
             }
         }
     };
 
 private:
-#ifndef USE_GLES2
     GLuint mSampler{};
-#endif
     GLuint mVertexShader{};
     GLuint mFragmentShader{};
     GLuint mProgram{};
     GLuint mFBO{};
+    OpenGLDriver* mDriver = nullptr;
+    
 };
 
 } // namespace filament

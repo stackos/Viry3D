@@ -142,13 +142,11 @@ constexpr inline GLenum getComponentType(backend::ElementType type) noexcept {
         case ElementType::FLOAT3:
         case ElementType::FLOAT4:
             return GL_FLOAT;
-#ifndef USE_GLES2
         case ElementType::HALF:
         case ElementType::HALF2:
         case ElementType::HALF3:
         case ElementType::HALF4:
             return GL_HALF_FLOAT;
-#endif
 
 		default:
 			return 0;
@@ -200,10 +198,8 @@ constexpr inline GLenum getBlendEquationMode(backend::BlendEquation mode) noexce
         case BlendEquation::ADD:               return GL_FUNC_ADD;
         case BlendEquation::SUBTRACT:          return GL_FUNC_SUBTRACT;
         case BlendEquation::REVERSE_SUBTRACT:  return GL_FUNC_REVERSE_SUBTRACT;
-#ifndef USE_GLES2
         case BlendEquation::MIN:               return GL_MIN;
         case BlendEquation::MAX:               return GL_MAX;
-#endif
         default:                               return 0;
     }
 }
@@ -227,10 +223,8 @@ constexpr inline GLenum getBlendFunctionMode(backend::BlendFunction mode) noexce
 }
 
 constexpr inline GLenum getTextureCompareMode(backend::SamplerCompareMode mode) noexcept {
-#ifndef USE_GLES2
     return mode == backend::SamplerCompareMode::NONE ?
 		GL_NONE : GL_COMPARE_REF_TO_TEXTURE;
-#endif
 
 	return 0;
 }
@@ -257,7 +251,6 @@ constexpr inline GLenum getDepthFunc(backend::SamplerCompareFunc func) noexcept 
 constexpr inline GLenum getFormat(backend::PixelDataFormat format) noexcept {
     using PixelDataFormat = backend::PixelDataFormat;
     switch (format) {
-#ifndef USE_GLES2
         case PixelDataFormat::R:                return GL_RED;
         case PixelDataFormat::R_INTEGER:        return GL_RED_INTEGER;
         case PixelDataFormat::RG:               return GL_RG;
@@ -269,7 +262,6 @@ constexpr inline GLenum getFormat(backend::PixelDataFormat format) noexcept {
         case PixelDataFormat::DEPTH_COMPONENT:  return GL_DEPTH_COMPONENT;
         case PixelDataFormat::DEPTH_STENCIL:    return GL_DEPTH_STENCIL;
 		case PixelDataFormat::ALPHA:            return GL_ALPHA;
-#endif
 		case PixelDataFormat::RGBA:             return GL_RGBA;
 		default:								return 0;
     }
@@ -284,9 +276,7 @@ constexpr inline GLenum getType(backend::PixelDataType type) noexcept {
         case PixelDataType::SHORT:              return GL_SHORT;
         case PixelDataType::UINT:               return GL_UNSIGNED_INT;
         case PixelDataType::INT:                return GL_INT;
-#ifndef USE_GLES2
         case PixelDataType::HALF:               return GL_HALF_FLOAT;
-#endif
         case PixelDataType::FLOAT:              return GL_FLOAT;
         case PixelDataType::COMPRESSED:         return 0; // should never happen
 		default:								return 0;
@@ -299,17 +289,6 @@ constexpr inline GLenum getType(backend::PixelDataType type) noexcept {
 constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) noexcept {
     using TextureFormat = backend::TextureFormat;
     switch (format) {
-#ifdef USE_GLES2
-#ifdef SIMULATE_GLES2
-		case TextureFormat::R8:                return GL_R8;
-		case TextureFormat::RGBA8:             return GL_RGBA8;
-		case TextureFormat::DEPTH24_STENCIL8:  return GL_DEPTH24_STENCIL8;
-#else
-		case TextureFormat::R8:                return GL_LUMINANCE;
-		case TextureFormat::RGBA8:             return GL_RGBA;
-		case TextureFormat::DEPTH24_STENCIL8:  return GL_DEPTH_STENCIL_OES;
-#endif
-#else
 		// 8-bits per element
 		case TextureFormat::R8:                return GL_R8;
 		case TextureFormat::R8_SNORM:          return GL_R8_SNORM;
@@ -469,7 +448,6 @@ constexpr /* inline */ GLenum getInternalFormat(backend::TextureFormat format) n
         case TextureFormat::SRGB8_ALPHA8_ASTC_12x12:
             // this should not happen
             return 0;
-#endif
 #endif
 
 #if defined(GL_OES_compressed_ETC1_RGB8_texture)

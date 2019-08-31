@@ -462,8 +462,6 @@ DECL_DRIVER_API_4(bindUniformBufferRange,
         size_t, offset,
         size_t, size)
 
-#ifdef USE_GLES2
-
 DECL_DRIVER_API_4(setUniformVector,
         backend::ProgramHandle, ph,
 		std::string, name,
@@ -475,8 +473,6 @@ DECL_DRIVER_API_4(setUniformMatrix,
 		std::string, name,
 		size_t, count,
 		backend::BufferDescriptor&&, data)
-
-#endif
 
 DECL_DRIVER_API_2(bindSamplers,
         size_t, index,

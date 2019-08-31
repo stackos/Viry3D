@@ -15,7 +15,7 @@
  */
 
 #include "OpenGLBlitter.h"
-
+#include "OpenGLDriver.h"
 #include "GLUtils.h"
 
 #include <utils/compiler.h>
@@ -64,14 +64,15 @@ void main() {
 )SHADER";
 
 void OpenGLBlitter::init() noexcept {
-#ifndef USE_GLES2
-    glGenSamplers(1, &mSampler);
-    glSamplerParameteri(mSampler, GL_TEXTURE_MIN_FILTER,   GL_NEAREST);
-    glSamplerParameteri(mSampler, GL_TEXTURE_MAG_FILTER,   GL_NEAREST);
-    glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_S,       GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_T,       GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_R,       GL_CLAMP_TO_EDGE);
-#endif
+    if ((int) mDriver->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glGenSamplers(1, &mSampler);
+        glSamplerParameteri(mSampler, GL_TEXTURE_MIN_FILTER,   GL_NEAREST);
+        glSamplerParameteri(mSampler, GL_TEXTURE_MAG_FILTER,   GL_NEAREST);
+        glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_S,       GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_T,       GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_R,       GL_CLAMP_TO_EDGE);
+    }
 
     GLint status;
     char const* vsource[2] = { s_vertexES, s_vertexGL };
@@ -108,9 +109,10 @@ void OpenGLBlitter::init() noexcept {
 }
 
 void OpenGLBlitter::terminate() noexcept {
-#ifndef USE_GLES2
-    glDeleteSamplers(1, &mSampler);
-#endif
+    if ((int) mDriver->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glDeleteSamplers(1, &mSampler);
+    }
 
     glDetachShader(mProgram, mVertexShader);
     glDetachShader(mProgram, mFragmentShader);
@@ -125,13 +127,15 @@ void OpenGLBlitter::blit(GLuint srcTextureExternal, GLuint dstTexture2d, GLuint 
                            { -1.0f, -1.0f },
                            {  3.0f, -1.0f }};
 
-#ifndef USE_GLES2
-	// we're using tmu 0 as the source texture
-	GLuint tmu = 0;
-
-	// source texture
-    glBindSampler(tmu, mSampler);
-#endif
+    if ((int) mDriver->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        // we're using tmu 0 as the source texture
+        GLuint tmu = 0;
+        
+        // source texture
+        glBindSampler(tmu, mSampler);
+    }
+	
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, srcTextureExternal);
     CHECK_GL_ERROR(utils::slog.e)
 
@@ -154,13 +158,16 @@ void OpenGLBlitter::blit(GLuint srcTextureExternal, GLuint dstTexture2d, GLuint 
     CHECK_GL_ERROR(utils::slog.e)
 }
 
-void OpenGLBlitter::State::save() noexcept {
+void OpenGLBlitter::State::save(OpenGLDriver* driver) noexcept {
     mHasState = true;
     // TODO: technically we should also save glVertexAttribPointer
     GLuint tmu = 0;
-#ifndef USE_GLES2
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &framebuffer);
-#endif
+    
+    if ((int) driver->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &framebuffer);
+    }
+    
     glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &array);
     glGetIntegerv(GL_CURRENT_PROGRAM, &program);
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -177,9 +184,11 @@ void OpenGLBlitter::State::save() noexcept {
     glActiveTexture(GL_TEXTURE0 + tmu);
 
     // save that depends on glActiveTexture
-#ifndef USE_GLES2
-    glGetIntegerv(GL_SAMPLER_BINDING, &sampler);
-#endif
+    if ((int) driver->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glGetIntegerv(GL_SAMPLER_BINDING, &sampler);
+    }
+
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
 
     /*
@@ -194,7 +203,7 @@ void OpenGLBlitter::State::save() noexcept {
     CHECK_GL_ERROR(utils::slog.e)
 }
 
-void OpenGLBlitter::State::restore() noexcept {
+void OpenGLBlitter::State::restore(OpenGLDriver* driver) noexcept {
     glColorMask(
             (GLboolean)writeMask[0],
             (GLboolean)writeMask[1],
@@ -218,10 +227,13 @@ void OpenGLBlitter::State::restore() noexcept {
     }
 
     glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(texture));
-#ifndef USE_GLES2
-    GLuint tmu = 0;
-    glBindSampler(tmu, static_cast<GLuint>(sampler));
-#endif
+
+    if ((int) driver->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        GLuint tmu = 0;
+        glBindSampler(tmu, static_cast<GLuint>(sampler));
+    }
+
     glActiveTexture(static_cast<GLenum>(activeTexture));
     CHECK_GL_ERROR(utils::slog.e)
 }

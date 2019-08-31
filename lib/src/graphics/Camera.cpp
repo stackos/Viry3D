@@ -368,19 +368,21 @@ namespace Viry3D
 				auto& material = materials[i];
 				if (material)
 				{
-#ifdef USE_GLES2
-					material->SetMatrix(ViewUniforms::VIEW_MATRIX, m_view_uniforms.view_matrix);
-					material->SetMatrix(ViewUniforms::PROJECTION_MATRIX, m_view_uniforms.projection_matrix);
-					material->SetVector(ViewUniforms::CAMERA_POS, m_view_uniforms.camera_pos);
-					material->SetVector(ViewUniforms::TIME, m_view_uniforms.time);
-					material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
-
-					if (skin && skin->GetBonesUniformBuffer())
-					{
-						material->SetVectorArray(SkinnedMeshRendererUniforms::BONES, skin->GetBoneVectors());
-					}
-#endif
-
+                    if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
+                        Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
+                    {
+                        material->SetMatrix(ViewUniforms::VIEW_MATRIX, m_view_uniforms.view_matrix);
+                        material->SetMatrix(ViewUniforms::PROJECTION_MATRIX, m_view_uniforms.projection_matrix);
+                        material->SetVector(ViewUniforms::CAMERA_POS, m_view_uniforms.camera_pos);
+                        material->SetVector(ViewUniforms::TIME, m_view_uniforms.time);
+                        material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
+                        
+                        if (skin && skin->GetBonesUniformBuffer())
+                        {
+                            material->SetVectorArray(SkinnedMeshRendererUniforms::BONES, skin->GetBoneVectors());
+                        }
+                    }
+					
 					filament::backend::RenderPrimitiveHandle primitive;
 
 					auto primitives = renderer->GetPrimitives();

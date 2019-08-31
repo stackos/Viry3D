@@ -73,14 +73,12 @@ void checkFramebufferStatus(io::ostream& out, const char* function, size_t line)
         case GL_FRAMEBUFFER_UNSUPPORTED:
             error = "GL_FRAMEBUFFER_UNSUPPORTED";
             break;
-#ifndef USE_GLES2
 		case GL_FRAMEBUFFER_UNDEFINED:
 			error = "GL_FRAMEBUFFER_UNDEFINED";
 			break;
         case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
             error = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
             break;
-#endif
         default:
             break;
     }

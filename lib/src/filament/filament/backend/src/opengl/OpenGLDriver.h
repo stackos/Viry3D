@@ -187,9 +187,9 @@ public:
     OpenGLDriver(OpenGLDriver const&) = delete;
     OpenGLDriver& operator=(OpenGLDriver const&) = delete;
 
-private:
     backend::ShaderModel getShaderModel() const noexcept final;
-
+    
+private:
     /*
      * Driver interface
      */
@@ -500,7 +500,7 @@ private:
     backend::RasterState mRasterState;
 
     GLfloat mMaxAnisotropy = 0.0f;
-    backend::ShaderModel mShaderModel = backend::ShaderModel::UNKNOWN;
+    backend::ShaderModel mShaderModel = backend::ShaderModel::GL_ES_30;
 
     // state required to represent the current render pass
     backend::Handle<backend::HwRenderTarget> mRenderPassTarget;
@@ -591,7 +591,6 @@ private:
 	GLuint mSharedDrawFramebuffer = 0;
 	GLuint mSharedReadFramebuffer = 0;
 	GLuint mSharedVAO = 0;
-    int mContextVersion = 20;
 };
 
 // ------------------------------------------------------------------------------------------------

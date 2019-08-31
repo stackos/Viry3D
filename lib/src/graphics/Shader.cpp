@@ -131,12 +131,11 @@ namespace Viry3D
 		{
 			String path = Engine::Instance()->GetDataPath() + "/shader/" + name + ".lua";
 
-#ifdef USE_GLES2
-			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
+			if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
+                Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
 			{
 				path = Engine::Instance()->GetDataPath() + "/shader/" + name + ".100.lua";
 			}
-#endif
 
 			if (File::Exist(path))
 			{
@@ -459,12 +458,11 @@ namespace Viry3D
 		}
 #endif
 
-#ifdef USE_GLES2
-		if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL)
+		if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
+            Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
 		{
 			version = "";
 		}
-#endif
 		
 		String define;
 		String vk_convert;

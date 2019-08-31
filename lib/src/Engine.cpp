@@ -556,6 +556,11 @@ namespace Viry3D
 	{
 		return m_private->m_backend;
 	}
+    
+    backend::ShaderModel Engine::GetShaderModel() const
+    {
+        return m_private->m_driver->getShaderModel();
+    }
 
 	void* Engine::GetDefaultRenderTarget()
 	{

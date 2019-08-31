@@ -19,13 +19,8 @@
 
 #if defined(ANDROID) || defined(USE_EXTERNAL_GLES3)
 
-#ifdef USE_GLES2
-	#include <GLES2/gl2.h>
-	#include <GLES2/gl2ext.h>
-#else
 	#include <GLES3/gl31.h>
 	#include <GLES2/gl2ext.h>
-#endif
 
     /* The Android NDK doesn't exposes extensions, fake it with eglGetProcAddress */
     namespace glext {
@@ -55,22 +50,13 @@
 
 #elif defined(__EMSCRIPTEN__)
 
-#ifdef USE_GLES2
-    #include <GLES2/gl2.h>
-    #include <GLES2/gl2ext.h>
-#else
     #include <GLES3/gl31.h>
     #include <GLES2/gl2ext.h>
-#endif
 
 #elif defined(IOS)
 
     #define GLES_SILENCE_DEPRECATION
 
-#ifdef USE_GLES2
-    #include <OpenGLES/ES2/gl.h>
-    #include <OpenGLES/ES2/glext.h>
-#else
     #include <OpenGLES/ES3/gl.h>
     #include <OpenGLES/ES3/glext.h>
 
@@ -91,7 +77,6 @@
         void glRenderbufferStorageMultisampleEXT (GLenum target, GLsizei samples,
                                                   GLenum internalformat, GLsizei width, GLsizei height);
     }
-#endif
 
 #else
 
@@ -105,13 +90,6 @@
 #endif
 
 #include "NullGLES.h"
-
-#ifdef USE_GLES2
-
-#define GLES31_HEADERS false
-#define GL41_HEADERS false
-
-#else
 
 #if (!defined(GL_ES_VERSION_3_1) && !defined(GL_VERSION_4_1))
 #error "Minimum header version must be OpenGL ES 3.1 or OpenGL 4.1"
@@ -127,8 +105,6 @@
 #define GL41_HEADERS true
 #else
 #define GL41_HEADERS false
-#endif
-
 #endif
 
 #endif // TNT_FILAMENT_DRIVER_GL_HEADERS_H

@@ -270,7 +270,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
 
     // Initialize the blitter only if we have OES_EGL_image_external_essl3
     if (ext.OES_EGL_image_external_essl3) {
-        mOpenGLBlitter = new OpenGLBlitter();
+        mOpenGLBlitter = new OpenGLBlitter(this);
         mOpenGLBlitter->init();
         state.program.use = 0;
     }
@@ -1831,10 +1831,11 @@ void OpenGLDriver::updateStreams(DriverApi* driver) {
             }
 
             if (!s->isNativeStream()) {
-                state.setup();
+                state.init(this);
                 updateStream(t, driver);
             }
         }
+        state.terminate(this);
     }
 }
 
@@ -3143,8 +3144,6 @@ void OpenGLDriver::bindUniformBufferRange(size_t index, Handle<HwUniformBuffer> 
     CHECK_GL_ERROR(utils::slog.e)
 }
 
-#ifdef USE_GLES2
-
 void OpenGLDriver::setUniformVector(
 	backend::ProgramHandle ph,
 	std::string name,
@@ -3176,8 +3175,6 @@ void OpenGLDriver::setUniformMatrix(
 
 	scheduleDestroy(std::move(data));
 }
-
-#endif
 
 void OpenGLDriver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh) {
     DEBUG_MARKER()

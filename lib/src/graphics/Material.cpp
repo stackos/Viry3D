@@ -439,38 +439,40 @@ namespace Viry3D
 			driver.bindSamplers((size_t) Shader::BindingPoint::PerMaterialFragment, samplers.sampler_group);
 		}
 
-#ifdef USE_GLES2
-		for (auto& i : m_properties)
-		{
-			switch (i.second.type)
-			{
-				case MaterialProperty::Type::Matrix:
-				{
-					void* buffer = driver.allocate(sizeof(Matrix4x4));
-					Memory::Copy(buffer, &i.second.data, sizeof(Matrix4x4));
-					driver.setUniformMatrix(
-						this->GetShader()->GetPass(pass).pipeline.program,
-						i.first.CString(),
-						1,
-						filament::backend::BufferDescriptor(buffer, sizeof(Matrix4x4)));
-					break;
-				}
-				case MaterialProperty::Type::Vector:
-				case MaterialProperty::Type::Color:
-				{
-					void* buffer = driver.allocate(sizeof(Vector4));
-					Memory::Copy(buffer, &i.second.data, sizeof(Vector4));
-					driver.setUniformVector(
-						this->GetShader()->GetPass(pass).pipeline.program,
-						i.first.CString(),
-						1,
-						filament::backend::BufferDescriptor(buffer, sizeof(Vector4)));
-					break;
-				}
-				default:
-					break;
-			}
-		}
-#endif
+        if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
+            Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
+        {
+            for (auto& i : m_properties)
+            {
+                switch (i.second.type)
+                {
+                    case MaterialProperty::Type::Matrix:
+                    {
+                        void* buffer = driver.allocate(sizeof(Matrix4x4));
+                        Memory::Copy(buffer, &i.second.data, sizeof(Matrix4x4));
+                        driver.setUniformMatrix(
+                            this->GetShader()->GetPass(pass).pipeline.program,
+                            i.first.CString(),
+                            1,
+                            filament::backend::BufferDescriptor(buffer, sizeof(Matrix4x4)));
+                        break;
+                    }
+                    case MaterialProperty::Type::Vector:
+                    case MaterialProperty::Type::Color:
+                    {
+                        void* buffer = driver.allocate(sizeof(Vector4));
+                        Memory::Copy(buffer, &i.second.data, sizeof(Vector4));
+                        driver.setUniformVector(
+                            this->GetShader()->GetPass(pass).pipeline.program,
+                            i.first.CString(),
+                            1,
+                            filament::backend::BufferDescriptor(buffer, sizeof(Vector4)));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
 	}
 }

@@ -28,6 +28,9 @@
 #include <utils/Panic.h>
 
 #include "OpenGLDriverFactory.h"
+#include "OpenGLDriver.h"
+
+#include <OpenGLES/ES2/glext.h>
 
 namespace filament {
 
@@ -39,6 +42,7 @@ struct PlatformCocoaTouchGLImpl {
     GLuint mDefaultFramebuffer = 0;
     GLuint mDefaultColorbuffer = 0;
     GLuint mDefaultDepthbuffer = 0;
+    OpenGLDriver* driver = nullptr;
 };
 
 PlatformCocoaTouchGL::PlatformCocoaTouchGL()
@@ -52,11 +56,10 @@ PlatformCocoaTouchGL::~PlatformCocoaTouchGL() noexcept {
 Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept {
     EAGLSharegroup* sharegroup = (EAGLSharegroup*) sharedGLContext;
 
-#ifdef USE_GLES2
-    EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:sharegroup];
-#else
-    EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:sharegroup];
-#endif
+    EAGLContext* context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:sharegroup];
+    if (context == nil) {
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:sharegroup];
+    }
     ASSERT_POSTCONDITION(context, "Unable to create OpenGL ES context.");
 
     [EAGLContext setCurrentContext:context];
@@ -72,8 +75,9 @@ Driver* PlatformCocoaTouchGL::createDriver(void* const sharedGLContext) noexcept
     pImpl->mDefaultFramebuffer = framebuffer;
     pImpl->mDefaultColorbuffer = renderbuffer[0];
     pImpl->mDefaultDepthbuffer = renderbuffer[1];
-
-    return OpenGLDriverFactory::create(this, sharedGLContext);
+    
+    pImpl->driver = (OpenGLDriver*) OpenGLDriverFactory::create(this, sharedGLContext);
+    return pImpl->driver;
 }
 
 void PlatformCocoaTouchGL::terminate() noexcept {
@@ -120,11 +124,12 @@ void PlatformCocoaTouchGL::makeCurrent(SwapChain* drawSwapChain, SwapChain* read
         glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
 
         glBindRenderbuffer(GL_RENDERBUFFER, pImpl->mDefaultDepthbuffer);
-#ifdef USE_GLES2
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, width, height);
-#else
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-#endif
+        if (pImpl->driver->getShaderModel() == backend::ShaderModel::GL_ES_20) {
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, width, height);
+        } else {
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+        }
+
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, pImpl->mDefaultDepthbuffer);
         
         // Test the framebuffer for completeness.
