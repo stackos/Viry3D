@@ -390,11 +390,7 @@ private:
     GLsizei getAttachments(std::array<GLenum, 3>& attachments,
             GLRenderTarget const* rt, uint8_t buffers) const noexcept;
 
-#ifdef USE_GLES2
     static constexpr const size_t MAX_TEXTURE_UNIT_COUNT = 8;
-#else
-    static constexpr const size_t MAX_TEXTURE_UNIT_COUNT = 16;   // All mobile GPUs as of 2016
-#endif
     static constexpr const size_t MAX_BUFFER_BINDINGS = 32;
 
     GLRenderPrimitive mDefaultVAO;
@@ -598,10 +594,8 @@ private:
 constexpr size_t OpenGLDriver::getIndexForTextureTarget(GLuint target) noexcept {
     switch (target) {
         case GL_TEXTURE_2D:             return 0;
-#ifndef USE_GLES2
         case GL_TEXTURE_2D_ARRAY:       return 1;
         case GL_TEXTURE_2D_MULTISAMPLE: return 3;
-#endif
         case GL_TEXTURE_CUBE_MAP:       return 2;
         case GL_TEXTURE_EXTERNAL_OES:   return 4;
         default:                        return 0;
@@ -620,10 +614,8 @@ constexpr size_t OpenGLDriver::getIndexForCap(GLenum cap) noexcept {
         case GL_SAMPLE_ALPHA_TO_COVERAGE:       index =  6; break;
         case GL_SAMPLE_COVERAGE:                index =  7; break;
         case GL_POLYGON_OFFSET_FILL:            index =  8; break;
-#ifndef USE_GLES2
         case GL_PRIMITIVE_RESTART_FIXED_INDEX:  index =  9; break;
         case GL_RASTERIZER_DISCARD:             index = 10; break;
-#endif
 #ifdef GL_ARB_seamless_cube_map
         case GL_TEXTURE_CUBE_MAP_SEAMLESS:      index = 11; break;
 #endif
@@ -638,7 +630,6 @@ constexpr size_t OpenGLDriver::getIndexForBufferTarget(GLenum target) noexcept {
     switch (target) {
 		case GL_ARRAY_BUFFER:					index = 2; break;
 
-#ifndef USE_GLES2
 		// The indexed buffers MUST be first in this list
         case GL_UNIFORM_BUFFER:             index = 0; break;
         case GL_TRANSFORM_FEEDBACK_BUFFER:  index = 1; break;
@@ -646,7 +637,6 @@ constexpr size_t OpenGLDriver::getIndexForBufferTarget(GLenum target) noexcept {
 		case GL_COPY_WRITE_BUFFER:          index = 4; break;
 		case GL_PIXEL_PACK_BUFFER:          index = 6; break;
 		case GL_PIXEL_UNPACK_BUFFER:        index = 7; break;
-#endif
 
         case GL_ELEMENT_ARRAY_BUFFER:       index = 5; break;
         
@@ -666,9 +656,10 @@ void OpenGLDriver::activeTexture(GLuint unit) noexcept {
 void OpenGLDriver::bindSampler(GLuint unit, GLuint sampler) noexcept {
     assert(unit < MAX_TEXTURE_UNIT_COUNT);
     update_state(state.textures.units[unit].sampler, sampler, [&]() {
-#ifndef USE_GLES2
-        glBindSampler(unit, sampler);
-#endif
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glBindSampler(unit, sampler);
+        }
     });
 }
 

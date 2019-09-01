@@ -41,12 +41,6 @@
 // we don't want to rely on it.
 #define ALLOW_REVERSE_MULTISAMPLE_RESOLVE false
 
-#if defined(__EMSCRIPTEN__) || defined(USE_GLES2)
-#define HAS_MAPBUFFERS 0
-#else
-#define HAS_MAPBUFFERS 1
-#endif
-
 #define DEBUG_MARKER_NONE       0
 #define DEBUG_MARKER_OPENGL     1
 
@@ -82,35 +76,21 @@ Driver* OpenGLDriver::create(
     assert(platform);
     OpenGLPlatform* const ec = platform;
 
-#ifndef USE_GLES2
-    { // here we check we're on a supported version of GL before initializing the driver
-        GLint major = 0, minor = 0;
-        glGetIntegerv(GL_MAJOR_VERSION, &major);
-        glGetIntegerv(GL_MINOR_VERSION, &minor);
-
-        if (UTILS_UNLIKELY(glGetError() != GL_NO_ERROR)) {
-            PANIC_LOG("Can't get OpenGL version");
-            cleanup:
-            ec->terminate();
-            return {};
-        }
-
-        if (GLES31_HEADERS) {
-            // we require GLES 3.1 headers, but we support GLES 3.0
-            if (UTILS_UNLIKELY(!(major >= 3 && minor >= 0))) {
-                PANIC_LOG("OpenGL ES 3.0 minimum needed (current %d.%d)", major, minor);
-                goto cleanup;
-
-            }
-        } else if (GL41_HEADERS) {
-            // we require GL 4.1 headers and minimum version
-            if (UTILS_UNLIKELY(!((major == 4 && minor >= 1) || major > 4))) {
-                PANIC_LOG("OpenGL 4.1 minimum needed (current %d.%d)", major, minor);
-                goto cleanup;
-            }
-        }
+    const char* version = (const char*) glGetString(GL_VERSION);
+    
+    if (UTILS_UNLIKELY(glGetError() != GL_NO_ERROR))
+    {
+        PANIC_LOG("Can't get OpenGL version");
+        cleanup:
+        ec->terminate();
+        return {};
     }
-#endif
+    
+    if (UTILS_UNLIKELY(version == nullptr))
+    {
+        PANIC_LOG("Can't get OpenGL version");
+        goto cleanup;
+    }
 
     OpenGLDriver* const driver = new OpenGLDriver(ec);
     return driver;
@@ -144,11 +124,17 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
     // set a reasonable default value for our stream array
     mExternalStreams.reserve(8);
 
-   UTILS_UNUSED char const* const vendor   = (char const*) glGetString(GL_VENDOR);
-   UTILS_UNUSED char const* const renderer = (char const*) glGetString(GL_RENDERER);
-   UTILS_UNUSED char const* const version  = (char const*) glGetString(GL_VERSION);
-   UTILS_UNUSED char const* const shader   = (char const*) glGetString(GL_SHADING_LANGUAGE_VERSION);
+    UTILS_UNUSED char const* const vendor   = (char const*) glGetString(GL_VENDOR);
+    UTILS_UNUSED char const* const renderer = (char const*) glGetString(GL_RENDERER);
+    UTILS_UNUSED char const* const version  = (char const*) glGetString(GL_VERSION);
+    UTILS_UNUSED char const* const shader   = (char const*) glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+    std::string ver_str = version;
+    if (ver_str.find("OpenGL ES 2.0") != std::string::npos)
+    {
+        mShaderModel = backend::ShaderModel::GL_ES_20;
+    }
+              
 #ifndef NDEBUG
     slog.i
         << vendor << io::endl
@@ -158,22 +144,22 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         << "OS version: " << mPlatform.getOSVersion() << io::endl;
 #endif
 
-#ifndef USE_GLES2
-    // OpenGL (ES) version
-    GLint major = 0, minor = 0;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &gets.max_renderbuffer_size);
-    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &gets.max_uniform_block_size);
-    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &gets.uniform_buffer_offset_alignment);
-
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        GLint major = 0, minor = 0;
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+        glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &gets.max_renderbuffer_size);
+        glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &gets.max_uniform_block_size);
+        glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &gets.uniform_buffer_offset_alignment);
+        
 #ifndef NDEBUG
-    slog.i
-        << "GL_MAX_RENDERBUFFER_SIZE = " << gets.max_renderbuffer_size << io::endl
-        << "GL_MAX_UNIFORM_BLOCK_SIZE = " << gets.max_uniform_block_size << io::endl
-        << "GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = " << gets.uniform_buffer_offset_alignment << io::endl;
+        slog.i
+            << "GL_MAX_RENDERBUFFER_SIZE = " << gets.max_renderbuffer_size << io::endl
+            << "GL_MAX_UNIFORM_BLOCK_SIZE = " << gets.max_uniform_block_size << io::endl
+            << "GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = " << gets.uniform_buffer_offset_alignment << io::endl;
 #endif
-#endif
+    }
               
     if (strstr(renderer, "Adreno")) {
         bugs.clears_hurt_performance = true;
@@ -194,50 +180,27 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         bugs.disable_invalidate_framebuffer = true;
     }
 
-#ifdef USE_GLES2
-#ifdef SIMULATE_GLES2
-	GLint n;
-	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-	for (GLint i = 0; i < n; i++)
-	{
-		const char* ext = (const char*) glGetStringi(GL_EXTENSIONS, (GLuint) i);
-		slog.d << ext << io::endl;
-	}
-#else
-    const char* exts = (const char*) glGetString(GL_EXTENSIONS);
-    slog.d << exts << io::endl;
-#endif
-#else
-    // Figure out if we have the extension we need
-    GLint n;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-    ExtentionSet exts;
-    for (GLint i = 0; i < n; i++) {
-        const char * const ext = (const char*)glGetStringi(GL_EXTENSIONS, (GLuint)i);
-        exts.insert(StaticString::make(ext, strlen(ext)));
-        if (DEBUG_PRINT_EXTENSIONS) {
-            slog.d << ext << io::endl;
+    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+    {
+        const char* exts = (const char*) glGetString(GL_EXTENSIONS);
+        if (exts)
+        {
+            slog.d << exts << io::endl;
         }
     }
-
-    ShaderModel shaderModel = ShaderModel::UNKNOWN;
-    if (GLES31_HEADERS) {
-        if (major == 3 && minor >= 0) {
-            shaderModel = ShaderModel::GL_ES_30;
+    else
+    {
+        GLint n;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+        ExtentionSet exts;
+        for (GLint i = 0; i < n; i++) {
+            const char * const ext = (const char*)glGetStringi(GL_EXTENSIONS, (GLuint)i);
+            exts.insert(StaticString::make(ext, strlen(ext)));
+            if (DEBUG_PRINT_EXTENSIONS) {
+                slog.d << ext << io::endl;
+            }
         }
-        if (major == 3 && minor >= 1) {
-            features.multisample_texture = true;
-        }
-        initExtensionsGLES(major, minor, exts);
-    } else if (GL41_HEADERS) {
-        if (major == 4 && minor >= 1) {
-            shaderModel = ShaderModel::GL_CORE_41;
-        }
-        initExtensionsGL(major, minor, exts);
-        features.multisample_texture = true;
-    };
-    mShaderModel = shaderModel;
-#endif
+    }
 
     /*
      * Set our default state
@@ -275,10 +238,11 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         state.program.use = 0;
     }
 
-#if defined(USE_GLES2) && defined(SIMULATE_GLES2)
-	glGenVertexArrays(1, &mSharedVAO);
-	glBindVertexArray(mSharedVAO);
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glGenVertexArrays(1, &mSharedVAO);
+        glBindVertexArray(mSharedVAO);
+    }
 }
 
 OpenGLDriver::~OpenGLDriver() noexcept {
@@ -325,18 +289,17 @@ void OpenGLDriver::terminate() {
 		mSharedReadFramebuffer = 0;
 	}
 
-#if defined(USE_GLES2) && defined(SIMULATE_GLES2)
-	glDeleteVertexArrays(1, &mSharedVAO);
-	mSharedVAO = 0;
-#endif
-
-#ifndef USE_GLES2
-    for (auto& item : mSamplerMap) {
-        unbindSampler(item.second);
-        glDeleteSamplers(1, &item.second);
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glDeleteVertexArrays(1, &mSharedVAO);
+        mSharedVAO = 0;
+        
+        for (auto& item : mSamplerMap) {
+            unbindSampler(item.second);
+            glDeleteSamplers(1, &item.second);
+        }
+        mSamplerMap.clear();
     }
-    mSamplerMap.clear();
-#endif
 
     if (mOpenGLBlitter) {
         mOpenGLBlitter->terminate();
@@ -371,7 +334,9 @@ void OpenGLDriver::initClearProgram() noexcept {
         }
         )SHADER";
 
-    if (GLES31_HEADERS) {
+    if (GLES31_HEADERS &&
+        (int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
         GLint status;
         char const* const vsource = clearVertexES;
         char const* const fsource = clearFragmentES;
@@ -404,7 +369,8 @@ void OpenGLDriver::initClearProgram() noexcept {
 }
 
 void OpenGLDriver::terminateClearProgram() noexcept {
-    if (GLES31_HEADERS) {
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
         glDetachShader(mClearProgram, mClearVertexShader);
         glDetachShader(mClearProgram, mClearFragmentShader);
         glDeleteShader(mClearVertexShader);
@@ -474,21 +440,22 @@ void OpenGLDriver::unbindSampler(GLuint sampler) noexcept {
 
 void OpenGLDriver::bindBuffer(GLenum target, GLuint buffer) noexcept {
     size_t targetIndex = getIndexForBufferTarget(target);
-#ifndef USE_GLES2
-    if (target == GL_ELEMENT_ARRAY_BUFFER) {
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30 &&
+        target == GL_ELEMENT_ARRAY_BUFFER)
+    {
         // GL_ELEMENT_ARRAY_BUFFER is a special case, where the currently bound VAO remembers
         // the index buffer, unless there are no VAO bound (see: bindVertexArray)
         assert(state.vao.p);
         if (state.buffers.genericBinding[targetIndex] != buffer
-                || ((state.vao.p != &mDefaultVAO) && (state.vao.p->gl.elementArray != buffer))) {
+            || ((state.vao.p != &mDefaultVAO) && (state.vao.p->gl.elementArray != buffer))) {
             state.buffers.genericBinding[targetIndex] = buffer;
             if (state.vao.p != &mDefaultVAO) {
                 state.vao.p->gl.elementArray = buffer;
             }
             glBindBuffer(target, buffer);
         }
-    } else
-#endif
+    }
+    else
     {
         update_state(state.buffers.genericBinding[targetIndex], buffer, [&]() {
             glBindBuffer(target, buffer);
@@ -502,16 +469,18 @@ void OpenGLDriver::bindBufferRange(GLenum target, GLuint index, GLuint buffer,
     assert(targetIndex <= 1); // sanity check
 
     // this ALSO sets the generic binding
-        if (   state.buffers.targets[targetIndex].buffers[index].name != buffer
-            || state.buffers.targets[targetIndex].buffers[index].offset != offset
-            || state.buffers.targets[targetIndex].buffers[index].size != size) {
+    if (state.buffers.targets[targetIndex].buffers[index].name != buffer ||
+        state.buffers.targets[targetIndex].buffers[index].offset != offset ||
+        state.buffers.targets[targetIndex].buffers[index].size != size)
+    {
         state.buffers.targets[targetIndex].buffers[index].name = buffer;
         state.buffers.targets[targetIndex].buffers[index].offset = offset;
         state.buffers.targets[targetIndex].buffers[index].size = size;
         state.buffers.genericBinding[targetIndex] = buffer;
-#ifndef USE_GLES2
-        glBindBufferRange(target, index, buffer, offset, size);
-#endif
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glBindBufferRange(target, index, buffer, offset, size);
+        }
     }
 }
 
@@ -523,7 +492,6 @@ void OpenGLDriver::bindFramebuffer(GLenum target, GLuint buffer) noexcept {
                 glBindFramebuffer(target, buffer);
             }
             break;
-#ifndef USE_GLES2
         case GL_DRAW_FRAMEBUFFER:
             if (state.draw_fbo != buffer) {
                 state.draw_fbo = buffer;
@@ -536,27 +504,27 @@ void OpenGLDriver::bindFramebuffer(GLenum target, GLuint buffer) noexcept {
                 glBindFramebuffer(target, buffer);
             }
             break;
-#endif
         default:
             break;
     }
 }
 
 void OpenGLDriver::bindVertexArray(GLRenderPrimitive const* p) noexcept {
-#ifndef USE_GLES2
-    GLRenderPrimitive* vao = p ? const_cast<GLRenderPrimitive *>(p) : &mDefaultVAO;
-    update_state(state.vao.p, vao, [&]() {
-        glBindVertexArray(vao->gl.vao);
-        // update GL_ELEMENT_ARRAY_BUFFER, which is updated by glBindVertexArray
-        size_t targetIndex = getIndexForBufferTarget(GL_ELEMENT_ARRAY_BUFFER);
-        state.buffers.genericBinding[targetIndex] = vao->gl.elementArray;
-        if (UTILS_UNLIKELY(bugs.vao_doesnt_store_element_array_buffer_binding)) {
-            // This shouldn't be needed, but it looks like some drivers don't do the implicit
-            // glBindBuffer().
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->gl.elementArray);
-        }
-    });
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        GLRenderPrimitive* vao = p ? const_cast<GLRenderPrimitive *>(p) : &mDefaultVAO;
+        update_state(state.vao.p, vao, [&]() {
+            glBindVertexArray(vao->gl.vao);
+            // update GL_ELEMENT_ARRAY_BUFFER, which is updated by glBindVertexArray
+            size_t targetIndex = getIndexForBufferTarget(GL_ELEMENT_ARRAY_BUFFER);
+            state.buffers.genericBinding[targetIndex] = vao->gl.elementArray;
+            if (UTILS_UNLIKELY(bugs.vao_doesnt_store_element_array_buffer_binding)) {
+                // This shouldn't be needed, but it looks like some drivers don't do the implicit
+                // glBindBuffer().
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->gl.elementArray);
+            }
+        });
+    }
 }
 
 void OpenGLDriver::bindTexture(GLuint unit, GLTexture const* t) noexcept {
@@ -759,8 +727,6 @@ void OpenGLDriver::pixelStore(GLenum pname, GLint param) noexcept {
         case GL_UNPACK_ALIGNMENT:
             pcur = &state.unpack.alignment;
             break;
-            
-#ifndef USE_GLES2
         case GL_PACK_ROW_LENGTH:
             pcur = &state.pack.row_length;
             break;
@@ -779,8 +745,6 @@ void OpenGLDriver::pixelStore(GLenum pname, GLint param) noexcept {
         case GL_UNPACK_SKIP_ROWS:
             pcur = &state.unpack.skip_row;
             break;
-#endif
-            
         default:
             goto default_case;
     }
@@ -995,9 +959,10 @@ void OpenGLDriver::createRenderPrimitiveR(Handle<HwRenderPrimitive> rph, int) {
     DEBUG_MARKER()
     
     GLRenderPrimitive* rp = construct<GLRenderPrimitive>(rph);
-#ifndef USE_GLES2
-    glGenVertexArrays(1, &rp->gl.vao);
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glGenVertexArrays(1, &rp->gl.vao);
+    }
     CHECK_GL_ERROR(utils::slog.e)
 }
 
@@ -1022,11 +987,12 @@ void OpenGLDriver::createUniformBufferR(
 
     GLUniformBuffer* ub = construct<GLUniformBuffer>(ubh, (uint32_t) size, usage);
     
-#ifndef USE_GLES2
-    glGenBuffers(1, &ub->gl.ubo.id);
-    bindBuffer(GL_UNIFORM_BUFFER, ub->gl.ubo.id);
-    glBufferData(GL_UNIFORM_BUFFER, size, nullptr, getBufferUsage(usage));
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glGenBuffers(1, &ub->gl.ubo.id);
+        bindBuffer(GL_UNIFORM_BUFFER, ub->gl.ubo.id);
+        glBufferData(GL_UNIFORM_BUFFER, size, nullptr, getBufferUsage(usage));
+    }
     
     CHECK_GL_ERROR(utils::slog.e)
 }
@@ -1038,129 +1004,122 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
     bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
     activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
     
-#ifdef USE_GLES2
-	assert(depth == 1);
-    
-	int w = width;
-	int h = height;
-	GLenum format = 0;
-	GLenum type = 0;
-	bool compressed = false;
-
-	switch (t->gl.internalFormat)
-	{
-#ifdef SIMULATE_GLES2
-		case GL_R8:
-			format = GL_RED;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case GL_RGBA8:
-			format = GL_RGBA;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case GL_DEPTH24_STENCIL8:
-			format = GL_DEPTH_STENCIL;
-			type = GL_UNSIGNED_INT_24_8;
-			break;
-#else
-		case GL_LUMINANCE:
-			format = GL_LUMINANCE;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case GL_RGBA:
-			format = GL_RGBA;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case GL_DEPTH_STENCIL_OES:
-			format = GL_DEPTH_STENCIL_OES;
-			type = GL_UNSIGNED_INT_24_8_OES;
-			break;
+    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+    {
+        assert(depth == 1);
+        
+        int w = width;
+        int h = height;
+        GLenum internalFormat = t->gl.internalFormat;
+        GLenum format = 0;
+        GLenum type = 0;
+        bool compressed = false;
+        
+        switch (internalFormat)
+        {
+#if VR_ANDROID || VR_IOS || VR_WASM
+            case GL_R8:
+                internalFormat = GL_LUMINANCE;
+                format = GL_LUMINANCE;
+                type = GL_UNSIGNED_BYTE;
+                break;
+            case GL_RGBA8:
+                internalFormat = GL_RGBA;
+                format = GL_RGBA;
+                type = GL_UNSIGNED_BYTE;
+                break;
+            case GL_DEPTH24_STENCIL8:
+                internalFormat = GL_DEPTH_STENCIL_OES;
+                format = GL_DEPTH_STENCIL_OES;
+                type = GL_UNSIGNED_INT_24_8_OES;
+                break;
 #endif
-            
+                
 #if defined(GL_OES_compressed_ETC1_RGB8_texture)
-        case GL_ETC1_RGB8_OES:
-            compressed = true;
-            break;
+            case GL_ETC1_RGB8_OES:
+                compressed = true;
+                break;
 #endif
 #if defined(GL_IMG_texture_compression_pvrtc)
-        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
-        case GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG:
-            compressed = true;
-            break;
+            case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+            case GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG:
+                compressed = true;
+                break;
 #endif
 #if defined(GL_EXT_texture_compression_s3tc)
-		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
-		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-			compressed = true;
-			break;
+            case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+            case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+            case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+            case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+                compressed = true;
+                break;
 #endif
-		default:
-			assert(false);
-			break;
-	}
-
-	if (!compressed)
-	{
-		for (int i = 0; i < t->levels; ++i)
-		{
-			switch (t->gl.target)
-			{
-				case GL_TEXTURE_2D:
-					glTexImage2D(t->gl.target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
-					CHECK_GL_ERROR(utils::slog.e)
-                    break;
-				case GL_TEXTURE_CUBE_MAP:
-					for (int j = 0; j < 6; ++j)
-					{
-						GLenum target = getCubemapTarget(TextureCubemapFace(j));
-						glTexImage2D(target, i, t->gl.internalFormat, w, h, 0, format, type, nullptr);
-						CHECK_GL_ERROR(utils::slog.e)
-					}
-					break;
-				default:
-					assert(false);
-					break;
-			}
-
-			w = std::max(1, (w / 2));
-			h = std::max(1, (h / 2));
-		}
-	}
-	
-#else
-    switch (t->gl.target) {
-        case GL_TEXTURE_2D:
-        case GL_TEXTURE_CUBE_MAP:
-            glTexStorage2D(t->gl.target, GLsizei(t->levels), t->gl.internalFormat,
-                    GLsizei(width), GLsizei(height));
-            break;
-        case GL_TEXTURE_2D_ARRAY: {
-            glTexStorage3D(t->gl.target, GLsizei(t->levels), t->gl.internalFormat,
-                    GLsizei(width), GLsizei(height), GLsizei(depth));
-            break;
+            default:
+                assert(false);
+                break;
         }
-        case GL_TEXTURE_2D_MULTISAMPLE:
-            // NOTE: if there is a mix of texture and renderbuffers, "fixed_sample_locations" must be true
-            // NOTE: what's the benefit of setting "fixed_sample_locations" to false?
+        
+        if (!compressed)
+        {
+            for (int i = 0; i < t->levels; ++i)
+            {
+                switch (t->gl.target)
+                {
+                    case GL_TEXTURE_2D:
+                        glTexImage2D(t->gl.target, i, internalFormat, w, h, 0, format, type, nullptr);
+                        CHECK_GL_ERROR(utils::slog.e)
+                        break;
+                    case GL_TEXTURE_CUBE_MAP:
+                        for (int j = 0; j < 6; ++j)
+                        {
+                            GLenum target = getCubemapTarget(TextureCubemapFace(j));
+                            glTexImage2D(target, i, internalFormat, w, h, 0, format, type, nullptr);
+                            CHECK_GL_ERROR(utils::slog.e)
+                        }
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                }
+                
+                w = std::max(1, (w / 2));
+                h = std::max(1, (h / 2));
+            }
+        }
+    }
+    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        switch (t->gl.target) {
+            case GL_TEXTURE_2D:
+            case GL_TEXTURE_CUBE_MAP:
+                glTexStorage2D(t->gl.target, GLsizei(t->levels), t->gl.internalFormat,
+                               GLsizei(width), GLsizei(height));
+                break;
+            case GL_TEXTURE_2D_ARRAY: {
+                glTexStorage3D(t->gl.target, GLsizei(t->levels), t->gl.internalFormat,
+                               GLsizei(width), GLsizei(height), GLsizei(depth));
+                break;
+            }
+            case GL_TEXTURE_2D_MULTISAMPLE:
+                // NOTE: if there is a mix of texture and renderbuffers, "fixed_sample_locations" must be true
+                // NOTE: what's the benefit of setting "fixed_sample_locations" to false?
 #if GLES31_HEADERS
-            // only supported from GL 4.3 and GLES 3.1
-            glTexStorage2DMultisample(t->gl.target, t->samples, t->gl.internalFormat,
-                    GLsizei(width), GLsizei(height), GL_TRUE);
+                // only supported from GL 4.3 and GLES 3.1
+                glTexStorage2DMultisample(t->gl.target, t->samples, t->gl.internalFormat,
+                                          GLsizei(width), GLsizei(height), GL_TRUE);
 #elif GL41_HEADERS
-            // only supported in GL (never in GLES)
-            // TODO: use glTexStorage2DMultisample() on GL 4.3 and above
-            glTexImage2DMultisample(t->gl.target, t->samples, t->gl.internalFormat,
-                    GLsizei(width), GLsizei(height), GL_TRUE);
+                // only supported in GL (never in GLES)
+                // TODO: use glTexStorage2DMultisample() on GL 4.3 and above
+                glTexImage2DMultisample(t->gl.target, t->samples, t->gl.internalFormat,
+                                        GLsizei(width), GLsizei(height), GL_TRUE);
 #else
 #   error "GL/GLES header version not supported"
 #endif
-            break;
-        default: // cannot happen
-            break;
+                break;
+            default: // cannot happen
+                break;
+        }
     }
-#endif
 
 	// textureStorage can be used to reallocate the texture at a new size
 	t->width = width;
@@ -1201,10 +1160,8 @@ void OpenGLDriver::createTextureR(Handle<HwTexture> th, SamplerType target, uint
                         t->gl.targetIndex = (uint8_t)
                                 getIndexForTextureTarget(t->gl.target = GL_TEXTURE_2D);
                     } else {
-#ifndef USE_GLES2
                         t->gl.targetIndex = (uint8_t)
                                 getIndexForTextureTarget(t->gl.target = GL_TEXTURE_2D_ARRAY);
-#endif
                     }
                     break;
                 case SamplerType::SAMPLER_CUBEMAP:
@@ -1218,10 +1175,8 @@ void OpenGLDriver::createTextureR(Handle<HwTexture> th, SamplerType target, uint
                 // allow the creation of multi-sampled textures.
                 if (features.multisample_texture) {
                     // multi-sample texture on GL 3.2 / GLES 3.1 and above
-#ifndef USE_GLES2
                     t->gl.targetIndex = (uint8_t)
                             getIndexForTextureTarget(t->gl.target = GL_TEXTURE_2D_MULTISAMPLE);
-#endif
                 } else {
                     // Turn off multi-sampling for that texture. It's just not supported.
                 }
@@ -1267,20 +1222,16 @@ void OpenGLDriver::framebufferTexture(backend::TargetBufferInfo const& binfo,
 
 	switch (textarget) {
 	case GL_TEXTURE_2D:
-#ifndef USE_GLES2
     case GL_TEXTURE_2D_MULTISAMPLE:
-#endif
         glFramebufferTexture2D(target, attachment,
                                textarget, t->gl.id, binfo.level);
         break;
             
-#ifndef USE_GLES2
 	case GL_TEXTURE_2D_ARRAY:
 		// GL_TEXTURE_2D_MULTISAMPLE_ARRAY is not supported in GLES
 		glFramebufferTextureLayer(target, attachment,
 			t->gl.id, binfo.level, binfo.layer);
 		break;
-#endif
             
 	default:
 		// we shouldn't be here
@@ -1321,20 +1272,16 @@ void OpenGLDriver::framebufferTexture(backend::TargetBufferInfo const& binfo,
         bindFramebuffer(GL_FRAMEBUFFER, rt->gl.fbo);
         switch (target) {
             case GL_TEXTURE_2D:
-#ifndef USE_GLES2
             case GL_TEXTURE_2D_MULTISAMPLE:
-#endif
                 glFramebufferTexture2D(GL_FRAMEBUFFER, attachment,
                         target, t->gl.id, binfo.level);
                 break;
                 
-#ifndef USE_GLES2
             case GL_TEXTURE_2D_ARRAY:
                 // GL_TEXTURE_2D_MULTISAMPLE_ARRAY is not supported in GLES
                 glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment,
                         t->gl.id, binfo.level, binfo.layer);
                 break;
-#endif
                 
             default:
                 // we shouldn't be here
@@ -1379,12 +1326,10 @@ void OpenGLDriver::framebufferTexture(backend::TargetBufferInfo const& binfo,
                         target, t->gl.id, binfo.level);
                 break;
                 
-#ifndef USE_GLES2
             case GL_TEXTURE_2D_ARRAY:
                 glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment,
                         t->gl.id, binfo.level, binfo.layer);
                 break;
-#endif
                 
             default:
                 // we shouldn't be here
@@ -1404,12 +1349,10 @@ void OpenGLDriver::framebufferTexture(backend::TargetBufferInfo const& binfo,
                 rt->gl.resolve |= TargetBufferFlags::STENCIL;
                 break;
                 
-#ifndef USE_GLES2
             case GL_DEPTH_STENCIL_ATTACHMENT:
                 rt->gl.resolve |= TargetBufferFlags::DEPTH;
                 rt->gl.resolve |= TargetBufferFlags::STENCIL;
                 break;
-#endif
                 
             default:
                 break;
@@ -1435,11 +1378,9 @@ void OpenGLDriver::renderBufferStorage(GLuint rbo, GLenum internalformat, uint32
             glext::glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, samples, internalformat, width, height);
         } else
 #endif
-#ifndef USE_GLES2
         {
             glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, internalformat, width, height);
         }
-#endif
     } else {
         glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
     }
@@ -1538,15 +1479,11 @@ void OpenGLDriver::createRenderTargetR(Handle<HwRenderTarget> rth,
         if (rt->gl.depth.texture->usage & TextureUsage::SAMPLEABLE) {
             // special case: depth & stencil requested, and both provided as the same texture
             specialCased = true;
-#ifndef USE_GLES2
             framebufferTexture(depth, rt, GL_DEPTH_STENCIL_ATTACHMENT);
-#endif
         } else if (!depth.handle && !stencil.handle) {
             // special case: depth & stencil requested, but both not provided
             specialCased = true;
-#ifndef USE_GLES2
             framebufferRenderbuffer(rt->gl.depth.texture, rt, GL_DEPTH_STENCIL_ATTACHMENT);
-#endif
         }
     }
 
@@ -1661,13 +1598,15 @@ void OpenGLDriver::destroyRenderPrimitive(Handle<HwRenderPrimitive> rph) {
 
     if (rph) {
         GLRenderPrimitive const* rp = handle_cast<const GLRenderPrimitive*>(rph);
-#ifndef USE_GLES2
-        glDeleteVertexArrays(1, &rp->gl.vao);
-        // binding of a bound VAO is reset to 0
-        if (state.vao.p == rp) {
-            bindVertexArray(nullptr);
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glDeleteVertexArrays(1, &rp->gl.vao);
+            // binding of a bound VAO is reset to 0
+            if (state.vao.p == rp) {
+                bindVertexArray(nullptr);
+            }
         }
-#endif
+
         destruct(rph, rp);
     }
 }
@@ -1696,24 +1635,25 @@ void OpenGLDriver::destroyUniformBuffer(Handle<HwUniformBuffer> ubh) {
     if (ubh) {
         GLUniformBuffer* ub = handle_cast<GLUniformBuffer*>(ubh);
         
-#ifndef USE_GLES2
-        glDeleteBuffers(1, &ub->gl.ubo.id);
-        // bindings of bound buffers are reset to 0
-        const size_t targetIndex = getIndexForBufferTarget(GL_UNIFORM_BUFFER);
-        auto& target = state.buffers.targets[targetIndex];
-
-        #pragma nounroll // clang generates >1 KiB of code!!
-        for (auto& buffer : target.buffers) {
-            if (buffer.name == ub->gl.ubo.id) {
-                buffer.name = 0;
-                buffer.offset = 0;
-                buffer.size = 0;
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glDeleteBuffers(1, &ub->gl.ubo.id);
+            // bindings of bound buffers are reset to 0
+            const size_t targetIndex = getIndexForBufferTarget(GL_UNIFORM_BUFFER);
+            auto& target = state.buffers.targets[targetIndex];
+            
+#pragma nounroll // clang generates >1 KiB of code!!
+            for (auto& buffer : target.buffers) {
+                if (buffer.name == ub->gl.ubo.id) {
+                    buffer.name = 0;
+                    buffer.offset = 0;
+                    buffer.size = 0;
+                }
+            }
+            if (state.buffers.genericBinding[targetIndex] == ub->gl.ubo.id) {
+                state.buffers.genericBinding[targetIndex] = 0;
             }
         }
-        if (state.buffers.genericBinding[targetIndex] == ub->gl.ubo.id) {
-            state.buffers.genericBinding[targetIndex] = 0;
-        }
-#endif
         
         destruct(ubh, ub);
     }
@@ -1738,11 +1678,9 @@ void OpenGLDriver::destroyTexture(Handle<HwTexture> th) {
             assert(t->gl.rb == 0);
             glDeleteRenderbuffers(1, &t->gl.id);
         }
-#ifndef USE_GLES2
         if (t->gl.fence) {
             glDeleteSync(t->gl.fence);
         }
-#endif
         destruct(th, t);
     }
 }
@@ -1882,69 +1820,87 @@ bool OpenGLDriver::isTextureFormatSupported(TextureFormat format) {
 }
 
 bool OpenGLDriver::isRenderTargetFormatSupported(TextureFormat format) {
-    // Supported formats per http://docs.gl/es3/glRenderbufferStorage, note that desktop OpenGL may
-    // support more formats, but it requires querying GL_INTERNALFORMAT_SUPPORTED which is not
-    // available in OpenGL ES.
-    switch (format) {
-        // Core formats.
-        case TextureFormat::R8:
-        case TextureFormat::R8UI:
-        case TextureFormat::R8I:
-        case TextureFormat::R16UI:
-        case TextureFormat::R16I:
-        case TextureFormat::RG8:
-        case TextureFormat::RG8UI:
-        case TextureFormat::RG8I:
-        case TextureFormat::RGB565:
-        case TextureFormat::RGB5_A1:
-        case TextureFormat::RGBA4:
-        case TextureFormat::RGB8:
-        case TextureFormat::R32UI:
-        case TextureFormat::R32I:
-        case TextureFormat::RG16UI:
-        case TextureFormat::RG16I:
-        case TextureFormat::RGBA8:
-        case TextureFormat::SRGB8_A8:
-        case TextureFormat::RGB10_A2:
-        case TextureFormat::RGBA8UI:
-        case TextureFormat::RGBA8I:
-        case TextureFormat::RG32UI:
-        case TextureFormat::RG32I:
-        case TextureFormat::RGBA16UI:
-        case TextureFormat::RGBA16I:
-			return true;
-
-#ifndef USE_GLES2
-		case TextureFormat::STENCIL8:
-		case TextureFormat::DEPTH24:
-		case TextureFormat::DEPTH32F_STENCIL8:
-#endif
-		case TextureFormat::DEPTH16:
-		case TextureFormat::DEPTH32F:
-		case TextureFormat::DEPTH24_STENCIL8:
-            return true;
-
-        // Three-component SRGB is a color-renderable texture format in core OpenGL on desktop.
-        case TextureFormat::SRGB8:
-            return GL41_HEADERS;
-
-        // Half-float formats, requires extension.
-        case TextureFormat::RGB16F:
-            return ext.EXT_color_buffer_half_float;
-
-        // Float formats from GL_EXT_color_buffer_float, assumed supported.
-        case TextureFormat::R16F:
-        case TextureFormat::RG16F:
-        case TextureFormat::RGBA16F:
-        case TextureFormat::R32F:
-        case TextureFormat::RG32F:
-        case TextureFormat::RGBA32F:
-        case TextureFormat::R11F_G11F_B10F:
-            return true;
-
-        default:
-            return false;
+    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+    {
+        switch (format) {
+            case TextureFormat::R8:
+            case TextureFormat::RGBA8:
+                return true;
+                
+            case TextureFormat::DEPTH16:
+            case TextureFormat::DEPTH32F:
+            case TextureFormat::DEPTH24_STENCIL8:
+                return true;
+                
+            default:
+                return false;
+        }
     }
+    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        // Supported formats per http://docs.gl/es3/glRenderbufferStorage, note that desktop OpenGL may
+        // support more formats, but it requires querying GL_INTERNALFORMAT_SUPPORTED which is not
+        // available in OpenGL ES.
+        switch (format) {
+                // Core formats.
+            case TextureFormat::R8:
+            case TextureFormat::R8UI:
+            case TextureFormat::R8I:
+            case TextureFormat::R16UI:
+            case TextureFormat::R16I:
+            case TextureFormat::RG8:
+            case TextureFormat::RG8UI:
+            case TextureFormat::RG8I:
+            case TextureFormat::RGB565:
+            case TextureFormat::RGB5_A1:
+            case TextureFormat::RGBA4:
+            case TextureFormat::RGB8:
+            case TextureFormat::R32UI:
+            case TextureFormat::R32I:
+            case TextureFormat::RG16UI:
+            case TextureFormat::RG16I:
+            case TextureFormat::RGBA8:
+            case TextureFormat::SRGB8_A8:
+            case TextureFormat::RGB10_A2:
+            case TextureFormat::RGBA8UI:
+            case TextureFormat::RGBA8I:
+            case TextureFormat::RG32UI:
+            case TextureFormat::RG32I:
+            case TextureFormat::RGBA16UI:
+            case TextureFormat::RGBA16I:
+                return true;
+                
+            case TextureFormat::STENCIL8:
+            case TextureFormat::DEPTH24:
+            case TextureFormat::DEPTH32F_STENCIL8:
+            case TextureFormat::DEPTH16:
+            case TextureFormat::DEPTH32F:
+            case TextureFormat::DEPTH24_STENCIL8:
+                return true;
+                
+                // Three-component SRGB is a color-renderable texture format in core OpenGL on desktop.
+            case TextureFormat::SRGB8:
+                return GL41_HEADERS;
+                
+                // Half-float formats, requires extension.
+            case TextureFormat::RGB16F:
+                return ext.EXT_color_buffer_half_float;
+                
+                // Float formats from GL_EXT_color_buffer_float, assumed supported.
+            case TextureFormat::R16F:
+            case TextureFormat::RG16F:
+            case TextureFormat::RGBA16F:
+            case TextureFormat::R32F:
+            case TextureFormat::RG32F:
+            case TextureFormat::RGBA32F:
+            case TextureFormat::R11F_G11F_B10F:
+                return true;
+                
+            default:
+                return false;
+        }
+    }
+    return false;
 }
 
 bool OpenGLDriver::isFrameTimeSupported() {
@@ -2014,15 +1970,16 @@ void OpenGLDriver::updateIndexBuffer(
 void OpenGLDriver::loadUniformBuffer(Handle<HwUniformBuffer> ubh, BufferDescriptor&& p) {
     DEBUG_MARKER()
 
-#ifndef USE_GLES2
-    GLUniformBuffer* ub = handle_cast<GLUniformBuffer *>(ubh);
-    assert(ub);
-
-    if (p.size > 0) {
-        updateBuffer(GL_UNIFORM_BUFFER, &ub->gl.ubo, p,
-                (uint32_t)gets.uniform_buffer_offset_alignment);
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        GLUniformBuffer* ub = handle_cast<GLUniformBuffer *>(ubh);
+        assert(ub);
+        
+        if (p.size > 0) {
+            updateBuffer(GL_UNIFORM_BUFFER, &ub->gl.ubo, p,
+                         (uint32_t)gets.uniform_buffer_offset_alignment);
+        }
     }
-#endif
     
     scheduleDestroy(std::move(p));
 }
@@ -2041,7 +1998,7 @@ void OpenGLDriver::updateBuffer(GLenum target,
         // If MapBufferRange is supported, then attempt to use that instead of BufferSubData, which
         // can be quite inefficient on some platforms. Note that WebGL does not support
         // MapBufferRange, but we still allow STREAM semantics for the web platform.
-#if HAS_MAPBUFFERS
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
         {
             uint32_t offset = buffer->base + buffer->size;
             offset = (offset + (alignment - 1u)) & ~(alignment - 1u);
@@ -2075,7 +2032,6 @@ void OpenGLDriver::updateBuffer(GLenum target,
             CHECK_GL_ERROR(utils::slog.e)
             return;
         }
-#endif
     }
 
     if (p.size == buffer->capacity) {
@@ -2101,22 +2057,23 @@ void OpenGLDriver::updateSamplerGroup(Handle<HwSamplerGroup> sbh,
     GLSamplerGroup* sb = handle_cast<GLSamplerGroup *>(sbh);
     *sb->sb = std::move(samplerGroup); // NOLINT(performance-move-const-arg)
 
-#ifdef USE_GLES2
-	for (size_t i = 0; i < sb->sb->getSize(); ++i)
-	{
-		const SamplerGroup::Sampler& sampler = sb->sb->getSamplers()[i];
-		GLTexture* t = handle_cast<GLTexture*>(sampler.t);
-		
-		GLenum target = t->gl.target;
-		bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
-		activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
-
-		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, getTextureFilter(sampler.s.filterMin));
-		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, getTextureFilter(sampler.s.filterMag));
-		glTexParameteri(target, GL_TEXTURE_WRAP_S, getWrapMode(sampler.s.wrapS));
-		glTexParameteri(target, GL_TEXTURE_WRAP_T, getWrapMode(sampler.s.wrapT));
-	}
-#endif
+    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+    {
+        for (size_t i = 0; i < sb->sb->getSize(); ++i)
+        {
+            const SamplerGroup::Sampler& sampler = sb->sb->getSamplers()[i];
+            GLTexture* t = handle_cast<GLTexture*>(sampler.t);
+            
+            GLenum target = t->gl.target;
+            bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
+            activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
+            
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, getTextureFilter(sampler.s.filterMin));
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, getTextureFilter(sampler.s.filterMag));
+            glTexParameteri(target, GL_TEXTURE_WRAP_S, getWrapMode(sampler.s.wrapS));
+            glTexParameteri(target, GL_TEXTURE_WRAP_T, getWrapMode(sampler.s.wrapT));
+        }
+    }
 }
 
 void OpenGLDriver::updateTexture(
@@ -2227,35 +2184,36 @@ void OpenGLDriver::copyTexture(
 	else
 	{
 		// blit
-#ifndef USE_GLES2
-		if (mSharedDrawFramebuffer == 0)
-		{
-			glGenFramebuffers(1, &mSharedDrawFramebuffer);
-		}
-		if (mSharedReadFramebuffer == 0)
-		{
-			glGenFramebuffers(1, &mSharedReadFramebuffer);
-		}
-		auto draw_fbo = state.draw_fbo;
-		auto read_fbo = state.read_fbo;
-
-		this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, mSharedDrawFramebuffer);
-		this->framebufferTexture(TargetBufferInfo(th_dst, dst_level, dst_layer), GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
-
-		this->bindFramebuffer(GL_READ_FRAMEBUFFER, mSharedReadFramebuffer);
-		this->framebufferTexture(TargetBufferInfo(th_src, src_level, src_layer), GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
-
-		glBlitFramebuffer(
-			src_offset.x, src_offset.y,
-			src_offset.x + src_extent.x, src_offset.y + src_extent.y,
-			dst_offset.x, dst_offset.y,
-			dst_offset.x + dst_extent.x, dst_offset.y + dst_extent.y,
-			GL_COLOR_BUFFER_BIT,
-			blit_filter == backend::SamplerMagFilter::LINEAR ? GL_LINEAR : GL_NEAREST);
-
-		this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
-		this->bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
-#endif
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            if (mSharedDrawFramebuffer == 0)
+            {
+                glGenFramebuffers(1, &mSharedDrawFramebuffer);
+            }
+            if (mSharedReadFramebuffer == 0)
+            {
+                glGenFramebuffers(1, &mSharedReadFramebuffer);
+            }
+            auto draw_fbo = state.draw_fbo;
+            auto read_fbo = state.read_fbo;
+            
+            this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, mSharedDrawFramebuffer);
+            this->framebufferTexture(TargetBufferInfo(th_dst, dst_level, dst_layer), GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+            
+            this->bindFramebuffer(GL_READ_FRAMEBUFFER, mSharedReadFramebuffer);
+            this->framebufferTexture(TargetBufferInfo(th_src, src_level, src_layer), GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+            
+            glBlitFramebuffer(
+                src_offset.x, src_offset.y,
+                src_offset.x + src_extent.x, src_offset.y + src_extent.y,
+                dst_offset.x, dst_offset.y,
+                dst_offset.x + dst_extent.x, dst_offset.y + dst_extent.y,
+                GL_COLOR_BUFFER_BIT,
+                blit_filter == backend::SamplerMagFilter::LINEAR ? GL_LINEAR : GL_NEAREST);
+            
+            this->bindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
+            this->bindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
+        }
 	}
 }
 
@@ -2274,9 +2232,7 @@ void OpenGLDriver::generateMipmaps(Handle<HwTexture> th) {
     DEBUG_MARKER()
 
     GLTexture* t = handle_cast<GLTexture *>(th);
-#ifndef USE_GLES2
     assert(t->gl.target != GL_TEXTURE_2D_MULTISAMPLE);
-#endif
     
     // Note: glGenerateMimap can also fail if the internal format is not both
     // color-renderable and filterable (i.e.: doesn't work for depth)
@@ -2286,10 +2242,11 @@ void OpenGLDriver::generateMipmaps(Handle<HwTexture> th) {
     t->gl.baseLevel = 0;
     t->gl.maxLevel = static_cast<uint8_t>(t->levels - 1);
 
-#ifndef USE_GLES2
-    glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
-    glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
+        glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
+    }
     
     glGenerateMipmap(t->gl.target);
 
@@ -2322,11 +2279,13 @@ void OpenGLDriver::setTextureData(GLTexture* t,
     GLenum glType = getType(p.type);
 
     pixelStore(GL_UNPACK_ALIGNMENT, p.alignment);
-#ifndef USE_GLES2
-    pixelStore(GL_UNPACK_ROW_LENGTH, p.stride);
-    pixelStore(GL_UNPACK_SKIP_PIXELS, p.left);
-    pixelStore(GL_UNPACK_SKIP_ROWS, p.top);
-#endif
+
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        pixelStore(GL_UNPACK_ROW_LENGTH, p.stride);
+        pixelStore(GL_UNPACK_SKIP_PIXELS, p.left);
+        pixelStore(GL_UNPACK_SKIP_ROWS, p.top);
+    }
     
 	bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
 	activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
@@ -2347,13 +2306,11 @@ void OpenGLDriver::setTextureData(GLTexture* t,
                             w, h, glFormat, glType, p.buffer);
                     break;
                     
-#ifndef USE_GLES2
                 case GL_TEXTURE_2D_ARRAY:
                     glTexSubImage3D(t->gl.target, GLint(level),
                             GLint(x), GLint(y), GLint(layer),
                             w, h, 1, glFormat, glType, p.buffer);
                     break;
-#endif
                     
                 default:
                     // we shouldn't be here
@@ -2376,16 +2333,18 @@ void OpenGLDriver::setTextureData(GLTexture* t,
     if (int8_t(level) < t->gl.baseLevel)
 	{
         t->gl.baseLevel = int8_t(level);
-#ifndef USE_GLES2
-        glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
-#endif
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
+        }
     }
     if (int8_t(level) > t->gl.maxLevel)
 	{
         t->gl.maxLevel = int8_t(level);
-#ifndef USE_GLES2
-        glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
-#endif
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
+        }
     }
 
     CHECK_GL_ERROR(utils::slog.e)
@@ -2429,14 +2388,13 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
             switch (t->gl.target)
 			{
                 case GL_TEXTURE_2D:
-#ifdef USE_GLES2
-					if (x == 0 && w == t->width && y == 0 && h == t->height)
-					{
-						glCompressedTexImage2D(t->gl.target, GLint(level),
-                            t->gl.internalFormat, w, h, 0, imageSize, p.buffer);
-					}
+                    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20 &&
+                        x == 0 && w == t->width && y == 0 && h == t->height)
+                    {
+                        glCompressedTexImage2D(t->gl.target, GLint(level),
+                                               t->gl.internalFormat, w, h, 0, imageSize, p.buffer);
+                    }
 					else
-#endif
 					{
 						glCompressedTexSubImage2D(t->gl.target, GLint(level),
 							GLint(x), GLint(y),
@@ -2445,13 +2403,11 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
                     CHECK_GL_ERROR(utils::slog.e)
                     break;
                     
-#ifndef USE_GLES2
                 case GL_TEXTURE_2D_ARRAY:
                     glCompressedTexSubImage3D(t->gl.target, GLint(level),
                         GLint(x), GLint(y), GLint(layer),
                         w, h, 1, t->gl.internalFormat, imageSize, p.buffer);
                     break;
-#endif
                     
                 default:
                     // we shouldn't be here
@@ -2461,14 +2417,13 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
         case SamplerType::SAMPLER_CUBEMAP:
 		{
             GLenum target = getCubemapTarget(TextureCubemapFace(layer));
-#ifdef USE_GLES2
-            if (x == 0 && w == t->width && y == 0 && h == t->height)
+            if (this->getShaderModel() == backend::ShaderModel::GL_ES_20 &&
+                x == 0 && w == t->width && y == 0 && h == t->height)
             {
                 glCompressedTexImage2D(target, GLint(level),
                     t->gl.internalFormat, t->width >> level, t->height >> level, 0, imageSize, p.buffer);
             }
             else
-#endif
             {
                 glCompressedTexSubImage2D(target, GLint(level), 0, 0,
                     t->width >> level, t->height >> level, t->gl.internalFormat,
@@ -2485,16 +2440,18 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
     if (uint8_t(level) < t->gl.baseLevel)
 	{
         t->gl.baseLevel = uint8_t(level);
-#ifndef USE_GLES2
-        glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
-#endif
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
+        }
     }
     if (uint8_t(level) > t->gl.maxLevel)
 	{
         t->gl.maxLevel = uint8_t(level);
-#ifndef USE_GLES2
-        glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
-#endif
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
+        }
     }
 
     CHECK_GL_ERROR(utils::slog.e)
@@ -2518,10 +2475,8 @@ void OpenGLDriver::setExternalImage(Handle<HwTexture> th, void* image) {
         bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, t);
         activeTexture(MAX_TEXTURE_UNIT_COUNT - 1);
 
-#ifndef USE_GLES2
 #ifdef GL_OES_EGL_image
         glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, static_cast<GLeglImageOES>(image));
-#endif
 #endif
     }
 }
@@ -2614,20 +2569,21 @@ void OpenGLDriver::beginRenderPass(Handle<HwRenderTarget> rth,
     if (UTILS_UNLIKELY(state.draw_fbo != rt->gl.fbo)) {
         bindFramebuffer(GL_FRAMEBUFFER, rt->gl.fbo);
 
-#ifndef USE_GLES2
-        // glInvalidateFramebuffer appeared on GLES 3.0 and GL4.3, for simplicity we just
-        // ignore it on GL (rather than having to do a runtime check).
-        if (GLES31_HEADERS) {
-            if (!bugs.disable_invalidate_framebuffer) {
-                std::array<GLenum, 3> attachments; // NOLINT(cppcoreguidelines-pro-type-member-init)
-                GLsizei attachmentCount = getAttachments(attachments, rt, discardFlags);
-                if (attachmentCount) {
-                    glInvalidateFramebuffer(GL_FRAMEBUFFER, attachmentCount, attachments.data());
+        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            // glInvalidateFramebuffer appeared on GLES 3.0 and GL4.3, for simplicity we just
+            // ignore it on GL (rather than having to do a runtime check).
+            if (GLES31_HEADERS) {
+                if (!bugs.disable_invalidate_framebuffer) {
+                    std::array<GLenum, 3> attachments; // NOLINT(cppcoreguidelines-pro-type-member-init)
+                    GLsizei attachmentCount = getAttachments(attachments, rt, discardFlags);
+                    if (attachmentCount) {
+                        glInvalidateFramebuffer(GL_FRAMEBUFFER, attachmentCount, attachments.data());
+                    }
+                    CHECK_GL_ERROR(utils::slog.e)
                 }
-                CHECK_GL_ERROR(utils::slog.e)
             }
         }
-#endif
     }
     
     if (rt->gl.fbo_read) {
@@ -2709,7 +2665,6 @@ void OpenGLDriver::endRenderPass(int) {
 
 void OpenGLDriver::resolvePass(ResolveAction action, GLRenderTarget const* rt,
         backend::TargetBufferFlags discardFlags) noexcept {
-#ifndef USE_GLES2
     const TargetBufferFlags resolve = rt->gl.resolve & ~discardFlags;
     GLbitfield mask = getAttachmentBitfield(resolve);
     if (UTILS_UNLIKELY(mask)) {
@@ -2724,7 +2679,6 @@ void OpenGLDriver::resolvePass(ResolveAction action, GLRenderTarget const* rt,
         glBlitFramebuffer(0, 0, rt->width, rt->height, 0, 0, rt->width, rt->height, mask, GL_NEAREST);
         CHECK_GL_ERROR(utils::slog.e)
     }
-#endif
 }
 
 void OpenGLDriver::discardSubRenderTargetBuffers(Handle<HwRenderTarget> rth,
@@ -2760,19 +2714,20 @@ void OpenGLDriver::discardSubRenderTargetBuffers(Handle<HwRenderTarget> rth,
 GLsizei OpenGLDriver::getAttachments(std::array<GLenum, 3>& attachments,
         GLRenderTarget const* rt, uint8_t buffers) const noexcept {
     GLsizei attachmentCount = 0;
-#ifndef USE_GLES2
-    // the default framebuffer uses different constants!!!
-    const bool defaultFramebuffer = (rt->gl.fbo == 0);
-    if (buffers & TargetBufferFlags::COLOR) {
-        attachments[attachmentCount++] = defaultFramebuffer ? GL_COLOR : GL_COLOR_ATTACHMENT0;
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        // the default framebuffer uses different constants!!!
+        const bool defaultFramebuffer = (rt->gl.fbo == 0);
+        if (buffers & TargetBufferFlags::COLOR) {
+            attachments[attachmentCount++] = defaultFramebuffer ? GL_COLOR : GL_COLOR_ATTACHMENT0;
+        }
+        if (buffers & TargetBufferFlags::DEPTH) {
+            attachments[attachmentCount++] = defaultFramebuffer ? GL_DEPTH : GL_DEPTH_ATTACHMENT;
+        }
+        if (buffers & TargetBufferFlags::STENCIL) {
+            attachments[attachmentCount++] = defaultFramebuffer ? GL_STENCIL : GL_STENCIL_ATTACHMENT;
+        }
     }
-    if (buffers & TargetBufferFlags::DEPTH) {
-        attachments[attachmentCount++] = defaultFramebuffer ? GL_DEPTH : GL_DEPTH_ATTACHMENT;
-    }
-    if (buffers & TargetBufferFlags::STENCIL) {
-        attachments[attachmentCount++] = defaultFramebuffer ? GL_STENCIL : GL_STENCIL_ATTACHMENT;
-    }
-#endif
     return attachmentCount;
 }
 
@@ -2791,44 +2746,47 @@ void OpenGLDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
         rp->gl.indicesType = ib->elementSize == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
         rp->maxVertexCount = eb->vertexCount;
 
-#ifdef USE_GLES2
-		rp->gl.vbh = vbh;
-		rp->gl.ibh = ibh;
-		rp->gl.enabledAttributes = enabledAttributes;
-#else
-		bindVertexArray(rp);
-		CHECK_GL_ERROR(utils::slog.e)
-
-        for (size_t i = 0, n = eb->attributes.size(); i < n; i++) {
-            if (enabledAttributes & (1U << i)) {
-                uint8_t bi = eb->attributes[i].buffer;
-                assert(bi != 0xFF);
-                bindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[bi]);
-                if (UTILS_UNLIKELY(eb->attributes[i].flags & Attribute::FLAG_INTEGER_TARGET)) {
-                    glVertexAttribIPointer(GLuint(i),
+        if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+        {
+            rp->gl.vbh = vbh;
+            rp->gl.ibh = ibh;
+            rp->gl.enabledAttributes = enabledAttributes;
+        }
+        else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        {
+            bindVertexArray(rp);
+            CHECK_GL_ERROR(utils::slog.e)
+            
+            for (size_t i = 0, n = eb->attributes.size(); i < n; i++) {
+                if (enabledAttributes & (1U << i)) {
+                    uint8_t bi = eb->attributes[i].buffer;
+                    assert(bi != 0xFF);
+                    bindBuffer(GL_ARRAY_BUFFER, eb->gl.buffers[bi]);
+                    if (UTILS_UNLIKELY(eb->attributes[i].flags & Attribute::FLAG_INTEGER_TARGET)) {
+                        glVertexAttribIPointer(GLuint(i),
                             getComponentCount(eb->attributes[i].type),
                             getComponentType(eb->attributes[i].type),
                             eb->attributes[i].stride,
                             (void*) uintptr_t(eb->attributes[i].offset));
-                } else {
-                    glVertexAttribPointer(GLuint(i),
+                    } else {
+                        glVertexAttribPointer(GLuint(i),
                             getComponentCount(eb->attributes[i].type),
                             getComponentType(eb->attributes[i].type),
                             getNormalization(eb->attributes[i].flags & Attribute::FLAG_NORMALIZED),
                             eb->attributes[i].stride,
                             (void*) uintptr_t(eb->attributes[i].offset));
+                    }
+                    
+                    enableVertexAttribArray(GLuint(i));
+                } else {
+                    disableVertexAttribArray(GLuint(i));
                 }
-
-                enableVertexAttribArray(GLuint(i));
-            } else {
-                disableVertexAttribArray(GLuint(i));
             }
+            
+            // this records the index buffer into the currently bound VAO
+            bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
+            CHECK_GL_ERROR(utils::slog.e)
         }
-
-		// this records the index buffer into the currently bound VAO
-		bindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->gl.buffer);
-		CHECK_GL_ERROR(utils::slog.e)
-#endif
     }
 }
 
@@ -2949,7 +2907,6 @@ void OpenGLDriver::setViewportScissor(
 void OpenGLDriver::updateStream(GLTexture* t, DriverApi* driver) noexcept {
     SYSTRACE_CALL();
 
-#ifndef USE_GLES2
     GLStream* s = static_cast<GLStream*>(t->hwStream);
     assert(s);
     assert(!s->isNativeStream());
@@ -3038,7 +2995,6 @@ void OpenGLDriver::updateStream(GLTexture* t, DriverApi* driver) noexcept {
             }
         });
     }
-#endif
 }
 
 void OpenGLDriver::readStreamPixels(Handle<HwStream> sh,
@@ -3046,7 +3002,6 @@ void OpenGLDriver::readStreamPixels(Handle<HwStream> sh,
         PixelBufferDescriptor&& p) {
     DEBUG_MARKER()
 
-#ifndef USE_GLES2
     GLStream* s = handle_cast<GLStream*>(sh);
     if (UTILS_LIKELY(!s->isNativeStream())) {
         GLuint tid = s->gl.externalTexture2DId;
@@ -3110,7 +3065,6 @@ void OpenGLDriver::readStreamPixels(Handle<HwStream> sh,
         bindFramebuffer(GL_FRAMEBUFFER, 0);
         scheduleDestroy(std::move(p));
     }
-#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -3120,11 +3074,12 @@ void OpenGLDriver::readStreamPixels(Handle<HwStream> sh,
 void OpenGLDriver::bindUniformBuffer(size_t index, Handle<HwUniformBuffer> ubh) {
     DEBUG_MARKER()
 
-#ifndef USE_GLES2
-    GLUniformBuffer* ub = handle_cast<GLUniformBuffer *>(ubh);
-    assert(ub->gl.ubo.base == 0);
-    bindBufferRange(GL_UNIFORM_BUFFER, GLuint(index), ub->gl.ubo.id, 0, ub->gl.ubo.capacity);
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        GLUniformBuffer* ub = handle_cast<GLUniformBuffer *>(ubh);
+        assert(ub->gl.ubo.base == 0);
+        bindBufferRange(GL_UNIFORM_BUFFER, GLuint(index), ub->gl.ubo.id, 0, ub->gl.ubo.capacity);
+    }
     
     CHECK_GL_ERROR(utils::slog.e)
 }
@@ -3133,13 +3088,14 @@ void OpenGLDriver::bindUniformBufferRange(size_t index, Handle<HwUniformBuffer> 
         size_t offset, size_t size) {
     DEBUG_MARKER()
 
-#ifndef USE_GLES2
-    GLUniformBuffer* ub = handle_cast<GLUniformBuffer*>(ubh);
-    // TODO: Is this assert really needed? Note that size is only populated for STREAM buffers.
-    assert(size <= ub->gl.ubo.size);
-    assert(ub->gl.ubo.base + offset + size <= ub->gl.ubo.capacity);
-    bindBufferRange(GL_UNIFORM_BUFFER, GLuint(index), ub->gl.ubo.id, ub->gl.ubo.base + offset, size);
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        GLUniformBuffer* ub = handle_cast<GLUniformBuffer*>(ubh);
+        // TODO: Is this assert really needed? Note that size is only populated for STREAM buffers.
+        assert(size <= ub->gl.ubo.size);
+        assert(ub->gl.ubo.base + offset + size <= ub->gl.ubo.capacity);
+        bindBufferRange(GL_UNIFORM_BUFFER, GLuint(index), ub->gl.ubo.id, ub->gl.ubo.base + offset, size);
+    }
     
     CHECK_GL_ERROR(utils::slog.e)
 }
@@ -3189,58 +3145,55 @@ void OpenGLDriver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh) {
 GLuint OpenGLDriver::getSamplerSlow(SamplerParams params) const noexcept {
     assert(mSamplerMap.find(params.u) == mSamplerMap.end());
 
-#ifdef USE_GLES2
-    return 0;
-#else
-    GLuint s;
-    glGenSamplers(1, &s);
-    glSamplerParameteri(s, GL_TEXTURE_MIN_FILTER,   getTextureFilter(params.filterMin));
-    glSamplerParameteri(s, GL_TEXTURE_MAG_FILTER,   getTextureFilter(params.filterMag));
-    glSamplerParameteri(s, GL_TEXTURE_WRAP_S,       getWrapMode(params.wrapS));
-    glSamplerParameteri(s, GL_TEXTURE_WRAP_T,       getWrapMode(params.wrapT));
-    glSamplerParameteri(s, GL_TEXTURE_WRAP_R,       getWrapMode(params.wrapR));
-    glSamplerParameteri(s, GL_TEXTURE_COMPARE_MODE, getTextureCompareMode(params.compareMode));
-    glSamplerParameteri(s, GL_TEXTURE_COMPARE_FUNC, getTextureCompareFunc(params.compareFunc));
-// TODO: Why does this fail with WebGL 2.0? The run-time check should suffice.
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        GLuint s;
+        glGenSamplers(1, &s);
+        glSamplerParameteri(s, GL_TEXTURE_MIN_FILTER,   getTextureFilter(params.filterMin));
+        glSamplerParameteri(s, GL_TEXTURE_MAG_FILTER,   getTextureFilter(params.filterMag));
+        glSamplerParameteri(s, GL_TEXTURE_WRAP_S,       getWrapMode(params.wrapS));
+        glSamplerParameteri(s, GL_TEXTURE_WRAP_T,       getWrapMode(params.wrapT));
+        glSamplerParameteri(s, GL_TEXTURE_WRAP_R,       getWrapMode(params.wrapR));
+        glSamplerParameteri(s, GL_TEXTURE_COMPARE_MODE, getTextureCompareMode(params.compareMode));
+        glSamplerParameteri(s, GL_TEXTURE_COMPARE_FUNC, getTextureCompareFunc(params.compareFunc));
+        // TODO: Why does this fail with WebGL 2.0? The run-time check should suffice.
 #if defined(GL_EXT_texture_filter_anisotropic) && !defined(__EMSCRIPTEN__)
-    if (ext.texture_filter_anisotropic) {
-        GLfloat anisotropy = float(1 << params.anisotropyLog2);
-        glSamplerParameterf(s, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::min(mMaxAnisotropy, anisotropy));
+        if (ext.texture_filter_anisotropic) {
+            GLfloat anisotropy = float(1 << params.anisotropyLog2);
+            glSamplerParameterf(s, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::min(mMaxAnisotropy, anisotropy));
+        }
+#endif
+        CHECK_GL_ERROR(utils::slog.e)
+        mSamplerMap[params.u] = s;
+        return s;
     }
-#endif
-    CHECK_GL_ERROR(utils::slog.e)
-    mSamplerMap[params.u] = s;
-    return s;
-#endif
+    else
+    {
+        return 0;
+    }
 }
 
 void OpenGLDriver::insertEventMarker(char const* string, size_t len) {
-#ifndef USE_GLES2
 #ifdef GL_EXT_debug_marker
     if (ext.EXT_debug_marker) {
         glInsertEventMarkerEXT(GLsizei(len ? len : strlen(string)), string);
     }
 #endif
-#endif
 }
 
 void OpenGLDriver::pushGroupMarker(char const* string,  size_t len) {
-#ifndef USE_GLES2
 #ifdef GL_EXT_debug_marker
     if (ext.EXT_debug_marker) {
         glPushGroupMarkerEXT(GLsizei(len ? len : strlen(string)), string);
     }
 #endif
-#endif
 }
 
 void OpenGLDriver::popGroupMarker(int) {
-#ifndef USE_GLES2
 #ifdef GL_EXT_debug_marker
     if (ext.EXT_debug_marker) {
         glPopGroupMarkerEXT();
     }
-#endif
 #endif
 }
 
@@ -3257,11 +3210,13 @@ void OpenGLDriver::readPixels(Handle<HwRenderTarget> src,
     GLenum glType = getType(p.type);
 
     pixelStore(GL_PACK_ALIGNMENT, p.alignment);
-#ifndef USE_GLES2
-    pixelStore(GL_PACK_ROW_LENGTH, p.stride);
-    pixelStore(GL_PACK_SKIP_PIXELS, p.left);
-    pixelStore(GL_PACK_SKIP_ROWS, p.top);
-#endif
+    
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        pixelStore(GL_PACK_ROW_LENGTH, p.stride);
+        pixelStore(GL_PACK_SKIP_PIXELS, p.left);
+        pixelStore(GL_PACK_SKIP_ROWS, p.top);
+    }
     
     /*
      * glReadPixel() operation...
@@ -3289,11 +3244,15 @@ void OpenGLDriver::readPixels(Handle<HwRenderTarget> src,
      */
 
     GLRenderTarget const* s = handle_cast<GLRenderTarget const*>(src);
-#ifdef USE_GLES2
-    bindFramebuffer(GL_FRAMEBUFFER, s->gl.fbo);
-#else
-    bindFramebuffer(GL_READ_FRAMEBUFFER, s->gl.fbo);
-#endif
+
+    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+    {
+        bindFramebuffer(GL_FRAMEBUFFER, s->gl.fbo);
+    }
+    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        bindFramebuffer(GL_READ_FRAMEBUFFER, s->gl.fbo);
+    }
     
     // TODO: we could use a PBO to make this asynchronous
     glReadPixels(GLint(x), GLint(y), GLint(width), GLint(height), glFormat, glType, p.buffer);
@@ -3442,7 +3401,6 @@ void OpenGLDriver::blit(TargetBufferFlags buffers,
         SamplerMagFilter filter) {
     DEBUG_MARKER()
 
-#ifndef USE_GLES2
     GLbitfield mask = getAttachmentBitfield(buffers);
     if (mask) {
         GLenum glFilterMode = (filter == SamplerMagFilter::NEAREST) ? GL_NEAREST : GL_LINEAR;
@@ -3489,11 +3447,9 @@ void OpenGLDriver::blit(TargetBufferFlags buffers,
                 mask, glFilterMode);
         CHECK_GL_ERROR(utils::slog.e)
     }
-#endif
 }
 
 void OpenGLDriver::updateTextureLodRange(GLTexture* texture, int8_t targetLevel) noexcept {
-#ifndef USE_GLES2
     if (texture && (texture->usage & TextureUsage::SAMPLEABLE)) {
         if (targetLevel < texture->gl.baseLevel || targetLevel > texture->gl.maxLevel) {
             bindTexture(MAX_TEXTURE_UNIT_COUNT - 1, texture);
@@ -3509,7 +3465,6 @@ void OpenGLDriver::updateTextureLodRange(GLTexture* texture, int8_t targetLevel)
         }
         CHECK_GL_ERROR(utils::slog.e)
     }
-#endif
 }
 
 void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
@@ -3522,11 +3477,15 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
 
     const GLRenderPrimitive* rp = handle_cast<const GLRenderPrimitive*>(rph);
 
-#ifdef USE_GLES2
-	this->bindVertexAttribs(rp, p);
-#else
-	this->bindVertexArray(rp);
-#endif
+    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        this->bindVertexArray(rp);
+    }
+    else
+    {
+        this->bindVertexAttribs(rp, p);
+    }
+
 	CHECK_GL_ERROR(utils::slog.e)
 
 	this->setRasterState(state.rasterState);
@@ -3538,12 +3497,15 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
 	this->enable(GL_SCISSOR_TEST);
 	CHECK_GL_ERROR(utils::slog.e)
 
-#ifdef USE_GLES2
-    glDrawElements(GLenum(rp->type), rp->count, rp->gl.indicesType, (const void*) (size_t) rp->offset);
-#else
-    glDrawRangeElements(GLenum(rp->type), rp->minIndex, rp->maxIndex, rp->count,
-            rp->gl.indicesType, reinterpret_cast<const void*>(rp->offset));
-#endif
+    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+    {
+        glDrawElements(GLenum(rp->type), rp->count, rp->gl.indicesType, (const void*) (size_t) rp->offset);
+    }
+    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    {
+        glDrawRangeElements(GLenum(rp->type), rp->minIndex, rp->maxIndex, rp->count,
+                            rp->gl.indicesType, reinterpret_cast<const void*>(rp->offset));
+    }
 
     CHECK_GL_ERROR(utils::slog.e)
 }
