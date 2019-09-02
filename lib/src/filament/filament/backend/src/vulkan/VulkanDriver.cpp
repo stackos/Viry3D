@@ -978,7 +978,6 @@ void VulkanDriver::bindUniformBufferRange(size_t index, Handle<HwUniformBuffer> 
     mBinder.bindUniformBuffer((uint32_t)index, buffer->getGpuBuffer(), offset, size);
 }
 
-#ifdef USE_GLES2
 void VulkanDriver::setUniformVector(
 	backend::ProgramHandle ph,
 	std::string name,
@@ -996,7 +995,6 @@ void VulkanDriver::setUniformMatrix(
 {
 
 }
-#endif
 
 void VulkanDriver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh) {
     auto* hwsb = handle_cast<VulkanSamplerGroup>(mHandleMap, sbh);

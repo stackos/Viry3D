@@ -3504,7 +3504,7 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
     else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
     {
         glDrawRangeElements(GLenum(rp->type), rp->minIndex, rp->maxIndex, rp->count,
-                            rp->gl.indicesType, reinterpret_cast<const void*>(rp->offset));
+                            rp->gl.indicesType, (const void*) (size_t) rp->offset);
     }
 
     CHECK_GL_ERROR(utils::slog.e)
