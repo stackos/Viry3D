@@ -276,7 +276,22 @@ MetalTexture::MetalTexture(MetalContext& context, backend::SamplerType target, u
     const TextureFormat reshapedFormat = reshaper.getReshapedFormat();
     const MTLPixelFormat pixelFormat = decidePixelFormat(context.device, reshapedFormat);
 
-    bytesPerPixel = static_cast<uint8_t>(getTextureFormatSize(reshapedFormat));
+    switch (format)
+    {
+        case TextureFormat::DXT1_RGB:
+        case TextureFormat::DXT1_RGBA:
+            bitsPerPixel = 4;
+            bc_block_bytes = 8;
+            break;
+        case TextureFormat::DXT3_RGBA:
+        case TextureFormat::DXT5_RGBA:
+            bitsPerPixel = 8;
+            bc_block_bytes = 16;
+            break;
+        default:
+            bitsPerPixel = static_cast<uint8_t>(getTextureFormatSize(reshapedFormat)) * 8;
+            break;
+    }
 
     ASSERT_POSTCONDITION(pixelFormat != MTLPixelFormatInvalid, "Pixel format not supported.");
 
@@ -326,7 +341,16 @@ void MetalTexture::updateTexture(
                    const PixelBufferDescriptor& data)
 {
     MTLRegion region = MTLRegionMake2D(x, y, w, h);
-    NSUInteger bytesPerRow = bytesPerPixel * w;
+    NSUInteger bytesPerRow = 0;
+    if (bc_block_bytes > 0)
+    {
+        int block_wide = std::max<int>(1, (w + 3) / 4);
+        bytesPerRow = block_wide * bc_block_bytes;
+    }
+    else
+    {
+        bytesPerRow = bitsPerPixel * w / 8;
+    }
     
     [texture replaceRegion:region
                mipmapLevel:level

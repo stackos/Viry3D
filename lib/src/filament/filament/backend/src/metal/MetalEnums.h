@@ -215,6 +215,13 @@ constexpr inline MTLPixelFormat getMetalFormat(TextureFormat format) noexcept {
         case TextureFormat::RGBA32UI: return MTLPixelFormatRGBA32Uint;
         case TextureFormat::RGBA32I: return MTLPixelFormatRGBA32Sint;
 
+#if VR_MAC
+        case TextureFormat::DXT1_RGB: return MTLPixelFormatBC1_RGBA;
+        case TextureFormat::DXT1_RGBA: return MTLPixelFormatBC1_RGBA;
+        case TextureFormat::DXT3_RGBA: return MTLPixelFormatBC2_RGBA;
+        case TextureFormat::DXT5_RGBA: return MTLPixelFormatBC3_RGBA;
+#endif
+            
         // TODO: add compressed formats
         case TextureFormat::EAC_R11:
         case TextureFormat::EAC_R11_SIGNED:
@@ -226,11 +233,6 @@ constexpr inline MTLPixelFormat getMetalFormat(TextureFormat format) noexcept {
         case TextureFormat::ETC2_SRGB8_A1:
         case TextureFormat::ETC2_EAC_RGBA8:
         case TextureFormat::ETC2_EAC_SRGBA8:
-
-        case TextureFormat::DXT1_RGB:
-        case TextureFormat::DXT1_RGBA:
-        case TextureFormat::DXT3_RGBA:
-        case TextureFormat::DXT5_RGBA:
 
         case TextureFormat::RGBA_ASTC_4x4:
         case TextureFormat::RGBA_ASTC_5x4:

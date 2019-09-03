@@ -468,7 +468,7 @@ namespace Viry3D
 			Resources::LoadFileFromUrlAsync("texture/logo.jpg", [=](const ByteBuffer& buffer) {
 				Log("buffer size %d", buffer.Size());
 				auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
-				Log("image width:%d height:%d", texture->GetWidth(), texture->GetHeight());
+				Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
 				sprite->SetTexture(texture);
 			});
         }

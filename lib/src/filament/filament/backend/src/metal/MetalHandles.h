@@ -136,7 +136,8 @@ struct MetalTexture : public HwTexture {
     MetalContext& context;
     MetalExternalImage externalImage;
     id<MTLTexture> texture = nil;
-    uint8_t bytesPerPixel;
+    uint8_t bitsPerPixel;
+    int bc_block_bytes = 0;
     TextureReshaper reshaper;
 };
 
