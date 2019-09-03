@@ -427,7 +427,28 @@ namespace filament
 		{
 			UINT subresource = D3D11CalcSubresource(level, layer, levels);
 			D3D11_BOX box = { (UINT) x, (UINT) y, 0, (UINT) (x + w), (UINT) (y + h), 1 };
-			UINT row_pitch = (UINT) getTextureFormatSize(format) * w;
+			UINT row_pitch = 0;
+
+			int bc_block_bytes = 0;
+			switch (format)
+			{
+				case TextureFormat::DXT1_RGB:
+				case TextureFormat::DXT1_RGBA:
+					bc_block_bytes = 8;
+					break;
+				case TextureFormat::DXT3_RGBA:
+				case TextureFormat::DXT5_RGBA:
+					bc_block_bytes = 16;
+					break;
+				default:
+					row_pitch = (UINT) getTextureFormatSize(format) * w;
+					break;
+			}
+			if (bc_block_bytes > 0)
+			{
+				int block_wide = std::max<int>(1, (w + 3) / 4);
+				row_pitch = block_wide * bc_block_bytes;
+			}
 
 			context->context->UpdateSubresource1(
 				texture,

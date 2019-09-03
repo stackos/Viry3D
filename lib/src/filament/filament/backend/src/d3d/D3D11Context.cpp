@@ -315,6 +315,10 @@ namespace filament
 				case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24G8_TYPELESS;
 				case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_TYPELESS;
 				case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32G8X24_TYPELESS;
+				case TextureFormat::DXT1_RGB: return DXGI_FORMAT_BC1_UNORM;
+				case TextureFormat::DXT1_RGBA: return DXGI_FORMAT_BC1_UNORM;
+				case TextureFormat::DXT3_RGBA: return DXGI_FORMAT_BC2_UNORM;
+				case TextureFormat::DXT5_RGBA: return DXGI_FORMAT_BC3_UNORM;
 				default: assert(false); break;
 			}
 			return DXGI_FORMAT_UNKNOWN;
@@ -331,6 +335,10 @@ namespace filament
 				case TextureFormat::DEPTH24_STENCIL8: return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 				case TextureFormat::DEPTH32F: return DXGI_FORMAT_R32_FLOAT;
 				case TextureFormat::DEPTH32F_STENCIL8: return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+				case TextureFormat::DXT1_RGB: return DXGI_FORMAT_BC1_UNORM;
+				case TextureFormat::DXT1_RGBA: return DXGI_FORMAT_BC1_UNORM;
+				case TextureFormat::DXT3_RGBA: return DXGI_FORMAT_BC2_UNORM;
+				case TextureFormat::DXT5_RGBA: return DXGI_FORMAT_BC3_UNORM;
 				default: assert(false); break;
 			}
 			return DXGI_FORMAT_UNKNOWN;

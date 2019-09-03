@@ -170,8 +170,9 @@ size_t getTextureFormatSize(TextureFormat format) noexcept {
 		return 16;
 
 	default:
-		return 0;
+		assert(false);
 	}
+	return 0;
 }
 
 } // namespace backend
