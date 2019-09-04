@@ -335,12 +335,11 @@ MetalTexture::~MetalTexture() {
 }
 
 void MetalTexture::updateTexture(
-                   int layer, int level,
-                   int x, int y,
-                   int w, int h,
-                   const PixelBufferDescriptor& data)
+    int layer, int level,
+    int x, int y,
+    int w, int h,
+    const PixelBufferDescriptor& data)
 {
-    MTLRegion region = MTLRegionMake2D(x, y, w, h);
     NSUInteger bytesPerRow = 0;
     if (bc_block_bytes > 0)
     {
@@ -352,12 +351,31 @@ void MetalTexture::updateTexture(
         bytesPerRow = bitsPerPixel * w / 8;
     }
     
-    [texture replaceRegion:region
-               mipmapLevel:level
-                     slice:layer
-                 withBytes:data.buffer
-               bytesPerRow:bytesPerRow
-             bytesPerImage:0];
+    @autoreleasepool {
+        id<MTLCommandBuffer> commandBuffer = [context.commandQueue commandBuffer];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+    }
+    
+    @autoreleasepool {
+        id<MTLBuffer> buffer = [context.device newBufferWithBytes:data.buffer length:data.size options:MTLResourceCPUCacheModeWriteCombined | MTLResourceStorageModeShared];
+        id<MTLCommandBuffer> commandBuffer = nil;
+        if (context.currentCommandBuffer != nil)
+        {
+            commandBuffer = context.currentCommandBuffer;
+        }
+        else
+        {
+            commandBuffer = [context.commandQueue commandBuffer];
+        }
+        id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+        [blitEncoder copyFromBuffer:buffer sourceOffset:0 sourceBytesPerRow:bytesPerRow sourceBytesPerImage:data.size sourceSize:MTLSizeMake(w, h, 1) toTexture:texture destinationSlice:layer destinationLevel:level destinationOrigin:MTLOriginMake(x, y, 0)];
+        [blitEncoder endEncoding];
+        if (context.currentCommandBuffer == nil)
+        {
+            [commandBuffer commit];
+        }
+    }
 }
 
 MetalRenderTarget::MetalRenderTarget(MetalContext* context, uint32_t width, uint32_t height,
