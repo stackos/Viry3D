@@ -24,17 +24,26 @@
     // Insert code here to initialize your application
     
     const char* name = "Viry3D";
-    int window_width = 1280;
-    int window_height = 720;
+    NSRect window_rect = NSMakeRect(0, 0, 1280, 720);
     
     int style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-    NSRect frame = [NSWindow frameRectForContentRect:NSMakeRect(0, 0, window_width, window_height) styleMask:style];
     
+    bool desktop_window = true;
+    if (desktop_window) {
+        style = NSWindowStyleMaskBorderless;
+        window_rect = NSScreen.mainScreen.frame;
+    }
+
+    NSRect frame = [NSWindow frameRectForContentRect:window_rect styleMask:style];
     NSWindow* window = [[NSWindow alloc] initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:TRUE];
     window.title = [NSString stringWithUTF8String:name];
     [window center];
     [window makeKeyAndOrderFront:nil];
     window.delegate = self;
+    
+    if (desktop_window) {
+        window.level = kCGDesktopWindowLevel;
+    }
     
     ViewController* view_controller = [[ViewController alloc] init];
     [view_controller setWindow:window];
