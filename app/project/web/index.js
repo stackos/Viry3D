@@ -211,11 +211,11 @@ function Main() {
 	Engine.MemoryFree = Module.cwrap("MemoryFree", null, ["number"]);
 	Engine.OnLoadFileFromUrlComplete = Module.cwrap("OnLoadFileFromUrlComplete", null, ["number", "string", "number", "number"]);
 
-	let use_gles2 = true;
+	let force_gles2 = false;
     let glesv3 = false;
     const canvas = Module.canvas;
     let context = 0;
-	if (!use_gles2) {
+	if (!force_gles2) {
 		context = GL.createContext(canvas, {
 			majorVersion: 2,
 			minorVersion: 0,

@@ -41,6 +41,12 @@
 // we don't want to rely on it.
 #define ALLOW_REVERSE_MULTISAMPLE_RESOLVE false
 
+#if defined(__EMSCRIPTEN__)
+#define HAS_MAPBUFFERS 0
+#else
+#define HAS_MAPBUFFERS 1
+#endif
+
 #define DEBUG_MARKER_NONE       0
 #define DEBUG_MARKER_OPENGL     1
 
@@ -1998,7 +2004,7 @@ void OpenGLDriver::updateBuffer(GLenum target,
         // If MapBufferRange is supported, then attempt to use that instead of BufferSubData, which
         // can be quite inefficient on some platforms. Note that WebGL does not support
         // MapBufferRange, but we still allow STREAM semantics for the web platform.
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+		if (HAS_MAPBUFFERS)
         {
             uint32_t offset = buffer->base + buffer->size;
             offset = (offset + (alignment - 1u)) & ~(alignment - 1u);
