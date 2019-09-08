@@ -39,7 +39,13 @@ static bool g_mouse_down = false;
 static bool g_minimized = false;
 static int g_window_width;
 static int g_window_height;
+static HWND g_wallpaper_win;
+static NOTIFYICONDATA g_tray_id;
+static HMENU g_tray_menu;
 static Engine* g_engine;
+
+#define WM_TRAY (WM_USER + 100)
+#define WM_TRAY_EXIT (WM_TRAY + 1)
 
 static int GetKeyCode(int wParam)
 {
@@ -206,6 +212,33 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 {
     switch (uMsg)
     {
+		case WM_TRAY:
+			switch (lParam)
+			{
+				case WM_RBUTTONDOWN:
+				{
+					POINT pt;
+					GetCursorPos(&pt);
+					SetForegroundWindow(hWnd);
+					int cmd = TrackPopupMenu(g_tray_menu, TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, nullptr);
+					if (cmd == WM_TRAY_EXIT)
+					{
+						if (g_wallpaper_win != nullptr)
+						{
+							ShowWindow(g_wallpaper_win, SW_HIDE);
+							SetParent(hWnd, nullptr);
+						}
+						Shell_NotifyIcon(NIM_DELETE, &g_tray_id);
+						PostMessage(hWnd, WM_CLOSE, 0, 0);
+					}
+					break;
+				}
+				case WM_LBUTTONDOWN:
+					MessageBox(hWnd, "WM_LBUTTONDOWN", "", MB_OK);
+					break;
+			}
+			break;
+
         case WM_CLOSE:
 			Engine::Destroy(&g_engine);
             DestroyWindow(hWnd);
@@ -527,13 +560,39 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
+static BOOL CALLBACK EnumWindowsProc(_In_ HWND win, _In_ LPARAM param)
+{
+	HWND def_view = FindWindowEx(win, nullptr, "SHELLDLL_DefView", nullptr);
+	if (def_view != nullptr)
+	{
+		g_wallpaper_win = FindWindowEx(nullptr, win, "WorkerW", nullptr);
+	}
+	return true;
+}
+
+static void InitTray(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
+{
+	g_tray_id.cbSize = sizeof(NOTIFYICONDATA);
+	g_tray_id.hWnd = hWnd;
+	g_tray_id.uID = WM_TRAY;
+	g_tray_id.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_INFO;
+	g_tray_id.uCallbackMessage = WM_TRAY;
+	g_tray_id.hIcon = icon;
+	strcpy(g_tray_id.szTip, name);
+
+	g_tray_menu = CreatePopupMenu();
+	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_EXIT, TEXT("ÍË³ö"));
+
+	Shell_NotifyIcon(NIM_ADD, &g_tray_id);
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     String name = "Viry3D";
-    //int window_width = 1920;
-    //int window_height = 1040;
 	int window_width = 1280;
 	int window_height = 720;
+
+	bool desktop_window = true;
 
     WNDCLASSEX win_class;
     ZeroMemory(&win_class, sizeof(win_class));
@@ -562,16 +621,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     RECT wr = { 0, 0, window_width, window_height };
     AdjustWindowRect(&wr, style, FALSE);
 
+	if (desktop_window)
+	{
+		style = WS_POPUP;
+		window_width = GetSystemMetrics(SM_CXSCREEN);
+		window_height = GetSystemMetrics(SM_CYSCREEN);
+		wr = { 0, 0, window_width, window_height };
+		AdjustWindowRect(&wr, style, FALSE);
+	}
+
     int x = (GetSystemMetrics(SM_CXSCREEN) - window_width) / 2 + wr.left;
     int y = (GetSystemMetrics(SM_CYSCREEN) - window_height) / 2 + wr.top;
     int w = wr.right - wr.left;
     int h = wr.bottom - wr.top;
-
-    if (GetSystemMetrics(SM_CXSCREEN) == window_width)
-    {
-        x = wr.left;
-        y = wr.top;
-    }
 
     HWND hwnd = CreateWindowEx(
         style_ex,			// window ex style
@@ -588,6 +650,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     {
         return 0;
     }
+
+	if (desktop_window)
+	{
+		DWORD_PTR result = 0;
+		HWND win_pm = FindWindow("Progman", nullptr);
+		SendMessageTimeout(win_pm, 0x052c, 0, 0, SMTO_NORMAL, 0x3e8, &result);
+		EnumWindows(EnumWindowsProc, (LPARAM) nullptr);
+		SetParent(hwnd, g_wallpaper_win);
+		ShowWindow(g_wallpaper_win, SW_SHOW);
+		InitTray(hInstance, hwnd, name.CString(), win_class.hIcon);
+	}
 
     ShowWindow(hwnd, SW_SHOW);
 
