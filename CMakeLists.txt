@@ -1049,6 +1049,15 @@ elseif (${Target} MATCHES "Mac")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Engine.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
+    file(GLOB VIRY3D_LIB_SRCS_MAC
+        ${VIRY3D_LIB_SRC_DIR}/video/*.h
+        ${VIRY3D_LIB_SRC_DIR}/video/*.cpp
+        )
+
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS_MAC})
+
+    target_sources(Viry3D PRIVATE ${VIRY3D_LIB_SRCS_MAC})
+
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework/Headers
@@ -1058,6 +1067,10 @@ elseif (${Target} MATCHES "Mac")
 
     set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
                                 ${VIRY3D_APP_SRC_DIR}/../bin/Assets
+                                ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswresample.3.dylib
+                                ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavutil.56.dylib
+                                ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavcodec.58.dylib
+                                ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavformat.58.dylib
                                 PROPERTIES
                                 MACOSX_PACKAGE_LOCATION Resources
                                 )
@@ -1069,6 +1082,10 @@ elseif (${Target} MATCHES "Mac")
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/ViewController.mm
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
                    ${VIRY3D_APP_SRC_DIR}/../bin/Assets
+                   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswresample.3.dylib
+                   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavutil.56.dylib
+                   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavcodec.58.dylib
+                   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavformat.58.dylib
                    )
 
     target_include_directories(Viry3DApp PRIVATE

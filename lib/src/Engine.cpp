@@ -34,6 +34,7 @@
 #include "ui/Font.h"
 #include "audio/AudioManager.h"
 #include "time/Time.h"
+#include "video/VideoDecoder.h"
 #include <thread>
 
 #if VR_WINDOWS
@@ -45,12 +46,6 @@
 #elif VR_ANDROID
 #include "android/jni.h"
 #endif
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-}
-#include <dlfcn.h>
 
 using namespace filament;
 
@@ -150,45 +145,12 @@ namespace Viry3D
 			Font::Init();
 			Resources::Init();
             AudioManager::Init();
-            
-            auto path = this->GetDataPath() + "/../libswresample.3.dylib";
-            auto libswresample = dlopen(path.CString(), RTLD_LAZY);
-            if (libswresample == nullptr)
-            {
-                Log("%s", dlerror());
-            }
-            
-            path = this->GetDataPath() + "/../libavutil.56.dylib";
-            auto libavutil = dlopen(path.CString(), RTLD_LAZY);
-            if (libavutil == nullptr)
-            {
-                Log("%s", dlerror());
-            }
-            
-            path = this->GetDataPath() + "/../libavcodec.58.dylib";
-            auto libavcodec = dlopen(path.CString(), RTLD_LAZY);
-            if (libavcodec)
-            {
-                typedef AVCodec* (*t_avcodec_find_decoder)(enum AVCodecID id);
-                auto p_avcodec_find_decoder = (t_avcodec_find_decoder) dlsym(libavcodec, "avcodec_find_decoder");
-                AVCodec* codec = p_avcodec_find_decoder(AV_CODEC_ID_MPEG1VIDEO);
-                
-                typedef AVCodecParserContext* (*t_av_parser_init)(int codec_id);
-                auto p_av_parser_init = (t_av_parser_init) dlsym(libavcodec, "av_parser_init");
-                auto parser = p_av_parser_init(codec->id);
-                
-                typedef void (*t_av_parser_close)(AVCodecParserContext* s);
-                auto p_av_parser_close = (t_av_parser_close) dlsym(libavcodec, "av_parser_close");
-                p_av_parser_close(parser);
-            }
-            else
-            {
-                Log("%s", dlerror());
-            }
+            VideoDecoder::Init();
 		}
 
 		void Shutdown()
 		{
+            VideoDecoder::Done();
             AudioManager::Done();
             m_scene.reset();
 			Resources::Done();
