@@ -1053,6 +1053,7 @@ elseif (${Target} MATCHES "Mac")
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework/Headers
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/macOS/MoltenVKSPIRVToMSLConverter.framework/Headers
+                               ${VIRY3D_LIB_SRC_DIR}/ffmpeg/include
                                )
 
     set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
