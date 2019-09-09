@@ -92,8 +92,6 @@ namespace Viry3D
 
     void AudioManager::Done()
     {
-        g_listener.reset();
-
         alcMakeContextCurrent(nullptr);
         if (g_context)
         {
@@ -115,6 +113,11 @@ namespace Viry3D
         }
         return g_listener;
     }
+
+	void AudioManager::DestroyListener()
+	{
+		g_listener.reset();
+	}
 
 #if VR_WASM
     void AudioManager::PlayAudio(const String& url, bool loop)

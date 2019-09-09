@@ -37,6 +37,7 @@ namespace Viry3D
 		static Ref<Image> LoadJPEG(const ByteBuffer& jpeg);
 		static Ref<Image> LoadPNG(const ByteBuffer& png);
 		void EncodeToPNG(const String& file);
+		void Clear();
 
         int width = 0;
         int height = 0;

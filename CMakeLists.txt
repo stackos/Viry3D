@@ -213,6 +213,8 @@ file(GLOB VIRY3D_LIB_SRCS
      ${VIRY3D_LIB_SRC_DIR}/time/*.cpp
 	 ${VIRY3D_LIB_SRC_DIR}/ui/*.h
      ${VIRY3D_LIB_SRC_DIR}/ui/*.cpp
+	 ${VIRY3D_LIB_SRC_DIR}/video/*.h
+     ${VIRY3D_LIB_SRC_DIR}/video/*.cpp
      )
 
 source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS})
@@ -231,6 +233,7 @@ target_include_directories(Viry3D PRIVATE
 						   ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/math/include
 						   ${VIRY3D_LIB_SRC_DIR}/filament/libs/utils/include
+						   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/include
                            )
 
 file(GLOB VIRY3D_APP_SRCS
@@ -856,10 +859,25 @@ if (${Target} MATCHES "Windows")
     string(REPLACE "/" "\\" ASSETS_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
     string(REPLACE "/" "\\" ICON_SRC ${CMAKE_SOURCE_DIR}/app/bin/icon.ico)
     string(REPLACE "/" "\\" ICON_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/icon.ico)
+	string(REPLACE "/" "\\" AVCODEC_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/avcodec-58.dll)
+    string(REPLACE "/" "\\" AVCODEC_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/avcodec-58.dll)
+	string(REPLACE "/" "\\" AVFORMAT_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/avformat-58.dll)
+    string(REPLACE "/" "\\" AVFORMAT_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/avformat-58.dll)
+	string(REPLACE "/" "\\" AVUTIL_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/avutil-56.dll)
+    string(REPLACE "/" "\\" AVUTIL_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/avutil-56.dll)
+	string(REPLACE "/" "\\" SWRESAMPLE_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/swresample-3.dll)
+    string(REPLACE "/" "\\" SWRESAMPLE_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/swresample-3.dll)
+	string(REPLACE "/" "\\" SWSCALE_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/swscale-5.dll)
+    string(REPLACE "/" "\\" SWSCALE_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/swscale-5.dll)
     add_custom_command(TARGET Viry3DApp
                        POST_BUILD
                        COMMAND if not exist ${ASSETS_LINK_LINK} (mklink /d ${ASSETS_LINK_LINK} ${ASSETS_LINK_TARGET})
                        COMMAND copy /Y ${ICON_SRC} ${ICON_DST}
+					   COMMAND copy /Y ${AVCODEC_DLL_SRC} ${AVCODEC_DLL_DST}
+					   COMMAND copy /Y ${AVFORMAT_DLL_SRC} ${AVFORMAT_DLL_DST}
+					   COMMAND copy /Y ${AVUTIL_DLL_SRC} ${AVUTIL_DLL_DST}
+					   COMMAND copy /Y ${SWRESAMPLE_DLL_SRC} ${SWRESAMPLE_DLL_DST}
+					   COMMAND copy /Y ${SWSCALE_DLL_SRC} ${SWSCALE_DLL_DST}
                        )
 
     add_executable(CubeMapToSphericalPolynomial
@@ -1049,28 +1067,19 @@ elseif (${Target} MATCHES "Mac")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Debug.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties(${VIRY3D_LIB_SRC_DIR}/Engine.cpp PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
-    file(GLOB VIRY3D_LIB_SRCS_MAC
-        ${VIRY3D_LIB_SRC_DIR}/video/*.h
-        ${VIRY3D_LIB_SRC_DIR}/video/*.cpp
-        )
-
-    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_LIB_SRCS_MAC})
-
-    target_sources(Viry3D PRIVATE ${VIRY3D_LIB_SRCS_MAC})
-
     target_include_directories(Viry3D PRIVATE
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/include
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKGLSLToSPIRVConverter/macOS/MoltenVKGLSLToSPIRVConverter.framework/Headers
                                ${VIRY3D_LIB_SRC_DIR}/vulkan/MoltenVK/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/macOS/MoltenVKSPIRVToMSLConverter.framework/Headers
-                               ${VIRY3D_LIB_SRC_DIR}/ffmpeg/include
                                )
 
     set_source_files_properties(${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
                                 ${VIRY3D_APP_SRC_DIR}/../bin/Assets
-                                ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswresample.3.dylib
-                                ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavutil.56.dylib
                                 ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavcodec.58.dylib
                                 ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavformat.58.dylib
+								${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavutil.56.dylib
+								${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswresample.3.dylib
+								${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswscale.5.dylib
                                 PROPERTIES
                                 MACOSX_PACKAGE_LOCATION Resources
                                 )
@@ -1082,10 +1091,11 @@ elseif (${Target} MATCHES "Mac")
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/ViewController.mm
                    ${VIRY3D_APP_SRC_DIR}/../project/mac/app/Assets.xcassets
                    ${VIRY3D_APP_SRC_DIR}/../bin/Assets
-                   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswresample.3.dylib
-                   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavutil.56.dylib
                    ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavcodec.58.dylib
                    ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavformat.58.dylib
+				   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libavutil.56.dylib
+				   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswresample.3.dylib
+				   ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/mac/libswscale.5.dylib
                    )
 
     target_include_directories(Viry3DApp PRIVATE

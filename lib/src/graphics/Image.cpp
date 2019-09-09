@@ -334,4 +334,12 @@ namespace Viry3D
 
         free(data);
     }
+
+	void Image::Clear()
+	{
+		width = 0;
+		height = 0;
+		format = ImageFormat::None;
+		data = ByteBuffer();
+	}
 }

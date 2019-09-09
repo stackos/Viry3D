@@ -21,6 +21,8 @@
 
 namespace Viry3D
 {
+	class Image;
+
     class VideoDecoderPrivate;
     class VideoDecoder
     {
@@ -32,6 +34,7 @@ namespace Viry3D
         ~VideoDecoder();
         bool OpenFile(const String& path);
         void Close();
+		const Image& GetFrame();
         
     private:
         VideoDecoderPrivate* m_private;

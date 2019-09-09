@@ -21,7 +21,11 @@
 
 namespace Viry3D
 {
-    class AppImplement;
+	class AppImplement
+	{
+	public:
+		virtual ~AppImplement() { }
+	};
     
 	class App : public Component
 	{

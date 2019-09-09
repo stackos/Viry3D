@@ -42,10 +42,11 @@
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
 #include "CameraSwitcher.h"
+#include "video/VideoDecoder.h"
 
 namespace Viry3D
 {
-    class AppImplement2
+    class AppImplementUnityChan : public AppImplement
     {
     public:
         Camera* m_camera = nullptr;
@@ -58,7 +59,7 @@ namespace Viry3D
         float m_start_time = -1;
         bool m_audio_init = false;
         
-        AppImplement2()
+		AppImplementUnityChan()
         {
             this->InitScene();
             this->InitUI();
@@ -88,7 +89,7 @@ namespace Viry3D
 #endif
         }
         
-        ~AppImplement2()
+        virtual ~AppImplementUnityChan()
         {
 #if VR_WASM
             AudioManager::StopAudio();
@@ -406,12 +407,12 @@ namespace Viry3D
         }
     };
 
-	class AppImplement
+	class AppImplementGLES2 : public AppImplement
 	{
 	public:
         Label* m_fps_label = nullptr;
         
-		AppImplement()
+		AppImplementGLES2()
 		{
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
@@ -482,13 +483,75 @@ namespace Viry3D
 		}
 	};
 
+	class AppImplementVPaper : public AppImplement
+	{
+	public:
+		Ref<VideoDecoder> m_decoder;
+		Ref<Texture> m_video_texture;
+		Ref<Material> m_material;
+
+		AppImplementVPaper()
+		{
+			this->InitRenderer();
+
+			m_decoder = RefMake<VideoDecoder>();
+#if VR_MAC
+			m_decoder->OpenFile("/Users/ccgao/Downloads/video-bg.3e78e808.mp4");
+#endif
+#if VR_WINDOWS
+			m_decoder->OpenFile("C:/Users/Stack/Desktop/video-bg.3e78e808.mp4");
+#endif
+		}
+
+		virtual ~AppImplementVPaper()
+		{
+			m_decoder->Close();
+		}
+
+		void InitRenderer()
+		{
+			auto camera = GameObject::Create("")->AddComponent<Camera>();
+			camera->SetOrthographic(true);
+			camera->SetOrthographicSize(Engine::Instance()->GetHeight() / 2.0f);
+			camera->SetNearClip(-1.0f);
+			camera->SetFarClip(1.0f);
+
+			m_material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+			m_material->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedBlackTexture());
+
+			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+			renderer->GetTransform()->SetScale(Vector3((float) Engine::Instance()->GetWidth(), (float) Engine::Instance()->GetHeight(), 1.0f));
+			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Quad.mesh"));
+			renderer->SetMaterial(m_material);
+		}
+
+		void Update()
+		{
+			const Image& frame = m_decoder->GetFrame();
+			if (frame.width > 0 && frame.height > 0)
+			{
+				if (!m_video_texture)
+				{
+					m_video_texture = Texture::CreateTexture2D(
+						frame.width,
+						frame.height,
+						TextureFormat::R8G8B8A8,
+						FilterMode::Linear,
+						SamplerAddressMode::ClampToEdge,
+						false);
+					m_material->SetTexture(MaterialProperty::TEXTURE, m_video_texture);
+				}
+			}
+		}
+	};
+
     App::App()
     {
-        m_implement = RefMake<AppImplement>();
+        m_implement = RefMake<AppImplementVPaper>();
     }
     
     void App::Update()
     {
-        m_implement->Update();
+		RefCast<AppImplementVPaper>(m_implement)->Update();
     }
 }
