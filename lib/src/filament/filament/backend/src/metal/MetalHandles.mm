@@ -358,7 +358,9 @@ void MetalTexture::updateTexture(
     }
     
     @autoreleasepool {
-        id<MTLBuffer> buffer = [context.device newBufferWithBytes:data.buffer length:data.size options:MTLResourceCPUCacheModeWriteCombined | MTLResourceStorageModeShared];
+        const MetalBufferPoolEntry* stage = context.bufferPool->acquireBuffer(data.size);
+        memcpy(stage->buffer.contents, data.buffer, data.size);
+        
         id<MTLCommandBuffer> commandBuffer = nil;
         if (context.currentCommandBuffer != nil)
         {
@@ -369,8 +371,11 @@ void MetalTexture::updateTexture(
             commandBuffer = [context.commandQueue commandBuffer];
         }
         id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        [blitEncoder copyFromBuffer:buffer sourceOffset:0 sourceBytesPerRow:bytesPerRow sourceBytesPerImage:data.size sourceSize:MTLSizeMake(w, h, 1) toTexture:texture destinationSlice:layer destinationLevel:level destinationOrigin:MTLOriginMake(x, y, 0)];
+        [blitEncoder copyFromBuffer:stage->buffer sourceOffset:0 sourceBytesPerRow:bytesPerRow sourceBytesPerImage:data.size sourceSize:MTLSizeMake(w, h, 1) toTexture:texture destinationSlice:layer destinationLevel:level destinationOrigin:MTLOriginMake(x, y, 0)];
         [blitEncoder endEncoding];
+        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer>) {
+            context.bufferPool->releaseBuffer(stage);
+        }];
         if (context.currentCommandBuffer == nil)
         {
             [commandBuffer commit];

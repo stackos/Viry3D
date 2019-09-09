@@ -541,6 +541,8 @@ namespace Viry3D
 						false);
 					m_material->SetTexture(MaterialProperty::TEXTURE, m_video_texture);
 				}
+                
+                m_video_texture->UpdateTexture(frame.data, 0, 0, 0, 0, frame.width, frame.height);
 			}
 		}
 	};

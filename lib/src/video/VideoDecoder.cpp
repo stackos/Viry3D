@@ -92,7 +92,7 @@ namespace Viry3D
 	static t_av_frame_free p_av_frame_free;
 	typedef int (*t_av_image_get_buffer_size)(enum AVPixelFormat pix_fmt, int width, int height, int align);
 	static t_av_image_get_buffer_size p_av_image_get_buffer_size;
-	typedef void* (*t_av_malloc)(size_t size) av_malloc_attrib av_alloc_size(1);
+	typedef void* (*t_av_malloc)(size_t size);
 	static t_av_malloc p_av_malloc;
 	typedef void (*t_av_free)(void* ptr);
 	static t_av_free p_av_free;
@@ -104,7 +104,13 @@ namespace Viry3D
 	static t_av_read_frame p_av_read_frame;
 	typedef void (*t_av_packet_unref)(AVPacket* pkt);
 	static t_av_packet_unref p_av_packet_unref;
-
+    typedef int (*t_avcodec_send_packet)(AVCodecContext* avctx, const AVPacket* avpkt);
+    static t_avcodec_send_packet p_avcodec_send_packet;
+    typedef int (*t_avcodec_receive_frame)(AVCodecContext* avctx, AVFrame* frame);
+    static t_avcodec_receive_frame p_avcodec_receive_frame;
+    typedef int (*t_sws_scale)(struct SwsContext* c, const uint8_t* const srcSlice[], const int srcStride[], int srcSliceY, int srcSliceH, uint8_t* const dst[], const int dstStride[]);
+    static t_sws_scale p_sws_scale;
+    
 	static bool g_lib_loaded = false;
 
 #if VR_MAC || VR_WINDOWS
@@ -176,6 +182,9 @@ namespace Viry3D
 		GET_FUNC(g_libswscale, sws_getContext);
 		GET_FUNC(g_libavformat, av_read_frame);
 		GET_FUNC(g_libavcodec, av_packet_unref);
+        GET_FUNC(g_libavcodec, avcodec_send_packet);
+        GET_FUNC(g_libavcodec, avcodec_receive_frame);
+        GET_FUNC(g_libswscale, sws_scale);
 
 		g_lib_loaded = true;
     }
@@ -219,6 +228,7 @@ namespace Viry3D
 		int m_rgba_buffer_size = 0;
 		SwsContext* m_sws_context = nullptr;
 		Image m_out_image;
+        int m_video_stream = -1;
 
         ~VideoDecoderPrivate()
         {
@@ -243,21 +253,21 @@ namespace Viry3D
                 return false;
             }
             
-            int video_stream = -1;
+            m_video_stream = -1;
             for (uint32_t i = 0; i < m_format_context->nb_streams; ++i)
             {
                 if (m_format_context->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
                 {
-                    video_stream = i;
+                    m_video_stream = i;
                     break;
                 }
             }
-            if (video_stream < 0)
+            if (m_video_stream < 0)
             {
                 return false;
             }
             
-            const AVCodecParameters* codec_param = m_format_context->streams[video_stream]->codecpar;
+            const AVCodecParameters* codec_param = m_format_context->streams[m_video_stream]->codecpar;
             const AVCodec* codec = p_avcodec_find_decoder(codec_param->codec_id);
             if (codec == nullptr)
             {
@@ -343,11 +353,48 @@ namespace Viry3D
 			{
 				return m_out_image;
 			}
+            
+            AVPacket packet;
+            int ret = p_av_read_frame(m_format_context, &packet);
+            if (ret < 0)
+            {
+                if (ret == AVERROR_EOF)
+                {
+                    return m_out_image;
+                }
+                else
+                {
+                    return m_out_image;
+                }
+            }
+            
+            if (packet.stream_index == m_video_stream)
+            {
+            send:
+                p_avcodec_send_packet(m_codec_context, &packet);
+                
+                ret = p_avcodec_receive_frame(m_codec_context, m_frame);
+                if (ret < 0)
+                {
+                    if (ret == AVERROR(EAGAIN))
+                    {
+                        goto send;
+                    }
+                    else
+                    {
+                        return m_out_image;
+                    }
+                }
+                
+                ret = p_sws_scale(m_sws_context, m_frame->data, m_frame->linesize, 0, m_codec_context->height, m_frame_rgba->data, m_frame_rgba->linesize);
+                
+                m_out_image.width = m_codec_context->width;
+                m_out_image.height = m_codec_context->height;
+                m_out_image.format = ImageFormat::R8G8B8A8;
+                m_out_image.data = ByteBuffer(m_frame_rgba->data[0], m_rgba_buffer_size);
+            }
 
-			m_out_image.width = m_codec_context->width;
-			m_out_image.height = m_codec_context->height;
-			m_out_image.format = ImageFormat::R8G8B8A8;
-			m_out_image.data = ByteBuffer(m_frame_rgba->data[0], m_rgba_buffer_size);
+            p_av_packet_unref(&packet);
 
 			return m_out_image;
 		}
