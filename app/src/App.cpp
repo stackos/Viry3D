@@ -545,7 +545,7 @@ namespace Viry3D
                 
                 m_video_texture->UpdateTexture(frame.data, 0, 0, 0, 0, frame.width, frame.height);
                 
-                Log("fps:%d", Time::GetFPS());
+                Log("fps:%d present_time:%f time:%f", Time::GetFPS(), present_time, Time::GetTime());
 			}
 		}
 	};
