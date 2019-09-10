@@ -32,9 +32,9 @@ namespace Viry3D
         
         VideoDecoder();
         ~VideoDecoder();
-        bool OpenFile(const String& path);
+        bool OpenFile(const String& path, bool loop);
         void Close();
-		const Image& GetFrame();
+		const Image& GetFrame(float* present_time);
         
     private:
         VideoDecoderPrivate* m_private;

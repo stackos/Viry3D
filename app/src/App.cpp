@@ -496,10 +496,10 @@ namespace Viry3D
 
 			m_decoder = RefMake<VideoDecoder>();
 #if VR_MAC
-			m_decoder->OpenFile("/Users/ccgao/Downloads/video-bg.3e78e808.mp4");
+			m_decoder->OpenFile("/Users/ccgao/Downloads/video-bg.3e78e808.mp4", true);
 #endif
 #if VR_WINDOWS
-			m_decoder->OpenFile("C:/Users/Stack/Desktop/video-bg.3e78e808.mp4");
+			m_decoder->OpenFile("C:/Users/Stack/Desktop/video-bg.3e78e808.mp4", true);
 #endif
 		}
 
@@ -527,7 +527,8 @@ namespace Viry3D
 
 		void Update()
 		{
-			const Image& frame = m_decoder->GetFrame();
+            float present_time = 0;
+			const Image& frame = m_decoder->GetFrame(&present_time);
 			if (frame.width > 0 && frame.height > 0)
 			{
 				if (!m_video_texture)
@@ -543,6 +544,8 @@ namespace Viry3D
 				}
                 
                 m_video_texture->UpdateTexture(frame.data, 0, 0, 0, 0, frame.width, frame.height);
+                
+                Log("fps:%d", Time::GetFPS());
 			}
 		}
 	};

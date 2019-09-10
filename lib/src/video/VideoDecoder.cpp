@@ -110,6 +110,8 @@ namespace Viry3D
     static t_avcodec_receive_frame p_avcodec_receive_frame;
     typedef int (*t_sws_scale)(struct SwsContext* c, const uint8_t* const srcSlice[], const int srcStride[], int srcSliceY, int srcSliceH, uint8_t* const dst[], const int dstStride[]);
     static t_sws_scale p_sws_scale;
+    typedef int (*t_av_seek_frame)(AVFormatContext* s, int stream_index, int64_t timestamp, int flags);
+    static t_av_seek_frame p_av_seek_frame;
     
 	static bool g_lib_loaded = false;
 
@@ -185,6 +187,7 @@ namespace Viry3D
         GET_FUNC(g_libavcodec, avcodec_send_packet);
         GET_FUNC(g_libavcodec, avcodec_receive_frame);
         GET_FUNC(g_libswscale, sws_scale);
+        GET_FUNC(g_libavformat, av_seek_frame);
 
 		g_lib_loaded = true;
     }
@@ -229,13 +232,14 @@ namespace Viry3D
 		SwsContext* m_sws_context = nullptr;
 		Image m_out_image;
         int m_video_stream = -1;
+        bool m_loop = false;
 
         ~VideoDecoderPrivate()
         {
             this->Close();
         }
         
-        bool OpenFile(const String& path)
+        bool OpenFile(const String& path, bool loop)
         {
 			if (!g_lib_loaded)
 			{
@@ -303,6 +307,8 @@ namespace Viry3D
 				nullptr,
 				nullptr,
 				nullptr);
+            
+            m_loop = loop;
 
             return true;
         }
@@ -344,8 +350,13 @@ namespace Viry3D
                 m_format_context = nullptr;
             }
         }
+        
+        static double r2d(AVRational r)
+        {
+            return r.num == 0 || r.den == 0 ? 0.0 : (double) r.num / (double) r.den;
+        }
 
-		const Image& GetFrame()
+		const Image& GetFrame(float* present_time)
 		{
 			m_out_image.Clear();
 
@@ -354,13 +365,31 @@ namespace Viry3D
 				return m_out_image;
 			}
             
+        read:
             AVPacket packet;
             int ret = p_av_read_frame(m_format_context, &packet);
             if (ret < 0)
             {
                 if (ret == AVERROR_EOF)
                 {
-                    return m_out_image;
+                    if (m_loop)
+                    {
+                        float second = 0;
+                        int64_t timestamp = (int64_t) (second * r2d(m_format_context->streams[m_video_stream]->time_base));
+                        ret = p_av_seek_frame(m_format_context, m_video_stream, timestamp, AVSEEK_FLAG_BACKWARD);
+                        if (ret < 0)
+                        {
+                            return m_out_image;
+                        }
+                        else
+                        {
+                            goto read;
+                        }
+                    }
+                    else
+                    {
+                        return m_out_image;
+                    }
                 }
                 else
                 {
@@ -392,6 +421,11 @@ namespace Viry3D
                 m_out_image.height = m_codec_context->height;
                 m_out_image.format = ImageFormat::R8G8B8A8;
                 m_out_image.data = ByteBuffer(m_frame_rgba->data[0], m_rgba_buffer_size);
+                
+                if (present_time != nullptr)
+                {
+                    *present_time = (float) (packet.pts * r2d(m_format_context->streams[m_video_stream]->time_base));
+                }
             }
 
             p_av_packet_unref(&packet);
@@ -411,9 +445,9 @@ namespace Viry3D
         delete m_private;
     }
     
-    bool VideoDecoder::OpenFile(const String& path)
+    bool VideoDecoder::OpenFile(const String& path, bool loop)
     {
-        return m_private->OpenFile(path);
+        return m_private->OpenFile(path, loop);
     }
     
     void VideoDecoder::Close()
@@ -421,8 +455,8 @@ namespace Viry3D
         return m_private->Close();
     }
 
-	const Image& VideoDecoder::GetFrame()
+	const Image& VideoDecoder::GetFrame(float* present_time)
 	{
-		return m_private->GetFrame();
+		return m_private->GetFrame(present_time);
 	}
 }
