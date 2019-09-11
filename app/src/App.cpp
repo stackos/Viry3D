@@ -487,7 +487,9 @@ namespace Viry3D
 	{
 	public:
 		Ref<VideoDecoder> m_decoder;
-		Ref<Texture> m_video_texture;
+		Ref<Texture> m_video_texture_y;
+        Ref<Texture> m_video_texture_u;
+        Ref<Texture> m_video_texture_v;
 		Ref<Material> m_material;
 
 		AppImplementVPaper()
@@ -531,19 +533,38 @@ namespace Viry3D
 			const Image& frame = m_decoder->GetFrame(&present_time);
 			if (frame.width > 0 && frame.height > 0)
 			{
-				if (!m_video_texture)
+                int uv_w = frame.width / 2;
+                int uv_h = frame.height / 2;
+                
+				if (!m_video_texture_y)
 				{
-					m_video_texture = Texture::CreateTexture2D(
+					m_video_texture_y = Texture::CreateTexture2D(
 						frame.width,
 						frame.height,
-						TextureFormat::R8G8B8A8,
+						TextureFormat::R8,
 						FilterMode::Linear,
 						SamplerAddressMode::ClampToEdge,
 						false);
-					m_material->SetTexture(MaterialProperty::TEXTURE, m_video_texture);
+                    m_video_texture_u = Texture::CreateTexture2D(
+                        uv_w,
+                        uv_h,
+                        TextureFormat::R8,
+                        FilterMode::Linear,
+                        SamplerAddressMode::ClampToEdge,
+                        false);
+                    m_video_texture_v = Texture::CreateTexture2D(
+                        uv_w,
+                        uv_h,
+                        TextureFormat::R8,
+                        FilterMode::Linear,
+                        SamplerAddressMode::ClampToEdge,
+                        false);
+					m_material->SetTexture(MaterialProperty::TEXTURE, m_video_texture_y);
 				}
                 
-                m_video_texture->UpdateTexture(frame.data, 0, 0, 0, 0, frame.width, frame.height);
+                m_video_texture_y->UpdateTexture(frame.data, 0, 0, 0, 0, frame.width, frame.height);
+                m_video_texture_u->UpdateTexture(ByteBuffer(&frame.data.Bytes()[frame.width * frame.height], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
+                m_video_texture_v->UpdateTexture(ByteBuffer(&frame.data.Bytes()[frame.width * frame.height + uv_w * uv_h], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
                 
                 Log("fps:%d present_time:%f time:%f", Time::GetFPS(), present_time, Time::GetTime());
 			}

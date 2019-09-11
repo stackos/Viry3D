@@ -671,6 +671,8 @@ namespace Viry3D
 	{
 		switch (format)
 		{
+            case TextureFormat::R8:
+                return filament::backend::PixelDataFormat::R;
 			case TextureFormat::R8G8B8A8:
 				return filament::backend::PixelDataFormat::RGBA;
 			default:
@@ -684,6 +686,7 @@ namespace Viry3D
 	{
 		switch (format)
 		{
+            case TextureFormat::R8:
 			case TextureFormat::R8G8B8A8:
 				return filament::backend::PixelDataType::UBYTE;
 			default:

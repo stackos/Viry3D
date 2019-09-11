@@ -19,6 +19,7 @@
 #include "Engine.h"
 #include "Debug.h"
 #include "graphics/Image.h"
+#include "memory/Memory.h"
 
 extern "C"
 {
@@ -90,16 +91,6 @@ namespace Viry3D
 	static t_av_frame_alloc p_av_frame_alloc;
 	typedef void (*t_av_frame_free)(AVFrame** frame);
 	static t_av_frame_free p_av_frame_free;
-	typedef int (*t_av_image_get_buffer_size)(enum AVPixelFormat pix_fmt, int width, int height, int align);
-	static t_av_image_get_buffer_size p_av_image_get_buffer_size;
-	typedef void* (*t_av_malloc)(size_t size);
-	static t_av_malloc p_av_malloc;
-	typedef void (*t_av_free)(void* ptr);
-	static t_av_free p_av_free;
-	typedef int (*t_av_image_fill_arrays)(uint8_t* dst_data[4], int dst_linesize[4], const uint8_t* src, enum AVPixelFormat pix_fmt, int width, int height, int align);
-	static t_av_image_fill_arrays p_av_image_fill_arrays;
-	typedef struct SwsContext* (*t_sws_getContext)(int srcW, int srcH, enum AVPixelFormat srcFormat, int dstW, int dstH, enum AVPixelFormat dstFormat, int flags, SwsFilter* srcFilter, SwsFilter* dstFilter, const double* param);
-	static t_sws_getContext p_sws_getContext;
 	typedef int (*t_av_read_frame)(AVFormatContext* s, AVPacket* pkt);
 	static t_av_read_frame p_av_read_frame;
 	typedef void (*t_av_packet_unref)(AVPacket* pkt);
@@ -108,8 +99,6 @@ namespace Viry3D
     static t_avcodec_send_packet p_avcodec_send_packet;
     typedef int (*t_avcodec_receive_frame)(AVCodecContext* avctx, AVFrame* frame);
     static t_avcodec_receive_frame p_avcodec_receive_frame;
-    typedef int (*t_sws_scale)(struct SwsContext* c, const uint8_t* const srcSlice[], const int srcStride[], int srcSliceY, int srcSliceH, uint8_t* const dst[], const int dstStride[]);
-    static t_sws_scale p_sws_scale;
     typedef int (*t_av_seek_frame)(AVFormatContext* s, int stream_index, int64_t timestamp, int flags);
     static t_av_seek_frame p_av_seek_frame;
     
@@ -120,7 +109,6 @@ namespace Viry3D
 	static LIB_HANDLE g_libavutil;
 	static LIB_HANDLE g_libavcodec;
 	static LIB_HANDLE g_libavformat;
-	static LIB_HANDLE g_libswscale;
 
     static void LoadFFmpeg()
     {
@@ -158,14 +146,6 @@ namespace Viry3D
 #endif
         LOAD_DY_LIB(g_libavformat, lib_path.CString());
 
-#if VR_WINDOWS
-		lib_path = lib_dir + "/swscale-5.dll";
-#endif
-#if VR_MAC
-		lib_path = lib_dir + "/libswscale.5.dylib";
-#endif
-		LOAD_DY_LIB(g_libswscale, lib_path.CString());
-        
         GET_FUNC(g_libavformat, av_register_all);
         GET_FUNC(g_libavformat, avformat_open_input);
         GET_FUNC(g_libavformat, avformat_close_input);
@@ -177,16 +157,10 @@ namespace Viry3D
         GET_FUNC(g_libavcodec, avcodec_close);
 		GET_FUNC(g_libavutil, av_frame_alloc);
 		GET_FUNC(g_libavutil, av_frame_free);
-		GET_FUNC(g_libavutil, av_image_get_buffer_size);
-		GET_FUNC(g_libavutil, av_malloc);
-		GET_FUNC(g_libavutil, av_free);
-		GET_FUNC(g_libavutil, av_image_fill_arrays);
-		GET_FUNC(g_libswscale, sws_getContext);
 		GET_FUNC(g_libavformat, av_read_frame);
 		GET_FUNC(g_libavcodec, av_packet_unref);
         GET_FUNC(g_libavcodec, avcodec_send_packet);
         GET_FUNC(g_libavcodec, avcodec_receive_frame);
-        GET_FUNC(g_libswscale, sws_scale);
         GET_FUNC(g_libavformat, av_seek_frame);
 
 		g_lib_loaded = true;
@@ -226,11 +200,8 @@ namespace Viry3D
         AVFormatContext* m_format_context = nullptr;
         AVCodecContext* m_codec_context = nullptr;
 		AVFrame* m_frame = nullptr;
-		AVFrame* m_frame_rgba = nullptr;
-		uint8_t* m_rgba_buffer = nullptr;
-		int m_rgba_buffer_size = 0;
-		SwsContext* m_sws_context = nullptr;
 		Image m_out_image;
+        ByteBuffer m_yuv_buffer;
         int m_video_stream = -1;
         bool m_loop = false;
 
@@ -288,27 +259,11 @@ namespace Viry3D
 			{
 				return false;
 			}
+            assert(m_codec_context->pix_fmt == AV_PIX_FMT_YUV420P);
 
 			m_frame = p_av_frame_alloc();
-			m_frame_rgba = p_av_frame_alloc();
-
-			m_rgba_buffer_size = p_av_image_get_buffer_size(AV_PIX_FMT_RGBA, m_codec_context->width, m_codec_context->height, 1);
-			m_rgba_buffer = (uint8_t*) p_av_malloc(m_rgba_buffer_size);
-			p_av_image_fill_arrays(m_frame_rgba->data, m_frame_rgba->linesize, m_rgba_buffer, AV_PIX_FMT_RGBA, m_codec_context->width, m_codec_context->height, 1);
-			
-			m_sws_context = p_sws_getContext(
-				m_codec_context->width,
-				m_codec_context->height,
-				m_codec_context->pix_fmt,
-				m_codec_context->width,
-				m_codec_context->height,
-				AV_PIX_FMT_RGBA,
-				SWS_BILINEAR,
-				nullptr,
-				nullptr,
-				nullptr);
-            
             m_loop = loop;
+            m_yuv_buffer = ByteBuffer(m_codec_context->width * m_codec_context->height * 3 / 2);
 
             return true;
         }
@@ -318,18 +273,6 @@ namespace Viry3D
 			if (!g_lib_loaded)
 			{
 				return;
-			}
-
-			if (m_rgba_buffer != nullptr)
-			{
-				p_av_free(m_rgba_buffer);
-				m_rgba_buffer = nullptr;
-			}
-			
-			if (m_frame_rgba != nullptr)
-			{
-				p_av_frame_free(&m_frame_rgba);
-				m_frame_rgba = nullptr;
 			}
 
 			if (m_frame != nullptr)
@@ -415,12 +358,35 @@ namespace Viry3D
                     }
                 }
                 
-                ret = p_sws_scale(m_sws_context, m_frame->data, m_frame->linesize, 0, m_codec_context->height, m_frame_rgba->data, m_frame_rgba->linesize);
+                int w = m_codec_context->width;
+                int h = m_codec_context->height;
+                int uv_w = w / 2;
+                int uv_h = h / 2;
+                int u_offset = w * h;
+                int v_offset = u_offset + uv_w * uv_h;
                 
-                m_out_image.width = m_codec_context->width;
-                m_out_image.height = m_codec_context->height;
-                m_out_image.format = ImageFormat::R8G8B8A8;
-                m_out_image.data = ByteBuffer(m_frame_rgba->data[0], m_rgba_buffer_size);
+                for (int i = 0; i < h; i++)
+                {
+                    int y_src_offset = i * w;
+                    int y_dst_offset = i * m_frame->linesize[0];
+                    Memory::Copy(&m_yuv_buffer.Bytes()[y_src_offset], &m_frame->data[0][y_dst_offset], w);
+                }
+                
+                for (int i = 0; i < uv_h; i++)
+                {
+                    int u_src_offset = u_offset + i * uv_w;
+                    int u_dst_offset = i * m_frame->linesize[1];
+                    Memory::Copy(&m_yuv_buffer.Bytes()[u_src_offset], &m_frame->data[1][u_dst_offset], uv_w);
+                    
+                    int v_src_offset = v_offset + i * uv_w;
+                    int v_dst_offset = i * m_frame->linesize[2];
+                    Memory::Copy(&m_yuv_buffer.Bytes()[v_src_offset], &m_frame->data[2][v_dst_offset], uv_w);
+                }
+
+                m_out_image.width = w;
+                m_out_image.height = h;
+                m_out_image.format = ImageFormat::YUV420P;
+                m_out_image.data = m_yuv_buffer;
                 
                 if (present_time != nullptr)
                 {

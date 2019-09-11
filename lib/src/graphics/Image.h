@@ -27,6 +27,7 @@ namespace Viry3D
         R8,
         R8G8B8,
         R8G8B8A8,
+        YUV420P,
     };
 
 	class Image : public Object
