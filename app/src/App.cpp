@@ -529,8 +529,13 @@ namespace Viry3D
 
 		void Update()
 		{
+            float time = Time::GetRealTimeSinceStartup();
+            
             float present_time = 0;
 			const Image& frame = m_decoder->GetFrame(&present_time);
+            
+            float decode_time = Time::GetRealTimeSinceStartup() - time;
+            
 			if (frame.width > 0 && frame.height > 0)
 			{
                 int uv_w = frame.width / 2;
@@ -566,7 +571,7 @@ namespace Viry3D
                 m_video_texture_u->UpdateTexture(ByteBuffer(&frame.data.Bytes()[frame.width * frame.height], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
                 m_video_texture_v->UpdateTexture(ByteBuffer(&frame.data.Bytes()[frame.width * frame.height + uv_w * uv_h], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
                 
-                Log("fps:%d present_time:%f time:%f", Time::GetFPS(), present_time, Time::GetTime());
+                Log("fps:%d present_time:%f time:%f decode_time:%f", Time::GetFPS(), present_time, Time::GetTime(), decode_time);
 			}
 		}
 	};
