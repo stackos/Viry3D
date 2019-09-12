@@ -518,9 +518,11 @@ namespace Viry3D
 			camera->SetNearClip(-1.0f);
 			camera->SetFarClip(1.0f);
 
-			m_material = RefMake<Material>(Shader::Find("Unlit/Texture"));
-			m_material->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedBlackTexture());
-
+			m_material = RefMake<Material>(Shader::Find("YUV"));
+			m_material->SetTexture("u_texture_y", Texture::GetSharedWhiteTexture());
+            m_material->SetTexture("u_texture_u", Texture::GetSharedBlackTexture());
+            m_material->SetTexture("u_texture_v", Texture::GetSharedBlackTexture());
+            
 			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
 			renderer->GetTransform()->SetScale(Vector3((float) Engine::Instance()->GetWidth(), (float) Engine::Instance()->GetHeight(), 1.0f));
 			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Quad.mesh"));
@@ -564,7 +566,10 @@ namespace Viry3D
                         FilterMode::Linear,
                         SamplerAddressMode::ClampToEdge,
                         false);
-					m_material->SetTexture(MaterialProperty::TEXTURE, m_video_texture_y);
+					
+                    m_material->SetTexture("u_texture_y", m_video_texture_y);
+                    m_material->SetTexture("u_texture_u", m_video_texture_u);
+                    m_material->SetTexture("u_texture_v", m_video_texture_v);
 				}
                 
                 m_video_texture_y->UpdateTexture(frame.data, 0, 0, 0, 0, frame.width, frame.height);
