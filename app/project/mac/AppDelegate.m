@@ -37,12 +37,13 @@
     NSRect frame = [NSWindow frameRectForContentRect:window_rect styleMask:style];
     NSWindow* window = [[NSWindow alloc] initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:TRUE];
     window.title = [NSString stringWithUTF8String:name];
-    [window center];
     [window makeKeyAndOrderFront:nil];
     window.delegate = self;
     
     if (desktop_window) {
         window.level = kCGDesktopWindowLevel;
+    } else {
+        [window center];
     }
     
     ViewController* view_controller = [[ViewController alloc] init];

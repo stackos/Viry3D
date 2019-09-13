@@ -195,10 +195,10 @@ void MetalBlitter::blit(const BlitArgs& args) {
     viewport.zfar = 1.0;
     [encoder setViewport:viewport];
 
-    DepthStencilState depthStencilState {
-        .compareFunction = MTLCompareFunctionAlways,
-        .depthWriteEnabled = blitDepth
-    };
+    DepthStencilState depthStencilState;
+    depthStencilState.compareFunction = MTLCompareFunctionAlways;
+    depthStencilState.depthWriteEnabled = blitDepth;
+
     id<MTLDepthStencilState> depthStencil =
             mContext.depthStencilStateCache.getOrCreateState(depthStencilState);
     [encoder setDepthStencilState:depthStencil];
@@ -374,13 +374,13 @@ id<MTLFunction> MetalBlitter::getBlitVertexFunction() {
 }
 
 id<MTLFunction> MetalBlitter::getBlitFragmentFunction(BlitFunctionKey key) {
-    auto iter = mBlitFunctions.find(key);
+    auto iter = mBlitFunctions.find(key.u);
     if (iter != mBlitFunctions.end()) {
         return iter->second;
     }
 
     auto function = compileFragmentFunction(key);
-    mBlitFunctions.emplace(std::make_pair(key, function));
+    mBlitFunctions.emplace(key.u, function);
 
     return function;
 }

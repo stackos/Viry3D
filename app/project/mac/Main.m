@@ -19,9 +19,11 @@
 #import "AppDelegate.h"
 
 int main(int argc, char* argv[]) {
-    NSApplication* app = [NSApplication sharedApplication];
-    AppDelegate* delegate = [[AppDelegate alloc] init];
-    app.delegate = delegate;
-    [app run];
+    @autoreleasepool {
+        NSApplication* app = [NSApplication sharedApplication];
+        AppDelegate* delegate = [AppDelegate new];
+        app.delegate = delegate;
+        [app run];
+    }
     return 0;
 }

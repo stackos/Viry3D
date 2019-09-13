@@ -486,14 +486,24 @@ namespace Viry3D
 	class AppImplementVPaper : public AppImplement
 	{
 	public:
+        enum class ScaleMode
+        {
+            StretchToFill,
+            ScaleAndCrop,
+            ScaleToFit,
+        };
+        
 		Ref<VideoDecoder> m_decoder;
 		Ref<Texture> m_video_texture_y;
         Ref<Texture> m_video_texture_u;
         Ref<Texture> m_video_texture_v;
 		Ref<Material> m_material;
+        Ref<MeshRenderer> m_renderer;
+        ScaleMode m_scale_mode = ScaleMode::StretchToFill;
+        ScaleMode m_target_scale_mode = ScaleMode::ScaleAndCrop;
 
 		AppImplementVPaper()
-		{
+        {
 			this->InitRenderer();
 
 			m_decoder = RefMake<VideoDecoder>();
@@ -523,10 +533,10 @@ namespace Viry3D
             m_material->SetTexture("u_texture_u", Texture::GetSharedBlackTexture());
             m_material->SetTexture("u_texture_v", Texture::GetSharedBlackTexture());
             
-			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-			renderer->GetTransform()->SetScale(Vector3((float) Engine::Instance()->GetWidth(), (float) Engine::Instance()->GetHeight(), 1.0f));
-			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Quad.mesh"));
-			renderer->SetMaterial(m_material);
+			m_renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+			m_renderer->GetTransform()->SetScale(Vector3((float) Engine::Instance()->GetWidth(), (float) Engine::Instance()->GetHeight(), 1.0f));
+			m_renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Quad.mesh"));
+			m_renderer->SetMaterial(m_material);
 		}
 
 		void Update()
@@ -577,6 +587,49 @@ namespace Viry3D
                 m_video_texture_v->UpdateTexture(ByteBuffer(&frame.data.Bytes()[frame.width * frame.height + uv_w * uv_h], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
                 
                 Log("fps:%d present_time:%f time:%f decode_time:%f", Time::GetFPS(), present_time, Time::GetTime(), decode_time);
+                
+                if (m_target_scale_mode != m_scale_mode)
+                {
+                    m_scale_mode = m_target_scale_mode;
+                    
+                    float ratio_screen = Engine::Instance()->GetWidth() / (float) Engine::Instance()->GetHeight();
+                    float ratio_frame = frame.width / (float) frame.height;
+                    
+                    if (m_scale_mode == ScaleMode::StretchToFill)
+                    {
+                        m_renderer->GetTransform()->SetScale(Vector3((float) Engine::Instance()->GetWidth(), (float) Engine::Instance()->GetHeight(), 1.0f));
+                    }
+                    else if (m_scale_mode == ScaleMode::ScaleToFit)
+                    {
+                        float scale = 1.0f;
+                        
+                        if (ratio_frame > ratio_screen)
+                        {
+                            scale = Engine::Instance()->GetWidth() / (float) frame.width;
+                        }
+                        else
+                        {
+                            scale = Engine::Instance()->GetHeight() / (float) frame.height;
+                        }
+                        
+                        m_renderer->GetTransform()->SetScale(Vector3(frame.width * scale, frame.height * scale, 1.0f));
+                    }
+                    else if (m_scale_mode == ScaleMode::ScaleAndCrop)
+                    {
+                        float scale = 1.0f;
+                        
+                        if (ratio_frame < ratio_screen)
+                        {
+                            scale = Engine::Instance()->GetWidth() / (float) frame.width;
+                        }
+                        else
+                        {
+                            scale = Engine::Instance()->GetHeight() / (float) frame.height;
+                        }
+                        
+                        m_renderer->GetTransform()->SetScale(Vector3(frame.width * scale, frame.height * scale, 1.0f));
+                    }
+                }
 			}
 		}
 	};

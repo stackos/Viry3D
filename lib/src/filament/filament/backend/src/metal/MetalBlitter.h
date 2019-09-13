@@ -22,7 +22,6 @@
 #include <backend/DriverEnums.h>
 
 #include <unordered_map>
-#include <utils/Hash.h>
 
 namespace filament {
 namespace backend {
@@ -72,20 +71,19 @@ private:
     static void setupDepthAttachment(const BlitArgs& args, MTLRenderPassDescriptor* descriptor);
 
     struct BlitFunctionKey {
-        bool blitColor;
-        bool blitDepth;
-        bool msaaColorSource;
-        bool msaaDepthSource;
-
+        union {
+            struct {
+                bool blitColor          : 1;
+                bool blitDepth          : 1;
+                bool msaaColorSource    : 1;
+                bool msaaDepthSource    : 1;
+                uint32_t padding        : 28;
+            };
+            uint32_t u = 0;
+        };
+        
         bool operator==(const BlitFunctionKey& rhs) const noexcept {
-            return blitColor == rhs.blitColor &&
-                   blitDepth == rhs.blitDepth &&
-                   msaaColorSource == rhs.msaaDepthSource &&
-                   msaaDepthSource == rhs.msaaDepthSource;
-        }
-
-        BlitFunctionKey() {
-            std::memset(this, 0, sizeof(BlitFunctionKey));
+            return u == rhs.u;
         }
     };
 
@@ -96,9 +94,8 @@ private:
 
     MetalContext& mContext;
 
-    using HashFn = utils::hash::MurmurHashFn<BlitFunctionKey>;
     using Function = id<MTLFunction>;
-    std::unordered_map<BlitFunctionKey, Function, HashFn> mBlitFunctions;
+    std::unordered_map<uint32_t, Function> mBlitFunctions;
 
     id<MTLFunction> mVertexFunction = nil;
 

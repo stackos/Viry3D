@@ -25,8 +25,7 @@
 #include <backend/DriverEnums.h>
 
 #include <memory>
-#include <unordered_map>
-#include <utils/Hash.h>
+#include <vector>
 
 namespace filament {
 namespace backend {
@@ -127,28 +126,27 @@ public:
     StateCache& operator=(const StateCache&) = delete;
 
     ~StateCache() {
-        for (auto it = mStateCache.begin(); it != mStateCache.end(); ++it) {
-            [it->second release];
+        for (int i = 0; i < mValues.size(); ++i) {
+            [mValues[i] release];
         }
+        mKeys.clear();
+        mValues.clear();
     }
 
     void setDevice(id<MTLDevice> device) noexcept { mDevice = device; }
 
     MetalType getOrCreateState(const StateType& state) noexcept {
-        // Check if a valid state already exists in the cache.
-        auto iter = mStateCache.find(state);
-        if (UTILS_LIKELY(iter != mStateCache.end())) {
-            auto foundState = iter->second;
-            return foundState;
+        for (int i = 0; i < mKeys.size(); ++i) {
+            if (memcmp(&mKeys[i], &state, sizeof(StateType)) == 0) {
+                return mValues[i];
+            }
         }
 
         // If we reach this point, we couldn't find one in the cache; create a new one.
         const auto& metalObject = creator(mDevice, state);
 
-        mStateCache.emplace(std::make_pair(
-            state,
-            metalObject
-        ));
+        mKeys.push_back(state);
+        mValues.push_back(metalObject);
 
         return metalObject;
     }
@@ -158,8 +156,8 @@ private:
     StateCreator creator;
     id<MTLDevice> mDevice = nil;
 
-    using HashFn = utils::hash::MurmurHashFn<StateType>;
-    std::unordered_map<StateType, MetalType, HashFn> mStateCache;
+    std::vector<StateType> mKeys;
+    std::vector<MetalType> mValues;
 
 };
 
@@ -242,12 +240,22 @@ using PipelineStateCache = StateCache<PipelineState, id<MTLRenderPipelineState>,
 // Depth-stencil State
 
 struct DepthStencilState {
-    MTLCompareFunction compareFunction = MTLCompareFunctionNever;
-    bool depthWriteEnabled = false;
+    union {
+        struct {
+            MTLCompareFunction compareFunction      : 7;
+            bool depthWriteEnabled                  : 1;
+            uint32_t padding                        : 24;
+        };
+        uint32_t u = 0;
+    };
+    
+    DepthStencilState() {
+        compareFunction = MTLCompareFunctionNever;
+        depthWriteEnabled = false;
+    }
 
     bool operator==(const DepthStencilState& rhs) const noexcept {
-        return this->compareFunction == rhs.compareFunction &&
-               this->depthWriteEnabled == rhs.depthWriteEnabled;
+        return u == rhs.u;
     }
 
     bool operator!=(const DepthStencilState& rhs) const noexcept {
