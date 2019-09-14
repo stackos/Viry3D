@@ -18,11 +18,10 @@
 #pragma once
 
 #include "string/String.h"
+#include "graphics/Image.h"
 
 namespace Viry3D
 {
-	class Image;
-
     class VideoDecoderPrivate;
     class VideoDecoder
     {
@@ -30,11 +29,18 @@ namespace Viry3D
         static void Init();
         static void Done();
         
+        struct Frame
+        {
+            Image image;
+            float present_time = 0;
+        };
+        
         VideoDecoder();
         ~VideoDecoder();
         bool OpenFile(const String& path, bool loop);
         void Close();
-		const Image& GetFrame(float* present_time);
+		Frame GetFrame();
+        void ReleaseFrame(const Frame& frame);
         
     private:
         VideoDecoderPrivate* m_private;

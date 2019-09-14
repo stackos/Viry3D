@@ -541,23 +541,19 @@ namespace Viry3D
 
 		void Update()
 		{
-            float time = Time::GetRealTimeSinceStartup();
+			auto frame = m_decoder->GetFrame();
+            const Image& image = frame.image;
             
-            float present_time = 0;
-			const Image& frame = m_decoder->GetFrame(&present_time);
-            
-            float decode_time = Time::GetRealTimeSinceStartup() - time;
-            
-			if (frame.width > 0 && frame.height > 0)
+			if (image.width > 0 && image.height > 0)
 			{
-                int uv_w = frame.width / 2;
-                int uv_h = frame.height / 2;
+                int uv_w = image.width / 2;
+                int uv_h = image.height / 2;
                 
 				if (!m_video_texture_y)
 				{
 					m_video_texture_y = Texture::CreateTexture2D(
-						frame.width,
-						frame.height,
+						image.width,
+						image.height,
 						TextureFormat::R8,
 						FilterMode::Linear,
 						SamplerAddressMode::ClampToEdge,
@@ -582,18 +578,18 @@ namespace Viry3D
                     m_material->SetTexture("u_texture_v", m_video_texture_v);
 				}
                 
-                m_video_texture_y->UpdateTexture(frame.data, 0, 0, 0, 0, frame.width, frame.height);
-                m_video_texture_u->UpdateTexture(ByteBuffer(&frame.data.Bytes()[frame.width * frame.height], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
-                m_video_texture_v->UpdateTexture(ByteBuffer(&frame.data.Bytes()[frame.width * frame.height + uv_w * uv_h], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
+                m_video_texture_y->UpdateTexture(image.data, 0, 0, 0, 0, image.width, image.height);
+                m_video_texture_u->UpdateTexture(ByteBuffer(&image.data.Bytes()[image.width * image.height], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
+                m_video_texture_v->UpdateTexture(ByteBuffer(&image.data.Bytes()[image.width * image.height + uv_w * uv_h], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
                 
-                Log("fps:%d present_time:%f time:%f decode_time:%f", Time::GetFPS(), present_time, Time::GetTime(), decode_time);
+                Log("fps:%d present_time:%f time:%f", Time::GetFPS(), frame.present_time, Time::GetTime());
                 
                 if (m_target_scale_mode != m_scale_mode)
                 {
                     m_scale_mode = m_target_scale_mode;
                     
                     float ratio_screen = Engine::Instance()->GetWidth() / (float) Engine::Instance()->GetHeight();
-                    float ratio_frame = frame.width / (float) frame.height;
+                    float ratio_image = image.width / (float) image.height;
                     
                     if (m_scale_mode == ScaleMode::StretchToFill)
                     {
@@ -603,34 +599,36 @@ namespace Viry3D
                     {
                         float scale = 1.0f;
                         
-                        if (ratio_frame > ratio_screen)
+                        if (ratio_image > ratio_screen)
                         {
-                            scale = Engine::Instance()->GetWidth() / (float) frame.width;
+                            scale = Engine::Instance()->GetWidth() / (float) image.width;
                         }
                         else
                         {
-                            scale = Engine::Instance()->GetHeight() / (float) frame.height;
+                            scale = Engine::Instance()->GetHeight() / (float) image.height;
                         }
                         
-                        m_renderer->GetTransform()->SetScale(Vector3(frame.width * scale, frame.height * scale, 1.0f));
+                        m_renderer->GetTransform()->SetScale(Vector3(image.width * scale, image.height * scale, 1.0f));
                     }
                     else if (m_scale_mode == ScaleMode::ScaleAndCrop)
                     {
                         float scale = 1.0f;
                         
-                        if (ratio_frame < ratio_screen)
+                        if (ratio_image < ratio_screen)
                         {
-                            scale = Engine::Instance()->GetWidth() / (float) frame.width;
+                            scale = Engine::Instance()->GetWidth() / (float) image.width;
                         }
                         else
                         {
-                            scale = Engine::Instance()->GetHeight() / (float) frame.height;
+                            scale = Engine::Instance()->GetHeight() / (float) image.height;
                         }
                         
-                        m_renderer->GetTransform()->SetScale(Vector3(frame.width * scale, frame.height * scale, 1.0f));
+                        m_renderer->GetTransform()->SetScale(Vector3(image.width * scale, image.height * scale, 1.0f));
                     }
                 }
 			}
+            
+            m_decoder->ReleaseFrame(frame);
 		}
 	};
 

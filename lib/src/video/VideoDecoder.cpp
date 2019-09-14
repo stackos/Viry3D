@@ -20,6 +20,7 @@
 #include "Debug.h"
 #include "graphics/Image.h"
 #include "memory/Memory.h"
+#include <thread>
 
 extern "C"
 {
@@ -204,10 +205,17 @@ namespace Viry3D
         ByteBuffer m_yuv_buffer;
         int m_video_stream = -1;
         bool m_loop = false;
-
+        std::thread m_decode_thread;
+        List<VideoDecoder::Frame> m_decoded_frame_cache;
+        List<VideoDecoder::Frame> m_free_frame_cache;
+        std::mutex m_mutex;
+        std::condition_variable m_condition;
+        bool m_closed = false;
+        
         ~VideoDecoderPrivate()
         {
             this->Close();
+            m_decode_thread.join();
         }
         
         bool OpenFile(const String& path, bool loop)
@@ -264,10 +272,12 @@ namespace Viry3D
 			m_frame = p_av_frame_alloc();
             m_loop = loop;
             m_yuv_buffer = ByteBuffer(m_codec_context->width * m_codec_context->height * 3 / 2);
-
+            m_closed = false;
+            m_decode_thread = std::thread(&DecodeThread, this);
+            
             return true;
         }
-        
+
         void Close()
         {
 			if (!g_lib_loaded)
@@ -292,6 +302,12 @@ namespace Viry3D
                 p_avformat_close_input(&m_format_context);
                 m_format_context = nullptr;
             }
+            
+            {
+                std::lock_guard<Mutex> lock(m_mutex);
+                m_closed = true;
+                m_condition.notify_one();
+            }
         }
         
         static double r2d(AVRational r)
@@ -299,14 +315,64 @@ namespace Viry3D
             return r.num == 0 || r.den == 0 ? 0.0 : (double) r.num / (double) r.den;
         }
 
-		const Image& GetFrame(float* present_time)
-		{
-			m_out_image.Clear();
+        static void DecodeThread(VideoDecoderPrivate* p)
+        {
+            const int MAX_CACHE_FRAMES = 5;
+            for (int i = 0; i < MAX_CACHE_FRAMES; ++i)
+            {
+                p->m_free_frame_cache.AddLast(VideoDecoder::Frame());
+            }
 
-			if (!g_lib_loaded || m_codec_context == nullptr)
-			{
-				return m_out_image;
-			}
+            while (true)
+            {
+                VideoDecoder::Frame frame;
+                
+                {
+                    std::unique_lock<std::mutex> lock(p->m_mutex);
+                    p->m_condition.wait(lock, [p] {
+                        return p->m_free_frame_cache.Size() > 0 || p->m_closed;
+                    });
+                    
+                    if (p->m_closed)
+                    {
+                        break;
+                    }
+                    
+                    frame = p->m_free_frame_cache.First();
+                    p->m_free_frame_cache.RemoveFirst();
+                }
+                
+                const Image& image = p->DecodeFrame(&frame.present_time);
+                
+                frame.image.width = image.width;
+                frame.image.height = image.height;
+                frame.image.format = image.format;
+                
+                if (image.width > 0 && image.height > 0)
+                {
+                    if (frame.image.data.Size() == 0)
+                    {
+                        frame.image.data = ByteBuffer(image.data.Size());
+                    }
+                    Memory::Copy(frame.image.data.Bytes(), image.data.Bytes(), image.data.Size());
+                }
+                
+                {
+                    std::lock_guard<Mutex> lock(p->m_mutex);
+                    p->m_decoded_frame_cache.AddLast(frame);
+                    p->m_condition.notify_one();
+                }
+            }
+        }
+        
+        const Image& DecodeFrame(float* present_time)
+        {
+            m_out_image.Clear();
+            
+            if (!g_lib_loaded || m_codec_context == nullptr)
+            {
+                return m_out_image;
+            }
             
         read:
             AVPacket packet;
@@ -382,7 +448,7 @@ namespace Viry3D
                     int v_dst_offset = i * m_frame->linesize[2];
                     Memory::Copy(&m_yuv_buffer.Bytes()[v_src_offset], &m_frame->data[2][v_dst_offset], uv_w);
                 }
-
+                
                 m_out_image.width = w;
                 m_out_image.height = h;
                 m_out_image.format = ImageFormat::YUV420P;
@@ -393,11 +459,36 @@ namespace Viry3D
                     *present_time = (float) (packet.pts * r2d(m_format_context->streams[m_video_stream]->time_base));
                 }
             }
-
+            
             p_av_packet_unref(&packet);
-
-			return m_out_image;
+            
+            return m_out_image;
+        }
+        
+        VideoDecoder::Frame GetFrame()
+		{
+            VideoDecoder::Frame frame;
+            
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_condition.wait(lock, [this] {
+                return m_decoded_frame_cache.Size() > 0 || m_closed;
+            });
+            
+            if (m_decoded_frame_cache.Size() > 0)
+            {
+                frame = m_decoded_frame_cache.First();
+                m_decoded_frame_cache.RemoveFirst();
+            }
+            
+            return frame;
 		}
+        
+        void ReleaseFrame(const VideoDecoder::Frame& frame)
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_free_frame_cache.AddLast(frame);
+            m_condition.notify_one();
+        }
     };
     
     VideoDecoder::VideoDecoder():
@@ -421,8 +512,13 @@ namespace Viry3D
         return m_private->Close();
     }
 
-	const Image& VideoDecoder::GetFrame(float* present_time)
+	VideoDecoder::Frame VideoDecoder::GetFrame()
 	{
-		return m_private->GetFrame(present_time);
+		return m_private->GetFrame();
 	}
+    
+    void VideoDecoder::ReleaseFrame(const Frame& frame)
+    {
+        m_private->ReleaseFrame(frame);
+    }
 }
