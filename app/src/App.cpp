@@ -540,7 +540,7 @@ namespace Viry3D
 		}
 
 		void Update()
-		{
+        {
 			auto frame = m_decoder->GetFrame();
             const Image& image = frame.image;
             

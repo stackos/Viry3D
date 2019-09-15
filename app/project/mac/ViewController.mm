@@ -98,7 +98,7 @@ static bool g_mouse_down = false;
 
     m_frame_handler = [FrameHandler new];
     [m_frame_handler setViewController:self];
-    m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:m_frame_handler selector:@selector(drawFrame) userInfo:nil repeats:YES];
+    m_timer = [NSTimer timerWithTimeInterval:1.0f / 30 target:m_frame_handler selector:@selector(drawFrame) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];
     
     m_target_width = window_width;

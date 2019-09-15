@@ -317,7 +317,7 @@ namespace Viry3D
 
         static void DecodeThread(VideoDecoderPrivate* p)
         {
-            const int MAX_CACHE_FRAMES = 5;
+            const int MAX_CACHE_FRAMES = 1;
             for (int i = 0; i < MAX_CACHE_FRAMES; ++i)
             {
                 p->m_free_frame_cache.AddLast(VideoDecoder::Frame());
