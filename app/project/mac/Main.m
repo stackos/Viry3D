@@ -18,9 +18,25 @@
 #import <Cocoa/Cocoa.h>
 #import "AppDelegate.h"
 
+void initMenu(NSApplication* app) {
+    NSMenu* mainMenu = [NSMenu new];
+    NSMenuItem* appMenuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
+    [mainMenu addItem:appMenuItem];
+    
+    NSMenu* appMenu = [NSMenu new];
+    appMenuItem.submenu = appMenu;
+    
+    [appMenu addItemWithTitle:@"Preferences..." action:nil keyEquivalent:@","];
+    [appMenu addItem:NSMenuItem.separatorItem];
+    [appMenu addItemWithTitle:@"Quit VPaper" action:@selector(terminate:) keyEquivalent:@"q"];
+    
+    [app setMainMenu:mainMenu];
+}
+
 int main(int argc, char* argv[]) {
     @autoreleasepool {
         NSApplication* app = [NSApplication sharedApplication];
+        initMenu(app);
         AppDelegate* delegate = [AppDelegate new];
         app.delegate = delegate;
         [app run];
