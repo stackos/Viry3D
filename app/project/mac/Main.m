@@ -26,7 +26,11 @@ void initMenu(NSApplication* app) {
     NSMenu* appMenu = [NSMenu new];
     appMenuItem.submenu = appMenu;
     
-    [appMenu addItemWithTitle:@"Preferences..." action:nil keyEquivalent:@","];
+    NSMenuItem* openVideoItem = [[NSMenuItem alloc] initWithTitle:@"Open Video" action:nil keyEquivalent:@""];
+    openVideoItem.target = app.delegate;
+    openVideoItem.action = @selector(openVideo);
+    
+    [appMenu addItem:openVideoItem];
     [appMenu addItem:NSMenuItem.separatorItem];
     [appMenu addItemWithTitle:@"Quit VPaper" action:@selector(terminate:) keyEquivalent:@"q"];
     

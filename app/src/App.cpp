@@ -582,7 +582,7 @@ namespace Viry3D
                 m_video_texture_u->UpdateTexture(ByteBuffer(&image.data.Bytes()[image.width * image.height], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
                 m_video_texture_v->UpdateTexture(ByteBuffer(&image.data.Bytes()[image.width * image.height + uv_w * uv_h], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
                 
-                Log("fps:%d present_time:%f time:%f", Time::GetFPS(), frame.present_time, Time::GetTime());
+                //Log("fps:%d present_time:%f time:%f", Time::GetFPS(), frame.present_time, Time::GetTime());
                 
                 if (m_target_scale_mode != m_scale_mode)
                 {

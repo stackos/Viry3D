@@ -71,4 +71,16 @@
     return frameSize;
 }
 
+- (void)openVideo {
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setAllowsMultipleSelection:NO];
+    [openPanel setAllowedFileTypes:[NSArray arrayWithObject:@"mp4"]];
+    [openPanel setMessage:@"Please select one video file as wallpaper."];
+    [openPanel beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse result) {
+        if (result == NSModalResponseOK) {
+            NSLog(@"opened video file:%@", [openPanel filename]);
+        }
+    }];
+}
+
 @end
