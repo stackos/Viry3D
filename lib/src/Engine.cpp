@@ -51,6 +51,18 @@ using namespace filament;
 
 namespace Viry3D
 {
+    struct Message
+    {
+        int id;
+        String msg;
+    };
+    
+    struct MessageHandler
+    {
+        int id;
+        std::function<void(int id, const String&)> handler;
+    };
+    
     void FreeBufferCallback(void* buffer, size_t size, void* user)
     {
 		Memory::Free(buffer, (int) size);
@@ -85,6 +97,8 @@ namespace Viry3D
         Ref<Scene> m_scene;
         Ref<ThreadPool> m_thread_pool;
         List<Action> m_actions;
+        List<Message> m_messages;
+        Map<int, List<MessageHandler>> m_message_handlers;
         Mutex m_mutex;
         
 		backend::DriverApi& GetDriverApi() { return m_command_stream; }
@@ -317,6 +331,47 @@ namespace Viry3D
                 }
             }
             m_actions.Clear();
+            for (const auto& msg : m_messages)
+            {
+                if (m_message_handlers.Contains(msg.id))
+                {
+                    const auto& handlers = m_message_handlers[msg.id];
+                    for (const auto& handler : handlers)
+                    {
+                        if (handler.handler)
+                        {
+                            handler.handler(msg.id, msg.msg);
+                        }
+                    }
+                }
+            }
+            m_messages.Clear();
+            m_mutex.unlock();
+        }
+        
+        void SendMessage(int id, const String& msg)
+        {
+            m_mutex.lock();
+            m_messages.AddLast({ id, msg });
+            m_mutex.unlock();
+        }
+        
+        void AddMessageHandler(int id, std::function<void(int id, const String&)> handler)
+        {
+            m_mutex.lock();
+            
+            if (m_message_handlers.Contains(id))
+            {
+                auto& handlers = m_message_handlers[id];
+                handlers.AddLast({ id, handler });
+            }
+            else
+            {
+                List<MessageHandler> handlers;
+                handlers.AddLast({ id, handler });
+                m_message_handlers.Add(id, handlers);
+            }
+            
             m_mutex.unlock();
         }
         
@@ -622,5 +677,15 @@ namespace Viry3D
     void Engine::PostAction(Action action)
     {
         m_private->PostAction(action);
+    }
+    
+    void Engine::SendMessage(int id, const String& msg)
+    {
+        m_private->SendMessage(id, msg);
+    }
+    
+    void Engine::AddMessageHandler(int id, std::function<void(int id, const String&)> handler)
+    {
+        m_private->AddMessageHandler(id, handler);
     }
 }

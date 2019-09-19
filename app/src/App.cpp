@@ -504,6 +504,16 @@ namespace Viry3D
 
 		AppImplementVPaper()
         {
+            Engine::Instance()->AddMessageHandler(0, [this](int id, const String& msg) {
+                this->m_decoder->Close();
+                m_video_texture_y.reset();
+                m_video_texture_u.reset();
+                m_video_texture_v.reset();
+                m_scale_mode = ScaleMode::StretchToFill;
+                m_target_scale_mode = ScaleMode::ScaleAndCrop;
+                m_decoder->OpenFile(msg, true);
+            });
+            
 			this->InitRenderer();
 
 			m_decoder = RefMake<VideoDecoder>();

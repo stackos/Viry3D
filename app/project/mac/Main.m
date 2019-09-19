@@ -29,10 +29,14 @@ void initMenu(NSApplication* app) {
     NSMenuItem* openVideoItem = [[NSMenuItem alloc] initWithTitle:@"Open Video" action:nil keyEquivalent:@""];
     openVideoItem.target = app.delegate;
     openVideoItem.action = @selector(openVideo);
-    
     [appMenu addItem:openVideoItem];
+    
     [appMenu addItem:NSMenuItem.separatorItem];
-    [appMenu addItemWithTitle:@"Quit VPaper" action:@selector(terminate:) keyEquivalent:@"q"];
+    
+    NSMenuItem* quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit VPaper" action:nil keyEquivalent:@"q"];
+    quitItem.target = app.delegate;
+    quitItem.action = @selector(quit);
+    [appMenu addItem:quitItem];
     
     [app setMainMenu:mainMenu];
 }

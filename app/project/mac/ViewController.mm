@@ -282,4 +282,17 @@ static bool g_mouse_down = false;
     [self onMouseDrag:&e];
 }
 
+- (void)openVideo {
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setAllowsMultipleSelection:NO];
+    [openPanel setAllowedFileTypes:[NSArray arrayWithObject:@"mp4"]];
+    [openPanel setMessage:@"Please select one video file as wallpaper."];
+    [openPanel beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse result) {
+        if (result == NSModalResponseOK) {
+            String file = [[openPanel filename] UTF8String];
+            m_engine->SendMessage(0, file);
+        }
+    }];
+}
+
 @end

@@ -210,7 +210,7 @@ namespace Viry3D
         List<VideoDecoder::Frame> m_free_frame_cache;
         std::mutex m_mutex;
         std::condition_variable m_condition;
-        bool m_closed = false;
+        bool m_closed = true;
         
         ~VideoDecoderPrivate()
         {
@@ -284,6 +284,18 @@ namespace Viry3D
 			{
 				return;
 			}
+            
+            if (!m_closed)
+            {
+                m_mutex.lock();
+                m_closed = true;
+                m_mutex.unlock();
+                m_condition.notify_one();
+                m_decode_thread.join();
+            }
+            
+            m_decoded_frame_cache.Clear();
+            m_free_frame_cache.Clear();
 
 			if (m_frame != nullptr)
 			{
@@ -301,12 +313,6 @@ namespace Viry3D
             {
                 p_avformat_close_input(&m_format_context);
                 m_format_context = nullptr;
-            }
-            
-            {
-                std::lock_guard<Mutex> lock(m_mutex);
-                m_closed = true;
-                m_condition.notify_one();
             }
         }
         
@@ -469,6 +475,11 @@ namespace Viry3D
 		{
             VideoDecoder::Frame frame;
             
+            if (m_closed)
+            {
+                return frame;
+            }
+            
             std::unique_lock<std::mutex> lock(m_mutex);
             m_condition.wait(lock, [this] {
                 return m_decoded_frame_cache.Size() > 0 || m_closed;
@@ -485,6 +496,11 @@ namespace Viry3D
         
         void ReleaseFrame(const VideoDecoder::Frame& frame)
         {
+            if (m_closed)
+            {
+                return;
+            }
+            
             std::unique_lock<std::mutex> lock(m_mutex);
             m_free_frame_cache.AddLast(frame);
             m_condition.notify_one();

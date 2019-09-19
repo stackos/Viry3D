@@ -18,7 +18,9 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
-@implementation AppDelegate
+@implementation AppDelegate {
+    NSWindow* m_window;
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
     // Insert code here to initialize your application
@@ -50,6 +52,8 @@
     [view_controller setWindow:window];
     window.contentViewController = view_controller;
     [view_controller release];
+    
+    m_window = window;
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -72,15 +76,12 @@
 }
 
 - (void)openVideo {
-    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-    [openPanel setAllowsMultipleSelection:NO];
-    [openPanel setAllowedFileTypes:[NSArray arrayWithObject:@"mp4"]];
-    [openPanel setMessage:@"Please select one video file as wallpaper."];
-    [openPanel beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse result) {
-        if (result == NSModalResponseOK) {
-            NSLog(@"opened video file:%@", [openPanel filename]);
-        }
-    }];
+    ViewController* view_controller = (ViewController*) m_window.contentViewController;
+    [view_controller openVideo];
+}
+
+- (void)quit {
+    [m_window close];
 }
 
 @end
