@@ -517,12 +517,6 @@ namespace Viry3D
 			this->InitRenderer();
 
 			m_decoder = RefMake<VideoDecoder>();
-#if VR_MAC
-			m_decoder->OpenFile("/Users/ccgao/Downloads/video-bg.3e78e808.mp4", true);
-#endif
-#if VR_WINDOWS
-			m_decoder->OpenFile("C:/Users/Stack/Desktop/video-bg.3e78e808.mp4", true);
-#endif
 		}
 
 		virtual ~AppImplementVPaper()
