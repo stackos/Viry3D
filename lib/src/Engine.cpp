@@ -322,16 +322,25 @@ namespace Viry3D
         
         void ProcessActions()
         {
+            List<Action> actions;
+            List<Message> messages;
+            
             m_mutex.lock();
-            for (const auto& action : m_actions)
+            actions = m_actions;
+            m_actions.Clear();
+            messages = m_messages;
+            m_messages.Clear();
+            m_mutex.unlock();
+            
+            for (const auto& action : actions)
             {
                 if (action)
                 {
                     action();
                 }
             }
-            m_actions.Clear();
-            for (const auto& msg : m_messages)
+            
+            for (const auto& msg : messages)
             {
                 if (m_message_handlers.Contains(msg.id))
                 {
@@ -345,8 +354,6 @@ namespace Viry3D
                     }
                 }
             }
-            m_messages.Clear();
-            m_mutex.unlock();
         }
         
         void SendMessage(int id, const String& msg)
