@@ -92,6 +92,8 @@ namespace Viry3D
 	static t_av_frame_alloc p_av_frame_alloc;
 	typedef void (*t_av_frame_free)(AVFrame** frame);
 	static t_av_frame_free p_av_frame_free;
+    typedef void (*t_av_frame_unref)(AVFrame* frame);
+    static t_av_frame_unref p_av_frame_unref;
 	typedef int (*t_av_read_frame)(AVFormatContext* s, AVPacket* pkt);
 	static t_av_read_frame p_av_read_frame;
 	typedef void (*t_av_packet_unref)(AVPacket* pkt);
@@ -158,6 +160,7 @@ namespace Viry3D
         GET_FUNC(g_libavcodec, avcodec_close);
 		GET_FUNC(g_libavutil, av_frame_alloc);
 		GET_FUNC(g_libavutil, av_frame_free);
+        GET_FUNC(g_libavutil, av_frame_unref);
 		GET_FUNC(g_libavformat, av_read_frame);
 		GET_FUNC(g_libavcodec, av_packet_unref);
         GET_FUNC(g_libavcodec, avcodec_send_packet);
@@ -194,6 +197,194 @@ namespace Viry3D
         FreeFFmpeg();
 #endif
     }
+
+#define VIDEO_PICTURE_QUEUE_SIZE 3
+#define FRAME_QUEUE_SIZE VIDEO_PICTURE_QUEUE_SIZE
+
+    struct PacketList
+    {
+        AVPacket pkt;
+        PacketList* next;
+        int serial;
+    };
+
+    struct PacketQueue
+    {
+        PacketList* first_pkt;
+        PacketList* last_pkt;
+        int nb_packets;
+        int size;
+        int64_t duration;
+        int abort_request;
+        int serial;
+        std::mutex* mutex;
+        std::condition_variable* cond;
+    };
+
+    struct Frame
+    {
+        AVFrame* frame;
+        int serial;
+        double pts;           /* presentation timestamp for the frame */
+        double duration;      /* estimated duration of the frame */
+        int64_t pos;          /* byte position of the frame in the input file */
+        int width;
+        int height;
+        int format;
+        AVRational sar;
+        int uploaded;
+        int flip_v;
+        
+        void UnrefItem()
+        {
+            p_av_frame_unref(frame);
+        }
+    };
+
+    struct FrameQueue
+    {
+        Frame queue[FRAME_QUEUE_SIZE];
+        int rindex;
+        int windex;
+        int size;
+        int max_size;
+        bool keep_last;
+        int rindex_shown;
+        std::mutex* mutex;
+        std::condition_variable* cond;
+        PacketQueue* pktq;
+        
+        FrameQueue(PacketQueue* pktq, int max_size, bool keep_last)
+        {
+            memset(this, 0, sizeof(FrameQueue));
+            mutex = new std::mutex();
+            cond = new std::condition_variable();
+            this->pktq = pktq;
+            this->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
+            this->keep_last = keep_last;
+            for (int i = 0; i < this->max_size; i++)
+            {
+                queue[i].frame = p_av_frame_alloc();
+            }
+        }
+        
+        ~FrameQueue()
+        {
+            for (int i = 0; i < max_size; i++)
+            {
+                Frame* vp = &queue[i];
+                vp->UnrefItem();
+                p_av_frame_free(&vp->frame);
+            }
+            delete mutex;
+            delete cond;
+        }
+        
+        void Signal()
+        {
+            mutex->lock();
+            cond->notify_one();
+            mutex->unlock();
+        }
+        
+        Frame* Seek()
+        {
+            return &queue[(rindex + rindex_shown) % max_size];
+        }
+        
+        Frame* PeekNext()
+        {
+            return &queue[(rindex + rindex_shown + 1) % max_size];
+        }
+        
+        Frame* PeekLast()
+        {
+            return &queue[rindex];
+        }
+        
+        Frame* PeekWritable()
+        {
+            {
+                std::unique_lock<std::mutex> lock(*mutex);
+                cond->wait(lock, [this] {
+                    return size < max_size || pktq->abort_request;
+                });
+            }
+
+            if (pktq->abort_request)
+            {
+                return nullptr;
+            }
+
+            return &queue[windex];
+        }
+        
+        Frame* PeekReadable()
+        {
+            {
+                std::unique_lock<std::mutex> lock(*mutex);
+                cond->wait(lock, [this] {
+                    return size - rindex_shown > 0 || pktq->abort_request;
+                });
+            }
+
+            if (pktq->abort_request)
+            {
+                return nullptr;
+            }
+
+            return &queue[(rindex + rindex_shown) % max_size];
+        }
+        
+        void Push()
+        {
+            if (++windex == max_size)
+            {
+                windex = 0;
+            }
+            mutex->lock();
+            size++;
+            cond->notify_one();
+            mutex->unlock();
+        }
+        
+        void Next()
+        {
+            if (keep_last && !rindex_shown)
+            {
+                rindex_shown = 1;
+                return;
+            }
+            
+            queue[rindex].UnrefItem();
+            if (++rindex == max_size)
+            {
+                rindex = 0;
+            }
+            mutex->lock();
+            size--;
+            cond->notify_one();
+            mutex->unlock();
+        }
+        
+        int Remaining()
+        {
+            return size - rindex_shown;
+        }
+        
+        int64_t LastPos()
+        {
+            Frame* fp = &queue[rindex];
+            if (rindex_shown && fp->serial == pktq->serial)
+            {
+                return fp->pos;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    };
     
     class VideoDecoderPrivate
     {
