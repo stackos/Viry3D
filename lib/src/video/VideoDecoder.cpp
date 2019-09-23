@@ -215,7 +215,6 @@ namespace Viry3D
         ~VideoDecoderPrivate()
         {
             this->Close();
-            m_decode_thread.join();
         }
         
         bool OpenFile(const String& path, bool loop)
