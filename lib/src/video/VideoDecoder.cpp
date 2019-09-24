@@ -94,6 +94,8 @@ namespace Viry3D
 	static t_av_frame_free p_av_frame_free;
     typedef void (*t_av_frame_unref)(AVFrame* frame);
     static t_av_frame_unref p_av_frame_unref;
+    typedef void (*t_av_freep)(void* ptr);
+    static t_av_freep p_av_freep;
 	typedef int (*t_av_read_frame)(AVFormatContext* s, AVPacket* pkt);
 	static t_av_read_frame p_av_read_frame;
 	typedef void (*t_av_packet_unref)(AVPacket* pkt);
@@ -161,6 +163,7 @@ namespace Viry3D
 		GET_FUNC(g_libavutil, av_frame_alloc);
 		GET_FUNC(g_libavutil, av_frame_free);
         GET_FUNC(g_libavutil, av_frame_unref);
+        GET_FUNC(g_libavutil, av_freep);
 		GET_FUNC(g_libavformat, av_read_frame);
 		GET_FUNC(g_libavcodec, av_packet_unref);
         GET_FUNC(g_libavcodec, avcodec_send_packet);
@@ -215,10 +218,43 @@ namespace Viry3D
         int nb_packets;
         int size;
         int64_t duration;
-        int abort_request;
+        bool abort_request;
         int serial;
         std::mutex* mutex;
         std::condition_variable* cond;
+        
+        PacketQueue()
+        {
+            memset(this, 0, sizeof(PacketQueue));
+            mutex = new std::mutex();
+            cond = new std::condition_variable();
+            abort_request = true;
+        }
+        
+        ~PacketQueue()
+        {
+            this->FLush();
+            delete mutex;
+            delete cond;
+        }
+        
+        void FLush()
+        {
+            mutex->lock();
+            for (PacketList* pkt = first_pkt; pkt; )
+            {
+                PacketList* pkt1 = pkt->next;
+                p_av_packet_unref(&pkt->pkt);
+                p_av_freep(&pkt);
+                pkt = pkt1;
+            }
+            last_pkt = nullptr;
+            first_pkt = nullptr;
+            nb_packets = 0;
+            size = 0;
+            duration = 0;
+            mutex->unlock();
+        }
     };
 
     struct Frame
@@ -403,9 +439,21 @@ namespace Viry3D
         std::condition_variable m_condition;
         bool m_closed = true;
         
+        FrameQueue* m_picture_queue;
+        PacketQueue* m_video_queue;
+        
+        VideoDecoderPrivate()
+        {
+            m_video_queue = new PacketQueue();
+            m_picture_queue = new FrameQueue(m_video_queue, VIDEO_PICTURE_QUEUE_SIZE, true);
+        }
+        
         ~VideoDecoderPrivate()
         {
             this->Close();
+            
+            delete m_video_queue;
+            delete m_picture_queue;
         }
         
         bool OpenFile(const String& path, bool loop)
@@ -414,7 +462,7 @@ namespace Viry3D
 			{
 				return false;
 			}
-
+            
             m_format_context = nullptr;
             if (p_avformat_open_input(&m_format_context, path.CString(), nullptr, nullptr) != 0)
             {
