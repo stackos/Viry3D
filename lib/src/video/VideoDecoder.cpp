@@ -28,6 +28,7 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/time.h>
 }
 
 #if VR_MAC
@@ -96,10 +97,14 @@ namespace Viry3D
     static t_av_frame_unref p_av_frame_unref;
     typedef void (*t_av_freep)(void* ptr);
     static t_av_freep p_av_freep;
+    typedef int64_t (*t_av_gettime_relative)();
+    static t_av_gettime_relative p_av_gettime_relative;
 	typedef int (*t_av_read_frame)(AVFormatContext* s, AVPacket* pkt);
 	static t_av_read_frame p_av_read_frame;
 	typedef void (*t_av_packet_unref)(AVPacket* pkt);
 	static t_av_packet_unref p_av_packet_unref;
+    typedef void (*t_av_init_packet)(AVPacket* pkt);
+    static t_av_init_packet p_av_init_packet;
     typedef int (*t_avcodec_send_packet)(AVCodecContext* avctx, const AVPacket* avpkt);
     static t_avcodec_send_packet p_avcodec_send_packet;
     typedef int (*t_avcodec_receive_frame)(AVCodecContext* avctx, AVFrame* frame);
@@ -155,20 +160,24 @@ namespace Viry3D
         GET_FUNC(g_libavformat, avformat_open_input);
         GET_FUNC(g_libavformat, avformat_close_input);
         GET_FUNC(g_libavformat, avformat_find_stream_info);
+        GET_FUNC(g_libavformat, av_read_frame);
+        GET_FUNC(g_libavformat, av_seek_frame);
+        
         GET_FUNC(g_libavcodec, avcodec_find_decoder);
         GET_FUNC(g_libavcodec, avcodec_alloc_context3);
         GET_FUNC(g_libavcodec, avcodec_parameters_to_context);
 		GET_FUNC(g_libavcodec, avcodec_open2);
         GET_FUNC(g_libavcodec, avcodec_close);
+        GET_FUNC(g_libavcodec, av_packet_unref);
+        GET_FUNC(g_libavcodec, av_init_packet);
+        GET_FUNC(g_libavcodec, avcodec_send_packet);
+        GET_FUNC(g_libavcodec, avcodec_receive_frame);
+        
 		GET_FUNC(g_libavutil, av_frame_alloc);
 		GET_FUNC(g_libavutil, av_frame_free);
         GET_FUNC(g_libavutil, av_frame_unref);
         GET_FUNC(g_libavutil, av_freep);
-		GET_FUNC(g_libavformat, av_read_frame);
-		GET_FUNC(g_libavcodec, av_packet_unref);
-        GET_FUNC(g_libavcodec, avcodec_send_packet);
-        GET_FUNC(g_libavcodec, avcodec_receive_frame);
-        GET_FUNC(g_libavformat, av_seek_frame);
+        GET_FUNC(g_libavutil, av_gettime_relative);
 
 		g_lib_loaded = true;
     }
@@ -203,6 +212,7 @@ namespace Viry3D
 
 #define VIDEO_PICTURE_QUEUE_SIZE 3
 #define FRAME_QUEUE_SIZE VIDEO_PICTURE_QUEUE_SIZE
+#define AV_NOSYNC_THRESHOLD 10.0
 
     struct PacketList
     {
@@ -222,6 +232,7 @@ namespace Viry3D
         int serial;
         std::mutex* mutex;
         std::condition_variable* cond;
+        AVPacket flush_pkt;
         
         PacketQueue()
         {
@@ -229,6 +240,9 @@ namespace Viry3D
             mutex = new std::mutex();
             cond = new std::condition_variable();
             abort_request = true;
+            
+            p_av_init_packet(&flush_pkt);
+            flush_pkt.data = (uint8_t*) &flush_pkt;
         }
         
         ~PacketQueue()
@@ -254,6 +268,179 @@ namespace Viry3D
             size = 0;
             duration = 0;
             mutex->unlock();
+        }
+        
+        int Put(AVPacket* pkt)
+        {
+            int ret = 0;
+            
+            mutex->lock();
+            ret = PutPrivate(pkt);
+            mutex->unlock();
+            
+            if (pkt != &flush_pkt && ret < 0)
+                p_av_packet_unref(pkt);
+
+            return ret;
+        }
+        
+        int PutNullPacket(int stream_index)
+        {
+            AVPacket pkt1;
+            AVPacket* pkt = &pkt1;
+            av_init_packet(pkt);
+            pkt->data = nullptr;
+            pkt->size = 0;
+            pkt->stream_index = stream_index;
+            return this->Put(pkt);
+        }
+        
+        void Abort()
+        {
+            mutex->lock();
+            abort_request = 1;
+            cond->notify_one();
+            mutex->unlock();
+        }
+        
+        void Start()
+        {
+            mutex->lock();
+            abort_request = 0;
+            this->PutPrivate(&flush_pkt);
+            mutex->unlock();
+        }
+        
+        int Get(AVPacket* pkt, int block, int* serial)
+        {
+            int ret = 0;
+            std::unique_lock<std::mutex> lock(*mutex);
+            for (;;)
+            {
+                if (abort_request)
+                {
+                    ret = -1;
+                    break;
+                }
+
+                PacketList* pkt1 = first_pkt;
+                if (pkt1)
+                {
+                    first_pkt = pkt1->next;
+                    if (!first_pkt)
+                        last_pkt = nullptr;
+                    nb_packets--;
+                    size -= pkt1->pkt.size + sizeof(*pkt1);
+                    duration -= pkt1->pkt.duration;
+                    *pkt = pkt1->pkt;
+                    if (serial)
+                        *serial = pkt1->serial;
+                    av_free(pkt1);
+                    ret = 1;
+                    break;
+                }
+                else if (!block)
+                {
+                    ret = 0;
+                    break;
+                }
+                else
+                {
+                    cond->wait(lock);
+                }
+            }
+            return ret;
+        }
+        
+    private:
+        int PutPrivate(AVPacket* pkt)
+        {
+            if (abort_request)
+                return -1;
+
+            PacketList* pkt1 = (PacketList*) av_malloc(sizeof(PacketList));
+            if (!pkt1)
+                return -1;
+            pkt1->pkt = *pkt;
+            pkt1->next = nullptr;
+            if (pkt == &flush_pkt)
+                serial++;
+            pkt1->serial = serial;
+
+            if (!last_pkt)
+                first_pkt = pkt1;
+            else
+                last_pkt->next = pkt1;
+            last_pkt = pkt1;
+            nb_packets++;
+            size += pkt1->pkt.size + sizeof(*pkt1);
+            duration += pkt1->pkt.duration;
+            
+            cond->notify_one();
+            
+            return 0;
+        }
+    };
+
+    struct Clock
+    {
+        double pts;           /* clock base */
+        double pts_drift;     /* clock base minus time at which we updated the clock */
+        double last_updated;
+        double speed;
+        int serial;           /* clock is based on a packet with this serial */
+        int paused;
+        int* queue_serial;    /* pointer to the current packet queue serial, used for obsolete clock detection */
+        
+        Clock(int* queue_serial)
+        {
+            speed = 1.0;
+            paused = 0;
+            this->queue_serial = queue_serial;
+            this->Set(NAN, -1);
+        }
+        
+        void Set(double pts, int serial)
+        {
+            double time = p_av_gettime_relative() / 1000000.0;
+            this->SetAt(pts, serial, time);
+        }
+        
+        void SetAt(double pts, int serial, double time)
+        {
+            this->pts = pts;
+            last_updated = time;
+            pts_drift = this->pts - time;
+            this->serial = serial;
+        }
+        
+        double Get()
+        {
+            if (*queue_serial != serial)
+                return NAN;
+            if (paused)
+            {
+                return pts;
+            }
+            else
+            {
+                double time = p_av_gettime_relative() / 1000000.0;
+                return pts_drift + time - (time - last_updated) * (1.0 - speed);
+            }
+        }
+        
+        void SetSpeed(double speed)
+        {
+            this->Set(this->Get(), serial);
+            this->speed = speed;
+        }
+        
+        void SyncToSlave(Clock* slave)
+        {
+            double clock = this->Get();
+            double slave_clock = slave->Get();
+            if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD))
+                this->Set(slave_clock, slave->serial);
         }
     };
 
@@ -439,21 +626,38 @@ namespace Viry3D
         std::condition_variable m_condition;
         bool m_closed = true;
         
-        FrameQueue* m_picture_queue;
-        PacketQueue* m_video_queue;
+        FrameQueue* m_picture_queue = nullptr;
+        PacketQueue* m_video_queue = nullptr;
+        std::condition_variable* m_read_cond = nullptr;
+        Clock* m_video_clock = nullptr;
+        std::thread* m_read_thread = nullptr;
         
         VideoDecoderPrivate()
         {
             m_video_queue = new PacketQueue();
             m_picture_queue = new FrameQueue(m_video_queue, VIDEO_PICTURE_QUEUE_SIZE, true);
+            m_read_cond = new std::condition_variable();
+            m_video_clock = new Clock(&m_video_queue->serial);
         }
         
         ~VideoDecoderPrivate()
         {
             this->Close();
             
+            if (m_read_thread)
+            {
+                m_read_thread->join();
+                delete m_read_thread;
+            }
             delete m_video_queue;
             delete m_picture_queue;
+            delete m_read_cond;
+            delete m_video_clock;
+        }
+        
+        static void ReadThread(VideoDecoderPrivate* p)
+        {
+            
         }
         
         bool OpenFile(const String& path, bool loop)
@@ -462,6 +666,8 @@ namespace Viry3D
 			{
 				return false;
 			}
+            
+            m_read_thread = new std::thread(&ReadThread, this);
             
             m_format_context = nullptr;
             if (p_avformat_open_input(&m_format_context, path.CString(), nullptr, nullptr) != 0)
