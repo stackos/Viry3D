@@ -394,7 +394,7 @@ namespace Viry3D
         {
             double time_base = r2d(m_format_context->streams[m_video_stream]->time_base);
             int64_t timestamp = (int64_t) (time / time_base);
-            return p_av_seek_frame(m_format_context, m_video_stream, timestamp, AVSEEK_FLAG_ANY);
+            return p_av_seek_frame(m_format_context, m_video_stream, timestamp, AVSEEK_FLAG_BACKWARD);
         }
         
         const Image& DecodeFrame(float* present_time)
