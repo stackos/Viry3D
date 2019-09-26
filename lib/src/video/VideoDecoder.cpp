@@ -28,7 +28,6 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
-#include <libavutil/time.h>
 }
 
 #if VR_MAC
@@ -210,405 +209,6 @@ namespace Viry3D
 #endif
     }
 
-#define VIDEO_PICTURE_QUEUE_SIZE 3
-#define FRAME_QUEUE_SIZE VIDEO_PICTURE_QUEUE_SIZE
-#define AV_NOSYNC_THRESHOLD 10.0
-
-    struct PacketList
-    {
-        AVPacket pkt;
-        PacketList* next;
-        int serial;
-    };
-
-    struct PacketQueue
-    {
-        PacketList* first_pkt;
-        PacketList* last_pkt;
-        int nb_packets;
-        int size;
-        int64_t duration;
-        bool abort_request;
-        int serial;
-        std::mutex* mutex;
-        std::condition_variable* cond;
-        AVPacket flush_pkt;
-        
-        PacketQueue()
-        {
-            memset(this, 0, sizeof(PacketQueue));
-            mutex = new std::mutex();
-            cond = new std::condition_variable();
-            abort_request = true;
-            
-            p_av_init_packet(&flush_pkt);
-            flush_pkt.data = (uint8_t*) &flush_pkt;
-        }
-        
-        ~PacketQueue()
-        {
-            this->FLush();
-            delete mutex;
-            delete cond;
-        }
-        
-        void FLush()
-        {
-            mutex->lock();
-            for (PacketList* pkt = first_pkt; pkt; )
-            {
-                PacketList* pkt1 = pkt->next;
-                p_av_packet_unref(&pkt->pkt);
-                p_av_freep(&pkt);
-                pkt = pkt1;
-            }
-            last_pkt = nullptr;
-            first_pkt = nullptr;
-            nb_packets = 0;
-            size = 0;
-            duration = 0;
-            mutex->unlock();
-        }
-        
-        int Put(AVPacket* pkt)
-        {
-            int ret = 0;
-            
-            mutex->lock();
-            ret = PutPrivate(pkt);
-            mutex->unlock();
-            
-            if (pkt != &flush_pkt && ret < 0)
-                p_av_packet_unref(pkt);
-
-            return ret;
-        }
-        
-        int PutNullPacket(int stream_index)
-        {
-            AVPacket pkt1;
-            AVPacket* pkt = &pkt1;
-            av_init_packet(pkt);
-            pkt->data = nullptr;
-            pkt->size = 0;
-            pkt->stream_index = stream_index;
-            return this->Put(pkt);
-        }
-        
-        void Abort()
-        {
-            mutex->lock();
-            abort_request = 1;
-            cond->notify_one();
-            mutex->unlock();
-        }
-        
-        void Start()
-        {
-            mutex->lock();
-            abort_request = 0;
-            this->PutPrivate(&flush_pkt);
-            mutex->unlock();
-        }
-        
-        int Get(AVPacket* pkt, int block, int* serial)
-        {
-            int ret = 0;
-            std::unique_lock<std::mutex> lock(*mutex);
-            for (;;)
-            {
-                if (abort_request)
-                {
-                    ret = -1;
-                    break;
-                }
-
-                PacketList* pkt1 = first_pkt;
-                if (pkt1)
-                {
-                    first_pkt = pkt1->next;
-                    if (!first_pkt)
-                        last_pkt = nullptr;
-                    nb_packets--;
-                    size -= pkt1->pkt.size + sizeof(*pkt1);
-                    duration -= pkt1->pkt.duration;
-                    *pkt = pkt1->pkt;
-                    if (serial)
-                        *serial = pkt1->serial;
-                    av_free(pkt1);
-                    ret = 1;
-                    break;
-                }
-                else if (!block)
-                {
-                    ret = 0;
-                    break;
-                }
-                else
-                {
-                    cond->wait(lock);
-                }
-            }
-            return ret;
-        }
-        
-    private:
-        int PutPrivate(AVPacket* pkt)
-        {
-            if (abort_request)
-                return -1;
-
-            PacketList* pkt1 = (PacketList*) av_malloc(sizeof(PacketList));
-            if (!pkt1)
-                return -1;
-            pkt1->pkt = *pkt;
-            pkt1->next = nullptr;
-            if (pkt == &flush_pkt)
-                serial++;
-            pkt1->serial = serial;
-
-            if (!last_pkt)
-                first_pkt = pkt1;
-            else
-                last_pkt->next = pkt1;
-            last_pkt = pkt1;
-            nb_packets++;
-            size += pkt1->pkt.size + sizeof(*pkt1);
-            duration += pkt1->pkt.duration;
-            
-            cond->notify_one();
-            
-            return 0;
-        }
-    };
-
-    struct Clock
-    {
-        double pts;           /* clock base */
-        double pts_drift;     /* clock base minus time at which we updated the clock */
-        double last_updated;
-        double speed;
-        int serial;           /* clock is based on a packet with this serial */
-        int paused;
-        int* queue_serial;    /* pointer to the current packet queue serial, used for obsolete clock detection */
-        
-        Clock(int* queue_serial)
-        {
-            speed = 1.0;
-            paused = 0;
-            this->queue_serial = queue_serial;
-            this->Set(NAN, -1);
-        }
-        
-        void Set(double pts, int serial)
-        {
-            double time = p_av_gettime_relative() / 1000000.0;
-            this->SetAt(pts, serial, time);
-        }
-        
-        void SetAt(double pts, int serial, double time)
-        {
-            this->pts = pts;
-            last_updated = time;
-            pts_drift = this->pts - time;
-            this->serial = serial;
-        }
-        
-        double Get()
-        {
-            if (*queue_serial != serial)
-                return NAN;
-            if (paused)
-            {
-                return pts;
-            }
-            else
-            {
-                double time = p_av_gettime_relative() / 1000000.0;
-                return pts_drift + time - (time - last_updated) * (1.0 - speed);
-            }
-        }
-        
-        void SetSpeed(double speed)
-        {
-            this->Set(this->Get(), serial);
-            this->speed = speed;
-        }
-        
-        void SyncToSlave(Clock* slave)
-        {
-            double clock = this->Get();
-            double slave_clock = slave->Get();
-            if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD))
-                this->Set(slave_clock, slave->serial);
-        }
-    };
-
-    struct Frame
-    {
-        AVFrame* frame;
-        int serial;
-        double pts;           /* presentation timestamp for the frame */
-        double duration;      /* estimated duration of the frame */
-        int64_t pos;          /* byte position of the frame in the input file */
-        int width;
-        int height;
-        int format;
-        AVRational sar;
-        int uploaded;
-        int flip_v;
-        
-        void UnrefItem()
-        {
-            p_av_frame_unref(frame);
-        }
-    };
-
-    struct FrameQueue
-    {
-        Frame queue[FRAME_QUEUE_SIZE];
-        int rindex;
-        int windex;
-        int size;
-        int max_size;
-        bool keep_last;
-        int rindex_shown;
-        std::mutex* mutex;
-        std::condition_variable* cond;
-        PacketQueue* pktq;
-        
-        FrameQueue(PacketQueue* pktq, int max_size, bool keep_last)
-        {
-            memset(this, 0, sizeof(FrameQueue));
-            mutex = new std::mutex();
-            cond = new std::condition_variable();
-            this->pktq = pktq;
-            this->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
-            this->keep_last = keep_last;
-            for (int i = 0; i < this->max_size; i++)
-            {
-                queue[i].frame = p_av_frame_alloc();
-            }
-        }
-        
-        ~FrameQueue()
-        {
-            for (int i = 0; i < max_size; i++)
-            {
-                Frame* vp = &queue[i];
-                vp->UnrefItem();
-                p_av_frame_free(&vp->frame);
-            }
-            delete mutex;
-            delete cond;
-        }
-        
-        void Signal()
-        {
-            mutex->lock();
-            cond->notify_one();
-            mutex->unlock();
-        }
-        
-        Frame* Seek()
-        {
-            return &queue[(rindex + rindex_shown) % max_size];
-        }
-        
-        Frame* PeekNext()
-        {
-            return &queue[(rindex + rindex_shown + 1) % max_size];
-        }
-        
-        Frame* PeekLast()
-        {
-            return &queue[rindex];
-        }
-        
-        Frame* PeekWritable()
-        {
-            {
-                std::unique_lock<std::mutex> lock(*mutex);
-                cond->wait(lock, [this] {
-                    return size < max_size || pktq->abort_request;
-                });
-            }
-
-            if (pktq->abort_request)
-            {
-                return nullptr;
-            }
-
-            return &queue[windex];
-        }
-        
-        Frame* PeekReadable()
-        {
-            {
-                std::unique_lock<std::mutex> lock(*mutex);
-                cond->wait(lock, [this] {
-                    return size - rindex_shown > 0 || pktq->abort_request;
-                });
-            }
-
-            if (pktq->abort_request)
-            {
-                return nullptr;
-            }
-
-            return &queue[(rindex + rindex_shown) % max_size];
-        }
-        
-        void Push()
-        {
-            if (++windex == max_size)
-            {
-                windex = 0;
-            }
-            mutex->lock();
-            size++;
-            cond->notify_one();
-            mutex->unlock();
-        }
-        
-        void Next()
-        {
-            if (keep_last && !rindex_shown)
-            {
-                rindex_shown = 1;
-                return;
-            }
-            
-            queue[rindex].UnrefItem();
-            if (++rindex == max_size)
-            {
-                rindex = 0;
-            }
-            mutex->lock();
-            size--;
-            cond->notify_one();
-            mutex->unlock();
-        }
-        
-        int Remaining()
-        {
-            return size - rindex_shown;
-        }
-        
-        int64_t LastPos()
-        {
-            Frame* fp = &queue[rindex];
-            if (rindex_shown && fp->serial == pktq->serial)
-            {
-                return fp->pos;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-    };
-    
     class VideoDecoderPrivate
     {
     public:
@@ -625,39 +225,16 @@ namespace Viry3D
         std::mutex m_mutex;
         std::condition_variable m_condition;
         bool m_closed = true;
-        
-        FrameQueue* m_picture_queue = nullptr;
-        PacketQueue* m_video_queue = nullptr;
-        std::condition_variable* m_read_cond = nullptr;
-        Clock* m_video_clock = nullptr;
-        std::thread* m_read_thread = nullptr;
+        int m_fps = 30;
         
         VideoDecoderPrivate()
         {
-            m_video_queue = new PacketQueue();
-            m_picture_queue = new FrameQueue(m_video_queue, VIDEO_PICTURE_QUEUE_SIZE, true);
-            m_read_cond = new std::condition_variable();
-            m_video_clock = new Clock(&m_video_queue->serial);
+
         }
         
         ~VideoDecoderPrivate()
         {
             this->Close();
-            
-            if (m_read_thread)
-            {
-                m_read_thread->join();
-                delete m_read_thread;
-            }
-            delete m_video_queue;
-            delete m_picture_queue;
-            delete m_read_cond;
-            delete m_video_clock;
-        }
-        
-        static void ReadThread(VideoDecoderPrivate* p)
-        {
-            
         }
         
         bool OpenFile(const String& path, bool loop)
@@ -666,8 +243,6 @@ namespace Viry3D
 			{
 				return false;
 			}
-            
-            m_read_thread = new std::thread(&ReadThread, this);
             
             m_format_context = nullptr;
             if (p_avformat_open_input(&m_format_context, path.CString(), nullptr, nullptr) != 0)
@@ -772,11 +347,11 @@ namespace Viry3D
             {
                 p->m_free_frame_cache.AddLast(VideoDecoder::Frame());
             }
-
+            
             while (true)
             {
                 VideoDecoder::Frame frame;
-                
+
                 {
                     std::unique_lock<std::mutex> lock(p->m_mutex);
                     p->m_condition.wait(lock, [p] {
@@ -815,6 +390,13 @@ namespace Viry3D
             }
         }
         
+        int SeekTime(double time)
+        {
+            double time_base = r2d(m_format_context->streams[m_video_stream]->time_base);
+            int64_t timestamp = (int64_t) (time / time_base);
+            return p_av_seek_frame(m_format_context, m_video_stream, timestamp, AVSEEK_FLAG_ANY);
+        }
+        
         const Image& DecodeFrame(float* present_time)
         {
             m_out_image.Clear();
@@ -825,7 +407,7 @@ namespace Viry3D
             }
             
         read:
-            AVPacket packet;
+            AVPacket packet = { };
             int ret = p_av_read_frame(m_format_context, &packet);
             if (ret < 0)
             {
@@ -833,9 +415,7 @@ namespace Viry3D
                 {
                     if (m_loop)
                     {
-                        float second = 0;
-                        int64_t timestamp = (int64_t) (second * r2d(m_format_context->streams[m_video_stream]->time_base));
-                        ret = p_av_seek_frame(m_format_context, m_video_stream, timestamp, AVSEEK_FLAG_BACKWARD);
+                        ret = this->SeekTime(0);
                         if (ret < 0)
                         {
                             return m_out_image;
@@ -854,6 +434,12 @@ namespace Viry3D
                 {
                     return m_out_image;
                 }
+            }
+            
+            if (packet.stream_index != m_video_stream)
+            {
+                p_av_packet_unref(&packet);
+                goto read;
             }
             
             if (packet.stream_index == m_video_stream)
