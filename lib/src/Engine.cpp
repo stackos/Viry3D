@@ -39,6 +39,7 @@
 
 #if VR_WINDOWS
 #include <Windows.h>
+#undef SendMessage
 #elif VR_IOS
 #import <UIKit/UIKit.h>
 #elif VR_MAC
