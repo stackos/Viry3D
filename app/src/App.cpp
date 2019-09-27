@@ -511,6 +511,7 @@ namespace Viry3D
                 m_video_texture_v.reset();
                 m_scale_mode = ScaleMode::StretchToFill;
                 m_target_scale_mode = ScaleMode::ScaleAndCrop;
+
                 m_decoder->OpenFile(msg, true);
             });
             
@@ -545,23 +546,23 @@ namespace Viry3D
 
 		void Update()
         {
-			auto frame = m_decoder->GetFrame();
+            auto frame = m_decoder->GetFrame();
             const Image& image = frame.image;
             
-			if (image.width > 0 && image.height > 0)
-			{
+            if (image.data.Size() > 0)
+            {
                 int uv_w = image.width / 2;
                 int uv_h = image.height / 2;
                 
-				if (!m_video_texture_y)
-				{
-					m_video_texture_y = Texture::CreateTexture2D(
-						image.width,
-						image.height,
-						TextureFormat::R8,
-						FilterMode::Linear,
-						SamplerAddressMode::ClampToEdge,
-						false);
+                if (!m_video_texture_y)
+                {
+                    m_video_texture_y = Texture::CreateTexture2D(
+                        image.width,
+                        image.height,
+                        TextureFormat::R8,
+                        FilterMode::Linear,
+                        SamplerAddressMode::ClampToEdge,
+                        false);
                     m_video_texture_u = Texture::CreateTexture2D(
                         uv_w,
                         uv_h,
@@ -576,11 +577,11 @@ namespace Viry3D
                         FilterMode::Linear,
                         SamplerAddressMode::ClampToEdge,
                         false);
-					
+                    
                     m_material->SetTexture("u_texture_y", m_video_texture_y);
                     m_material->SetTexture("u_texture_u", m_video_texture_u);
                     m_material->SetTexture("u_texture_v", m_video_texture_v);
-				}
+                }
                 
                 m_video_texture_y->UpdateTexture(image.data, 0, 0, 0, 0, image.width, image.height);
                 m_video_texture_u->UpdateTexture(ByteBuffer(&image.data.Bytes()[image.width * image.height], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
@@ -630,7 +631,7 @@ namespace Viry3D
                         m_renderer->GetTransform()->SetScale(Vector3(image.width * scale, image.height * scale, 1.0f));
                     }
                 }
-			}
+            }
             
             m_decoder->ReleaseFrame(frame);
 		}
