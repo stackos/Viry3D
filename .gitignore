@@ -6,7 +6,6 @@
 *.pdb
 *.tmp
 *.iml
-*.mp4
 *.pri
 local.properties
 viry3d.lib

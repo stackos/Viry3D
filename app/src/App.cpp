@@ -518,6 +518,7 @@ namespace Viry3D
 			this->InitRenderer();
 
 			m_decoder = RefMake<VideoDecoder>();
+			m_decoder->OpenFile(Engine::Instance()->GetDataPath() + "/video/bg.mp4", true);
 		}
 
 		virtual ~AppImplementVPaper()
