@@ -19,6 +19,7 @@
 #include "Input.h"
 #include "time/Time.h"
 #include "container/List.h"
+#include "Debug.h"
 #include <Windows.h>
 #include <windowsx.h>
 
@@ -45,7 +46,8 @@ static HMENU g_tray_menu;
 static Engine* g_engine;
 
 #define WM_TRAY (WM_USER + 100)
-#define WM_TRAY_EXIT (WM_TRAY + 1)
+#define WM_TRAY_OPEN (WM_TRAY + 1)
+#define WM_TRAY_EXIT (WM_TRAY + 2)
 
 static int GetKeyCode(int wParam)
 {
@@ -221,7 +223,29 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 					GetCursorPos(&pt);
 					SetForegroundWindow(hWnd);
 					int cmd = TrackPopupMenu(g_tray_menu, TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, nullptr);
-					if (cmd == WM_TRAY_EXIT)
+					if (cmd == WM_TRAY_OPEN)
+					{
+						char file_name[260];
+						OPENFILENAME ofn;
+						ZeroMemory(&ofn, sizeof(ofn));
+						ofn.lStructSize = sizeof(ofn);
+						ofn.hwndOwner = hWnd;
+						ofn.lpstrFile = file_name;
+						ofn.lpstrFile[0] = '\0';
+						ofn.nMaxFile = sizeof(file_name);
+						ofn.lpstrFilter = "Video\0*.mp4\0";
+						ofn.nFilterIndex = 1;
+						ofn.lpstrFileTitle = nullptr;
+						ofn.nMaxFileTitle = 0;
+						ofn.lpstrInitialDir = nullptr;
+						ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+						if (GetOpenFileName(&ofn))
+						{
+							Log("%s", file_name);
+						}
+					}
+					else if (cmd == WM_TRAY_EXIT)
 					{
 						if (g_wallpaper_win != nullptr)
 						{
@@ -581,7 +605,8 @@ static void InitTray(HINSTANCE hInstance, HWND hWnd, const char* name, HICON ico
 	strcpy(g_tray_id.szTip, name);
 
 	g_tray_menu = CreatePopupMenu();
-	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_EXIT, TEXT("ÍË³ö"));
+	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_OPEN, TEXT("Open Video"));
+	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_EXIT, TEXT("Quit VPaper"));
 
 	Shell_NotifyIcon(NIM_ADD, &g_tray_id);
 }
