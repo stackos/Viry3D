@@ -48,6 +48,7 @@ static Engine* g_engine;
 #define WM_TRAY (WM_USER + 100)
 #define WM_TRAY_OPEN (WM_TRAY + 1)
 #define WM_TRAY_EXIT (WM_TRAY + 2)
+#undef SendMessage
 
 static int GetKeyCode(int wParam)
 {
@@ -235,14 +236,11 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 						ofn.nMaxFile = sizeof(file_name);
 						ofn.lpstrFilter = "Video\0*.mp4\0";
 						ofn.nFilterIndex = 1;
-						ofn.lpstrFileTitle = nullptr;
-						ofn.nMaxFileTitle = 0;
-						ofn.lpstrInitialDir = nullptr;
 						ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 						if (GetOpenFileName(&ofn))
 						{
-							Log("%s", file_name);
+							g_engine->SendMessage(0, file_name);
 						}
 					}
 					else if (cmd == WM_TRAY_EXIT)
@@ -734,7 +732,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			if (g_engine->HasQuit())
 			{
-				SendMessage(hwnd, WM_CLOSE, 0, 0);
+				SendMessageA(hwnd, WM_CLOSE, 0, 0);
 			}
 		}
     }
