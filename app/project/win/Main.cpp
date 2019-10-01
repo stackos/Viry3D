@@ -589,7 +589,7 @@ static BOOL CALLBACK EnumWindowsProc(_In_ HWND win, _In_ LPARAM param)
 	{
 		g_wallpaper_win = FindWindowEx(nullptr, win, "WorkerW", nullptr);
 	}
-	return true;
+	return TRUE;
 }
 
 static void InitTray(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
@@ -647,28 +647,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (desktop_window)
 	{
 		style = WS_POPUP;
-		window_width = GetSystemMetrics(SM_CXSCREEN);
-		window_height = GetSystemMetrics(SM_CYSCREEN);
-		wr = { 0, 0, window_width, window_height };
-		AdjustWindowRect(&wr, style, FALSE);
 	}
 
-    int x = (GetSystemMetrics(SM_CXSCREEN) - window_width) / 2 + wr.left;
-    int y = (GetSystemMetrics(SM_CYSCREEN) - window_height) / 2 + wr.top;
-    int w = wr.right - wr.left;
-    int h = wr.bottom - wr.top;
+    HWND hwnd = nullptr;
 
-    HWND hwnd = CreateWindowEx(
-        style_ex,			// window ex style
-        name.CString(),		// class name
-        name.CString(),		// app name
-        style,			    // window style
-        x, y,				// x, y
-        w, h,               // w, h
-        nullptr,		    // handle to parent
-        nullptr,            // handle to menu
-        hInstance,			// hInstance
-        nullptr);           // no extra parameters
+    {
+        int x = (GetSystemMetrics(SM_CXSCREEN) - window_width) / 2 + wr.left;
+        int y = (GetSystemMetrics(SM_CYSCREEN) - window_height) / 2 + wr.top;
+        int w = wr.right - wr.left;
+        int h = wr.bottom - wr.top;
+
+        hwnd = CreateWindowEx(
+            style_ex,			// window ex style
+            name.CString(),		// class name
+            name.CString(),		// app name
+            style,			    // window style
+            x, y,				// x, y
+            w, h,               // w, h
+            nullptr,		    // handle to parent
+            nullptr,            // handle to menu
+            hInstance,			// hInstance
+            nullptr);           // no extra parameters
+    }
+
     if (!hwnd)
     {
         return 0;
@@ -683,6 +684,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SetParent(hwnd, g_wallpaper_win);
 		ShowWindow(g_wallpaper_win, SW_SHOW);
 		InitTray(hInstance, hwnd, name.CString(), win_class.hIcon);
+
+        HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONULL);
+        if (monitor)
+        {
+            MONITORINFO monitor_info = { };
+            monitor_info.cbSize = sizeof(monitor_info);
+            GetMonitorInfo(monitor, &monitor_info);
+
+            window_width = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left;
+            window_height = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top;
+            MoveWindow(hwnd, 0, 0, window_width, window_height, true);
+        }
 	}
 
     ShowWindow(hwnd, SW_SHOW);
