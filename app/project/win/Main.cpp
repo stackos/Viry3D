@@ -43,6 +43,7 @@ static int g_window_height;
 static HWND g_wallpaper_win;
 static NOTIFYICONDATA g_tray_id;
 static HMENU g_tray_menu;
+static Vector<RECT> g_monitors;
 static Engine* g_engine;
 
 #define WM_TRAY (WM_USER + 100)
@@ -592,6 +593,33 @@ static BOOL CALLBACK EnumWindowsProc(_In_ HWND win, _In_ LPARAM param)
 	return TRUE;
 }
 
+static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT rect, LPARAM)
+{
+    g_monitors.Add(*rect);
+    return TRUE;
+}
+
+static void SwitchMonitor(HWND hwnd, int monitor_index, int& window_width, int& window_height)
+{
+    int left = 0x7FFFFFFF;
+    int top = 0x7FFFFFFF;
+    for (int i = 0; i < g_monitors.Size(); ++i)
+    {
+        if (g_monitors[i].left < left)
+        {
+            left = g_monitors[i].left;
+        }
+        if (g_monitors[i].top < top)
+        {
+            top = g_monitors[i].top;
+        }
+    }
+    const auto& rect = g_monitors[monitor_index];
+    window_width = rect.right - rect.left;
+    window_height = rect.bottom - rect.top;
+    MoveWindow(hwnd, rect.left - left, rect.top - top, window_width, window_height, true);
+}
+
 static void InitTray(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
 {
 	g_tray_id.cbSize = sizeof(NOTIFYICONDATA);
@@ -647,6 +675,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (desktop_window)
 	{
 		style = WS_POPUP;
+
+        EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, (LPARAM) nullptr);
 	}
 
     HWND hwnd = nullptr;
@@ -685,16 +715,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ShowWindow(g_wallpaper_win, SW_SHOW);
 		InitTray(hInstance, hwnd, name.CString(), win_class.hIcon);
 
-        HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONULL);
-        if (monitor)
+        if (g_monitors.Size() > 0)
         {
-            MONITORINFO monitor_info = { };
-            monitor_info.cbSize = sizeof(monitor_info);
-            GetMonitorInfo(monitor, &monitor_info);
-
-            window_width = monitor_info.rcMonitor.right - monitor_info.rcMonitor.left;
-            window_height = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top;
-            MoveWindow(hwnd, 0, 0, window_width, window_height, true);
+            SwitchMonitor(hwnd, 0, window_width, window_height);
         }
 	}
 
