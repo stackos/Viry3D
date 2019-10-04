@@ -48,7 +48,10 @@ static Engine* g_engine;
 
 #define WM_TRAY (WM_USER + 100)
 #define WM_TRAY_OPEN (WM_TRAY + 1)
-#define WM_TRAY_EXIT (WM_TRAY + 2)
+#define WM_TRAY_FPS_30 (WM_TRAY + 2)
+#define WM_TRAY_FPS_60 (WM_TRAY + 3)
+#define WM_TRAY_EXIT (WM_TRAY + 4)
+#define TRAY_FPS_POS 1
 #undef SendMessage
 
 static int GetKeyCode(int wParam)
@@ -244,6 +247,18 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 							g_engine->SendMessage(0, file_name);
 						}
 					}
+                    else if (cmd == WM_TRAY_FPS_30)
+                    {
+                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_FPS_POS);
+                        ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_30, TEXT("30"));
+                        ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_60, TEXT("60"));
+                    }
+                    else if (cmd == WM_TRAY_FPS_60)
+                    {
+                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_FPS_POS);
+                        ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_30, TEXT("30"));
+                        ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
+                    }
 					else if (cmd == WM_TRAY_EXIT)
 					{
 						if (g_wallpaper_win != nullptr)
@@ -620,7 +635,7 @@ static void SwitchMonitor(HWND hwnd, int monitor_index, int& window_width, int& 
     MoveWindow(hwnd, rect.left - left, rect.top - top, window_width, window_height, true);
 }
 
-static void InitTray(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
+static void InitTrayMenu(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
 {
 	g_tray_id.cbSize = sizeof(NOTIFYICONDATA);
 	g_tray_id.hWnd = hWnd;
@@ -632,9 +647,21 @@ static void InitTray(HINSTANCE hInstance, HWND hWnd, const char* name, HICON ico
 
 	g_tray_menu = CreatePopupMenu();
 	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_OPEN, TEXT("Open Video"));
+    {
+        HMENU menu_fps = CreatePopupMenu();
+        AppendMenu(menu_fps, MF_STRING, WM_TRAY_FPS_30, TEXT("30"));
+        AppendMenu(menu_fps, MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
+        AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_fps, TEXT("FPS"));
+    }
 	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_EXIT, TEXT("Quit VPaper"));
 
 	Shell_NotifyIcon(NIM_ADD, &g_tray_id);
+}
+
+static void FreeTrayMenu()
+{
+    DestroyMenu(g_tray_menu);
+    g_tray_menu = nullptr;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -713,7 +740,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		EnumWindows(EnumWindowsProc, (LPARAM) nullptr);
 		SetParent(hwnd, g_wallpaper_win);
 		ShowWindow(g_wallpaper_win, SW_SHOW);
-		InitTray(hInstance, hwnd, name.CString(), win_class.hIcon);
+
+		InitTrayMenu(hInstance, hwnd, name.CString(), win_class.hIcon);
 
         if (g_monitors.Size() > 0)
         {
@@ -771,6 +799,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				SendMessageA(hwnd, WM_CLOSE, 0, 0);
 			}
 		}
+    }
+
+    if (desktop_window)
+    {
+        FreeTrayMenu();
     }
 
 #ifndef NDEBUG
