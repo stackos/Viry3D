@@ -44,14 +44,17 @@ static HWND g_wallpaper_win;
 static NOTIFYICONDATA g_tray_id;
 static HMENU g_tray_menu;
 static Vector<RECT> g_monitors;
+static int g_monitor_index;
 static Engine* g_engine;
 
 #define WM_TRAY (WM_USER + 100)
-#define WM_TRAY_OPEN (WM_TRAY + 1)
-#define WM_TRAY_FPS_30 (WM_TRAY + 2)
-#define WM_TRAY_FPS_60 (WM_TRAY + 3)
-#define WM_TRAY_EXIT (WM_TRAY + 4)
-#define TRAY_FPS_POS 1
+#define WM_TRAY_EXIT (WM_TRAY + 1)
+#define WM_TRAY_OPEN (WM_TRAY + 2)
+#define WM_TRAY_FPS_30 (WM_TRAY + 3)
+#define WM_TRAY_FPS_60 (WM_TRAY + 4)
+#define WM_TRAY_MONITOR (WM_TRAY + 5)
+#define TRAY_POS_FPS 1
+#define TRAY_POS_MONITOR 2
 #undef SendMessage
 
 static int GetKeyCode(int wParam)
@@ -227,8 +230,19 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 					POINT pt;
 					GetCursorPos(&pt);
 					SetForegroundWindow(hWnd);
+
 					int cmd = TrackPopupMenu(g_tray_menu, TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, nullptr);
-					if (cmd == WM_TRAY_OPEN)
+                    if (cmd == WM_TRAY_EXIT)
+                    {
+                        if (g_wallpaper_win != nullptr)
+                        {
+                            ShowWindow(g_wallpaper_win, SW_HIDE);
+                            SetParent(hWnd, nullptr);
+                        }
+                        Shell_NotifyIcon(NIM_DELETE, &g_tray_id);
+                        PostMessage(hWnd, WM_CLOSE, 0, 0);
+                    }
+                    else if (cmd == WM_TRAY_OPEN)
 					{
 						char file_name[260];
 						OPENFILENAME ofn;
@@ -249,26 +263,29 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 					}
                     else if (cmd == WM_TRAY_FPS_30)
                     {
-                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_FPS_POS);
+                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
                         ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_30, TEXT("30"));
                         ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_60, TEXT("60"));
                     }
                     else if (cmd == WM_TRAY_FPS_60)
                     {
-                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_FPS_POS);
+                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
                         ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_30, TEXT("30"));
                         ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
                     }
-					else if (cmd == WM_TRAY_EXIT)
-					{
-						if (g_wallpaper_win != nullptr)
-						{
-							ShowWindow(g_wallpaper_win, SW_HIDE);
-							SetParent(hWnd, nullptr);
-						}
-						Shell_NotifyIcon(NIM_DELETE, &g_tray_id);
-						PostMessage(hWnd, WM_CLOSE, 0, 0);
-					}
+                    else if (cmd >= WM_TRAY_MONITOR)
+                    {
+                        HMENU menu_monitor = GetSubMenu(g_tray_menu, TRAY_POS_MONITOR);
+                        for (int i = 0; i < g_monitors.Size(); ++i)
+                        {
+                            int w = g_monitors[i].right - g_monitors[i].left;
+                            int h = g_monitors[i].bottom - g_monitors[i].top;
+                            String name = String::Format("%d:%dx%d", i, w, h);
+                            int checked = (i == (cmd - WM_TRAY_MONITOR)) ? MF_CHECKED : 0;
+                            int id = (UINT_PTR) ((int) WM_TRAY_MONITOR + i);
+                            ModifyMenu(menu_monitor, id, MF_STRING | checked, id, name.CString());
+                        }
+                    }
 					break;
 				}
 				case WM_LBUTTONDOWN:
@@ -633,6 +650,15 @@ static void SwitchMonitor(HWND hwnd, int monitor_index, int& window_width, int& 
     window_width = rect.right - rect.left;
     window_height = rect.bottom - rect.top;
     MoveWindow(hwnd, rect.left - left, rect.top - top, window_width, window_height, true);
+
+    g_monitor_index = monitor_index;
+}
+
+static void FindMonitors()
+{
+    g_monitors.Clear();
+
+    EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, (LPARAM) nullptr);
 }
 
 static void InitTrayMenu(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
@@ -647,11 +673,27 @@ static void InitTrayMenu(HINSTANCE hInstance, HWND hWnd, const char* name, HICON
 
 	g_tray_menu = CreatePopupMenu();
 	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_OPEN, TEXT("Open Video"));
+    // fps
     {
         HMENU menu_fps = CreatePopupMenu();
         AppendMenu(menu_fps, MF_STRING, WM_TRAY_FPS_30, TEXT("30"));
         AppendMenu(menu_fps, MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
         AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_fps, TEXT("FPS"));
+    }
+    // monitor
+    {
+        FindMonitors();
+
+        HMENU menu_monitor = CreatePopupMenu();
+        for (int i = 0; i < g_monitors.Size(); ++i)
+        {
+            int w = g_monitors[i].right - g_monitors[i].left;
+            int h = g_monitors[i].bottom - g_monitors[i].top;
+            String name = String::Format("%d:%dx%d", i, w, h);
+            int checked = (i == g_monitor_index) ? MF_CHECKED : 0;
+            AppendMenu(menu_monitor, MF_STRING | checked, (UINT_PTR) ((int) WM_TRAY_MONITOR + i), name.CString());
+        }
+        AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_monitor, TEXT("Monitor"));
     }
 	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_EXIT, TEXT("Quit VPaper"));
 
@@ -703,7 +745,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		style = WS_POPUP;
 
-        EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, (LPARAM) nullptr);
+        FindMonitors();
 	}
 
     HWND hwnd = nullptr;
@@ -741,12 +783,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SetParent(hwnd, g_wallpaper_win);
 		ShowWindow(g_wallpaper_win, SW_SHOW);
 
-		InitTrayMenu(hInstance, hwnd, name.CString(), win_class.hIcon);
-
         if (g_monitors.Size() > 0)
         {
             SwitchMonitor(hwnd, 0, window_width, window_height);
         }
+
+        InitTrayMenu(hInstance, hwnd, name.CString(), win_class.hIcon);
 	}
 
     ShowWindow(hwnd, SW_SHOW);
