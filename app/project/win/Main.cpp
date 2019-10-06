@@ -218,62 +218,155 @@ static void SwitchFullScreen(HWND hWnd)
     }
 }
 
+static BOOL CALLBACK EnumWindowsProc(_In_ HWND win, _In_ LPARAM param)
+{
+    HWND def_view = FindWindowEx(win, nullptr, "SHELLDLL_DefView", nullptr);
+    if (def_view != nullptr)
+    {
+        g_wallpaper_win = FindWindowEx(nullptr, win, "WorkerW", nullptr);
+    }
+    return TRUE;
+}
+
+static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT rect, LPARAM)
+{
+    g_monitors.Add(*rect);
+    return TRUE;
+}
+
+static void SwitchMonitor(HWND hwnd, int monitor_index, int& window_width, int& window_height)
+{
+    int left = 0x7FFFFFFF;
+    int top = 0x7FFFFFFF;
+    for (int i = 0; i < g_monitors.Size(); ++i)
+    {
+        if (g_monitors[i].left < left)
+        {
+            left = g_monitors[i].left;
+        }
+        if (g_monitors[i].top < top)
+        {
+            top = g_monitors[i].top;
+        }
+    }
+    const auto& rect = g_monitors[monitor_index];
+    window_width = rect.right - rect.left;
+    window_height = rect.bottom - rect.top;
+    MoveWindow(hwnd, rect.left - left, rect.top - top, window_width, window_height, true);
+
+    g_monitor_index = monitor_index;
+}
+
+static void FindMonitors()
+{
+    g_monitors.Clear();
+
+    EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, (LPARAM) nullptr);
+}
+
+static void InitTrayMenu(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
+{
+    g_tray_id.cbSize = sizeof(NOTIFYICONDATA);
+    g_tray_id.hWnd = hWnd;
+    g_tray_id.uID = WM_TRAY;
+    g_tray_id.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_INFO;
+    g_tray_id.uCallbackMessage = WM_TRAY;
+    g_tray_id.hIcon = icon;
+    strcpy(g_tray_id.szTip, name);
+
+    g_tray_menu = CreatePopupMenu();
+    AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_OPEN, TEXT("Open Video"));
+    // fps
+    {
+        HMENU menu_fps = CreatePopupMenu();
+        AppendMenu(menu_fps, MF_STRING, WM_TRAY_FPS_30, TEXT("30"));
+        AppendMenu(menu_fps, MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
+        AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_fps, TEXT("FPS"));
+    }
+    // monitor
+    {
+        FindMonitors();
+
+        HMENU menu_monitor = CreatePopupMenu();
+        for (int i = 0; i < g_monitors.Size(); ++i)
+        {
+            int w = g_monitors[i].right - g_monitors[i].left;
+            int h = g_monitors[i].bottom - g_monitors[i].top;
+            String name = String::Format("%d:%dx%d", i, w, h);
+            int checked = (i == g_monitor_index) ? MF_CHECKED : 0;
+            AppendMenu(menu_monitor, MF_STRING | checked, (UINT_PTR) ((int) WM_TRAY_MONITOR + i), name.CString());
+        }
+        AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_monitor, TEXT("Monitor"));
+    }
+    AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_EXIT, TEXT("Quit VPaper"));
+
+    Shell_NotifyIcon(NIM_ADD, &g_tray_id);
+}
+
+static void FreeTrayMenu()
+{
+    DestroyMenu(g_tray_menu);
+    g_tray_menu = nullptr;
+}
+
 static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
 		case WM_TRAY:
-			switch (lParam)
+			if (lParam == WM_RBUTTONDOWN)
 			{
-				case WM_RBUTTONDOWN:
+				POINT pt;
+				GetCursorPos(&pt);
+				SetForegroundWindow(hWnd);
+
+				int cmd = TrackPopupMenu(g_tray_menu, TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, nullptr);
+                if (cmd == WM_TRAY_EXIT)
+                {
+                    if (g_wallpaper_win != nullptr)
+                    {
+                        ShowWindow(g_wallpaper_win, SW_HIDE);
+                        SetParent(hWnd, nullptr);
+                    }
+                    Shell_NotifyIcon(NIM_DELETE, &g_tray_id);
+                    PostMessage(hWnd, WM_CLOSE, 0, 0);
+                }
+                else if (cmd == WM_TRAY_OPEN)
 				{
-					POINT pt;
-					GetCursorPos(&pt);
-					SetForegroundWindow(hWnd);
+					char file_name[260];
+					OPENFILENAME ofn;
+					ZeroMemory(&ofn, sizeof(ofn));
+					ofn.lStructSize = sizeof(ofn);
+					ofn.hwndOwner = hWnd;
+					ofn.lpstrFile = file_name;
+					ofn.lpstrFile[0] = '\0';
+					ofn.nMaxFile = sizeof(file_name);
+					ofn.lpstrFilter = "Video\0*.mp4\0";
+					ofn.nFilterIndex = 1;
+					ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-					int cmd = TrackPopupMenu(g_tray_menu, TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, nullptr);
-                    if (cmd == WM_TRAY_EXIT)
-                    {
-                        if (g_wallpaper_win != nullptr)
-                        {
-                            ShowWindow(g_wallpaper_win, SW_HIDE);
-                            SetParent(hWnd, nullptr);
-                        }
-                        Shell_NotifyIcon(NIM_DELETE, &g_tray_id);
-                        PostMessage(hWnd, WM_CLOSE, 0, 0);
-                    }
-                    else if (cmd == WM_TRAY_OPEN)
+					if (GetOpenFileName(&ofn))
 					{
-						char file_name[260];
-						OPENFILENAME ofn;
-						ZeroMemory(&ofn, sizeof(ofn));
-						ofn.lStructSize = sizeof(ofn);
-						ofn.hwndOwner = hWnd;
-						ofn.lpstrFile = file_name;
-						ofn.lpstrFile[0] = '\0';
-						ofn.nMaxFile = sizeof(file_name);
-						ofn.lpstrFilter = "Video\0*.mp4\0";
-						ofn.nFilterIndex = 1;
-						ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-						if (GetOpenFileName(&ofn))
-						{
-							g_engine->SendMessage(0, file_name);
-						}
+						g_engine->SendMessage(0, file_name);
 					}
-                    else if (cmd == WM_TRAY_FPS_30)
-                    {
-                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
-                        ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_30, TEXT("30"));
-                        ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_60, TEXT("60"));
-                    }
-                    else if (cmd == WM_TRAY_FPS_60)
-                    {
-                        HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
-                        ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_30, TEXT("30"));
-                        ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
-                    }
-                    else if (cmd >= WM_TRAY_MONITOR)
+				}
+                else if (cmd == WM_TRAY_FPS_30)
+                {
+                    HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
+                    ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_30, TEXT("30"));
+                    ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_60, TEXT("60"));
+                }
+                else if (cmd == WM_TRAY_FPS_60)
+                {
+                    HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
+                    ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_30, TEXT("30"));
+                    ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
+                }
+                else if (cmd >= WM_TRAY_MONITOR)
+                {
+                    int monitor_index = cmd - WM_TRAY_MONITOR;
+
+                    if (monitor_index != g_monitor_index)
                     {
                         HMENU menu_monitor = GetSubMenu(g_tray_menu, TRAY_POS_MONITOR);
                         for (int i = 0; i < g_monitors.Size(); ++i)
@@ -281,16 +374,19 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                             int w = g_monitors[i].right - g_monitors[i].left;
                             int h = g_monitors[i].bottom - g_monitors[i].top;
                             String name = String::Format("%d:%dx%d", i, w, h);
-                            int checked = (i == (cmd - WM_TRAY_MONITOR)) ? MF_CHECKED : 0;
+                            int checked = (i == monitor_index) ? MF_CHECKED : 0;
                             int id = (UINT_PTR) ((int) WM_TRAY_MONITOR + i);
                             ModifyMenu(menu_monitor, id, MF_STRING | checked, id, name.CString());
                         }
+
+                        if (g_wallpaper_win != nullptr)
+                        {
+                            int window_width = 0;
+                            int window_height = 0;
+                            SwitchMonitor(hWnd, monitor_index, window_width, window_height);
+                        }
                     }
-					break;
-				}
-				case WM_LBUTTONDOWN:
-					MessageBox(hWnd, "WM_LBUTTONDOWN", "", MB_OK);
-					break;
+                }
 			}
 			break;
 
@@ -613,97 +709,6 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     }
 
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-static BOOL CALLBACK EnumWindowsProc(_In_ HWND win, _In_ LPARAM param)
-{
-	HWND def_view = FindWindowEx(win, nullptr, "SHELLDLL_DefView", nullptr);
-	if (def_view != nullptr)
-	{
-		g_wallpaper_win = FindWindowEx(nullptr, win, "WorkerW", nullptr);
-	}
-	return TRUE;
-}
-
-static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT rect, LPARAM)
-{
-    g_monitors.Add(*rect);
-    return TRUE;
-}
-
-static void SwitchMonitor(HWND hwnd, int monitor_index, int& window_width, int& window_height)
-{
-    int left = 0x7FFFFFFF;
-    int top = 0x7FFFFFFF;
-    for (int i = 0; i < g_monitors.Size(); ++i)
-    {
-        if (g_monitors[i].left < left)
-        {
-            left = g_monitors[i].left;
-        }
-        if (g_monitors[i].top < top)
-        {
-            top = g_monitors[i].top;
-        }
-    }
-    const auto& rect = g_monitors[monitor_index];
-    window_width = rect.right - rect.left;
-    window_height = rect.bottom - rect.top;
-    MoveWindow(hwnd, rect.left - left, rect.top - top, window_width, window_height, true);
-
-    g_monitor_index = monitor_index;
-}
-
-static void FindMonitors()
-{
-    g_monitors.Clear();
-
-    EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, (LPARAM) nullptr);
-}
-
-static void InitTrayMenu(HINSTANCE hInstance, HWND hWnd, const char* name, HICON icon)
-{
-	g_tray_id.cbSize = sizeof(NOTIFYICONDATA);
-	g_tray_id.hWnd = hWnd;
-	g_tray_id.uID = WM_TRAY;
-	g_tray_id.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_INFO;
-	g_tray_id.uCallbackMessage = WM_TRAY;
-	g_tray_id.hIcon = icon;
-	strcpy(g_tray_id.szTip, name);
-
-	g_tray_menu = CreatePopupMenu();
-	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_OPEN, TEXT("Open Video"));
-    // fps
-    {
-        HMENU menu_fps = CreatePopupMenu();
-        AppendMenu(menu_fps, MF_STRING, WM_TRAY_FPS_30, TEXT("30"));
-        AppendMenu(menu_fps, MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
-        AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_fps, TEXT("FPS"));
-    }
-    // monitor
-    {
-        FindMonitors();
-
-        HMENU menu_monitor = CreatePopupMenu();
-        for (int i = 0; i < g_monitors.Size(); ++i)
-        {
-            int w = g_monitors[i].right - g_monitors[i].left;
-            int h = g_monitors[i].bottom - g_monitors[i].top;
-            String name = String::Format("%d:%dx%d", i, w, h);
-            int checked = (i == g_monitor_index) ? MF_CHECKED : 0;
-            AppendMenu(menu_monitor, MF_STRING | checked, (UINT_PTR) ((int) WM_TRAY_MONITOR + i), name.CString());
-        }
-        AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_monitor, TEXT("Monitor"));
-    }
-	AppendMenu(g_tray_menu, MF_STRING, WM_TRAY_EXIT, TEXT("Quit VPaper"));
-
-	Shell_NotifyIcon(NIM_ADD, &g_tray_id);
-}
-
-static void FreeTrayMenu()
-{
-    DestroyMenu(g_tray_menu);
-    g_tray_menu = nullptr;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
