@@ -45,6 +45,8 @@ static NOTIFYICONDATA g_tray_id;
 static HMENU g_tray_menu;
 static Vector<RECT> g_monitors;
 static int g_monitor_index;
+static int g_target_fps = 60;
+static float g_last_frame_time = -1;
 static Engine* g_engine;
 
 #define WM_TRAY (WM_USER + 100)
@@ -279,8 +281,8 @@ static void InitTrayMenu(HINSTANCE hInstance, HWND hWnd, const char* name, HICON
     // fps
     {
         HMENU menu_fps = CreatePopupMenu();
-        AppendMenu(menu_fps, MF_STRING, WM_TRAY_FPS_30, TEXT("30"));
-        AppendMenu(menu_fps, MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
+        AppendMenu(menu_fps, MF_STRING | (g_target_fps == 30 ? MF_CHECKED : 0), WM_TRAY_FPS_30, TEXT("30"));
+        AppendMenu(menu_fps, MF_STRING | (g_target_fps == 60 ? MF_CHECKED : 0), WM_TRAY_FPS_60, TEXT("60"));
         AppendMenu(g_tray_menu, MF_STRING | MF_POPUP, (UINT_PTR) menu_fps, TEXT("FPS"));
     }
     // monitor
@@ -355,12 +357,16 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                     HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
                     ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_30, TEXT("30"));
                     ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_60, TEXT("60"));
+
+                    g_target_fps = 30;
                 }
                 else if (cmd == WM_TRAY_FPS_60)
                 {
                     HMENU menu_fps = GetSubMenu(g_tray_menu, TRAY_POS_FPS);
                     ModifyMenu(menu_fps, WM_TRAY_FPS_30, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED, WM_TRAY_FPS_30, TEXT("30"));
                     ModifyMenu(menu_fps, WM_TRAY_FPS_60, MF_BYCOMMAND | MF_STRING | MF_CHECKED, WM_TRAY_FPS_60, TEXT("60"));
+
+                    g_target_fps = 60;
                 }
                 else if (cmd >= WM_TRAY_MONITOR)
                 {
@@ -839,7 +845,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				g_engine->OnResize(hwnd, g_window_width, g_window_height);
 			}
 
-			g_engine->Execute();
+            float target_frame_time = 1.0f / g_target_fps;
+            float frame_time = Time::GetRealTimeSinceStartup() - g_last_frame_time;
+            if (g_last_frame_time > 0 && frame_time < target_frame_time)
+            {
+                Thread::Sleep((int) ((target_frame_time - frame_time) * 1000));
+            }
+            g_last_frame_time = Time::GetRealTimeSinceStartup();
+			
+            g_engine->Execute();
 
 			if (g_engine->HasQuit())
 			{
