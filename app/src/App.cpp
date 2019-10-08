@@ -42,7 +42,6 @@
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
 #include "CameraSwitcher.h"
-#include "video/VideoDecoder.h"
 
 namespace Viry3D
 {
@@ -483,168 +482,13 @@ namespace Viry3D
 		}
 	};
 
-	class AppImplementVPaper : public AppImplement
-	{
-	public:
-        enum class ScaleMode
-        {
-            StretchToFill,
-            ScaleAndCrop,
-            ScaleToFit,
-        };
-        
-		Ref<VideoDecoder> m_decoder;
-		Ref<Texture> m_video_texture_y;
-        Ref<Texture> m_video_texture_u;
-        Ref<Texture> m_video_texture_v;
-		Ref<Material> m_material;
-        Ref<MeshRenderer> m_renderer;
-        ScaleMode m_scale_mode = ScaleMode::StretchToFill;
-        ScaleMode m_target_scale_mode = ScaleMode::ScaleAndCrop;
-
-		AppImplementVPaper()
-        {
-            Engine::Instance()->AddMessageHandler(0, [this](int id, const String& msg) {
-                this->m_decoder->Close();
-                m_video_texture_y.reset();
-                m_video_texture_u.reset();
-                m_video_texture_v.reset();
-                m_scale_mode = ScaleMode::StretchToFill;
-                m_target_scale_mode = ScaleMode::ScaleAndCrop;
-
-                m_decoder->OpenFile(msg, true);
-            });
-            
-			this->InitRenderer();
-
-			m_decoder = RefMake<VideoDecoder>();
-			m_decoder->OpenFile(Engine::Instance()->GetDataPath() + "/video/bg.mp4", true);
-		}
-
-		virtual ~AppImplementVPaper()
-		{
-			m_decoder->Close();
-		}
-
-		void InitRenderer()
-		{
-			auto camera = GameObject::Create("")->AddComponent<Camera>();
-			camera->SetOrthographic(true);
-			camera->SetOrthographicSize(Engine::Instance()->GetHeight() / 2.0f);
-			camera->SetNearClip(-1.0f);
-			camera->SetFarClip(1.0f);
-
-			m_material = RefMake<Material>(Shader::Find("YUV"));
-			m_material->SetTexture("u_texture_y", Texture::GetSharedBlackTexture());
-            m_material->SetTexture("u_texture_u", Texture::GetSharedBlackTexture());
-            m_material->SetTexture("u_texture_v", Texture::GetSharedBlackTexture());
-            
-			m_renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-			m_renderer->GetTransform()->SetScale(Vector3((float) Engine::Instance()->GetWidth(), (float) Engine::Instance()->GetHeight(), 1.0f));
-			m_renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Quad.mesh"));
-			m_renderer->SetMaterial(m_material);
-		}
-
-		void Update()
-        {
-            auto frame = m_decoder->GetFrame();
-            const Image& image = frame.image;
-            
-            if (image.data.Size() > 0)
-            {
-                int uv_w = image.width / 2;
-                int uv_h = image.height / 2;
-                
-                if (!m_video_texture_y)
-                {
-                    m_video_texture_y = Texture::CreateTexture2D(
-                        image.width,
-                        image.height,
-                        TextureFormat::R8,
-                        FilterMode::Linear,
-                        SamplerAddressMode::ClampToEdge,
-                        false);
-                    m_video_texture_u = Texture::CreateTexture2D(
-                        uv_w,
-                        uv_h,
-                        TextureFormat::R8,
-                        FilterMode::Linear,
-                        SamplerAddressMode::ClampToEdge,
-                        false);
-                    m_video_texture_v = Texture::CreateTexture2D(
-                        uv_w,
-                        uv_h,
-                        TextureFormat::R8,
-                        FilterMode::Linear,
-                        SamplerAddressMode::ClampToEdge,
-                        false);
-                    
-                    m_material->SetTexture("u_texture_y", m_video_texture_y);
-                    m_material->SetTexture("u_texture_u", m_video_texture_u);
-                    m_material->SetTexture("u_texture_v", m_video_texture_v);
-                }
-                
-                m_video_texture_y->UpdateTexture(image.data, 0, 0, 0, 0, image.width, image.height);
-                m_video_texture_u->UpdateTexture(ByteBuffer(&image.data.Bytes()[image.width * image.height], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
-                m_video_texture_v->UpdateTexture(ByteBuffer(&image.data.Bytes()[image.width * image.height + uv_w * uv_h], uv_w * uv_h), 0, 0, 0, 0, uv_w, uv_h);
-                
-                Log("fps:%d present_time:%f time:%f", Time::GetFPS(), frame.present_time, Time::GetTime());
-                
-                if (m_target_scale_mode != m_scale_mode)
-                {
-                    m_scale_mode = m_target_scale_mode;
-                    
-                    float ratio_screen = Engine::Instance()->GetWidth() / (float) Engine::Instance()->GetHeight();
-                    float ratio_image = image.width / (float) image.height;
-                    
-                    if (m_scale_mode == ScaleMode::StretchToFill)
-                    {
-                        m_renderer->GetTransform()->SetScale(Vector3((float) Engine::Instance()->GetWidth(), (float) Engine::Instance()->GetHeight(), 1.0f));
-                    }
-                    else if (m_scale_mode == ScaleMode::ScaleToFit)
-                    {
-                        float scale = 1.0f;
-                        
-                        if (ratio_image > ratio_screen)
-                        {
-                            scale = Engine::Instance()->GetWidth() / (float) image.width;
-                        }
-                        else
-                        {
-                            scale = Engine::Instance()->GetHeight() / (float) image.height;
-                        }
-                        
-                        m_renderer->GetTransform()->SetScale(Vector3(image.width * scale, image.height * scale, 1.0f));
-                    }
-                    else if (m_scale_mode == ScaleMode::ScaleAndCrop)
-                    {
-                        float scale = 1.0f;
-                        
-                        if (ratio_image < ratio_screen)
-                        {
-                            scale = Engine::Instance()->GetWidth() / (float) image.width;
-                        }
-                        else
-                        {
-                            scale = Engine::Instance()->GetHeight() / (float) image.height;
-                        }
-                        
-                        m_renderer->GetTransform()->SetScale(Vector3(image.width * scale, image.height * scale, 1.0f));
-                    }
-                }
-            }
-            
-            m_decoder->ReleaseFrame(frame);
-		}
-	};
-
     App::App()
     {
-        m_implement = RefMake<AppImplementVPaper>();
+        m_implement = RefMake<AppImplementGLES2>();
     }
     
     void App::Update()
     {
-		RefCast<AppImplementVPaper>(m_implement)->Update();
+		RefCast<AppImplementGLES2>(m_implement)->Update();
     }
 }
