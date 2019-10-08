@@ -484,11 +484,11 @@ namespace Viry3D
 
     App::App()
     {
-        m_implement = RefMake<AppImplementGLES2>();
+        m_implement = RefMake<AppImplementUnityChan>();
     }
     
     void App::Update()
     {
-		RefCast<AppImplementGLES2>(m_implement)->Update();
+		RefCast<AppImplementUnityChan>(m_implement)->Update();
     }
 }

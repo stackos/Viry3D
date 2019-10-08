@@ -22,6 +22,5 @@
 - (void)setWindow:(NSWindow*)window;
 - (void)onResize:(int)width :(int)height;
 - (void)drawFrame;
-- (void)openVideo;
 
 @end

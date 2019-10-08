@@ -29,24 +29,13 @@
     NSRect window_rect = NSMakeRect(0, 0, 1280, 720);
     
     int style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-    
-    bool desktop_window = true;
-    if (desktop_window) {
-        style = NSWindowStyleMaskBorderless;
-        window_rect = NSScreen.mainScreen.frame;
-    }
 
     NSRect frame = [NSWindow frameRectForContentRect:window_rect styleMask:style];
     NSWindow* window = [[NSWindow alloc] initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:TRUE];
     window.title = [NSString stringWithUTF8String:name];
     [window makeKeyAndOrderFront:nil];
     window.delegate = self;
-    
-    if (desktop_window) {
-        window.level = kCGDesktopWindowLevel;
-    } else {
-        [window center];
-    }
+    [window center];
     
     ViewController* view_controller = [[ViewController alloc] init];
     [view_controller setWindow:window];
@@ -73,11 +62,6 @@
     
     [(ViewController*) window.contentViewController onResize:window_width :window_height];
     return frameSize;
-}
-
-- (void)openVideo {
-    ViewController* view_controller = (ViewController*) m_window.contentViewController;
-    [view_controller openVideo];
 }
 
 - (void)quit {

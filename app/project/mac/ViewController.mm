@@ -98,7 +98,7 @@ static bool g_mouse_down = false;
 
     m_frame_handler = [FrameHandler new];
     [m_frame_handler setViewController:self];
-    m_timer = [NSTimer timerWithTimeInterval:1.0f / 30 target:m_frame_handler selector:@selector(drawFrame) userInfo:nil repeats:YES];
+    m_timer = [NSTimer timerWithTimeInterval:1.0f / 60 target:m_frame_handler selector:@selector(drawFrame) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:m_timer forMode:NSDefaultRunLoopMode];
     
     m_target_width = window_width;
@@ -280,19 +280,6 @@ static bool g_mouse_down = false;
     e.time = [event timestamp];
     
     [self onMouseDrag:&e];
-}
-
-- (void)openVideo {
-    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-    [openPanel setAllowsMultipleSelection:NO];
-    [openPanel setAllowedFileTypes:[NSArray arrayWithObject:@"mp4"]];
-    [openPanel setMessage:@"Please select one video file as wallpaper."];
-    [openPanel beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse result) {
-        if (result == NSModalResponseOK) {
-            String file = [[openPanel filename] UTF8String];
-            m_engine->SendMessage(0, file);
-        }
-    }];
 }
 
 @end

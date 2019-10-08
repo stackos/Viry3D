@@ -26,14 +26,7 @@ void initMenu(NSApplication* app) {
     NSMenu* appMenu = [NSMenu new];
     appMenuItem.submenu = appMenu;
     
-    NSMenuItem* openVideoItem = [[NSMenuItem alloc] initWithTitle:@"Open Video" action:nil keyEquivalent:@""];
-    openVideoItem.target = app.delegate;
-    openVideoItem.action = @selector(openVideo);
-    [appMenu addItem:openVideoItem];
-    
-    [appMenu addItem:NSMenuItem.separatorItem];
-    
-    NSMenuItem* quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit VPaper" action:nil keyEquivalent:@"q"];
+    NSMenuItem* quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit Viry3DApp" action:nil keyEquivalent:@"q"];
     quitItem.target = app.delegate;
     quitItem.action = @selector(quit);
     [appMenu addItem:quitItem];
