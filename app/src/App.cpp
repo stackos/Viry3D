@@ -42,6 +42,7 @@
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
 #include "CameraSwitcher.h"
+#include "json/json.h"
 
 namespace Viry3D
 {
@@ -410,6 +411,10 @@ namespace Viry3D
 	{
 	public:
         Label* m_fps_label = nullptr;
+        Ref<Json::Value> m_freq;
+        float m_time_begin = -1;
+        int m_freq_index = 0;
+        Vector<Sprite*> m_spectrum_sprites;
         
 		AppImplementGLES2()
 		{
@@ -417,6 +422,7 @@ namespace Viry3D
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
 			camera->SetCullingMask(1 << 0);
 
+            /*
 			auto texture = Texture::LoadFromKTXFile(
 #if VR_IOS
                 Engine::Instance()->GetDataPath() + "/texture/ktx/checkflag_PVRTC_RGB_4V1.KTX",
@@ -435,8 +441,10 @@ namespace Viry3D
 			renderer->GetGameObject()->SetLayer(0);
 			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
 			renderer->SetMaterial(material);
+            */
             
             this->InitUI();
+            this->InitAudio();
 		}
         
         void InitUI()
@@ -459,6 +467,7 @@ namespace Viry3D
             canvas->AddView(label);
             m_fps_label = label.get();
 
+            /*
 			auto sprite = RefMake<Sprite>();
 			sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
 			sprite->SetPivot(Vector2(0, 0.5f));
@@ -471,6 +480,53 @@ namespace Viry3D
 				Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
 				sprite->SetTexture(texture);
 			});
+            */
+            
+            m_spectrum_sprites.Resize(16);
+            for (int i = 0; i < m_spectrum_sprites.Size(); i++)
+            {
+                auto freq = RefMake<Sprite>();
+                freq->SetAlignment(ViewAlignment::Left | ViewAlignment::Bottom);
+                freq->SetPivot(Vector2(0, 1));
+                freq->SetOffset(Vector2i(5 + i * 105, 0));
+                freq->SetSize(Vector2i(100, 1000));
+                canvas->AddView(freq);
+                
+                m_spectrum_sprites[i] = freq.get();
+            }
+        }
+        
+        void InitAudio()
+        {
+            auto listener = AudioManager::GetListener();
+            listener->GetTransform()->SetLocalPosition(Vector3(0, 0, 0));
+            listener->GetTransform()->SetLocalRotation(Quaternion::Euler(0, 0, 0));
+            
+            auto json = File::ReadAllText(Engine::Instance()->GetDataPath() + "/audio/falling_freq.json");
+            auto reader = Ref<Json::CharReader>(Json::CharReaderBuilder().newCharReader());
+            m_freq = RefMake<Json::Value>();
+            const char* begin = json.CString();
+            const char* end = begin + json.Size();
+            if (reader->parse(begin, end, m_freq.get(), nullptr))
+            {
+                if (!m_freq->isArray())
+                {
+                    m_freq.reset();
+                }
+            }
+            else
+            {
+                m_freq.reset();
+            }
+            
+            auto audio_path = "audio/falling.mp3";
+            auto audio_clip = AudioClip::LoadMp3FromFile(Engine::Instance()->GetDataPath() + "/" + audio_path);
+            auto audio_source = GameObject::Create("")->AddComponent<AudioSource>().get();
+            audio_source->SetClip(audio_clip);
+            audio_source->SetLoop(false);
+            audio_source->Play();
+            
+            m_time_begin = Time::GetRealTimeSinceStartup();
         }
 
 		void Update()
@@ -479,16 +535,66 @@ namespace Viry3D
             {
                 m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
             }
+            
+            if (m_freq)
+            {
+                float t = Time::GetRealTimeSinceStartup() - m_time_begin;
+                const Json::Value* freqs = nullptr;
+
+                for (int i = m_freq_index; i < m_freq->size(); i++)
+                {
+                    const auto& frame = (*m_freq)[i];
+                    if (frame.isObject())
+                    {
+                        float pts = frame["pts"].asFloat();
+                        if (pts >= t)
+                        {
+                            freqs = &frame["frequency"];
+                            m_freq_index = i;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                
+                if (freqs && freqs->isArray())
+                {
+                    assert(freqs->size() == 16);
+                    
+                    static float fmin = Mathf::MaxFloatValue;
+                    static float fmax = Mathf::MinFloatValue;
+                    
+                    for (int i = 0; i < freqs->size(); i++)
+                    {
+                        float f = (*freqs)[i].asFloat();
+                        if (f < fmin)
+                        {
+                            fmin = f;
+                        }
+                        if (f > fmax)
+                        {
+                            fmax = f;
+                        }
+                        
+                        float fn = 800 * f / 65535;
+                        if (fn > 1.0) fn = 1.0;
+                        m_spectrum_sprites[i]->SetSize(Vector2i(100, (int) (1000 * fn)));
+                    }
+                }
+            }
 		}
 	};
 
     App::App()
     {
-        m_implement = RefMake<AppImplementUnityChan>();
+        m_implement = RefMake<AppImplementGLES2>();
     }
     
     void App::Update()
     {
-		RefCast<AppImplementUnityChan>(m_implement)->Update();
+		RefCast<AppImplementGLES2>(m_implement)->Update();
     }
 }
