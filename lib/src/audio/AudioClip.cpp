@@ -363,7 +363,7 @@ namespace Viry3D
         ALuint buffer = 0;
         alGenBuffers(1, &buffer);
         AudioClipPrivate::BufferData(buffer, pcm->channels, bytes * 8, clip->m_out_buffer.Bytes(), pcm->length * bytes * pcm->channels, header->samplerate);
-
+        
         bool exit = false;
         int buffer_count = 0;
 

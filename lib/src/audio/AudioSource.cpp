@@ -21,6 +21,7 @@
 #include "container/List.h"
 #include "Debug.h"
 #include "Transform.h"
+#include "time/Time.h"
 
 #if VR_MAC || VR_IOS
 #include <OpenAL/OpenAL.h>
@@ -38,7 +39,7 @@ namespace Viry3D
         List<ALuint> m_stream_buffers;
         bool m_wait_for_play;
         bool m_paused;
-
+        
         AudioSourcePrivate():
             m_source(0),
             m_loop(false),
