@@ -459,18 +459,22 @@ namespace Viry3D
             canvas->AddView(label);
             m_fps_label = label.get();
 
-			auto sprite = RefMake<Sprite>();
-			sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
-			sprite->SetPivot(Vector2(0, 0.5f));
-			sprite->SetOffset(Vector2i(0, 0));
-			canvas->AddView(sprite);
+            for (int i = 0; i < 4; ++i)
+			{
+                auto sprite = RefMake<Sprite>();
+                sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
+                sprite->SetPivot(Vector2(0, 0.5f));
+                sprite->SetOffset(Vector2i(i * 400, 0));
+                sprite->SetSize(Vector2i(360, 360));
+                canvas->AddView(sprite);
 
-			Resources::LoadFileFromUrlAsync("texture/logo.jpg", [=](const ByteBuffer& buffer) {
-				Log("buffer size %d", buffer.Size());
-				auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
-				Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
-				sprite->SetTexture(texture);
-			});
+                Resources::LoadFileFromUrlAsync("texture/logo.jpg", [=](const ByteBuffer& buffer) {
+                    Log("buffer size %d", buffer.Size());
+                    auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+                    Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
+                    sprite->SetTexture(texture);
+                });
+            }
         }
 
 		void Update()
