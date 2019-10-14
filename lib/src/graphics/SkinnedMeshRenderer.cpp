@@ -144,8 +144,6 @@ namespace Viry3D
 
     void SkinnedMeshRenderer::Prepare()
     {
-		MeshRenderer::Prepare();
-
         const auto& materials = this->GetMaterials();
         const auto& mesh = this->GetMesh();
 
@@ -259,6 +257,8 @@ namespace Viry3D
 
 			driver.updateVertexBuffer(m_vb, 0, filament::backend::BufferDescriptor(buffer, vertices.SizeInBytes()), 0);
 		}
+        
+        MeshRenderer::Prepare();
     }
 
     Vector<filament::backend::RenderPrimitiveHandle> SkinnedMeshRenderer::GetPrimitives()

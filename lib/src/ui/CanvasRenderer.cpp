@@ -97,8 +97,8 @@ namespace Viry3D
 
 	void CanvasRenderer::Prepare()
 	{
-		MeshRenderer::Prepare();
-
+        this->HandleTouchEvent();
+        
         for (int i = 0; i < m_views.Size(); ++i)
         {
             m_views[i]->Update();
@@ -131,8 +131,8 @@ namespace Viry3D
 
             this->UpdateCanvas();
 		}
-
-		this->HandleTouchEvent();
+        
+        MeshRenderer::Prepare();
 	}
 
     void CanvasRenderer::OnResize(int width, int height)
@@ -232,16 +232,17 @@ namespace Viry3D
         }
 
         Vector<Mesh::Submesh> submeshes;
+        Vector<int> texture_layers;
         Vector<Rect> clip_rects;
         Vector<Mesh::Vertex> vertices;
         Vector<unsigned int> indices;
-        
+
         for (const auto& i : m_view_meshes)
         {
             if (i.vertices.Size() > 0 && i.indices.Size() > 0 && (i.texture || i.image))
             {
                 int index_offset = vertices.Size();
-
+                
                 if (clip_rects.Size() == 0 || i.clip_rect != clip_rects[clip_rects.Size() - 1])
                 {
                     clip_rects.Add(i.clip_rect);
@@ -250,10 +251,26 @@ namespace Viry3D
                     submesh.index_first = indices.Size();
                     submesh.index_count = i.indices.Size();
                     submeshes.Add(submesh);
+                    
+                    texture_layers.Add((int) i.vertices[0].uv2.x);
                 }
                 else
                 {
-                    submeshes[submeshes.Size() - 1].index_count += i.indices.Size();
+                    if ((int) i.vertices[0].uv2.x != texture_layers[texture_layers.Size() - 1])
+                    {
+                        clip_rects.Add(i.clip_rect);
+
+                        Mesh::Submesh submesh;
+                        submesh.index_first = indices.Size();
+                        submesh.index_count = i.indices.Size();
+                        submeshes.Add(submesh);
+                        
+                        texture_layers.Add((int) i.vertices[0].uv2.x);
+                    }
+                    else
+                    {
+                        submeshes[submeshes.Size() - 1].index_count += i.indices.Size();
+                    }
                 }
 
                 vertices.AddRange(i.vertices);
@@ -293,14 +310,12 @@ namespace Viry3D
             Vector<Ref<Material>> materials(submeshes.Size());
             for (int i = 0; i < materials.Size(); ++i)
             {
-                materials[i] = RefMake<Material>(this->GetMaterial()->GetShader());
+                materials[i] = RefMake<Material>(Shader::Find("UI"));
                 materials[i]->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
 				materials[i]->SetScissorRect(clip_rects[i]);
+                materials[i]->SetTexture(MaterialProperty::TEXTURE, m_atlases[texture_layers[i]]);
 			}
-            if (materials.Size() > 0)
-            {
-                this->SetMaterials(materials);
-            }
+            this->SetMaterials(materials);
         }
         else
         {
@@ -311,6 +326,7 @@ namespace Viry3D
                 {
 					materials[i]->SetScissorRect(clip_rects[i]);
                 }
+                materials[i]->SetTexture(MaterialProperty::TEXTURE, m_atlases[texture_layers[i]]);
             }
         }
 
