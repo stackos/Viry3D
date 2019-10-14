@@ -37,7 +37,6 @@ namespace Viry3D
 {
 	CanvasRenderer::CanvasRenderer(FilterMode filter_mode):
 		m_canvas_dirty(true),
-        m_atlas_array_size(0),
         m_filter_mode(filter_mode)
 	{
 		this->CreateMaterial();
@@ -77,23 +76,15 @@ namespace Viry3D
         ByteBuffer buffer(ATLAS_SIZE * ATLAS_SIZE * 4);
         Memory::Set(&buffer[0], 0, buffer.Size());
 
-        if (!m_atlas)
-        {
-            m_atlas_array_size = 1;
-
-			m_atlas = Texture::CreateTexture2DFromMemory(
-				buffer,
-				ATLAS_SIZE,
-				ATLAS_SIZE,
-				TextureFormat::R8G8B8A8,
-				m_filter_mode,
-				SamplerAddressMode::ClampToEdge,
-				false);
-        }
-        else
-        {
-            assert(false);
-        }
+        auto atlas = Texture::CreateTexture2DFromMemory(
+            buffer,
+            ATLAS_SIZE,
+            ATLAS_SIZE,
+            TextureFormat::R8G8B8A8,
+            m_filter_mode,
+            SamplerAddressMode::ClampToEdge,
+            false);
+        m_atlases.Add(atlas);
 
         AtlasTreeNode* layer = new AtlasTreeNode();
         layer->rect.x = 0;
@@ -102,12 +93,6 @@ namespace Viry3D
         layer->rect.h = ATLAS_SIZE;
         layer->layer = m_atlas_tree.Size();
         m_atlas_tree.Add(layer);
-
-        const auto& materials = this->GetMaterials();
-        for (auto& i : materials)
-        {
-            i->SetTexture(MaterialProperty::TEXTURE, m_atlas);
-        }
     }
 
 	void CanvasRenderer::Prepare()
@@ -310,7 +295,6 @@ namespace Viry3D
             {
                 materials[i] = RefMake<Material>(this->GetMaterial()->GetShader());
                 materials[i]->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
-                materials[i]->SetTexture(MaterialProperty::TEXTURE, m_atlas);
 				materials[i]->SetScissorRect(clip_rects[i]);
 			}
             if (materials.Size() > 0)
@@ -336,15 +320,17 @@ namespace Viry3D
         {
             ByteBuffer pixels(ATLAS_SIZE * ATLAS_SIZE * 4);
             
-			m_atlas->CopyToMemory(pixels, 0, 0, 0, 0, ATLAS_SIZE, ATLAS_SIZE,
-				[](const ByteBuffer& buffer) {
-					auto image = RefMake<Image>();
-					image->width = ATLAS_SIZE;
-					image->height = ATLAS_SIZE;
-					image->format = ImageFormat::R8G8B8A8;
-					image->data = buffer;
-					image->EncodeToPNG(String::Format("%s/atlas.png", Engine::Instance()->GetSavePath().CString()));
-				});
+            for (int i = 0; i < m_atlases.Size(); i++)
+            {
+                m_atlases[i]->CopyToMemory(pixels, 0, 0, 0, 0, ATLAS_SIZE, ATLAS_SIZE, [i](const ByteBuffer& buffer) {
+                    auto image = RefMake<Image>();
+                    image->width = ATLAS_SIZE;
+                    image->height = ATLAS_SIZE;
+                    image->format = ImageFormat::R8G8B8A8;
+                    image->data = buffer;
+                    image->EncodeToPNG(String::Format("%s/atlas_%d.png", Engine::Instance()->GetSavePath().CString(), i));
+                });
+            }
         }
 #endif
     }
@@ -432,8 +418,8 @@ namespace Viry3D
             // add cache
             if (mesh.texture)
             {
-                m_atlas->CopyTexture(
-					node->layer, 0,
+                m_atlases[node->layer]->CopyTexture(
+					0, 0,
 					node->rect.x, node->rect.y,
 					node->rect.w, node->rect.h,
                     mesh.texture,
@@ -446,7 +432,7 @@ namespace Viry3D
             }
             else if (mesh.image)
             {
-                m_atlas->UpdateTexture(
+                m_atlases[node->layer]->UpdateTexture(
                     mesh.image->data,
 					0, 0,
                     node->rect.x, node->rect.y,

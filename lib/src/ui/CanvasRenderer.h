@@ -68,8 +68,7 @@ namespace Viry3D
 	private:
 		Vector<Ref<View>> m_views;
 		bool m_canvas_dirty;
-        Ref<Texture> m_atlas;
-        int m_atlas_array_size;
+        Vector<Ref<Texture>> m_atlases;
         Vector<AtlasTreeNode*> m_atlas_tree;
         Map<int, AtlasTreeNode*> m_atlas_cache;
         Vector<ViewMesh> m_view_meshes;
