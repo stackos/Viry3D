@@ -416,6 +416,8 @@ namespace Viry3D
 		{
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
+            camera->SetDepth(0);
+            camera->SetCullingMask(1 << 0);
 
 			auto texture = Texture::LoadFromKTXFile(
 #if VR_IOS
@@ -443,7 +445,7 @@ namespace Viry3D
         {
             auto ui_camera = GameObject::Create("")->AddComponent<Camera>();
             ui_camera->SetClearFlags(CameraClearFlags::Nothing);
-            ui_camera->SetDepth(3);
+            ui_camera->SetDepth(1);
             ui_camera->SetCullingMask(1 << 1);
             
             auto canvas = GameObject::Create("")->AddComponent<CanvasRenderer>(FilterMode::Linear);
