@@ -458,21 +458,22 @@ namespace Viry3D
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             canvas->AddView(label);
             m_fps_label = label.get();
+            m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
 
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < 1; ++i)
 			{
                 auto sprite = RefMake<Sprite>();
                 sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
                 sprite->SetPivot(Vector2(0, 0.5f));
-                sprite->SetOffset(Vector2i(i * 400, 0));
-                sprite->SetSize(Vector2i(360, 360));
+                sprite->SetOffset(Vector2i(i * 220, 0));
+                sprite->SetSize(Vector2i(200, 200));
                 canvas->AddView(sprite);
 
                 Resources::LoadFileFromUrlAsync("texture/logo.jpg", [=](const ByteBuffer& buffer) {
                     Log("buffer size %d", buffer.Size());
                     auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
                     Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
-                    sprite->SetTexture(texture);
+                    //sprite->SetTexture(texture);
                 });
             }
         }
@@ -481,7 +482,7 @@ namespace Viry3D
 		{
             if (m_fps_label)
             {
-                m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
+                //m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
             }
 		}
 	};
