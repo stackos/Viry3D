@@ -422,8 +422,8 @@ namespace Viry3D
         bool cast_shadow = ms.Read<byte>() == 1;
         bool receive_shadow = ms.Read<byte>() == 1;
 
-        (void) cast_shadow;
-        (void) receive_shadow;
+        renderer->EnableCastShadow(cast_shadow);
+        renderer->EnableRecieveShadow(receive_shadow);
         
         int material_count = ms.Read<int>();
 		Vector<Ref<Material>> materials(material_count);

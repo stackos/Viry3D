@@ -489,13 +489,49 @@ namespace Viry3D
 		}
 	};
 
+    class AppImplementDOF : public AppImplement
+    {
+    public:
+        AppImplementDOF()
+        {
+            auto camera = GameObject::Create("")->AddComponent<Camera>();
+            camera->GetTransform()->SetPosition(Vector3(0, 1.0f, 3.5f));
+            camera->GetTransform()->SetRotation(Quaternion::Euler(5, 180, 0));
+            camera->SetFieldOfView(60);
+            camera->SetNearClip(0.03f);
+            camera->SetFarClip(100);
+            camera->SetCullingMask(1 << 0);
+            
+            auto light = GameObject::Create("")->AddComponent<Light>();
+            light->GetTransform()->SetRotation(Quaternion::Euler(138.72f, -30, 0));
+            light->SetType(LightType::Directional);
+            
+            auto objects = Resources::LoadGameObject("dof_test/objects.go");
+            auto renderers = objects->GetComponentsInChildren<Renderer>();
+            for (auto i : renderers)
+            {
+                i->EnableRecieveShadow(false);
+            }
+            
+            auto dof = camera->GetGameObject()->AddComponent<DepthOfField>();
+            dof->SetFocusDistance(3.5f);
+            dof->SetAperture(1.7f);
+            dof->SetFocalLength(55);
+        }
+        
+        void Update()
+        {
+            
+        }
+    };
+
     App::App()
     {
-        m_implement = RefMake<AppImplementGLES2>();
+        m_implement = RefMake<AppImplementDOF>();
     }
     
     void App::Update()
     {
-		RefCast<AppImplementGLES2>(m_implement)->Update();
+		RefCast<AppImplementDOF>(m_implement)->Update();
     }
 }
