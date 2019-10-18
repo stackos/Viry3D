@@ -361,7 +361,7 @@ namespace Viry3D
             driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBonesUniformBuffer());
         }
 
-		auto draw = [&](bool light_add = false) {
+		auto draw = [&](bool shadow_enable = false, bool light_add = false) {
 			const auto& materials = renderer->GetMaterials();
 			for (int i = 0; i < materials.Size(); ++i)
 			{
@@ -397,7 +397,7 @@ namespace Viry3D
 
 					if (primitive)
 					{
-						if (renderer->IsRecieveShadow())
+						if (shadow_enable && renderer->IsRecieveShadow())
 						{
 							material->EnableKeyword("RECIEVE_SHADOW_ON");
 						}
@@ -446,7 +446,7 @@ namespace Viry3D
 				}
 				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightFragment, i->GetLightUniformBuffer());
 
-				draw(light_add);
+				draw(i->IsShadowEnable(), light_add);
 
 				lighted = true;
 				light_add = true;

@@ -506,12 +506,7 @@ namespace Viry3D
             light->GetTransform()->SetRotation(Quaternion::Euler(138.72f, -30, 0));
             light->SetType(LightType::Directional);
             
-            auto objects = Resources::LoadGameObject("dof_test/objects.go");
-            auto renderers = objects->GetComponentsInChildren<Renderer>();
-            for (auto i : renderers)
-            {
-                i->EnableRecieveShadow(false);
-            }
+            Resources::LoadGameObject("dof_test/objects.go");
             
             auto dof = camera->GetGameObject()->AddComponent<DepthOfField>();
             dof->SetFocusDistance(3.5f);
