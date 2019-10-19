@@ -551,13 +551,13 @@ void VulkanTexture::copyTexture(
 		region.srcSubresource.baseArrayLayer = src_layer;
 		region.srcSubresource.layerCount = 1;
 		region.srcOffsets[0] = { src_offset.x, src_offset.y, src_offset.z };
-		region.srcOffsets[1] = { src_extent.x, src_extent.y, src_extent.z };
+		region.srcOffsets[1] = { src_offset.x + src_extent.x, src_offset.y + src_extent.y, src_offset.z + src_extent.z };
 		region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		region.dstSubresource.mipLevel = dst_level;
 		region.dstSubresource.baseArrayLayer = dst_layer;
 		region.dstSubresource.layerCount = 1;
 		region.dstOffsets[0] = { dst_offset.x, dst_offset.y, dst_offset.z };
-		region.dstOffsets[1] = { dst_extent.x, dst_extent.y, dst_extent.z };
+		region.dstOffsets[1] = { dst_offset.x + dst_extent.x, dst_offset.y + dst_extent.y, dst_offset.z + dst_extent.z };
 
 		vkCmdBlitImage(
 			commands->cmdbuffer,
@@ -579,6 +579,53 @@ void VulkanTexture::copyTexture(
 	{
 		flushWorkCommandBuffer(mContext);
 	}
+}
+
+void VulkanTexture::copyTextureToMemory(
+    int layer, int level,
+    const Offset3D& offset,
+    const Offset3D& extent,
+    PixelBufferDescriptor& data)
+{
+    VulkanStage const* stage = mStagePool.acquireStage((uint32_t) data.size);
+
+    auto copyToHost = [this, stage, layer, level, offset, extent](VulkanCommandBuffer& commands) {
+        transitionImageLayout(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, level, layer, 1);
+
+        VkBufferImageCopy region = { };
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.baseArrayLayer = layer;
+        region.imageSubresource.layerCount = 1;
+        region.imageSubresource.mipLevel = level;
+        region.imageOffset = { offset.x, offset.y, offset.z };
+        region.imageExtent = { (uint32_t) extent.x, (uint32_t) extent.y, (uint32_t) extent.z };
+        vkCmdCopyImageToBuffer(commands.cmdbuffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stage->buffer, 1, &region);
+
+        transitionImageLayout(commands.cmdbuffer, textureImage,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, level, layer, 1);
+    };
+
+    if (mContext.currentCommands)
+    {
+        copyToHost(*mContext.currentCommands);
+    }
+    else
+    {
+        acquireWorkCommandBuffer(mContext);
+        copyToHost(mContext.work);
+        flushWorkCommandBuffer(mContext);
+    }
+
+    waitForIdle(mContext);
+
+    void* mapped;
+    vmaMapMemory(mContext.allocator, stage->memory, &mapped);
+    memcpy(data.buffer, mapped, data.size);
+    vmaUnmapMemory(mContext.allocator, stage->memory);
+
+    mStagePool.releaseStage(stage);
 }
 
 void VulkanTexture::generateMipmaps() {

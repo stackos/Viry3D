@@ -132,6 +132,11 @@ struct VulkanTexture : public HwTexture {
 		const backend::Offset3D& src_offset,
 		const backend::Offset3D& src_extent,
 		backend::SamplerMagFilter blit_filter);
+    void copyTextureToMemory(
+        int layer, int level,
+        const Offset3D& offset,
+        const Offset3D& extent,
+        PixelBufferDescriptor& data);
 	void generateMipmaps();
 
     // Issues a barrier that transforms the layout of the image, e.g. from a CPU-writeable
