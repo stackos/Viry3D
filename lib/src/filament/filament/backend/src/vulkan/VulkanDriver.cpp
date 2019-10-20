@@ -678,10 +678,19 @@ void VulkanDriver::copyTextureToMemory(
 	int layer, int level,
 	Offset3D offset,
 	Offset3D extent,
-	PixelBufferDescriptor&& buffer,
+	PixelBufferDescriptor&& data,
 	std::function<void(const PixelBufferDescriptor&)> on_complete)
 {
-
+    auto texture = handle_cast<VulkanTexture>(mHandleMap, th);
+    texture->copyTextureToMemory(
+        layer, level,
+        offset, extent,
+        data);
+    if (on_complete)
+    {
+        on_complete(data);
+    }
+    this->scheduleDestroy(std::move(data));
 }
 
 void VulkanDriver::setupExternalImage(void* image) {
