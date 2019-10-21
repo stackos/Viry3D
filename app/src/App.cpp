@@ -462,7 +462,7 @@ namespace Viry3D
             m_fps_label = label.get();
             m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
 
-            for (int i = 0; i < 1; ++i)
+            for (int i = 0; i < 4; ++i)
 			{
                 auto sprite = RefMake<Sprite>();
                 sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
@@ -475,7 +475,7 @@ namespace Viry3D
                     Log("buffer size %d", buffer.Size());
                     auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
                     Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
-                    //sprite->SetTexture(texture);
+                    sprite->SetTexture(texture);
                 });
             }
         }
@@ -484,49 +484,18 @@ namespace Viry3D
 		{
             if (m_fps_label)
             {
-                //m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
+                m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
             }
 		}
 	};
 
-    class AppImplementDOF : public AppImplement
-    {
-    public:
-        AppImplementDOF()
-        {
-            auto camera = GameObject::Create("")->AddComponent<Camera>();
-            camera->GetTransform()->SetPosition(Vector3(0, 1.0f, 3.5f));
-            camera->GetTransform()->SetRotation(Quaternion::Euler(5, 180, 0));
-            camera->SetFieldOfView(60);
-            camera->SetNearClip(0.03f);
-            camera->SetFarClip(100);
-            camera->SetCullingMask(1 << 0);
-            
-            auto light = GameObject::Create("")->AddComponent<Light>();
-            light->GetTransform()->SetRotation(Quaternion::Euler(138.72f, -30, 0));
-            light->SetType(LightType::Directional);
-            
-            Resources::LoadGameObject("dof_test/objects.go");
-            
-            auto dof = camera->GetGameObject()->AddComponent<DepthOfField>();
-            dof->SetFocusDistance(3.5f);
-            dof->SetAperture(1.7f);
-            dof->SetFocalLength(55);
-        }
-        
-        void Update()
-        {
-            
-        }
-    };
-
     App::App()
     {
-        m_implement = RefMake<AppImplementDOF>();
+        m_implement = RefMake<AppImplementGLES2>();
     }
     
     void App::Update()
     {
-		RefCast<AppImplementDOF>(m_implement)->Update();
+		RefCast<AppImplementGLES2>(m_implement)->Update();
     }
 }
