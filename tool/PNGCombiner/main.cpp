@@ -7,8 +7,7 @@
 int main(int argc, char* argv[])
 {
     int w, h, c;
-    unsigned char* data = stbi_load("", &w, &h, &c, 0);
-    stbi_write_png("", w, h, c, data, w * c);
-    stbi_image_free(data);
+    unsigned char* data = stbi_load("r.png", &w, &h, &c, 0);
+    stbi_write_png("o.png", w, h, c, data, w * c);
     return 0;
 }
