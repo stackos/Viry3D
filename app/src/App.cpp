@@ -417,29 +417,35 @@ namespace Viry3D
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
             camera->SetDepth(0);
+            camera->SetClearColor(Color(1, 0, 0, 1));
             camera->SetCullingMask(1 << 0);
 
-			auto texture = Texture::LoadFromKTXFile(
-#if VR_IOS
-                Engine::Instance()->GetDataPath() + "/texture/ktx/checkflag_PVRTC_RGB_4V1.KTX",
-#elif VR_ANDROID
-				Engine::Instance()->GetDataPath() + "/texture/ktx/logo_JPG_ETC_RGB.KTX",
-#else
-				Engine::Instance()->GetDataPath() + "/texture/ktx/logo_JPG_BC1_RGB.KTX",
-#endif
-				FilterMode::Linear,
-				SamplerAddressMode::ClampToEdge);
-            
-			auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
-			material->SetTexture(MaterialProperty::TEXTURE, texture);
-
-			auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-			renderer->GetGameObject()->SetLayer(0);
-			renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
-			renderer->SetMaterial(material);
+            this->InitKTXTest();
             
             this->InitUI();
 		}
+
+        void InitKTXTest()
+        {
+            auto texture = Texture::LoadFromKTXFile(
+#if VR_IOS
+                Engine::Instance()->GetDataPath() + "/texture/ktx/checkflag_PVRTC_RGB_4V1.KTX",
+#elif VR_ANDROID
+                Engine::Instance()->GetDataPath() + "/texture/ktx/logo_JPG_ETC_RGB.KTX",
+#else
+                Engine::Instance()->GetDataPath() + "/texture/ktx/logo_JPG_BC1_RGB.KTX",
+#endif
+                FilterMode::Linear,
+                SamplerAddressMode::ClampToEdge);
+
+            auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+            material->SetTexture(MaterialProperty::TEXTURE, texture);
+
+            auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+            renderer->GetGameObject()->SetLayer(0);
+            renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
+            renderer->SetMaterial(material);
+        }
         
         void InitUI()
         {
@@ -455,19 +461,43 @@ namespace Viry3D
             auto label = RefMake<Label>();
             label->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
             label->SetPivot(Vector2(0, 0));
-            label->SetOffset(Vector2i(0, 200));
+            label->SetOffset(Vector2i(0, 0));
             label->SetColor(Color(1, 1, 1, 1));
             label->SetTextAlignment(ViewAlignment::Left | ViewAlignment::Top);
             canvas->AddView(label);
             m_fps_label = label.get();
             m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
 
+            this->InitLoadUrlTest(canvas);
+            this->InitMultiAtlasTest(canvas);
+            this->InitBlendTest(canvas);
+        }
+
+        void InitLoadUrlTest(const Ref<CanvasRenderer>& canvas)
+        {
+            auto sprite = RefMake<Sprite>();
+            sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
+            sprite->SetPivot(Vector2(0, 0.5f));
+            sprite->SetOffset(Vector2i(0, 0));
+            sprite->SetSize(Vector2i(200, 200));
+            canvas->AddView(sprite);
+
+            Resources::LoadFileFromUrlAsync("texture/logo.jpg", [=](const ByteBuffer& buffer) {
+                Log("buffer size %d", buffer.Size());
+                auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+                Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
+                sprite->SetTexture(texture);
+            });
+        }
+
+        void InitMultiAtlasTest(const Ref<CanvasRenderer>& canvas)
+        {
             for (int i = 0; i < 4; ++i)
-			{
+            {
                 auto sprite = RefMake<Sprite>();
                 sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
                 sprite->SetPivot(Vector2(0, 0.5f));
-                sprite->SetOffset(Vector2i(i * 220, 0));
+                sprite->SetOffset(Vector2i(i * 220, 220));
                 sprite->SetSize(Vector2i(200, 200));
                 canvas->AddView(sprite);
 
@@ -478,6 +508,23 @@ namespace Viry3D
                     sprite->SetTexture(texture);
                 });
             }
+        }
+
+        void InitBlendTest(const Ref<CanvasRenderer>& canvas)
+        {
+            auto sprite = RefMake<Sprite>();
+            sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
+            sprite->SetPivot(Vector2(0, 0.5f));
+            sprite->SetOffset(Vector2i(0, -220));
+            sprite->SetSize(Vector2i(200, 200));
+            canvas->AddView(sprite);
+
+            Resources::LoadFileFromUrlAsync("blend_test/rgba.png", [=](const ByteBuffer& buffer) {
+                Log("buffer size %d", buffer.Size());
+                auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+                Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
+                sprite->SetTexture(texture);
+            });
         }
 
 		void Update()
