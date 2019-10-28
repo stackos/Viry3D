@@ -855,8 +855,8 @@ if (${Target} MATCHES "Windows")
 
     set_property(TARGET Viry3DApp PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 
-    string(REPLACE "/" "\\" ASSETS_LINK_TARGET ${CMAKE_SOURCE_DIR}/app/bin/Assets)
-    string(REPLACE "/" "\\" ASSETS_LINK_LINK ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
+    string(REPLACE "/" "\\" ASSETS_COPY_SRC ${CMAKE_SOURCE_DIR}/app/bin/Assets)
+    string(REPLACE "/" "\\" ASSETS_COPY_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
     string(REPLACE "/" "\\" ICON_SRC ${CMAKE_SOURCE_DIR}/app/bin/icon.ico)
     string(REPLACE "/" "\\" ICON_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/icon.ico)
 	string(REPLACE "/" "\\" AVCODEC_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/avcodec-58.dll)
@@ -871,7 +871,7 @@ if (${Target} MATCHES "Windows")
     string(REPLACE "/" "\\" SWSCALE_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/swscale-5.dll)
     add_custom_command(TARGET Viry3DApp
                        POST_BUILD
-                       COMMAND if not exist ${ASSETS_LINK_LINK} (mklink /d ${ASSETS_LINK_LINK} ${ASSETS_LINK_TARGET})
+                       COMMAND if not exist ${ASSETS_COPY_DST} (xcopy ${ASSETS_COPY_SRC} ${ASSETS_COPY_DST}\\ /s /d)
                        COMMAND copy /Y ${ICON_SRC} ${ICON_DST}
 					   COMMAND copy /Y ${AVCODEC_DLL_SRC} ${AVCODEC_DLL_DST}
 					   COMMAND copy /Y ${AVFORMAT_DLL_SRC} ${AVFORMAT_DLL_DST}
