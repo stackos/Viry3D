@@ -140,6 +140,10 @@ int main(int argc, char* argv[])
             {
                 printf("Success: combined image saved to %s\n", pathes[ImageType::O].c_str());
             }
+            else
+            {
+                printf("Failed: write image to %s\n", pathes[ImageType::O].c_str());
+            }
 
             free(pixels);
         }

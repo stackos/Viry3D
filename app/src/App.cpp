@@ -417,7 +417,7 @@ namespace Viry3D
 			auto camera = GameObject::Create("")->AddComponent<Camera>();
 			camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
             camera->SetDepth(0);
-            camera->SetClearColor(Color(1, 0, 0, 1));
+            camera->SetClearColor(Color(0, 0, 1, 1));
             camera->SetCullingMask(1 << 0);
 
             this->InitKTXTest();
@@ -470,7 +470,7 @@ namespace Viry3D
 
             this->InitLoadUrlTest(canvas);
             this->InitMultiAtlasTest(canvas);
-            this->InitBlendTest(canvas);
+            this->InitBlendTest();
         }
 
         void InitLoadUrlTest(const Ref<CanvasRenderer>& canvas)
@@ -510,20 +510,36 @@ namespace Viry3D
             }
         }
 
-        void InitBlendTest(const Ref<CanvasRenderer>& canvas)
+        void InitBlendTest()
         {
-            auto sprite = RefMake<Sprite>();
-            sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
-            sprite->SetPivot(Vector2(0, 0.5f));
-            sprite->SetOffset(Vector2i(0, -220));
-            sprite->SetSize(Vector2i(200, 200));
-            canvas->AddView(sprite);
+            auto material = RefMake<Material>(Shader::Find("Unlit/Transparent"));
+
+            auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+            renderer->GetTransform()->SetPosition(Vector3(1.5f, 0, 0));
+            renderer->GetGameObject()->SetLayer(0);
+            renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Quad.mesh"));
+            renderer->SetMaterial(material);
 
             Resources::LoadFileFromUrlAsync("blend_test/rgba.png", [=](const ByteBuffer& buffer) {
                 Log("buffer size %d", buffer.Size());
                 auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
                 Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
-                sprite->SetTexture(texture);
+                material->SetTexture(MaterialProperty::TEXTURE, texture);
+            });
+
+            auto material_premul = RefMake<Material>(Shader::Find("Unlit/PremulAlpha"));
+
+            auto renderer_premul = GameObject::Create("")->AddComponent<MeshRenderer>();
+            renderer_premul->GetTransform()->SetPosition(Vector3(1.5f, 1, 0));
+            renderer_premul->GetGameObject()->SetLayer(0);
+            renderer_premul->SetMesh(Resources::LoadMesh("Library/unity default resources.Quad.mesh"));
+            renderer_premul->SetMaterial(material_premul);
+
+            Resources::LoadFileFromUrlAsync("blend_test/premul.png", [=](const ByteBuffer& buffer) {
+                Log("buffer size %d", buffer.Size());
+                auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
+                Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
+                material_premul->SetTexture(MaterialProperty::TEXTURE, texture);
             });
         }
 
