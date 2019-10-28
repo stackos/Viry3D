@@ -148,14 +148,18 @@ function LoadFileFromUrlAsync(request_id, url) {
 	req.responseType = "arraybuffer";
 
 	req.onload = function (event) {
-		const buffer = req.response;
-		if (buffer) {
-			const bytes = new Uint8Array(buffer);
-			const p = Engine.MemoryAlloc(bytes.length);
-			Module.HEAP8.set(bytes, p);
-			Engine.OnLoadFileFromUrlComplete(request_id, url, p, bytes.length);
-			Engine.MemoryFree(p);
-		}
+        if (req.readyState == 4 && req.status == 200) {
+            const buffer = req.response;
+            if (buffer) {
+			    const bytes = new Uint8Array(buffer);
+			    const p = Engine.MemoryAlloc(bytes.length);
+			    Module.HEAP8.set(bytes, p);
+			    Engine.OnLoadFileFromUrlComplete(request_id, url, p, bytes.length);
+			    Engine.MemoryFree(p);
+		    }
+        } else {
+            console.log("readyState:" + req.readyState, "status:" + req.status);
+        }
 	};
 
 	req.send(null);

@@ -1219,14 +1219,10 @@ elseif (${Target} MATCHES "WASM")
                                ${VIRY3D_LIB_SRC_DIR}/zlib
                                )
 
-    add_library(Viry3DApp SHARED
+    add_library(Viry3DApp STATIC
                 ${VIRY3D_APP_SRCS}
                 ${VIRY3D_APP_SRC_DIR}/../project/web/Main.cpp
                 )
-
-    target_link_libraries(Viry3DApp
-                          Viry3D Viry3DDep
-                          )
 
 endif ()
 

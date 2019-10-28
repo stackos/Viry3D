@@ -43,8 +43,10 @@
 
 #if defined(__EMSCRIPTEN__)
 #define HAS_MAPBUFFERS 0
+#define HAS_TEXSTORAGE2DMULTISAMPLE 0
 #else
 #define HAS_MAPBUFFERS 1
+#define HAS_TEXSTORAGE2DMULTISAMPLE 1
 #endif
 
 #define DEBUG_MARKER_NONE       0
@@ -1107,6 +1109,7 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
                 break;
             }
             case GL_TEXTURE_2D_MULTISAMPLE:
+#if HAS_TEXSTORAGE2DMULTISAMPLE
                 // NOTE: if there is a mix of texture and renderbuffers, "fixed_sample_locations" must be true
                 // NOTE: what's the benefit of setting "fixed_sample_locations" to false?
 #if GLES31_HEADERS
@@ -1120,6 +1123,7 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
                                         GLsizei(width), GLsizei(height), GL_TRUE);
 #else
 #   error "GL/GLES header version not supported"
+#endif
 #endif
                 break;
             default: // cannot happen
