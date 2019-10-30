@@ -803,8 +803,6 @@ if (${Target} MATCHES "Windows")
 
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -DVR_WINDOWS -DVR_VULKAN=1 -DVR_GLES=1 -DVR_D3D=1 -DVK_USE_PLATFORM_WIN32_KHR -DFILAMENT_DRIVER_SUPPORTS_VULKAN")
-    set(EXECUTABLE_OUTPUT_PATH
-        ${PROJECT_BINARY_DIR}/bin)
     add_definitions(-W3 -D_CRT_SECURE_NO_WARNINGS -D_CRT_RAND_S -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES -DGLEW_STATIC)
 
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -855,29 +853,21 @@ if (${Target} MATCHES "Windows")
 
     set_property(TARGET Viry3DApp PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 
+    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+    string(REPLACE "/" "\\" BIN_DIR ${EXECUTABLE_OUTPUT_PATH}/$(Configuration))
     string(REPLACE "/" "\\" ASSETS_COPY_SRC ${CMAKE_SOURCE_DIR}/app/bin/Assets)
-    string(REPLACE "/" "\\" ASSETS_COPY_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Assets)
     string(REPLACE "/" "\\" ICON_SRC ${CMAKE_SOURCE_DIR}/app/bin/icon.ico)
-    string(REPLACE "/" "\\" ICON_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/icon.ico)
-	string(REPLACE "/" "\\" AVCODEC_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/avcodec-58.dll)
-    string(REPLACE "/" "\\" AVCODEC_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/avcodec-58.dll)
-	string(REPLACE "/" "\\" AVFORMAT_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/avformat-58.dll)
-    string(REPLACE "/" "\\" AVFORMAT_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/avformat-58.dll)
-	string(REPLACE "/" "\\" AVUTIL_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/avutil-56.dll)
-    string(REPLACE "/" "\\" AVUTIL_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/avutil-56.dll)
-	string(REPLACE "/" "\\" SWRESAMPLE_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/swresample-3.dll)
-    string(REPLACE "/" "\\" SWRESAMPLE_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/swresample-3.dll)
-	string(REPLACE "/" "\\" SWSCALE_DLL_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch}/swscale-5.dll)
-    string(REPLACE "/" "\\" SWSCALE_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/swscale-5.dll)
+    string(REPLACE "/" "\\" FFMPEG_DLL_DIR_SRC ${VIRY3D_LIB_SRC_DIR}/ffmpeg/bin/win/${Arch})
+
     add_custom_command(TARGET Viry3DApp
                        POST_BUILD
-                       COMMAND if not exist ${ASSETS_COPY_DST} (xcopy ${ASSETS_COPY_SRC} ${ASSETS_COPY_DST}\\ /s /d)
-                       COMMAND copy /Y ${ICON_SRC} ${ICON_DST}
-					   COMMAND copy /Y ${AVCODEC_DLL_SRC} ${AVCODEC_DLL_DST}
-					   COMMAND copy /Y ${AVFORMAT_DLL_SRC} ${AVFORMAT_DLL_DST}
-					   COMMAND copy /Y ${AVUTIL_DLL_SRC} ${AVUTIL_DLL_DST}
-					   COMMAND copy /Y ${SWRESAMPLE_DLL_SRC} ${SWRESAMPLE_DLL_DST}
-					   COMMAND copy /Y ${SWSCALE_DLL_SRC} ${SWSCALE_DLL_DST}
+                       COMMAND xcopy ${ASSETS_COPY_SRC} ${BIN_DIR}\\Assets\\ /s /d /y
+                       COMMAND copy /Y ${ICON_SRC} ${BIN_DIR}\\icon.ico
+					   COMMAND copy /Y ${FFMPEG_DLL_DIR_SRC}\\avcodec-58.dll ${BIN_DIR}\\avcodec-58.dll
+                       COMMAND copy /Y ${FFMPEG_DLL_DIR_SRC}\\avformat-58.dll ${BIN_DIR}\\avformat-58.dll
+                       COMMAND copy /Y ${FFMPEG_DLL_DIR_SRC}\\avutil-56.dll ${BIN_DIR}\\avutil-56.dll
+                       COMMAND copy /Y ${FFMPEG_DLL_DIR_SRC}\\swresample-3.dll ${BIN_DIR}\\swresample-3.dll
+                       COMMAND copy /Y ${FFMPEG_DLL_DIR_SRC}\\swscale-5.dll ${BIN_DIR}\\swscale-5.dll
                        )
 
     add_executable(CubeMapToSphericalPolynomial
@@ -913,7 +903,7 @@ if (${Target} MATCHES "Windows")
                           )
 
     string(REPLACE "/" "\\" COMP_DLL_SRC ${VIRY3D_APP_SRC_DIR}/../project/CubeMapCompress/Compressonator/lib/VS2015/${Arch}/Compressonator_MD_DLL.dll)
-    string(REPLACE "/" "\\" COMP_DLL_DST ${EXECUTABLE_OUTPUT_PATH}/$(Configuration)/Compressonator_MD_DLL.dll)
+    string(REPLACE "/" "\\" COMP_DLL_DST ${BIN_DIR}/Compressonator_MD_DLL.dll)
     add_custom_command(TARGET CubeMapCompress
                        POST_BUILD
                        COMMAND copy /Y ${COMP_DLL_SRC} ${COMP_DLL_DST}
