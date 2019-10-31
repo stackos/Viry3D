@@ -107,7 +107,7 @@ namespace Viry3D
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
 #if VR_WINDOWS
-			m_backend(backend::Backend::VULKAN),
+			m_backend(backend::Backend::OPENGL),
 #elif VR_UWP
 			m_backend(backend::Backend::D3D11),
 #elif VR_ANDROID
