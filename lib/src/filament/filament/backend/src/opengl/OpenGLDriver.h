@@ -529,6 +529,9 @@ private:
         GLint max_renderbuffer_size = 0;
         GLint max_uniform_block_size = 0;
         GLint uniform_buffer_offset_alignment = 256;
+        GLint max_vertex_texture_image_unit = 0;
+        GLint max_texture_image_unit = 0;
+        GLint max_combined_texture_image_unit = 0;
     } gets;
 
     // features supported by this version of GL or GLES

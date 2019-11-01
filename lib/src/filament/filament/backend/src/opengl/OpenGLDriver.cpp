@@ -160,6 +160,9 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &gets.max_renderbuffer_size);
         glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &gets.max_uniform_block_size);
         glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &gets.uniform_buffer_offset_alignment);
+        glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &gets.max_vertex_texture_image_unit);
+        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &gets.max_texture_image_unit);
+        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &gets.max_combined_texture_image_unit);
         
 #ifndef NDEBUG
         slog.i
@@ -202,7 +205,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         glGetIntegerv(GL_NUM_EXTENSIONS, &n);
         ExtentionSet exts;
         for (GLint i = 0; i < n; i++) {
-            const char * const ext = (const char*)glGetStringi(GL_EXTENSIONS, (GLuint)i);
+            const char* ext = (const char*) glGetStringi(GL_EXTENSIONS, (GLuint) i);
             exts.insert(StaticString::make(ext, strlen(ext)));
             if (DEBUG_PRINT_EXTENSIONS) {
                 slog.d << ext << io::endl;
