@@ -438,7 +438,67 @@ namespace Viry3D
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge);
 
-            auto material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+            // create shader test, instead of Shader::Find
+            Shader::Pass pass;
+            pass.pipeline.rasterState.depthWrite = true;
+            pass.pipeline.rasterState.colorWrite = true;
+
+            pass.vs = R"(
+VK_UNIFORM_BINDING(0) uniform PerView
+{
+	mat4 u_view_matrix;
+    mat4 u_projection_matrix;
+};
+VK_UNIFORM_BINDING(1) uniform PerRenderer
+{
+	mat4 u_model_matrix;
+};
+layout(location = 0) in vec4 i_vertex;
+layout(location = 2) in vec2 i_uv;
+VK_LAYOUT_LOCATION(0) out vec2 v_uv;
+void main()
+{
+    mat4 model_matrix = u_model_matrix;
+	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
+	v_uv = i_uv;
+	vk_convert();
+}
+)";
+            pass.fs = R"(
+precision highp float;
+VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
+VK_LAYOUT_LOCATION(0) in vec2 v_uv;
+layout(location = 0) out vec4 o_color;
+void main()
+{
+	vec4 c = texture(u_texture, v_uv);
+	o_color = c;
+}
+)";
+
+            Shader::Uniform u;
+            u.name = "PerView";
+            u.binding = (int) Shader::BindingPoint::PerView;
+            u.members.Add({ "u_view_matrix", 0, 64 });
+            u.members.Add({ "u_projection_matrix", 64, 64 });
+            u.size = 128;
+            pass.uniforms.Add(u);
+            u.name = "PerRenderer";
+            u.binding = (int) Shader::BindingPoint::PerRenderer;
+            u.members.Add({ "u_model_matrix", 0, 64 });
+            u.size = 64;
+            pass.uniforms.Add(u);
+
+            Shader::SamplerGroup s;
+            s.name = "PerMaterialFragment";
+            s.binding = (int) Shader::BindingPoint::PerMaterialFragment;
+            s.samplers.Add({ "u_texture", 0 });
+            pass.samplers.Add(s);
+
+            Vector<Shader::Pass> passes({ pass });
+            auto shader = Shader::Create(passes);
+
+            auto material = RefMake<Material>(shader);
             material->SetTexture(MaterialProperty::TEXTURE, texture);
 
             auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
