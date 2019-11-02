@@ -112,6 +112,7 @@ namespace Viry3D
         static void Init();
         static void Done();
 		static Ref<Shader> Find(const String& name, const Vector<String>& keywords = Vector<String>(), bool light_add = false);
+        static Ref<Shader> Create(const Vector<Pass>& passes, const Vector<String>& keywords = Vector<String>());
 
         virtual ~Shader();
 		const List<String>& GetKeywords() const { return m_keywords; }
@@ -120,14 +121,13 @@ namespace Viry3D
         int GetQueue() const { return m_queue; }
 
 	private:
-		Shader(const String& name, bool light_add);
-		void Load(const String& src, const List<String>& keywords);
+		Shader(const String& name);
+		void Load(const String& src, bool light_add);
 		void Compile();
 
 	private:
 		static Map<String, Ref<Shader>> m_shaders;
 		List<String> m_keywords;
-		bool m_light_add;
 		Vector<Pass> m_passes;
 		int m_queue;
     };

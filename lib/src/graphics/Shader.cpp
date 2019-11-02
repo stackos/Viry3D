@@ -105,16 +105,22 @@ namespace Viry3D
 #endif
     }
 
+    static List<String> KeywordsToList(const Vector<String>& keywords)
+    {
+        List<String> keyword_list;
+        for (int i = 0; i < keywords.Size(); ++i)
+        {
+            keyword_list.AddLast(keywords[i]);
+        }
+        keyword_list.Sort();
+        return keyword_list;
+    }
+
 	Ref<Shader> Shader::Find(const String& name, const Vector<String>& keywords, bool light_add)
 	{
 		Ref<Shader> shader;
 
-		List<String> keyword_list;
-		for (int i = 0; i < keywords.Size(); ++i)
-		{
-			keyword_list.AddLast(keywords[i]);
-		}
-		keyword_list.Sort();
+        List<String> keyword_list = KeywordsToList(keywords);
 
 		String key = name;
 		for (const auto& i : keyword_list)
@@ -141,8 +147,9 @@ namespace Viry3D
 			{
 				String lua_src = File::ReadAllText(path);
 
-				shader = Ref<Shader>(new Shader(name, light_add));
-				shader->Load(lua_src, keyword_list);
+				shader = Ref<Shader>(new Shader(name));
+                shader->m_keywords = keyword_list;
+				shader->Load(lua_src, light_add);
 				shader->Compile();
 
 				m_shaders.Add(key, shader);
@@ -155,9 +162,29 @@ namespace Viry3D
 
 		return shader;
 	}
+
+    Ref<Shader> Shader::Create(const Vector<Pass>& passes, const Vector<String>& keywords)
+    {
+        Ref<Shader> shader;
+
+        List<String> keyword_list = KeywordsToList(keywords);
+
+        shader = Ref<Shader>(new Shader(""));
+        shader->m_keywords = keyword_list;
+        shader->m_passes = passes;
+        for (const auto& pass : shader->m_passes)
+        {
+            if (shader->m_queue < pass.queue)
+            {
+                shader->m_queue = pass.queue;
+            }
+        }
+        shader->Compile();
+
+        return shader;
+    }
     
-    Shader::Shader(const String& name, bool light_add):
-		m_light_add(light_add),
+    Shader::Shader(const String& name):
 		m_queue(0)
     {
         this->SetName(name);
@@ -221,10 +248,8 @@ namespace Viry3D
 		lua_pop(L, 1);
 	}
 
-	void Shader::Load(const String& src, const List<String>& keywords)
+	void Shader::Load(const String& src, bool light_add)
 	{
-		m_keywords = keywords;
-
 		lua_State* L = luaL_newstate();
 		luaL_openlibs(L);
 
@@ -334,7 +359,7 @@ namespace Viry3D
 
 						GetTableInt(L, "LightMode", pass.light_mode);
 
-						if (pass.light_mode == LightMode::Forward && m_light_add)
+						if (pass.light_mode == LightMode::Forward && light_add)
 						{
 							pass.pipeline.rasterState.depthWrite = false;
 							pass.pipeline.rasterState.blendFunctionSrcRGB = src_color_blend;
