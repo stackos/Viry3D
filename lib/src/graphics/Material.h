@@ -219,6 +219,6 @@ namespace Viry3D
         Map<String, MaterialProperty> m_properties;
         Rect m_scissor_rect;
         Vector<Vector<UniformBuffer>> m_unifrom_buffers;
-        Vector<SamplerGroup> m_samplers;
+        Vector<Vector<SamplerGroup>> m_samplers;
     };
 }

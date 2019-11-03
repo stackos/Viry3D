@@ -32,6 +32,10 @@ namespace Viry3D
         }
         
         m_samplers.Resize(shader->GetPassCount());
+        for (int i = 0; i < m_samplers.Size(); ++i)
+        {
+            m_samplers[i].Resize((int) Shader::BindingPoint::Count);
+        }
 
         this->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedWhiteTexture());
 		this->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, 1, 0, 0));
@@ -57,10 +61,13 @@ namespace Viry3D
         
         for (int i = 0; i < m_samplers.Size(); ++i)
         {
-            if (m_samplers[i].sampler_group)
+            for (int j = 0; j < m_samplers[i].Size(); ++j)
             {
-                driver.destroySamplerGroup(m_samplers[i].sampler_group);
-				m_samplers[i].sampler_group.clear();
+                if (m_samplers[i][j].sampler_group)
+                {
+                    driver.destroySamplerGroup(m_samplers[i][j].sampler_group);
+                    m_samplers[i][j].sampler_group.clear();
+                }
             }
         }
         m_samplers.Clear();
@@ -296,24 +303,29 @@ namespace Viry3D
         
         for (int i = 0; i < m_samplers.Size(); ++i)
         {
-            auto& sampler_group = m_samplers[i];
+            auto& sampler_groups = m_samplers[i];
             
             if (pass >= 0 && pass != i)
             {
                 continue;
             }
             
-            if (sampler_group.dirty)
+            for (int j = 0; j < sampler_groups.Size(); ++j)
             {
-                sampler_group.dirty = false;
-                
-                filament::backend::SamplerGroup samplers(sampler_group.samplers.Size());
-                for (int j = 0; j < sampler_group.samplers.Size(); ++j)
+                auto& sampler_group = sampler_groups[j];
+
+                if (sampler_group.dirty)
                 {
-                    const auto& sampler = sampler_group.samplers[j];
-					samplers.setSampler(j, sampler.texture->GetTexture(), sampler.texture->GetSampler());
+                    sampler_group.dirty = false;
+
+                    filament::backend::SamplerGroup samplers(sampler_group.samplers.Size());
+                    for (int k = 0; k < sampler_group.samplers.Size(); ++k)
+                    {
+                        const auto& sampler = sampler_group.samplers[k];
+                        samplers.setSampler(k, sampler.texture->GetTexture(), sampler.texture->GetSampler());
+                    }
+                    driver.updateSamplerGroup(sampler_group.sampler_group, std::move(samplers));
                 }
-                driver.updateSamplerGroup(sampler_group.sampler_group, std::move(samplers));
             }
         }
     }
@@ -376,31 +388,26 @@ namespace Viry3D
             {
                 const auto& group = pass.samplers[j];
                 
-				if (group.binding == (int) Shader::BindingPoint::PerMaterialFragment)
-				{
-					for (int k = 0; k < group.samplers.Size(); ++k)
-					{
-						const auto& sampler = group.samplers[k];
+                for (int k = 0; k < group.samplers.Size(); ++k)
+                {
+                    const auto& sampler = group.samplers[k];
 
-						if (name == sampler.name)
-						{
-							auto& sampler_group = m_samplers[i];
+                    if (name == sampler.name)
+                    {
+                        auto& sampler_group = m_samplers[i][group.binding];
 
-							if (!sampler_group.sampler_group)
-							{
-								sampler_group.sampler_group = driver.createSamplerGroup(group.samplers.Size());
-								sampler_group.samplers.Resize(group.samplers.Size());
-							}
+                        if (!sampler_group.sampler_group)
+                        {
+                            sampler_group.sampler_group = driver.createSamplerGroup(group.samplers.Size());
+                            sampler_group.samplers.Resize(group.samplers.Size());
+                        }
 
-							sampler_group.samplers[k].binding = sampler.binding;
-							sampler_group.samplers[k].texture = texture;
+                        sampler_group.samplers[k].binding = sampler.binding;
+                        sampler_group.samplers[k].texture = texture;
 
-							sampler_group.dirty = true;
-						}
-					}
-
-					break;
-				}
+                        sampler_group.dirty = true;
+                    }
+                }
             }
         }
     }
@@ -434,10 +441,13 @@ namespace Viry3D
 		}
 
 		// bind samplers
-		if (samplers.sampler_group)
-		{
-			driver.bindSamplers((size_t) Shader::BindingPoint::PerMaterialFragment, samplers.sampler_group);
-		}
+        for (int i = 0; i < samplers.Size(); ++i)
+        {
+            if (samplers[i].sampler_group)
+            {
+                driver.bindSamplers((size_t) i, samplers[i].sampler_group);
+            }
+        }
 
         if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
             Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
