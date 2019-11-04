@@ -904,10 +904,20 @@ namespace filament
 								auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
 								if (texture->image_view)
 								{
-									m_context->context->PSSetShaderResources((UINT) samplers[i][j].binding, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
+                                    if (i == 3) // vs
+                                    {
+                                        m_context->context->VSSetShaderResources((UINT) samplers[i][j].binding, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
 
-									ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
-									m_context->context->PSSetSamplers((UINT) samplers[i][j].binding, 1, &sampler);
+                                        ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
+                                        m_context->context->VSSetSamplers((UINT) samplers[i][j].binding, 1, &sampler);
+                                    }
+                                    else if (i == 4) // ps
+                                    {
+                                        m_context->context->PSSetShaderResources((UINT) samplers[i][j].binding, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
+
+                                        ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
+                                        m_context->context->PSSetSamplers((UINT) samplers[i][j].binding, 1, &sampler);
+                                    }
 								}
 							}
 						}
