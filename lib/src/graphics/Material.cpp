@@ -322,7 +322,10 @@ namespace Viry3D
                     for (int k = 0; k < sampler_group.samplers.Size(); ++k)
                     {
                         const auto& sampler = sampler_group.samplers[k];
-                        samplers.setSampler(k, sampler.texture->GetTexture(), sampler.texture->GetSampler());
+                        if (sampler.texture)
+                        {
+                            samplers.setSampler(k, sampler.texture->GetTexture(), sampler.texture->GetSampler());
+                        }
                     }
                     driver.updateSamplerGroup(sampler_group.sampler_group, std::move(samplers));
                 }
