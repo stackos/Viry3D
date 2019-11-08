@@ -438,12 +438,57 @@ namespace Viry3D
                 FilterMode::Linear,
                 SamplerAddressMode::ClampToEdge);
 
+            auto material = this->InitVertexTextureTest();
+            material->SetTexture(MaterialProperty::TEXTURE, texture);
+
+            auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+            renderer->GetGameObject()->SetLayer(0);
+            renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
+            renderer->SetMaterial(material);
+        }
+
+        Ref<Material> InitVertexTextureTest()
+        {
             // create shader test, instead of Shader::Find
             Shader::Pass pass;
             pass.pipeline.rasterState.depthWrite = true;
             pass.pipeline.rasterState.colorWrite = true;
 
-            pass.vs = R"(
+            if (Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
+            {
+                pass.vs = R"(
+uniform mat4 u_view_matrix;
+uniform mat4 u_projection_matrix;
+uniform mat4 u_model_matrix;
+uniform sampler2D u_vertex_texture;
+attribute vec4 i_vertex;
+attribute vec2 i_uv;
+varying vec2 v_uv;
+varying vec4 v_color;
+void main()
+{
+    mat4 model_matrix = u_model_matrix;
+	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
+	v_uv = i_uv;
+    v_color = texture2D(u_vertex_texture, v_uv);
+	vk_convert();
+}
+)";
+                pass.fs = R"(
+precision highp float;
+uniform sampler2D u_texture;
+varying vec2 v_uv;
+varying vec4 v_color;
+void main()
+{
+	vec4 c = texture2D(u_texture, v_uv) * v_color;
+	gl_FragColor = c;
+}
+)";
+            }
+            else
+            {
+                pass.vs = R"(
 VK_UNIFORM_BINDING(0) uniform PerView
 {
 	mat4 u_view_matrix;
@@ -467,7 +512,7 @@ void main()
 	vk_convert();
 }
 )";
-            pass.fs = R"(
+                pass.fs = R"(
 precision highp float;
 VK_SAMPLER_BINDING(1) uniform sampler2D u_texture;
 VK_LAYOUT_LOCATION(0) in vec2 v_uv;
@@ -479,6 +524,7 @@ void main()
 	o_color = c;
 }
 )";
+            }
 
             Shader::Uniform u;
             u.name = "PerView";
@@ -498,7 +544,7 @@ void main()
             s.binding = (int) Shader::BindingPoint::PerMaterialVertex;
             s.samplers.Add({ "u_vertex_texture", 0 });
             pass.samplers.Add(s);
-            s = { };
+            s = {};
             s.name = "PerMaterialFragment";
             s.binding = (int) Shader::BindingPoint::PerMaterialFragment;
             s.samplers.Add({ "u_texture", 1 });
@@ -506,19 +552,14 @@ void main()
 
             Vector<Shader::Pass> passes({ pass });
             auto material = RefMake<Material>(Shader::Create(passes));
-            material->SetTexture(MaterialProperty::TEXTURE, texture);
 
-            // vertex texture test
             material->SetTexture("u_vertex_texture", Texture::LoadTexture2DFromFile(
                 Engine::Instance()->GetDataPath() + "/texture/checkflag.png.tex.png",
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge,
                 false));
 
-            auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-            renderer->GetGameObject()->SetLayer(0);
-            renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
-            renderer->SetMaterial(material);
+            return material;
         }
         
         void InitUI()

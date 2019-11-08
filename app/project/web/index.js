@@ -215,7 +215,7 @@ function Main() {
 	Engine.MemoryFree = Module.cwrap("MemoryFree", null, ["number"]);
 	Engine.OnLoadFileFromUrlComplete = Module.cwrap("OnLoadFileFromUrlComplete", null, ["number", "string", "number", "number"]);
 
-	let force_gles2 = false;
+	let force_gles2 = true;
     let glesv3 = false;
     const canvas = Module.canvas;
     let context = 0;
