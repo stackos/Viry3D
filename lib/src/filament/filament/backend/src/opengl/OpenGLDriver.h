@@ -27,9 +27,7 @@
 #include <math/vec4.h>
 
 #include <unordered_map>
-
 #include <set>
-
 #include <assert.h>
 
 
@@ -282,10 +280,9 @@ private:
     GetProcAddressType getProcAddress = nullptr;
 
     // this is chosen to minimize code size
-    using ExtentionSet = std::set<utils::StaticString>;
-    static bool hasExtension(ExtentionSet const& exts, utils::StaticString ext) noexcept;
-    void initExtensionsGLES(GLint major, GLint minor, ExtentionSet const& extensionsMap);
-    void initExtensionsGL(GLint major, GLint minor, ExtentionSet const& extensionsMap);
+    using ExtentionSet = std::set<std::string>;
+    static bool hasExtension(ExtentionSet const& exts, const std::string& ext) noexcept;
+    void initExtensions(ExtentionSet const& extensionsMap);
 
 
     /* Misc... */

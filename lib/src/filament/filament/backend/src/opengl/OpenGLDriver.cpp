@@ -123,7 +123,8 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         : DriverBase(new ConcreteDispatcher<OpenGLDriver>()),
           mHandleArena("Handles", 2U * 1024U * 1024U), // TODO: set the amount in configuration
           mSamplerMap(32),
-          mPlatform(*platform) {
+          mPlatform(*platform)
+{
     state.enables.caps.set(getIndexForCap(GL_DITHER));
     state.vao.p = &mDefaultVAO;
 
@@ -142,6 +143,14 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
     {
         mShaderModel = backend::ShaderModel::GL_ES_20;
     }
+    else if (ver_str.find("OpenGL ES 3.") != std::string::npos)
+    {
+        mShaderModel = backend::ShaderModel::GL_ES_30;
+    }
+    else
+    {
+        mShaderModel = backend::ShaderModel::GL_CORE_41;
+    }
               
 #ifndef NDEBUG
     slog.i
@@ -152,65 +161,106 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         << "OS version: " << mPlatform.getOSVersion() << io::endl;
 #endif
 
+    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &gets.max_renderbuffer_size);
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &gets.max_vertex_texture_image_unit);
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &gets.max_texture_image_unit);
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &gets.max_combined_texture_image_unit);
+
     if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
     {
-        GLint major = 0, minor = 0;
-        glGetIntegerv(GL_MAJOR_VERSION, &major);
-        glGetIntegerv(GL_MINOR_VERSION, &minor);
-        glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &gets.max_renderbuffer_size);
         glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &gets.max_uniform_block_size);
         glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &gets.uniform_buffer_offset_alignment);
-        glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &gets.max_vertex_texture_image_unit);
-        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &gets.max_texture_image_unit);
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &gets.max_combined_texture_image_unit);
-        
-#ifndef NDEBUG
-        slog.i
-            << "GL_MAX_RENDERBUFFER_SIZE = " << gets.max_renderbuffer_size << io::endl
-            << "GL_MAX_UNIFORM_BLOCK_SIZE = " << gets.max_uniform_block_size << io::endl
-            << "GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = " << gets.uniform_buffer_offset_alignment << io::endl;
-#endif
     }
+
+#ifndef NDEBUG
+    slog.i
+        << "GL_MAX_RENDERBUFFER_SIZE = " << gets.max_renderbuffer_size << io::endl
+        << "GL_MAX_UNIFORM_BLOCK_SIZE = " << gets.max_uniform_block_size << io::endl
+        << "GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = " << gets.uniform_buffer_offset_alignment << io::endl
+        << "GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS = " << gets.max_vertex_texture_image_unit << io::endl
+        << "GL_MAX_TEXTURE_IMAGE_UNITS = " << gets.max_texture_image_unit << io::endl
+        << "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS = " << gets.max_combined_texture_image_unit << io::endl;
+#endif
               
-    if (strstr(renderer, "Adreno")) {
+    if (strstr(renderer, "Adreno"))
+    {
         bugs.clears_hurt_performance = true;
-    } else if (strstr(renderer, "Mali")) {
+    }
+    else if (strstr(renderer, "Mali"))
+    {
         bugs.vao_doesnt_store_element_array_buffer_binding = true;
-        if (strstr(renderer, "Mali-T")) {
+        if (strstr(renderer, "Mali-T"))
+        {
             bugs.disable_glFlush = true;
             bugs.disable_shared_context_draws = true;
             bugs.texture_external_needs_rebind = true;
         }
-    } else if (strstr(renderer, "Intel")) {
+    }
+    else if (strstr(renderer, "Intel"))
+    {
         bugs.vao_doesnt_store_element_array_buffer_binding = true;
-    } else if (strstr(renderer, "PowerVR") || strstr(renderer, "Apple")) {
-    } else if (strstr(renderer, "Tegra") || strstr(renderer, "GeForce") || strstr(renderer, "NV")) {
-    } else if (strstr(renderer, "Vivante")) {
-    } else if (strstr(renderer, "AMD") || strstr(renderer, "ATI")) {
-    } else if (strstr(renderer, "Mozilla")) {
+    }
+    else if (strstr(renderer, "PowerVR") || strstr(renderer, "Apple"))
+    {
+    }
+    else if (strstr(renderer, "Tegra") || strstr(renderer, "GeForce") || strstr(renderer, "NV"))
+    {
+    }
+    else if (strstr(renderer, "Vivante"))
+    {
+    }
+    else if (strstr(renderer, "AMD") || strstr(renderer, "ATI"))
+    {
+    }
+    else if (strstr(renderer, "Mozilla"))
+    {
         bugs.disable_invalidate_framebuffer = true;
     }
 
     if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
     {
-        const char* exts = (const char*) glGetString(GL_EXTENSIONS);
-        if (exts)
+        const char* ext = (const char*) glGetString(GL_EXTENSIONS);
+        if (ext)
         {
-            slog.d << exts << io::endl;
+            ExtentionSet exts;
+            std::string ext_str = ext;
+            size_t offset = 0;
+            size_t pos = 0;
+            while ((pos = ext_str.find(" ", offset)) != std::string::npos)
+            {
+                std::string exti = ext_str.substr(offset, pos - offset);
+                exts.insert(exti);
+                offset = pos + 1;
+            }
+            exts.insert(ext_str.substr(offset));
+
+            if (DEBUG_PRINT_EXTENSIONS)
+            {
+                for (const auto& exti : exts)
+                {
+                    slog.d << exti << io::endl;
+                }
+            }
+
+            this->initExtensions(exts);
         }
     }
     else
     {
+        ExtentionSet exts;
         GLint n;
         glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-        ExtentionSet exts;
-        for (GLint i = 0; i < n; i++) {
-            const char* ext = (const char*) glGetStringi(GL_EXTENSIONS, (GLuint) i);
-            exts.insert(StaticString::make(ext, strlen(ext)));
-            if (DEBUG_PRINT_EXTENSIONS) {
-                slog.d << ext << io::endl;
+        for (GLint i = 0; i < n; i++)
+        {
+            std::string exti = (const char*) glGetStringi(GL_EXTENSIONS, (GLuint) i);
+            exts.insert(exti);
+            if (DEBUG_PRINT_EXTENSIONS)
+            {
+                slog.d << exti << io::endl;
             }
         }
+
+        this->initExtensions(exts);
     }
 
     /*
@@ -229,7 +279,8 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
 #endif
 
 #ifdef GL_EXT_texture_filter_anisotropic
-    if (ext.texture_filter_anisotropic) {
+    if (ext.texture_filter_anisotropic)
+    {
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mMaxAnisotropy);
     }
 #endif
@@ -243,7 +294,8 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
     initClearProgram();
 
     // Initialize the blitter only if we have OES_EGL_image_external_essl3
-    if (ext.OES_EGL_image_external_essl3) {
+    if (ext.OES_EGL_image_external_essl3)
+    {
         mOpenGLBlitter = new OpenGLBlitter(this);
         mOpenGLBlitter->init();
         state.program.use = 0;
@@ -265,29 +317,21 @@ OpenGLDriver::~OpenGLDriver() noexcept {
 // ------------------------------------------------------------------------------------------------
 
 UTILS_NOINLINE
-bool OpenGLDriver::hasExtension(ExtentionSet const& map, utils::StaticString ext) noexcept {
+bool OpenGLDriver::hasExtension(ExtentionSet const& map, const std::string& ext) noexcept {
     return map.find(ext) != map.end();
 }
 
-void OpenGLDriver::initExtensionsGLES(GLint major, GLint minor, ExtentionSet const& exts) {
+void OpenGLDriver::initExtensions(ExtentionSet const& exts)
+{
     // figure out and initialize the extensions we need
     ext.texture_filter_anisotropic = hasExtension(exts, "GL_EXT_texture_filter_anisotropic");
-    ext.texture_compression_etc2 = true;
+    ext.texture_compression_etc2 = (this->getShaderModel() == backend::ShaderModel::GL_ES_30) || hasExtension(exts, "GL_ARB_ES3_compatibility");
     ext.QCOM_tiled_rendering = hasExtension(exts, "GL_QCOM_tiled_rendering");
     ext.OES_EGL_image_external_essl3 = hasExtension(exts, "GL_OES_EGL_image_external_essl3");
     ext.EXT_debug_marker = hasExtension(exts, "GL_EXT_debug_marker");
-    ext.EXT_color_buffer_half_float = hasExtension(exts, "GL_EXT_color_buffer_half_float");
-    ext.texture_compression_s3tc = hasExtension(exts, "WEBGL_compressed_texture_s3tc");
+    ext.EXT_color_buffer_half_float = (this->getShaderModel() == backend::ShaderModel::GL_CORE_41) || hasExtension(exts, "GL_EXT_color_buffer_half_float");
+    ext.texture_compression_s3tc = hasExtension(exts, "WEBGL_compressed_texture_s3tc") || hasExtension(exts, "GL_EXT_texture_compression_s3tc");
     ext.EXT_multisampled_render_to_texture = hasExtension(exts, "GL_EXT_multisampled_render_to_texture");
-}
-
-void OpenGLDriver::initExtensionsGL(GLint major, GLint minor, ExtentionSet const& exts) {
-    ext.texture_filter_anisotropic = hasExtension(exts, "GL_EXT_texture_filter_anisotropic");
-    ext.texture_compression_etc2 = hasExtension(exts, "GL_ARB_ES3_compatibility");
-    ext.texture_compression_s3tc = hasExtension(exts, "GL_EXT_texture_compression_s3tc");
-    ext.OES_EGL_image_external_essl3 = hasExtension(exts, "GL_OES_EGL_image_external_essl3");
-    ext.EXT_debug_marker = hasExtension(exts, "GL_EXT_debug_marker");
-    ext.EXT_color_buffer_half_float = true;  // Assumes core profile.
 }
 
 void OpenGLDriver::terminate() {
