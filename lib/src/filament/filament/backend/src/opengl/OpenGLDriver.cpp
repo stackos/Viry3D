@@ -166,7 +166,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &gets.max_texture_image_unit);
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &gets.max_combined_texture_image_unit);
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &gets.max_uniform_block_size);
         glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &gets.uniform_buffer_offset_alignment);
@@ -301,7 +301,7 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         state.program.use = 0;
     }
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glGenVertexArrays(1, &mSharedVAO);
         glBindVertexArray(mSharedVAO);
@@ -332,6 +332,8 @@ void OpenGLDriver::initExtensions(ExtentionSet const& exts)
     ext.EXT_color_buffer_half_float = (this->getShaderModel() == backend::ShaderModel::GL_CORE_41) || hasExtension(exts, "GL_EXT_color_buffer_half_float");
     ext.texture_compression_s3tc = hasExtension(exts, "WEBGL_compressed_texture_s3tc") || hasExtension(exts, "GL_EXT_texture_compression_s3tc");
     ext.EXT_multisampled_render_to_texture = hasExtension(exts, "GL_EXT_multisampled_render_to_texture");
+    ext.texture_half_float = (this->getShaderModel() >= backend::ShaderModel::GL_ES_30) || hasExtension(exts, "GL_OES_texture_half_float");
+    ext.texture_float = (this->getShaderModel() >= backend::ShaderModel::GL_ES_30) || hasExtension(exts, "GL_OES_texture_float");
 }
 
 void OpenGLDriver::terminate() {
@@ -344,7 +346,7 @@ void OpenGLDriver::terminate() {
 		mSharedReadFramebuffer = 0;
 	}
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glDeleteVertexArrays(1, &mSharedVAO);
         mSharedVAO = 0;
@@ -390,7 +392,7 @@ void OpenGLDriver::initClearProgram() noexcept {
         )SHADER";
 
     if (GLES31_HEADERS &&
-        (int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         GLint status;
         char const* const vsource = clearVertexES;
@@ -424,7 +426,7 @@ void OpenGLDriver::initClearProgram() noexcept {
 }
 
 void OpenGLDriver::terminateClearProgram() noexcept {
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glDetachShader(mClearProgram, mClearVertexShader);
         glDetachShader(mClearProgram, mClearFragmentShader);
@@ -495,7 +497,7 @@ void OpenGLDriver::unbindSampler(GLuint sampler) noexcept {
 
 void OpenGLDriver::bindBuffer(GLenum target, GLuint buffer) noexcept {
     size_t targetIndex = getIndexForBufferTarget(target);
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30 &&
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30 &&
         target == GL_ELEMENT_ARRAY_BUFFER)
     {
         // GL_ELEMENT_ARRAY_BUFFER is a special case, where the currently bound VAO remembers
@@ -532,7 +534,7 @@ void OpenGLDriver::bindBufferRange(GLenum target, GLuint index, GLuint buffer,
         state.buffers.targets[targetIndex].buffers[index].offset = offset;
         state.buffers.targets[targetIndex].buffers[index].size = size;
         state.buffers.genericBinding[targetIndex] = buffer;
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             glBindBufferRange(target, index, buffer, offset, size);
         }
@@ -565,7 +567,7 @@ void OpenGLDriver::bindFramebuffer(GLenum target, GLuint buffer) noexcept {
 }
 
 void OpenGLDriver::bindVertexArray(GLRenderPrimitive const* p) noexcept {
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         GLRenderPrimitive* vao = p ? const_cast<GLRenderPrimitive *>(p) : &mDefaultVAO;
         update_state(state.vao.p, vao, [&]() {
@@ -1014,7 +1016,7 @@ void OpenGLDriver::createRenderPrimitiveR(Handle<HwRenderPrimitive> rph, int) {
     DEBUG_MARKER()
     
     GLRenderPrimitive* rp = construct<GLRenderPrimitive>(rph);
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glGenVertexArrays(1, &rp->gl.vao);
     }
@@ -1042,7 +1044,7 @@ void OpenGLDriver::createUniformBufferR(
 
     GLUniformBuffer* ub = construct<GLUniformBuffer>(ubh, (uint32_t) size, usage);
     
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glGenBuffers(1, &ub->gl.ubo.id);
         bindBuffer(GL_UNIFORM_BUFFER, ub->gl.ubo.id);
@@ -1142,7 +1144,7 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
             }
         }
     }
-    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    else if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         switch (t->gl.target) {
             case GL_TEXTURE_2D:
@@ -1655,7 +1657,7 @@ void OpenGLDriver::destroyRenderPrimitive(Handle<HwRenderPrimitive> rph) {
 
     if (rph) {
         GLRenderPrimitive const* rp = handle_cast<const GLRenderPrimitive*>(rph);
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             glDeleteVertexArrays(1, &rp->gl.vao);
             // binding of a bound VAO is reset to 0
@@ -1692,7 +1694,7 @@ void OpenGLDriver::destroyUniformBuffer(Handle<HwUniformBuffer> ubh) {
     if (ubh) {
         GLUniformBuffer* ub = handle_cast<GLUniformBuffer*>(ubh);
         
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             glDeleteBuffers(1, &ub->gl.ubo.id);
             // bindings of bound buffers are reset to 0
@@ -1893,7 +1895,7 @@ bool OpenGLDriver::isRenderTargetFormatSupported(TextureFormat format) {
                 return false;
         }
     }
-    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    else if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         // Supported formats per http://docs.gl/es3/glRenderbufferStorage, note that desktop OpenGL may
         // support more formats, but it requires querying GL_INTERNALFORMAT_SUPPORTED which is not
@@ -2027,7 +2029,7 @@ void OpenGLDriver::updateIndexBuffer(
 void OpenGLDriver::loadUniformBuffer(Handle<HwUniformBuffer> ubh, BufferDescriptor&& p) {
     DEBUG_MARKER()
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         GLUniformBuffer* ub = handle_cast<GLUniformBuffer *>(ubh);
         assert(ub);
@@ -2241,7 +2243,7 @@ void OpenGLDriver::copyTexture(
 	else
 	{
 		// blit
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             if (mSharedDrawFramebuffer == 0)
             {
@@ -2299,7 +2301,7 @@ void OpenGLDriver::generateMipmaps(Handle<HwTexture> th) {
     t->gl.baseLevel = 0;
     t->gl.maxLevel = static_cast<uint8_t>(t->levels - 1);
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
         glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
@@ -2337,7 +2339,7 @@ void OpenGLDriver::setTextureData(GLTexture* t,
 
     pixelStore(GL_UNPACK_ALIGNMENT, p.alignment);
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         pixelStore(GL_UNPACK_ROW_LENGTH, p.stride);
         pixelStore(GL_UNPACK_SKIP_PIXELS, p.left);
@@ -2390,7 +2392,7 @@ void OpenGLDriver::setTextureData(GLTexture* t,
     if (int8_t(level) < t->gl.baseLevel)
 	{
         t->gl.baseLevel = int8_t(level);
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
         }
@@ -2398,7 +2400,7 @@ void OpenGLDriver::setTextureData(GLTexture* t,
     if (int8_t(level) > t->gl.maxLevel)
 	{
         t->gl.maxLevel = int8_t(level);
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
         }
@@ -2497,7 +2499,7 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
     if (uint8_t(level) < t->gl.baseLevel)
 	{
         t->gl.baseLevel = uint8_t(level);
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             glTexParameteri(t->gl.target, GL_TEXTURE_BASE_LEVEL, t->gl.baseLevel);
         }
@@ -2505,7 +2507,7 @@ void OpenGLDriver::setCompressedTextureData(GLTexture* t,
     if (uint8_t(level) > t->gl.maxLevel)
 	{
         t->gl.maxLevel = uint8_t(level);
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             glTexParameteri(t->gl.target, GL_TEXTURE_MAX_LEVEL, t->gl.maxLevel);
         }
@@ -2626,7 +2628,7 @@ void OpenGLDriver::beginRenderPass(Handle<HwRenderTarget> rth,
     if (UTILS_UNLIKELY(state.draw_fbo != rt->gl.fbo)) {
         bindFramebuffer(GL_FRAMEBUFFER, rt->gl.fbo);
 
-        if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             // glInvalidateFramebuffer appeared on GLES 3.0 and GL4.3, for simplicity we just
             // ignore it on GL (rather than having to do a runtime check).
@@ -2771,7 +2773,7 @@ void OpenGLDriver::discardSubRenderTargetBuffers(Handle<HwRenderTarget> rth,
 GLsizei OpenGLDriver::getAttachments(std::array<GLenum, 3>& attachments,
         GLRenderTarget const* rt, uint8_t buffers) const noexcept {
     GLsizei attachmentCount = 0;
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         // the default framebuffer uses different constants!!!
         const bool defaultFramebuffer = (rt->gl.fbo == 0);
@@ -2809,7 +2811,7 @@ void OpenGLDriver::setRenderPrimitiveBuffer(Handle<HwRenderPrimitive> rph,
             rp->gl.ibh = ibh;
             rp->gl.enabledAttributes = enabledAttributes;
         }
-        else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+        else if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
         {
             bindVertexArray(rp);
             CHECK_GL_ERROR(utils::slog.e)
@@ -3131,7 +3133,7 @@ void OpenGLDriver::readStreamPixels(Handle<HwStream> sh,
 void OpenGLDriver::bindUniformBuffer(size_t index, Handle<HwUniformBuffer> ubh) {
     DEBUG_MARKER()
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         GLUniformBuffer* ub = handle_cast<GLUniformBuffer *>(ubh);
         assert(ub->gl.ubo.base == 0);
@@ -3145,7 +3147,7 @@ void OpenGLDriver::bindUniformBufferRange(size_t index, Handle<HwUniformBuffer> 
         size_t offset, size_t size) {
     DEBUG_MARKER()
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         GLUniformBuffer* ub = handle_cast<GLUniformBuffer*>(ubh);
         // TODO: Is this assert really needed? Note that size is only populated for STREAM buffers.
@@ -3202,7 +3204,7 @@ void OpenGLDriver::bindSamplers(size_t index, Handle<HwSamplerGroup> sbh) {
 GLuint OpenGLDriver::getSamplerSlow(SamplerParams params) const noexcept {
     assert(mSamplerMap.find(params.u) == mSamplerMap.end());
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         GLuint s;
         glGenSamplers(1, &s);
@@ -3268,7 +3270,7 @@ void OpenGLDriver::readPixels(Handle<HwRenderTarget> src,
 
     pixelStore(GL_PACK_ALIGNMENT, p.alignment);
     
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         pixelStore(GL_PACK_ROW_LENGTH, p.stride);
         pixelStore(GL_PACK_SKIP_PIXELS, p.left);
@@ -3306,7 +3308,7 @@ void OpenGLDriver::readPixels(Handle<HwRenderTarget> src,
     {
         bindFramebuffer(GL_FRAMEBUFFER, s->gl.fbo);
     }
-    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    else if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         bindFramebuffer(GL_READ_FRAMEBUFFER, s->gl.fbo);
     }
@@ -3534,7 +3536,7 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
 
     const GLRenderPrimitive* rp = handle_cast<const GLRenderPrimitive*>(rph);
 
-    if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         this->bindVertexArray(rp);
     }
@@ -3558,7 +3560,7 @@ void OpenGLDriver::draw(PipelineState state, Handle<HwRenderPrimitive> rph) {
     {
         glDrawElements(GLenum(rp->type), rp->count, rp->gl.indicesType, (const void*) (size_t) rp->offset);
     }
-    else if ((int) this->getShaderModel() >= (int) backend::ShaderModel::GL_ES_30)
+    else if (this->getShaderModel() >= backend::ShaderModel::GL_ES_30)
     {
         glDrawRangeElements(GLenum(rp->type), rp->minIndex, rp->maxIndex, rp->count,
                             rp->gl.indicesType, (const void*) (size_t) rp->offset);

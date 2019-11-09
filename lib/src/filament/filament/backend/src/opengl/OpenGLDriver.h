@@ -546,6 +546,8 @@ private:
         bool EXT_debug_marker = false;
         bool EXT_color_buffer_half_float = false;
         bool EXT_multisampled_render_to_texture = false;
+        bool texture_half_float = false;
+        bool texture_float = false;
     } ext;
 
     struct {
