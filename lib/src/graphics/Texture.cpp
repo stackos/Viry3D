@@ -606,6 +606,7 @@ namespace Viry3D
 				return filament::backend::TextureFormat::R8;
 			case TextureFormat::R8G8B8A8:
 				return filament::backend::TextureFormat::RGBA8;
+
 			case TextureFormat::D16:
 				return filament::backend::TextureFormat::DEPTH16;
 			case TextureFormat::D24X8:
@@ -831,7 +832,12 @@ namespace Viry3D
 			case TextureFormat::R8:
 			case TextureFormat::R8G8:
 			case TextureFormat::R8G8B8A8:
+            case TextureFormat::R16F:
+            case TextureFormat::R16G16F:
 			case TextureFormat::R16G16B16A16F:
+            case TextureFormat::R32F:
+            case TextureFormat::R32G32F:
+            case TextureFormat::R32G32B32A32F:
 				usage |= filament::backend::TextureUsage::COLOR_ATTACHMENT;
 				break;
 			case TextureFormat::D16:
