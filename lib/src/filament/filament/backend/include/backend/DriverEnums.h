@@ -528,12 +528,42 @@ inline constexpr TextureUsage operator^(TextureUsage lhs, TextureUsage rhs) noex
 }
 
 //! returns whether this format is an ETC2 compressed format
-static constexpr bool isETC2Compression(TextureFormat format) noexcept {
+static constexpr bool isETC2Compression(TextureFormat format) noexcept
+{
     return format >= TextureFormat::EAC_R11 && format <= TextureFormat::ETC2_EAC_SRGBA8;
 }
 
-static constexpr bool isS3TCCompression(TextureFormat format) noexcept {
+static constexpr bool isS3TCCompression(TextureFormat format) noexcept
+{
     return format >= TextureFormat::DXT1_RGB && format <= TextureFormat::DXT5_RGBA;
+}
+
+static constexpr bool isHalfFloatTexture(TextureFormat format) noexcept
+{
+    switch (format)
+    {
+        case TextureFormat::R16F:
+        case TextureFormat::RG16F:
+        case TextureFormat::RGB16F:
+        case TextureFormat::RGBA16F:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static constexpr bool isFloatTexture(TextureFormat format) noexcept
+{
+    switch (format)
+    {
+        case TextureFormat::R32F:
+        case TextureFormat::RG32F:
+        case TextureFormat::RGB32F:
+        case TextureFormat::RGBA32F:
+            return true;
+        default:
+            return false;
+    }
 }
 
 //! TextureCubemapFace
