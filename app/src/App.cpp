@@ -553,11 +553,22 @@ void main()
             Vector<Shader::Pass> passes({ pass });
             auto material = RefMake<Material>(Shader::Create(passes));
 
-            material->SetTexture("u_vertex_texture", Texture::LoadTexture2DFromFile(
-                Engine::Instance()->GetDataPath() + "/texture/checkflag.png.tex.png",
+            ByteBuffer pixels(2 * 2 * 4);
+            float* p = (float*) pixels.Bytes();
+            p[0] = 1;
+            p[1] = 0;
+            p[2] = 0;
+            p[3] = 1;
+            auto texture = Texture::CreateTexture2DFromMemory(
+                pixels,
+                2,
+                2,
+                TextureFormat::R32F,
                 FilterMode::Nearest,
                 SamplerAddressMode::ClampToEdge,
-                false));
+                false);
+
+            material->SetTexture("u_vertex_texture", texture);
 
             return material;
         }
