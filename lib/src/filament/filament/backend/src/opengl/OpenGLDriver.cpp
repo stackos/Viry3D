@@ -1869,11 +1869,21 @@ FenceStatus OpenGLDriver::wait(Handle<HwFence> fh, uint64_t timeout) {
 }
 
 bool OpenGLDriver::isTextureFormatSupported(TextureFormat format) {
-    if (isETC2Compression(format)) {
+    if (isETC2Compression(format))
+    {
         return ext.texture_compression_etc2;
     }
-    if (isS3TCCompression(format)) {
+    if (isS3TCCompression(format))
+    {
         return ext.texture_compression_s3tc;
+    }
+    if (isHalfFloatTexture(format))
+    {
+        return ext.texture_half_float;
+    }
+    if (isFloatTexture(format))
+    {
+        return ext.texture_float;
     }
     return getInternalFormat(format) != 0;
 }

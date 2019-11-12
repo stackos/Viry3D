@@ -449,7 +449,7 @@ namespace Viry3D
 
         Ref<Material> InitVertexTextureTest()
         {
-            // create shader test, instead of Shader::Find
+            // create shader test using vertex float texture
             Shader::Pass pass;
             pass.pipeline.rasterState.depthWrite = true;
             pass.pipeline.rasterState.colorWrite = true;
@@ -553,22 +553,29 @@ void main()
             Vector<Shader::Pass> passes({ pass });
             auto material = RefMake<Material>(Shader::Create(passes));
 
-            ByteBuffer pixels(2 * 2 * 4);
-            float* p = (float*) pixels.Bytes();
-            p[0] = 1;
-            p[1] = 0;
-            p[2] = 0;
-            p[3] = 1;
-            auto texture = Texture::CreateTexture2DFromMemory(
-                pixels,
-                2,
-                2,
-                TextureFormat::R32F,
-                FilterMode::Nearest,
-                SamplerAddressMode::ClampToEdge,
-                false);
+            if (Texture::SelectFormat({ TextureFormat::R32F }, false) == TextureFormat::None)
+            {
+                material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+            }
+            else
+            {
+                ByteBuffer pixels(2 * 2 * 4);
+                float* p = (float*) pixels.Bytes();
+                p[0] = 1;
+                p[1] = 0;
+                p[2] = 0;
+                p[3] = 1;
+                auto texture = Texture::CreateTexture2DFromMemory(
+                    pixels,
+                    2,
+                    2,
+                    TextureFormat::R32F,
+                    FilterMode::Nearest,
+                    SamplerAddressMode::ClampToEdge,
+                    false);
 
-            material->SetTexture("u_vertex_texture", texture);
+                material->SetTexture("u_vertex_texture", texture);
+            }
 
             return material;
         }
