@@ -1085,6 +1085,11 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
                 format = GL_RGBA;
                 type = GL_UNSIGNED_BYTE;
                 break;
+            case GL_R32F:
+                internalFormat = GL_LUMINANCE;
+                format = GL_LUMINANCE;
+                type = GL_FLOAT;
+                break;
             case GL_DEPTH24_STENCIL8:
                 internalFormat = GL_DEPTH_STENCIL_OES;
                 format = GL_DEPTH_STENCIL_OES;
@@ -2346,6 +2351,20 @@ void OpenGLDriver::setTextureData(GLTexture* t,
 
     GLenum glFormat = getFormat(p.format);
     GLenum glType = getType(p.type);
+
+    if (this->getShaderModel() == backend::ShaderModel::GL_ES_20)
+    {
+        switch (p.format)
+        {
+#if VR_ANDROID || VR_IOS || VR_WASM
+            case PixelDataFormat::R:
+                glFormat = GL_LUMINANCE;
+                break;
+#endif
+            default:
+                break;
+        }
+    }
 
     pixelStore(GL_UNPACK_ALIGNMENT, p.alignment);
 
