@@ -553,23 +553,25 @@ void main()
             Vector<Shader::Pass> passes({ pass });
             auto material = RefMake<Material>(Shader::Create(passes));
 
+            // todo:
+            // rgba32f for all
             if (Texture::SelectFormat({ TextureFormat::R32F }, false) == TextureFormat::None)
             {
                 material = RefMake<Material>(Shader::Find("Unlit/Texture"));
             }
             else
             {
-                ByteBuffer pixels(2 * 2 * 4);
+                ByteBuffer pixels(2 * 2 * 4 * 4);
                 float* p = (float*) pixels.Bytes();
-                p[0] = 1;
-                p[1] = 0;
-                p[2] = 0;
-                p[3] = 1;
+                p[0] = 1; p[1] = 0; p[2] = 0; p[3] = 1;
+                p[4] = 0; p[5] = 1; p[6] = 0; p[7] = 1;
+                p[8] = 0; p[9] = 0; p[10] = 1; p[11] = 1;
+                p[12] = 0; p[13] = 0; p[14] = 0; p[15] = 1;
                 auto texture = Texture::CreateTexture2DFromMemory(
                     pixels,
                     2,
                     2,
-                    TextureFormat::R32F,
+                    TextureFormat::R32G32B32A32F,
                     FilterMode::Nearest,
                     SamplerAddressMode::ClampToEdge,
                     false);

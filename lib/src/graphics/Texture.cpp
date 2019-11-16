@@ -609,6 +609,8 @@ namespace Viry3D
 
             case TextureFormat::R32F:
                 return filament::backend::TextureFormat::R32F;
+            case TextureFormat::R32G32B32A32F:
+                return filament::backend::TextureFormat::RGBA32F;
 
 			case TextureFormat::D16:
 				return filament::backend::TextureFormat::DEPTH16;
@@ -679,6 +681,7 @@ namespace Viry3D
             case TextureFormat::R32F:
                 return filament::backend::PixelDataFormat::R;
 			case TextureFormat::R8G8B8A8:
+            case TextureFormat::R32G32B32A32F:
 				return filament::backend::PixelDataFormat::RGBA;
 			default:
 				assert(false);
@@ -696,6 +699,7 @@ namespace Viry3D
 				return filament::backend::PixelDataType::UBYTE;
 
             case TextureFormat::R32F:
+            case TextureFormat::R32G32B32A32F:
                 return filament::backend::PixelDataType::FLOAT;
 
 			default:
