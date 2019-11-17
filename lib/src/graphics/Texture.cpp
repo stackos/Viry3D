@@ -842,13 +842,8 @@ namespace Viry3D
 		switch (format)
 		{
 			case TextureFormat::R8:
-			case TextureFormat::R8G8:
 			case TextureFormat::R8G8B8A8:
-            case TextureFormat::R16F:
-            case TextureFormat::R16G16F:
-			case TextureFormat::R16G16B16A16F:
             case TextureFormat::R32F:
-            case TextureFormat::R32G32F:
             case TextureFormat::R32G32B32A32F:
 				usage |= filament::backend::TextureUsage::COLOR_ATTACHMENT;
 				break;
@@ -863,10 +858,6 @@ namespace Viry3D
 				usage |= filament::backend::TextureUsage::DEPTH_ATTACHMENT;
 				usage |= filament::backend::TextureUsage::STENCIL_ATTACHMENT;
 				depth = true;
-				break;
-			case TextureFormat::S8:
-				usage |= filament::backend::TextureUsage::STENCIL_ATTACHMENT;
-				usage &= ~filament::backend::TextureUsage::SAMPLEABLE;
 				break;
 			default:
 				assert(false);

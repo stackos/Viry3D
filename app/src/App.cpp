@@ -555,7 +555,7 @@ void main()
 
             // todo:
             // rgba32f for all
-            if (Texture::SelectFormat({ TextureFormat::R32F }, false) == TextureFormat::None)
+            if (Texture::SelectFormat({ TextureFormat::R32G32B32A32F }, false) == TextureFormat::None)
             {
                 material = RefMake<Material>(Shader::Find("Unlit/Texture"));
             }

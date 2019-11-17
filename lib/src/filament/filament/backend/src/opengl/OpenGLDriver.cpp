@@ -1090,6 +1090,11 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
                 format = GL_LUMINANCE;
                 type = GL_FLOAT;
                 break;
+            case GL_RGBA32F:
+                internalFormat = GL_RGBA;
+                format = GL_RGBA;
+                type = GL_FLOAT;
+                break;
             case GL_DEPTH24_STENCIL8:
                 internalFormat = GL_DEPTH_STENCIL_OES;
                 format = GL_DEPTH_STENCIL_OES;
