@@ -447,6 +447,100 @@ namespace Viry3D
             renderer->SetMaterial(material);
         }
 
+        uint32_t FloatToBin(float f)
+        {
+            uint32_t b = 0;
+            int s = 0;
+            int e = 0;
+
+            if (f < 0)
+            {
+                s = 1;
+                f = -f;
+            }
+            else
+            {
+                s = 0;
+            }
+
+            int i = (int) floor(f);
+            float d = f - i;
+
+            std::list<char> ib;
+            do
+            {
+                ib.push_front(i % 2);
+                i /= 2;
+            } while (i > 0);
+
+            std::list<char> db;
+            do
+            {
+                d *= 2;
+                db.push_back((char) floor(d));
+                d -= floor(d);
+            } while (d > 0 && db.size() < 23 + 127);
+
+            int move_left = 0;
+            if (ib.size() == 1)
+            {
+                if (ib.front() == 0)
+                {
+                    while (db.size() > 0 && db.front() == 0 && move_left > -126)
+                    {
+                        --move_left;
+                        db.pop_front();
+                    }
+                    if (db.size() > 0 && move_left > -126)
+                    {
+                        --move_left;
+                        db.pop_front();
+                    }
+                    else
+                    {
+                        move_left = -127;
+                    }
+                }
+            }
+            else
+            {
+                while (ib.size() > 1)
+                {
+                    ++move_left;
+                    db.push_front(ib.back());
+                    ib.pop_back();
+                }
+            }
+
+            e = move_left + 127;
+            assert(e >= 0);
+
+            while (db.size() < 23)
+            {
+                db.push_back(0);
+            }
+            while (db.size() > 23)
+            {
+                db.pop_back();
+            }
+
+            b |= b << 31;
+            b |= e << 23;
+            
+            int move = 22;
+            for (auto i : db)
+            {
+                b |= i << move;
+                --move;
+            }
+
+            int* fb = (int*) &f;
+
+            assert(*fb == b);
+
+            return b;
+        }
+
         Ref<Material> InitVertexTextureTest()
         {
             // create shader test using vertex float texture
@@ -553,8 +647,9 @@ void main()
             Vector<Shader::Pass> passes({ pass });
             auto material = RefMake<Material>(Shader::Create(passes));
 
-            // todo:
-            // rgba32f for all
+            // todo: r16f, rgba16f
+            // A 16-bit floating-point number has a 1-bit sign (S), a 5-bit
+            // exponent(E), and a 10 - bit mantissa(M)
             if (Texture::SelectFormat({ TextureFormat::R32G32B32A32F }, false) == TextureFormat::None)
             {
                 material = RefMake<Material>(Shader::Find("Unlit/Texture"));
@@ -578,6 +673,18 @@ void main()
 
                 material->SetTexture("u_vertex_texture", texture);
             }
+
+            // test float to binary
+            FloatToBin(0.000000000000000000000000000000000000000000001f);
+            FloatToBin(0);
+            FloatToBin(-0);
+            FloatToBin(3490593);
+            FloatToBin(0.5f);
+            FloatToBin(20.59375f);
+            FloatToBin(-12.5);
+            FloatToBin(2.025675f);
+            FloatToBin(-0.046875f);
+            // FloatToBin(3.39999995e+38f); // failed
 
             return material;
         }
