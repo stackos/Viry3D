@@ -45,6 +45,8 @@ namespace Viry3D
 		None,
 		R8,
 		R8G8B8A8,
+        R16F,
+        R16G16B16A16F,
         R32F,
         R32G32B32A32F,
 		D16,

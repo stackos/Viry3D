@@ -452,19 +452,21 @@ namespace Viry3D
             uint32_t b = 0;
             int s = 0;
             int e = 0;
+            float fp = 0;
 
             if (f < 0)
             {
                 s = 1;
-                f = -f;
+                fp = -f;
             }
             else
             {
                 s = 0;
+                fp = f;
             }
 
-            int i = (int) floor(f);
-            float d = f - i;
+            int i = (int) floor(fp);
+            float d = fp - i;
 
             std::list<char> ib;
             do
@@ -524,7 +526,7 @@ namespace Viry3D
                 db.pop_back();
             }
 
-            b |= b << 31;
+            b |= s << 31;
             b |= e << 23;
             
             int move = 22;
@@ -539,6 +541,36 @@ namespace Viry3D
             assert(*fb == b);
 
             return b;
+        }
+
+        uint16_t FLoatToHalf(float f)
+        {
+            uint16_t h = 0;
+            uint32_t fb = *(uint32_t*) &f;
+            int s = (fb >> 31) & 0x1;
+            int e = (fb >> 23) & 0xff;
+            if (e == 0)
+            {
+                e = 0;
+            }
+            else if (e == 255)
+            {
+                assert(false);
+            }
+            else
+            {
+                e -= (1 << (8 - 1)) - 1;
+                e += (1 << (5 - 1)) - 1;
+                assert(e > 0 && e < 31);
+            }
+            int m = (fb >> 0) & 0x7fffff;
+            m >>= (23 - 10);
+
+            h |= s << 15;
+            h |= e << 10;
+            h |= m;
+
+            return h;
         }
 
         Ref<Material> InitVertexTextureTest()
@@ -649,24 +681,21 @@ void main()
 
             // todo: r16f, rgba16f
             // A 16-bit floating-point number has a 1-bit sign (S), a 5-bit
-            // exponent(E), and a 10 - bit mantissa(M)
-            if (Texture::SelectFormat({ TextureFormat::R32G32B32A32F }, false) == TextureFormat::None)
+            // exponent(E), and a 10-bit mantissa(M)
+            if (Texture::SelectFormat({ TextureFormat::R16F }, false) == TextureFormat::None)
             {
                 material = RefMake<Material>(Shader::Find("Unlit/Texture"));
             }
             else
             {
-                ByteBuffer pixels(2 * 2 * 4 * 4);
-                float* p = (float*) pixels.Bytes();
-                p[0] = 1; p[1] = 0; p[2] = 0; p[3] = 1;
-                p[4] = 0; p[5] = 1; p[6] = 0; p[7] = 1;
-                p[8] = 0; p[9] = 0; p[10] = 1; p[11] = 1;
-                p[12] = 0; p[13] = 0; p[14] = 0; p[15] = 1;
+                ByteBuffer pixels(2 * 2 * 2);
+                uint16_t* p = (uint16_t*) pixels.Bytes();
+                p[0] = FLoatToHalf(0); p[1] = FLoatToHalf(0); p[2] = FLoatToHalf(1); p[3] = FLoatToHalf(1);
                 auto texture = Texture::CreateTexture2DFromMemory(
                     pixels,
                     2,
                     2,
-                    TextureFormat::R32G32B32A32F,
+                    TextureFormat::R16F,
                     FilterMode::Nearest,
                     SamplerAddressMode::ClampToEdge,
                     false);

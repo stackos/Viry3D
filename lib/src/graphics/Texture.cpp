@@ -607,6 +607,10 @@ namespace Viry3D
 			case TextureFormat::R8G8B8A8:
 				return filament::backend::TextureFormat::RGBA8;
 
+            case TextureFormat::R16F:
+                return filament::backend::TextureFormat::R16F;
+            case TextureFormat::R16G16B16A16F:
+                return filament::backend::TextureFormat::RGBA16F;
             case TextureFormat::R32F:
                 return filament::backend::TextureFormat::R32F;
             case TextureFormat::R32G32B32A32F:
@@ -678,9 +682,11 @@ namespace Viry3D
 		switch (format)
 		{
             case TextureFormat::R8:
+            case TextureFormat::R16F:
             case TextureFormat::R32F:
                 return filament::backend::PixelDataFormat::R;
 			case TextureFormat::R8G8B8A8:
+            case TextureFormat::R16G16B16A16F:
             case TextureFormat::R32G32B32A32F:
 				return filament::backend::PixelDataFormat::RGBA;
 			default:
@@ -697,6 +703,10 @@ namespace Viry3D
             case TextureFormat::R8:
 			case TextureFormat::R8G8B8A8:
 				return filament::backend::PixelDataType::UBYTE;
+
+            case TextureFormat::R16F:
+            case TextureFormat::R16G16B16A16F:
+                return filament::backend::PixelDataType::HALF;
 
             case TextureFormat::R32F:
             case TextureFormat::R32G32B32A32F:
@@ -843,6 +853,8 @@ namespace Viry3D
 		{
 			case TextureFormat::R8:
 			case TextureFormat::R8G8B8A8:
+            case TextureFormat::R16F:
+            case TextureFormat::R16G16B16A16F:
             case TextureFormat::R32F:
             case TextureFormat::R32G32B32A32F:
 				usage |= filament::backend::TextureUsage::COLOR_ATTACHMENT;
