@@ -1085,6 +1085,11 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
                 format = GL_RGBA;
                 type = GL_UNSIGNED_BYTE;
                 break;
+            case GL_R16F:
+                internalFormat = GL_LUMINANCE;
+                format = GL_LUMINANCE;
+                type = GL_HALF_FLOAT_OES;
+                break;
             case GL_R32F:
                 internalFormat = GL_LUMINANCE;
                 format = GL_LUMINANCE;
@@ -2364,6 +2369,17 @@ void OpenGLDriver::setTextureData(GLTexture* t,
 #if VR_ANDROID || VR_IOS || VR_WASM
             case PixelDataFormat::R:
                 glFormat = GL_LUMINANCE;
+                break;
+#endif
+            default:
+                break;
+        }
+
+        switch (p.type)
+        {
+#if VR_ANDROID || VR_IOS || VR_WASM
+            case PixelDataType::HALF:
+                glType = GL_HALF_FLOAT_OES;
                 break;
 #endif
             default:
