@@ -310,6 +310,8 @@ namespace filament
 			{
 				case TextureFormat::R8: return DXGI_FORMAT_R8_UNORM;
 				case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
+                case TextureFormat::R16F: return DXGI_FORMAT_R16_FLOAT;
+                case TextureFormat::RGBA16F: return DXGI_FORMAT_R16G16B16A16_FLOAT;
                 case TextureFormat::R32F: return DXGI_FORMAT_R32_FLOAT;
                 case TextureFormat::RGBA32F: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 				case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_TYPELESS;
@@ -332,6 +334,8 @@ namespace filament
 			{
 				case TextureFormat::R8: return DXGI_FORMAT_R8_UNORM;
 				case TextureFormat::RGBA8: return DXGI_FORMAT_R8G8B8A8_UNORM;
+                case TextureFormat::R16F: return DXGI_FORMAT_R16_FLOAT;
+                case TextureFormat::RGBA16F: return DXGI_FORMAT_R16G16B16A16_FLOAT;
                 case TextureFormat::R32F: return DXGI_FORMAT_R32_FLOAT;
                 case TextureFormat::RGBA32F: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 				case TextureFormat::DEPTH16: return DXGI_FORMAT_R16_UNORM;
