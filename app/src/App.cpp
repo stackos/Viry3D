@@ -682,6 +682,7 @@ void main()
             // todo: r16f, rgba16f
             // A 16-bit floating-point number has a 1-bit sign (S), a 5-bit
             // exponent(E), and a 10-bit mantissa(M)
+#if 0
             if (Texture::SelectFormat({ TextureFormat::R16F }, false) == TextureFormat::None)
             {
                 material = RefMake<Material>(Shader::Find("Unlit/Texture"));
@@ -702,6 +703,31 @@ void main()
 
                 material->SetTexture("u_vertex_texture", texture);
             }
+#else
+            if (Texture::SelectFormat({ TextureFormat::R16G16B16A16F }, false) == TextureFormat::None)
+            {
+                material = RefMake<Material>(Shader::Find("Unlit/Texture"));
+            }
+            else
+            {
+                ByteBuffer pixels(2 * 2 * 2 * 4);
+                uint16_t* p = (uint16_t*) pixels.Bytes();
+                p[0] = FLoatToHalf(0); p[1] = FLoatToHalf(0); p[2] = FLoatToHalf(1); p[3] = FLoatToHalf(1);
+                p[4] = FLoatToHalf(0); p[5] = FLoatToHalf(1); p[6] = FLoatToHalf(0); p[7] = FLoatToHalf(1);
+                p[8] = FLoatToHalf(1); p[9] = FLoatToHalf(0); p[10] = FLoatToHalf(0); p[11] = FLoatToHalf(1);
+                p[12] = FLoatToHalf(0); p[13] = FLoatToHalf(0); p[14] = FLoatToHalf(0); p[15] = FLoatToHalf(1);
+                auto texture = Texture::CreateTexture2DFromMemory(
+                    pixels,
+                    2,
+                    2,
+                    TextureFormat::R16G16B16A16F,
+                    FilterMode::Nearest,
+                    SamplerAddressMode::ClampToEdge,
+                    false);
+
+                material->SetTexture("u_vertex_texture", texture);
+            }
+#endif
 
             // test float to binary
             FloatToBin(0.000000000000000000000000000000000000000000001f);

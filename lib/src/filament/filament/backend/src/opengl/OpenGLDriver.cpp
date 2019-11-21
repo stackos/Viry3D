@@ -1090,6 +1090,11 @@ void OpenGLDriver::textureStorage(OpenGLDriver::GLTexture* t,
                 format = GL_LUMINANCE;
                 type = GL_HALF_FLOAT_OES;
                 break;
+            case GL_RGBA16F:
+                internalFormat = GL_RGBA;
+                format = GL_RGBA;
+                type = GL_HALF_FLOAT_OES;
+                break;
             case GL_R32F:
                 internalFormat = GL_LUMINANCE;
                 format = GL_LUMINANCE;
