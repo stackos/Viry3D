@@ -49,7 +49,6 @@ namespace Viry3D
         
         struct BlendShapeFrame
         {
-            float weight;
             Vector<Vector3> vertices;
             Vector<Vector3> normals;
             Vector<Vector3> tangents;
@@ -58,7 +57,7 @@ namespace Viry3D
         struct BlendShape
         {
             String name;
-            Vector<BlendShapeFrame> frames;
+            BlendShapeFrame frame;
         };
 
     public:
@@ -82,7 +81,7 @@ namespace Viry3D
 
     private:
         void SetBindposes(Vector<Matrix4x4>&& bindposes) { m_bindposes = std::move(bindposes); }
-        void SetBlendShapes(Vector<BlendShape>&& blend_shapes) { m_blend_shapes = std::move(blend_shapes); }
+        void SetBlendShapes(Vector<BlendShape>&& blend_shapes);
         
     private:
 		static Ref<Mesh> m_shared_quad_mesh;

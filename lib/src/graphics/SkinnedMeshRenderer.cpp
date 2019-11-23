@@ -205,14 +205,11 @@ namespace Viry3D
 
 					for (int j = 0; j < vertices.Size(); ++j)
 					{
-						for (int k = 0; k < shape.frames.Size(); ++k)
-						{
-							const auto& frame = shape.frames[k];
+                        const auto& frame = shape.frame;
 
-							buffer[j].vertex += frame.vertices[j] * frame.weight * i.second.weight;
-							buffer[j].normal += frame.normals[j] * frame.weight * i.second.weight;
-							buffer[j].tangent += frame.tangents[j] * frame.weight * i.second.weight;
-						}
+                        buffer[j].vertex += frame.vertices[j] * i.second.weight;
+                        buffer[j].normal += frame.normals[j] * i.second.weight;
+                        buffer[j].tangent += frame.tangents[j] * i.second.weight;
 					}
 				}
 			}

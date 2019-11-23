@@ -151,7 +151,7 @@ namespace Viry3D
             if (blend_shape_count > 0)
             {
                 blend_shapes->Resize(blend_shape_count);
-                
+
                 for (int i = 0; i < blend_shape_count; ++i)
                 {
                     auto& shape = (*blend_shapes)[i];
@@ -161,32 +161,35 @@ namespace Viry3D
                     int frame_count = ms.Read<int>();
                     
                     shape.name = shape_name;
-                    shape.frames.Resize(frame_count);
-                    
+                    auto& frame = shape.frame;
+
+                    if (frame_count > 0)
+                    {
+                        frame.vertices.Resize(vertex_count, Vector3::Zero());
+                        frame.normals.Resize(normal_count, Vector3::Zero());
+                        frame.tangents.Resize(tangent_count, Vector3::Zero());
+                    }
+
                     for (int j = 0; j < frame_count; ++j)
                     {
-                        auto& frame = shape.frames[j];
-                        
-                        float frame_weight = ms.Read<float>();
-                        
-                        frame.weight = frame_weight / 100.0f;
-                        frame.vertices.Resize(vertex_count);
-                        frame.normals.Resize(normal_count);
-                        frame.tangents.Resize(tangent_count);
-                        
-                        if (vertex_count > 0)
+                        float weight = ms.Read<float>() / 100.0f;
+
+                        for (int k = 0; k < vertex_count; ++k)
                         {
-                            ms.Read(&frame.vertices[0], frame.vertices.SizeInBytes());
+                            Vector3 vertex = ms.Read<Vector3>();
+                            frame.vertices[k] += vertex * weight;
                         }
-                        
-                        if (normal_count > 0)
+
+                        for (int k = 0; k < normal_count; ++k)
                         {
-                            ms.Read(&frame.normals[0], frame.normals.SizeInBytes());
+                            Vector3 normal = ms.Read<Vector3>();
+                            frame.normals[k] += normal * weight;
                         }
-                        
-                        if (tangent_count > 0)
+
+                        for (int k = 0; k < tangent_count; ++k)
                         {
-                            ms.Read(&frame.tangents[0], frame.tangents.SizeInBytes());
+                            Vector3 tangent = ms.Read<Vector3>();
+                            frame.tangents[k] += tangent * weight;
                         }
                     }
                 }
@@ -359,5 +362,10 @@ namespace Viry3D
             driver.setRenderPrimitiveBuffer(m_primitives[i], m_vb, m_ib, m_enabled_attributes);
             driver.setRenderPrimitiveRange(m_primitives[i], filament::backend::PrimitiveType::TRIANGLES, m_submeshes[i].index_first, 0, m_vertices.Size() - 1, m_submeshes[i].index_count);
         }
+    }
+
+    void Mesh::SetBlendShapes(Vector<BlendShape>&& blend_shapes)
+    {
+        m_blend_shapes = std::move(blend_shapes);
     }
 }

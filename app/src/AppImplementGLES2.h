@@ -356,8 +356,8 @@ void main()
         void InitGPUBlendShapeTest()
         {
             auto model = Resources::LoadGameObject("Resources/res/model/unitychan/unitychan.go");
-            model->GetTransform()->SetPosition(Vector3(1, 0, 0));
-            model->GetTransform()->SetRotation(Quaternion::Euler(0, 180, 0));
+            model->GetTransform()->SetPosition(Vector3(1.4f, -1, -2));
+            model->GetTransform()->SetRotation(Quaternion::Euler(0, 200, 0));
             auto anim = model->GetComponent<Animation>();
             anim->Play(0);
         }
