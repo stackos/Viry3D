@@ -26,6 +26,8 @@
 
 namespace Viry3D
 {
+    class Texture;
+
     class Mesh : public Object
     {
     public:
@@ -92,6 +94,7 @@ namespace Viry3D
         Vector<Submesh> m_submeshes;
         Vector<Matrix4x4> m_bindposes;
         Vector<BlendShape> m_blend_shapes;
+        Ref<Texture> m_blend_shape_texture;
         bool m_uint32_index;
 		filament::backend::AttributeArray m_attributes;
 		uint32_t m_enabled_attributes;

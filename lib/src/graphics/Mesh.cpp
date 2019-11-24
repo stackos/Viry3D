@@ -19,6 +19,7 @@
 #include "Debug.h"
 #include "Engine.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "io/File.h"
 #include "io/MemoryStream.h"
 #include "memory/Memory.h"
@@ -200,6 +201,50 @@ namespace Viry3D
             mesh->SetBindposes(std::move(*bindposes));
             mesh->SetBlendShapes(std::move(*blend_shapes));
             
+            // create blendshape texture
+            if (blend_shape_count > 0 && Texture::SelectFormat({ TextureFormat::R32G32B32A32F }, false) != TextureFormat::None)
+            {
+                int vector_count = vertex_count * blend_shape_count + normal_count * blend_shape_count + tangent_count * blend_shape_count;
+                const int blend_shape_texture_width = 2048;
+                int blend_shape_texture_height = vector_count / blend_shape_texture_width;
+                if (vector_count % blend_shape_texture_width != 0)
+                {
+                    blend_shape_texture_height += 1;
+                }
+                assert(blend_shape_texture_height <= 2048);
+                vector_count = blend_shape_texture_height * blend_shape_texture_width;
+
+                ByteBuffer blend_shape_texture_buffer(vector_count * sizeof(Vector4));
+                Memory::Zero(blend_shape_texture_buffer.Bytes(), blend_shape_texture_buffer.Size());
+                Vector4* pvector = (Vector4*) blend_shape_texture_buffer.Bytes();
+                for (int i = 0; i < blend_shape_count; ++i)
+                {
+                    for (int j = 0; j < vertex_count; ++j)
+                    {
+                        pvector[i * vertex_count + j] = mesh->m_blend_shapes[i].frame.vertices[j];
+                    }
+
+                    for (int j = 0; j < normal_count; ++j)
+                    {
+                        pvector[vertex_count * blend_shape_count + i * normal_count + j] = mesh->m_blend_shapes[i].frame.normals[j];
+                    }
+
+                    for (int j = 0; j < tangent_count; ++j)
+                    {
+                        pvector[vertex_count * blend_shape_count + normal_count * blend_shape_count + i * tangent_count + j] = mesh->m_blend_shapes[i].frame.tangents[j];
+                    }
+                }
+                
+                mesh->m_blend_shape_texture = Texture::CreateTexture2DFromMemory(
+                    blend_shape_texture_buffer,
+                    blend_shape_texture_width,
+                    blend_shape_texture_height,
+                    TextureFormat::R32G32B32A32F,
+                    FilterMode::Nearest,
+                    SamplerAddressMode::ClampToEdge,
+                    false);
+            }
+
             delete vertices;
             delete indices;
             delete submeshes;
