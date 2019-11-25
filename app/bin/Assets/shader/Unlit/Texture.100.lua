@@ -13,7 +13,7 @@ void main()
 {
     mat4 model_matrix = u_model_matrix;
 
-	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
+	gl_Position = vec4(i_vertex.xyz, 1.0) * model_matrix * u_view_matrix * u_projection_matrix;
 	v_uv = i_uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
 
 	vk_convert();

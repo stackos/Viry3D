@@ -16,6 +16,7 @@
 */
 
 #include "Vector3.h"
+#include "Vector4.h"
 #include "Vector2.h"
 #include "Mathf.h"
 #include <sstream>
@@ -39,7 +40,14 @@ namespace Viry3D
 	{
 	}
 
-	Vector3::Vector3(const Vector2& v2) :
+    Vector3::Vector3(const Vector4& v4):
+        x(v4.x),
+        y(v4.y),
+        z(v4.z)
+    {
+    }
+
+	Vector3::Vector3(const Vector2& v2):
 		x(v2.x),
 		y(v2.y),
 		z(0)

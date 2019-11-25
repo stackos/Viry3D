@@ -46,7 +46,7 @@ void main()
 #else
     mat4 model_matrix = u_model_matrix;
 #endif
-	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
+	gl_Position = vec4(i_vertex.xyz, 1.0) * model_matrix * u_view_matrix * u_projection_matrix;
 
 	vk_convert();
 }

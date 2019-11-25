@@ -22,6 +22,7 @@
 namespace Viry3D
 {
 	struct Vector2;
+    struct Vector4;
 
 	struct Vector3
 	{
@@ -38,6 +39,7 @@ namespace Viry3D
         static float Dot(const Vector3& a, const Vector3& b);
 
 		explicit Vector3(float x = 0, float y = 0, float z = 0);
+        Vector3(const Vector4& v4);
 		Vector3(const Vector2& v2);
 		Vector3 operator -() const;
 		Vector3 operator +(const Vector3& v) const;

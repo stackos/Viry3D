@@ -144,6 +144,7 @@ namespace Viry3D
 
     void SkinnedMeshRenderer::Prepare()
     {
+        auto& driver = Engine::Instance()->GetDriverApi();
         const auto& materials = this->GetMaterials();
         const auto& mesh = this->GetMesh();
 
@@ -172,7 +173,6 @@ namespace Viry3D
 				m_bone_vectors[i * 3 + 2] = mat.GetRow(2);
             }
 
-            auto& driver = Engine::Instance()->GetDriverApi();
             if (!m_bones_uniform_buffer)
             {
                 m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(SkinnedMeshRendererUniforms), filament::backend::BufferUsage::DYNAMIC);
@@ -188,71 +188,105 @@ namespace Viry3D
 		{
 			m_blend_shape_dirty = false;
 
-			const auto& vertices = mesh->GetVertices();
-			const auto& submeshes = mesh->GetSubmeshes();
-			const auto& blend_shapes = mesh->GetBlendShapes();
+            if (mesh->GetBlendShapeTexture())
+            {
+                for (const auto& i : materials)
+                {
+                    if (i)
+                    {
+                        i->EnableKeyword("BLEND_SHAPE_ON");
+                        i->SetTexture(MaterialProperty::BLEND_SHAPE_TEXTURE, mesh->GetBlendShapeTexture());
+                    }
+                }
 
-			auto& driver = Engine::Instance()->GetDriverApi();
+                m_bone_vectors.Resize(2 + m_blend_shape_weights.Size());
 
-			Mesh::Vertex* buffer = (Mesh::Vertex*) driver.allocate(vertices.SizeInBytes());
-			Memory::Copy(buffer, vertices.Bytes(), vertices.SizeInBytes());
+                // store weight count in element 0£¬ texture size in 1
+                m_bone_vectors[0] = Vector4((float) m_bone_vectors.Size(), (float) mesh->GetVertices().Size(), (float) mesh->GetBlendShapes().Size());
+                m_bone_vectors[1] = Vector4((float) mesh->GetBlendShapeTexture()->GetWidth(), (float) mesh->GetBlendShapeTexture()->GetHeight());
+                
+                int weight_index = 2;
+                for (const auto& i : m_blend_shape_weights)
+                {
+                    m_bone_vectors[weight_index] = Vector4((float) i.second.index, i.second.weight);
+                    weight_index++;
+                }
 
-			for (const auto& i : m_blend_shape_weights)
-			{
-				if (i.second.weight > 0)
-				{
-					const auto& shape = blend_shapes[i.second.index];
+                if (!m_bones_uniform_buffer)
+                {
+                    m_bones_uniform_buffer = driver.createUniformBuffer(sizeof(SkinnedMeshRendererUniforms), filament::backend::BufferUsage::DYNAMIC);
+                }
 
-					for (int j = 0; j < vertices.Size(); ++j)
-					{
-                        const auto& frame = shape.frame;
+                void* buffer = driver.allocate(m_bone_vectors.SizeInBytes());
+                Memory::Copy(buffer, m_bone_vectors.Bytes(), m_bone_vectors.SizeInBytes());
+                driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, m_bone_vectors.SizeInBytes()));
+            }
+            else
+            {
+                const auto& vertices = mesh->GetVertices();
+                const auto& submeshes = mesh->GetSubmeshes();
+                const auto& blend_shapes = mesh->GetBlendShapes();
 
-                        buffer[j].vertex += frame.vertices[j] * i.second.weight;
-                        buffer[j].normal += frame.normals[j] * i.second.weight;
-                        buffer[j].tangent += frame.tangents[j] * i.second.weight;
-					}
-				}
-			}
+                Mesh::Vertex* buffer = (Mesh::Vertex*) driver.allocate(vertices.SizeInBytes());
+                Memory::Copy(buffer, vertices.Bytes(), vertices.SizeInBytes());
 
-			if (m_vb_vertex_count != vertices.Size())
-			{
-				if (m_vb)
-				{
-					driver.destroyVertexBuffer(m_vb);
-					m_vb.clear();
-				}
-			}
-			if (!m_vb)
-			{
-				m_vb = driver.createVertexBuffer(1, (uint8_t) Shader::AttributeLocation::Count, vertices.Size(), mesh->GetAttributes(), filament::backend::BufferUsage::DYNAMIC);
-				m_vb_vertex_count = vertices.Size();
-			}
+                for (const auto& i : m_blend_shape_weights)
+                {
+                    if (i.second.weight > 0)
+                    {
+                        const auto& shape = blend_shapes[i.second.index];
 
-			if (m_submeshes.Size() != submeshes.Size() ||
-				Memory::Compare(&m_submeshes[0], &submeshes[0], submeshes.SizeInBytes()) != 0)
-			{
-				for (int i = 0; i < m_primitives.Size(); ++i)
-				{
-					driver.destroyRenderPrimitive(m_primitives[i]);
-					m_primitives[i].clear();
-				}
-				m_primitives.Clear();
-				m_submeshes.Clear();
-			}
-			if (m_primitives.Size() == 0)
-			{
-				m_primitives.Resize(submeshes.Size());
-				for (int i = 0; i < m_primitives.Size(); ++i)
-				{
-					m_primitives[i] = driver.createRenderPrimitive();
+                        for (int j = 0; j < vertices.Size(); ++j)
+                        {
+                            const auto& frame = shape.frame;
 
-					driver.setRenderPrimitiveBuffer(m_primitives[i], m_vb, mesh->GetIndexBuffer(), mesh->GetEnabledAttributes());
-					driver.setRenderPrimitiveRange(m_primitives[i], filament::backend::PrimitiveType::TRIANGLES, submeshes[i].index_first, 0, vertices.Size() - 1, submeshes[i].index_count);
-				}
-				m_submeshes = submeshes;
-			}
+                            buffer[j].vertex += frame.vertices[j] * i.second.weight;
+                            buffer[j].normal += frame.normals[j] * i.second.weight;
+                            buffer[j].tangent += frame.tangents[j] * i.second.weight;
+                        }
+                    }
+                }
 
-			driver.updateVertexBuffer(m_vb, 0, filament::backend::BufferDescriptor(buffer, vertices.SizeInBytes()), 0);
+                if (m_vb_vertex_count != vertices.Size())
+                {
+                    if (m_vb)
+                    {
+                        driver.destroyVertexBuffer(m_vb);
+                        m_vb.clear();
+                    }
+                }
+                if (!m_vb)
+                {
+                    m_vb = driver.createVertexBuffer(1, (uint8_t) Shader::AttributeLocation::Count, vertices.Size(), mesh->GetAttributes(), filament::backend::BufferUsage::DYNAMIC);
+                    m_vb_vertex_count = vertices.Size();
+                }
+
+                if (m_submeshes.Size() != submeshes.Size() ||
+                    Memory::Compare(&m_submeshes[0], &submeshes[0], submeshes.SizeInBytes()) != 0)
+                {
+                    for (int i = 0; i < m_primitives.Size(); ++i)
+                    {
+                        driver.destroyRenderPrimitive(m_primitives[i]);
+                        m_primitives[i].clear();
+                    }
+                    m_primitives.Clear();
+                    m_submeshes.Clear();
+                }
+                if (m_primitives.Size() == 0)
+                {
+                    m_primitives.Resize(submeshes.Size());
+                    for (int i = 0; i < m_primitives.Size(); ++i)
+                    {
+                        m_primitives[i] = driver.createRenderPrimitive();
+
+                        driver.setRenderPrimitiveBuffer(m_primitives[i], m_vb, mesh->GetIndexBuffer(), mesh->GetEnabledAttributes());
+                        driver.setRenderPrimitiveRange(m_primitives[i], filament::backend::PrimitiveType::TRIANGLES, submeshes[i].index_first, 0, vertices.Size() - 1, submeshes[i].index_count);
+                    }
+                    m_submeshes = submeshes;
+                }
+
+                driver.updateVertexBuffer(m_vb, 0, filament::backend::BufferDescriptor(buffer, vertices.SizeInBytes()), 0);
+            }
 		}
         
         MeshRenderer::Prepare();

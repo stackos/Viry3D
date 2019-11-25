@@ -288,7 +288,7 @@ namespace Viry3D
             sizeof(Vertex::normal), sizeof(Vertex::tangent), sizeof(Vertex::bone_weights), sizeof(Vertex::bone_indices)
         };
         filament::backend::ElementType types[] = {
-            filament::backend::ElementType::FLOAT3,
+            filament::backend::ElementType::FLOAT4,
             filament::backend::ElementType::FLOAT4,
             filament::backend::ElementType::FLOAT2,
             filament::backend::ElementType::FLOAT2,
@@ -351,6 +351,11 @@ namespace Viry3D
      
         m_vertices = std::move(vertices);
         m_indices = std::move(indices);
+
+        for (int i = 0; i < m_vertices.Size(); ++i)
+        {
+            m_vertices[i].vertex.w = (float) i;
+        }
         
         assert(m_vertices.Size() <= m_buffer_vertex_count);
         assert(m_indices.Size() <= m_buffer_index_count);

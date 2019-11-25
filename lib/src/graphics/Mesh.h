@@ -33,7 +33,7 @@ namespace Viry3D
     public:
         struct Vertex
         {
-            Vector3 vertex;
+            Vector4 vertex;
             Color color;
             Vector2 uv;
             Vector2 uv2;
@@ -75,6 +75,7 @@ namespace Viry3D
         const Vector<Submesh>& GetSubmeshes() const { return m_submeshes; }
         const Vector<Matrix4x4>& GetBindposes() const { return m_bindposes; }
         const Vector<BlendShape>& GetBlendShapes() const { return m_blend_shapes; }
+        const Ref<Texture>& GetBlendShapeTexture() const { return m_blend_shape_texture; }
 		const filament::backend::AttributeArray& GetAttributes() const { return m_attributes; }
 		uint32_t GetEnabledAttributes() const { return m_enabled_attributes; }
 		const filament::backend::VertexBufferHandle& GetVertexBuffer() const { return m_vb; }

@@ -2,6 +2,9 @@ local vs = [[
 #ifndef SKIN_ON
 	#define SKIN_ON 0
 #endif
+#ifndef BLEND_SHAPE_ON
+	#define BLEND_SHAPE_ON 0
+#endif
 
 VK_UNIFORM_BINDING(0) uniform PerView
 {
@@ -45,6 +48,39 @@ VK_LAYOUT_LOCATION(0) out vec2 v_uv;
 	}
 #endif
 
+#if (BLEND_SHAPE_ON == 1)
+    VK_UNIFORM_BINDING(2) uniform PerRendererBones
+	{
+		vec4 u_bones[210];
+	};
+    VK_SAMPLER_BINDING(0) uniform sampler2D u_blend_shape_texture;
+    vec4 blend_shape()
+    {
+        vec4 vertex = i_vertex;
+
+        int weight_count = int(u_bones[0].x);
+        int vertex_count = int(u_bones[0].y);
+        int blend_shape_count = int(u_bones[0].z);
+        int texture_width = int(u_bones[1].x);
+        int texture_height = int(u_bones[1].y);
+        int vertex_index = int(vertex.w);
+
+        for (int i = 0; i < weight_count; ++i)
+        {
+            int blend_shape_index = int(u_bones[2 + i].x);
+            float weight = u_bones[2 + i].y;
+
+            int vector_index = vertex_count * blend_shape_index + vertex_index;
+            float x = float(vector_index % texture_width) / float(texture_width);
+            float y = float(vector_index / texture_width) / float(texture_height);
+            vec4 vertex_offset = texture(u_blend_shape_texture, vec2(x, y));
+            vertex.xyz += vertex_offset.xyz * weight;
+        }
+
+        return vertex;
+    }
+#endif
+
 void main()
 {
 #if (SKIN_ON == 1)
@@ -52,7 +88,12 @@ void main()
 #else
     mat4 model_matrix = u_model_matrix;
 #endif
-	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
+#if (BLEND_SHAPE_ON == 1)
+    vec4 vertex = blend_shape();
+#else
+    vec4 vertex = i_vertex;
+#endif
+	gl_Position = vec4(vertex.xyz, 1.0) * model_matrix * u_view_matrix * u_projection_matrix;
 	v_uv = i_uv * u_texture_scale_offset.xy + u_texture_scale_offset.zw;
 
 	vk_convert();
@@ -61,7 +102,7 @@ void main()
 
 local fs = [[
 precision highp float;
-VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
+VK_SAMPLER_BINDING(1) uniform sampler2D u_texture;
 VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
 	vec4 u_color;
@@ -164,13 +205,23 @@ local pass = {
         },
 	},
 	samplers = {
+        {
+			name = "PerMaterialVertex",
+			binding = 3,
+			samplers = {
+				{
+					name = "u_blend_shape_texture",
+					binding = 0,
+				},
+			},
+		},
 		{
 			name = "PerMaterialFragment",
 			binding = 4,
 			samplers = {
 				{
 					name = "u_texture",
-					binding = 0,
+					binding = 1,
 				},
 			},
 		},

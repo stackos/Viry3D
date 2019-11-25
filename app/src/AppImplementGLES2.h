@@ -206,7 +206,7 @@ varying vec4 v_color;
 void main()
 {
     mat4 model_matrix = u_model_matrix;
-	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
+	gl_Position = vec4(i_vertex.xyz, 1.0) * model_matrix * u_view_matrix * u_projection_matrix;
 	v_uv = i_uv;
     v_color = texture2D(u_vertex_texture, v_uv);
 	vk_convert();
@@ -244,7 +244,7 @@ VK_LAYOUT_LOCATION(1) out vec4 v_color;
 void main()
 {
     mat4 model_matrix = u_model_matrix;
-	gl_Position = i_vertex * model_matrix * u_view_matrix * u_projection_matrix;
+	gl_Position = vec4(i_vertex.xyz, 1.0) * model_matrix * u_view_matrix * u_projection_matrix;
 	v_uv = i_uv;
     v_color = texture(u_vertex_texture, v_uv);
 	vk_convert();
