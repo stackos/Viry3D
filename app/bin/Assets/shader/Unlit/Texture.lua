@@ -71,8 +71,16 @@ VK_LAYOUT_LOCATION(0) out vec2 v_uv;
             float weight = u_bones[2 + i].y;
 
             int vector_index = vertex_count * blend_shape_index + vertex_index;
-            float x = float(vector_index % texture_width) / float(texture_width);
-            float y = float(vector_index / texture_width) / float(texture_height);
+            float x = 0.0;
+            if (texture_width > 1)
+            {
+                x = float(vector_index % texture_width) / float(texture_width - 1);
+            }
+            float y = 0.0;
+            if (texture_height > 1)
+            {
+                y = float(vector_index / texture_width) / float(texture_height - 1);
+            }
             vec4 vertex_offset = texture(u_blend_shape_texture, vec2(x, y));
             vertex.xyz += vertex_offset.xyz * weight;
         }
