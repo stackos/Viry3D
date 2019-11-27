@@ -226,7 +226,7 @@ namespace Viry3D
                 void* buffer = driver.allocate(m_bone_vectors.SizeInBytes());
                 Memory::Copy(buffer, m_bone_vectors.Bytes(), m_bone_vectors.SizeInBytes());
                 driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, m_bone_vectors.SizeInBytes()));
-            
+                
                 // blend shape sampler
                 if (!m_blend_shape_sampler_group)
                 {

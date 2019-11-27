@@ -58,19 +58,19 @@ VK_LAYOUT_LOCATION(0) out vec2 v_uv;
     {
         vec4 vertex = i_vertex;
 
-        int weight_count = int(u_bones[0].x);
-        int vertex_count = int(u_bones[0].y);
-        int blend_shape_count = int(u_bones[0].z);
-        int texture_width = int(u_bones[1].x);
-        int texture_height = int(u_bones[1].y);
-        int vertex_index = int(vertex.w);
+        uint weight_count = uint(u_bones[0].x);
+        uint vertex_count = uint(u_bones[0].y);
+        uint blend_shape_count = uint(u_bones[0].z);
+        uint texture_width = uint(u_bones[1].x);
+        uint texture_height = uint(u_bones[1].y);
+        uint vertex_index = uint(vertex.w);
 
-        for (int i = 0; i < weight_count; ++i)
+        for (uint i = 0; i < weight_count; ++i)
         {
-            int blend_shape_index = int(u_bones[2 + i].x);
+            uint blend_shape_index = uint(u_bones[2 + i].x);
             float weight = u_bones[2 + i].y;
 
-            int vector_index = vertex_count * blend_shape_index + vertex_index;
+            uint vector_index = vertex_count * blend_shape_index + vertex_index;
             float x = 0.0;
             if (texture_width > 1)
             {

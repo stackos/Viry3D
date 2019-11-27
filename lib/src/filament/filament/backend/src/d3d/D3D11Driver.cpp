@@ -870,6 +870,35 @@ namespace filament
 						m_context->context->VSSetConstantBuffers1((UINT) i, 0, nullptr, nullptr, nullptr);
 					}
 				}
+
+                const auto& samplers = program->info.getSamplerGroupInfo();
+                for (size_t i = 0; i < samplers.size(); ++i)
+                {
+                    if (i == 2 || i == 3) // vs
+                    {
+                        if (m_context->sampler_group_binding[i].sampler_group)
+                        {
+                            auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, m_context->sampler_group_binding[i].sampler_group);
+
+                            for (int j = 0; j < samplers[i].size(); ++j)
+                            {
+                                auto& s = sampler_group->sb->getSamplers()[j];
+
+                                if (s.t)
+                                {
+                                    auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
+                                    if (texture->image_view)
+                                    {
+                                        m_context->context->VSSetShaderResources((UINT) samplers[i][j].binding, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
+
+                                        ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
+                                        m_context->context->VSSetSamplers((UINT) samplers[i][j].binding, 1, &sampler);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 			}
 			
 			if (program->pixel_shader)
@@ -891,37 +920,30 @@ namespace filament
 				const auto& samplers = program->info.getSamplerGroupInfo();
 				for (size_t i = 0; i < samplers.size(); ++i)
 				{
-					if (m_context->sampler_group_binding[i].sampler_group)
-					{
-						auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, m_context->sampler_group_binding[i].sampler_group);
+                    if (i == 4) // ps
+                    {
+                        if (m_context->sampler_group_binding[i].sampler_group)
+                        {
+                            auto sampler_group = handle_cast<D3D11SamplerGroup>(m_handle_map, m_context->sampler_group_binding[i].sampler_group);
 
-						for (int j = 0; j < samplers[i].size(); ++j)
-						{
-							auto& s = sampler_group->sb->getSamplers()[j];
-							
-							if (s.t)
-							{
-								auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
-								if (texture->image_view)
-								{
-                                    if (i == 3) // vs
-                                    {
-                                        m_context->context->VSSetShaderResources((UINT) samplers[i][j].binding, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
+                            for (int j = 0; j < samplers[i].size(); ++j)
+                            {
+                                auto& s = sampler_group->sb->getSamplers()[j];
 
-                                        ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
-                                        m_context->context->VSSetSamplers((UINT) samplers[i][j].binding, 1, &sampler);
-                                    }
-                                    else if (i == 4) // ps
+                                if (s.t)
+                                {
+                                    auto texture = handle_const_cast<D3D11Texture>(m_handle_map, s.t);
+                                    if (texture->image_view)
                                     {
                                         m_context->context->PSSetShaderResources((UINT) samplers[i][j].binding, 1, (ID3D11ShaderResourceView* const*) &texture->image_view);
 
                                         ID3D11SamplerState* sampler = m_context->GetSampler(s.s);
                                         m_context->context->PSSetSamplers((UINT) samplers[i][j].binding, 1, &sampler);
                                     }
-								}
-							}
-						}
-					}
+                                }
+                            }
+                        }
+                    }
 				}
 			}
 
