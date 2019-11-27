@@ -38,6 +38,11 @@ namespace Viry3D
             driver.destroyUniformBuffer(m_bones_uniform_buffer);
 			m_bones_uniform_buffer.clear();
         }
+        if (m_blend_shape_sampler_group)
+        {
+            driver.destroySamplerGroup(m_blend_shape_sampler_group);
+            m_blend_shape_sampler_group.clear();
+        }
 
 		if (m_vb)
 		{
@@ -190,12 +195,13 @@ namespace Viry3D
 
             if (mesh->GetBlendShapeTexture())
             {
+                const auto& blend_shape_texture = mesh->GetBlendShapeTexture();
+
                 for (const auto& i : materials)
                 {
                     if (i)
                     {
                         i->EnableKeyword("BLEND_SHAPE_ON");
-                        i->SetTexture(MaterialProperty::BLEND_SHAPE_TEXTURE, mesh->GetBlendShapeTexture());
                     }
                 }
 
@@ -203,7 +209,7 @@ namespace Viry3D
 
                 // store weight count in element 0£¬ texture size in 1
                 m_bone_vectors[0] = Vector4((float) m_bone_vectors.Size(), (float) mesh->GetVertices().Size(), (float) mesh->GetBlendShapes().Size());
-                m_bone_vectors[1] = Vector4((float) mesh->GetBlendShapeTexture()->GetWidth(), (float) mesh->GetBlendShapeTexture()->GetHeight());
+                m_bone_vectors[1] = Vector4((float) blend_shape_texture->GetWidth(), (float) blend_shape_texture->GetHeight());
                 
                 int weight_index = 2;
                 for (const auto& i : m_blend_shape_weights)
@@ -220,6 +226,15 @@ namespace Viry3D
                 void* buffer = driver.allocate(m_bone_vectors.SizeInBytes());
                 Memory::Copy(buffer, m_bone_vectors.Bytes(), m_bone_vectors.SizeInBytes());
                 driver.loadUniformBuffer(m_bones_uniform_buffer, filament::backend::BufferDescriptor(buffer, m_bone_vectors.SizeInBytes()));
+            
+                // blend shape sampler
+                if (!m_blend_shape_sampler_group)
+                {
+                    m_blend_shape_sampler_group = driver.createSamplerGroup(1);
+                }
+                filament::backend::SamplerGroup samplers(1);
+                samplers.setSampler(0, blend_shape_texture->GetTexture(), blend_shape_texture->GetSampler());
+                driver.updateSamplerGroup(m_blend_shape_sampler_group, std::move(samplers));
             }
             else
             {

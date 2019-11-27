@@ -214,8 +214,8 @@ local pass = {
 	},
 	samplers = {
         {
-			name = "PerMaterialVertex",
-			binding = 3,
+			name = "PerRendererBones",
+			binding = 2,
 			samplers = {
 				{
 					name = "u_blend_shape_texture",

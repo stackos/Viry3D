@@ -36,6 +36,7 @@ namespace Viry3D
         void SetBlendShapeWeight(const String& name, float weight);
 		const Vector<Vector4>& GetBoneVectors() const { return m_bone_vectors; };
         const filament::backend::UniformBufferHandle& GetBonesUniformBuffer() const { return m_bones_uniform_buffer; }
+        const filament::backend::SamplerGroupHandle& GetBlendShapeSamplerGroup() const { return m_blend_shape_sampler_group; }
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
         
 	protected:
@@ -59,6 +60,7 @@ namespace Viry3D
 		bool m_blend_shape_dirty;
 		Vector<Vector4> m_bone_vectors;
         filament::backend::UniformBufferHandle m_bones_uniform_buffer;
+        filament::backend::SamplerGroupHandle m_blend_shape_sampler_group;
 		filament::backend::VertexBufferHandle m_vb;
 		Vector<filament::backend::RenderPrimitiveHandle> m_primitives;
 		int m_vb_vertex_count;

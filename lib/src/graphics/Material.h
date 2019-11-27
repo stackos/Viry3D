@@ -92,8 +92,7 @@ namespace Viry3D
 		static constexpr const char* TEXTURE = "u_texture";
 		static constexpr const char* TEXTURE_SCALE_OFFSET = "u_texture_scale_offset";
 		static constexpr const char* COLOR = "u_color";
-        static constexpr const char* BLEND_SHAPE_TEXTURE = "u_blend_shape_texture";
-		
+
         enum class Type
         {
             Color,

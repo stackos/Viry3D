@@ -190,34 +190,42 @@ void OpenGLProgram::updateSamplers(OpenGLDriver* gl) noexcept {
     auto const& UTILS_RESTRICT blockInfos = mBlockInfos;
 
     UTILS_ASSUME(mUsedBindingsCount > 0);
-    for (uint8_t i = 0, tmu = 0, n = mUsedBindingsCount; i < n; i++) {
+    for (uint8_t i = 0, tmu = 0, n = mUsedBindingsCount; i < n; i++)
+    {
         BlockInfo blockInfo = blockInfos[i];
         HwSamplerGroup const * const UTILS_RESTRICT hwsb = samplerBindings[blockInfo.binding];
-        SamplerGroup const& UTILS_RESTRICT sb = *(hwsb->sb);
-        SamplerGroup::Sampler const* const UTILS_RESTRICT samplers = sb.getSamplers();
-        for (uint8_t j = 0, m = blockInfo.count ; j <= m; ++j, ++tmu) { // "<=" on purpose here
-            const uint8_t index = indicesRun[tmu];
-            assert(index < sb.getSize());
+        if (hwsb)
+        {
+            SamplerGroup const& UTILS_RESTRICT sb = *(hwsb->sb);
+            SamplerGroup::Sampler const* const UTILS_RESTRICT samplers = sb.getSamplers();
+            for (uint8_t j = 0, m = blockInfo.count; j <= m; ++j, ++tmu)
+            { // "<=" on purpose here
+                const uint8_t index = indicesRun[tmu];
+                assert(index < sb.getSize());
 
-            Handle<HwTexture> th = samplers[index].t;
-            if (UTILS_UNLIKELY(!th)) {
-                continue; // this can happen if the SamplerGroup isn't initialized
-            }
-
-            const GLTexture* const UTILS_RESTRICT t = gl->handle_cast<const GLTexture*>(th);
-            if (UTILS_UNLIKELY(t->gl.fence)) {
-                if (gl->getShaderModel() >= backend::ShaderModel::GL_ES_30) {
-                    glWaitSync(t->gl.fence, 0, GL_TIMEOUT_IGNORED);
-                    glDeleteSync(t->gl.fence);
+                Handle<HwTexture> th = samplers[index].t;
+                if (UTILS_UNLIKELY(!th))
+                {
+                    continue; // this can happen if the SamplerGroup isn't initialized
                 }
-                t->gl.fence = nullptr;
+
+                const GLTexture* const UTILS_RESTRICT t = gl->handle_cast<const GLTexture*>(th);
+                if (UTILS_UNLIKELY(t->gl.fence))
+                {
+                    if (gl->getShaderModel() >= backend::ShaderModel::GL_ES_30)
+                    {
+                        glWaitSync(t->gl.fence, 0, GL_TIMEOUT_IGNORED);
+                        glDeleteSync(t->gl.fence);
+                    }
+                    t->gl.fence = nullptr;
+                }
+
+                gl->bindTexture(tmu, t);
+
+                // FIXME: getSampler() is expensive because it's a hashmap lookup
+                GLuint sampler = gl->getSampler(samplers[index].s);
+                gl->bindSampler(tmu, sampler);
             }
-
-            gl->bindTexture(tmu, t);
-
-            // FIXME: getSampler() is expensive because it's a hashmap lookup
-            GLuint sampler = gl->getSampler(samplers[index].s);
-            gl->bindSampler(tmu, sampler);
         }
     }
     CHECK_GL_ERROR(utils::slog.e)

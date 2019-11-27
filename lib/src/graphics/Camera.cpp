@@ -360,6 +360,10 @@ namespace Viry3D
         {
             driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBonesUniformBuffer());
         }
+        if (skin && skin->GetBlendShapeSamplerGroup())
+        {
+            driver.bindSamplers((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBlendShapeSamplerGroup());
+        }
 
 		auto draw = [&](bool shadow_enable = false, bool light_add = false) {
 			const auto& materials = renderer->GetMaterials();
