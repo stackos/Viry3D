@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.23",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "project1",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

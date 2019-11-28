@@ -21,3 +21,6 @@ export out
 export out.meta
 .DS_Store
 xcuserdata
+Binaries
+Intermediate
+Saved
