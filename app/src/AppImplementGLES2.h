@@ -32,9 +32,9 @@ namespace Viry3D
             camera->SetClearColor(Color(0, 0, 1, 1));
             camera->SetCullingMask(1 << 0);
 
-            this->InitKTXTest();
+            //this->InitKTXTest();
             this->InitGPUBlendShapeTest();
-            this->InitUI();
+            //this->InitUI();
         }
 
         void InitKTXTest()
@@ -280,6 +280,7 @@ void main()
             Shader::SamplerGroup s;
             s.name = "PerMaterialVertex";
             s.binding = (int) Shader::BindingPoint::PerMaterialVertex;
+;
             s.samplers.Add({ "u_vertex_texture", 0 });
             pass.samplers.Add(s);
             s = {};

@@ -680,6 +680,7 @@ namespace filament
 			}
 
 			ID3D11ShaderResourceView* null_views[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { };
+            m_context->context->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, null_views);
 			m_context->context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, null_views);
 		}
 
@@ -871,6 +872,9 @@ namespace filament
 					}
 				}
 
+                ID3D11ShaderResourceView* null_views[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+                m_context->context->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, null_views);
+
                 const auto& samplers = program->info.getSamplerGroupInfo();
                 for (size_t i = 0; i < samplers.size(); ++i)
                 {
@@ -916,6 +920,9 @@ namespace filament
 						m_context->context->PSSetConstantBuffers1((UINT) i, 0, nullptr, nullptr, nullptr);
 					}
 				}
+
+                ID3D11ShaderResourceView* null_views[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { };
+                m_context->context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, null_views);
 
 				const auto& samplers = program->info.getSamplerGroupInfo();
 				for (size_t i = 0; i < samplers.size(); ++i)
