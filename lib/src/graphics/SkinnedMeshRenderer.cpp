@@ -189,10 +189,8 @@ namespace Viry3D
         }
 
 		// update blend shapes
-		if (m_blend_shape_dirty && mesh)
+		if (mesh)
 		{
-			m_blend_shape_dirty = false;
-
             if (mesh->GetBlendShapeTexture())
             {
                 const auto& blend_shape_texture = mesh->GetBlendShapeTexture();
@@ -236,8 +234,10 @@ namespace Viry3D
                 samplers.setSampler(0, blend_shape_texture->GetTexture(), blend_shape_texture->GetSampler());
                 driver.updateSamplerGroup(m_blend_shape_sampler_group, std::move(samplers));
             }
-            else
+            else if (m_blend_shape_dirty)
             {
+                m_blend_shape_dirty = false;
+
                 const auto& vertices = mesh->GetVertices();
                 const auto& submeshes = mesh->GetSubmeshes();
                 const auto& blend_shapes = mesh->GetBlendShapes();
