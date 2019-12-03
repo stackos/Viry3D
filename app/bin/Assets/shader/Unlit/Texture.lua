@@ -53,7 +53,7 @@ VK_LAYOUT_LOCATION(0) out vec2 v_uv;
 	{
 		vec4 u_bones[210];
 	};
-    VK_SAMPLER_BINDING(0) uniform sampler2D u_blend_shape_texture;
+    VK_SAMPLER_BINDING(1) uniform sampler2D u_blend_shape_texture;
     vec4 blend_shape()
     {
         vec4 vertex = i_vertex;
@@ -110,7 +110,7 @@ void main()
 
 local fs = [[
 precision highp float;
-VK_SAMPLER_BINDING(1) uniform sampler2D u_texture;
+VK_SAMPLER_BINDING(0) uniform sampler2D u_texture;
 VK_UNIFORM_BINDING(4) uniform PerMaterialFragment
 {
 	vec4 u_color;
@@ -219,7 +219,7 @@ local pass = {
 			samplers = {
 				{
 					name = "u_blend_shape_texture",
-					binding = 0,
+					binding = 1,
 				},
 			},
 		},
@@ -229,7 +229,7 @@ local pass = {
 			samplers = {
 				{
 					name = "u_texture",
-					binding = 1,
+					binding = 0,
 				},
 			},
 		},

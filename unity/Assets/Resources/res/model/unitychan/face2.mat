@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: eyebase
+  m_Name: face2
   m_Shader: {fileID: 4800000, guid: de602e57b4834f346bd90c08513b104b, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -24,7 +24,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CubeMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 8900000, guid: 02ff0dea2c9f0a2489456506cf5e998a, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -48,7 +48,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: b3b165d516eb3c941afa0a428e09356f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 5dc02f3ba7c4fd14f9d94bfe65a7dd95, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -71,12 +71,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - uTexture:
-        m_Texture: {fileID: 2800000, guid: 21b8f1424f8361e4f9f3a79470c536ad, type: 3}
+    - u_main_texture:
+        m_Texture: {fileID: 2800000, guid: 5dc02f3ba7c4fd14f9d94bfe65a7dd95, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - u_texture:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 5dc02f3ba7c4fd14f9d94bfe65a7dd95, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -95,20 +95,21 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Smoothness: 0.5
+    - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _AmbientColor: {r: 0, g: 0, b: 0, a: 0}
+    - _AmbientColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Emissive: {r: 0, g: 0, b: 0, a: 0}
     - _EnvColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-    - _LightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LightColor: {r: 0, g: 0, b: 0, a: 1}
     - _LightDir: {r: 0, g: 0, b: -1, a: 0}
     - _OffsetSpeed: {r: 0, g: 0, b: 0, a: 0}
-    - _Spec: {r: 1, g: 1, b: 1, a: 1}
+    - _Spec: {r: 0, g: 0, b: 0, a: 1}
+    - u_main_texture_scale_offset: {r: 1, g: 1, b: 0, a: 0}
     - u_texture_scale_offset: {r: 1, g: 1, b: 0, a: 0}

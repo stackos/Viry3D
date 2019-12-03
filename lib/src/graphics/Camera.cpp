@@ -51,7 +51,10 @@ namespace Viry3D
 		const auto& lights = Light::GetLights();
 		for (auto i : lights)
 		{
-			i->Prepare();
+            if (i->GetGameObject()->IsActiveInTree())
+            {
+                i->Prepare();
+            }
 		}
 
 		if (m_cameras_order_dirty)
