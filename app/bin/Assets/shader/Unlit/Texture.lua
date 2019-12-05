@@ -58,7 +58,7 @@ VK_LAYOUT_LOCATION(0) out vec2 v_uv;
     {
         vec4 vertex = i_vertex;
 
-        uint weight_count = uint(u_bones[0].x);
+        uint weight_count = uint(u_bones[0].x) - 2u;
         uint vertex_count = uint(u_bones[0].y);
         uint blend_shape_count = uint(u_bones[0].z);
         uint texture_width = uint(u_bones[1].x);
