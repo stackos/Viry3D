@@ -76,6 +76,8 @@ namespace Viry3D
     void Renderer::SetMaterials(const Vector<Ref<Material>>& materials)
     {
         m_materials = materials;
+
+        this->UpdateShaderKeywords();
     }
 
 	void Renderer::EnableCastShadow(bool enable)
@@ -96,6 +98,31 @@ namespace Viry3D
     void Renderer::SetLightmapScaleOffset(const Vector4& vec)
     {
         m_lightmap_scale_offset = vec;
+    }
+
+    void Renderer::SetShaderKeywords(const Vector<String>& keywords)
+    {
+        m_shader_keywords = keywords;
+
+        this->UpdateShaderKeywords();
+    }
+
+    void Renderer::EnableShaderKeyword(const String& keyword)
+    {
+        m_shader_keywords.Add(keyword);
+
+        this->UpdateShaderKeywords();
+    }
+
+    void Renderer::UpdateShaderKeywords()
+    {
+        for (int i = 0; i < m_materials.Size(); ++i)
+        {
+            if (m_materials[i])
+            {
+                m_materials[i]->EnableKeywords(m_shader_keywords);
+            }
+        }
     }
     
     Vector<filament::backend::RenderPrimitiveHandle> Renderer::GetPrimitives()

@@ -406,7 +406,7 @@ namespace Viry3D
 					{
 						if (shadow_enable && renderer->IsRecieveShadow())
 						{
-							material->EnableKeyword("RECIEVE_SHADOW_ON");
+                            material->EnableKeywords({ "RECIEVE_SHADOW_ON" });
 						}
 
 						const auto& shader = light_add ? material->GetLightAddShader() : material->GetShader();

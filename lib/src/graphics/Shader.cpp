@@ -116,17 +116,22 @@ namespace Viry3D
         return keyword_list;
     }
 
+    String Shader::MakeKey(const String& name, const Vector<String>& keywords)
+    {
+        String key = name;
+        List<String> keyword_list = KeywordsToList(keywords);
+        for (const auto& i : keyword_list)
+        {
+            key += "|" + i;
+        }
+        return key;
+    }
+
 	Ref<Shader> Shader::Find(const String& name, const Vector<String>& keywords, bool light_add)
 	{
 		Ref<Shader> shader;
 
-        List<String> keyword_list = KeywordsToList(keywords);
-
-		String key = name;
-		for (const auto& i : keyword_list)
-		{
-			key += "|" + i;
-		}
+        String key = MakeKey(name, keywords);
 
 		Ref<Shader>* find;
 		if (m_shaders.TryGet(key, &find))
@@ -148,7 +153,8 @@ namespace Viry3D
 				String lua_src = File::ReadAllText(path);
 
 				shader = Ref<Shader>(new Shader(name));
-                shader->m_keywords = keyword_list;
+                shader->m_shader_key = key;
+                shader->m_keywords = KeywordsToList(keywords);;
 				shader->Load(lua_src, light_add);
 				shader->Compile();
 

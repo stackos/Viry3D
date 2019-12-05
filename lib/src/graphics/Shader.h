@@ -111,10 +111,12 @@ namespace Viry3D
 
         static void Init();
         static void Done();
+        static String MakeKey(const String& name, const Vector<String>& keywords);
 		static Ref<Shader> Find(const String& name, const Vector<String>& keywords = Vector<String>(), bool light_add = false);
         static Ref<Shader> Create(const Vector<Pass>& passes, const Vector<String>& keywords = Vector<String>());
 
         virtual ~Shader();
+        const String& GetShaderKey() const { return m_shader_key; }
 		const List<String>& GetKeywords() const { return m_keywords; }
 		int GetPassCount() const { return m_passes.Size(); }
 		const Pass& GetPass(int index) const { return m_passes[index]; }
@@ -127,6 +129,7 @@ namespace Viry3D
 
 	private:
 		static Map<String, Ref<Shader>> m_shaders;
+        String m_shader_key;
 		List<String> m_keywords;
 		Vector<Pass> m_passes;
 		int m_queue;

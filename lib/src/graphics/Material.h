@@ -167,8 +167,7 @@ namespace Viry3D
         void SetMatrixArray(const String& name, const Vector<Matrix4x4>& array);
         const Rect& GetScissorRect() const { return m_scissor_rect; }
         void SetScissorRect(const Rect& rect);
-		void EnableKeyword(const String& keyword);
-		void DisableKeyword(const String& keyword);
+		void EnableKeywords(const Vector<String>& keywords);
         void Prepare(int pass = -1);
         void SetScissor(int target_width, int target_height);
 		void Bind(int pass);

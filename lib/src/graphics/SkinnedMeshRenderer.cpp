@@ -199,7 +199,7 @@ namespace Viry3D
                 {
                     if (i)
                     {
-                        i->EnableKeyword("BLEND_SHAPE_ON");
+                        i->EnableKeywords({ "BLEND_SHAPE_ON" });
                     }
                 }
 

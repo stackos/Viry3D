@@ -45,6 +45,8 @@ namespace Viry3D
         void SetLightmapIndex(int index);
         const Vector4& GetLightmapScaleOffset() const { return m_lightmap_scale_offset; }
         void SetLightmapScaleOffset(const Vector4& vec);
+        void SetShaderKeywords(const Vector<String>& keywords);
+        void EnableShaderKeyword(const String& keyword);
         const filament::backend::UniformBufferHandle& GetTransformUniformBuffer() const { return m_transform_uniform_buffer; }
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
 
@@ -54,6 +56,7 @@ namespace Viry3D
 
 	private:
 		friend class Camera;
+        void UpdateShaderKeywords();
 
 	private:
         static List<Renderer*> m_renderers;
@@ -62,6 +65,7 @@ namespace Viry3D
 		bool m_recieve_shadow;
         Vector4 m_lightmap_scale_offset;
         int m_lightmap_index;
+        Vector<String> m_shader_keywords;
 		filament::backend::UniformBufferHandle m_transform_uniform_buffer;
     };
 }

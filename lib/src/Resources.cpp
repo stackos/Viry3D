@@ -335,15 +335,7 @@ namespace Viry3D
             String material_name = ReadString(ms);
             String shader_name = ReadString(ms);
             
-            int keyword_count = ms.Read<int>();
-            Vector<String> keywords;
-            for (int i = 0; i < keyword_count; ++i)
-            {
-                String keyword = ReadString(ms);
-                keywords.Add(keyword);
-            }
-            
-            Ref<Shader> shader = Shader::Find(shader_name, keywords);
+            Ref<Shader> shader = Shader::Find(shader_name);
             if (shader)
             {
                 material = RefMake<Material>(shader);
@@ -425,6 +417,14 @@ namespace Viry3D
         renderer->EnableCastShadow(cast_shadow);
         renderer->EnableRecieveShadow(receive_shadow);
         
+        int keyword_count = ms.Read<int>();
+        Vector<String> keywords;
+        for (int i = 0; i < keyword_count; ++i)
+        {
+            String keyword = ReadString(ms);
+            keywords.Add(keyword);
+        }
+
         int material_count = ms.Read<int>();
 		Vector<Ref<Material>> materials(material_count);
         for (int i = 0; i < material_count; ++i)
@@ -436,6 +436,7 @@ namespace Viry3D
             }
         }
 		renderer->SetMaterials(materials);
+        renderer->SetShaderKeywords(keywords);
 
         if (lightmap_index >= 0)
         {
