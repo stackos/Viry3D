@@ -32,9 +32,9 @@ namespace Viry3D
             camera->SetClearColor(Color(0, 0, 1, 1));
             camera->SetCullingMask(1 << 0);
 
-            this->InitKTXTest();
+            //this->InitKTXTest();
             this->InitGPUBlendShapeTest();
-            this->InitUI();
+            //this->InitUI();
         }
 
         void InitKTXTest()
@@ -357,7 +357,7 @@ void main()
         void InitGPUBlendShapeTest()
         {
             auto model = Resources::LoadGameObject("Resources/res/model/unitychan/unitychan.go");
-            model->GetTransform()->SetPosition(Vector3(1.0f, -0.8f, -2.5f));
+            model->GetTransform()->SetPosition(Vector3(0.4f, -1.2f, -4));
             model->GetTransform()->SetRotation(Quaternion::Euler(0, 200, 0));
             auto anim = model->GetComponent<Animation>();
             anim->Play(0);
