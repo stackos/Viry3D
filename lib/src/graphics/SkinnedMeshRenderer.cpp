@@ -208,7 +208,7 @@ namespace Viry3D
                 // store weight count in element 0£¬ texture size in 1
                 m_bone_vectors[0] = Vector4((float) m_bone_vectors.Size(), (float) mesh->GetVertices().Size(), (float) mesh->GetBlendShapes().Size());
                 m_bone_vectors[1] = Vector4((float) blend_shape_texture->GetWidth(), (float) blend_shape_texture->GetHeight());
-                
+
                 int weight_index = 2;
                 for (const auto& i : m_blend_shape_weights)
                 {
