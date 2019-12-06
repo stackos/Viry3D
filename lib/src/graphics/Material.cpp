@@ -22,9 +22,14 @@
 namespace Viry3D
 {
     Material::Material(const Ref<Shader>& shader):
-        m_shader(shader),
         m_scissor_rect(0, 0, 1, 1)
     {
+        ShaderVariant variant;
+        variant.key = shader->GetShaderKey();
+        variant.keywords = shader->GetKeywords();
+        variant.shader = shader;
+        m_shader_variants.Add(variant.key, variant);
+
         m_unifrom_buffers.Resize(shader->GetPassCount());
         for (int i = 0; i < m_unifrom_buffers.Size(); ++i)
         {
@@ -72,23 +77,17 @@ namespace Viry3D
         }
         m_samplers.Clear();
     }
-    
-	const Ref<Shader>& Material::GetLightAddShader()
-	{
-		if (!m_light_add_shader)
-		{
-			auto& keywords = m_shader->GetKeywords();
-			Vector<String> new_keywords;
-			for (auto& i : keywords)
-			{
-				new_keywords.Add(i);
-			}
-			new_keywords.Add("LIGHT_ADD_ON");
-			m_light_add_shader = Shader::Find(m_shader->GetName(), new_keywords, true);
-		}
 
-		return m_light_add_shader;
-	}
+    const String& Material::GetShaderName()
+    {
+        return m_shader_variants.begin()->second.shader->GetName();
+    }
+
+    const Ref<Shader>& Material::GetShader(const String& key)
+    {
+        assert(m_shader_variants.Contains(key));
+        return m_shader_variants[key].shader;
+    }
 
     int Material::GetQueue() const
     {
@@ -97,7 +96,7 @@ namespace Viry3D
             return *m_queue;
         }
         
-        return m_shader->GetQueue();
+        return m_shader_variants.begin()->second.shader->GetQueue();
     }
     
     void Material::SetQueue(int queue)
@@ -221,11 +220,54 @@ namespace Viry3D
 
 	void Material::EnableKeywords(const Vector<String>& keywords)
 	{
-        if (m_shader->GetShaderKey() != Shader::MakeKey(m_shader->GetName(), keywords))
+        String key = Shader::MakeKey(this->GetShaderName(), keywords);
+        if (!m_shader_variants.Contains(key))
         {
-            m_shader = Shader::Find(m_shader->GetName(), keywords);
+            auto shader = Shader::Find(this->GetShaderName(), keywords);
+
+            ShaderVariant variant;
+            variant.key = shader->GetShaderKey();
+            variant.keywords = shader->GetKeywords();
+            variant.shader = shader;
+            m_shader_variants.Add(variant.key, variant);
         }
 	}
+
+    void Material::EnableKeyword(const String& keyword)
+    {
+        Vector<Vector<String>> new_keywords;
+        for (const auto& i : m_shader_variants)
+        {
+            auto keywords = i.second.shader->GetKeywords();
+            if (!keywords.Contains(keyword))
+            {
+                keywords.Add(keyword);
+                new_keywords.Add(keywords);
+            }
+        }
+        for (const auto& i : new_keywords)
+        {
+            this->EnableKeywords(i);
+        }
+    }
+
+    void Material::DisableKeyword(const String& keyword)
+    {
+        Vector<Vector<String>> new_keywords;
+        for (const auto& i : m_shader_variants)
+        {
+            auto keywords = i.second.shader->GetKeywords();
+            if (keywords.Contains(keyword))
+            {
+                keywords.Remove(keyword);
+                new_keywords.Add(keywords);
+            }
+        }
+        for (const auto& i : new_keywords)
+        {
+            this->EnableKeywords(i);
+        }
+    }
 
     void Material::Prepare(int pass)
     {
@@ -314,10 +356,11 @@ namespace Viry3D
     void Material::UpdateUniformMember(const String& name, const void* data, int size)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
-        
-        for (int i = 0; i < m_shader->GetPassCount(); ++i)
+        const auto& shader = m_shader_variants.begin()->second.shader;
+
+        for (int i = 0; i < shader->GetPassCount(); ++i)
         {
-            const auto& pass = m_shader->GetPass(i);
+            const auto& pass = shader->GetPass(i);
             
             for (int j = 0; j < pass.uniforms.Size(); ++j)
             {
@@ -360,10 +403,11 @@ namespace Viry3D
     void Material::UpdateUniformTexture(const String& name, const Ref<Texture>& texture)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
-        
-        for (int i = 0; i < m_shader->GetPassCount(); ++i)
+        const auto& shader = m_shader_variants.begin()->second.shader;
+
+        for (int i = 0; i < shader->GetPassCount(); ++i)
         {
-            const auto& pass = m_shader->GetPass(i);
+            const auto& pass = shader->GetPass(i);
             
             for (int j = 0; j < pass.samplers.Size(); ++j)
             {
@@ -405,10 +449,10 @@ namespace Viry3D
 		driver.setViewportScissor(scissor_left, scissor_bottom, scissor_width, scissor_height);
     }
 
-	void Material::Bind(int pass)
+	void Material::Bind(const String& key, int pass)
 	{
 		auto& driver = Engine::Instance()->GetDriverApi();
-
+        const auto& shader = m_shader_variants[key].shader;
 		const auto& unifrom_buffers = m_unifrom_buffers[pass];
 		const auto& samplers = m_samplers[pass];
 
@@ -442,7 +486,7 @@ namespace Viry3D
                         void* buffer = driver.allocate(sizeof(Matrix4x4));
                         Memory::Copy(buffer, &i.second.data, sizeof(Matrix4x4));
                         driver.setUniformMatrix(
-                            this->GetShader()->GetPass(pass).pipeline.program,
+                            shader->GetPass(pass).pipeline.program,
                             i.first.CString(),
                             1,
                             filament::backend::BufferDescriptor(buffer, sizeof(Matrix4x4)));
@@ -454,7 +498,7 @@ namespace Viry3D
                         void* buffer = driver.allocate(sizeof(Vector4));
                         Memory::Copy(buffer, &i.second.data, sizeof(Vector4));
                         driver.setUniformVector(
-                            this->GetShader()->GetPass(pass).pipeline.program,
+                            shader->GetPass(pass).pipeline.program,
                             i.first.CString(),
                             1,
                             filament::backend::BufferDescriptor(buffer, sizeof(Vector4)));

@@ -194,14 +194,7 @@ namespace Viry3D
             if (mesh->GetBlendShapeTexture())
             {
                 const auto& blend_shape_texture = mesh->GetBlendShapeTexture();
-
-                for (const auto& i : materials)
-                {
-                    if (i)
-                    {
-                        i->EnableKeywords({ "BLEND_SHAPE_ON" });
-                    }
-                }
+                this->EnableShaderKeyword("BLEND_SHAPE_ON");
 
                 m_bone_vectors.Resize(2 + m_blend_shape_weights.Size());
 

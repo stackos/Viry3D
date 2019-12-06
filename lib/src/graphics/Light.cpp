@@ -195,7 +195,7 @@ namespace Viry3D
 
 				if (primitive)
 				{
-					const auto& shader = material->GetShader();
+					const auto& shader = material->GetShader(Shader::MakeKey(material->GetShaderName(), renderer->GetShaderKeywords()));
 
 					material->SetScissor(m_shadow_texture_size, m_shadow_texture_size);
 
@@ -204,7 +204,7 @@ namespace Viry3D
 						if (shader->GetPass(j).queue <= (int) Shader::Queue::AlphaTest &&
 							shader->GetPass(j).pipeline.rasterState.depthWrite)
 						{
-							material->Bind(j);
+							material->Bind(shader->GetShaderKey(), j);
 
 							Ref<Shader> shadow_shader;
 							if (skin && skin->GetBonePaths().Size() > 0)

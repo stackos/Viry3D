@@ -144,14 +144,21 @@ namespace Viry3D
         Vector<Sampler> samplers;
         bool dirty = false;
     };
+
+    struct ShaderVariant
+    {
+        String key;
+        Vector<String> keywords;
+        Ref<Shader> shader;
+    };
     
     class Material : public Object
     {
     public:
         Material(const Ref<Shader>& shader);
         virtual ~Material();
-        const Ref<Shader>& GetShader() const { return m_shader; }
-		const Ref<Shader>& GetLightAddShader();
+        const String& GetShaderName();
+        const Ref<Shader>& GetShader(const String& key);
         int GetQueue() const;
         void SetQueue(int queue);
         const Matrix4x4* GetMatrix(const String& name) const;
@@ -168,9 +175,11 @@ namespace Viry3D
         const Rect& GetScissorRect() const { return m_scissor_rect; }
         void SetScissorRect(const Rect& rect);
 		void EnableKeywords(const Vector<String>& keywords);
+        void EnableKeyword(const String& keyword);
+        void DisableKeyword(const String& keyword);
         void Prepare(int pass = -1);
         void SetScissor(int target_width, int target_height);
-		void Bind(int pass);
+		void Bind(const String& key, int pass);
         
     private:
         template <class T>
@@ -212,8 +221,7 @@ namespace Viry3D
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture);
         
     private:
-        Ref<Shader> m_shader;
-		Ref<Shader> m_light_add_shader;
+        Map<String, ShaderVariant> m_shader_variants;
         Ref<int> m_queue;
         Map<String, MaterialProperty> m_properties;
         Rect m_scissor_rect;

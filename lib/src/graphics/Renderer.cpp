@@ -109,9 +109,12 @@ namespace Viry3D
 
     void Renderer::EnableShaderKeyword(const String& keyword)
     {
-        m_shader_keywords.Add(keyword);
+        if (!m_shader_keywords.Contains(keyword))
+        {
+            m_shader_keywords.Add(keyword);
 
-        this->UpdateShaderKeywords();
+            this->UpdateShaderKeywords();
+        }
     }
 
     void Renderer::UpdateShaderKeywords()
