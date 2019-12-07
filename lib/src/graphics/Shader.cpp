@@ -162,7 +162,7 @@ namespace Viry3D
 			}
 			else
 			{
-				Log("Shader %s not exist: %s", name.CString(), path.CString());
+				Log("shader %s not exist: %s", name.CString(), path.CString());
 			}
 		}
 

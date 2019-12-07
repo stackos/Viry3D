@@ -280,7 +280,7 @@ void main()
             Shader::SamplerGroup s;
             s.name = "PerMaterialVertex";
             s.binding = (int) Shader::BindingPoint::PerMaterialVertex;
-;
+
             s.samplers.Add({ "u_vertex_texture", 0 });
             pass.samplers.Add(s);
             s = {};

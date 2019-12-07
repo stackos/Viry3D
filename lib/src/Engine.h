@@ -65,6 +65,7 @@ namespace Viry3D
         void PostAction(Action action);
         void SendMessage(int id, const String& msg);
         void AddMessageHandler(int id, std::function<void(int id, const String&)> handler);
+        bool IsInEditorMode() const;
         
 	private:
 		Engine(void* native_window, int width, int height, uint64_t flags, void* shared_gl_context);

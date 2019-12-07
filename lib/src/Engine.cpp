@@ -101,6 +101,7 @@ namespace Viry3D
         List<Message> m_messages;
         Map<int, List<MessageHandler>> m_message_handlers;
         Mutex m_mutex;
+        bool m_editor_mode = false;
         
 		backend::DriverApi& GetDriverApi() { return m_command_stream; }
 
@@ -300,6 +301,20 @@ namespace Viry3D
 #endif
             {
                 this->Quit();
+            }
+            
+            if (Input::GetKeyDown(KeyCode::E) && (Input::GetKey(KeyCode::LeftControl) || Input::GetKey(KeyCode::RightControl)))
+            {
+                m_editor_mode = !m_editor_mode;
+
+                if (m_editor_mode)
+                {
+                    Log("enter editor mode");
+                }
+                else
+                {
+                    Log("exit editor mode");
+                }
             }
             
             Input::Update();
@@ -695,5 +710,10 @@ namespace Viry3D
     void Engine::AddMessageHandler(int id, std::function<void(int id, const String&)> handler)
     {
         m_private->AddMessageHandler(id, handler);
+    }
+
+    bool Engine::IsInEditorMode() const
+    {
+        return m_private->m_editor_mode;
     }
 }
