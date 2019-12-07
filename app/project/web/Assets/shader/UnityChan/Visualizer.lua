@@ -21,7 +21,7 @@ VK_LAYOUT_LOCATION(3) out mat4 v_view_projection_matrix;
 void main()
 {
     mat4 model_matrix = u_model_matrix;
-    vec4 pos_world = i_vertex * model_matrix;
+    vec4 pos_world = vec4(i_vertex.xyz, 1.0) * model_matrix;
 	gl_Position = pos_world * u_view_matrix * u_projection_matrix;
     v_pos_proj = gl_Position;
     v_pos_world = pos_world;

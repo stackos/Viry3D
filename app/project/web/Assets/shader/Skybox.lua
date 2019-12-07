@@ -14,7 +14,7 @@ void main()
 		vec4(0, 1, 0, u_camera_pos.y),
 		vec4(0, 0, 1, u_camera_pos.z),
 		vec4(0, 0, 0, 1));
-	gl_Position = (i_vertex * model_matrix * u_view_matrix * u_projection_matrix).xyww;
+	gl_Position = (vec4(i_vertex.xyz, 1.0) * model_matrix * u_view_matrix * u_projection_matrix).xyww;
 	v_uv = i_vertex.xyz;
 
 	vk_convert();

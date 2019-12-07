@@ -4,7 +4,7 @@ layout(location = 2) in vec2 i_uv;
 VK_LAYOUT_LOCATION(0) out vec2 v_uv;
 void main()
 {
-	gl_Position = i_vertex;
+	gl_Position = vec4(i_vertex.xyz, 1.0);
 	v_uv = i_uv;
 
 	vk_convert();

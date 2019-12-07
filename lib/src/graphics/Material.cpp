@@ -504,6 +504,18 @@ namespace Viry3D
                             filament::backend::BufferDescriptor(buffer, sizeof(Vector4)));
                         break;
                     }
+                    case MaterialProperty::Type::VectorArray:
+                    {
+                        const auto& array = i.second.vector_array;
+                        void* buffer = driver.allocate(array.SizeInBytes());
+                        Memory::Copy(buffer, &array[0], array.SizeInBytes());
+                        driver.setUniformVector(
+                            shader->GetPass(pass).pipeline.program,
+                            i.first.CString(),
+                            array.Size(),
+                            filament::backend::BufferDescriptor(buffer, array.SizeInBytes()));
+                        break;
+                    }
                     default:
                         break;
                 }

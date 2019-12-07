@@ -22,7 +22,7 @@ void main()
 {
     mat4 model_matrix = u_model_matrix;
 
-	vec4 world_pos = i_vertex * model_matrix;
+	vec4 world_pos = vec4(i_vertex.xyz, 1.0) * model_matrix;
 	gl_Position = world_pos * u_view_matrix * u_projection_matrix;
 	v_pos = world_pos.xyz;
 	v_uv = i_uv;
