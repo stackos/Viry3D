@@ -244,11 +244,11 @@ file(GLOB VIRY3D_APP_SRCS
 source_group(TREE ${VIRY3D_APP_SRC_DIR}/.. FILES ${VIRY3D_APP_SRCS})
 
 # filament opengl
-if ( ${Target} MATCHES "Windows" OR
-     ${Target} MATCHES "Android" OR
-	 ${Target} MATCHES "Mac" OR
-     ${Target} MATCHES "iOS" OR
-	 ${Target} MATCHES "WASM")
+if (${Target} MATCHES "Windows" OR
+    ${Target} MATCHES "Android" OR
+	${Target} MATCHES "Mac" OR
+    ${Target} MATCHES "iOS" OR
+	${Target} MATCHES "WASM")
 
     file(GLOB VIRY3D_DEP_SRCS_FILAMENT_OPENGL
 		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/opengl/gl_headers.cpp
@@ -270,8 +270,8 @@ if ( ${Target} MATCHES "Windows" OR
 endif ()
 
 # filament vulkan
-if ( ${Target} MATCHES "Windows" OR
-     ${Target} MATCHES "Android" )
+if (${Target} MATCHES "Windows" OR
+    ${Target} MATCHES "Android")
 
     file(GLOB VIRY3D_DEP_SRCS_FILAMENT_VULKAN
 		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/vulkan/VulkanBinder.cpp
@@ -300,8 +300,8 @@ if ( ${Target} MATCHES "Windows" OR
 endif ()
 
 # filament metal
-if ( ${Target} MATCHES "Mac" OR
-     ${Target} MATCHES "iOS" )
+if (${Target} MATCHES "Mac" OR
+    ${Target} MATCHES "iOS")
 
     file(GLOB VIRY3D_DEP_SRCS_FILAMENT_METAL
          ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/metal/MetalBlitter.mm
@@ -322,8 +322,8 @@ if ( ${Target} MATCHES "Mac" OR
 endif ()
 
 # filament d3d
-if ( ${Target} MATCHES "Windows" OR
-     ${Target} MATCHES "UWP" )
+if (${Target} MATCHES "Windows" OR
+    ${Target} MATCHES "UWP")
 
     file(GLOB VIRY3D_DEP_SRCS_FILAMENT_D3D11
 		 ${VIRY3D_LIB_SRC_DIR}/filament/filament/backend/src/d3d/D3D11Context.cpp
@@ -429,7 +429,7 @@ if (${Target} MATCHES "Windows" OR ${Target} MATCHES "UWP")
 endif ()
 
 # lua
-if ( TRUE )
+if (TRUE)
 
     file(GLOB VIRY3D_DEP_SRCS_LUA
          ${VIRY3D_LIB_SRC_DIR}/lua/lpeg/lpcap.c
@@ -483,7 +483,7 @@ if ( TRUE )
 endif ()
 
 # noise
-if ( FALSE )
+if (FALSE)
 
     file(GLOB VIRY3D_DEP_SRCS_NOISE
          ${VIRY3D_LIB_SRC_DIR}/noise/model/cylinder.cpp
@@ -531,7 +531,7 @@ if ( FALSE )
 endif ()
 
 # physics
-if ( FALSE )
+if (TRUE)
 
     file(GLOB VIRY3D_DEP_SRCS_PHYSICS
          ${VIRY3D_LIB_SRC_DIR}/physics/bullet/src/BulletCollision/BroadphaseCollision/btAxisSweep3.cpp
@@ -659,7 +659,7 @@ if ( FALSE )
 endif ()
 
 # imgui
-if (FALSE)
+if (TRUE)
     if (${Target} MATCHES "Windows" OR
         ${Target} MATCHES "Mac"
         )
