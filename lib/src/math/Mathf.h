@@ -49,7 +49,7 @@ namespace Viry3D
 		static T Clamp(T value, T min, T max) { return Min(Max(value, min), max); }
 		static float Lerp(float from, float to, float t, bool clamp_01 = true);
 		static bool FloatEqual(float a, float b) { return fabs(a - b) < Epsilon; }
-		static float Round(float f);//四舍五入
+		static float Round(float f); // 四舍五入
 		static int RoundToInt(float f);
 		static float Floor(float f) { return floor(f); }
 		static int FloorToInt(float f) { return (int) floor(f); }
