@@ -15,33 +15,31 @@
 * limitations under the License.
 */
 
+#pragma once
+
 #include "Component.h"
-#include "GameObject.h"
 
 namespace Viry3D
 {
-    Component::Component()
+    class Collider : public Component
     {
+    public:
+        virtual ~Collider();
+        virtual void SetIsRigidbody(bool value);
 
-    }
-    
-    Component::~Component()
-    {
-        
-    }
-    
-    const Ref<Transform>& Component::GetTransform() const
-    {
-        return this->GetGameObject()->GetTransform();
-    }
-
-    void Component::Enable(bool enable)
-    {
-        if (m_enable != enable)
+    protected:
+        Collider() :
+            m_collider(nullptr),
+            m_in_world(false),
+            m_is_rigidbody(false)
         {
-            m_enable = enable;
-
-            this->OnEnable(m_enable);
         }
-    }
+        virtual void OnEnable(bool enable);
+        virtual void OnGameObjectLayerChanged();
+
+    protected:
+        void* m_collider;
+        bool m_in_world;
+        bool m_is_rigidbody;
+    };
 }

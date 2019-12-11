@@ -31,16 +31,22 @@ namespace Viry3D
         virtual ~Component();
         Ref<GameObject> GetGameObject() const { return m_object.lock(); }
         const Ref<Transform>& GetTransform() const;
+        void Enable(bool enable);
 
     protected:
+        virtual void Start() { }
         virtual void Update() { }
         virtual void LateUpdate() { }
         virtual void OnTransformDirty() { }
+        virtual void OnEnable(bool enable) { }
+        virtual void OnGameObjectLayerChanged() { }
+        virtual void OnGameObjectActive(bool active) { }
         
 	private:
         friend class GameObject;
         
     private:
         WeakRef<GameObject> m_object;
+        bool m_enable = true;
     };
 }

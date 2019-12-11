@@ -25,6 +25,7 @@
 #include "Input.h"
 #include "Scene.h"
 #include "Resources.h"
+#include "physics/Physics.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "graphics/RenderTarget.h"
@@ -162,6 +163,7 @@ namespace Viry3D
 			Resources::Init();
             AudioManager::Init();
 			VideoDecoder::Init();
+            Physics::Init();
 		}
 
 		void Shutdown()
@@ -169,6 +171,7 @@ namespace Viry3D
 			AudioManager::DestroyListener();
             m_scene.reset();
 
+            Physics::Done();
 			VideoDecoder::Done();
 			AudioManager::Done();
 			Resources::Done();

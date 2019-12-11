@@ -15,33 +15,29 @@
 * limitations under the License.
 */
 
-#include "Component.h"
-#include "GameObject.h"
+#pragma once
+
+#include "Collider.h"
+#include "math/Vector3.h"
 
 namespace Viry3D
 {
-    Component::Component()
-    {
+	class BoxCollider: public Collider
+	{
+	public:
+        BoxCollider();
+		const Vector3& GetCenter() const { return m_center; }
+		void SetCenter(const Vector3& center);
+		const Vector3& GetSize() const { return m_size; }
+		void SetSize(const Vector3& size);
 
-    }
-    
-    Component::~Component()
-    {
-        
-    }
-    
-    const Ref<Transform>& Component::GetTransform() const
-    {
-        return this->GetGameObject()->GetTransform();
-    }
+	protected:
+        virtual void Start();
+		virtual void Update();
+		virtual void OnTransformDirty();
 
-    void Component::Enable(bool enable)
-    {
-        if (m_enable != enable)
-        {
-            m_enable = enable;
-
-            this->OnEnable(m_enable);
-        }
-    }
+	private:
+		Vector3 m_center;
+		Vector3 m_size;
+	};
 }
