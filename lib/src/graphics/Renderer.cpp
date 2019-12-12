@@ -27,7 +27,7 @@ namespace Viry3D
 	{
 		for (auto i : m_renderers)
 		{
-            if (i->GetGameObject()->IsActiveInTree())
+            if (i->GetGameObject()->IsActiveInTree() && i->IsEnable())
             {
                 i->Prepare();
             }

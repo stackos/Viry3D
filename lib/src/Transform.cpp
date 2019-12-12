@@ -41,35 +41,38 @@ namespace Viry3D
 
 	void Transform::SetParent(const Ref<Transform>& parent)
 	{
-        Vector3 position = this->GetPosition();
-        Quaternion rotation = this->GetRotation();
-        Vector3 scale = this->GetScale();
-        
-        auto old_parent = m_parent.lock();
-		if (old_parent)
+        if (m_parent.lock() != parent)
         {
-            for (int i = 0; i < old_parent->GetChildCount(); ++i)
-            {
-                if (old_parent->GetChild(i).get() == this)
-                {
-                    old_parent->m_children.Remove(i);
-                    break;
-                }
-            }
-			m_parent.reset();
-        }
-        
-        if (parent)
-        {
-            parent->m_children.Add(this->GetGameObject()->GetTransform());
-			m_parent = parent;
-        }
-        
-        this->SetPosition(position);
-        this->SetRotation(rotation);
-        this->SetScale(scale);
+            Vector3 position = this->GetPosition();
+            Quaternion rotation = this->GetRotation();
+            Vector3 scale = this->GetScale();
 
-		this->GetGameObject()->SetActive(this->GetGameObject()->IsActiveSelf());
+            auto old_parent = m_parent.lock();
+            if (old_parent)
+            {
+                for (int i = 0; i < old_parent->GetChildCount(); ++i)
+                {
+                    if (old_parent->GetChild(i).get() == this)
+                    {
+                        old_parent->m_children.Remove(i);
+                        break;
+                    }
+                }
+                m_parent.reset();
+            }
+
+            if (parent)
+            {
+                parent->m_children.Add(this->GetGameObject()->GetTransform());
+                m_parent = parent;
+            }
+
+            this->SetPosition(position);
+            this->SetRotation(rotation);
+            this->SetScale(scale);
+
+            this->GetGameObject()->SetActive(this->GetGameObject()->IsActiveSelf());
+        }
 	}
 
 	Ref<Transform> Transform::Find(const String& path) const
@@ -131,23 +134,32 @@ namespace Viry3D
 
 	void Transform::SetLocalPosition(const Vector3& pos)
 	{
-        m_local_position = pos;
-        
-        this->MarkDirty();
+        if (m_local_position != pos)
+        {
+            m_local_position = pos;
+
+            this->MarkDirty();
+        }
 	}
 
 	void Transform::SetLocalRotation(const Quaternion& rot)
 	{
-        m_local_rotation = rot;
-        
-        this->MarkDirty();
+        if (m_local_rotation != rot)
+        {
+            m_local_rotation = rot;
+
+            this->MarkDirty();
+        }
 	}
 
 	void Transform::SetLocalScale(const Vector3& scale)
 	{
-        m_local_scale = scale;
-        
-        this->MarkDirty();
+        if (m_local_scale != scale)
+        {
+            m_local_scale = scale;
+
+            this->MarkDirty();
+        }
 	}
 
 	const Vector3& Transform::GetPosition()

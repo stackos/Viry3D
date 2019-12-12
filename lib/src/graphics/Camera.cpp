@@ -51,7 +51,7 @@ namespace Viry3D
 		const auto& lights = Light::GetLights();
 		for (auto i : lights)
 		{
-            if (i->GetGameObject()->IsActiveInTree())
+            if (i->GetGameObject()->IsActiveInTree() && i->IsEnable())
             {
                 i->Prepare();
             }
@@ -67,7 +67,7 @@ namespace Viry3D
 
 		for (auto i : m_cameras)
 		{
-			if (i->GetGameObject()->IsActiveInTree())
+			if (i->GetGameObject()->IsActiveInTree() && i->IsEnable())
 			{
 				m_current_camera = i;
 
@@ -106,7 +106,7 @@ namespace Viry3D
         for (auto i : renderers)
         {
             int layer = i->GetGameObject()->GetLayer();
-            if (i->GetGameObject()->IsActiveInTree() && ((1 << layer) & m_culling_mask) != 0)
+            if (i->GetGameObject()->IsActiveInTree() && i->IsEnable() && ((1 << layer) & m_culling_mask) != 0)
             {
                 result.AddLast(i);
             }
@@ -758,14 +758,20 @@ namespace Viry3D
 
 	void Camera::SetViewportRect(const Rect& rect)
 	{
-		m_viewport_rect = rect;
-		m_projection_matrix_dirty = true;
+        if (m_viewport_rect != rect)
+        {
+            m_viewport_rect = rect;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Camera::SetFieldOfView(float fov)
 	{
-		m_field_of_view = fov;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_field_of_view, fov))
+        {
+            m_field_of_view = fov;
+            m_projection_matrix_dirty = true;
+        }
 	}
     
     float Camera::GetAspect() const
@@ -782,32 +788,47 @@ namespace Viry3D
     
     void Camera::SetAspect(float aspect)
     {
-        m_aspect = aspect;
-        m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_aspect, aspect))
+        {
+            m_aspect = aspect;
+            m_projection_matrix_dirty = true;
+        }
     }
 
 	void Camera::SetNearClip(float clip)
 	{
-		m_near_clip = clip;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_near_clip, clip))
+        {
+            m_near_clip = clip;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Camera::SetFarClip(float clip)
 	{
-		m_far_clip = clip;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_far_clip, clip))
+        {
+            m_far_clip = clip;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Camera::SetOrthographic(bool enable)
 	{
-		m_orthographic = enable;
-		m_projection_matrix_dirty = true;
+        if (m_orthographic != enable)
+        {
+            m_orthographic = enable;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Camera::SetOrthographicSize(float size)
 	{
-		m_orthographic_size = size;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_orthographic_size, size))
+        {
+            m_orthographic_size = size;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	const Matrix4x4& Camera::GetViewMatrix()

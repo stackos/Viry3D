@@ -75,41 +75,89 @@ namespace Viry3D
 		for (int i = 0; i < m_added_components.Size(); ++i)
 		{
 			auto& com = m_added_components[i];
-			com->OnTransformDirty();
+            if (com->IsEnable())
+            {
+                com->OnTransformDirty();
+            }
 		}
 
 		for (int i = 0; i < m_components.Size(); ++i)
 		{
 			auto& com = m_components[i];
-			com->OnTransformDirty();
+            if (com->IsEnable())
+            {
+                com->OnTransformDirty();
+            }
 		}
 	}
     
 	void GameObject::SetLayer(int layer)
 	{
-		m_layer = layer;
+        if (m_layer != layer)
+        {
+            m_layer = layer;
+
+            for (int i = 0; i < m_added_components.Size(); ++i)
+            {
+                auto& com = m_added_components[i];
+                if (com->IsEnable())
+                {
+                    com->OnGameObjectLayerChanged();
+                }
+            }
+
+            for (int i = 0; i < m_components.Size(); ++i)
+            {
+                auto& com = m_components[i];
+                if (com->IsEnable())
+                {
+                    com->OnGameObjectLayerChanged();
+                }
+            }
+        }
 	}
 
 	void GameObject::SetActive(bool active)
 	{
-		m_is_active_self = active;
+        if (m_is_active_self != active)
+        {
+            m_is_active_self = active;
 
-		auto parent = this->GetTransform()->GetParent();
-		if (parent)
-		{
-			m_is_active_in_tree = parent->GetGameObject()->IsActiveInTree() && m_is_active_self;
-		}
-		else
-		{
-			m_is_active_in_tree = m_is_active_self;
-		}
+            auto parent = this->GetTransform()->GetParent();
+            if (parent)
+            {
+                m_is_active_in_tree = parent->GetGameObject()->IsActiveInTree() && m_is_active_self;
+            }
+            else
+            {
+                m_is_active_in_tree = m_is_active_self;
+            }
 
-		int child_count = this->GetTransform()->GetChildCount();
-		for (int i = 0; i < child_count; ++i)
-		{
-			auto& child = this->GetTransform()->GetChild(i);
-			child->GetGameObject()->SetActive(child->GetGameObject()->IsActiveSelf());
-		}
+            for (int i = 0; i < m_added_components.Size(); ++i)
+            {
+                auto& com = m_added_components[i];
+                if (com->IsEnable())
+                {
+                    com->OnGameObjectActiveChanged();
+                }
+            }
+
+            for (int i = 0; i < m_components.Size(); ++i)
+            {
+                auto& com = m_components[i];
+                if (com->IsEnable())
+                {
+                    com->OnGameObjectActiveChanged();
+                }
+            }
+
+            int child_count = this->GetTransform()->GetChildCount();
+            for (int i = 0; i < child_count; ++i)
+            {
+                auto& child = this->GetTransform()->GetChild(i);
+                child->GetGameObject()->SetActive(child->GetGameObject()->IsActiveSelf());
+            }
+        }
 	}
 
 	void GameObject::Update()
@@ -117,7 +165,17 @@ namespace Viry3D
         for (int i = 0; i < m_components.Size(); ++i)
         {
             auto& com = m_components[i];
-            com->Update();
+
+            if (com->IsEnable())
+            {
+                if (!com->m_started)
+                {
+                    com->m_started = true;
+                    com->Start();
+                }
+
+                com->Update();
+            }
         }
         
         do
@@ -128,7 +186,18 @@ namespace Viry3D
             for (int i = 0; i < added.Size(); ++i)
             {
                 auto& com = added[i];
-                com->Update();
+
+                if (com->IsEnable())
+                {
+                    if (!com->m_started)
+                    {
+                        com->m_started = true;
+                        com->Start();
+                    }
+
+                    com->Update();
+                }
+                
                 m_components.Add(com);
             }
             added.Clear();
@@ -147,7 +216,10 @@ namespace Viry3D
         for (int i = 0; i < m_components.Size(); ++i)
         {
             auto& com = m_components[i];
-            com->LateUpdate();
+            if (com->IsEnable())
+            {
+                com->LateUpdate();
+            }
         }
     }
 }

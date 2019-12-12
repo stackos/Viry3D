@@ -32,6 +32,7 @@ namespace Viry3D
         Ref<GameObject> GetGameObject() const { return m_object.lock(); }
         const Ref<Transform>& GetTransform() const;
         void Enable(bool enable);
+        bool IsEnable() const { return m_enable; }
 
     protected:
         virtual void Start() { }
@@ -40,7 +41,7 @@ namespace Viry3D
         virtual void OnTransformDirty() { }
         virtual void OnEnable(bool enable) { }
         virtual void OnGameObjectLayerChanged() { }
-        virtual void OnGameObjectActive(bool active) { }
+        virtual void OnGameObjectActiveChanged() { }
         
 	private:
         friend class GameObject;
@@ -48,5 +49,6 @@ namespace Viry3D
     private:
         WeakRef<GameObject> m_object;
         bool m_enable = true;
+        bool m_started = false;
     };
 }

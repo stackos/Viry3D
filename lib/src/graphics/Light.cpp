@@ -43,6 +43,7 @@ namespace Viry3D
 		for (auto i : m_lights)
 		{
 			if (i->GetGameObject()->IsActiveInTree() &&
+                i->IsEnable() &&
 				(i->GetType() == LightType::Directional || i->GetType() == LightType::Spot) &&
 				i->IsShadowEnable())
 			{
@@ -59,7 +60,7 @@ namespace Viry3D
 		for (auto i : renderers)
 		{
 			int layer = i->GetGameObject()->GetLayer();
-			if (i->GetGameObject()->IsActiveInTree() && ((1 << layer) & m_culling_mask) != 0 && i->IsCastShadow())
+			if (i->GetGameObject()->IsActiveInTree() && i->IsEnable() && ((1 << layer) & m_culling_mask) != 0 && i->IsCastShadow())
 			{
 				result.AddLast(i);
 			}
@@ -289,34 +290,49 @@ namespace Viry3D
 
 	void Light::SetType(LightType type)
 	{
-		m_type = type;
-		m_dirty = true;
-		m_projection_matrix_dirty = true;
+        if (m_type != type)
+        {
+            m_type = type;
+            m_dirty = true;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Light::SetColor(const Color& color)
 	{
-		m_color = color;
-		m_dirty = true;
+        if (m_color != color)
+        {
+            m_color = color;
+            m_dirty = true;
+        }
 	}
 
 	void Light::SetIntensity(float intensity)
 	{
-		m_intensity = intensity;
-		m_dirty = true;
+        if (!Mathf::FloatEqual(m_intensity, intensity))
+        {
+            m_intensity = intensity;
+            m_dirty = true;
+        }
 	}
 
 	void Light::SetRange(float range)
 	{
-		m_range = range;
-		m_dirty = true;
+        if (!Mathf::FloatEqual(m_range, range))
+        {
+            m_range = range;
+            m_dirty = true;
+        }
 	}
 
 	void Light::SetSpotAngle(float angle)
 	{
-		m_spot_angle = angle;
-		m_dirty = true;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_spot_angle, angle))
+        {
+            m_spot_angle = angle;
+            m_dirty = true;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Light::EnableShadow(bool enable)
@@ -357,38 +373,56 @@ namespace Viry3D
 
 	void Light::SetShadowStrength(float strength)
 	{
-		m_shadow_strength = strength;
-		m_dirty = true;
+        if (!Mathf::FloatEqual(m_shadow_strength, strength))
+        {
+            m_shadow_strength = strength;
+            m_dirty = true;
+        }
 	}
 
 	void Light::SetShadowZBias(float bias)
 	{
-		m_shadow_z_bias = bias;
-		m_dirty = true;
+        if (!Mathf::FloatEqual(m_shadow_z_bias, bias))
+        {
+            m_shadow_z_bias = bias;
+            m_dirty = true;
+        }
 	}
 
 	void Light::SetShadowSlopeBias(float bias)
 	{
-		m_shadow_slope_bias = bias;
-		m_dirty = true;
+        if (!Mathf::FloatEqual(m_shadow_slope_bias, bias))
+        {
+            m_shadow_slope_bias = bias;
+            m_dirty = true;
+        }
 	}
 
 	void Light::SetNearClip(float clip)
 	{
-		m_near_clip = clip;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_near_clip, clip))
+        {
+            m_near_clip = clip;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Light::SetFarClip(float clip)
 	{
-		m_far_clip = clip;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_far_clip, clip))
+        {
+            m_far_clip = clip;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	void Light::SetOrthographicSize(float size)
 	{
-		m_orthographic_size = size;
-		m_projection_matrix_dirty = true;
+        if (!Mathf::FloatEqual(m_orthographic_size, size))
+        {
+            m_orthographic_size = size;
+            m_projection_matrix_dirty = true;
+        }
 	}
 
 	const Matrix4x4& Light::GetViewMatrix()
