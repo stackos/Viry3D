@@ -621,7 +621,8 @@ namespace Viry3D
             m_private->m_scene = RefMake<Scene>();
         }
         m_private->m_scene->Update();
-        
+        Physics::Update();
+
 		m_private->BeginFrame();
 		m_private->Render();
 		m_private->EndFrame();

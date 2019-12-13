@@ -27,13 +27,15 @@ namespace Viry3D
         AppImplementGLES2()
         {
             auto camera = GameObject::Create("")->AddComponent<Camera>();
-            camera->GetTransform()->SetPosition(Vector3(0, 0, -5));
+            camera->GetTransform()->SetPosition(Vector3(0, 2, -4));
+            camera->GetTransform()->SetRotation(Quaternion::Euler(15, 0, 0));
             camera->SetDepth(0);
             camera->SetClearColor(Color(0, 0, 1, 1));
             camera->SetCullingMask(1 << 0);
 
             this->InitKTXTest();
             this->InitGPUBlendShapeTest();
+            this->InitPhysicsTest();
             this->InitUI();
         }
 
@@ -54,6 +56,7 @@ namespace Viry3D
             material->SetTexture(MaterialProperty::TEXTURE, texture);
 
             auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+            renderer->GetTransform()->SetPosition(Vector3(0, 0.5f, 0));
             renderer->GetGameObject()->SetLayer(0);
             renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
             renderer->SetMaterial(material);
@@ -327,10 +330,23 @@ void main()
         void InitGPUBlendShapeTest()
         {
             auto model = Resources::LoadGameObject("Resources/res/model/unitychan/unitychan.go");
-            model->GetTransform()->SetPosition(Vector3(1.5f, -1.0f, -2));
+            model->GetTransform()->SetPosition(Vector3(1.5f, 0, 0));
             model->GetTransform()->SetRotation(Quaternion::Euler(0, 200, 0));
             auto anim = model->GetComponent<Animation>();
             anim->Play(0);
+        }
+
+        void InitPhysicsTest()
+        {
+            auto shader = Shader::Find("Unlit/Texture");
+            auto material = RefMake<Material>(shader);
+            auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
+            material->SetTexture(MaterialProperty::TEXTURE, texture);
+
+            auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
+            renderer->GetGameObject()->SetLayer(0);
+            renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Plane.mesh"));
+            renderer->SetMaterial(material);
         }
 
         void InitUI()
