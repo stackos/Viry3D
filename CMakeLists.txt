@@ -660,22 +660,18 @@ endif ()
 
 # imgui
 if (TRUE)
-    if (${Target} MATCHES "Windows" OR
-        ${Target} MATCHES "Mac"
-        )
 
-        file(GLOB VIRY3D_DEP_SRCS_IMGUI
-             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui.cpp
-             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_demo.cpp
-             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_draw.cpp
-             ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_widgets.cpp
-             )
+    file(GLOB VIRY3D_DEP_SRCS_IMGUI
+         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui.cpp
+         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_demo.cpp
+         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_draw.cpp
+         ${VIRY3D_LIB_SRC_DIR}/imgui/imgui_widgets.cpp
+         )
 
-        source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_IMGUI})
+    source_group(TREE ${VIRY3D_LIB_SRC_DIR}/.. FILES ${VIRY3D_DEP_SRCS_IMGUI})
 
-        target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_IMGUI})
+    target_sources(Viry3DDep PRIVATE ${VIRY3D_DEP_SRCS_IMGUI})
 
-    endif ()
 endif ()
 
 # zlib

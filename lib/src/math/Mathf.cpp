@@ -17,6 +17,7 @@
 
 #include "Mathf.h"
 #include <stdlib.h>
+#include <assert.h>
 
 namespace Viry3D
 {
@@ -196,5 +197,35 @@ namespace Viry3D
 		ray_length = min;
         
         return true;
+    }
+
+    half Mathf::FLoatToHalf(float f)
+    {
+        uint16_t h = 0;
+        uint32_t fb = *(uint32_t*) &f;
+        int s = (fb >> 31) & 0x1;
+        int e = (fb >> 23) & 0xff;
+        if (e == 0)
+        {
+            e = 0;
+        }
+        else if (e == 255)
+        {
+            assert(false);
+        }
+        else
+        {
+            e -= (1 << (8 - 1)) - 1;
+            e += (1 << (5 - 1)) - 1;
+            assert(e > 0 && e < 31);
+        }
+        int m = (fb >> 0) & 0x7fffff;
+        m >>= (23 - 10);
+
+        h |= s << 15;
+        h |= e << 10;
+        h |= m;
+
+        return h;
     }
 }

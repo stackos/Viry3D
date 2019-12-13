@@ -155,36 +155,6 @@ namespace Viry3D
             return b;
         }
 
-        uint16_t FLoatToHalf(float f)
-        {
-            uint16_t h = 0;
-            uint32_t fb = *(uint32_t*) &f;
-            int s = (fb >> 31) & 0x1;
-            int e = (fb >> 23) & 0xff;
-            if (e == 0)
-            {
-                e = 0;
-            }
-            else if (e == 255)
-            {
-                assert(false);
-            }
-            else
-            {
-                e -= (1 << (8 - 1)) - 1;
-                e += (1 << (5 - 1)) - 1;
-                assert(e > 0 && e < 31);
-            }
-            int m = (fb >> 0) & 0x7fffff;
-            m >>= (23 - 10);
-
-            h |= s << 15;
-            h |= e << 10;
-            h |= m;
-
-            return h;
-        }
-
         Ref<Material> InitVertexTextureTest()
         {
             // create shader test using vertex float texture
@@ -301,7 +271,7 @@ void main()
             {
                 ByteBuffer pixels(2 * 2 * 2);
                 uint16_t* p = (uint16_t*) pixels.Bytes();
-                p[0] = FLoatToHalf(0); p[1] = FLoatToHalf(0); p[2] = FLoatToHalf(1); p[3] = FLoatToHalf(1);
+                p[0] = Mathf::FLoatToHalf(0); p[1] = Mathf::FLoatToHalf(0); p[2] = Mathf::FLoatToHalf(1); p[3] = Mathf::FLoatToHalf(1);
                 auto texture = Texture::CreateTexture2DFromMemory(
                     pixels,
                     2,
@@ -322,10 +292,10 @@ void main()
             {
                 ByteBuffer pixels(2 * 2 * 2 * 4);
                 uint16_t* p = (uint16_t*) pixels.Bytes();
-                p[0] = FLoatToHalf(0); p[1] = FLoatToHalf(0); p[2] = FLoatToHalf(1); p[3] = FLoatToHalf(1);
-                p[4] = FLoatToHalf(0); p[5] = FLoatToHalf(1); p[6] = FLoatToHalf(0); p[7] = FLoatToHalf(1);
-                p[8] = FLoatToHalf(1); p[9] = FLoatToHalf(0); p[10] = FLoatToHalf(0); p[11] = FLoatToHalf(1);
-                p[12] = FLoatToHalf(0); p[13] = FLoatToHalf(0); p[14] = FLoatToHalf(0); p[15] = FLoatToHalf(1);
+                p[0] = Mathf::FLoatToHalf(0); p[1] = Mathf::FLoatToHalf(0); p[2] = Mathf::FLoatToHalf(1); p[3] = Mathf::FLoatToHalf(1);
+                p[4] = Mathf::FLoatToHalf(0); p[5] = Mathf::FLoatToHalf(1); p[6] = Mathf::FLoatToHalf(0); p[7] = Mathf::FLoatToHalf(1);
+                p[8] = Mathf::FLoatToHalf(1); p[9] = Mathf::FLoatToHalf(0); p[10] = Mathf::FLoatToHalf(0); p[11] = Mathf::FLoatToHalf(1);
+                p[12] = Mathf::FLoatToHalf(0); p[13] = Mathf::FLoatToHalf(0); p[14] = Mathf::FLoatToHalf(0); p[15] = Mathf::FLoatToHalf(1);
                 auto texture = Texture::CreateTexture2DFromMemory(
                     pixels,
                     2,

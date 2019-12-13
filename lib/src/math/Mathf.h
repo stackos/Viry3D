@@ -25,6 +25,8 @@
 
 namespace Viry3D
 {
+    typedef uint16_t half;
+
 	class Mathf
 	{
 	public:
@@ -63,6 +65,7 @@ namespace Viry3D
         static T Abs(T v) { return (T) fabsf((float) v); }
         static bool RayPlaneIntersection(const Ray& ray, const Vector3& plane_normal, const Vector3& plane_point, float& ray_length);
         static bool RayBoundsIntersection(const Ray& ray, const Bounds& box, float& ray_length);
+        static half FLoatToHalf(float f);
 	};
 
 	template<class T>
