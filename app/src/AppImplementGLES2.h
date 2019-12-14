@@ -23,6 +23,7 @@ namespace Viry3D
     {
     public:
         Label* m_fps_label = nullptr;
+        Ref<MeshRenderer> m_cube;
 
         AppImplementGLES2()
         {
@@ -55,11 +56,14 @@ namespace Viry3D
             auto material = this->InitVertexTextureTest();
             material->SetTexture(MaterialProperty::TEXTURE, texture);
 
-            auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-            renderer->GetTransform()->SetPosition(Vector3(0, 0.5f, 0));
-            renderer->GetGameObject()->SetLayer(0);
-            renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
-            renderer->SetMaterial(material);
+            auto cube = GameObject::Create("")->AddComponent<MeshRenderer>();
+            cube->GetTransform()->SetPosition(Vector3(0, 3, 0));
+            cube->GetTransform()->SetRotation(Quaternion::Euler(45, 45, 45));
+            cube->GetGameObject()->SetLayer(0);
+            cube->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
+            cube->SetMaterial(material);
+
+            m_cube = cube;
         }
 
         uint32_t FloatToBin(float f)
@@ -343,10 +347,16 @@ void main()
             auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
             material->SetTexture(MaterialProperty::TEXTURE, texture);
 
-            auto renderer = GameObject::Create("")->AddComponent<MeshRenderer>();
-            renderer->GetGameObject()->SetLayer(0);
-            renderer->SetMesh(Resources::LoadMesh("Library/unity default resources.Plane.mesh"));
-            renderer->SetMaterial(material);
+            auto plane = GameObject::Create("")->AddComponent<MeshRenderer>();
+            plane->GetGameObject()->SetLayer(0);
+            plane->SetMesh(Resources::LoadMesh("Library/unity default resources.Plane.mesh"));
+            plane->SetMaterial(material);
+
+            auto plane_col = plane->GetGameObject()->AddComponent<BoxCollider>();
+            plane_col->SetSize(Vector3(10, 0, 10));
+
+            auto cube_col = m_cube->GetGameObject()->AddComponent<BoxCollider>();
+            cube_col->SetIsRigidbody(true);
         }
 
         void InitUI()
