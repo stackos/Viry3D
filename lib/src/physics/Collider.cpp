@@ -53,6 +53,32 @@ namespace Viry3D
 		m_is_rigidbody = value;
 	}
 
+    void Collider::SetRollingFriction(float f)
+    {
+        if (!Mathf::FloatEqual(m_rolling_friction, f))
+        {
+            auto col = (btCollisionObject*) m_collider;
+            if (col != nullptr)
+            {
+                m_rolling_friction = f;
+                col->setRollingFriction(f);
+            }
+        }
+    }
+
+    void Collider::SetFriction(float f)
+    {
+        if (!Mathf::FloatEqual(m_friction, f))
+        {
+            auto col = (btCollisionObject*) m_collider;
+            if (col != nullptr)
+            {
+                m_friction = f;
+                col->setFriction(f);
+            }
+        }
+    }
+
 	void Collider::OnEnable(bool enable)
 	{
         if (enable)

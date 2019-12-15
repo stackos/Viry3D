@@ -103,8 +103,8 @@ namespace Viry3D
         auto col = new btCollisionObject();
         col->setWorldTransform(transform);
         col->setCollisionShape(shape);
-        col->setRollingFriction(1);
-        col->setFriction(1);
+        col->setRollingFriction(m_rolling_friction);
+        col->setFriction(m_friction);
         col->setUserPointer(this);
 
         Physics::AddCollider(col);

@@ -53,8 +53,8 @@ namespace Viry3D
             btRigidBody::btRigidBodyConstructionInfo info(mass, motion_state, shape, local_inertia);
 
             auto body = new btRigidBody(info);
-            body->setRollingFriction(0.1f);
-            body->setFriction(0.5f);
+            body->setRollingFriction(m_rolling_friction);
+            body->setFriction(m_friction);
             body->setUserPointer(this);
 
             Physics::AddRigidBody(body);
@@ -69,8 +69,8 @@ namespace Viry3D
             auto col = new btCollisionObject();
             col->setWorldTransform(transform);
             col->setCollisionShape(shape);
-            col->setRollingFriction(0.1f);
-            col->setFriction(0.5f);
+            col->setRollingFriction(m_rolling_friction);
+            col->setFriction(m_friction);
             col->setUserPointer(this);
 
             Physics::AddCollider(col);
