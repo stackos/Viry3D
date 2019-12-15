@@ -26,8 +26,9 @@ namespace Viry3D
     public:
         virtual ~Collider();
         virtual void SetIsRigidbody(bool value);
-        void SetRollingFriction(float f);
-        void SetFriction(float f);
+        void SetRollingFriction(float f); // »¬¶¯Ä¦²Á
+        void SetFriction(float f); // Ä¦²Á
+        void SetRestitution(float r); // µ¯ÐÔ
 
     protected:
         Collider() :
@@ -43,7 +44,9 @@ namespace Viry3D
         void* m_collider;
         bool m_in_world;
         bool m_is_rigidbody;
+        float m_mass = 1;
         float m_rolling_friction = 0.1f;
         float m_friction = 0.1f;
+        float m_restitution = 0.1f;
     };
 }

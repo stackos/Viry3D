@@ -105,6 +105,7 @@ namespace Viry3D
         col->setCollisionShape(shape);
         col->setRollingFriction(m_rolling_friction);
         col->setFriction(m_friction);
+        col->setRestitution(m_restitution);
         col->setUserPointer(this);
 
         Physics::AddCollider(col);

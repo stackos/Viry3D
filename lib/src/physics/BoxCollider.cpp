@@ -46,23 +46,24 @@ namespace Viry3D
 
         if (m_is_rigidbody)
         {
-            btScalar mass(1);
+            btScalar mass(m_mass);
             btVector3 local_inertia(0, 0, 0);
             shape->calculateLocalInertia(mass, local_inertia);
             auto motion_state = new btDefaultMotionState(transform);
             btRigidBody::btRigidBodyConstructionInfo info(mass, motion_state, shape, local_inertia);
 
-            auto body = new btRigidBody(info);
-            body->setRollingFriction(m_rolling_friction);
-            body->setFriction(m_friction);
-            body->setUserPointer(this);
+            auto col = new btRigidBody(info);
+            col->setRollingFriction(m_rolling_friction);
+            col->setFriction(m_friction);
+            col->setRestitution(m_restitution);
+            col->setUserPointer(this);
 
-            Physics::AddRigidBody(body);
+            Physics::AddRigidBody(col);
 
-            auto proxy = body->getBroadphaseHandle();
+            auto proxy = col->getBroadphaseHandle();
             proxy->layer = this->GetGameObject()->GetLayer();
 
-            m_collider = body;
+            m_collider = col;
         }
         else
         {
@@ -71,6 +72,7 @@ namespace Viry3D
             col->setCollisionShape(shape);
             col->setRollingFriction(m_rolling_friction);
             col->setFriction(m_friction);
+            col->setRestitution(m_restitution);
             col->setUserPointer(this);
 
             Physics::AddCollider(col);

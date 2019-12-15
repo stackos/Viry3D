@@ -79,6 +79,19 @@ namespace Viry3D
         }
     }
 
+    void Collider::SetRestitution(float r)
+    {
+        if (!Mathf::FloatEqual(m_restitution, r))
+        {
+            auto col = (btCollisionObject*) m_collider;
+            if (col != nullptr)
+            {
+                m_restitution = r;
+                col->setRestitution(r);
+            }
+        }
+    }
+
 	void Collider::OnEnable(bool enable)
 	{
         if (enable)
