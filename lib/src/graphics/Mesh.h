@@ -22,6 +22,7 @@
 #include "container/Vector.h"
 #include "math/Vector2.h"
 #include "math/Matrix4x4.h"
+#include "math/Bounds.h"
 #include "private/backend/DriverApi.h"
 
 namespace Viry3D
@@ -96,6 +97,7 @@ namespace Viry3D
         Vector<Matrix4x4> m_bindposes;
         Vector<BlendShape> m_blend_shapes;
         Ref<Texture> m_blend_shape_texture;
+        Bounds m_bounds;
         bool m_uint32_index;
 		filament::backend::AttributeArray m_attributes;
 		uint32_t m_enabled_attributes;

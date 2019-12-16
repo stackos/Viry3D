@@ -865,6 +865,10 @@ public class GameObjectExporter
             }
         }
 
+        var mesh_bounds = mesh.bounds;
+        WriteVector3(mesh_bounds.center);
+        WriteVector3(mesh_bounds.size);
+
         string file_path = out_dir + "/" + asset_path;
         CreateFileDirIfNeed(file_path);
 

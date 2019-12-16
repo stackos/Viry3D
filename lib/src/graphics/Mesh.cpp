@@ -196,11 +196,15 @@ namespace Viry3D
                 }
             }
             
+            Vector3 bounds_center = ms.Read<Vector3>();
+            Vector3 bounds_size = ms.Read<Vector3>();
+
             mesh = RefMake<Mesh>(std::move(*vertices), std::move(*indices), *submeshes);
             mesh->SetName(mesh_name);
             mesh->SetBindposes(std::move(*bindposes));
             mesh->SetBlendShapes(std::move(*blend_shapes));
-            
+            mesh->m_bounds = Bounds(bounds_center - bounds_size / 2, bounds_center + bounds_size / 2);
+
             // create blendshape texture
             if (blend_shape_count > 0 && Texture::SelectFormat({ TextureFormat::R32G32B32A32F }, false) != TextureFormat::None)
             {
