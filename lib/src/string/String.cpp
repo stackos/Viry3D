@@ -218,6 +218,21 @@ namespace Viry3D
 		return !(*this == right);
 	}
 
+    bool String::operator ==(const char* right) const
+    {
+        if (right && this->Size() == strlen(right))
+        {
+            return Memory::Compare(this->m_string.data(), right, this->Size()) == 0;
+        }
+
+        return false;
+    }
+
+    bool String::operator !=(const char* right) const
+    {
+        return !(*this == right);
+    }
+
 	bool operator ==(const char* left, const String& right)
 	{
 		return right == left;

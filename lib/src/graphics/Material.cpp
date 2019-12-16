@@ -83,6 +83,11 @@ namespace Viry3D
         return m_shader_variants.begin()->second.shader->GetName();
     }
 
+    const Ref<Shader>& Material::GetShader()
+    {
+        return m_shader_variants.begin()->second.shader;
+    }
+
     const Ref<Shader>& Material::GetShader(const String& key)
     {
         assert(m_shader_variants.Contains(key));
@@ -218,7 +223,7 @@ namespace Viry3D
         m_scissor_rect = rect;
     }
 
-	void Material::EnableKeywords(const Vector<String>& keywords)
+    String Material::EnableKeywords(const Vector<String>& keywords)
 	{
         String key = Shader::MakeKey(this->GetShaderName(), keywords);
         if (!m_shader_variants.Contains(key))
@@ -231,43 +236,8 @@ namespace Viry3D
             variant.shader = shader;
             m_shader_variants.Add(variant.key, variant);
         }
+        return key;
 	}
-
-    void Material::EnableKeyword(const String& keyword)
-    {
-        Vector<Vector<String>> new_keywords;
-        for (const auto& i : m_shader_variants)
-        {
-            auto keywords = i.second.shader->GetKeywords();
-            if (!keywords.Contains(keyword))
-            {
-                keywords.Add(keyword);
-                new_keywords.Add(keywords);
-            }
-        }
-        for (const auto& i : new_keywords)
-        {
-            this->EnableKeywords(i);
-        }
-    }
-
-    void Material::DisableKeyword(const String& keyword)
-    {
-        Vector<Vector<String>> new_keywords;
-        for (const auto& i : m_shader_variants)
-        {
-            auto keywords = i.second.shader->GetKeywords();
-            if (keywords.Contains(keyword))
-            {
-                keywords.Remove(keyword);
-                new_keywords.Add(keywords);
-            }
-        }
-        for (const auto& i : new_keywords)
-        {
-            this->EnableKeywords(i);
-        }
-    }
 
     void Material::Prepare(int pass)
     {

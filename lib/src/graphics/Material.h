@@ -158,6 +158,7 @@ namespace Viry3D
         Material(const Ref<Shader>& shader);
         virtual ~Material();
         const String& GetShaderName();
+        const Ref<Shader>& GetShader();
         const Ref<Shader>& GetShader(const String& key);
         int GetQueue() const;
         void SetQueue(int queue);
@@ -174,9 +175,7 @@ namespace Viry3D
         void SetMatrixArray(const String& name, const Vector<Matrix4x4>& array);
         const Rect& GetScissorRect() const { return m_scissor_rect; }
         void SetScissorRect(const Rect& rect);
-		void EnableKeywords(const Vector<String>& keywords);
-        void EnableKeyword(const String& keyword);
-        void DisableKeyword(const String& keyword);
+		String EnableKeywords(const Vector<String>& keywords);
         void Prepare(int pass = -1);
         void SetScissor(int target_width, int target_height);
 		void Bind(const String& key, int pass);

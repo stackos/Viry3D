@@ -84,6 +84,7 @@ namespace Viry3D
 		void UpdateViewUniforms();
 		void Draw(const List<Renderer*>& renderers);
         void DrawRenderer(Renderer* renderer);
+        void DoDraw(Renderer* renderer, bool shadow_enable = false, bool light_add = false);
 		bool HasPostProcessing();
 		void PostProcessing();
 

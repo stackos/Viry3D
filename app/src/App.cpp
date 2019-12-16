@@ -22,11 +22,11 @@ namespace Viry3D
 {
     App::App()
     {
-        m_implement = RefMake<AppImplementUnityChan>();
+        m_implement = RefMake<AppImplementGLES2>();
     }
     
     void App::Update()
     {
-		RefCast<AppImplementUnityChan>(m_implement)->Update();
+		RefCast<AppImplementGLES2>(m_implement)->Update();
     }
 }

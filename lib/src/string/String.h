@@ -57,6 +57,8 @@ namespace Viry3D
 
 		bool operator ==(const String& right) const;
 		bool operator !=(const String& right) const;
+        bool operator ==(const char* right) const;
+        bool operator !=(const char* right) const;
 		String operator +(const String& right) const;
 		String& operator +=(const String& right);
 		bool operator <(const String& right) const;

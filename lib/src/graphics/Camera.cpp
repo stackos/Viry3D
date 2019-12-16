@@ -368,78 +368,6 @@ namespace Viry3D
             driver.bindSamplers((size_t) Shader::BindingPoint::PerRendererBones, skin->GetBlendShapeSamplerGroup());
         }
 
-		auto draw = [&](bool shadow_enable = false, bool light_add = false) {
-			const auto& materials = renderer->GetMaterials();
-			for (int i = 0; i < materials.Size(); ++i)
-			{
-				auto& material = materials[i];
-				if (material)
-				{
-                    if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
-                        Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
-                    {
-                        material->SetMatrix(ViewUniforms::VIEW_MATRIX, m_view_uniforms.view_matrix);
-                        material->SetMatrix(ViewUniforms::PROJECTION_MATRIX, m_view_uniforms.projection_matrix);
-                        material->SetVector(ViewUniforms::CAMERA_POS, m_view_uniforms.camera_pos);
-                        material->SetVector(ViewUniforms::TIME, m_view_uniforms.time);
-                        material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
-                        
-                        if (skin && skin->GetBonesUniformBuffer())
-                        {
-                            material->SetVectorArray(SkinnedMeshRendererUniforms::BONES, skin->GetBoneVectors());
-                        }
-                    }
-					
-					filament::backend::RenderPrimitiveHandle primitive;
-
-					auto primitives = renderer->GetPrimitives();
-					if (i < primitives.Size())
-					{
-						primitive = primitives[i];
-					}
-					else if (primitives.Size() > 0)
-					{
-						primitive = primitives[0];
-					}
-
-					if (primitive)
-					{
-						if (shadow_enable && renderer->IsRecieveShadow())
-						{
-                            renderer->EnableShaderKeyword("RECIEVE_SHADOW_ON");
-						}
-
-                        auto keywords = renderer->GetShaderKeywords();
-
-                        if (light_add)
-                        {
-                            material->EnableKeyword("LIGHT_ADD_ON");
-                            keywords.Add("LIGHT_ADD_ON");
-                        }
-
-                        const auto& shader = material->GetShader(Shader::MakeKey(material->GetShaderName(), keywords));
-						
-						material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
-
-						for (int j = 0; j < shader->GetPassCount(); ++j)
-						{
-							bool has_light = shader->GetPass(j).light_mode == Shader::LightMode::Forward;
-							if (!has_light && light_add)
-							{
-								continue;
-							}
-
-							material->Bind(shader->GetShaderKey(), j);
-
-							const auto& pipeline = shader->GetPass(j).pipeline;
-							driver.draw(pipeline, primitive);
-							Time::SetDrawCall(Time::GetDrawCall() + 1);
-						}
-					}
-				}
-			}
-		};
-
 		bool lighted = false;
 		bool light_add = false;
 		const auto& lights = Light::GetLights();
@@ -461,7 +389,7 @@ namespace Viry3D
 				}
 				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightFragment, i->GetLightUniformBuffer());
 
-				draw(i->IsShadowEnable(), light_add);
+                DoDraw(renderer, i->IsShadowEnable(), light_add);
 
 				lighted = true;
 				light_add = true;
@@ -470,8 +398,84 @@ namespace Viry3D
 
 		if (!lighted)
 		{
-			draw();
+            DoDraw(renderer);
 		}
+    }
+
+    void Camera::DoDraw(Renderer* renderer, bool shadow_enable, bool light_add)
+    {
+        auto& driver = Engine::Instance()->GetDriverApi();
+
+        SkinnedMeshRenderer* skin = dynamic_cast<SkinnedMeshRenderer*>(renderer);
+
+        const auto& materials = renderer->GetMaterials();
+        for (int i = 0; i < materials.Size(); ++i)
+        {
+            auto& material = materials[i];
+            if (material)
+            {
+                if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
+                    Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
+                {
+                    material->SetMatrix(ViewUniforms::VIEW_MATRIX, m_view_uniforms.view_matrix);
+                    material->SetMatrix(ViewUniforms::PROJECTION_MATRIX, m_view_uniforms.projection_matrix);
+                    material->SetVector(ViewUniforms::CAMERA_POS, m_view_uniforms.camera_pos);
+                    material->SetVector(ViewUniforms::TIME, m_view_uniforms.time);
+                    material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
+
+                    if (skin && skin->GetBonesUniformBuffer())
+                    {
+                        material->SetVectorArray(SkinnedMeshRendererUniforms::BONES, skin->GetBoneVectors());
+                    }
+                }
+
+                filament::backend::RenderPrimitiveHandle primitive;
+
+                auto primitives = renderer->GetPrimitives();
+                if (i < primitives.Size())
+                {
+                    primitive = primitives[i];
+                }
+                else if (primitives.Size() > 0)
+                {
+                    primitive = primitives[0];
+                }
+
+                if (primitive)
+                {
+                    if (shadow_enable && renderer->IsRecieveShadow())
+                    {
+                        renderer->EnableShaderKeyword("RECIEVE_SHADOW_ON");
+                    }
+
+                    auto shader_key = renderer->GetShaderKey(i);
+
+                    if (light_add)
+                    {
+                        shader_key = renderer->GetShaderKeyWithLightAddOn(i);
+                    }
+
+                    const auto& shader = material->GetShader(*shader_key);
+
+                    material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
+
+                    for (int j = 0; j < shader->GetPassCount(); ++j)
+                    {
+                        bool has_light = shader->GetPass(j).light_mode == Shader::LightMode::Forward;
+                        if (!has_light && light_add)
+                        {
+                            continue;
+                        }
+
+                        material->Bind(shader->GetShaderKey(), j);
+
+                        const auto& pipeline = shader->GetPass(j).pipeline;
+                        driver.draw(pipeline, primitive);
+                        Time::SetDrawCall(Time::GetDrawCall() + 1);
+                    }
+                }
+            }
+        }
     }
 
 	bool Camera::HasPostProcessing()
@@ -666,7 +670,7 @@ namespace Viry3D
 			auto& driver = Engine::Instance()->GetDriverApi();
 			driver.beginRenderPass(dst->target, params);
 
-			const auto& shader = material->GetShader(Shader::MakeKey(material->GetShaderName(), { }));
+			const auto& shader = material->GetShader();
 			material->SetScissor(target_width, target_height);
 
 			int pass_begin = 0;
