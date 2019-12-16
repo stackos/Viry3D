@@ -2311,10 +2311,23 @@ void OpenGLDriver::copyTextureToMemory(
 	int layer, int level,
     Offset3D offset,
     Offset3D extent,
-	PixelBufferDescriptor&& buffer,
-	std::function<void(const PixelBufferDescriptor&)> on_complete)
+	PixelBufferDescriptor&& p)
 {
+    if (mSharedReadFramebuffer == 0)
+    {
+        glGenFramebuffers(1, &mSharedReadFramebuffer);
+    }
+    auto read_fbo = state.read_fbo;
 
+    this->bindFramebuffer(GL_FRAMEBUFFER, mSharedReadFramebuffer);
+    this->framebufferTexture(TargetBufferInfo(th, level, layer), GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0);
+    GLenum format = getFormat(p.format);
+    GLenum type = getType(p.type);
+    this->pixelStore(GL_PACK_ALIGNMENT, p.alignment);
+    glReadPixels(offset.x, offset.y, extent.x, extent.y, format, type, p.buffer);
+    this->bindFramebuffer(GL_FRAMEBUFFER, read_fbo);
+
+    this->scheduleDestroy(std::move(p));
 }
 
 void OpenGLDriver::generateMipmaps(Handle<HwTexture> th) {

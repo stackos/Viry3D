@@ -381,13 +381,12 @@ DECL_DRIVER_API_11(copyTexture,
         backend::Offset3D, src_extent,
 		backend::SamplerMagFilter, blit_filter);
 
-DECL_DRIVER_API_7(copyTextureToMemory,
+DECL_DRIVER_API_6(copyTextureToMemory,
 		backend::TextureHandle, th,
 		int, layer, int, level,
         backend::Offset3D, offset,
         backend::Offset3D, extent,
-		backend::PixelBufferDescriptor&&, buffer,
-		std::function<void(const backend::PixelBufferDescriptor&)>, on_complete);
+		backend::PixelBufferDescriptor&&, buffer);
 
 DECL_DRIVER_API_1(generateMipmaps,
         backend::TextureHandle, th)

@@ -1035,6 +1035,22 @@ namespace Viry3D
 			blit_filter == FilterMode::Linear ? filament::backend::SamplerMagFilter::LINEAR : filament::backend::SamplerMagFilter::NEAREST);
 	}
 
+    struct CopyToMemoryHandle
+    {
+        ByteBuffer pixels;
+        std::function<void(const ByteBuffer&)> on_complete;
+    };
+
+    static void CopyToMemoryCallback(void* buffer, size_t size, void* user)
+    {
+        CopyToMemoryHandle* handle = (CopyToMemoryHandle*) user;
+        if (handle->on_complete)
+        {
+            handle->on_complete(handle->pixels);
+        }
+        Memory::SafeDelete(handle);
+    }
+
 	void Texture::CopyToMemory(
 		ByteBuffer& pixels,
 		int layer, int level,
@@ -1044,23 +1060,23 @@ namespace Viry3D
 	{
 		auto& driver = Engine::Instance()->GetDriverApi();
 
+        CopyToMemoryHandle* handle = Memory::New<CopyToMemoryHandle>();
+        handle->pixels = pixels;
+        handle->on_complete = on_complete;
+
 		auto data = filament::backend::PixelBufferDescriptor(
 			pixels.Bytes(),
 			pixels.Size(),
 			GetPixelDataFormat(m_format),
 			GetPixelDataType(m_format));
+        data.setCallback(CopyToMemoryCallback, handle);
+
 		driver.copyTextureToMemory(
 			m_texture,
 			layer, level,
 			filament::backend::Offset3D({ x, y, 0 }),
 			filament::backend::Offset3D({ w, h, 1 }),
-			std::move(data),
-			[=](const filament::backend::PixelBufferDescriptor&) {
-				if (on_complete)
-				{
-					on_complete(pixels);
-				}
-			});
+			std::move(data));
 	}
 
 	void Texture::GenMipmaps()

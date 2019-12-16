@@ -334,10 +334,9 @@ namespace Viry3D
         // test output atlas texture
         if (atlas_updated)
         {
-            ByteBuffer pixels(ATLAS_SIZE * ATLAS_SIZE * 4);
-            
             for (int i = 0; i < m_atlases.Size(); i++)
             {
+                ByteBuffer pixels(ATLAS_SIZE * ATLAS_SIZE * 4);
                 m_atlases[i]->CopyToMemory(pixels, 0, 0, 0, 0, ATLAS_SIZE, ATLAS_SIZE, [i](const ByteBuffer& buffer) {
                     auto image = RefMake<Image>();
                     image->width = ATLAS_SIZE;
@@ -441,7 +440,7 @@ namespace Viry3D
                     mesh.texture,
                     0, 0,
                     0, 0,
-                    node->rect.w, node->rect.h,
+                    mesh.texture->GetWidth(), mesh.texture->GetHeight(),
 					FilterMode::None);
 
                 m_atlas_cache.Add(mesh.texture->GetId(), node);

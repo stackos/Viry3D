@@ -518,20 +518,15 @@ namespace filament
 			int layer, int level,
 			Offset3D offset,
 			Offset3D extent,
-			PixelBufferDescriptor&& data,
-			std::function<void(const PixelBufferDescriptor&)> on_complete)
+			PixelBufferDescriptor&& p)
 		{
 			auto texture = handle_cast<D3D11Texture>(m_handle_map, th);
 			texture->CopyTextureToMemory(
 				m_context,
 				layer, level,
 				offset, extent,
-				data);
-			if (on_complete)
-			{
-				on_complete(data);
-			}
-			this->scheduleDestroy(std::move(data));
+				p);
+			this->scheduleDestroy(std::move(p));
 		}
 
 		void D3D11Driver::setupExternalImage(void* image)
