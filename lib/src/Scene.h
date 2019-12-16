@@ -41,7 +41,7 @@ namespace Viry3D
 
 	private:
 		static Scene* m_instance;
-		Map<int, Ref<GameObject>> m_objects;
+		Map<uint32_t, Ref<GameObject>> m_objects;
 		Vector<Ref<GameObject>> m_added_objects;
 		Vector<Ref<GameObject>> m_removed_objects;
     };

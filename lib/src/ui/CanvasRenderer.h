@@ -70,7 +70,7 @@ namespace Viry3D
 		bool m_canvas_dirty;
         Vector<Ref<Texture>> m_atlases;
         Vector<AtlasTreeNode*> m_atlas_tree;
-        Map<int, AtlasTreeNode*> m_atlas_cache;
+        Map<uint32_t, AtlasTreeNode*> m_atlas_cache;
         Vector<ViewMesh> m_view_meshes;
         Map<int, List<View*>> m_touch_down_views;
         FilterMode m_filter_mode;
