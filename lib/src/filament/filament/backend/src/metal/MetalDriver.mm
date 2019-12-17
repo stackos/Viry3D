@@ -524,10 +524,9 @@ void MetalDriver::copyTextureToMemory(
     int layer, int level,
     Offset3D offset,
     Offset3D extent,
-    PixelBufferDescriptor&& buffer,
-    std::function<void(const PixelBufferDescriptor&)> on_complete)
+    PixelBufferDescriptor&& p)
 {
-    
+    this->scheduleDestroy(std::move(p));
 }
     
 void MetalDriver::generateMipmaps(Handle<HwTexture> th) {
