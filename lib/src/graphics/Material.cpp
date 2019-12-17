@@ -21,6 +21,28 @@
 
 namespace Viry3D
 {
+    Ref<Material> Material::m_shared_bounds_material;
+
+    void Material::Init()
+    {
+
+    }
+
+    void Material::Done()
+    {
+        m_shared_bounds_material.reset();
+    }
+
+    const Ref<Material>& Material::GetSharedBoundsMaterial()
+    {
+        if (!m_shared_bounds_material)
+        {
+            m_shared_bounds_material = RefMake<Material>(Shader::Find("Bounds"));
+        }
+
+        return m_shared_bounds_material;
+    }
+
     Material::Material(const Ref<Shader>& shader):
         m_scissor_rect(0, 0, 1, 1)
     {

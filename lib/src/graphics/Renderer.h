@@ -22,10 +22,13 @@
 #include "container/List.h"
 #include "container/Vector.h"
 #include "math/Vector4.h"
+#include "math/Bounds.h"
 #include "private/backend/DriverApi.h"
 
 namespace Viry3D
 {
+    class Mesh;
+
     class Renderer : public Component
     {
     public:
@@ -51,6 +54,7 @@ namespace Viry3D
         const String* GetShaderKeyWithLightAddOn(int material_index);
         const filament::backend::UniformBufferHandle& GetTransformUniformBuffer() const { return m_transform_uniform_buffer; }
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
+        virtual Bounds GetLocalBounds() const { return Bounds(); }
 
 	protected:
 		virtual void Prepare();

@@ -389,7 +389,7 @@ namespace Viry3D
 				}
 				driver.bindUniformBuffer((size_t) Shader::BindingPoint::PerLightFragment, i->GetLightUniformBuffer());
 
-                DoDraw(renderer, i->IsShadowEnable(), light_add);
+                this->DoDraw(renderer, i->IsShadowEnable(), light_add);
 
 				lighted = true;
 				light_add = true;
@@ -398,8 +398,13 @@ namespace Viry3D
 
 		if (!lighted)
 		{
-            DoDraw(renderer);
+            this->DoDraw(renderer);
 		}
+
+        if (renderer->GetLocalBounds().GetSize().SqrMagnitude() > 0)
+        {
+            this->DrawRendererBounds(renderer);
+        }
     }
 
     void Camera::DoDraw(Renderer* renderer, bool shadow_enable, bool light_add)
@@ -474,6 +479,42 @@ namespace Viry3D
                         Time::SetDrawCall(Time::GetDrawCall() + 1);
                     }
                 }
+            }
+        }
+    }
+
+    void Camera::DrawRendererBounds(Renderer* renderer)
+    {
+        auto& driver = Engine::Instance()->GetDriverApi();
+
+        auto& material = Material::GetSharedBoundsMaterial();
+        auto primitive = Mesh::GetSharedBoundsMesh()->GetPrimitives()[0];
+
+        if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
+            Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
+        {
+            material->SetMatrix(ViewUniforms::VIEW_MATRIX, m_view_uniforms.view_matrix);
+            material->SetMatrix(ViewUniforms::PROJECTION_MATRIX, m_view_uniforms.projection_matrix);
+            material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
+
+            Bounds bounds = renderer->GetLocalBounds();
+            Vector3 bounds_position = bounds.GetCenter();
+            Vector3 bounds_size = bounds.GetSize();
+            material->SetMatrix(RendererUniforms::BOUNDS_MATRIX, Matrix4x4::TRS(bounds_position, Quaternion::Identity(), bounds_size));
+        }
+
+        if (primitive)
+        {
+            const auto& shader = material->GetShader();
+
+            material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
+
+            for (int j = 0; j < shader->GetPassCount(); ++j)
+            {
+                material->Bind(shader->GetShaderKey(), j);
+
+                const auto& pipeline = shader->GetPass(j).pipeline;
+                driver.draw(pipeline, primitive);
             }
         }
     }

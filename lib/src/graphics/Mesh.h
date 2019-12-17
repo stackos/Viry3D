@@ -67,8 +67,9 @@ namespace Viry3D
 		static void Init();
 		static void Done();
 		static const Ref<Mesh>& GetSharedQuadMesh();
+        static const Ref<Mesh>& GetSharedBoundsMesh();
         static Ref<Mesh> LoadFromFile(const String& path);
-        Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool uint32_index = false, bool dynamic = false);
+        Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes = Vector<Submesh>(), bool uint32_index = false, bool dynamic = false, filament::backend::PrimitiveType primitive_type = filament::backend::PrimitiveType::TRIANGLES);
         virtual ~Mesh();
         void Update(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes = Vector<Submesh>());
         const Vector<Vertex>& GetVertices() const { return m_vertices; }
@@ -77,6 +78,7 @@ namespace Viry3D
         const Vector<Matrix4x4>& GetBindposes() const { return m_bindposes; }
         const Vector<BlendShape>& GetBlendShapes() const { return m_blend_shapes; }
         const Ref<Texture>& GetBlendShapeTexture() const { return m_blend_shape_texture; }
+        const Bounds& GetBounds() const { return m_bounds; }
 		const filament::backend::AttributeArray& GetAttributes() const { return m_attributes; }
 		uint32_t GetEnabledAttributes() const { return m_enabled_attributes; }
 		const filament::backend::VertexBufferHandle& GetVertexBuffer() const { return m_vb; }
@@ -89,6 +91,7 @@ namespace Viry3D
         
     private:
 		static Ref<Mesh> m_shared_quad_mesh;
+        static Ref<Mesh> m_shared_bounds_mesh;
         Vector<Vertex> m_vertices;
         Vector<unsigned int> m_indices;
         int m_buffer_vertex_count;
@@ -103,6 +106,7 @@ namespace Viry3D
 		uint32_t m_enabled_attributes;
         filament::backend::VertexBufferHandle m_vb;
         filament::backend::IndexBufferHandle m_ib;
+        filament::backend::PrimitiveType m_primitive_type;
         Vector<filament::backend::RenderPrimitiveHandle> m_primitives;
     };
 }

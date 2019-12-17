@@ -28,6 +28,8 @@ namespace Viry3D
 		Bounds(const Vector3& min, const Vector3& max);
 		const Vector3& Min() const { return m_min; }
 		const Vector3& Max() const { return m_max; }
+        Vector3 GetCenter() const { return (m_min + m_max) * 0.5f; }
+        Vector3 GetSize() const { return m_max - m_min; }
 		bool Contains(const Vector3& point) const;
 
 	private:

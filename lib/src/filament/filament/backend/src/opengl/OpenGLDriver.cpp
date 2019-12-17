@@ -306,6 +306,8 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
         glGenVertexArrays(1, &mSharedVAO);
         glBindVertexArray(mSharedVAO);
     }
+
+    CHECK_GL_ERROR(utils::slog.e)
 }
 
 OpenGLDriver::~OpenGLDriver() noexcept {

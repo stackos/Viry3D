@@ -27,15 +27,18 @@
 namespace Viry3D
 {
 	Ref<Mesh> Mesh::m_shared_quad_mesh;
+    Ref<Mesh> Mesh::m_shared_bounds_mesh;
 
 	void Mesh::Init()
 	{
-	
+        Mesh::GetSharedQuadMesh();
+        Mesh::GetSharedBoundsMesh();
 	}
 
 	void Mesh::Done()
 	{
 		m_shared_quad_mesh.reset();
+        m_shared_bounds_mesh.reset();
 	}
 
 	const Ref<Mesh>& Mesh::GetSharedQuadMesh()
@@ -59,6 +62,29 @@ namespace Viry3D
 
 		return m_shared_quad_mesh;
 	}
+
+    const Ref<Mesh>& Mesh::GetSharedBoundsMesh()
+    {
+        if (!m_shared_bounds_mesh)
+        {
+            Vector<Mesh::Vertex> vertices(8);
+            vertices[0].vertex = Vector3(-0.5f, 0.5f, -0.5f);
+            vertices[1].vertex = Vector3(-0.5f, -0.5f, -0.5f);
+            vertices[2].vertex = Vector3(0.5f, -0.5f, -0.5f);
+            vertices[3].vertex = Vector3(0.5f, 0.5f, -0.5f);
+            vertices[4].vertex = Vector3(-0.5f, 0.5f, 0.5f);
+            vertices[5].vertex = Vector3(-0.5f, -0.5f, 0.5f);
+            vertices[6].vertex = Vector3(0.5f, -0.5f, 0.5f);
+            vertices[7].vertex = Vector3(0.5f, 0.5f, 0.5f);
+            Vector<unsigned int> indices = {
+                0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4
+            };
+            m_shared_bounds_mesh = RefMake<Mesh>(std::move(vertices), std::move(indices),
+                Vector<Submesh>(), false, false, filament::backend::PrimitiveType::LINES);
+        }
+
+        return m_shared_bounds_mesh;
+    }
 
     Ref<Mesh> Mesh::LoadFromFile(const String& path)
     {
@@ -263,11 +289,12 @@ namespace Viry3D
         return mesh;
     }
 
-    Mesh::Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes, bool uint32_index, bool dynamic):
+    Mesh::Mesh(Vector<Vertex>&& vertices, Vector<unsigned int>&& indices, const Vector<Submesh>& submeshes, bool uint32_index, bool dynamic, filament::backend::PrimitiveType primitive_type):
         m_buffer_vertex_count(vertices.Size()),
         m_buffer_index_count(indices.Size()),
         m_uint32_index(uint32_index),
-		m_enabled_attributes(0)
+		m_enabled_attributes(0),
+        m_primitive_type(primitive_type)
     {
         auto& driver = Engine::Instance()->GetDriverApi();
         
@@ -356,6 +383,7 @@ namespace Viry3D
         m_vertices = std::move(vertices);
         m_indices = std::move(indices);
 
+        // set vertex index in w
         for (int i = 0; i < m_vertices.Size(); ++i)
         {
             m_vertices[i].vertex.w = (float) i;
@@ -414,7 +442,7 @@ namespace Viry3D
             m_primitives[i] = driver.createRenderPrimitive();
             
             driver.setRenderPrimitiveBuffer(m_primitives[i], m_vb, m_ib, m_enabled_attributes);
-            driver.setRenderPrimitiveRange(m_primitives[i], filament::backend::PrimitiveType::TRIANGLES, m_submeshes[i].index_first, 0, m_vertices.Size() - 1, m_submeshes[i].index_count);
+            driver.setRenderPrimitiveRange(m_primitives[i], m_primitive_type, m_submeshes[i].index_first, 0, m_vertices.Size() - 1, m_submeshes[i].index_count);
         }
     }
 

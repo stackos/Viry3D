@@ -158,6 +158,7 @@ namespace Viry3D
             Texture::Init();
 			RenderTarget::Init();
 			Camera::Init();
+            Material::Init();
 			Mesh::Init();
 			Font::Init();
 			Resources::Init();
@@ -177,6 +178,7 @@ namespace Viry3D
 			Resources::Done();
 			Font::Done();
 			Mesh::Done();
+            Material::Done();
 			Camera::Done();
 			RenderTarget::Done();
             Texture::Done();

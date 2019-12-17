@@ -45,4 +45,16 @@ namespace Viry3D
         
         return primitives;
     }
+
+    Bounds MeshRenderer::GetLocalBounds() const
+    {
+        Bounds bounds;
+
+        if (m_mesh)
+        {
+            bounds = m_mesh->GetBounds();
+        }
+
+        return bounds;
+    }
 }

@@ -22,7 +22,7 @@
 namespace Viry3D
 {
     List<Renderer*> Renderer::m_renderers;
-    
+
 	void Renderer::PrepareAll()
 	{
 		for (auto i : m_renderers)
@@ -169,8 +169,13 @@ namespace Viry3D
 			m_transform_uniform_buffer = driver.createUniformBuffer(sizeof(RendererUniforms), filament::backend::BufferUsage::DYNAMIC);
 		}
 
+        Bounds bounds = this->GetLocalBounds();
+        Vector3 bounds_position = bounds.GetCenter();
+        Vector3 bounds_size = bounds.GetSize();
+
 		RendererUniforms renderer_uniforms;
 		renderer_uniforms.model_matrix = this->GetTransform()->GetLocalToWorldMatrix();
+        renderer_uniforms.bounds_matrix = Matrix4x4::TRS(bounds_position, Quaternion::Identity(), bounds_size);
 		renderer_uniforms.lightmap_scale_offset = m_lightmap_scale_offset;
 		renderer_uniforms.lightmap_index = Vector4((float) m_lightmap_index);
 

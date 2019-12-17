@@ -51,10 +51,12 @@ namespace Viry3D
 	struct RendererUniforms
 	{
 		static constexpr const char* MODEL_MATRIX = "u_model_matrix";
+        static constexpr const char* BOUNDS_MATRIX = "u_bounds_matrix";
 		static constexpr const char* LIGHTMAP_SCALE_OFFSET = "u_lightmap_scale_offset";
 		static constexpr const char* LIGHTMAP_INDEX = "u_lightmap_index";
 
 		Matrix4x4 model_matrix;
+        Matrix4x4 bounds_matrix;
 		Vector4 lightmap_scale_offset;
 		Vector4 lightmap_index; // in x
 	};
@@ -155,6 +157,9 @@ namespace Viry3D
     class Material : public Object
     {
     public:
+        static void Init();
+        static void Done();
+        static const Ref<Material>& GetSharedBoundsMaterial();
         Material(const Ref<Shader>& shader);
         virtual ~Material();
         const String& GetShaderName();
@@ -220,6 +225,7 @@ namespace Viry3D
         void UpdateUniformTexture(const String& name, const Ref<Texture>& texture);
         
     private:
+        static Ref<Material> m_shared_bounds_material;
         Map<String, ShaderVariant> m_shader_variants;
         Ref<int> m_queue;
         Map<String, MaterialProperty> m_properties;

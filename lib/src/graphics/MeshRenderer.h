@@ -32,7 +32,8 @@ namespace Viry3D
         const Ref<Mesh>& GetMesh() const { return m_mesh; }
 		virtual void SetMesh(const Ref<Mesh>& mesh);
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
-        
+        virtual Bounds GetLocalBounds() const;
+
 	private:
         Ref<Mesh> m_mesh;
     };
