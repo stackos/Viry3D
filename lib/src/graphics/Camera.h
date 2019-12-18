@@ -74,6 +74,11 @@ namespace Viry3D
 		void SetRenderTarget(const Ref<Texture>& color, const Ref<Texture>& depth);
 		int GetTargetWidth() const;
 		int GetTargetHeight() const;
+        Vector3 ScreenToViewportPoint(const Vector3& position);
+        Vector3 ViewportToScreenPoint(const Vector3& position);
+        Vector3 ScreenToWorldPoint(const Vector3& position);
+        Vector3 WorldToScreenPoint(const Vector3& position);
+        Ray ScreenPointToRay(const Vector3& position);
 
 	protected:
 		virtual void OnTransformDirty();

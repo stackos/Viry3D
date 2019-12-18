@@ -154,24 +154,24 @@ namespace Viry3D
 	{
 		if (m_collider != nullptr)
 		{
-			if (m_is_rigidbody == false)
-			{
-				auto pos = this->GetTransform()->GetPosition();
-				auto rot = this->GetTransform()->GetRotation();
-				auto sca = this->GetTransform()->GetScale();
+            if (!m_is_rigidbody)
+            {
+                auto pos = this->GetTransform()->GetPosition();
+                auto rot = this->GetTransform()->GetRotation();
+                auto sca = this->GetTransform()->GetScale();
                 sca = Vector3::Max(sca, Vector3::One() * 0.001f);
-                
-				auto col = (btCollisionObject*) m_collider;
-				auto shape = col->getCollisionShape();
-				shape->setLocalScaling(btVector3(m_size.x * sca.x, m_size.y * sca.y, m_size.z * sca.z));
 
-				btTransform transform;
-				transform.setIdentity();
-				transform.setOrigin(btVector3(pos.x + m_center.x * sca.x, pos.y + m_center.y * sca.y, pos.z + m_center.z * sca.z));
-				transform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
+                auto col = (btCollisionObject*) m_collider;
+                auto shape = col->getCollisionShape();
+                shape->setLocalScaling(btVector3(m_size.x * sca.x, m_size.y * sca.y, m_size.z * sca.z));
 
-				col->setWorldTransform(transform);
-			}
+                btTransform transform;
+                transform.setIdentity();
+                transform.setOrigin(btVector3(pos.x + m_center.x * sca.x, pos.y + m_center.y * sca.y, pos.z + m_center.z * sca.z));
+                transform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
+
+                col->setWorldTransform(transform);
+            }
 		}
 	}
 }

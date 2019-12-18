@@ -985,4 +985,84 @@ namespace Viry3D
 			return Engine::Instance()->GetHeight();
 		}
 	}
+
+    Vector3 Camera::ScreenToViewportPoint(const Vector3& position)
+    {
+        float x = (position.x / this->GetTargetWidth() - m_viewport_rect.x) / m_viewport_rect.w;
+        float y = (position.y / this->GetTargetHeight() - m_viewport_rect.y) / m_viewport_rect.h;
+        return Vector3(x, y, position.z);
+    }
+
+    Vector3 Camera::ViewportToScreenPoint(const Vector3& position)
+    {
+        float x = (position.x * m_viewport_rect.w + m_viewport_rect.x) * this->GetTargetWidth();
+        float y = (position.y * m_viewport_rect.h + m_viewport_rect.y) * this->GetTargetHeight();
+        return Vector3(x, y, position.z);
+    }
+
+    Vector3 Camera::ScreenToWorldPoint(const Vector3& position)
+    {
+        Vector3 pos_viewport = this->ScreenToViewportPoint(position);
+        Vector3 pos_proj = pos_viewport * 2.0f - Vector3(1.0f, 1.0f, 0);
+        Matrix4x4 vp_inverse = (this->GetProjectionMatrix() * this->GetViewMatrix()).Inverse();
+
+        if (this->IsOrthographic())
+        {
+            Vector4 pos_world = vp_inverse * Vector4(pos_proj.x, pos_proj.y, 0, 1.0f);
+            pos_world *= 1.0f / pos_world.w;
+
+            Vector3 origin = Vector3(pos_world.x, pos_world.y, pos_world.z);
+            Vector3 direction = this->GetTransform()->GetForward();
+
+            Ray ray_screen(origin, direction);
+            float ray_len = position.z - this->GetNearClip();
+
+            return ray_screen.GetPoint(ray_len);
+        }
+        else
+        {
+            Vector4 pos_world = vp_inverse * Vector4(pos_proj.x, pos_proj.y, -1.0f, 1.0f);
+            pos_world *= 1.0f / pos_world.w;
+
+            Vector3 origin = this->GetTransform()->GetPosition();
+            Vector3 direction = Vector3(pos_world.x, pos_world.y, pos_world.z) - origin;
+
+            Ray ray_screen(origin, direction);
+            Ray ray_forward(origin, this->GetTransform()->GetForward());
+            Vector3 plane_point = ray_forward.GetPoint(position.z);
+            float ray_len;
+            bool hit = Mathf::RayPlaneIntersection(ray_screen, ray_forward.GetDirection(), plane_point, ray_len);
+            assert(hit);
+
+            return ray_screen.GetPoint(ray_len);
+        }
+    }
+
+    Vector3 Camera::WorldToScreenPoint(const Vector3& position)
+    {
+        Vector3 pos_view = this->GetViewMatrix().MultiplyPoint3x4(position);
+        Vector3 pos_proj = this->GetProjectionMatrix().MultiplyPoint3x4(pos_view);
+        Vector3 pos_viewport = (pos_proj + Vector3(1.0f, 1.0f, 0)) * 0.5f;
+        pos_viewport.z = pos_view.z;
+        return this->ViewportToScreenPoint(pos_viewport);
+    }
+
+    Ray Camera::ScreenPointToRay(const Vector3& position)
+    {
+        Vector3 pos_world = this->ScreenToWorldPoint(Vector3(position.x, position.y, this->GetNearClip()));
+
+        Vector3 origin = pos_world;
+        Vector3 direction;
+
+        if (this->IsOrthographic())
+        {
+            direction = this->GetTransform()->GetForward();
+        }
+        else
+        {
+            direction = origin - this->GetTransform()->GetPosition();
+        }
+
+        return Ray(origin, direction);
+    }
 }

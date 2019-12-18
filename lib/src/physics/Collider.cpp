@@ -92,6 +92,19 @@ namespace Viry3D
         }
     }
 
+    void Collider::ApplyCentralImpulse(const Vector3& impulse)
+    {
+        if (m_is_rigidbody)
+        {
+            auto body = (btRigidBody*) m_collider;
+            body->applyCentralImpulse(btVector3(impulse.x, impulse.y, impulse.z));
+            if (!body->isActive())
+            {
+                body->activate(true);
+            }
+        }
+    }
+
 	void Collider::OnEnable(bool enable)
 	{
         if (enable)

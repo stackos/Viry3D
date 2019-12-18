@@ -44,5 +44,6 @@
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
 #include "physics/BoxCollider.h"
+#include "physics/Physics.h"
 #include "CameraSwitcher.h"
 #include "json/json.h"

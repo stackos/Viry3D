@@ -21,14 +21,18 @@
 
 namespace Viry3D
 {
+    struct Vector3;
+
     class Collider : public Component
     {
     public:
         virtual ~Collider();
+        bool IsRigidbody() const { return m_is_rigidbody; }
         virtual void SetIsRigidbody(bool value);
         void SetRollingFriction(float f); // »¬¶¯Ä¦²Á
         void SetFriction(float f); // Ä¦²Á
         void SetRestitution(float r); // µ¯ÐÔ
+        void ApplyCentralImpulse(const Vector3& impulse);
 
     protected:
         Collider() :

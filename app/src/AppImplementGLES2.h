@@ -23,6 +23,7 @@ namespace Viry3D
     {
     public:
         Label* m_fps_label = nullptr;
+        Camera* m_camera = nullptr;
         Ref<MeshRenderer> m_cube;
 
         AppImplementGLES2()
@@ -33,6 +34,7 @@ namespace Viry3D
             camera->SetDepth(0);
             camera->SetClearColor(Color(0, 0, 1, 1));
             camera->SetCullingMask(1 << 0);
+            m_camera = camera.get();
 
             this->InitKTXTest();
             this->InitGPUBlendShapeTest();
@@ -408,6 +410,21 @@ void main()
             if (m_fps_label)
             {
                 m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
+            }
+
+            if (Input::GetMouseButtonDown(0))
+            {
+                auto pos = Input::GetMousePosition();
+                Ray ray = m_camera->ScreenPointToRay(pos);
+                RaycastHit hit;
+                if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), 1000))
+                {
+                    auto col = hit.collider.lock();
+                    if (col->IsRigidbody())
+                    {
+                        col->ApplyCentralImpulse(Vector3(0, 4, 0));
+                    }
+                }
             }
         }
     };
