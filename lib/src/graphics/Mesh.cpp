@@ -77,7 +77,8 @@ namespace Viry3D
             vertices[6].vertex = Vector3(0.5f, -0.5f, 0.5f);
             vertices[7].vertex = Vector3(0.5f, 0.5f, 0.5f);
             Vector<unsigned int> indices = {
-                0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4
+                0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4,
+                0, 4, 1, 5, 2, 6, 3, 7,
             };
             m_shared_bounds_mesh = RefMake<Mesh>(std::move(vertices), std::move(indices),
                 Vector<Submesh>(), false, false, filament::backend::PrimitiveType::LINES);
