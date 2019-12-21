@@ -104,8 +104,6 @@ namespace Viry3D
         Mutex m_mutex;
         bool m_editor_mode = false;
         
-		backend::DriverApi& GetDriverApi() { return m_command_stream; }
-
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
 #if VR_WINDOWS
@@ -140,6 +138,8 @@ namespace Viry3D
 			
 			backend::DefaultPlatform::destroy((backend::DefaultPlatform**) &m_platform);
 		}
+
+        backend::DriverApi& GetDriverApi() { return m_command_stream; }
 
 		void Init()
 		{

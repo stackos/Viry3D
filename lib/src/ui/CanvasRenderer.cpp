@@ -311,13 +311,12 @@ namespace Viry3D
             for (int i = 0; i < materials.Size(); ++i)
             {
                 materials[i] = RefMake<Material>(Shader::Find("UI"));
-                materials[i]->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
 				materials[i]->SetScissorRect(clip_rects[i]);
                 materials[i]->SetTexture(MaterialProperty::TEXTURE, m_atlases[texture_layers[i]]);
 			}
             this->SetMaterials(materials);
         }
-        else
+
         {
             const auto& materials = this->GetMaterials();
             for (int i = 0; i < materials.Size(); ++i)

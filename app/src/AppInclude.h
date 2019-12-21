@@ -27,6 +27,8 @@
 #include "ui/CanvasRenderer.h"
 #include "ui/Sprite.h"
 #include "ui/Label.h"
+#include "ui/ImGuiRenderer.h"
+#include "imgui/imgui.h"
 #include "time/Time.h"
 #include "Engine.h"
 #include "Resources.h"

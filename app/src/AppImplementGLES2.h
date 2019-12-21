@@ -24,7 +24,8 @@ namespace Viry3D
     public:
         Label* m_fps_label = nullptr;
         Camera* m_camera = nullptr;
-        Ref<MeshRenderer> m_cube;
+        MeshRenderer* m_cube = nullptr;
+        ImGuiRenderer* m_imgui = nullptr;
 
         AppImplementGLES2()
         {
@@ -40,6 +41,7 @@ namespace Viry3D
             this->InitGPUBlendShapeTest();
             this->InitPhysicsTest();
             this->InitUI();
+            this->InitImGui();
         }
 
         void InitKTXTest()
@@ -65,7 +67,7 @@ namespace Viry3D
             cube->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
             cube->SetMaterial(material);
 
-            m_cube = cube;
+            m_cube = cube.get();
         }
 
         uint32_t FloatToBin(float f)
@@ -385,6 +387,22 @@ void main()
             this->InitMultiAtlasTest(canvas);
         }
 
+        void InitImGui()
+        {
+            auto imgui_camera = GameObject::Create("")->AddComponent<Camera>();
+            imgui_camera->SetClearFlags(CameraClearFlags::Nothing);
+            imgui_camera->SetDepth(2);
+            imgui_camera->SetCullingMask(1 << 2);
+
+            auto imgui = GameObject::Create("")->AddComponent<ImGuiRenderer>();
+            imgui->GetGameObject()->SetLayer(2);
+            imgui->SetDrawAction([]() {
+                ImGui::ShowDemoWindow();
+                });
+            imgui->SetCamera(imgui_camera);
+            m_imgui = imgui.get();
+        }
+
         void InitMultiAtlasTest(const Ref<CanvasRenderer>& canvas)
         {
             for (int i = 0; i < 4; ++i)
@@ -426,6 +444,8 @@ void main()
                     }
                 }
             }
+
+            m_imgui->UpdateImGui();
         }
     };
 }
