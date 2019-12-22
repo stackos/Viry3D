@@ -55,8 +55,9 @@ namespace Viry3D
         io.KeyMap[ImGuiKey_Y] = (int) KeyCode::Y;
         io.KeyMap[ImGuiKey_Z] = (int) KeyCode::Z;
         io.IniFilename = nullptr;
-        String font_path = Engine::Instance()->GetDataPath() + "/font/PingFangSC.ttf";
-        io.Fonts->AddFontFromFileTTF(font_path.CString(), 20, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+        
+        //String font_path = Engine::Instance()->GetDataPath() + "/font/PingFangSC.ttf";
+        //io.Fonts->AddFontFromFileTTF(font_path.CString(), 20, nullptr, io.Fonts->GetGlyphRangesChineseFull());
     }
 
     ImGuiRenderer::~ImGuiRenderer()
