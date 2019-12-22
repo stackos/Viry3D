@@ -344,6 +344,8 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
             if (!g_mouse_down)
             {
+                g_mouse_down = true;
+
                 Touch t;
                 t.deltaPosition = Vector2(0, 0);
                 t.deltaTime = 0;
@@ -361,8 +363,6 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                 {
                     g_input_touches.Add(t);
                 }
-
-                g_mouse_down = true;
             }
 
             g_mouse_button_down[0] = true;
@@ -459,6 +459,8 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
             if (g_mouse_down)
             {
+                g_mouse_down = false;
+
                 Touch t;
                 t.deltaPosition = Vector2(0, 0);
                 t.deltaTime = 0;
@@ -476,8 +478,6 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                 {
                     g_input_touches.Add(t);
                 }
-
-                g_mouse_down = false;
             }
 
             g_mouse_button_up[0] = true;

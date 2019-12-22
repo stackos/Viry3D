@@ -398,7 +398,7 @@ void main()
             imgui->GetGameObject()->SetLayer(2);
             imgui->SetDrawAction([]() {
                 ImGui::ShowDemoWindow();
-                });
+            });
             imgui->SetCamera(imgui_camera);
             m_imgui = imgui.get();
         }
@@ -419,7 +419,7 @@ void main()
                     auto texture = Texture::LoadTexture2DFromMemory(buffer, FilterMode::Linear, SamplerAddressMode::ClampToEdge, false);
                     Log("texture width:%d height:%d", texture->GetWidth(), texture->GetHeight());
                     sprite->SetTexture(texture);
-                    });
+                });
             }
         }
 

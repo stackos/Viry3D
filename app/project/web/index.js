@@ -35,12 +35,12 @@ function OnMouseDown(e) {
     const y = e.clientY - gl.canvas.offsetTop;
 
     if (!Engine.down) {
+        Engine.down = true;
         Engine.events.push({
             type: "MouseDown",
             x: x,
             y: y,
         });
-        Engine.down = true;
     }
 }
 
@@ -48,13 +48,11 @@ function OnMouseMove(e) {
     const x = e.clientX - gl.canvas.offsetLeft;
     const y = e.clientY - gl.canvas.offsetTop;
 
-    if (Engine.down) {
-        Engine.events.push({
-            type: "MouseMove",
-            x: x,
-            y: y,
-        });
-    }
+    Engine.events.push({
+        type: "MouseMove",
+        x: x,
+        y: y,
+    });
 }
 
 function OnMouseUp(e) {
@@ -62,13 +60,22 @@ function OnMouseUp(e) {
     const y = e.clientY - gl.canvas.offsetTop;
 
     if (Engine.down) {
+        Engine.down = false;
         Engine.events.push({
             type: "MouseUp",
             x: x,
             y: y,
         });
-        Engine.down = false;
     }
+}
+
+function OnMouseWheel(e) {
+    const delta = e.deltaY;
+
+    Engine.events.push({
+        type: "MouseWheel",
+        delta: delta,
+    });
 }
 
 const Platform = {
@@ -281,6 +288,7 @@ function Main() {
         canvas.addEventListener("mousedown", OnMouseDown, false);
         canvas.addEventListener("mousemove", OnMouseMove, false);
         canvas.addEventListener("mouseup", OnMouseUp, false);
+        canvas.addEventListener("wheel", OnMouseWheel, false);
     }
 
     const canvas_width = canvas.width;

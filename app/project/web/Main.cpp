@@ -26,11 +26,16 @@ using namespace Viry3D;
 
 extern Vector<Touch> g_input_touches;
 extern List<Touch> g_input_touch_buffer;
+extern bool g_key_down[(int) KeyCode::COUNT];
+extern bool g_key[(int) KeyCode::COUNT];
+extern bool g_key_up[(int) KeyCode::COUNT];
 extern bool g_mouse_button_down[3];
 extern bool g_mouse_button_up[3];
 extern Vector3 g_mouse_position;
 extern bool g_mouse_button_held[3];
+extern float g_mouse_scroll_wheel;
 
+static bool g_mouse_down = false;
 static Engine* g_engine;
 
 extern "C" void EMSCRIPTEN_KEEPALIVE InitEngine(const char* msg)
@@ -78,29 +83,35 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
     {
         const Json::Value& e = events[i];
         String type = e["type"].asCString();
-        int x = e["x"].asInt();
-        int y = e["y"].asInt();
-
+        
         if (type == "MouseDown")
         {
-            Touch t;
-            t.deltaPosition = Vector2(0, 0);
-            t.deltaTime = 0;
-            t.fingerId = 0;
-            t.phase = TouchPhase::Began;
-            t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
-            t.tapCount = 1;
-            t.time = Time::GetRealTimeSinceStartup();
+            int x = e["x"].asInt();
+            int y = e["y"].asInt();
 
-            if (!g_input_touches.Empty())
+            if (!g_mouse_down)
             {
-                g_input_touch_buffer.AddLast(t);
-            }
-            else
-            {
-                g_input_touches.Add(t);
-            }
+                g_mouse_down = true;
 
+                Touch t;
+                t.deltaPosition = Vector2(0, 0);
+                t.deltaTime = 0;
+                t.fingerId = 0;
+                t.phase = TouchPhase::Began;
+                t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
+                t.tapCount = 1;
+                t.time = Time::GetRealTimeSinceStartup();
+
+                if (!g_input_touches.Empty())
+                {
+                    g_input_touch_buffer.AddLast(t);
+                }
+                else
+                {
+                    g_input_touches.Add(t);
+                }
+            }
+            
             g_mouse_button_down[0] = true;
             g_mouse_position.x = (float) x;
             g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
@@ -108,36 +119,42 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
         }
         else if (type == "MouseMove")
         {
-            Touch t;
-            t.deltaPosition = Vector2(0, 0);
-            t.deltaTime = 0;
-            t.fingerId = 0;
-            t.phase = TouchPhase::Moved;
-            t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
-            t.tapCount = 1;
-            t.time = Time::GetRealTimeSinceStartup();
+            int x = e["x"].asInt();
+            int y = e["y"].asInt();
 
-            if (!g_input_touches.Empty())
+            if (g_mouse_down)
             {
-                if (g_input_touch_buffer.Empty())
+                Touch t;
+                t.deltaPosition = Vector2(0, 0);
+                t.deltaTime = 0;
+                t.fingerId = 0;
+                t.phase = TouchPhase::Moved;
+                t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
+                t.tapCount = 1;
+                t.time = Time::GetRealTimeSinceStartup();
+
+                if (!g_input_touches.Empty())
                 {
-                    g_input_touch_buffer.AddLast(t);
-                }
-                else
-                {
-                    if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
-                    {
-                        g_input_touch_buffer.Last() = t;
-                    }
-                    else
+                    if (g_input_touch_buffer.Empty())
                     {
                         g_input_touch_buffer.AddLast(t);
                     }
+                    else
+                    {
+                        if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
+                        {
+                            g_input_touch_buffer.Last() = t;
+                        }
+                        else
+                        {
+                            g_input_touch_buffer.AddLast(t);
+                        }
+                    }
                 }
-            }
-            else
-            {
-                g_input_touches.Add(t);
+                else
+                {
+                    g_input_touches.Add(t);
+                }
             }
 
             g_mouse_position.x = (float) x;
@@ -145,28 +162,42 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
         }
         else if (type == "MouseUp")
         {
-            Touch t;
-            t.deltaPosition = Vector2(0, 0);
-            t.deltaTime = 0;
-            t.fingerId = 0;
-            t.phase = TouchPhase::Ended;
-            t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
-            t.tapCount = 1;
-            t.time = Time::GetRealTimeSinceStartup();
+            int x = e["x"].asInt();
+            int y = e["y"].asInt();
 
-            if (!g_input_touches.Empty())
+            if (g_mouse_down)
             {
-                g_input_touch_buffer.AddLast(t);
-            }
-            else
-            {
-                g_input_touches.Add(t);
+                g_mouse_down = false;
+            
+                Touch t;
+                t.deltaPosition = Vector2(0, 0);
+                t.deltaTime = 0;
+                t.fingerId = 0;
+                t.phase = TouchPhase::Ended;
+                t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
+                t.tapCount = 1;
+                t.time = Time::GetRealTimeSinceStartup();
+
+                if (!g_input_touches.Empty())
+                {
+                    g_input_touch_buffer.AddLast(t);
+                }
+                else
+                {
+                    g_input_touches.Add(t);
+                }
             }
 
             g_mouse_button_up[0] = true;
             g_mouse_position.x = (float) x;
             g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
             g_mouse_button_held[0] = false;
+        }
+        else if (type == "MouseWheel")
+        {
+            int delta = e["delta"].asInt();
+
+            g_mouse_scroll_wheel = -delta / 3.0f;
         }
     }
 
