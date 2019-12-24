@@ -78,6 +78,14 @@ function OnMouseWheel(e) {
     });
 }
 
+function OnKeyDown(e) {
+    console.log(e);
+}
+
+function OnKeyUp(e) {
+    console.log(e);
+}
+
 const Platform = {
     Android: 0,
     iOS: 1,
@@ -290,6 +298,9 @@ function Main() {
         canvas.addEventListener("mouseup", OnMouseUp, false);
         canvas.addEventListener("wheel", OnMouseWheel, false);
     }
+
+    document.addEventListener("keydown", OnKeyDown, false);
+    document.addEventListener("keyup", OnKeyUp, false);
 
     const canvas_width = canvas.width;
     const canvas_height = canvas.height;
