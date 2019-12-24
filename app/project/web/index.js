@@ -188,7 +188,7 @@ function InitLoading() {
     SetCanvasSize(canvas, GetPlatform());
 
     const img = new Image();
-    img.src = "image/logo720p.png";
+    img.src = "texture/logo720p.png";
     if (img.complete) {
         draw();
     } else {
