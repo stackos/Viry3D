@@ -30,6 +30,16 @@ const Engine = {
     audio_paused: false,
 };
 
+const EventType = {
+    MouseDown: 0,
+    MouseMove: 1,
+    MouseUp: 2,
+    MouseWheel: 3,
+    KeyDown: 4,
+    KeyUp: 5,
+    InputCharacter: 6,
+};
+
 function OnMouseDown(e) {
     const x = e.clientX - gl.canvas.offsetLeft;
     const y = e.clientY - gl.canvas.offsetTop;
@@ -37,7 +47,7 @@ function OnMouseDown(e) {
     if (!Engine.down) {
         Engine.down = true;
         Engine.events.push({
-            type: "MouseDown",
+            type: EventType.MouseDown,
             x: x,
             y: y,
         });
@@ -49,7 +59,7 @@ function OnMouseMove(e) {
     const y = e.clientY - gl.canvas.offsetTop;
 
     Engine.events.push({
-        type: "MouseMove",
+        type: EventType.MouseMove,
         x: x,
         y: y,
     });
@@ -62,7 +72,7 @@ function OnMouseUp(e) {
     if (Engine.down) {
         Engine.down = false;
         Engine.events.push({
-            type: "MouseUp",
+            type: EventType.MouseUp,
             x: x,
             y: y,
         });
@@ -73,17 +83,101 @@ function OnMouseWheel(e) {
     const delta = e.deltaY;
 
     Engine.events.push({
-        type: "MouseWheel",
+        type: EventType.MouseWheel,
         delta: delta,
     });
 }
 
+const KeyMap = {
+    Escape: 27,
+    ArrowLeft: 276,
+    ArrowUp: 273,
+    ArrowRight: 275,
+    ArrowDown: 274,
+    Backspace: 8,
+    Tab: 9,
+    Enter: 13,
+};
+
+function MapKey(e) {
+    const key = e.key;
+    const code = e.code;
+
+    if (key.length === 1) {
+        const char_code = key.charCodeAt(0);
+
+        if (char_code >= 65 && char_code <= 90) {
+            return 97 + char_code - 65;
+        } else if (char_code >= 97 && char_code <= 122) {
+            return char_code;
+        } else if (char_code >= 48 && char_code <= 57) {
+            return char_code;
+        } else {
+            if (key === " " ||
+                key === "`" ||
+                key === "-" ||
+                key === "=" ||
+                key === "[" ||
+                key === "]" ||
+                key === "\\" ||
+                key === ";" ||
+                key === "'" ||
+                key === "," ||
+                key === "." ||
+                key === "/") {
+                return char_code;
+            }
+        }
+    } else {
+        if (KeyMap.hasOwnProperty(key)) {
+            return KeyMap[key];
+        } else {
+            if (key === "Shift") {
+                if (code === "ShiftLeft") {
+                    return 304;
+                } else if (code === "ShiftRight") {
+                    return 303;
+                }
+            } else if (key === "Control") {
+                if (code === "ControlLeft") {
+                    return 306;
+                } else if (code === "ControlRight") {
+                    return 305;
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+
+function InputCharacter(e) {
+    const key = e.key;
+    if (key.length === 1) {
+        const char_code = key.charCodeAt(0);
+        if (char_code >= 32 && char_code <= 126) {
+            Engine.events.push({
+                type: EventType.InputCharacter,
+                key: char_code,
+            });
+        }
+    }
+}
+
 function OnKeyDown(e) {
-    console.log(e);
+    Engine.events.push({
+        type: EventType.KeyDown,
+        key: MapKey(e),
+    });
+
+    InputCharacter(e);
 }
 
 function OnKeyUp(e) {
-    console.log(e);
+    Engine.events.push({
+        type: EventType.KeyUp,
+        key: MapKey(e),
+    });
 }
 
 const Platform = {
@@ -163,7 +257,7 @@ function LoadFileFromUrlAsync(request_id, url) {
 	req.responseType = "arraybuffer";
 
 	req.onload = function (event) {
-        if (req.readyState == 4 && req.status == 200) {
+        if (req.readyState === 4 && req.status === 200) {
             const buffer = req.response;
             if (buffer) {
 			    const bytes = new Uint8Array(buffer);

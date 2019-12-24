@@ -38,6 +38,17 @@ extern float g_mouse_scroll_wheel;
 static bool g_mouse_down = false;
 static Engine* g_engine;
 
+enum class EventType
+{
+    MouseDown = 0,
+    MouseMove,
+    MouseUp,
+    MouseWheel,
+    KeyDown,
+    KeyUp,
+    InputCharacter,
+};
+
 extern "C" void EMSCRIPTEN_KEEPALIVE InitEngine(const char* msg)
 {
     Log("InitEngine with msg: %s", msg);
@@ -82,122 +93,174 @@ extern "C" void EMSCRIPTEN_KEEPALIVE UpdateEngine(const char* msg)
     for (int i = 0; i < events.size(); ++i)
     {
         const Json::Value& e = events[i];
-        String type = e["type"].asCString();
+        EventType type = (EventType) e["type"].asInt();
         
-        if (type == "MouseDown")
+        switch (type)
         {
-            int x = e["x"].asInt();
-            int y = e["y"].asInt();
-
-            if (!g_mouse_down)
+            case EventType::MouseDown:
             {
-                g_mouse_down = true;
+                int x = e["x"].asInt();
+                int y = e["y"].asInt();
 
-                Touch t;
-                t.deltaPosition = Vector2(0, 0);
-                t.deltaTime = 0;
-                t.fingerId = 0;
-                t.phase = TouchPhase::Began;
-                t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
-                t.tapCount = 1;
-                t.time = Time::GetRealTimeSinceStartup();
-
-                if (!g_input_touches.Empty())
+                if (!g_mouse_down)
                 {
-                    g_input_touch_buffer.AddLast(t);
-                }
-                else
-                {
-                    g_input_touches.Add(t);
-                }
-            }
-            
-            g_mouse_button_down[0] = true;
-            g_mouse_position.x = (float) x;
-            g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
-            g_mouse_button_held[0] = true;
-        }
-        else if (type == "MouseMove")
-        {
-            int x = e["x"].asInt();
-            int y = e["y"].asInt();
+                    g_mouse_down = true;
 
-            if (g_mouse_down)
-            {
-                Touch t;
-                t.deltaPosition = Vector2(0, 0);
-                t.deltaTime = 0;
-                t.fingerId = 0;
-                t.phase = TouchPhase::Moved;
-                t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
-                t.tapCount = 1;
-                t.time = Time::GetRealTimeSinceStartup();
+                    Touch t;
+                    t.deltaPosition = Vector2(0, 0);
+                    t.deltaTime = 0;
+                    t.fingerId = 0;
+                    t.phase = TouchPhase::Began;
+                    t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
+                    t.tapCount = 1;
+                    t.time = Time::GetRealTimeSinceStartup();
 
-                if (!g_input_touches.Empty())
-                {
-                    if (g_input_touch_buffer.Empty())
+                    if (!g_input_touches.Empty())
                     {
                         g_input_touch_buffer.AddLast(t);
                     }
                     else
                     {
-                        if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
-                        {
-                            g_input_touch_buffer.Last() = t;
-                        }
-                        else
+                        g_input_touches.Add(t);
+                    }
+                }
+
+                g_mouse_button_down[0] = true;
+                g_mouse_position.x = (float) x;
+                g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
+                g_mouse_button_held[0] = true;
+
+                break;
+            }
+                
+            case EventType::MouseMove:
+            {
+                int x = e["x"].asInt();
+                int y = e["y"].asInt();
+
+                if (g_mouse_down)
+                {
+                    Touch t;
+                    t.deltaPosition = Vector2(0, 0);
+                    t.deltaTime = 0;
+                    t.fingerId = 0;
+                    t.phase = TouchPhase::Moved;
+                    t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
+                    t.tapCount = 1;
+                    t.time = Time::GetRealTimeSinceStartup();
+
+                    if (!g_input_touches.Empty())
+                    {
+                        if (g_input_touch_buffer.Empty())
                         {
                             g_input_touch_buffer.AddLast(t);
                         }
+                        else
+                        {
+                            if (g_input_touch_buffer.Last().phase == TouchPhase::Moved)
+                            {
+                                g_input_touch_buffer.Last() = t;
+                            }
+                            else
+                            {
+                                g_input_touch_buffer.AddLast(t);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        g_input_touches.Add(t);
                     }
                 }
-                else
-                {
-                    g_input_touches.Add(t);
-                }
+
+                g_mouse_position.x = (float) x;
+                g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
+
+                break;
             }
 
-            g_mouse_position.x = (float) x;
-            g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
-        }
-        else if (type == "MouseUp")
-        {
-            int x = e["x"].asInt();
-            int y = e["y"].asInt();
-
-            if (g_mouse_down)
+            case EventType::MouseUp:
             {
-                g_mouse_down = false;
-            
-                Touch t;
-                t.deltaPosition = Vector2(0, 0);
-                t.deltaTime = 0;
-                t.fingerId = 0;
-                t.phase = TouchPhase::Ended;
-                t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
-                t.tapCount = 1;
-                t.time = Time::GetRealTimeSinceStartup();
+                int x = e["x"].asInt();
+                int y = e["y"].asInt();
 
-                if (!g_input_touches.Empty())
+                if (g_mouse_down)
                 {
-                    g_input_touch_buffer.AddLast(t);
+                    g_mouse_down = false;
+
+                    Touch t;
+                    t.deltaPosition = Vector2(0, 0);
+                    t.deltaTime = 0;
+                    t.fingerId = 0;
+                    t.phase = TouchPhase::Ended;
+                    t.position = Vector2((float) x, (float) g_engine->GetHeight() - y - 1);
+                    t.tapCount = 1;
+                    t.time = Time::GetRealTimeSinceStartup();
+
+                    if (!g_input_touches.Empty())
+                    {
+                        g_input_touch_buffer.AddLast(t);
+                    }
+                    else
+                    {
+                        g_input_touches.Add(t);
+                    }
                 }
-                else
-                {
-                    g_input_touches.Add(t);
-                }
+
+                g_mouse_button_up[0] = true;
+                g_mouse_position.x = (float) x;
+                g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
+                g_mouse_button_held[0] = false;
+
+                break;
             }
 
-            g_mouse_button_up[0] = true;
-            g_mouse_position.x = (float) x;
-            g_mouse_position.y = (float) g_engine->GetHeight() - y - 1;
-            g_mouse_button_held[0] = false;
-        }
-        else if (type == "MouseWheel")
-        {
-            int delta = e["delta"].asInt();
+            case EventType::MouseWheel:
+            {
+                int delta = e["delta"].asInt();
 
-            g_mouse_scroll_wheel = -delta / 3.0f;
+                g_mouse_scroll_wheel = -delta / 3.0f;
+
+                break;
+            }
+
+            case EventType::KeyDown:
+            {
+                int key = e["key"].asInt();
+
+                if (key >= 0)
+                {
+                    if (!g_key[key])
+                    {
+                        g_key_down[key] = true;
+                        g_key[key] = true;
+                    }
+                }
+
+                break;
+            }
+
+            case EventType::KeyUp:
+            {
+                int key = e["key"].asInt();
+
+                if (key >= 0)
+                {
+                    g_key_up[key] = true;
+                    g_key[key] = false;
+                }
+
+                break;
+            }
+
+            case EventType::InputCharacter:
+            {
+                int key = e["key"].asInt();
+
+                Input::AddInputCharacter((unsigned short) key);
+
+                break;
+            }
         }
     }
 
