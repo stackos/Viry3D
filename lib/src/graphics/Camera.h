@@ -38,6 +38,8 @@ namespace Viry3D
     public:
 		static void Init();
 		static void Done();
+        static Ref<Camera> GetMainCamera() { return m_main_camera.lock(); }
+        static void SetMainCamera(const Ref<Camera>& camera) { m_main_camera = camera; }
 		static void RenderAll();
         static void OnResizeAll(int width, int height);
 		static void Blit(const Ref<RenderTarget>& src, const Ref<RenderTarget>& dst, const Ref<Material>& mat = Ref<Material>(), int pass = -1);
@@ -96,6 +98,7 @@ namespace Viry3D
 
 	private:
 		static List<Camera*> m_cameras;
+        static WeakRef<Camera> m_main_camera;
 		static Camera* m_current_camera;
 		static bool m_cameras_order_dirty;
 		static Ref<Mesh> m_quad_mesh;

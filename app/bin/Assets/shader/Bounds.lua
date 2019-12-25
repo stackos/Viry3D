@@ -8,12 +8,14 @@ VK_UNIFORM_BINDING(1) uniform PerRenderer
 {
 	mat4 u_model_matrix;
     mat4 u_bounds_matrix;
+    vec4 u_bounds_color;
 };
 layout(location = 0) in vec4 i_vertex;
-
+VK_LAYOUT_LOCATION(0) out vec4 v_color;
 void main()
 {
 	gl_Position = vec4(i_vertex.xyz, 1.0) * u_bounds_matrix * u_model_matrix * u_view_matrix * u_projection_matrix;
+    v_color = u_bounds_color;
 
 	vk_convert();
 }
@@ -21,10 +23,11 @@ void main()
 
 local fs = [[
 precision highp float;
+VK_LAYOUT_LOCATION(0) in vec4 v_color;
 layout(location = 0) out vec4 o_color;
 void main()
 {
-	o_color = vec4(0.0, 1.0, 0.0, 1.0);
+	o_color = v_color;
 }
 ]]
 
@@ -85,6 +88,10 @@ local pass = {
                 {
 					name = "u_bounds_matrix",
 					size = 64,
+				},
+                {
+					name = "u_bounds_color",
+					size = 16,
 				},
 			},
 		},

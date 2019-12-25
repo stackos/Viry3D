@@ -30,6 +30,7 @@
 namespace Viry3D
 {
 	List<Camera*> Camera::m_cameras;
+    WeakRef<Camera> Camera::m_main_camera;
 	Camera* Camera::m_current_camera = nullptr;
 	bool Camera::m_cameras_order_dirty = false;
 	Ref<Mesh> Camera::m_quad_mesh;
@@ -401,9 +402,12 @@ namespace Viry3D
             this->DoDraw(renderer);
 		}
 
-        if (renderer->GetLocalBounds().GetSize().SqrMagnitude() > 0)
+        if (Engine::Instance()->IsInEditorMode())
         {
-            this->DrawRendererBounds(renderer);
+            if (renderer->GetLocalBounds().GetSize().SqrMagnitude() > 0)
+            {
+                this->DrawRendererBounds(renderer);
+            }
         }
     }
 

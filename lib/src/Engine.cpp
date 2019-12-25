@@ -26,6 +26,7 @@
 #include "Scene.h"
 #include "Resources.h"
 #include "physics/Physics.h"
+#include "physics/Collider.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "graphics/RenderTarget.h"
@@ -36,6 +37,7 @@
 #include "audio/AudioManager.h"
 #include "time/Time.h"
 #include "video/VideoDecoder.h"
+#include "Selection.h"
 #include <thread>
 
 #if VR_WINDOWS
@@ -319,6 +321,28 @@ namespace Viry3D
                 else
                 {
                     Log("exit editor mode");
+                }
+            }
+
+            if (m_editor_mode)
+            {
+                auto main_camera = Camera::GetMainCamera();
+                if (main_camera)
+                {
+                    if (Input::GetMouseButtonDown(0))
+                    {
+                        auto pos = Input::GetMousePosition();
+                        Ray ray = main_camera->ScreenPointToRay(pos);
+                        RaycastHit hit;
+                        if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), main_camera->GetFarClip()))
+                        {
+                            auto col = hit.collider.lock();
+                            if (col)
+                            {
+                                Selection::SetGameObject(col->GetGameObject());
+                            }
+                        }
+                    }
                 }
             }
             

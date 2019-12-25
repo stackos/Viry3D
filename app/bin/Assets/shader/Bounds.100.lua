@@ -3,12 +3,12 @@ uniform mat4 u_view_matrix;
 uniform mat4 u_projection_matrix;
 uniform mat4 u_model_matrix;
 uniform mat4 u_bounds_matrix;
-
 attribute vec4 i_vertex;
-
+varying vec4 v_color;
 void main()
 {
 	gl_Position = vec4(i_vertex.xyz, 1.0) * u_bounds_matrix * u_model_matrix * u_view_matrix * u_projection_matrix;
+    v_color = u_bounds_color;
 
 	vk_convert();
 }
@@ -16,9 +16,10 @@ void main()
 
 local fs = [[
 precision highp float;
+varying vec4 v_color;
 void main()
 {
-	gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+	gl_FragColor = v_color;
 }
 ]]
 
