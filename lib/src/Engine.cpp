@@ -339,7 +339,18 @@ namespace Viry3D
                             auto col = hit.collider.lock();
                             if (col)
                             {
-                                Selection::SetGameObject(col->GetGameObject());
+                                auto obj = col->GetGameObject();
+                                if (obj == Selection::GetGameObject())
+                                {
+                                    auto root = obj->GetTransform()->GetRoot()->GetGameObject();
+                                    Log("Select:%s", root->GetName().CString());
+                                    Selection::SetGameObject(root);
+                                }
+                                else
+                                {
+                                    Log("Select:%s", obj->GetName().CString());
+                                    Selection::SetGameObject(obj);
+                                }
                             }
                         }
                     }

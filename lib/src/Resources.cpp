@@ -31,6 +31,7 @@
 #include "physics/SpringBone.h"
 #include "physics/SpringCollider.h"
 #include "physics/SpringManager.h"
+#include "physics/BoxCollider.h"
 
 #if VR_WASM
 #include <emscripten.h>
@@ -468,6 +469,17 @@ namespace Viry3D
 		{
 			auto mesh = ReadMesh(mesh_path);
 			renderer->SetMesh(mesh);
+
+            if (mesh)
+            {
+                auto bounds = renderer->GetLocalBounds();
+                if (bounds.GetSize().SqrMagnitude() > 0)
+                {
+                    auto collider = renderer->GetGameObject()->AddComponent<BoxCollider>();
+                    collider->SetCenter(mesh->GetBounds().GetCenter());
+                    collider->SetSize(mesh->GetBounds().GetSize());
+                }
+            }
 		}
     }
 
