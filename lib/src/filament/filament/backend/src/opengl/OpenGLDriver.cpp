@@ -143,9 +143,17 @@ OpenGLDriver::OpenGLDriver(OpenGLPlatform* platform) noexcept
     {
         mShaderModel = backend::ShaderModel::GL_ES_20;
     }
-    else if (ver_str.find("OpenGL ES 3.") != std::string::npos)
+    else if (ver_str.find("OpenGL ES 3.0") != std::string::npos)
     {
         mShaderModel = backend::ShaderModel::GL_ES_30;
+    }
+    else if (ver_str.find("OpenGL ES 3.1") != std::string::npos)
+    {
+        mShaderModel = backend::ShaderModel::GL_ES_31;
+    }
+    else if (ver_str.find("OpenGL ES 3.2") != std::string::npos)
+    {
+        mShaderModel = backend::ShaderModel::GL_ES_32;
     }
     else
     {
@@ -326,16 +334,27 @@ bool OpenGLDriver::hasExtension(ExtentionSet const& map, const std::string& ext)
 void OpenGLDriver::initExtensions(ExtentionSet const& exts)
 {
     // figure out and initialize the extensions we need
+    ext.texture_compression_s3tc =
+        hasExtension(exts, "WEBGL_compressed_texture_s3tc") ||
+        hasExtension(exts, "GL_EXT_texture_compression_s3tc");
+    ext.texture_compression_etc2 =
+        (this->getShaderModel() >= backend::ShaderModel::GL_ES_30 && this->getShaderModel() <= backend::ShaderModel::GL_ES_32) ||
+        hasExtension(exts, "GL_ARB_ES3_compatibility");
     ext.texture_filter_anisotropic = hasExtension(exts, "GL_EXT_texture_filter_anisotropic");
-    ext.texture_compression_etc2 = (this->getShaderModel() == backend::ShaderModel::GL_ES_30) || hasExtension(exts, "GL_ARB_ES3_compatibility");
     ext.QCOM_tiled_rendering = hasExtension(exts, "GL_QCOM_tiled_rendering");
     ext.OES_EGL_image_external_essl3 = hasExtension(exts, "GL_OES_EGL_image_external_essl3");
     ext.EXT_debug_marker = hasExtension(exts, "GL_EXT_debug_marker");
-    ext.EXT_color_buffer_half_float = (this->getShaderModel() == backend::ShaderModel::GL_CORE_41) || hasExtension(exts, "GL_EXT_color_buffer_half_float");
-    ext.texture_compression_s3tc = hasExtension(exts, "WEBGL_compressed_texture_s3tc") || hasExtension(exts, "GL_EXT_texture_compression_s3tc");
+    ext.EXT_color_buffer_half_float =
+        (this->getShaderModel() >= backend::ShaderModel::GL_ES_32) ||
+        hasExtension(exts, "GL_EXT_color_buffer_half_float") ||
+        hasExtension(exts, "GL_EXT_color_buffer_float");
     ext.EXT_multisampled_render_to_texture = hasExtension(exts, "GL_EXT_multisampled_render_to_texture");
-    ext.texture_half_float = (this->getShaderModel() >= backend::ShaderModel::GL_ES_30) || hasExtension(exts, "GL_OES_texture_half_float");
-    ext.texture_float = (this->getShaderModel() >= backend::ShaderModel::GL_ES_30) || hasExtension(exts, "GL_OES_texture_float");
+    ext.texture_half_float =
+        (this->getShaderModel() >= backend::ShaderModel::GL_ES_30) ||
+        hasExtension(exts, "GL_OES_texture_half_float");
+    ext.texture_float =
+        (this->getShaderModel() >= backend::ShaderModel::GL_ES_30) ||
+        hasExtension(exts, "GL_OES_texture_float");
 }
 
 void OpenGLDriver::terminate() {

@@ -173,8 +173,10 @@ enum class ShaderModel : uint8_t {
     // Mobile
     GL_ES_20   = 1,
     GL_ES_30   = 2,
+    GL_ES_31   = 3,
+    GL_ES_32   = 4,
     // Desktop
-    GL_CORE_41 = 3,
+    GL_CORE_41 = 5,
 };
 
 enum class PrimitiveType : uint8_t {
