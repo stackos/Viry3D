@@ -52,6 +52,7 @@ namespace Viry3D
         void EnableShaderKeyword(const String& keyword);
         const String* GetShaderKey(int material_index);
         const String* GetShaderKeyWithLightAddOn(int material_index);
+        const RendererUniforms& GetRendererUniforms() const { return m_renderer_uniforms; }
         const filament::backend::UniformBufferHandle& GetTransformUniformBuffer() const { return m_transform_uniform_buffer; }
         virtual Vector<filament::backend::RenderPrimitiveHandle> GetPrimitives();
         virtual Bounds GetLocalBounds() const { return Bounds(); }
@@ -74,6 +75,7 @@ namespace Viry3D
         Vector<String> m_shader_keywords;
         Vector<String> m_shader_keys;
         Vector<String> m_shader_keys_light_add;
+        RendererUniforms m_renderer_uniforms;
 		filament::backend::UniformBufferHandle m_transform_uniform_buffer;
     };
 }

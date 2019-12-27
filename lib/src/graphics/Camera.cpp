@@ -497,14 +497,13 @@ namespace Viry3D
         if (Engine::Instance()->GetBackend() == filament::backend::Backend::OPENGL &&
             Engine::Instance()->GetShaderModel() == filament::backend::ShaderModel::GL_ES_20)
         {
+            auto& renderer_uniforms = renderer->GetRendererUniforms();
+
             material->SetMatrix(ViewUniforms::VIEW_MATRIX, m_view_uniforms.view_matrix);
             material->SetMatrix(ViewUniforms::PROJECTION_MATRIX, m_view_uniforms.projection_matrix);
-            material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer->GetTransform()->GetLocalToWorldMatrix());
-
-            Bounds bounds = renderer->GetLocalBounds();
-            Vector3 bounds_position = bounds.GetCenter();
-            Vector3 bounds_size = bounds.GetSize();
-            material->SetMatrix(RendererUniforms::BOUNDS_MATRIX, Matrix4x4::TRS(bounds_position, Quaternion::Identity(), bounds_size));
+            material->SetMatrix(RendererUniforms::MODEL_MATRIX, renderer_uniforms.model_matrix);
+            material->SetMatrix(RendererUniforms::BOUNDS_MATRIX, renderer_uniforms.bounds_matrix);
+            material->SetColor(RendererUniforms::BOUNDS_COLOR, renderer_uniforms.bounds_color);
         }
 
         if (primitive)

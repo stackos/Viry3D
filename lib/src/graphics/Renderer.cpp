@@ -173,16 +173,15 @@ namespace Viry3D
         Bounds bounds = this->GetLocalBounds();
         Vector3 bounds_position = bounds.GetCenter();
         Vector3 bounds_size = bounds.GetSize();
-
-		RendererUniforms renderer_uniforms;
-		renderer_uniforms.model_matrix = this->GetTransform()->GetLocalToWorldMatrix();
-        renderer_uniforms.bounds_matrix = Matrix4x4::TRS(bounds_position, Quaternion::Identity(), bounds_size);
-        renderer_uniforms.bounds_color = (Selection::GetGameObject() == this->GetGameObject()) ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1);
-		renderer_uniforms.lightmap_scale_offset = m_lightmap_scale_offset;
-		renderer_uniforms.lightmap_index = Vector4((float) m_lightmap_index);
+        
+        m_renderer_uniforms.model_matrix = this->GetTransform()->GetLocalToWorldMatrix();
+        m_renderer_uniforms.bounds_matrix = Matrix4x4::TRS(bounds_position, Quaternion::Identity(), bounds_size);
+        m_renderer_uniforms.bounds_color = (Selection::GetGameObject() == this->GetGameObject() || Selection::GetGameObject() == this->GetTransform()->GetRoot()->GetGameObject()) ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1);
+        m_renderer_uniforms.lightmap_scale_offset = m_lightmap_scale_offset;
+        m_renderer_uniforms.lightmap_index = Vector4((float) m_lightmap_index);
 
 		void* buffer = driver.allocate(sizeof(RendererUniforms));
-		Memory::Copy(buffer, &renderer_uniforms, sizeof(RendererUniforms));
+		Memory::Copy(buffer, &m_renderer_uniforms, sizeof(RendererUniforms));
 		driver.loadUniformBuffer(m_transform_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(RendererUniforms)));
 	}
 }
