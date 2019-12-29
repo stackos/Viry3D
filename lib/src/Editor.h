@@ -16,6 +16,8 @@
 */
 
 #include "memory/Ref.h"
+#include "math/Rect.h"
+#include "container/Vector.h"
 
 namespace Viry3D
 {
@@ -30,8 +32,12 @@ namespace Viry3D
         void Update();
 
     private:
+        void DrawWindows();
+
+    private:
         bool m_editor_mode = false;
         WeakRef<GameObject> m_selected_object;
         WeakRef<ImGuiRenderer> m_imgui;
+        Vector<Rect> m_imgui_window_rects;
     };
 }

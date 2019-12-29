@@ -15,6 +15,7 @@
 * limitations under the License.
 */
 
+#include "Engine.h"
 #include "Editor.h"
 #include "Debug.h"
 #include "Input.h"
@@ -45,39 +46,6 @@ namespace Viry3D
 
         if (m_editor_mode)
         {
-            auto main_camera = Camera::GetMainCamera();
-            if (main_camera)
-            {
-                if (Input::GetMouseButtonDown(0))
-                {
-                    auto pos = Input::GetMousePosition();
-                    Ray ray = main_camera->ScreenPointToRay(pos);
-                    RaycastHit hit;
-                    if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), main_camera->GetFarClip()))
-                    {
-                        auto col = hit.collider.lock();
-                        if (col)
-                        {
-                            auto obj = col->GetGameObject();
-                            if (obj == m_selected_object.lock())
-                            {
-                                auto root = obj->GetTransform()->GetRoot()->GetGameObject();
-                                Log("Select:%s", root->GetName().CString());
-                                m_selected_object = root;
-                            }
-                            else
-                            {
-                                Log("Select:%s", obj->GetName().CString());
-                                m_selected_object = obj;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (m_editor_mode)
-        {
             auto imgui = m_imgui.lock();
             if (!imgui)
             {
@@ -88,8 +56,8 @@ namespace Viry3D
 
                 imgui = GameObject::Create("")->AddComponent<ImGuiRenderer>();
                 imgui->GetGameObject()->SetLayer(31);
-                imgui->SetDrawAction([]() {
-                    ImGui::ShowDemoWindow();
+                imgui->SetDrawAction([this]() {
+                    this->DrawWindows();
                 });
                 imgui->SetCamera(imgui_camera);
                 m_imgui = imgui;
@@ -112,6 +80,95 @@ namespace Viry3D
                     imgui->Enable(false);
                 }
             }
+        }
+
+        if (m_editor_mode)
+        {
+            auto main_camera = Camera::GetMainCamera();
+            if (main_camera)
+            {
+                if (Input::GetMouseButtonDown(0))
+                {
+                    auto pos = Input::GetMousePosition();
+                    bool pos_in_window = false;
+
+                    for (const auto& i : m_imgui_window_rects)
+                    {
+                        if (pos.x >= i.x &&
+                            pos.x <= i.x + i.w &&
+                            Engine::Instance()->GetHeight() - pos.y - 1 >= i.y &&
+                            Engine::Instance()->GetHeight() - pos.y - 1 <= i.y + i.h)
+                        {
+                            pos_in_window = true;
+                            break;
+                        }
+                    }
+
+                    if (!pos_in_window)
+                    {
+                        Ray ray = main_camera->ScreenPointToRay(pos);
+                        RaycastHit hit;
+                        if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), main_camera->GetFarClip()))
+                        {
+                            auto col = hit.collider.lock();
+                            if (col)
+                            {
+                                auto obj = col->GetGameObject();
+                                if (obj == m_selected_object.lock())
+                                {
+                                    auto root = obj->GetTransform()->GetRoot()->GetGameObject();
+                                    Log("Select:%s", root->GetName().CString());
+                                    m_selected_object = root;
+                                }
+                                else
+                                {
+                                    Log("Select:%s", obj->GetName().CString());
+                                    m_selected_object = obj;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void Editor::DrawWindows()
+    {
+        ImGui::ShowDemoWindow();
+
+        m_imgui_window_rects.Clear();
+
+        auto selected_object = m_selected_object.lock();
+        if (selected_object)
+        {
+            float inspector_window_w = 300;
+            ImGui::SetNextWindowPos(ImVec2((float) Engine::Instance()->GetWidth() - inspector_window_w, 0), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(inspector_window_w, (float) Engine::Instance()->GetHeight()), ImGuiCond_FirstUseEver);
+            if (ImGui::Begin("Inspector", nullptr, 0))
+            {
+                if (ImGui::CollapsingHeader("GameObject", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    static const int NAME_SIZE_MAX = 1024;
+                    static char name[NAME_SIZE_MAX] = "";
+                    assert(selected_object->GetName().Size() < NAME_SIZE_MAX);
+                    strcpy(name, selected_object->GetName().CString());
+                    if (ImGui::InputText("Name", name, NAME_SIZE_MAX))
+                    {
+                        selected_object->SetName(name);
+                    }
+                }
+
+                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+
+                }
+
+                auto pos = ImGui::GetWindowPos();
+                auto size = ImGui::GetWindowSize();
+                m_imgui_window_rects.Add(Rect(pos.x, pos.y, size.x, size.y));
+            }
+            ImGui::End();
         }
     }
 }
