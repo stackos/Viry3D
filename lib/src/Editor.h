@@ -15,11 +15,23 @@
 * limitations under the License.
 */
 
-#pragma once
-
-#include "Selection.h"
+#include "memory/Ref.h"
 
 namespace Viry3D
 {
-    WeakRef<GameObject> Selection::m_object;
+    class GameObject;
+    class ImGuiRenderer;
+
+    class Editor
+    {
+    public:
+        bool IsInEditorMode() const { return m_editor_mode; }
+        Ref<GameObject> GetSelectedGameObject() const { return m_selected_object.lock(); }
+        void Update();
+
+    private:
+        bool m_editor_mode = false;
+        WeakRef<GameObject> m_selected_object;
+        WeakRef<ImGuiRenderer> m_imgui;
+    };
 }

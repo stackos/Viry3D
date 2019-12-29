@@ -20,6 +20,7 @@
 #include "Texture.h"
 #include "RenderTarget.h"
 #include "Engine.h"
+#include "Editor.h"
 #include "Renderer.h"
 #include "Material.h"
 #include "SkinnedMeshRenderer.h"
@@ -402,7 +403,7 @@ namespace Viry3D
             this->DoDraw(renderer);
 		}
 
-        if (Engine::Instance()->IsInEditorMode())
+        if (Engine::Instance()->GetEditor()->IsInEditorMode())
         {
             if (renderer->GetLocalBounds().GetSize().SqrMagnitude() > 0)
             {

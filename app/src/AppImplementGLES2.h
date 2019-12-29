@@ -24,7 +24,6 @@ namespace Viry3D
     public:
         Label* m_fps_label = nullptr;
         MeshRenderer* m_cube = nullptr;
-        ImGuiRenderer* m_imgui = nullptr;
 
         AppImplementGLES2()
         {
@@ -40,7 +39,6 @@ namespace Viry3D
             this->InitGPUBlendShapeTest();
             this->InitPhysicsTest();
             this->InitUI();
-            this->InitImGui();
         }
 
         void InitKTXTest()
@@ -389,22 +387,6 @@ void main()
             this->InitMultiAtlasTest(canvas);
         }
 
-        void InitImGui()
-        {
-            auto imgui_camera = GameObject::Create("")->AddComponent<Camera>();
-            imgui_camera->SetClearFlags(CameraClearFlags::Nothing);
-            imgui_camera->SetDepth(2);
-            imgui_camera->SetCullingMask(1 << 2);
-
-            auto imgui = GameObject::Create("")->AddComponent<ImGuiRenderer>();
-            imgui->GetGameObject()->SetLayer(2);
-            imgui->SetDrawAction([]() {
-                ImGui::ShowDemoWindow();
-            });
-            imgui->SetCamera(imgui_camera);
-            m_imgui = imgui.get();
-        }
-
         void InitMultiAtlasTest(const Ref<CanvasRenderer>& canvas)
         {
             for (int i = 0; i < 4; ++i)
@@ -431,8 +413,6 @@ void main()
             {
                 m_fps_label->SetText(String::Format("FPS:%d DC:%d", Time::GetFPS(), Time::GetDrawCall()));
             }
-
-            m_imgui->UpdateImGui();
         }
     };
 }

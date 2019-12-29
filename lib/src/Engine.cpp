@@ -37,7 +37,7 @@
 #include "audio/AudioManager.h"
 #include "time/Time.h"
 #include "video/VideoDecoder.h"
-#include "Selection.h"
+#include "Editor.h"
 #include <thread>
 
 #if VR_WINDOWS
@@ -104,7 +104,7 @@ namespace Viry3D
         List<Message> m_messages;
         Map<int, List<MessageHandler>> m_message_handlers;
         Mutex m_mutex;
-        bool m_editor_mode = false;
+        Ref<Editor> m_editor;
         
 		EnginePrivate(Engine* engine, void* native_window, int width, int height, uint64_t flags, void* shared_gl_context):
 			m_engine(engine),
@@ -128,7 +128,7 @@ namespace Viry3D
 			m_height(height),
 			m_window_flags(flags)
 		{
-            
+            m_editor = RefMake<Editor>();
 		}
 
 		~EnginePrivate()
@@ -309,53 +309,8 @@ namespace Viry3D
             {
                 this->Quit();
             }
-            
-            if (Input::GetKeyDown(KeyCode::E) && (Input::GetKey(KeyCode::LeftControl) || Input::GetKey(KeyCode::RightControl)))
-            {
-                m_editor_mode = !m_editor_mode;
 
-                if (m_editor_mode)
-                {
-                    Log("enter editor mode");
-                }
-                else
-                {
-                    Log("exit editor mode");
-                }
-            }
-
-            if (m_editor_mode)
-            {
-                auto main_camera = Camera::GetMainCamera();
-                if (main_camera)
-                {
-                    if (Input::GetMouseButtonDown(0))
-                    {
-                        auto pos = Input::GetMousePosition();
-                        Ray ray = main_camera->ScreenPointToRay(pos);
-                        RaycastHit hit;
-                        if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), main_camera->GetFarClip()))
-                        {
-                            auto col = hit.collider.lock();
-                            if (col)
-                            {
-                                auto obj = col->GetGameObject();
-                                if (obj == Selection::GetGameObject())
-                                {
-                                    auto root = obj->GetTransform()->GetRoot()->GetGameObject();
-                                    Log("Select:%s", root->GetName().CString());
-                                    Selection::SetGameObject(root);
-                                }
-                                else
-                                {
-                                    Log("Select:%s", obj->GetName().CString());
-                                    Selection::SetGameObject(obj);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            m_editor->Update();
             
             Input::Update();
 		}
@@ -753,8 +708,8 @@ namespace Viry3D
         m_private->AddMessageHandler(id, handler);
     }
 
-    bool Engine::IsInEditorMode() const
+    const Ref<Editor>& Engine::GetEditor() const
     {
-        return m_private->m_editor_mode;
+        return m_private->m_editor;
     }
 }

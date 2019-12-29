@@ -17,8 +17,8 @@
 
 #include "Renderer.h"
 #include "Engine.h"
+#include "Editor.h"
 #include "GameObject.h"
-#include "Selection.h"
 
 namespace Viry3D
 {
@@ -173,10 +173,11 @@ namespace Viry3D
         Bounds bounds = this->GetLocalBounds();
         Vector3 bounds_position = bounds.GetCenter();
         Vector3 bounds_size = bounds.GetSize();
-        
+        auto selected_obj = Engine::Instance()->GetEditor()->GetSelectedGameObject();
+
         m_renderer_uniforms.model_matrix = this->GetTransform()->GetLocalToWorldMatrix();
         m_renderer_uniforms.bounds_matrix = Matrix4x4::TRS(bounds_position, Quaternion::Identity(), bounds_size);
-        m_renderer_uniforms.bounds_color = (Selection::GetGameObject() == this->GetGameObject() || Selection::GetGameObject() == this->GetTransform()->GetRoot()->GetGameObject()) ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1);
+        m_renderer_uniforms.bounds_color = (selected_obj == this->GetGameObject() || selected_obj == this->GetTransform()->GetRoot()->GetGameObject()) ? Color(1, 0, 0, 1) : Color(0, 1, 0, 1);
         m_renderer_uniforms.lightmap_scale_offset = m_lightmap_scale_offset;
         m_renderer_uniforms.lightmap_index = Vector4((float) m_lightmap_index);
 
