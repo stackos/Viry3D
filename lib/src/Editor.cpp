@@ -161,7 +161,33 @@ namespace Viry3D
 
                 if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
                 {
+                    Vector3 pos = selected_object->GetTransform()->GetLocalPosition();
+                    if (ImGui::DragFloat3("Position", (float*) &pos, 0.1f))
+                    {
+                        selected_object->GetTransform()->SetLocalPosition(pos);
+                    }
 
+                    static Vector3 rot_set;
+                    Vector3 rot;
+                    if (Mathf::FloatEqual(Mathf::Abs(selected_object->GetTransform()->GetLocalRotation().Dot(Quaternion::Euler(rot_set))), 1))
+                    {
+                        rot = rot_set;
+                    }
+                    else
+                    {
+                        rot = selected_object->GetTransform()->GetLocalRotation().ToEulerAngles();
+                    }
+                    if (ImGui::DragFloat3("Rotation", (float*) &rot, 1.0f))
+                    {
+                        selected_object->GetTransform()->SetLocalRotation(Quaternion::Euler(rot));
+                        rot_set = rot;
+                    }
+
+                    Vector3 scale = selected_object->GetTransform()->GetLocalScale();
+                    if (ImGui::DragFloat3("Scale", (float*) &scale, 0.1f))
+                    {
+                        selected_object->GetTransform()->SetLocalScale(scale);
+                    }
                 }
 
                 auto pos = ImGui::GetWindowPos();
