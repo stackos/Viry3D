@@ -29,7 +29,7 @@ namespace Viry3D
     public:
         Component();
         virtual ~Component();
-        Ref<GameObject> GetGameObject() const { return m_object.lock(); }
+        Ref<GameObject> GetGameObject() const { return m_game_object.lock(); }
         const Ref<Transform>& GetTransform() const;
         void Enable(bool enable);
         bool IsEnable() const { return m_enable; }
@@ -47,7 +47,7 @@ namespace Viry3D
         friend class GameObject;
         
     private:
-        WeakRef<GameObject> m_object;
+        WeakRef<GameObject> m_game_object;
         bool m_enable = true;
         bool m_started = false;
     };

@@ -21,8 +21,6 @@
 #include "Input.h"
 #include "GameObject.h"
 #include "graphics/Camera.h"
-#include "physics/Physics.h"
-#include "physics/Collider.h"
 #include "ui/ImGuiRenderer.h"
 #include "imgui/imgui.h"
 
@@ -107,24 +105,46 @@ namespace Viry3D
                     if (!pos_in_window)
                     {
                         Ray ray = main_camera->ScreenPointToRay(pos);
-                        RaycastHit hit;
-                        if (Physics::Raycast(hit, ray.GetOrigin(), ray.GetDirection(), main_camera->GetFarClip()))
+                        auto renderers = Renderer::GetRenderers();
+                        Renderer* closest = nullptr;
+                        float closest_length = Mathf::MaxFloatValue;
+
+                        for (auto i : renderers)
                         {
-                            auto col = hit.collider.lock();
-                            if (col)
+                            if (i->GetGameObject()->IsActiveInTree() && i->IsEnable())
                             {
-                                auto obj = col->GetGameObject();
-                                if (obj == m_selected_object.lock())
+                                auto local_bounds = i->GetLocalBounds();
+                                if (local_bounds.GetSize().SqrMagnitude() > 0)
                                 {
-                                    auto root = obj->GetTransform()->GetRoot()->GetGameObject();
-                                    Log("Select:%s", root->GetName().CString());
-                                    m_selected_object = root;
+                                    const auto& world_to_local = i->GetTransform()->GetWorldToLocalMatrix();
+                                    Ray ray_in_local(world_to_local.MultiplyPoint3x4(ray.GetOrigin()), world_to_local.MultiplyDirection(ray.GetDirection()));
+                                    float ray_length = main_camera->GetFarClip();
+                                    if (Mathf::RayBoundsIntersection(ray_in_local, local_bounds, ray_length))
+                                    {
+                                        auto hit = ray.GetPoint(ray_length);
+                                        if (ray_length < closest_length)
+                                        {
+                                            closest = i;
+                                            closest_length = ray_length;
+                                        }
+                                    }
                                 }
-                                else
-                                {
-                                    Log("Select:%s", obj->GetName().CString());
-                                    m_selected_object = obj;
-                                }
+                            }
+                        }
+
+                        if (closest)
+                        {
+                            auto obj = closest->GetGameObject();
+                            if (obj == m_selected_object.lock())
+                            {
+                                auto root = obj->GetTransform()->GetRoot()->GetGameObject();
+                                Log("Select:%s", root->GetName().CString());
+                                m_selected_object = root;
+                            }
+                            else
+                            {
+                                Log("Select:%s", obj->GetName().CString());
+                                m_selected_object = obj;
                             }
                         }
                     }

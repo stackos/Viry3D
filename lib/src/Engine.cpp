@@ -25,8 +25,6 @@
 #include "Input.h"
 #include "Scene.h"
 #include "Resources.h"
-#include "physics/Physics.h"
-#include "physics/Collider.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "graphics/RenderTarget.h"
@@ -166,7 +164,6 @@ namespace Viry3D
 			Resources::Init();
             AudioManager::Init();
 			VideoDecoder::Init();
-            Physics::Init();
 		}
 
 		void Shutdown()
@@ -174,7 +171,6 @@ namespace Viry3D
 			AudioManager::DestroyListener();
             m_scene.reset();
 
-            Physics::Done();
 			VideoDecoder::Done();
 			AudioManager::Done();
 			Resources::Done();
@@ -613,7 +609,6 @@ namespace Viry3D
             m_private->m_scene = RefMake<Scene>();
         }
         m_private->m_scene->Update();
-        Physics::Update();
 
 		m_private->BeginFrame();
 		m_private->Render();

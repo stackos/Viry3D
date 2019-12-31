@@ -58,8 +58,7 @@ namespace Viry3D
             material->SetTexture(MaterialProperty::TEXTURE, texture);
 
             auto cube = GameObject::Create("cube")->AddComponent<MeshRenderer>();
-            cube->GetTransform()->SetPosition(Vector3(0, 3, 0));
-            cube->GetTransform()->SetRotation(Quaternion::Euler(45, 45, 45));
+            cube->GetTransform()->SetPosition(Vector3(0, 0.5f, 0));
             cube->GetGameObject()->SetLayer(0);
             cube->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
             cube->SetMaterial(material);
@@ -352,15 +351,6 @@ void main()
             plane->GetGameObject()->SetLayer(0);
             plane->SetMesh(Resources::LoadMesh("Library/unity default resources.Plane.mesh"));
             plane->SetMaterial(material);
-
-            auto plane_col = plane->GetGameObject()->AddComponent<BoxCollider>();
-            plane_col->SetCenter(plane->GetMesh()->GetBounds().GetCenter());
-            plane_col->SetSize(plane->GetMesh()->GetBounds().GetSize());
-
-            auto cube_col = m_cube->GetGameObject()->AddComponent<BoxCollider>();
-            cube_col->SetCenter(m_cube->GetMesh()->GetBounds().GetCenter());
-            cube_col->SetSize(m_cube->GetMesh()->GetBounds().GetSize());
-            cube_col->SetIsRigidbody(true);
         }
 
         void InitUI()

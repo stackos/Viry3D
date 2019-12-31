@@ -189,7 +189,8 @@ namespace Viry3D
             return false;
         }
         
-        if (!box.Contains(ray.GetPoint(min)))
+        auto hit = ray.GetPoint(min);
+        if (!box.Contains(hit))
         {
             return false;
         }

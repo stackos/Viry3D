@@ -66,7 +66,7 @@ namespace Viry3D
     void GameObject::BindComponent(const Ref<Component>& com) const
     {
         auto obj = Scene::Instance()->GetGameObject(this);
-        com->m_object = obj;
+        com->m_game_object = obj;
 		com->SetName(this->GetName());
     }
 
@@ -119,44 +119,41 @@ namespace Viry3D
 
 	void GameObject::SetActive(bool active)
 	{
-        if (m_is_active_self != active)
+        m_is_active_self = active;
+
+        auto parent = this->GetTransform()->GetParent();
+        if (parent)
         {
-            m_is_active_self = active;
+            m_is_active_in_tree = parent->GetGameObject()->IsActiveInTree() && m_is_active_self;
+        }
+        else
+        {
+            m_is_active_in_tree = m_is_active_self;
+        }
 
-            auto parent = this->GetTransform()->GetParent();
-            if (parent)
+        for (int i = 0; i < m_added_components.Size(); ++i)
+        {
+            auto& com = m_added_components[i];
+            if (com->IsEnable())
             {
-                m_is_active_in_tree = parent->GetGameObject()->IsActiveInTree() && m_is_active_self;
+                com->OnGameObjectActiveChanged();
             }
-            else
-            {
-                m_is_active_in_tree = m_is_active_self;
-            }
+        }
 
-            for (int i = 0; i < m_added_components.Size(); ++i)
+        for (int i = 0; i < m_components.Size(); ++i)
+        {
+            auto& com = m_components[i];
+            if (com->IsEnable())
             {
-                auto& com = m_added_components[i];
-                if (com->IsEnable())
-                {
-                    com->OnGameObjectActiveChanged();
-                }
+                com->OnGameObjectActiveChanged();
             }
+        }
 
-            for (int i = 0; i < m_components.Size(); ++i)
-            {
-                auto& com = m_components[i];
-                if (com->IsEnable())
-                {
-                    com->OnGameObjectActiveChanged();
-                }
-            }
-
-            int child_count = this->GetTransform()->GetChildCount();
-            for (int i = 0; i < child_count; ++i)
-            {
-                auto& child = this->GetTransform()->GetChild(i);
-                child->GetGameObject()->SetActive(child->GetGameObject()->IsActiveSelf());
-            }
+        int child_count = this->GetTransform()->GetChildCount();
+        for (int i = 0; i < child_count; ++i)
+        {
+            auto& child = this->GetTransform()->GetChild(i);
+            child->GetGameObject()->SetActive(child->GetGameObject()->IsActiveSelf());
         }
 	}
 

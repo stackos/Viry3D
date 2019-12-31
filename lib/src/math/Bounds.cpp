@@ -16,6 +16,7 @@
 */
 
 #include "Bounds.h"
+#include "Mathf.h"
 
 namespace Viry3D
 {
@@ -34,7 +35,11 @@ namespace Viry3D
 
 	bool Bounds::Contains(const Vector3& point) const
 	{
-		return !(point.x < m_min.x || point.y < m_min.y || point.z < m_min.z ||
-			point.x > m_max.x || point.y > m_max.y || point.z > m_max.z);
+        return (point.x > m_min.x || Mathf::FloatEqual(point.x, m_min.x)) &&
+            (point.x < m_max.x || Mathf::FloatEqual(point.x, m_max.x)) &&
+            (point.y > m_min.y || Mathf::FloatEqual(point.y, m_min.y)) &&
+            (point.y < m_max.y || Mathf::FloatEqual(point.y, m_max.y))&&
+            (point.z > m_min.z || Mathf::FloatEqual(point.z, m_min.z)) &&
+            (point.z < m_max.z || Mathf::FloatEqual(point.z, m_max.z));
 	}
 }
