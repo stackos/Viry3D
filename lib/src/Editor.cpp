@@ -23,6 +23,7 @@
 #include "graphics/Camera.h"
 #include "ui/ImGuiRenderer.h"
 #include "imgui/imgui.h"
+#include "animation/Animation.h"
 
 namespace Viry3D
 {
@@ -214,6 +215,57 @@ namespace Viry3D
                 auto size = ImGui::GetWindowSize();
                 m_imgui_window_rects.Add(Rect(pos.x, pos.y, size.x, size.y));
             }
+
+            auto animation = selected_object->GetComponent<Animation>();
+            if (animation)
+            {
+                if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    int clip_count = animation->GetClipCount();
+                    int playing_clip = animation->GetPlayingClip();
+
+                    Vector<String> clips(clip_count);
+                    for (int i = 0; i < clip_count; ++i)
+                    {
+                        clips[i] = animation->GetClipName(i);
+                    }
+
+                    const char* current = "";
+                    if (playing_clip >= 0)
+                    {
+                        current = clips[playing_clip].CString();
+                    }
+                    if (ImGui::BeginCombo("Clips", current))
+                    {
+                        for (int i = 0; i < clip_count; ++i)
+                        {
+                            bool is_selected = (playing_clip == i);
+                            if (ImGui::Selectable(clips[i].CString(), is_selected))
+                            {
+                                playing_clip = i;
+
+                                animation->Play(playing_clip);
+                            }
+                            if (is_selected)
+                            {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+
+                    if (playing_clip >= 0)
+                    {
+                        float time = animation->GetPlayingTime();
+                        float time_length = animation->GetClipLength(playing_clip);
+                        if (ImGui::SliderFloat("Time", &time, 0.0f, time_length, "%.3f"))
+                        {
+                            animation->SetPlayingTime(time);
+                        }
+                    }
+                }
+            }
+
             ImGui::End();
         }
     }

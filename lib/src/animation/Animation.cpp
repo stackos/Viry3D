@@ -45,6 +45,36 @@ namespace Viry3D
         return m_clips[index]->name;
     }
 
+    float Animation::GetClipLength(int index) const
+    {
+        return m_clips[index]->length;
+    }
+
+    int Animation::GetPlayingClip() const
+    {
+        if (m_states.Size() == 0)
+        {
+            return -1;
+        }
+
+        return m_states.Last().clip_index;
+    }
+
+    float Animation::GetPlayingTime() const
+    {
+        if (m_states.Size() == 0)
+        {
+            return 0;
+        }
+
+        return m_states.Last().playing_time;
+    }
+
+    void Animation::SetPlayingTime(float time)
+    {
+        
+    }
+
     void Animation::Play(int index, float fade_length)
     {
         if (m_states.Size() == 0)
@@ -84,6 +114,7 @@ namespace Viry3D
             state.start_weight = 1.0f;
             state.weight = 1.0f;
         }
+        state.playing_time = 0.0f;
 
         m_states.AddLast(state);
     }
@@ -91,6 +122,11 @@ namespace Viry3D
     void Animation::Stop()
     {
         m_states.Clear();
+    }
+
+    void Animation::Pause()
+    {
+        
     }
 
     void Animation::Update()
@@ -133,6 +169,7 @@ namespace Viry3D
                         break;
                 }
             }
+            state.playing_time = time;
 
             float fade_time = Time::GetTime() - state.fade_start_time;
             switch (state.fade_state)
@@ -172,7 +209,7 @@ namespace Viry3D
                 last_state = true;
             }
 
-            this->Sample(state, time, state.weight, first_state, last_state);
+            this->Sample(state, state.playing_time, state.weight, first_state, last_state);
             first_state = false;
 
             if (remove_later)

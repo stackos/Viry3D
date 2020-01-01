@@ -93,6 +93,7 @@ namespace Viry3D
         float fade_length;
         float start_weight;
         float weight;
+        float playing_time;
     };
 
     class Animation : public Component
@@ -103,8 +104,13 @@ namespace Viry3D
 		void SetClips(const Vector<Ref<AnimationClip>>& clips);
         int GetClipCount() const { return m_clips.Size(); }
         const String& GetClipName(int index) const;
+        float GetClipLength(int index) const;
+        int GetPlayingClip() const;
+        float GetPlayingTime() const;
+        void SetPlayingTime(float time);
         void Play(int index, float fade_length = 0.3f);
         void Stop();
+        void Pause();
 
     protected:
         virtual void Update();
