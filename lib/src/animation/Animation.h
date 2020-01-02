@@ -108,6 +108,8 @@ namespace Viry3D
         int GetPlayingClip() const;
         float GetPlayingTime() const;
         void SetPlayingTime(float time);
+        bool IsPaused() const { return m_paused; }
+        bool IsStopped() const { return m_stopped; }
         void Play(int index, float fade_length = 0.3f);
         void Stop();
         void Pause();
@@ -116,10 +118,16 @@ namespace Viry3D
         virtual void Update();
         
     private:
+        void UpdateTime();
+        float GetTime();
         void Sample(AnimationState& state, float time, float weight, bool first_state, bool last_state);
 
     private:
         Vector<Ref<AnimationClip>> m_clips;
         List<AnimationState> m_states;
+        float m_time = 0;
+        float m_seek_to = -1;
+        bool m_paused = false;
+        bool m_stopped = true;
     };
 }

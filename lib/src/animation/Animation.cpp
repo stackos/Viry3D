@@ -20,6 +20,7 @@
 #include "time/Time.h"
 #include "math/Mathf.h"
 #include "graphics/SkinnedMeshRenderer.h"
+#include "Debug.h"
 
 namespace Viry3D
 {
@@ -52,7 +53,7 @@ namespace Viry3D
 
     int Animation::GetPlayingClip() const
     {
-        if (m_states.Size() == 0)
+        if (m_states.Size() == 0 || m_stopped)
         {
             return -1;
         }
@@ -62,7 +63,7 @@ namespace Viry3D
 
     float Animation::GetPlayingTime() const
     {
-        if (m_states.Size() == 0)
+        if (m_states.Size() == 0 || m_stopped)
         {
             return 0;
         }
@@ -72,11 +73,32 @@ namespace Viry3D
 
     void Animation::SetPlayingTime(float time)
     {
-        
+        int playing_clip = this->GetPlayingClip();
+        if (playing_clip >= 0)
+        {
+            time = Mathf::Clamp(time, 0.0f, this->GetClipLength(playing_clip));
+            float offset = time - this->GetPlayingTime();
+            m_seek_to = m_time + offset;
+        }
+    }
+
+    float Animation::GetTime()
+    {
+        return m_time;
     }
 
     void Animation::Play(int index, float fade_length)
     {
+        if (m_paused)
+        {
+            m_paused = false;
+
+            if (index == this->GetPlayingClip())
+            {
+                return;
+            }
+        }
+
         if (m_states.Size() == 0)
         {
             fade_length = 0;
@@ -87,7 +109,7 @@ namespace Viry3D
             for (auto& state : m_states)
             {
                 state.fade_state = FadeState::Out;
-                state.fade_start_time = Time::GetTime();
+                state.fade_start_time = this->GetTime();
                 state.fade_length = fade_length;
                 state.start_weight = state.weight;
             }
@@ -99,8 +121,8 @@ namespace Viry3D
 
         AnimationState state;
         state.clip_index = index;
-        state.play_start_time = Time::GetTime();
-        state.fade_start_time = Time::GetTime();
+        state.play_start_time = this->GetTime();
+        state.fade_start_time = this->GetTime();
         state.fade_length = fade_length;
         if (fade_length > 0.0f)
         {
@@ -117,26 +139,50 @@ namespace Viry3D
         state.playing_time = 0.0f;
 
         m_states.AddLast(state);
+        m_paused = false;
+        m_stopped = false;
     }
 
     void Animation::Stop()
     {
-        m_states.Clear();
+        m_paused = false;
+        m_stopped = true;
     }
 
     void Animation::Pause()
     {
-        
+        if (!m_stopped)
+        {
+            m_paused = true;
+        }
+    }
+
+    void Animation::UpdateTime()
+    {
+        if (m_seek_to >= 0)
+        {
+            m_time = m_seek_to;
+            m_seek_to = -1;
+        }
+        else
+        {
+            if (!m_paused)
+            {
+                m_time += Time::GetDeltaTime();
+            }
+        }
     }
 
     void Animation::Update()
     {
+        this->UpdateTime();
+
         bool first_state = true;
 
         for (auto i = m_states.begin(); i != m_states.end(); )
         {
             auto& state = *i;
-            float time = Time::GetTime() - state.play_start_time;
+            float time = this->GetTime() - state.play_start_time;
             const auto& clip = *m_clips[state.clip_index];
             bool remove_later = false;
 			
@@ -171,7 +217,12 @@ namespace Viry3D
             }
             state.playing_time = time;
 
-            float fade_time = Time::GetTime() - state.fade_start_time;
+            if (m_stopped)
+            {
+                state.playing_time = 0;
+            }
+
+            float fade_time = this->GetTime() - state.fade_start_time;
             switch (state.fade_state)
             {
                 case FadeState::In:
@@ -182,7 +233,15 @@ namespace Viry3D
                     else
                     {
                         state.fade_state = FadeState::Normal;
-                        state.fade_start_time = Time::GetTime();
+                        state.fade_start_time = this->GetTime();
+                        state.start_weight = 1.0f;
+                        state.weight = 1.0f;
+                    }
+
+                    if (m_stopped)
+                    {
+                        state.fade_state = FadeState::Normal;
+                        state.fade_start_time = this->GetTime();
                         state.start_weight = 1.0f;
                         state.weight = 1.0f;
                     }
@@ -195,6 +254,12 @@ namespace Viry3D
                         state.weight = Mathf::Lerp(state.start_weight, 0.0f, fade_time / state.fade_length);
                     }
                     else
+                    {
+                        state.weight = 0.0f;
+                        remove_later = true;
+                    }
+
+                    if (m_stopped)
                     {
                         state.weight = 0.0f;
                         remove_later = true;
@@ -215,11 +280,21 @@ namespace Viry3D
             if (remove_later)
             {
                 i = m_states.Remove(i);
+
+                if (m_states.Empty())
+                {
+                    m_paused = true;
+                }
             }
             else
             {
                 ++i;
             }
+        }
+
+        if (m_stopped)
+        {
+            m_states.Clear();
         }
     }
 

@@ -262,6 +262,23 @@ namespace Viry3D
                         {
                             animation->SetPlayingTime(time);
                         }
+
+                        const ImGuiStyle& style = ImGui::GetStyle();
+                        float button_w = (ImGui::GetWindowWidth() - style.WindowPadding.x * 2 - style.ItemSpacing.x * 2) / 3;
+                        if (ImGui::Button("Play", ImVec2(button_w, 0)))
+                        {
+                            animation->Play(playing_clip);
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Pause", ImVec2(button_w, 0)))
+                        {
+                            animation->Pause();
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Stop", ImVec2(button_w, 0)))
+                        {
+                            animation->Stop();
+                        }
                     }
                 }
             }
