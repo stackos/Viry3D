@@ -305,8 +305,6 @@ namespace Viry3D
             {
                 this->Quit();
             }
-
-            m_editor->Update();
             
             Input::Update();
 		}
@@ -609,6 +607,7 @@ namespace Viry3D
             m_private->m_scene = RefMake<Scene>();
         }
         m_private->m_scene->Update();
+        m_private->m_editor->Update();
 
 		m_private->BeginFrame();
 		m_private->Render();
