@@ -196,7 +196,7 @@ namespace Viry3D
 
 				if (primitive)
 				{
-					const auto& shader = material->GetShader(*renderer->GetShaderKey(i));
+					const auto& shader = material->GetShader(renderer->GetShaderKey(i));
 
 					material->SetScissor(m_shadow_texture_size, m_shadow_texture_size);
 

@@ -75,6 +75,7 @@ namespace Viry3D
             this->InitReflection();
 
             auto camera = GameObject::Create("")->AddComponent<Camera>();
+            Camera::SetMainCamera(camera);
             camera->GetTransform()->SetPosition(Vector3(0, 1.0f, 3.5f));
             camera->GetTransform()->SetRotation(Quaternion::Euler(m_camera_rot));
             camera->SetNearClip(0.03f);

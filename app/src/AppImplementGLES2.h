@@ -28,16 +28,16 @@ namespace Viry3D
         AppImplementGLES2()
         {
             auto camera = GameObject::Create("")->AddComponent<Camera>();
+            Camera::SetMainCamera(camera);
             camera->GetTransform()->SetPosition(Vector3(0, 2, -4));
             camera->GetTransform()->SetRotation(Quaternion::Euler(15, 0, 0));
             camera->SetDepth(0);
             camera->SetClearColor(Color(0, 0, 1, 1));
             camera->SetCullingMask(1 << 0);
-            Camera::SetMainCamera(camera);
 
             this->InitKTXTest();
             this->InitGPUBlendShapeTest();
-            this->InitPhysicsTest();
+            this->InitLightTest();
             this->InitUI();
         }
 
@@ -59,7 +59,6 @@ namespace Viry3D
 
             auto cube = GameObject::Create("cube")->AddComponent<MeshRenderer>();
             cube->GetTransform()->SetPosition(Vector3(0, 0.5f, 0));
-            cube->GetGameObject()->SetLayer(0);
             cube->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
             cube->SetMaterial(material);
 
@@ -340,17 +339,23 @@ void main()
             anim->Play(0);
         }
 
-        void InitPhysicsTest()
+        void InitLightTest()
         {
-            auto shader = Shader::Find("Unlit/Texture");
-            auto material = RefMake<Material>(shader);
+            auto light = GameObject::Create("light")->AddComponent<Light>();
+            light->GetTransform()->SetRotation(Quaternion::Euler(135, 90, 0));
+
+            auto material = RefMake<Material>(Shader::Find("Diffuse"));
             auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
             material->SetTexture(MaterialProperty::TEXTURE, texture);
 
             auto plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
-            plane->GetGameObject()->SetLayer(0);
             plane->SetMesh(Resources::LoadMesh("Library/unity default resources.Plane.mesh"));
             plane->SetMaterial(material);
+
+            auto sphere = GameObject::Create("sphere")->AddComponent<MeshRenderer>();
+            sphere->GetTransform()->SetPosition(Vector3(-1.5f, 0.5f, 0));
+            sphere->SetMesh(Resources::LoadMesh("Library/unity default resources.Sphere.mesh"));
+            sphere->SetMaterial(material);
         }
 
         void InitUI()
@@ -384,7 +389,7 @@ void main()
                 auto sprite = RefMake<Sprite>();
                 sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
                 sprite->SetPivot(Vector2(0, 0.5f));
-                sprite->SetOffset(Vector2i(i * 220, 220));
+                sprite->SetOffset(Vector2i(i * 220, -220));
                 sprite->SetSize(Vector2i(200, 200));
                 canvas->AddView(sprite);
 

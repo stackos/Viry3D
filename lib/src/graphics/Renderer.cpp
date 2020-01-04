@@ -118,30 +118,20 @@ namespace Viry3D
         }
     }
 
-    const String* Renderer::GetShaderKey(int material_index)
+    const String& Renderer::GetShaderKey(int material_index)
     {
-        return &m_shader_keys[material_index];
-    }
-
-    const String* Renderer::GetShaderKeyWithLightAddOn(int material_index)
-    {
-        return &m_shader_keys_light_add[material_index];
+        return m_shader_keys[material_index];
     }
 
     void Renderer::UpdateShaderKeywords()
     {
-        auto shader_keywords_light_add = m_shader_keywords;
-        shader_keywords_light_add.Add("LIGHT_ADD_ON");
-
         m_shader_keys.Resize(m_materials.Size());
-        m_shader_keys_light_add.Resize(m_materials.Size());
 
         for (int i = 0; i < m_materials.Size(); ++i)
         {
             if (m_materials[i] && m_materials[i]->GetShaderName().Size() > 0)
             {
                 m_shader_keys[i] = m_materials[i]->EnableKeywords(m_shader_keywords);
-                m_shader_keys_light_add[i] = m_materials[i]->EnableKeywords(shader_keywords_light_add);
             }
         }
     }

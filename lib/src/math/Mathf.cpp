@@ -184,7 +184,7 @@ namespace Viry3D
         
         float max = Min<float>(maxs);
         
-        if (min > max)
+        if (min > max || min < 0)
         {
             return false;
         }

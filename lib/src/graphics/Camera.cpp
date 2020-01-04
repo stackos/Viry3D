@@ -458,14 +458,7 @@ namespace Viry3D
                         renderer->EnableShaderKeyword("RECIEVE_SHADOW_ON");
                     }
 
-                    auto shader_key = renderer->GetShaderKey(i);
-
-                    if (light_add)
-                    {
-                        shader_key = renderer->GetShaderKeyWithLightAddOn(i);
-                    }
-
-                    const auto& shader = material->GetShader(*shader_key);
+                    const auto& shader = material->GetShader(renderer->GetShaderKey(i));
 
                     material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
 
