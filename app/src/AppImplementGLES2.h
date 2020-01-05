@@ -387,10 +387,10 @@ void main()
             for (int i = 0; i < 4; ++i)
             {
                 auto sprite = RefMake<Sprite>();
-                sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::VCenter);
+                sprite->SetAlignment(ViewAlignment::Left | ViewAlignment::Top);
                 sprite->SetPivot(Vector2(0, 0.5f));
-                sprite->SetOffset(Vector2i(i * 220, -220));
-                sprite->SetSize(Vector2i(200, 200));
+                sprite->SetOffset(Vector2i(i * 120, 100));
+                sprite->SetSize(Vector2i(100, 100));
                 canvas->AddView(sprite);
 
                 Resources::LoadFileFromUrlAsync("texture/logo.jpg", [=](const ByteBuffer& buffer) {
