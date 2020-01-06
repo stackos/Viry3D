@@ -58,7 +58,7 @@ namespace Viry3D
             material->SetTexture(MaterialProperty::TEXTURE, texture);
 
             auto cube = GameObject::Create("cube")->AddComponent<MeshRenderer>();
-            cube->GetTransform()->SetPosition(Vector3(0, 0.5f, 0));
+            cube->GetTransform()->SetPosition(Vector3(3, 0.5f, 3));
             cube->SetMesh(Resources::LoadMesh("Library/unity default resources.Cube.mesh"));
             cube->SetMaterial(material);
 
@@ -342,25 +342,49 @@ void main()
         void InitLightTest()
         {
             auto light_0 = GameObject::Create("light_0")->AddComponent<Light>();
-            light_0->GetTransform()->SetRotation(Quaternion::Euler(45, 90, 0));
-            light_0->SetColor(Color(0, 0, 1, 1));
+            light_0->GetTransform()->SetRotation(Quaternion::Euler(45, 120, 0));
+            light_0->SetColor(Color(1, 0, 0, 1));
+            light_0->EnableShadow(true);
+            light_0->SetShadowTextureSize(1024);
+            light_0->SetOrthographicSize(5);
+            light_0->SetNearClip(-5);
+            light_0->SetFarClip(5);
+            light_0->SetCullingMask(1 << 0);
 
-            auto light_1 = GameObject::Create("light_1")->AddComponent<Light>();
-            light_1->GetTransform()->SetRotation(Quaternion::Euler(135, 90, 0));
-            light_1->SetColor(Color(1, 0, 0, 1));
+            /*auto light_1 = GameObject::Create("light_1")->AddComponent<Light>();
+            light_1->GetTransform()->SetPosition(Vector3(1, 3, 2));
+            light_1->GetTransform()->SetRotation(Quaternion::Euler(45, 240, 0));
+            light_1->SetColor(Color(0, 1, 0, 1));
+            light_1->SetType(LightType::Spot);
+            light_1->SetRange(10);
+            light_1->EnableShadow(true);
+            light_1->SetShadowTextureSize(1024);
+            light_1->SetCullingMask(1 << 0);*/
+
+            auto light_2 = GameObject::Create("light_2")->AddComponent<Light>();
+            light_2->GetTransform()->SetRotation(Quaternion::Euler(45, 360, 0));
+            light_2->SetColor(Color(0, 0, 1, 1));
+            light_2->SetCullingMask(1 << 0);
 
             auto material = RefMake<Material>(Shader::Find("Diffuse"));
-            auto texture = Resources::LoadTexture("texture/checkflag.png.tex");
-            material->SetTexture(MaterialProperty::TEXTURE, texture);
+            material->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedWhiteTexture());
 
             auto plane = GameObject::Create("plane")->AddComponent<MeshRenderer>();
             plane->SetMesh(Resources::LoadMesh("Library/unity default resources.Plane.mesh"));
             plane->SetMaterial(material);
+            plane->EnableRecieveShadow(true);
 
             auto sphere = GameObject::Create("sphere")->AddComponent<MeshRenderer>();
             sphere->GetTransform()->SetPosition(Vector3(-1.5f, 0.5f, 0));
             sphere->SetMesh(Resources::LoadMesh("Library/unity default resources.Sphere.mesh"));
             sphere->SetMaterial(material);
+            sphere->EnableCastShadow(true);
+
+            auto capsule = GameObject::Create("capsule")->AddComponent<MeshRenderer>();
+            capsule->GetTransform()->SetPosition(Vector3(0, 1, 0));
+            capsule->SetMesh(Resources::LoadMesh("Library/unity default resources.Capsule.mesh"));
+            capsule->SetMaterial(material);
+            capsule->EnableCastShadow(true);
         }
 
         void InitUI()
