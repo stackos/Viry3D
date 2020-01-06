@@ -32,7 +32,7 @@ namespace Viry3D
             camera->GetTransform()->SetPosition(Vector3(0, 2, -4));
             camera->GetTransform()->SetRotation(Quaternion::Euler(15, 0, 0));
             camera->SetDepth(0);
-            camera->SetClearColor(Color(0, 0, 1, 1));
+            camera->SetClearColor(Color(0.2f, 0.2f, 0.2f, 1));
             camera->SetCullingMask(1 << 0);
 
             this->InitKTXTest();
@@ -341,8 +341,13 @@ void main()
 
         void InitLightTest()
         {
-            auto light = GameObject::Create("light")->AddComponent<Light>();
-            light->GetTransform()->SetRotation(Quaternion::Euler(135, 90, 0));
+            auto light_0 = GameObject::Create("light_0")->AddComponent<Light>();
+            light_0->GetTransform()->SetRotation(Quaternion::Euler(45, 90, 0));
+            light_0->SetColor(Color(0, 0, 1, 1));
+
+            auto light_1 = GameObject::Create("light_1")->AddComponent<Light>();
+            light_1->GetTransform()->SetRotation(Quaternion::Euler(135, 90, 0));
+            light_1->SetColor(Color(1, 0, 0, 1));
 
             auto material = RefMake<Material>(Shader::Find("Diffuse"));
             auto texture = Resources::LoadTexture("texture/checkflag.png.tex");

@@ -121,6 +121,7 @@ namespace Viry3D
 		int GetPassCount() const { return m_passes.Size(); }
 		const Pass& GetPass(int index) const { return m_passes[index]; }
         int GetQueue() const { return m_queue; }
+        bool IsForwardLight() const;
 
 	private:
 		Shader(const String& name);

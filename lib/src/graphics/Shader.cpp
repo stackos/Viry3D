@@ -214,6 +214,18 @@ namespace Viry3D
 		m_passes.Clear();
     }
 
+    bool Shader::IsForwardLight() const
+    {
+        for (int i = 0; i < m_passes.Size(); ++i)
+        {
+            if (m_passes[i].light_mode == LightMode::Forward)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 	static void SetGlobalInt(lua_State* L, const char* key, int value)
 	{
 		lua_pushinteger(L, value);

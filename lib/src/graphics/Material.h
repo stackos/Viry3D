@@ -166,7 +166,7 @@ namespace Viry3D
         virtual ~Material();
         const String& GetShaderName();
         const Ref<Shader>& GetShader();
-        const Ref<Shader>& GetShader(const String& key);
+        const Ref<Shader>& GetShader(const String& key, bool light_add);
         int GetQueue() const;
         void SetQueue(int queue);
         const Matrix4x4* GetMatrix(const String& name) const;
@@ -185,7 +185,7 @@ namespace Viry3D
 		String EnableKeywords(const Vector<String>& keywords);
         void Prepare(int pass = -1);
         void SetScissor(int target_width, int target_height);
-		void Bind(const String& key, int pass);
+		void Bind(const Ref<Shader>& shader, int pass);
         
     private:
         template <class T>
@@ -229,6 +229,7 @@ namespace Viry3D
     private:
         static Ref<Material> m_shared_bounds_material;
         Map<String, ShaderVariant> m_shader_variants;
+        Map<String, ShaderVariant> m_shader_variants_light_add;
         Ref<int> m_queue;
         Map<String, MaterialProperty> m_properties;
         Rect m_scissor_rect;

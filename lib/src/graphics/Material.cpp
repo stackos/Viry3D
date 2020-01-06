@@ -67,6 +67,16 @@ namespace Viry3D
         this->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedWhiteTexture());
 		this->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, 1, 0, 0));
 		this->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
+
+        if (shader->IsForwardLight())
+        {
+            variant.key = shader->GetShaderKey();
+            auto keywords = shader->GetKeywords();
+            keywords.Add("LIGHT_ADD_ON");
+            variant.shader = Shader::Find(this->GetShaderName(), keywords);
+            variant.keywords = keywords;
+            m_shader_variants_light_add.Add(variant.key, variant);
+        }
     }
     
     Material::~Material()
@@ -110,10 +120,17 @@ namespace Viry3D
         return m_shader_variants.begin()->second.shader;
     }
 
-    const Ref<Shader>& Material::GetShader(const String& key)
+    const Ref<Shader>& Material::GetShader(const String& key, bool light_add)
     {
         assert(m_shader_variants.Contains(key));
-        return m_shader_variants[key].shader;
+        if (this->GetShader()->IsForwardLight() && light_add)
+        {
+            return m_shader_variants_light_add[key].shader;
+        }
+        else
+        {
+            return m_shader_variants[key].shader;
+        }
     }
 
     int Material::GetQueue() const
@@ -257,6 +274,16 @@ namespace Viry3D
             variant.keywords = shader->GetKeywords();
             variant.shader = shader;
             m_shader_variants.Add(variant.key, variant);
+
+            if (shader->IsForwardLight())
+            {
+                variant.key = shader->GetShaderKey();
+                auto keywords = shader->GetKeywords();
+                keywords.Add("LIGHT_ADD_ON");
+                variant.shader = Shader::Find(this->GetShaderName(), keywords);
+                variant.keywords = keywords;
+                m_shader_variants_light_add.Add(variant.key, variant);
+            }
         }
         return key;
 	}
@@ -441,10 +468,9 @@ namespace Viry3D
 		driver.setViewportScissor(scissor_left, scissor_bottom, scissor_width, scissor_height);
     }
 
-	void Material::Bind(const String& key, int pass)
+	void Material::Bind(const Ref<Shader>& shader, int pass)
 	{
 		auto& driver = Engine::Instance()->GetDriverApi();
-        const auto& shader = m_shader_variants[key].shader;
 		const auto& unifrom_buffers = m_unifrom_buffers[pass];
 		const auto& samplers = m_samplers[pass];
 

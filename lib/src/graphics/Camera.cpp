@@ -457,8 +457,8 @@ namespace Viry3D
                     {
                         renderer->EnableShaderKeyword("RECIEVE_SHADOW_ON");
                     }
-
-                    const auto& shader = material->GetShader(renderer->GetShaderKey(i));
+                    
+                    const auto& shader = material->GetShader(renderer->GetShaderKey(i), light_add);
 
                     material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
 
@@ -470,7 +470,7 @@ namespace Viry3D
                             continue;
                         }
 
-                        material->Bind(shader->GetShaderKey(), j);
+                        material->Bind(shader, j);
 
                         const auto& pipeline = shader->GetPass(j).pipeline;
                         driver.draw(pipeline, primitive);
@@ -508,7 +508,7 @@ namespace Viry3D
 
             for (int j = 0; j < shader->GetPassCount(); ++j)
             {
-                material->Bind(shader->GetShaderKey(), j);
+                material->Bind(shader, j);
 
                 const auto& pipeline = shader->GetPass(j).pipeline;
                 driver.draw(pipeline, primitive);
@@ -721,7 +721,7 @@ namespace Viry3D
 
 			for (int i = pass_begin; i < pass_end; ++i)
 			{
-				material->Bind(shader->GetShaderKey(), i);
+				material->Bind(shader, i);
 
 				const auto& pipeline = shader->GetPass(i).pipeline;
 				driver.draw(pipeline, primitive);
