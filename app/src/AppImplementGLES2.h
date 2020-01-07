@@ -351,7 +351,7 @@ void main()
             light_0->SetFarClip(5);
             light_0->SetCullingMask(1 << 0);
 
-            /*auto light_1 = GameObject::Create("light_1")->AddComponent<Light>();
+            auto light_1 = GameObject::Create("light_1")->AddComponent<Light>();
             light_1->GetTransform()->SetPosition(Vector3(1, 3, 2));
             light_1->GetTransform()->SetRotation(Quaternion::Euler(45, 240, 0));
             light_1->SetColor(Color(0, 1, 0, 1));
@@ -359,7 +359,7 @@ void main()
             light_1->SetRange(10);
             light_1->EnableShadow(true);
             light_1->SetShadowTextureSize(1024);
-            light_1->SetCullingMask(1 << 0);*/
+            light_1->SetCullingMask(1 << 0);
 
             auto light_2 = GameObject::Create("light_2")->AddComponent<Light>();
             light_2->GetTransform()->SetRotation(Quaternion::Euler(45, 360, 0));

@@ -67,16 +67,6 @@ namespace Viry3D
         this->SetTexture(MaterialProperty::TEXTURE, Texture::GetSharedWhiteTexture());
 		this->SetVector(MaterialProperty::TEXTURE_SCALE_OFFSET, Vector4(1, 1, 0, 0));
 		this->SetColor(MaterialProperty::COLOR, Color(1, 1, 1, 1));
-
-        if (shader->IsForwardLight())
-        {
-            variant.key = shader->GetShaderKey();
-            auto keywords = shader->GetKeywords();
-            keywords.Add("LIGHT_ADD_ON");
-            variant.shader = Shader::Find(this->GetShaderName(), keywords);
-            variant.keywords = keywords;
-            m_shader_variants_light_add.Add(variant.key, variant);
-        }
     }
     
     Material::~Material()
@@ -120,16 +110,22 @@ namespace Viry3D
         return m_shader_variants.begin()->second.shader;
     }
 
-    const Ref<Shader>& Material::GetShader(const String& key, bool light_add)
+    const Ref<Shader>& Material::GetShader(const String& key)
     {
         assert(m_shader_variants.Contains(key));
-        if (this->GetShader()->IsForwardLight() && light_add)
+        return m_shader_variants[key].shader;
+    }
+
+    const Ref<Shader>& Material::GetShader(const Vector<String>& keywords)
+    {
+        if (this->GetShaderName().Size() > 0)
         {
-            return m_shader_variants_light_add[key].shader;
+            auto key = this->EnableKeywords(keywords);
+            return this->GetShader(key);
         }
         else
         {
-            return m_shader_variants[key].shader;
+            return this->GetShader();
         }
     }
 
@@ -274,16 +270,6 @@ namespace Viry3D
             variant.keywords = shader->GetKeywords();
             variant.shader = shader;
             m_shader_variants.Add(variant.key, variant);
-
-            if (shader->IsForwardLight())
-            {
-                variant.key = shader->GetShaderKey();
-                auto keywords = shader->GetKeywords();
-                keywords.Add("LIGHT_ADD_ON");
-                variant.shader = Shader::Find(this->GetShaderName(), keywords);
-                variant.keywords = keywords;
-                m_shader_variants_light_add.Add(variant.key, variant);
-            }
         }
         return key;
 	}

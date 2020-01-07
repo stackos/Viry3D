@@ -453,12 +453,17 @@ namespace Viry3D
 
                 if (primitive)
                 {
+                    auto keywords = renderer->GetShaderKeywords();
                     if (shadow_enable && renderer->IsRecieveShadow())
                     {
-                        renderer->EnableShaderKeyword("RECIEVE_SHADOW_ON");
+                        keywords.Add("RECIEVE_SHADOW_ON");
+                    }
+                    if (light_add)
+                    {
+                        keywords.Add("LIGHT_ADD_ON");
                     }
                     
-                    const auto& shader = material->GetShader(renderer->GetShaderKey(i), light_add);
+                    const auto& shader = material->GetShader(keywords);
 
                     material->SetScissor(this->GetTargetWidth(), this->GetTargetHeight());
 

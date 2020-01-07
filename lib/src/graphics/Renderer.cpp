@@ -118,9 +118,14 @@ namespace Viry3D
         }
     }
 
-    const String& Renderer::GetShaderKey(int material_index)
+    const String& Renderer::GetShaderKey(int material_index) const
     {
         return m_shader_keys[material_index];
+    }
+
+    const Vector<String>& Renderer::GetShaderKeywords() const
+    {
+        return m_shader_keywords;
     }
 
     void Renderer::UpdateShaderKeywords()
