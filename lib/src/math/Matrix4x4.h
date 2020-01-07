@@ -59,6 +59,7 @@ namespace Viry3D
         static Matrix4x4 LookTo(const Vector3& eye_position, const Vector3& to_direction, const Vector3& up_direction);
 		static Matrix4x4 Perspective(float fov, float aspect, float zNear, float zFar);
 		static Matrix4x4 Ortho(float left, float right, float bottom, float top, float zNear, float zFar);
+        static Matrix4x4 ProjectionDepthMapD3D11();
 
 		float m00;
 		float m01;

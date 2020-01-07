@@ -161,13 +161,7 @@ namespace Viry3D
 		// map depth range -1 ~ 1 to 0 ~ 1 for d3d
 		if (Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
 		{
-			Matrix4x4 depth_map_01 = {
-				1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 0.5f, 0.5f,
-				0, 0, 0, 1,
-			};
-			m_view_uniforms.projection_matrix = depth_map_01 * this->GetProjectionMatrix();
+			m_view_uniforms.projection_matrix = Matrix4x4::ProjectionDepthMapD3D11() * this->GetProjectionMatrix();
 		}
 
 		void* buffer = driver.allocate(sizeof(ViewUniforms));

@@ -231,6 +231,17 @@ namespace Viry3D
 		return m;
 	}
 
+    Matrix4x4 Matrix4x4::ProjectionDepthMapD3D11()
+    {
+        Matrix4x4 depth_map_01 = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 0.5f, 0.5f,
+            0, 0, 0, 1,
+        };
+        return depth_map_01;
+    }
+
 	Matrix4x4 Matrix4x4::operator *(const Matrix4x4& mat) const
 	{
 		Matrix4x4 m = Identity();

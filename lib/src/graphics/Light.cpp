@@ -103,6 +103,12 @@ namespace Viry3D
 		view_uniforms.projection_matrix = this->GetProjectionMatrix();
 		view_uniforms.camera_pos = this->GetTransform()->GetPosition();
 
+        // map depth range -1 ~ 1 to 0 ~ 1 for d3d
+        if (Engine::Instance()->GetBackend() == filament::backend::Backend::D3D11)
+        {
+            view_uniforms.projection_matrix = Matrix4x4::ProjectionDepthMapD3D11() * this->GetProjectionMatrix();
+        }
+
 		void* buffer = driver.allocate(sizeof(ViewUniforms));
 		Memory::Copy(buffer, &view_uniforms, sizeof(ViewUniforms));
 		driver.loadUniformBuffer(m_view_uniform_buffer, filament::backend::BufferDescriptor(buffer, sizeof(ViewUniforms)));

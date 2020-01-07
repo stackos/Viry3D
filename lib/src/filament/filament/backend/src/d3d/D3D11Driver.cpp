@@ -916,7 +916,7 @@ namespace filament
 				const auto& samplers = program->info.getSamplerGroupInfo();
 				for (size_t i = 0; i < samplers.size(); ++i)
 				{
-                    if (i == 4) // ps
+                    if (i == 4 || i == 6) // ps
                     {
                         if (m_context->sampler_group_binding[i].sampler_group)
                         {
