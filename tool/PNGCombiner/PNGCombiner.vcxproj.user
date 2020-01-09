@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -a a.png -o o.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -o o.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -a a.png -o o.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -o o.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -a a.png -o o.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -o o.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -a a.png -o o.png</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-r r.png -g g.png -b b.png -o o.png</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

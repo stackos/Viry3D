@@ -66,16 +66,26 @@ int main(int argc, char* argv[])
     // check pathes
     for (size_t i = 0; i < pathes.size(); i++)
     {
-        if (pathes[i].length() == 0)
+        if (pathes[i].length() == 0 && i != ImageType::A)
         {
             printf("Usage: PNGCombiner.exe -r r.png -g g.png -b b.png -a a.png -o o.png\n");
             return 0;
         }
     }
 
+    bool no_alpha = false;
+    if (pathes[ImageType::A].length() == 0)
+    {
+        no_alpha = true;
+    }
+
     // load images
     bool miss_input = false;
     std::vector<Image> images(4);
+    if (no_alpha)
+    {
+        images.resize(3);
+    }
     for (size_t i = 0; i < images.size(); i++)
     {
         images[i].data = stbi_load(pathes[i].c_str(), &images[i].w, &images[i].h, &images[i].c, 0);
@@ -112,8 +122,8 @@ int main(int argc, char* argv[])
         {
             int w = images[0].w;
             int h = images[0].h;
-            int c = 4;
-            stbi_uc* pixels = (stbi_uc*) malloc(w * h * 4);
+            int c = images.size();
+            stbi_uc* pixels = (stbi_uc*) malloc(w * h * c);
             
             // fill pixels
             for (int i = 0; i < c; i++)
